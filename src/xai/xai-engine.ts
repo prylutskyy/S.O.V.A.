@@ -50,6 +50,9 @@ export class XaiEngine {
     const countermeasures = this.getCounters(options);
     const educationalTip = this.getEducationalTip(options);
 
+    // 6. Формування людиноорієнтованого контенту для нетехнічних користувачів
+    const human = this.determineHumanContent(options);
+
     const summary =
       options.type === 'chat'
         ? 'Спроба відкритої передачі банківських реквізитів у чаті'
@@ -57,6 +60,10 @@ export class XaiEngine {
 
     return {
       summary,
+      humanTitle: human.humanTitle,
+      humanSubtitle: human.humanSubtitle,
+      humanCoreWarning: human.humanCoreWarning,
+      humanChecklist: human.humanChecklist,
       riskLevel: options.assessment.level,
       totalScore: options.assessment.score,
       diagnosis,
@@ -387,4 +394,72 @@ export class XaiEngine {
 
     return '💡 Порада XAI: Реальні поштові та фінансові сервіси ніколи не перенаправляють на сторонні домени сумнівної реєстрації. Усі платежі мають проходити через акредитовані шлюзи банків України (НБУ).';
   }
+
+  /**
+   * Спрощений контент простою людською мовою (Human-Centric XAI) для кінцевих користувачів
+   */
+  private static determineHumanContent(options: XaiEvaluationOptions): {
+    humanTitle: string;
+    humanSubtitle: string;
+    humanCoreWarning: string;
+    humanChecklist: { good: string[]; bad: string[] };
+  } {
+    if (options.type === 'chat') {
+      return {
+        humanTitle: '⛔ СТОП! Не надсилайте це повідомлення',
+        humanSubtitle: 'У тексті повідомлення знайдено секретні реквізити вашої банківської картки.',
+        humanCoreWarning:
+          'Для отримання грошей на картку іншій людині потрібен ТІЛЬКИ її 16-значний номер. Якщо надіслати тризначний секретний CVV-код на звороті або термін дії — з вашої картки вкрадуть усі кошти!',
+        humanChecklist: {
+          good: [
+            'Повідомляти лише 16 цифр картки або IBAN рахунок',
+            'Спілкуватися виключно в офіційному чаті маркетплейсу',
+          ],
+          bad: [
+            'Писати CVV/CVC код (3 цифри на звороті картки)',
+            'Повідомляти термін дії або PIN-код',
+            'Передавати одноразові коди з SMS від банку',
+          ],
+        },
+      };
+    }
+
+    if (options.activeContext) {
+      return {
+        humanTitle: '🛑 СТОП! Небезпека крадіжки грошей',
+        humanSubtitle: 'Це шахрайський сайт-підробка, що імітує службу доставки чи оплати.',
+        humanCoreWarning:
+          'Вам надіслали посилання в чаті під виглядом «безпечної угоди» або «отримання оплати». Насправді цей сайт не належить жодній пошті чи банку. Якщо ви введете реквізити своєї картки — з неї спишуть усі збереження!',
+        humanChecklist: {
+          good: [
+            'Пам’ятайте: щоб скинути вам кошти, покупцю потрібен ЛИШЕ номер картки',
+            'Оформлювати доставку та оплату виключно у додатку OLX / Prom / Нової Пошти',
+          ],
+          bad: [
+            'Вводити три секретні цифри CVV на звороті',
+            'Вводити паролі або залишок на картці',
+            'Переходити за посиланнями, надісланими у сторонніх месенджерах (Viber, WhatsApp)',
+          ],
+        },
+      };
+    }
+
+    return {
+      humanTitle: '🛑 СТОП! Небезпечна форма оплати',
+      humanSubtitle: 'Цей сайт не має офіційного банківського захисту для прийому карткових платежів.',
+      humanCoreWarning:
+        'Форма намагається зберегти реквізити вашої банківської картки на сторонній підозрілий сервер без перевіреного шлюзу (LiqPay, Portmone, Stripe). Передача даних призведе до втрати грошей!',
+      humanChecklist: {
+        good: [
+          'Платити лише через ліцензовані платіжні шлюзи з логотипом банку',
+          'Перевіряти точну адресу сайту вгорі браузера перед вводом картки',
+        ],
+        bad: [
+          'Вводити банківські реквізити на незнайомих сайтах',
+          'Ігнорувати попередження системи безпеки',
+        ],
+      },
+    };
+  }
 }
+

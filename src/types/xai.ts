@@ -33,6 +33,10 @@ export interface XaiRiskBreakdown {
 
 export interface XaiExplanation {
   summary: string;
+  humanTitle: string;
+  humanSubtitle: string;
+  humanCoreWarning: string;
+  humanChecklist: { good: string[]; bad: string[] };
   riskLevel: RiskLevel;
   totalScore: number;
   diagnosis: string;
