@@ -1,7 +1,6 @@
 import { ActiveThreatContext, ThreatAssessment } from '../types';
 import { UserWhitelistManager } from '../core/user-whitelist';
 import { XaiEngine } from '../xai/xai-engine';
-import { SvgAttackGraph } from './svg-attack-graph';
 import { ShadowHost } from './shadow-host';
 
 export interface UnifiedModalOptions {
@@ -31,7 +30,7 @@ export class UnifiedFrictionModal {
   public static async show(options: UnifiedModalOptions): Promise<void> {
     this.close();
 
-    // 1. Заборона гортання основної сторінки (Scroll Lock)
+    // 1. Блокування гортання сторінки (Scroll Lock)
     if (this.previousBodyOverflow === null) {
       this.previousBodyOverflow = document.body.style.overflow;
       this.previousHtmlOverflow = document.documentElement.style.overflow;
@@ -39,7 +38,7 @@ export class UnifiedFrictionModal {
     document.body.style.overflow = 'hidden';
     document.documentElement.style.overflow = 'hidden';
 
-    // 2. Створення кореневого елемента всередині ShadowRoot (ізоляція від CSS сайту)
+    // 2. Ізольований контейнер у Shadow DOM
     const modalRoot = document.createElement('div');
     modalRoot.id = 'threat-shield-unified-modal';
 
@@ -56,7 +55,7 @@ export class UnifiedFrictionModal {
       timestamp: Date.now(),
     };
 
-    // 3. Генерація зрозумілого людині пояснення XAI
+    // 3. Генерація лаконічного аналізу через XAI Engine
     const xai = await XaiEngine.generateExplanation({
       type: options.type,
       targetHost: options.contextValue,
@@ -65,20 +64,14 @@ export class UnifiedFrictionModal {
       chatLeakage: options.chatLeakage,
     });
 
-    const reasonsHtml = options.triggers
+    const primaryActionLabel = options.type === 'chat' ? 'Скасувати надсилання' : 'Залишити сторінку';
+    const breakdown = xai.breakdown;
+
+    const reasonsListHtml = options.triggers
       .map(
         (t) => `
-        <div style="
-          font-size: 12px;
-          color: #334155;
-          padding: 6px 10px;
-          background: #f8fafc;
-          border-left: 3px solid #ef4444;
-          border-radius: 4px;
-          margin-bottom: 5px;
-          line-height: 1.4;
-        ">
-          ⚠️ ${t.message}
+        <div style="font-size: 12px; color: #424245; padding: 6px 0; border-bottom: 1px solid #f2f2f7; line-height: 1.45;">
+          ${t.message.replace(/[⚠️🚨💳🔒💬⚡●✓✗]/g, '').trim()}
         </div>
       `
       )
@@ -87,373 +80,258 @@ export class UnifiedFrictionModal {
     const rememberHtml =
       options.allowRememberDomain && options.domainToRemember
         ? `
-        <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #64748b; margin: 12px 0 6px 0; cursor: pointer; user-select: none;">
-          <input type="checkbox" id="threat-modal-remember" style="accent-color: #2563eb; cursor: pointer; width: 15px; height: 15px;">
-          <span>Я знаю цей сайт і хочу додати його до персонального білого списку</span>
+        <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #6e6e73; margin: 12px 0 6px 0; cursor: pointer; user-select: none;">
+          <input type="checkbox" id="threat-modal-remember" style="accent-color: #0071e3; cursor: pointer; width: 14px; height: 14px;">
+          <span>Додати домен <strong>${options.domainToRemember}</strong> до персонального білого списку</span>
         </label>
       `
         : '';
 
-    // Розкладка формули XAI для технічного блоку
-    const breakdown = xai.breakdown;
-    const formulaHtml = `
-      <div style="
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
-        border-radius: 10px;
-        padding: 12px 14px;
-        margin-bottom: 12px;
-      ">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-          <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #475569; letter-spacing: 0.04em;">
-            Декомпозиція індексу ризику: f(R_tech, C_env, A_user)
-          </span>
-          <span style="font-size: 12px; font-weight: 800; color: #dc2626; font-family: ui-monospace, monospace;">
-            ${breakdown.totalScore}/100
-          </span>
-        </div>
-
-        <!-- R_tech -->
-        <div style="margin-bottom: 6px;">
-          <div style="display: flex; justify-content: space-between; font-size: 11px; color: #334155; margin-bottom: 2px;">
-            <span>🔧 <strong>R_tech</strong> (Технічні евристики):</span>
-            <span style="font-weight: 600;">${breakdown.technical.score}/${breakdown.technical.maxScore}</span>
-          </div>
-          <div style="height: 5px; background: #e2e8f0; border-radius: 3px; overflow: hidden;">
-            <div style="height: 100%; width: ${breakdown.technical.percentage}%; background: #3b82f6; border-radius: 3px;"></div>
-          </div>
-        </div>
-
-        <!-- C_env -->
-        <div style="margin-bottom: 6px;">
-          <div style="display: flex; justify-content: space-between; font-size: 11px; color: #334155; margin-bottom: 2px;">
-            <span>🌐 <strong>C_env</strong> (Міжсесійний контекст):</span>
-            <span style="font-weight: 600;">${breakdown.contextual.score}/${breakdown.contextual.maxScore}</span>
-          </div>
-          <div style="height: 5px; background: #e2e8f0; border-radius: 3px; overflow: hidden;">
-            <div style="height: 100%; width: ${breakdown.contextual.percentage}%; background: #f59e0b; border-radius: 3px;"></div>
-          </div>
-        </div>
-
-        <!-- A_user -->
-        <div>
-          <div style="display: flex; justify-content: space-between; font-size: 11px; color: #334155; margin-bottom: 2px;">
-            <span>👤 <strong>A_user</strong> (Намір та дія):</span>
-            <span style="font-weight: 600;">${breakdown.userAction.score}/${breakdown.userAction.maxScore}</span>
-          </div>
-          <div style="height: 5px; background: #e2e8f0; border-radius: 3px; overflow: hidden;">
-            <div style="height: 100%; width: ${breakdown.userAction.percentage}%; background: #ef4444; border-radius: 3px;"></div>
-          </div>
-        </div>
-      </div>
-    `;
-
-    const engineBadgeText =
-      xai.engineType === 'chrome-builtin-ai' ? '⚡ Gemini Nano (On-Device AI)' : '🧠 Adaptive Contextual XAI';
-
+    // Стилі бекдропу (Apple System Ultra-Thin Blur)
     modalRoot.style.cssText = `
       position: fixed !important;
       inset: 0 !important;
       width: 100vw !important;
       height: 100vh !important;
       z-index: 2147483647 !important;
-      background: rgba(15, 23, 42, 0.7) !important;
-      backdrop-filter: blur(8px) !important;
-      -webkit-backdrop-filter: blur(8px) !important;
+      background: rgba(0, 0, 0, 0.38) !important;
+      backdrop-filter: blur(16px) saturate(180%) !important;
+      -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
       display: flex !important;
       align-items: center !important;
       justify-content: center !important;
       padding: 16px !important;
       box-sizing: border-box !important;
-      animation: threatBackdropFade 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      animation: threatBackdropFade 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
       pointer-events: auto !important;
     `;
-
-    // Формуємо списки «Як правильно» та «Ознака шахрайства»
-    const goodListHtml = xai.humanChecklist.good
-      .map((g) => `<li style="margin-bottom: 4px; display: flex; align-items: flex-start; gap: 6px;"><span style="color: #16a34a; font-weight: 700;">✓</span><span>${g}</span></li>`)
-      .join('');
-    const badListHtml = xai.humanChecklist.bad
-      .map((b) => `<li style="margin-bottom: 4px; display: flex; align-items: flex-start; gap: 6px;"><span style="color: #dc2626; font-weight: 700;">✗</span><span>${b}</span></li>`)
-      .join('');
 
     modalRoot.innerHTML = `
       <div id="threat-modal-card" style="
         background: #ffffff !important;
         width: 100% !important;
-        max-width: 520px !important;
-        border-radius: 20px !important;
-        box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.35), 0 0 0 1px rgba(226, 232, 240, 0.9) !important;
+        max-width: 440px !important;
+        border-radius: 18px !important;
+        box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.28), 0 0 0 1px rgba(0, 0, 0, 0.08) !important;
         overflow: hidden !important;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
+        font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
         animation: threatModalScale 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
-        color: #0f172a !important;
+        color: #1d1d1f !important;
         display: flex !important;
         flex-direction: column !important;
+        padding: 28px 28px 22px 28px !important;
+        box-sizing: border-box !important;
       ">
-        <!-- ВЕРХНЯ ЧАСТИНА (ГОЛОВНЕ ПОПЕРЕДЖЕННЯ ДЛЯ ЛЮДИНИ) -->
+        <!-- ГОЛОВНА ІКОНКА (ВЕКТОРНИЙ ЩИТ У СТИЛІ SF SYMBOLS) -->
         <div style="
-          padding: 20px 22px 16px 22px !important;
-          display: flex !important;
-          align-items: flex-start !important;
-          justify-content: space-between !important;
-          border-bottom: 1px solid #f1f5f9 !important;
-          background: #fff5f5 !important;
+          width: 48px;
+          height: 48px;
+          border-radius: 50%;
+          background: rgba(215, 0, 21, 0.08);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin: 0 auto 16px auto;
         ">
-          <div style="display: flex; align-items: flex-start; gap: 14px;">
-            <div style="
-              width: 44px;
-              height: 44px;
-              border-radius: 12px;
-              background: #fee2e2;
-              border: 1px solid #fca5a5;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              font-size: 24px;
-              flex-shrink: 0;
-            ">🛑</div>
-            <div>
-              <div style="font-size: 19px; font-weight: 800; color: #991b1b; line-height: 1.25;">
-                ${xai.humanTitle}
-              </div>
-              <div style="font-size: 13.5px; color: #475569; margin-top: 4px; font-weight: 500; line-height: 1.4;">
-                ${xai.humanSubtitle}
-              </div>
-            </div>
-          </div>
-
-          <button id="threat-modal-close-btn" type="button" title="Закрити та зберегти гроші" style="
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
-            border: none;
-            background: rgba(0,0,0,0.05);
-            color: #64748b;
-            cursor: pointer;
-            font-size: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.15s;
-            flex-shrink: 0;
-          ">✕</button>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#d70015" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
         </div>
 
-        <!-- ОСНОВНА ЧАСТИНА: ЗРОЗУМІЛЕ ЖИТТЄВЕ ПОЯСНЕННЯ (16px) -->
-        <div style="padding: 20px 22px; max-height: 68vh; overflow-y: auto;">
-          
-          <!-- Головний блок застереження -->
-          <div style="
-            background: #fef2f2;
-            border: 1px solid #fecaca;
-            border-radius: 12px;
-            padding: 14px 16px;
-            margin-bottom: 14px;
+        <!-- ЗАГОЛОВОК ДІАЛОГУ -->
+        <div style="
+          font-size: 18px;
+          font-weight: 600;
+          color: #1d1d1f;
+          text-align: center;
+          letter-spacing: -0.015em;
+          line-height: 1.3;
+          margin-bottom: 10px;
+        ">
+          ${xai.humanTitle}
+        </div>
+
+        <!-- ОСНОВНЕ ПОВІДОМЛЕННЯ ШІ (ГОЛОВНИЙ ТЕКСТ ВІКНА) -->
+        <div style="
+          font-size: 14px;
+          line-height: 1.55;
+          color: #424245;
+          text-align: center;
+          letter-spacing: -0.01em;
+          margin-bottom: 20px;
+        ">
+          ${xai.humanCoreWarning}
+        </div>
+
+        <!-- КОНТЕКСТНИЙ РЯДОК (ХОСТ + РІВЕНЬ РИЗИКУ) -->
+        <div style="
+          background: #f5f5f7;
+          border-radius: 10px;
+          padding: 9px 14px;
+          margin-bottom: 20px;
+          font-size: 12px;
+          color: #6e6e73;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        ">
+          <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 250px;">
+            Вузол: <strong style="color: #1d1d1f; font-family: ui-monospace, SFMono-Regular, monospace; font-size: 12px;">${options.contextValue}</strong>
+          </span>
+          <span style="font-weight: 600; color: #d70015; white-space: nowrap;">
+            Ризик: ${fallbackAssessment.score}/100
+          </span>
+        </div>
+
+        <!-- ГОЛОВНА РЯТІВНА ДІЯ (APPLE FILL BUTTON) -->
+        <button id="threat-modal-primary-btn" type="button" style="
+          width: 100%;
+          height: 42px;
+          background: #0071e3;
+          color: #ffffff;
+          border: none;
+          border-radius: 10px;
+          font-size: 14px;
+          font-weight: 500;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: background 0.15s;
+          margin-bottom: 12px;
+        ">
+          ${primaryActionLabel}
+        </button>
+
+        <!-- ДРУГОРЯДНИЙ РЯДОК ДІЙ -->
+        <div style="
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          font-size: 12.5px;
+          padding: 0 4px;
+        ">
+          <button id="threat-modal-inspect-toggle-btn" type="button" style="
+            background: transparent;
+            border: none;
+            color: #0071e3;
+            font-size: 12.5px;
+            font-weight: 400;
+            cursor: pointer;
+            padding: 4px 0;
+            transition: opacity 0.15s;
           ">
-            <div style="font-size: 14.5px; font-weight: 700; color: #991b1b; line-height: 1.5; margin-bottom: 8px;">
-              ⚠️ ${xai.humanCoreWarning}
-            </div>
-            
-            <div style="font-size: 12px; color: #64748b; background: rgba(255,255,255,0.7); padding: 6px 10px; border-radius: 6px; word-break: break-all;">
-              🌐 Адреса сайту: <strong style="color: #0f172a; font-family: ui-monospace, monospace;">${options.contextValue}</strong> (не є офіційним платіжним сервісом)
-            </div>
-          </div>
+            Докладніше про оцінку
+          </button>
 
-          <!-- Світлофор: Правильно vs Шахрайство -->
-          <div style="
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 16px;
+          <button id="threat-modal-override-btn" type="button" disabled style="
+            background: transparent;
+            border: none;
+            color: #86868b;
+            font-size: 12.5px;
+            font-weight: 400;
+            cursor: not-allowed;
+            padding: 4px 0;
+            transition: color 0.15s;
           ">
-            <!-- Зелений блок -->
-            <div style="
-              background: #f0fdf4;
-              border: 1px solid #bbf7d0;
-              border-radius: 10px;
-              padding: 12px 14px;
-            ">
-              <div style="font-size: 12px; font-weight: 700; color: #15803d; margin-bottom: 8px; display: flex; align-items: center; gap: 4px;">
-                <span>🟢 Як безпечно:</span>
-              </div>
-              <ul style="margin: 0; padding: 0; list-style: none; font-size: 12px; color: #166534; line-height: 1.4;">
-                ${goodListHtml}
-              </ul>
-            </div>
+            Продовжити (3с)...
+          </button>
+        </div>
 
-            <!-- Червоний блок -->
-            <div style="
-              background: #fff1f2;
-              border: 1px solid #fecdd3;
-              border-radius: 10px;
-              padding: 12px 14px;
-            ">
-              <div style="font-size: 12px; font-weight: 700; color: #b91c1c; margin-bottom: 8px; display: flex; align-items: center; gap: 4px;">
-                <span>🔴 Ознаки обману:</span>
-              </div>
-              <ul style="margin: 0; padding: 0; list-style: none; font-size: 12px; color: #991b1b; line-height: 1.4;">
-                ${badListHtml}
-              </ul>
+        <!-- РОЗКРИВНИЙ ТЕХНІЧНИЙ ІНСПЕКТОР XAI (ДЛЯ АУДИТУ ТА ДИПЛОМА) -->
+        <div id="threat-modal-inspector-panel" style="
+          display: none;
+          background: #fbfbfd;
+          border: 1px solid #e5e5ea;
+          border-radius: 12px;
+          padding: 14px 16px;
+          margin-top: 14px;
+          font-size: 12px;
+          color: #424245;
+          animation: threatBackdropFade 0.2s ease-in-out;
+        ">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <span style="font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: #86868b;">
+              Математична декомпозиція: f(R, C, A)
+            </span>
+            <span style="font-size: 11px; font-weight: 600; color: #6e6e73;">
+              ${xai.engineType === 'chrome-builtin-ai' ? 'Gemini Nano' : 'Adaptive XAI'}
+            </span>
+          </div>
+
+          <!-- R_tech progress -->
+          <div style="margin-bottom: 6px;">
+            <div style="display: flex; justify-content: space-between; font-size: 11.5px; margin-bottom: 2px;">
+              <span>R_tech (Евристики форми):</span>
+              <span style="font-weight: 600;">${breakdown.technical.score}/${breakdown.technical.maxScore}</span>
+            </div>
+            <div style="height: 4px; background: #e5e5ea; border-radius: 2px; overflow: hidden;">
+              <div style="height: 100%; width: ${breakdown.technical.percentage}%; background: #0071e3; border-radius: 2px;"></div>
             </div>
           </div>
 
-          <!-- ГОЛОВНА ВЕЛИКА РЯТІВНА КНОПКА (ESCAPE HATCH) -->
-          <div style="margin-bottom: 14px;">
-            <button id="threat-modal-primary-save-btn" type="button" style="
-              width: 100%;
-              background: #0f172a;
-              color: #ffffff;
-              border: none;
-              padding: 14px 20px;
-              border-radius: 12px;
-              font-size: 15px;
-              font-weight: 700;
-              cursor: pointer;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              gap: 10px;
-              box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.25);
-              transition: transform 0.15s, background 0.15s;
-            ">
-              <span>🛡️ Зберегти гроші (Закрити сторінку)</span>
-            </button>
-          </div>
-
-          <!-- РОЗКРИВНИЙ БЛОК: ТЕХНІЧНИЙ АНАЛІЗ ТА XAI ДЛЯ ФАХІВЦІВ / ДИПЛОМА -->
-          <div style="text-align: center; margin-bottom: 6px;">
-            <button id="threat-modal-toggle-details" type="button" style="
-              background: transparent;
-              border: none;
-              color: #2563eb;
-              font-size: 12px;
-              font-weight: 600;
-              cursor: pointer;
-              display: inline-flex;
-              align-items: center;
-              gap: 4px;
-              padding: 6px 10px;
-              border-radius: 6px;
-              transition: background 0.15s;
-            ">
-              <span id="threat-details-label">🔍 Показати технічний аналіз та формулу ризику</span>
-              <span id="threat-details-arrow" style="font-size: 10px; transition: transform 0.2s;">▼</span>
-            </button>
-          </div>
-
-          <!-- ПРИХОВАНИЙ ТЕХНІЧНИЙ БЛОК (PROGRESSIVE DISCLOSURE) -->
-          <div id="threat-modal-details-panel" style="
-            display: none;
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 14px;
-            margin-top: 8px;
-            animation: threatBackdropFade 0.2s ease-in-out;
-          ">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-              <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #dc2626; background: #fee2e2; padding: 2px 7px; border-radius: 4px;">
-                ${options.badgeText}
-              </span>
-              <span style="font-size: 11px; font-weight: 600; color: #64748b;">
-                ${engineBadgeText}
-              </span>
+          <!-- C_env progress -->
+          <div style="margin-bottom: 6px;">
+            <div style="display: flex; justify-content: space-between; font-size: 11.5px; margin-bottom: 2px;">
+              <span>C_env (Міжсесійний перехід):</span>
+              <span style="font-weight: 600;">${breakdown.contextual.score}/${breakdown.contextual.maxScore}</span>
             </div>
-
-            <div style="font-size: 12px; color: #334155; margin-bottom: 10px; line-height: 1.4;">
-              🎯 <strong>Діагноз моделі:</strong> ${xai.diagnosis}
-            </div>
-
-            <!-- SVG граф вектора атаки -->
-            <div id="threat-modal-graph-slot"></div>
-
-            <!-- Математична декомпозиція ризику -->
-            ${formulaHtml}
-
-            <!-- Список технічних евристик -->
-            <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #64748b; margin-bottom: 6px;">
-              Спрацьовані тригери безпеки:
-            </div>
-            ${reasonsHtml}
-
-            <!-- Пояснення нейромережі / синтезатора -->
-            <div style="
-              background: #eff6ff;
-              border: 1px solid #bfdbfe;
-              border-radius: 8px;
-              padding: 10px 12px;
-              font-size: 12px;
-              color: #1e40af;
-              margin-top: 10px;
-              line-height: 1.45;
-            ">
-              ${xai.plainLanguageExplanation}
-            </div>
-
-            <!-- Освітня порада -->
-            <div style="font-size: 11px; color: #64748b; margin-top: 8px; line-height: 1.4; border-left: 2px solid #3b82f6; padding-left: 8px;">
-              ${xai.educationalTip}
+            <div style="height: 4px; background: #e5e5ea; border-radius: 2px; overflow: hidden;">
+              <div style="height: 100%; width: ${breakdown.contextual.percentage}%; background: #ff9500; border-radius: 2px;"></div>
             </div>
           </div>
+
+          <!-- A_user progress -->
+          <div style="margin-bottom: 10px;">
+            <div style="display: flex; justify-content: space-between; font-size: 11.5px; margin-bottom: 2px;">
+              <span>A_user (Дія та намір):</span>
+              <span style="font-weight: 600;">${breakdown.userAction.score}/${breakdown.userAction.maxScore}</span>
+            </div>
+            <div style="height: 4px; background: #e5e5ea; border-radius: 2px; overflow: hidden;">
+              <div style="height: 100%; width: ${breakdown.userAction.percentage}%; background: #d70015; border-radius: 2px;"></div>
+            </div>
+          </div>
+
+          <!-- Спрацьовані тригери -->
+          <div style="font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: #86868b; margin: 10px 0 4px 0;">
+            Фактори виявлення:
+          </div>
+          ${reasonsListHtml}
 
           ${rememberHtml}
-
-          <!-- ДРУГОРЯДНА НЕБЕЗПЕЧНА ДІЯ (ДЛЯ УСВІДОМЛЕНОГО РИЗИКУ) -->
-          <div style="margin-top: 12px; text-align: center;">
-            <button id="threat-modal-override-btn" type="button" disabled style="
-              background: transparent;
-              color: #94a3b8;
-              border: 1px solid #cbd5e1;
-              padding: 8px 14px;
-              border-radius: 8px;
-              font-size: 12px;
-              font-weight: 500;
-              cursor: not-allowed;
-              transition: all 0.2s;
-            ">⏳ Зачекайте (3с)...</button>
-          </div>
-
         </div>
       </div>
     `;
 
-    // Монтуємо модальне вікно в ізольований ShadowRoot
+    // Монтування всередину ShadowRoot
     ShadowHost.append(modalRoot);
     this.activeModal = modalRoot;
 
-    // Вставляємо динамічний SVG граф у технічний слот
-    const graphSlot = modalRoot.querySelector('#threat-modal-graph-slot');
-    if (graphSlot) {
-      const graphElement = SvgAttackGraph.render(xai.chain);
-      graphSlot.appendChild(graphElement);
-    }
-
-    // Обробники кнопок
-    const btnClose = modalRoot.querySelector('#threat-modal-close-btn');
-    const btnPrimarySave = modalRoot.querySelector('#threat-modal-primary-save-btn');
+    // Обробники
+    const btnPrimary = modalRoot.querySelector('#threat-modal-primary-btn');
     const btnOverride = modalRoot.querySelector('#threat-modal-override-btn') as HTMLButtonElement;
+    const btnInspectToggle = modalRoot.querySelector('#threat-modal-inspect-toggle-btn');
+    const inspectorPanel = modalRoot.querySelector('#threat-modal-inspector-panel') as HTMLElement;
     const checkRemember = modalRoot.querySelector('#threat-modal-remember') as HTMLInputElement;
 
-    // Тогл технічного розкривного блоку (Progressive Disclosure)
-    const btnToggleDetails = modalRoot.querySelector('#threat-modal-toggle-details');
-    const panelDetails = modalRoot.querySelector('#threat-modal-details-panel') as HTMLElement;
-    const labelDetails = modalRoot.querySelector('#threat-details-label');
-    const arrowDetails = modalRoot.querySelector('#threat-details-arrow') as HTMLElement;
+    // Hover ефект на головну кнопку
+    btnPrimary?.addEventListener('mouseenter', () => {
+      (btnPrimary as HTMLElement).style.background = '#0077ed';
+    });
+    btnPrimary?.addEventListener('mouseleave', () => {
+      (btnPrimary as HTMLElement).style.background = '#0071e3';
+    });
 
-    let isDetailsOpen = false;
-    btnToggleDetails?.addEventListener('click', () => {
-      isDetailsOpen = !isDetailsOpen;
-      if (panelDetails) {
-        panelDetails.style.display = isDetailsOpen ? 'block' : 'none';
+    let isInspectorOpen = false;
+    btnInspectToggle?.addEventListener('click', () => {
+      isInspectorOpen = !isInspectorOpen;
+      if (inspectorPanel) {
+        inspectorPanel.style.display = isInspectorOpen ? 'block' : 'none';
       }
-      if (labelDetails) {
-        labelDetails.textContent = isDetailsOpen
-          ? '▲ Сховати технічний аналіз'
-          : '🔍 Показати технічний аналіз та формулу ризику';
-      }
-      if (arrowDetails) {
-        arrowDetails.style.transform = isDetailsOpen ? 'rotate(180deg)' : 'rotate(0deg)';
+      if (btnInspectToggle) {
+        btnInspectToggle.textContent = isInspectorOpen ? 'Приховати деталі' : 'Докладніше про оцінку';
       }
     });
 
@@ -462,10 +340,9 @@ export class UnifiedFrictionModal {
       options.onCancel();
     };
 
-    btnClose?.addEventListener('click', handleCancel);
-    btnPrimarySave?.addEventListener('click', handleCancel);
+    btnPrimary?.addEventListener('click', handleCancel);
 
-    // Клік по бекдропу за межами картки закриває та рятує
+    // Клік по бекдропу закриває та рятує
     modalRoot.addEventListener('click', (e) => {
       if (e.target === modalRoot) {
         handleCancel();
@@ -495,22 +372,17 @@ export class UnifiedFrictionModal {
       { passive: false }
     );
 
-    // 3-секундний когнітивний таймер усвідомлення (Security Friction)
+    // 3-секундний когнітивний таймер для розблокування небезпечної дії
     let timeLeft = 3;
     this.countdownInterval = window.setInterval(() => {
       timeLeft--;
       if (timeLeft > 0) {
-        btnOverride.innerText = `⏳ Зачекайте (${timeLeft}с)...`;
+        btnOverride.innerText = `Продовжити (${timeLeft}с)...`;
       } else {
         if (this.countdownInterval) clearInterval(this.countdownInterval);
         btnOverride.disabled = false;
-        btnOverride.innerText =
-          options.type === 'chat'
-            ? 'Я розумію ризик і все одно хочу надіслати'
-            : 'Я розумію ризик втрати коштів, продовжити';
-        btnOverride.style.color = '#dc2626';
-        btnOverride.style.borderColor = '#fca5a5';
-        btnOverride.style.background = '#fff5f5';
+        btnOverride.innerText = 'Продовжити на свій ризик';
+        btnOverride.style.color = '#d70015';
         btnOverride.style.cursor = 'pointer';
       }
     }, 1000);
