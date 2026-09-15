@@ -7,6 +7,8 @@ import {
 } from '../src/heuristics/input-detector';
 import { scanTextForLures } from '../src/heuristics/lure-detector';
 import { isWhitelisted, isMonitoredPlatform } from '../src/core/whitelist';
+import { isAccreditedPaymentGateway } from '../src/core/payment-gateways';
+import { UserWhitelistManager } from '../src/core/user-whitelist';
 import { RiskEngine } from '../src/core/risk-engine';
 import { SecurityFriction } from '../src/ui/friction';
 import { ActiveThreatContext, HeuristicResult } from '../src/types';
@@ -17,6 +19,9 @@ export default defineContentScript({
     const currentHost = window.location.hostname.toLowerCase();
     console.log('[ThreatShield:Content] Ініціалізація на хості:', currentHost || 'local file');
 
+    // Перевірка, чи домен вже додано користувачем до персонального білого списку
+    const isUserAllowed = await UserWhitelistManager.isDomainAllowed(currentHost);
+
     let activeContext: ActiveThreatContext | null = null;
 
     // 1. Запит до Background Worker щодо наявності активного контексту (Tainted Context Window)
@@ -26,8 +31,8 @@ export default defineContentScript({
         activeContext = response.context;
         console.log('[ThreatShield:Content] Отримано активний контекст загрози:', activeContext);
 
-        // Якщо сайт не в Whitelist і це сторонній ресурс — показуємо банер
-        if (!isWhitelisted(currentHost) && currentHost !== activeContext.sourcePlatform) {
+        // Якщо сайт не в Whitelist, не в UserWhitelist і це сторонній ресурс — показуємо банер
+        if (!isWhitelisted(currentHost) && !isUserAllowed && currentHost !== activeContext.sourcePlatform) {
           SecurityFriction.showContextWarningBanner(activeContext);
         }
       }
@@ -152,18 +157,43 @@ export default defineContentScript({
       true
     );
 
-    // 4. Прослуховування подій форм (submit) з перевіркою фактичного заповнення даних
+    // 4. Прослуховування подій форм (submit)
     document.addEventListener(
       'submit',
-      (event) => {
+      async (event) => {
         const form = event.target as HTMLFormElement;
         if (!form || !(form instanceof HTMLFormElement)) {
           return;
         }
 
-        const heuristics: HeuristicResult[] = [];
+        // Якщо користувач вже свідомо розблокував цю форму в модальному вікні — дозволяємо відправку
+        if (form.dataset.threatShieldApproved === 'true') {
+          console.log('[ThreatShield:Content] Відправку форми дозволено (свідоме розблокування користувачем).');
+          delete form.dataset.threatShieldApproved;
+          return;
+        }
 
-        // Перевіряємо фактичний стан заповнення полів форми
+        const rawAction = form.getAttribute('action') || form.action;
+        let targetHost = currentHost;
+        try {
+          if (rawAction && rawAction !== '#') {
+            targetHost = new URL(rawAction, window.location.href).hostname.toLowerCase();
+          }
+        } catch {}
+
+        // Якщо цільовий домен форми знаходиться у білому списку користувача — дозволяємо
+        if (await UserWhitelistManager.isDomainAllowed(targetHost)) {
+          console.log(`[ThreatShield:Content] Домен ${targetHost} знаходиться у персональному білому списку користувача.`);
+          return;
+        }
+
+        // Якщо цільовий домен форми є акредитованим платіжним шлюзом — дозволяємо
+        if (isAccreditedPaymentGateway(targetHost)) {
+          console.log(`[ThreatShield:Content] Форма надсилає дані на акредитований платіжний шлюз (${targetHost}). Дозволено.`);
+          return;
+        }
+
+        const heuristics: HeuristicResult[] = [];
         const formState = getFormFilledState(form);
 
         // Евристика 1: Розбіжність form.action
@@ -196,7 +226,7 @@ export default defineContentScript({
           });
         }
 
-        // Розрахунок Risk Score з урахуванням намірів користувача (A_user)
+        // Розрахунок Risk Score
         const assessment = RiskEngine.evaluate(
           heuristics,
           {
@@ -216,12 +246,12 @@ export default defineContentScript({
           formState,
         });
 
-        // Блокуємо ТІЛЬКИ якщо рівень загрози CRITICAL (або HIGH при наявності заповнених даних)
-        // Якщо користувач навмисно очистив поля картки, assessment.level буде LOW/MEDIUM!
+        // Блокуємо та відкриваємо модальне вікно Security Friction
         if (assessment.level === 'CRITICAL' || (assessment.level === 'HIGH' && formState.hasFilledAnySensitive)) {
           event.preventDefault();
           event.stopPropagation();
 
+          // Викликаємо сучасне модальне вікно Security Friction з таймером усвідомлення
           SecurityFriction.apply(form, assessment);
 
           chrome.runtime.sendMessage({
@@ -232,7 +262,7 @@ export default defineContentScript({
             },
           });
         } else {
-          console.log('[ThreatShield:Content] Сабміт дозволено: платіжні чи облікові дані не передаються.');
+          console.log('[ThreatShield:Content] Сабміт дозволено: загроза нижче критичного порогу.');
         }
       },
       true

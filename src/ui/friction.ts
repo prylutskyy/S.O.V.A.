@@ -1,16 +1,24 @@
 import { ActiveThreatContext, ThreatAssessment } from '../types';
+import { FrictionModal } from './friction-modal';
 
 export class SecurityFriction {
   /**
-   * Застосування адаптивного тертя (Security Friction)
+   * Застосування адаптивного тертя (Security Friction) через модальне вікно усвідомленого підтвердження
    */
-  public static apply(form: HTMLFormElement, assessment: ThreatAssessment): void {
-    const reasons = assessment.triggers.map((t) => `• ${t.message}`).join('\n');
-    const contextNote = assessment.contextActive
-      ? '\n⚠️ УВАГА: Враховано контекст попереднього спілкування (спроба виведення з маркетплейсу/чату)!'
-      : '';
-
-    const warningMessage = `⚠️ [УВАГА: СИСТЕМА ЗАХИСТУ ВЕБЗАГРОЗ]\n\nРівень ризику: ${assessment.level} (${assessment.score}/100)${contextNote}\n\nВиявлені ознаки фішингу або соціальної інженерії:\n${reasons}\n\nДію заблоковано для запобігання втрати конфіденційних або платіжних даних!`;
+  public static apply(
+    form: HTMLFormElement,
+    assessment: ThreatAssessment,
+    onProceedCallback?: () => void
+  ): void {
+    let targetHost = window.location.hostname;
+    const rawAction = form.getAttribute('action') || form.action;
+    try {
+      if (rawAction) {
+        targetHost = new URL(rawAction, window.location.href).hostname;
+      }
+    } catch {
+      // fallback
+    }
 
     // Візуальне маркування форми
     if (assessment.level === 'CRITICAL') {
@@ -22,35 +30,31 @@ export class SecurityFriction {
       form.style.backgroundColor = 'rgba(245, 158, 11, 0.05)';
     }
 
-    // Тимчасове блокування кнопки сабміту (Security Friction)
-    const submitBtn = form.querySelector<HTMLButtonElement | HTMLInputElement>(
-      'button[type="submit"], input[type="submit"]'
-    );
+    // Виклик сучасного модального вікна замість alert()
+    FrictionModal.show({
+      assessment,
+      targetHost,
+      onProceed: () => {
+        // Користувач свідомо підтвердив довіру до сайту
+        console.log('[ThreatShield] Користувач усвідомлено розблокував дію');
+        form.dataset.threatShieldApproved = 'true';
+        form.style.outline = '2px solid #22c55e';
 
-    if (submitBtn) {
-      const originalText = submitBtn instanceof HTMLInputElement ? submitBtn.value : submitBtn.innerText;
-      const originalDisabled = submitBtn.disabled;
-
-      submitBtn.disabled = true;
-      if (submitBtn instanceof HTMLInputElement) {
-        submitBtn.value = `⛔ Блоковано (${assessment.score}%)`;
-      } else {
-        submitBtn.innerText = `⛔ Блоковано (${assessment.score}%)`;
-      }
-
-      // Дозволити повторну спробу через 5 секунд (тертя безпеки)
-      setTimeout(() => {
-        submitBtn.disabled = originalDisabled;
-        if (submitBtn instanceof HTMLInputElement) {
-          submitBtn.value = originalText;
+        if (onProceedCallback) {
+          onProceedCallback();
         } else {
-          submitBtn.innerText = originalText;
+          // Повторне відправлення форми в легітимному режимі
+          if (typeof form.requestSubmit === 'function') {
+            form.requestSubmit();
+          } else {
+            form.submit();
+          }
         }
-      }, 5000);
-    }
-
-    // Сповіщення користувача
-    alert(warningMessage);
+      },
+      onCancel: () => {
+        console.log('[ThreatShield] Користувач скасував потенційно небезпечну дію');
+      },
+    });
   }
 
   /**
