@@ -19,17 +19,7 @@ export class SecurityFriction {
       }
     } catch {}
 
-    // Візуальне маркування форми
-    if (assessment.level === 'CRITICAL') {
-      form.style.outline = '3px solid #ef4444';
-      form.style.backgroundColor = 'rgba(239, 68, 68, 0.04)';
-      form.style.transition = 'all 0.3s ease';
-    } else if (assessment.level === 'HIGH') {
-      form.style.outline = '2px dashed #f59e0b';
-      form.style.backgroundColor = 'rgba(245, 158, 11, 0.04)';
-    }
-
-    // Виклик універсального центрованого модального вікна
+    // Чистий Дзен: жодного втручання в інлайн-стилі форми чи сторінки
     UnifiedFrictionModal.show({
       type: 'form',
       title: 'Призупинено відправку форми',
@@ -43,7 +33,6 @@ export class SecurityFriction {
       onProceed: () => {
         console.log('[ThreatShield] Користувач усвідомлено розблокував відправку форми');
         form.dataset.threatShieldApproved = 'true';
-        form.style.outline = '2px solid #22c55e';
 
         if (onProceedCallback) {
           onProceedCallback();
@@ -99,7 +88,6 @@ export class SecurityFriction {
       onProceed: () => {
         console.log('[ThreatShield] Користувач свідомо розблокував відправку повідомлення в чаті');
         chatInput.dataset.threatShieldApproved = 'true';
-        chatInput.style.outline = '2px solid #22c55e';
         onProceed();
       },
       onCancel: () => {

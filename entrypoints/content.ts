@@ -361,18 +361,5 @@ export default defineContentScript({
         }
       });
     }
-
-    // Моніторинг фокусу на чутливих полях
-    document.addEventListener('focusin', (event) => {
-      const target = event.target as HTMLElement;
-      if (target && target.tagName === 'INPUT') {
-        const input = target as HTMLInputElement;
-        if (input.type === 'password' || /(card|cvv|pin)/i.test(input.name || input.id)) {
-          if (activeContext && !isWhitelisted(currentHost)) {
-            input.style.border = '2px solid #ea580c';
-          }
-        }
-      }
-    });
   },
 });
