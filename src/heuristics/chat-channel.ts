@@ -41,7 +41,36 @@ export class ChatChannelMonitor {
       return 'outbound';
     }
 
-    // 2. Селектори класів та дата-атрибутів популярних чатів та маркетплейсів
+    // 2. Специфічні атрибути продакшн-платформи OLX (React/Next.js)
+    const isOlxSent = element.closest(
+      '[data-testid="sent-message"], [data-cy="sent-message"], [data-nx-name="SentChatMessage"]'
+    );
+    if (isOlxSent) return 'outbound';
+
+    const isOlxReceived = element.closest(
+      '[data-testid="received-message"], [data-cy="received-message"], [data-nx-name="ReceivedChatMessage"]'
+    );
+    if (isOlxReceived) return 'inbound';
+
+    // 3. Семантичний атрибут aria-label
+    const ariaLabel = (
+      element.getAttribute('aria-label') ||
+      element.closest('[aria-label]')?.getAttribute('aria-label') ||
+      ''
+    ).toLowerCase();
+
+    if (ariaLabel.includes('ваше повідомлення') || ariaLabel.includes('your message')) {
+      return 'outbound';
+    }
+    if (
+      ariaLabel.includes('повідомлення, надіслане') ||
+      ariaLabel.includes('повідомлення від') ||
+      ariaLabel.includes('received message')
+    ) {
+      return 'inbound';
+    }
+
+    // 4. Селектори класів та дата-атрибутів популярних чатів та маркетплейсів
     const classStr = typeof element.className === 'string' ? element.className : (element.getAttribute('class') || '');
     const classAndAttr = (classStr + ' ' + (element.getAttribute('data-direction') || '') + ' ' + (element.getAttribute('data-author') || '')).toLowerCase();
 
@@ -71,7 +100,7 @@ export class ChatChannelMonitor {
       return 'inbound';
     }
 
-    // 3. Евристика геометричного вирівнювання (CSS Flex / Margin Alignment)
+    // 5. Евристика геометричного вирівнювання (CSS Flex / Margin Alignment)
     try {
       const style = window.getComputedStyle(element);
       if (
@@ -140,10 +169,24 @@ export class ChatChannelMonitor {
    * Сканування контейнера з розмежуванням вхідних/вихідних елементів
    */
   public static scanContainer(container: HTMLElement): void {
+    const selector = [
+      '[data-testid="received-message"]',
+      '[data-testid="sent-message"]',
+      '[data-nx-name="ReceivedChatMessage"]',
+      '[data-nx-name="SentChatMessage"]',
+      '[data-cy="received-message"]',
+      '[data-cy="sent-message"]',
+      '.chat-msg',
+      '.message',
+      '[role="row"]',
+      '.bubble',
+      'li',
+    ].join(', ');
+
     // Шукаємо потенційні повідомлення
-    const candidates = container.matches('.chat-msg, .message, [role="row"], .bubble, li, div')
-      ? [container, ...Array.from(container.querySelectorAll<HTMLElement>('.chat-msg, .message, [role="row"], .bubble, li, div'))]
-      : Array.from(container.querySelectorAll<HTMLElement>('.chat-msg, .message, [role="row"], .bubble, li, div'));
+    const candidates = container.matches(selector)
+      ? [container, ...Array.from(container.querySelectorAll<HTMLElement>(selector))]
+      : Array.from(container.querySelectorAll<HTMLElement>(selector));
 
     for (const el of candidates) {
       if (this.processedElements.has(el)) continue;
@@ -155,9 +198,10 @@ export class ChatChannelMonitor {
       if (direction === 'inbound') {
         this.processedElements.add(el);
         this.processInboundMessage(el);
+      } else if (direction === 'outbound') {
+        // Позначаємо як оброблене, щоб не витрачати ресурс на повторний аналіз
+        this.processedElements.add(el);
       }
-      // Якщо це вихідний драфт користувача:
-      // Ми НЕ чіпаємо його тут, адже він моніториться слухачами 'input' / 'keydown' у реальному часі!
     }
   }
 
@@ -166,7 +210,17 @@ export class ChatChannelMonitor {
    * Сканує ВИКЛЮЧНО на соцінженерні приманки (lures), але НЕ блокує за наявність картки!
    */
   private static processInboundMessage(element: HTMLElement): void {
-    const text = element.innerText?.trim() || '';
+    const textEl = element.querySelector<HTMLElement>('[data-testid="message"], [data-nx-name="TextContainer"], .bubble') || element;
+    let text = textEl.innerText?.trim() || element.innerText?.trim() || '';
+    
+    // Додаємо прямі посилання з тегів <a>, якщо вони не відображаються відкритим текстом
+    const links = Array.from(element.querySelectorAll<HTMLAnchorElement>('a[href]'));
+    for (const a of links) {
+      if (a.href && !text.includes(a.href)) {
+        text += ' ' + a.href;
+      }
+    }
+
     if (text.length < 5) return;
 
     // Запобігаємо повторному аналізу однакового тексту
