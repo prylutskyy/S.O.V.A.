@@ -2,6 +2,7 @@ import { ActiveThreatContext, ThreatAssessment } from '../types';
 import { UnifiedFrictionModal } from './unified-modal';
 import { ShadowHost } from './shadow-host';
 import { XaiEngine } from '../xai/xai-engine';
+import { VaultScanner } from '../heuristics/vault-scanner';
 
 export class SecurityFriction {
   /**
@@ -23,6 +24,7 @@ export class SecurityFriction {
     } catch {}
 
     const detectedAmount = XaiEngine.extractFinancialAmount(form);
+    const vaultScan = VaultScanner.scanFormSync(form);
 
     // Чистий Дзен + Ізольований Shadow DOM: жодного втручання в інлайн-стилі форми
     UnifiedFrictionModal.show({
@@ -36,6 +38,7 @@ export class SecurityFriction {
       assessment,
       activeContext,
       detectedAmount,
+      vaultMatches: vaultScan.matches,
       allowRememberDomain: true,
       domainToRemember: targetHost,
       onProceed: () => {
@@ -71,6 +74,7 @@ export class SecurityFriction {
   ): void {
     const currentPlatform = window.location.hostname || 'Відкритий чат маркетплейсу';
     const detectedAmount = XaiEngine.extractFinancialAmount(chatInput);
+    const vaultScan = VaultScanner.scanTextSync(chatInput.value || '');
 
     const triggers: Array<{ message: string; severity: string }> = [];
     if (leakage.hasCard) {
@@ -85,6 +89,9 @@ export class SecurityFriction {
         severity: 'CRITICAL',
       });
     }
+    if (vaultScan.triggers.length > 0) {
+      triggers.push(...vaultScan.triggers);
+    }
 
     UnifiedFrictionModal.show({
       type: 'chat',
@@ -96,6 +103,7 @@ export class SecurityFriction {
       triggers,
       activeContext,
       detectedAmount,
+      vaultItems: vaultScan.matchedItems,
       chatLeakage: { hasCard: leakage.hasCard, hasCvv: leakage.hasCvv },
       allowRememberDomain: false,
       onProceed: () => {

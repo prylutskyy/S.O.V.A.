@@ -36,4 +36,4 @@ export interface LureDetectionResult {
 }
 
 export * from './xai';
-
+export * from './vault';

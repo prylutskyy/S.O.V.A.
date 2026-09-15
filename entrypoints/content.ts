@@ -11,6 +11,8 @@ import { ChatChannelMonitor } from '../src/heuristics/chat-channel';
 import { isWhitelisted, isMonitoredPlatform } from '../src/core/whitelist';
 import { isAccreditedPaymentGateway } from '../src/core/payment-gateways';
 import { UserWhitelistManager } from '../src/core/user-whitelist';
+import { PersonalVaultManager } from '../src/core/personal-vault';
+import { VaultScanner } from '../src/heuristics/vault-scanner';
 import { RiskEngine } from '../src/core/risk-engine';
 import { SecurityFriction } from '../src/ui/friction';
 import { PopoverUI } from '../src/ui/popover-ui';
@@ -27,6 +29,7 @@ export default defineContentScript({
 
     // Фонова асинхронна ініціалізація кешів
     UserWhitelistManager.init().catch((e) => console.error('[ThreatShield] UserWhitelist init error:', e));
+    PersonalVaultManager.init().catch((e) => console.error('[ThreatShield] PersonalVault init error:', e));
 
     try {
       chrome.runtime.sendMessage({ type: 'GET_ACTIVE_CONTEXT' }).then((response) => {
@@ -115,6 +118,13 @@ export default defineContentScript({
 
       heuristics.push(checkFormActionMismatch(form));
       heuristics.push(...checkSensitiveAndHiddenInputs(form));
+
+      // DLP: Інспекція полів форми на конфіденційні маркери з Vault
+      const vaultScan = VaultScanner.scanFormSync(form);
+      if (vaultScan.triggers.length > 0) {
+        heuristics.push(...vaultScan.triggers);
+        formState.hasFilledAnySensitive = true;
+      }
 
       if (formState.hasFilledCard) {
         heuristics.push({
@@ -290,7 +300,8 @@ export default defineContentScript({
       }
 
       const outbound = ChatChannelMonitor.checkOutbound(inputElement.value || '');
-      const isLeaking = outbound.hasCard || outbound.hasCvv;
+      const vaultScan = VaultScanner.scanTextSync(inputElement.value || '');
+      const isLeaking = outbound.hasCard || outbound.hasCvv || vaultScan.matchedItems.length > 0;
 
       if (isLeaking) {
         event.preventDefault();

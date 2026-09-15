@@ -1,5 +1,6 @@
 import { ActiveThreatContext, ThreatAssessment } from '../types';
 import { AttackChainStep, XaiExplanation, XaiRiskBreakdown, XaiRiskFactor } from '../types/xai';
+import { VaultItem } from '../types/vault';
 
 export interface XaiEvaluationOptions {
   type: 'form' | 'chat';
@@ -8,12 +9,13 @@ export interface XaiEvaluationOptions {
   assessment: ThreatAssessment;
   chatLeakage?: { hasCard: boolean; hasCvv: boolean };
   detectedAmount?: string;
+  vaultItems?: VaultItem[];
 }
 
 export interface ScenarioDetails {
   diagnosis: string;
   attackScenario: string;
-  attackCategory: 'AUTOFILL_TRAP' | 'DELIVERY_SCAM' | 'UNTRUSTED_GATEWAY' | 'CHAT_LEAK';
+  attackCategory: 'AUTOFILL_TRAP' | 'DELIVERY_SCAM' | 'UNTRUSTED_GATEWAY' | 'CHAT_LEAK' | 'IDENTITY_HARVESTING';
   userIntendedAction: string;
   threatReality: string;
   financialRisk: string;
@@ -139,6 +141,25 @@ export class XaiEngine {
   public static determineScenario(options: XaiEvaluationOptions): ScenarioDetails {
     const financialRisk = options.detectedAmount || this.extractFinancialAmount() || 'кошти на балансі вашої картки';
     const triggersText = options.assessment.triggers.map((t) => t.message).join(' ').toLowerCase();
+    const hasVaultItems = options.vaultItems && options.vaultItems.length > 0;
+    const vaultItemLabels = hasVaultItems ? options.vaultItems!.map((i) => i.label) : [];
+
+    // 0. Запит захищених персональних маркерів (дівоче прізвище, ІПН) без картки
+    if (hasVaultItems && options.type !== 'chat') {
+      const isCardPresent = triggersText.includes('лун') || triggersText.includes('номер банківськ') || triggersText.includes('картк');
+      if (!isCardPresent) {
+        return {
+          attackCategory: 'IDENTITY_HARVESTING',
+          attackScenario: 'Збір персональних банківських маркерів',
+          diagnosis: `Спроба випитування відповідей на контрольні запитання банків (${vaultItemLabels.join(', ')})`,
+          userIntendedAction: 'Ви заповнюєте анкету або підтверджуєте особу',
+          threatReality: `цей сайт випитує захищені маркери відновлення доступу (${vaultItemLabels.join(', ')}), які банки використовують для авторизації клієнтів`,
+          financialRisk: 'всі банківські рахунки та облікові записи',
+          exposedAssets: vaultItemLabels,
+          shortAttackName: 'викрадення маркерів особи (Identity Theft)',
+        };
+      }
+    }
 
     // 1. Атака прихованого автозаповнення (Autofill Trap)
     const isAutofill = options.assessment.triggers.some(
@@ -149,7 +170,7 @@ export class XaiEngine {
     );
 
     if (isAutofill) {
-      const exposedAssets = ['номер банківської картки', 'секретний CVV-код', 'термін дії картки'];
+      const exposedAssets = ['номер банківської картки', 'секретний CVV-код', 'термін дії картки', ...vaultItemLabels];
       return {
         attackCategory: 'AUTOFILL_TRAP',
         attackScenario: 'Прихована DOM-пастка автозаповнення (Autofill Trap)',
@@ -172,7 +193,7 @@ export class XaiEngine {
 
     if (isDelivery) {
       const platform = options.activeContext?.sourcePlatform || 'маркетплейсу';
-      const exposedAssets = ['номер банківської картки', 'секретний код безпеки CVV'];
+      const exposedAssets = ['номер банківської картки', 'секретний код безпеки CVV', ...vaultItemLabels];
       return {
         attackCategory: 'DELIVERY_SCAM',
         attackScenario: `Шахрайство під виглядом безпечної угоди (${platform})`,
@@ -189,8 +210,8 @@ export class XaiEngine {
     if (options.type === 'chat') {
       const hasCvv = !!options.chatLeakage?.hasCvv || triggersText.includes('cvv');
       const exposedAssets = hasCvv
-        ? ['секретний тризначний код CVV', 'номер банківської картки']
-        : ['номер банківської картки'];
+        ? ['секретний тризначний код CVV', 'номер банківської картки', ...vaultItemLabels]
+        : ['номер банківської картки', ...vaultItemLabels];
 
       return {
         attackCategory: 'CHAT_LEAK',
@@ -207,7 +228,7 @@ export class XaiEngine {
     }
 
     // 4. Недовірений платіжний вузол (Untrusted Gateway / Action Mismatch)
-    const exposedAssets = ['номер банківської картки', 'секретний код CVV'];
+    const exposedAssets = ['номер банківської картки', 'секретний код CVV', ...vaultItemLabels];
     return {
       attackCategory: 'UNTRUSTED_GATEWAY',
       attackScenario: 'Неліцензований платіжний вузол',
@@ -310,6 +331,12 @@ export class XaiEngine {
           `${scenario.userIntendedAction}. ` +
           `Для переказу чи зарахування коштів іншій стороні потрібен виключно 16-значний номер картки. ` +
           `Передача ${assetsStr} дозволить співрозмовнику списати ${scenario.financialRisk} без вашого відома — це ${scenario.shortAttackName}.`
+        );
+
+      case 'IDENTITY_HARVESTING':
+        return (
+          `${scenario.userIntendedAction}, але ця сторінка випитує захищені банківські маркери відновлення доступу (${assetsStr}). ` +
+          `Ці дані використовуються банками для підтвердження особи власника — їх розголошення сторонньому сайту дозволить шахраям перехопити доступ до ваших рахунків — це ${scenario.shortAttackName}.`
         );
 
       case 'UNTRUSTED_GATEWAY':
@@ -530,6 +557,13 @@ export class XaiEngine {
           'Ніколи не повідомляйте одноразові коди безпеки з SMS або push-повідомлень банку.',
         ];
 
+      case 'IDENTITY_HARVESTING':
+        return [
+          'Не вказуйте дівоче прізвище матері або контрольні слова на цьому вебсайті.',
+          'Скористайтеся функцією «Підставити Canary Decoy» або залиште сторінку.',
+          'Пам\'ятайте: справжні банки ніколи не запитують дівоче прізвище через відкриті вебформи.',
+        ];
+
       case 'UNTRUSTED_GATEWAY':
       default:
         return [
@@ -553,6 +587,9 @@ export class XaiEngine {
 
       case 'CHAT_LEAK':
         return 'Секретний тризначний код CVV разом із номером картки дає змогу розрахуватися нею в інтернеті без вашої згоди. Тримайте його в таємниці навіть від покупців.';
+
+      case 'IDENTITY_HARVESTING':
+        return 'Дівоче прізвище матері та РНОКПП (ІПН) є основними маркерами верифікації клієнта під час звернення до контакт-центрів банків. Їх витік ставить під загрозу всі ваші рахунки.';
 
       case 'UNTRUSTED_GATEWAY':
       default:
@@ -620,6 +657,23 @@ export class XaiEngine {
             bad: [
               'Надсилати тризначний код CVV зі звороту картки або термін дії',
               'Передавати одноразові коди підтвердження з банківських SMS',
+            ],
+          },
+        };
+
+      case 'IDENTITY_HARVESTING':
+        return {
+          humanTitle: 'Спроба викрадення особистих маркерів',
+          humanSubtitle: 'Сайт випитує секретні контрольні дані для банківської верифікації.',
+          humanCoreWarning: this.synthesizeExplanation(options, scenario),
+          humanChecklist: {
+            good: [
+              'Тримати дівоче прізвище матері та секретні слова в таємниці',
+              'Використовувати підставні Canary-дані для перевірки сумнівних сайтів',
+            ],
+            bad: [
+              'Вводити контрольні питання банку на будь-яких сторонніх сайтах',
+              'Передавати РНОКПП (ІПН) чи паспорт неперевіреним ресурсам',
             ],
           },
         };

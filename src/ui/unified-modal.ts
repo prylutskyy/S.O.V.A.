@@ -1,6 +1,8 @@
 import { ActiveThreatContext, ThreatAssessment } from '../types';
+import { VaultItem, VaultMatchResult } from '../types/vault';
 import { UserWhitelistManager } from '../core/user-whitelist';
 import { XaiEngine } from '../xai/xai-engine';
+import { VaultScanner } from '../heuristics/vault-scanner';
 import { ShadowHost } from './shadow-host';
 
 export interface UnifiedModalOptions {
@@ -18,6 +20,8 @@ export interface UnifiedModalOptions {
   activeContext?: ActiveThreatContext | null;
   chatLeakage?: { hasCard: boolean; hasCvv: boolean };
   detectedAmount?: string;
+  vaultMatches?: VaultMatchResult[];
+  vaultItems?: VaultItem[];
   onProceed: (rememberDomain: boolean) => void;
   onCancel: () => void;
 }
@@ -65,6 +69,8 @@ export class UnifiedFrictionModal {
       timestamp: Date.now(),
     };
 
+    const vaultItems = options.vaultItems || options.vaultMatches?.map((m) => m.matchedItem);
+
     // 3. Генерація лаконічного аналізу через XAI Engine
     const xai = await XaiEngine.generateExplanation({
       type: options.type,
@@ -73,6 +79,7 @@ export class UnifiedFrictionModal {
       assessment: fallbackAssessment,
       chatLeakage: options.chatLeakage,
       detectedAmount: options.detectedAmount,
+      vaultItems,
     });
 
     const primaryActionLabel = options.type === 'chat' ? 'Скасувати надсилання' : 'Залишити сторінку';
@@ -297,6 +304,37 @@ export class UnifiedFrictionModal {
           </span>
         </div>
 
+        <!-- ОПЦІЯ ПІДСТАНОВКИ CANARY DECOY (ЯКЩО ВИЯВЛЕНО ПОЛЯ З DECOY) -->
+        ${
+          options.vaultMatches && options.vaultMatches.some((m) => m.isDecoyAvailable)
+            ? `
+          <button id="threat-modal-decoy-btn" type="button" style="
+            width: 100%;
+            height: 42px;
+            background: rgba(52, 199, 89, 0.08);
+            color: #248a3d;
+            border: 1px solid rgba(52, 199, 89, 0.3);
+            border-radius: 11px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            transition: background 0.15s;
+            margin-bottom: 10px;
+          ">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              <polyline points="9 12 11 14 15 10"/>
+            </svg>
+            Підставити безпечні дані (Canary Decoy)
+          </button>
+        `
+            : ''
+        }
+
         <!-- ГОЛОВНА РЯТІВНА ДІЯ (APPLE FILL BUTTON) -->
         <button id="threat-modal-primary-btn" type="button" style="
           width: 100%;
@@ -484,6 +522,23 @@ export class UnifiedFrictionModal {
       }
       if (btnInspectToggle) {
         btnInspectToggle.textContent = isInspectorOpen ? 'Приховати деталі' : 'Докладніше про оцінку';
+      }
+    });
+
+    // Підстановка фіктивних Canary-значень
+    const btnDecoy = modalRoot.querySelector('#threat-modal-decoy-btn');
+    btnDecoy?.addEventListener('mouseenter', () => {
+      (btnDecoy as HTMLElement).style.background = 'rgba(52, 199, 89, 0.15)';
+    });
+    btnDecoy?.addEventListener('mouseleave', () => {
+      (btnDecoy as HTMLElement).style.background = 'rgba(52, 199, 89, 0.08)';
+    });
+    btnDecoy?.addEventListener('click', () => {
+      if (options.vaultMatches && options.vaultMatches.length > 0) {
+        const count = VaultScanner.applyDecoys(options.vaultMatches);
+        this.close();
+        options.onCancel();
+        alert(`Безпека захищена: замість реальних даних у форму підставлено ${count} фіктивних значень (Canary Decoy).`);
       }
     });
 
@@ -705,6 +760,19 @@ export class UnifiedFrictionModal {
         title: 'Зв\'язок із діалогом у сторонньому чаті',
         description: `Зафіксовано перехід із платформи "${options.activeContext.sourcePlatform}" (${minutesAgo} хв тому). Шахрай заздалегідь підготував приманку в чаті перед перенаправленням на цей платіжний вузол.`,
         evidence: kws.length > 0 ? `Фрази-приманки: "${kws.slice(0, 3).join('", "')}"` : `Джерело: ${options.activeContext.sourcePlatform}`,
+      });
+    }
+
+    // 2.1. Захист персональних маркерів (Personal Data Vault)
+    const vaultItems = options.vaultItems || options.vaultMatches?.map((m) => m.matchedItem);
+    if (vaultItems && vaultItems.length > 0) {
+      const distinctLabels = Array.from(new Set(vaultItems.map((i) => i.label))).join(', ');
+      slides.push({
+        badge: 'Personal Data Vault',
+        badgeType: 'critical',
+        title: 'Захист персональних маркерів відновлення',
+        description: `Форма випитує захищені маркери особи (${distinctLabels}), які використовуються банківськими установами для верифікації клієнта. Відправка цих даних неперевіреному ресурсу створює пряму загрозу перехоплення доступу до банківських кабінетів.`,
+        evidence: `Контрольні маркери: ${distinctLabels}`,
       });
     }
 
