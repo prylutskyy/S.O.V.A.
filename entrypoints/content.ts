@@ -19,19 +19,19 @@ export default defineContentScript({
     const currentHost = window.location.hostname.toLowerCase();
     console.log('[ThreatShield:Content] Ініціалізація на хості:', currentHost || 'local file');
 
-    // Перевірка, чи домен вже додано користувачем до персонального білого списку
-    const isUserAllowed = await UserWhitelistManager.isDomainAllowed(currentHost);
+    // 1. Ініціалізація кешу користувацького білого списку
+    await UserWhitelistManager.init();
 
     let activeContext: ActiveThreatContext | null = null;
 
-    // 1. Запит до Background Worker щодо наявності активного контексту (Tainted Context Window)
+    // 2. Запит до Background Worker щодо наявності активного контексту (Tainted Context Window)
     try {
       const response = await chrome.runtime.sendMessage({ type: 'GET_ACTIVE_CONTEXT' });
       if (response && response.context) {
         activeContext = response.context;
         console.log('[ThreatShield:Content] Отримано активний контекст загрози:', activeContext);
 
-        // Якщо сайт не в Whitelist, не в UserWhitelist і це сторонній ресурс — показуємо банер
+        const isUserAllowed = UserWhitelistManager.isDomainAllowedSync(currentHost);
         if (!isWhitelisted(currentHost) && !isUserAllowed && currentHost !== activeContext.sourcePlatform) {
           SecurityFriction.showContextWarningBanner(activeContext);
         }
@@ -40,11 +40,11 @@ export default defineContentScript({
       // Background worker ще завантажується
     }
 
-    // 2. Детекція соцінженерії та виведення в месенджери на платформах комунікації
+    // 3. Детекція соцінженерії та виведення в месенджери на платформах комунікації
     const isPlatform = isMonitoredPlatform(currentHost) || window.location.protocol === 'file:';
 
     if (isPlatform) {
-      // 2.1 Сканування кліків по сторонніх лінках (Off-Platform Lure)
+      // Кліки по сторонніх лінках (Off-Platform Lure)
       document.addEventListener(
         'click',
         (event) => {
@@ -68,7 +68,7 @@ export default defineContentScript({
         true
       );
 
-      // 2.2 Сканування події копіювання (Clipboard correlation)
+      // Копіювання реквізитів/посилань
       document.addEventListener('copy', () => {
         const selection = window.getSelection()?.toString() || '';
         if (selection) {
@@ -88,7 +88,7 @@ export default defineContentScript({
       });
     }
 
-    // 3. Захист від передачі реквізитів картки у звичайному чаті платформи (Outbound Chat Leak Protection)
+    // 4. Захист від передачі реквізитів картки у звичайному чаті платформи (Outbound Chat Leak Protection)
     const handleChatInput = (target: HTMLInputElement | HTMLTextAreaElement) => {
       const text = target.value || '';
       const leakage = checkOutboundChatLeakage(text);
@@ -97,7 +97,6 @@ export default defineContentScript({
         target.style.outline = '3px solid #ef4444';
         target.style.backgroundColor = 'rgba(239, 68, 68, 0.08)';
 
-        // Виводимо підказку-попередження поруч із полем
         let warningBadge = target.parentElement?.querySelector('.threat-shield-chat-warning') as HTMLElement;
         if (!warningBadge && target.parentElement) {
           warningBadge = document.createElement('div');
@@ -133,7 +132,7 @@ export default defineContentScript({
       }
     });
 
-    // Блокування відправки повідомлення в чат через Enter, якщо в ньому є картка/CVV
+    // Блокування Enter у чаті при спробі відправити реквізити
     document.addEventListener(
       'keydown',
       (event) => {
@@ -144,6 +143,7 @@ export default defineContentScript({
             if (leakage.isLeaking) {
               event.preventDefault();
               event.stopPropagation();
+              event.stopImmediatePropagation();
               alert(
                 `🛑 [ДІЮ ЗАБЛОКОВАНО: ВИТІК РЕКВІЗИТІВ КАРТКИ В ЧАТІ]\n\n` +
                 `Система виявила номер банківської картки або CVV у тексті вашого повідомлення.\n\n` +
@@ -157,18 +157,18 @@ export default defineContentScript({
       true
     );
 
-    // 4. Прослуховування подій форм (submit)
+    // 5. ПОВНІСТЮ СИНХРОННЕ ПРОСЛУХОВУВАННЯ ТА ПЕРЕХОПЛЕННЯ САБМІТУ
     document.addEventListener(
       'submit',
-      async (event) => {
+      (event) => {
         const form = event.target as HTMLFormElement;
         if (!form || !(form instanceof HTMLFormElement)) {
           return;
         }
 
-        // Якщо користувач вже свідомо розблокував цю форму в модальному вікні — дозволяємо відправку
+        // Якщо користувач вже свідомо розблокував цю форму — пропускаємо сабміт
         if (form.dataset.threatShieldApproved === 'true') {
-          console.log('[ThreatShield:Content] Відправку форми дозволено (свідоме розблокування користувачем).');
+          console.log('[ThreatShield:Content] Сабміт форми дозволено (усвідомлене розблокування користувачем).');
           delete form.dataset.threatShieldApproved;
           return;
         }
@@ -181,28 +181,24 @@ export default defineContentScript({
           }
         } catch {}
 
-        // Якщо цільовий домен форми знаходиться у білому списку користувача — дозволяємо
-        if (await UserWhitelistManager.isDomainAllowed(targetHost)) {
-          console.log(`[ThreatShield:Content] Домен ${targetHost} знаходиться у персональному білому списку користувача.`);
+        // Синхронна перевірка білого списку користувача
+        if (UserWhitelistManager.isDomainAllowedSync(targetHost)) {
+          console.log(`[ThreatShield:Content] Домен ${targetHost} є в білому списку користувача. Дозволено.`);
           return;
         }
 
-        // Якщо цільовий домен форми є акредитованим платіжним шлюзом — дозволяємо
+        // Синхронна перевірка акредитованого платіжного шлюзу
         if (isAccreditedPaymentGateway(targetHost)) {
-          console.log(`[ThreatShield:Content] Форма надсилає дані на акредитований платіжний шлюз (${targetHost}). Дозволено.`);
+          console.log(`[ThreatShield:Content] Акредитований платіжний шлюз (${targetHost}). Дозволено.`);
           return;
         }
 
         const heuristics: HeuristicResult[] = [];
         const formState = getFormFilledState(form);
 
-        // Евристика 1: Розбіжність form.action
         heuristics.push(checkFormActionMismatch(form));
-
-        // Евристика 2: Приховані чутливі інпути (Autofill Phishing)
         heuristics.push(...checkSensitiveAndHiddenInputs(form));
 
-        // Евристика 3: Перевірка реально введених даних на банківську картку (алгоритм Луна)
         if (formState.hasFilledCard) {
           heuristics.push({
             name: 'luhn_card_number_detected',
@@ -213,7 +209,6 @@ export default defineContentScript({
           });
         }
 
-        // Внесок Tainted Context Window (якщо домен не в Whitelist)
         let contextBonus = 0;
         if (activeContext && !isWhitelisted(currentHost)) {
           contextBonus = 35;
@@ -222,11 +217,10 @@ export default defineContentScript({
             triggered: true,
             severity: 'HIGH',
             scoreContribution: 35,
-            message: `Зшивання розірваних сесій: сторінка відкрита після підозрілого діалогу на ${activeContext.sourcePlatform} (тригери: ${activeContext.detectedKeywords.join(', ')}).`,
+            message: `Зшивання розірваних сесій: перехід після підозрілої активності на ${activeContext.sourcePlatform}.`,
           });
         }
 
-        // Розрахунок Risk Score
         const assessment = RiskEngine.evaluate(
           heuristics,
           {
@@ -241,19 +235,23 @@ export default defineContentScript({
           assessment.contextActive = true;
         }
 
-        console.log('[ThreatShield:Content] Динамічна оцінка форми перед відправкою:', {
-          assessment,
+        console.log('[ThreatShield:Content] Синхронна оцінка сабміту форми:', {
+          score: assessment.score,
+          level: assessment.level,
           formState,
         });
 
-        // Блокуємо та відкриваємо модальне вікно Security Friction
+        // НЕГАЙНЕ ТА СИНХРОННЕ ПРИПИНЕННЯ САБМІТУ
         if (assessment.level === 'CRITICAL' || (assessment.level === 'HIGH' && formState.hasFilledAnySensitive)) {
+          // Блокуємо стандартну дію браузера та всі inline onsubmit обробники сторінки!
           event.preventDefault();
           event.stopPropagation();
+          event.stopImmediatePropagation();
 
-          // Викликаємо сучасне модальне вікно Security Friction з таймером усвідомлення
+          // Відображаємо модальне вікно Security Friction
           SecurityFriction.apply(form, assessment);
 
+          // Сповіщення фонового воркера (асинхронно у фоні)
           chrome.runtime.sendMessage({
             type: 'THREAT_DETECTED',
             payload: {
@@ -261,11 +259,9 @@ export default defineContentScript({
               assessment,
             },
           });
-        } else {
-          console.log('[ThreatShield:Content] Сабміт дозволено: загроза нижче критичного порогу.');
         }
       },
-      true
+      true // КРИТИЧНО: Capture фаза перехоплює подію першою до обробників сторінки
     );
 
     // Моніторинг фокусу на чутливих полях
