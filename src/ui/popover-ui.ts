@@ -24,68 +24,83 @@ export class PopoverUI {
     const popover = document.createElement('div');
     popover.id = 'threat-shield-button-popover';
 
-    const reasonsHtml = options.assessment.triggers
-      .map((t) => `<div style="font-size: 12px; color: #991b1b; padding: 4px 6px; background: #fef2f2; border-left: 3px solid #ef4444; border-radius: 4px; margin-bottom: 4px;">⚠️ ${t.message}</div>`)
-      .join('');
 
     popover.style.cssText = `
       position: fixed !important;
       z-index: 2147483647 !important;
-      width: 390px !important;
+      width: 380px !important;
       max-width: calc(100vw - 24px) !important;
       background: #ffffff !important;
       color: #0f172a !important;
-      border: 2px solid #ef4444 !important;
+      border: 1px solid #e2e8f0 !important;
       border-radius: 12px !important;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.3), 0 6px 16px rgba(239,68,68,0.15) !important;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+      box-shadow: 0 12px 32px -4px rgba(15, 23, 42, 0.15), 0 4px 12px -2px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(239, 68, 68, 0.15) !important;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
       padding: 16px !important;
       box-sizing: border-box !important;
       animation: threatPopoverFade 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
       pointer-events: auto !important;
     `;
 
+    const reasonsHtml = options.assessment.triggers
+      .map((t) => `
+        <div style="font-size: 12px; color: #334155; padding: 6px 8px; background: #f8fafc; border-left: 3px solid #ef4444; border-radius: 4px; margin-bottom: 4px; line-height: 1.4;">
+          ${t.message}
+        </div>
+      `)
+      .join('');
+
     popover.innerHTML = `
       <style>
         @keyframes threatPopoverFade {
-          from { opacity: 0; transform: translateY(6px); }
+          from { opacity: 0; transform: translateY(5px); }
           to { opacity: 1; transform: translateY(0); }
         }
       </style>
-      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+      
+      <!-- Заголовок -->
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
         <div style="display: flex; align-items: center; gap: 8px;">
-          <span style="font-size: 20px;">🛡️</span>
+          <span style="font-size: 18px; line-height: 1;">🛡️</span>
           <div>
-            <strong style="font-size: 14px; color: #b91c1c; display: block;">Дію форми призупинено!</strong>
-            <span style="font-size: 11px; font-weight: 600; color: #fff; background: #dc2626; padding: 1px 6px; border-radius: 10px;">
-              ${options.assessment.level} (${options.assessment.score}%)
-            </span>
+            <div style="font-size: 13px; font-weight: 700; color: #0f172a; line-height: 1.2;">Дію форми призупинено</div>
+            <div style="display: flex; align-items: center; gap: 6px; margin-top: 3px;">
+              <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #ef4444;"></span>
+              <span style="font-size: 11px; font-weight: 600; color: #dc2626;">
+                Рівень ризику: ${options.assessment.level} (${options.assessment.score}/100)
+              </span>
+            </div>
           </div>
         </div>
-        <button id="threat-popover-close" type="button" style="
-          background: none; border: none; font-size: 18px; color: #64748b; cursor: pointer; padding: 0 4px; line-height: 1;
+        <button id="threat-popover-close" type="button" title="Закрити та скасувати" style="
+          background: transparent; border: none; font-size: 15px; color: #94a3b8; cursor: pointer; padding: 4px; line-height: 1; border-radius: 4px; transition: color 0.15s;
         ">✕</button>
       </div>
 
-      <div style="font-size: 12px; color: #475569; background: #f8fafc; padding: 6px 8px; border-radius: 6px; margin-bottom: 10px; word-break: break-all;">
-        Цільовий сервер: <strong>${options.targetHost}</strong>
+      <!-- Інформація про цільовий сервер -->
+      <div style="font-size: 11px; color: #64748b; background: #f1f5f9; padding: 6px 10px; border-radius: 6px; margin-bottom: 10px; word-break: break-all; display: flex; justify-content: space-between; align-items: center;">
+        <span>Цільовий сервер:</span>
+        <strong style="color: #0f172a; font-family: ui-monospace, monospace; font-size: 12px;">${options.targetHost}</strong>
       </div>
 
-      <div style="margin-bottom: 10px; max-height: 150px; overflow-y: auto;">
+      <!-- Список причин блокування -->
+      <div style="margin-bottom: 12px; max-height: 140px; overflow-y: auto;">
         ${reasonsHtml}
       </div>
 
-      <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #475569; margin-bottom: 12px; cursor: pointer;">
-        <input type="checkbox" id="threat-popover-remember" style="accent-color: #2563eb; cursor: pointer;">
-        <span>Довіряти домену <strong>${options.targetHost}</strong></span>
+      <!-- Опція довіри сайту -->
+      <label style="display: flex; align-items: center; gap: 7px; font-size: 12px; color: #475569; margin-bottom: 14px; cursor: pointer; user-select: none;">
+        <input type="checkbox" id="threat-popover-remember" style="accent-color: #2563eb; cursor: pointer; width: 14px; height: 14px;">
+        <span>Додати домен <strong>${options.targetHost}</strong> до Whitelist</span>
       </label>
 
+      <!-- Дії користувача -->
       <div style="display: flex; gap: 8px; justify-content: flex-end;">
         <button id="threat-popover-cancel" type="button" style="
-          background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;
+          background: #f8fafc; color: #475569; border: 1px solid #e2e8f0; padding: 7px 14px; border-radius: 8px; font-size: 12px; font-weight: 500; cursor: pointer; transition: background 0.15s;
         ">Скасувати</button>
         <button id="threat-popover-override" type="button" disabled style="
-          background: #e2e8f0; color: #94a3b8; border: 1px solid #cbd5e1; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: not-allowed; transition: all 0.2s;
+          background: #f1f5f9; color: #94a3b8; border: 1px solid #e2e8f0; padding: 7px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: not-allowed; transition: all 0.2s;
         ">⏳ Зачекайте (3с)...</button>
       </div>
     `;
@@ -96,12 +111,12 @@ export class PopoverUI {
 
     // Розрахунок точного позиціонування через fixed viewport координати
     const popoverRect = popover.getBoundingClientRect();
-    let top = anchorRect.top - popoverRect.height - 12;
+    let top = anchorRect.top - popoverRect.height - 10;
     let left = anchorRect.left;
 
     // Якщо над кнопкою недостатньо місця (менше 10px від верху вікна) — розміщуємо під кнопкою
     if (top < 10) {
-      top = anchorRect.bottom + 12;
+      top = anchorRect.bottom + 10;
     }
 
     // Якщо під кнопкою виходить за нижній край екрана
@@ -143,10 +158,10 @@ export class PopoverUI {
       } else {
         if (this.countdownInterval) clearInterval(this.countdownInterval);
         btnOverride.disabled = false;
-        btnOverride.innerText = `⚠️ Продовжити все одно`;
-        btnOverride.style.background = '#ffffff';
-        btnOverride.style.color = '#ea580c';
-        btnOverride.style.borderColor = '#f97316';
+        btnOverride.innerText = `Продовжити все одно`;
+        btnOverride.style.background = '#0f172a';
+        btnOverride.style.color = '#ffffff';
+        btnOverride.style.borderColor = '#0f172a';
         btnOverride.style.cursor = 'pointer';
       }
     }, 1000);
@@ -174,7 +189,7 @@ export class PopoverUI {
   }
 
   /**
-   * 2. Плаваючий верхній тост (Top Toast Notification)
+   * 2. Плаваючий верхній тост (Minimalist Top Floating Capsule)
    * Закріплений у самому верху сторінки, не ламає і не зсуває розмітку сайту.
    */
   public static showTopToast(message: string, durationMs: number = 0): void {
@@ -185,52 +200,52 @@ export class PopoverUI {
       toast.id = 'threat-shield-top-toast';
       toast.style.cssText = `
         position: fixed !important;
-        top: 16px !important;
+        top: 18px !important;
         left: 50% !important;
         transform: translateX(-50%) !important;
         z-index: 2147483647 !important;
-        max-width: 650px !important;
+        max-width: 580px !important;
         width: 90% !important;
-        background: linear-gradient(135deg, #b91c1c, #7f1d1d) !important;
+        background: #0f172a !important;
         color: #ffffff !important;
-        border: 1px solid #f87171 !important;
+        border: 1px solid rgba(255, 255, 255, 0.12) !important;
         border-radius: 12px !important;
-        box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3), 0 8px 10px -6px rgba(0,0,0,0.2) !important;
-        padding: 14px 18px !important;
+        box-shadow: 0 16px 36px -4px rgba(0,0,0,0.35), 0 4px 12px rgba(0,0,0,0.15) !important;
+        padding: 12px 16px !important;
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
         box-sizing: border-box !important;
         display: flex !important;
         align-items: center !important;
         justify-content: space-between !important;
         gap: 12px !important;
-        animation: threatToastSlideDown 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        animation: threatToastSlideDown 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
       `;
 
       toast.innerHTML = `
         <style>
           @keyframes threatToastSlideDown {
-            from { opacity: 0; transform: translate(-50%, -20px); }
+            from { opacity: 0; transform: translate(-50%, -15px); }
             to { opacity: 1; transform: translate(-50%, 0); }
           }
         </style>
-        <div style="display: flex; align-items: center; gap: 12px;">
-          <span style="font-size: 24px; line-height: 1;">🛑</span>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 20px; line-height: 1;">🛡️</span>
           <div>
-            <strong style="font-size: 13px; letter-spacing: 0.02em; text-transform: uppercase; color: #fecaca; display: block;">
+            <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #f87171; line-height: 1;">
               Захист від витоку даних
-            </strong>
-            <span id="threat-toast-text" style="font-size: 13px; line-height: 1.4; color: #ffffff;"></span>
+            </div>
+            <div id="threat-toast-text" style="font-size: 12px; line-height: 1.4; color: #f1f5f9; margin-top: 3px;"></div>
           </div>
         </div>
-        <button id="threat-toast-close" style="
-          background: rgba(255,255,255,0.2);
+        <button id="threat-toast-close" type="button" title="Зрозуміло" style="
+          background: rgba(255,255,255,0.1);
           border: none;
-          color: white;
-          width: 28px;
-          height: 28px;
+          color: #e2e8f0;
+          width: 24px;
+          height: 24px;
           border-radius: 50%;
           cursor: pointer;
-          font-size: 14px;
+          font-size: 12px;
           display: flex;
           align-items: center;
           justify-content: center;

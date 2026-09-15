@@ -76,39 +76,52 @@ export class SecurityFriction {
       top: 0 !important;
       left: 0 !important;
       width: 100% !important;
-      background: linear-gradient(90deg, #b91c1c, #ea580c) !important;
-      color: white !important;
+      height: 38px !important;
+      background: #0f172a !important;
+      color: #e2e8f0 !important;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
-      font-size: 13px !important;
+      font-size: 12px !important;
       font-weight: 500 !important;
-      padding: 10px 16px !important;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.2) !important;
+      padding: 0 16px !important;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
       z-index: 2147483646 !important;
       display: flex !important;
       align-items: center !important;
       justify-content: space-between !important;
       box-sizing: border-box !important;
+      animation: threatBannerSlide 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
     `;
 
     const keywords = context.detectedKeywords.join(', ');
     const elapsedMin = Math.round((Date.now() - context.timestamp) / 60000);
 
     banner.innerHTML = `
-      <div style="display: flex; align-items: center; gap: 8px;">
-        <span style="font-size: 18px;">🛡️</span>
-        <span>
-          <strong>Adaptive Threat Shield [Зшивання сесії]:</strong> 
-          Сайт відкрито під час активного вікна загрози (${elapsedMin} хв тому на <em>${context.sourcePlatform}</em> зафіксовано: <u>${keywords}</u>).
+      <style>
+        @keyframes threatBannerSlide {
+          from { transform: translateY(-100%); }
+          to { transform: translateY(0); }
+        }
+      </style>
+      <div style="display: flex; align-items: center; gap: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+        <span style="display: inline-flex; align-items: center; gap: 4px; background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); padding: 2px 7px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;">
+          <span>●</span> Зшивання сесій
+        </span>
+        <span style="color: #cbd5e1; font-size: 12px;">
+          Сайт відкрито у 15-хв. вікні загрози (${elapsedMin} хв тому на <strong>${context.sourcePlatform}</strong> зафіксовано: <span style="color: #f87171;">${keywords}</span>). Базовий ризик форми підвищено.
         </span>
       </div>
-      <button id="threat-shield-close-banner" style="
-        background: rgba(255,255,255,0.2);
+      <button id="threat-shield-close-banner" type="button" title="Зрозуміло" style="
+        background: rgba(255,255,255,0.08);
         border: none;
-        color: white;
-        padding: 4px 10px;
+        color: #94a3b8;
+        padding: 4px 8px;
         border-radius: 4px;
         cursor: pointer;
         font-size: 12px;
+        line-height: 1;
+        transition: background 0.15s, color 0.15s;
+        flex-shrink: 0;
       ">✕</button>
     `;
 
