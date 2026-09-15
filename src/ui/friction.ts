@@ -105,7 +105,7 @@ export class SecurityFriction {
   }
 
   /**
-   * Виведення верхнього попереджувального банера про активне вікно підозри в Shadow DOM
+   * Повідомлення про зшивання сесій (Floating Dynamic Island / Capsule у стилі Apple)
    */
   public static showContextWarningBanner(context: ActiveThreatContext): void {
     const root = ShadowHost.getRoot();
@@ -116,53 +116,71 @@ export class SecurityFriction {
     banner.id = 'threat-shield-context-banner';
     banner.style.cssText = `
       position: fixed !important;
-      top: 0 !important;
-      left: 0 !important;
-      width: 100% !important;
-      height: 38px !important;
-      background: #0f172a !important;
-      color: #e2e8f0 !important;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
-      font-size: 12px !important;
-      font-weight: 500 !important;
-      padding: 0 16px !important;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+      top: 14px !important;
+      left: 50% !important;
+      transform: translateX(-50%) !important;
+      max-width: calc(100vw - 32px) !important;
+      background: rgba(255, 255, 255, 0.9) !important;
+      backdrop-filter: blur(20px) saturate(180%) !important;
+      -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+      border: 1px solid rgba(0, 0, 0, 0.08) !important;
+      box-shadow: 0 10px 30px -4px rgba(0, 0, 0, 0.12), 0 2px 8px -2px rgba(0, 0, 0, 0.06) !important;
+      border-radius: 9999px !important;
+      padding: 7px 14px 7px 10px !important;
       z-index: 2147483646 !important;
       display: flex !important;
       align-items: center !important;
-      justify-content: space-between !important;
-      box-sizing: border-box !important;
-      animation: threatBannerSlide 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      gap: 10px !important;
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif !important;
+      animation: threatCapsuleDrop 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      pointer-events: auto !important;
+      user-select: none !important;
     `;
-
-    const keywords = context.detectedKeywords.join(', ');
-    const elapsedMin = Math.round((Date.now() - context.timestamp) / 60000);
 
     banner.innerHTML = `
       <style>
-        @keyframes threatBannerSlide {
-          from { transform: translateY(-100%); }
-          to { transform: translateY(0); }
+        @keyframes threatCapsuleDrop {
+          from { opacity: 0; transform: translate(-50%, -16px) scale(0.96); }
+          to { opacity: 1; transform: translate(-50%, 0) scale(1); }
         }
       </style>
-      <div style="display: flex; align-items: center; gap: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-        <span style="display: inline-flex; align-items: center; gap: 4px; background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); padding: 2px 7px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;">
-          <span>●</span> Зшивання сесій
-        </span>
-        <span style="color: #cbd5e1; font-size: 12px;">
-          Сайт відкрито у 15-хв. вікні загрози (${elapsedMin} хв тому на <strong>${context.sourcePlatform}</strong> зафіксовано: <span style="color: #f87171;">${keywords}</span>). Базовий ризик форми підвищено.
-        </span>
+      <div style="
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: rgba(255, 149, 0, 0.12);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      ">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ff9500" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 6 12 12 16 14"/>
+        </svg>
       </div>
-      <button id="threat-shield-close-banner" type="button" title="Зрозуміло" style="
-        background: rgba(255,255,255,0.08);
+
+      <div style="font-size: 12.5px; color: #1d1d1f; font-weight: 500; letter-spacing: -0.01em; display: flex; align-items: center; gap: 6px; white-space: nowrap;">
+        <span>Перехід із <strong style="font-weight: 600; color: #1d1d1f;">${context.sourcePlatform}</strong></span>
+        <span style="color: #86868b;">·</span>
+        <span style="color: #6e6e73;">Посилений моніторинг форм</span>
+      </div>
+
+      <button id="threat-shield-close-banner" type="button" title="Закрити" style="
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
         border: none;
-        color: #94a3b8;
-        padding: 4px 8px;
-        border-radius: 4px;
+        background: rgba(0, 0, 0, 0.05);
+        color: #86868b;
         cursor: pointer;
-        font-size: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
         line-height: 1;
+        padding: 0;
+        margin-left: 2px;
         transition: background 0.15s, color 0.15s;
         flex-shrink: 0;
       ">✕</button>

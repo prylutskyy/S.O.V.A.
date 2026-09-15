@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     toastMessage.style.display = 'block';
     setTimeout(() => {
       toastMessage.style.display = 'none';
-    }, 2000);
+    }, 1800);
   };
 
   // Очищення та валідація введеного домену
@@ -37,21 +37,21 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Оновлення списку доменів в інтерфейсі
   const renderWhitelist = async () => {
     const domains = await UserWhitelistManager.getDomains();
-    whitelistTitle.innerText = `Персональний Whitelist (${domains.length})`;
+    whitelistTitle.innerText = `Довірені сайти (${domains.length})`;
 
     whitelistUl.innerHTML = '';
     if (domains.length === 0) {
-      whitelistUl.innerHTML = '<li class="empty-state">Список порожній</li>';
+      whitelistUl.innerHTML = '<li class="empty-note">Немає доданих сайтів</li>';
     } else {
       domains.sort().forEach((domain) => {
         const li = document.createElement('li');
-        li.className = 'whitelist-item';
+        li.className = 'whitelist-entry';
         li.innerHTML = `
-          <span class="domain-name">${domain}</span>
-          <button type="button" class="btn-remove" title="Видалити зі списку">✕</button>
+          <span class="domain-text">${domain}</span>
+          <button type="button" class="btn-entry-remove" title="Видалити зі списку">✕</button>
         `;
 
-        const btnRemove = li.querySelector('.btn-remove');
+        const btnRemove = li.querySelector('.btn-entry-remove');
         btnRemove?.addEventListener('click', async () => {
           await UserWhitelistManager.removeDomain(domain);
           showToast(`Видалено: ${domain}`);
@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Перевірка поточного сайту у вкладці
   const updateCurrentTabState = async () => {
     if (!currentTabHost) {
-      currentHostLabel.innerText = 'Немає активного веб-сайту';
+      currentHostLabel.innerText = 'Немає активної сторінки';
       btnToggleCurrent.style.display = 'none';
       return;
     }
@@ -77,11 +77,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     btnToggleCurrent.style.display = 'inline-block';
     if (isAllowed) {
-      btnToggleCurrent.innerText = '✕ Видалити';
-      btnToggleCurrent.className = 'btn btn-danger';
+      btnToggleCurrent.innerText = 'Не довіряти';
+      btnToggleCurrent.className = 'btn-action-text btn-remove-allow';
     } else {
-      btnToggleCurrent.innerText = '+ Додати';
-      btnToggleCurrent.className = 'btn btn-primary';
+      btnToggleCurrent.innerText = '+ Довіряти';
+      btnToggleCurrent.className = 'btn-action-text btn-allow';
     }
   };
 
@@ -144,27 +144,25 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Очистити весь список
   btnClearAllWhitelist.addEventListener('click', async () => {
-    if (confirm('Ви впевнені, що хочете очистити весь персональний білий список?')) {
+    if (confirm('Очистити всі домени з персонального списку довірених?')) {
       await UserWhitelistManager.clearAll();
-      showToast('Білий список повністю очищено!');
+      showToast('Список довірених сайтів очищено');
       await renderWhitelist();
       updateCurrentTabState();
     }
   });
 
-  // Скинути Tainted Context
+  // Скинути Tainted Context Window
   btnResetContext.addEventListener('click', async () => {
     try {
       if (typeof chrome !== 'undefined' && chrome.runtime) {
         await chrome.runtime.sendMessage({ type: 'CLEAR_CONTEXT' });
       }
-      showToast('Tainted Context успішно скинуто!');
-    } catch {
-      showToast('Помилка скидання контексту');
-    }
+    } catch {}
+    showToast('Контекстне вікно загрози скинуто');
   });
 
-  // Первинна ініціалізація
+  // Ініціалізація
   await UserWhitelistManager.init();
   await renderWhitelist();
   updateCurrentTabState();
