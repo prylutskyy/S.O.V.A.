@@ -54,6 +54,11 @@ export class XaiEngine {
     // 6. Формування лаконічного людиноорієнтованого контенту (Apple HIG style)
     const human = this.determineHumanContent(options);
 
+    // Якщо Chrome Prompt AI або контекстний синтезатор сформували динамічне пояснення — оновлюємо humanCoreWarning
+    if (plainLanguageExplanation) {
+      human.humanCoreWarning = plainLanguageExplanation;
+    }
+
     const summary =
       options.type === 'chat'
         ? 'Спроба відкритої передачі банківських реквізитів у чаті'
@@ -303,22 +308,39 @@ export class XaiEngine {
         return null;
       }
 
-      const session = await factory.create({
-        systemPrompt:
-          'Ви — експерт системної безпеки в стилі Apple. Поясніть користувачеві виявлену загрозу двома спокійними, точними та авторитетними реченнями українською мовою без емодзі та паніки. Поясніть причину та наслідок для збереження коштів.',
-      });
+      const lureContext = options.activeContext
+        ? `Користувач перейшов із платформи ${options.activeContext.sourcePlatform}, де в чаті було зафіксовано приманку: "${options.activeContext.detectedKeywords.join(', ')}".`
+        : 'Прямий візит на вебсторінку.';
+
+      const triggersList = options.assessment.triggers.map((t) => t.message).join('; ');
 
       const prompt = `
-        Загроза: ${diagnosis}
-        Рівень ризику: ${options.assessment.level} (${options.assessment.score}/100)
-        Домен: ${options.targetHost}
-        Фактори: R_tech=${breakdown.technical.score}, C_env=${breakdown.contextual.score}, A_user=${breakdown.userAction.score}.
-        Сформулюй чітке пояснення небезпеки для користувача без емодзі.
-      `;
+Виявлена загроза кібербезпеки:
+- Сценарій: ${diagnosis}
+- Рівень загрози: ${options.assessment.level} (${options.assessment.score}/100)
+- Домен форми/дії: ${options.targetHost}
+- Контекст сесії: ${lureContext}
+- Виявлені симптоми: ${triggersList}
+${options.chatLeakage?.hasCvv ? '- Небезпека: спроба передачі захисного коду CVV у чаті.' : ''}
 
-      const response = await session.prompt(prompt);
-      session.destroy?.();
-      return response && response.trim().length > 10 ? response.trim() : null;
+Завдання:
+Сформулюй для користувача зрозуміле пояснення загрози (2-3 спокійні речення) українською мовою у стилі Apple. Поясни, чому це призведе до крадіжки коштів і чому не можна продовжувати. Без емодзі.
+      `.trim();
+
+      const aiPromise = (async () => {
+        const session = await factory.create({
+          systemPrompt:
+            'Ви — інтелектуальний асистент безпеки в стилі Apple. Пояснюйте суть загрози авторитетно, стисло, спокійно та українською мовою без емодзі.',
+        });
+        const resp = await session.prompt(prompt);
+        session.destroy?.();
+        return resp && resp.trim().length > 15 ? resp.trim() : null;
+      })();
+
+      // Запобігаємо зависанню інтерфейсу: жорсткий таймаут 1200 мс на відповідь LLM
+      const timeoutPromise = new Promise<null>((resolve) => setTimeout(() => resolve(null), 1200));
+
+      return await Promise.race([aiPromise, timeoutPromise]);
     } catch {
       return null;
     }
@@ -329,23 +351,34 @@ export class XaiEngine {
    */
   private static synthesizeExplanation(options: XaiEvaluationOptions): string {
     if (options.type === 'chat') {
+      if (options.chatLeakage?.hasCvv) {
+        return (
+          'У тексті повідомлення виявлено секретний CVV-код картки. ' +
+          'Для переказу чи отримання коштів іншій стороні ніколи не потрібен захисний код зі звороту картки. ' +
+          'Його відправка відкриє стороннім доступ до списання всіх ваших заощаджень.'
+        );
+      }
       return (
-        'У тексті повідомлення виявлено секретні платіжні дані. ' +
+        'У тексті повідомлення виявлено реквізити банківської картки. ' +
         'Для переказу чи отримання коштів іншій особі достатньо лише 16-значного номера картки або IBAN. ' +
-        'Передача тризначного CVV-коду або терміну дії у відкритому діалозі дозволяє співрозмовнику списати гроші з вашого рахунку.'
+        'Ніколи не надсилайте термін дії або коди безпеки у відкритому діалозі.'
       );
     }
 
     if (options.activeContext) {
+      const kw =
+        options.activeContext.detectedKeywords.length > 0
+          ? ` (виявлено маніпулятивні маркери: «${options.activeContext.detectedKeywords.slice(0, 2).join(', ')}»)`
+          : '';
       return (
-        `Виявлено ознаки шахрайського ресурсу, що імітує службу доставки чи оплати. ` +
-        `Сторінку відкрито після спілкування на платформі ${options.activeContext.sourcePlatform}, і вона вимагає секретний код безпеки CVV. ` +
-        `Офіційні служби доставки ніколи не запитують CVV для зарахування оплати за товар. Введення цих реквізитів призведе до крадіжки коштів.`
+        `Цей сайт імітує сторінку сервісу після переходу з чату ${options.activeContext.sourcePlatform}${kw}. ` +
+        `Форма запитує платіжні реквізити та секретний код безпеки CVV. ` +
+        `Офіційні сервіси доставки ніколи не вимагають введення CVV для зарахування коштів — заповнення призведе до списання грошей з вашого рахунку.`
       );
     }
 
     return (
-      `Вебсайт ${options.targetHost} запитує реквізити банківської картки, але не використовує акредитований платіжний шлюз ` +
+      `Вебсайт ${options.targetHost} запитує реквізити банківської картки, але не використовує акредитований банківський шлюз ` +
       `(LiqPay, Portmone, Stripe). Форма передає дані на неліцензований сторонній сервер, що створює пряму загрозу втрати грошей.`
     );
   }

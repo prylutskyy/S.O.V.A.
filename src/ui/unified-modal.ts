@@ -300,6 +300,18 @@ export class UnifiedFrictionModal {
           </div>
           ${reasonsListHtml}
 
+          ${options.activeContext ? `
+            <div style="margin-top: 10px; padding: 10px 12px; background: rgba(255, 149, 0, 0.08); border-radius: 8px; border: 1px solid rgba(255, 149, 0, 0.2);">
+              <div style="font-weight: 600; font-size: 11px; color: #b45309; margin-bottom: 3px;">
+                Зшивання розірваних сесій (Tainted Context):
+              </div>
+              <div style="font-size: 11.5px; color: #78350f; line-height: 1.45;">
+                Встановлено зв'язок із платформою <strong>${options.activeContext.sourcePlatform}</strong> (${Math.max(1, Math.round((Date.now() - options.activeContext.timestamp) / 60000))} хв тому).
+                ${options.activeContext.detectedKeywords.length > 0 ? `<br>Ключові фрази приманки: <em>"${options.activeContext.detectedKeywords.join('", "')}"</em>` : ''}
+              </div>
+            </div>
+          ` : ''}
+
           ${rememberHtml}
         </div>
       </div>
