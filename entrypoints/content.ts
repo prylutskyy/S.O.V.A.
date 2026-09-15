@@ -13,6 +13,7 @@ import { UserWhitelistManager } from '../src/core/user-whitelist';
 import { RiskEngine } from '../src/core/risk-engine';
 import { SecurityFriction } from '../src/ui/friction';
 import { PopoverUI } from '../src/ui/popover-ui';
+import { TextHighlighter } from '../src/ui/text-highlighter';
 import { ActiveThreatContext, HeuristicResult, ThreatAssessment } from '../src/types';
 
 export default defineContentScript({
@@ -233,32 +234,23 @@ export default defineContentScript({
     );
 
     // =========================================================================
-    // 4. ЗАХИСТ ВІД ВИТОКУ ДАНИХ У ЧАТІ (ВЕРХНІЙ ПЛАВАЮЧИЙ ТОСТ)
+    // 4. ДЕТЕКЦІЯ ТА ПІДСВІЧУВАННЯ ТЕКСТУ (GRAMMARLY-STYLE GHOST OVERLAY)
     // =========================================================================
-    const handleChatInput = (target: HTMLInputElement | HTMLTextAreaElement) => {
-      const text = target.value || '';
-      const leakage = checkOutboundChatLeakage(text);
-
-      if (leakage.isLeaking) {
-        target.style.outline = '3px solid #ef4444';
-        target.style.backgroundColor = 'rgba(239, 68, 68, 0.05)';
-
-        // Показуємо закріплений плаваючий банер у самому верху сторінки (не ламає верстку!)
-        PopoverUI.showTopToast(
-          leakage.warningMessage ||
-            'Ви намагаєтеся надіслати реквізити банківської картки у відкритому чаті! Продавцю для отримання коштів CVV та повні реквізити картки ніколи не потрібні.'
-        );
-      } else {
-        target.style.outline = '';
-        target.style.backgroundColor = '';
-        PopoverUI.hideTopToast();
-      }
+    const handleTextInput = (target: HTMLInputElement | HTMLTextAreaElement) => {
+      TextHighlighter.update(target);
     };
 
     document.addEventListener('input', (event) => {
       const target = event.target as HTMLElement;
       if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) {
-        handleChatInput(target as HTMLInputElement | HTMLTextAreaElement);
+        handleTextInput(target as HTMLInputElement | HTMLTextAreaElement);
+      }
+    });
+
+    document.addEventListener('focusin', (event) => {
+      const target = event.target as HTMLElement;
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) {
+        handleTextInput(target as HTMLInputElement | HTMLTextAreaElement);
       }
     });
 
