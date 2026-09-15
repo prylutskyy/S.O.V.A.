@@ -13,6 +13,7 @@ import { isAccreditedPaymentGateway } from '../src/core/payment-gateways';
 import { UserWhitelistManager } from '../src/core/user-whitelist';
 import { PersonalVaultManager } from '../src/core/personal-vault';
 import { VaultScanner } from '../src/heuristics/vault-scanner';
+import { UrgencyDetector } from '../src/heuristics/urgency-detector';
 import { RiskEngine } from '../src/core/risk-engine';
 import { SecurityFriction } from '../src/ui/friction';
 import { PopoverUI } from '../src/ui/popover-ui';
@@ -124,6 +125,12 @@ export default defineContentScript({
       if (vaultScan.triggers.length > 0) {
         heuristics.push(...vaultScan.triggers);
         formState.hasFilledAnySensitive = true;
+      }
+
+      // Перевірка на штучну терміновість та фіктивні таймери (Dark Patterns: +20)
+      const urgencyResults = UrgencyDetector.scanUrgencySync(form);
+      if (urgencyResults.length > 0) {
+        heuristics.push(...urgencyResults);
       }
 
       if (formState.hasFilledCard) {

@@ -262,6 +262,10 @@ export class XaiEngine {
         return null;
       }
 
+      const hasUrgency = options.assessment.triggers.some(
+        (t) => t.name === 'urgency_scarcity_manipulation' || t.message.toLowerCase().includes('термінов')
+      );
+
       const prompt = `
 Виявлена вебзагроза для аналізу:
 - Ситуація користувача: ${scenario.userIntendedAction}
@@ -270,12 +274,14 @@ export class XaiEngine {
 - Чутливі дані, які будуть вкрадені: ${scenario.exposedAssets.join(', ')}
 - Сторонній сервер: ${options.targetHost}
 - Короткий тип атаки: ${scenario.shortAttackName}
+${hasUrgency ? '- Маніпуляція терміновістю: сайт застосовує фіктивний зворотний таймер або погрози анулювання замовлення (Dark Pattern)' : ''}
 
 Завдання:
 Сформулюй чітке та спокійне попередження (2-3 речення) українською мовою у стилі Apple для звичайної людини (наприклад, працівниці бухгалтерії):
 1. Застосуй формулу контрасту: поясни людині різницю між тим, що вона хотіла зробити, і тим, що насправді відбудеться з її грошима та даними.
-2. Обов'язково вкажи суму (${scenario.financialRisk}) та які конкретно реквізити (${scenario.exposedAssets.join(', ')}) опиняться в руках зловмисників.
-3. Заверши реченням з назвою загрози: «— це ${scenario.shortAttackName}».
+2. ${hasUrgency ? 'Згадай, що таймер або погроза скасування — це психологічний прийом шахраїв для провокування поспіху.' : ''}
+3. Обов'язково вкажи суму (${scenario.financialRisk}) та які конкретно реквізити (${scenario.exposedAssets.join(', ')}) опиняться в руках зловмисників.
+4. Заверши реченням з назвою загрози: «— це ${scenario.shortAttackName}».
 
 Суворі обмеження:
 - Категорично заборонено використовувати слова «маркери», «змінні», службові назви або технічні ідентифікатори в лапках («підтвердження_оплати», «заклик_до_переходу»).
@@ -312,17 +318,23 @@ export class XaiEngine {
     scenario: ScenarioDetails
   ): string {
     const assetsStr = scenario.exposedAssets.join(', ');
+    const hasUrgency = options.assessment.triggers.some(
+      (t) => t.name === 'urgency_scarcity_manipulation' || t.message.toLowerCase().includes('термінов')
+    );
+    const urgencySentence = hasUrgency
+      ? ' Крім того, сторінка намагається викликати паніку та поспіх через зворотний таймер або погрозу скасування.'
+      : '';
 
     switch (scenario.attackCategory) {
       case 'AUTOFILL_TRAP':
         return (
-          `${scenario.userIntendedAction}, але ця сторінка потай зчитує збережені дані вашої картки (${assetsStr}) через невидимі поля автозаповнення. ` +
+          `${scenario.userIntendedAction}, але ця сторінка потай зчитує збережені дані вашої картки (${assetsStr}) через невидимі поля автозаповнення.${urgencySentence} ` +
           `Якщо продовжити, ви ризикуєте втратити ${scenario.financialRisk} та розкрити реквізити картки стороннім особам — це ${scenario.shortAttackName}.`
         );
 
       case 'DELIVERY_SCAM':
         return (
-          `${scenario.userIntendedAction}, але ця сторінка вимагає секретний тризначний код CVV і насправді надішле запит на списання коштів з вашої картки. ` +
+          `${scenario.userIntendedAction}, але ця сторінка вимагає секретний тризначний код CVV і насправді надішле запит на списання коштів з вашої картки.${urgencySentence} ` +
           `Ви ризикуєте втратити ${scenario.financialRisk} та передати шахраям ${assetsStr} — це ${scenario.shortAttackName}.`
         );
 
@@ -335,14 +347,14 @@ export class XaiEngine {
 
       case 'IDENTITY_HARVESTING':
         return (
-          `${scenario.userIntendedAction}, але ця сторінка випитує захищені банківські маркери відновлення доступу (${assetsStr}). ` +
+          `${scenario.userIntendedAction}, але ця сторінка випитує захищені банківські маркери відновлення доступу (${assetsStr}).${urgencySentence} ` +
           `Ці дані використовуються банками для підтвердження особи власника — їх розголошення сторонньому сайту дозволить шахраям перехопити доступ до ваших рахунків — це ${scenario.shortAttackName}.`
         );
 
       case 'UNTRUSTED_GATEWAY':
       default:
         return (
-          `${scenario.userIntendedAction}, але сайт передає реквізити не банку, а на сторонній неперевірений сервер (${options.targetHost}). ` +
+          `${scenario.userIntendedAction}, але сайт передає реквізити не банку, а на сторонній неперевірений сервер (${options.targetHost}).${urgencySentence} ` +
           `Ви ризикуєте втратити ${scenario.financialRisk} та скомпрометувати ${assetsStr} — це ${scenario.shortAttackName}.`
         );
     }

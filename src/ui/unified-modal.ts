@@ -739,6 +739,18 @@ export class UnifiedFrictionModal {
           badgeType = 'critical';
           description = 'Виявлено спробу передачі секретного CVV/CVC коду. Жоден офіційний маркетплейс чи служба підтримки ніколи не запитує цей код у чатах.';
           evidence = 'Secret Card Verification Value';
+        } else if (
+          t.name === 'urgency_scarcity_manipulation' ||
+          lower.includes('термінов') ||
+          lower.includes('таймер') ||
+          lower.includes('dark pattern')
+        ) {
+          title = 'Штучне нагнітання терміновості (Dark Pattern)';
+          badge = 'Психологічний тиск';
+          badgeType = 'warning';
+          description = 'Сторінка використовує фіктивний зворотний таймер або погрози анулювання замовлення, щоб викликати паніку та примусити до необдуманих дій.';
+          const timerText = (t.details as any)?.timerText;
+          evidence = timerText ? `Зворотний відлік: ${timerText}` : 'Urgency Scarcity Manipulation';
         } else {
           title = 'Виявлений фактор загрози';
           badge = t.severity === 'CRITICAL' ? 'Критично' : 'Попередження';
