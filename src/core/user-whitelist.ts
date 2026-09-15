@@ -58,6 +58,16 @@ export class UserWhitelistManager {
     }
   }
 
+  /**
+   * Отримання списку всіх дозволених доменів
+   */
+  public static async getDomains(): Promise<string[]> {
+    if (!this.isInitialized) {
+      await this.init();
+    }
+    return Array.from(this.cachedDomains);
+  }
+
   public static async clearAll(): Promise<void> {
     this.cachedDomains.clear();
     if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
@@ -73,4 +83,14 @@ export class UserWhitelistManager {
       await chrome.storage.local.set({ [USER_WHITELIST_KEY]: Array.from(this.cachedDomains) });
     }
   }
+}
+
+// Автоматична синхронізація кешу між вкладками та Popup вікном
+if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.onChanged) {
+  chrome.storage.onChanged.addListener((changes, areaName) => {
+    if (areaName === 'local' && changes['threat_shield_user_whitelist']) {
+      const list: string[] = changes['threat_shield_user_whitelist'].newValue || [];
+      UserWhitelistManager['cachedDomains'] = new Set(list.map((d) => d.toLowerCase().trim()));
+    }
+  });
 }

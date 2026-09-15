@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Adaptive Threat Shield</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+    body {
+      width: 360px;
+      background: #f8fafc;
+      color: #0f172a;
+      font-size: 13px;
+      padding: 14px;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 10px;
+      margin-bottom: 12px;
+    }
+    .logo-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .logo-box h1 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #1e293b;
+    }
+    .status-badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 12px;
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #86efac;
+    }
+    .section-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 6px;
+    }
+    .card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    }
+    .current-site-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .current-host-text {
+      font-weight: 600;
+      color: #0f172a;
+      word-break: break-all;
+      font-size: 13px;
+    }
+    .btn {
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: none;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-primary {
+      background: #2563eb;
+      color: white;
+    }
+    .btn-primary:hover {
+      background: #1d4ed8;
+    }
+    .btn-danger {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fca5a5;
+    }
+    .btn-danger:hover {
+      background: #fecaca;
+    }
+    .btn-secondary {
+      background: #f1f5f9;
+      color: #475569;
+      border: 1px solid #cbd5e1;
+    }
+    .btn-secondary:hover {
+      background: #e2e8f0;
+    }
+    .add-form {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+    .add-form input {
+      flex: 1;
+      padding: 6px 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      font-size: 12px;
+      outline: none;
+    }
+    .add-form input:focus {
+      border-color: #2563eb;
+    }
+    .whitelist-list {
+      max-height: 140px;
+      overflow-y: auto;
+      list-style: none;
+    }
+    .whitelist-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 8px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      margin-bottom: 4px;
+      font-size: 12px;
+    }
+    .whitelist-item .domain-name {
+      font-weight: 500;
+      color: #334155;
+    }
+    .whitelist-item .btn-remove {
+      background: none;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1;
+      padding: 2px;
+    }
+    .whitelist-item .btn-remove:hover {
+      color: #ef4444;
+    }
+    .empty-state {
+      font-size: 12px;
+      color: #94a3b8;
+      text-align: center;
+      padding: 10px 0;
+      font-style: italic;
+    }
+    .footer-actions {
+      display: flex;
+      gap: 6px;
+    }
+    .footer-actions button {
+      flex: 1;
+    }
+    .toast-msg {
+      margin-top: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      text-align: center;
+      padding: 4px;
+      border-radius: 4px;
+      display: none;
+    }
+    .toast-success {
+      background: #dcfce7;
+      color: #166534;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo-box">
+      <span style="font-size: 18px;">🛡️</span>
+      <h1>Threat Shield</h1>
+    </div>
+    <span class="status-badge">АКТИВНИЙ</span>
+  </div>
+
+  <!-- ПОТОЧНИЙ САЙТ -->
+  <div class="section-title">Поточна вкладка</div>
+  <div class="card" id="currentSiteCard">
+    <div class="current-site-row">
+      <div class="current-host-text" id="currentHostLabel">Завантаження...</div>
+      <button type="button" class="btn btn-primary" id="btnToggleCurrent" style="display: none;">+ Додати</button>
+    </div>
+  </div>
+
+  <!-- ПЕРСОНАЛЬНИЙ БІЛИЙ СПИСОК -->
+  <div class="section-title" id="whitelistTitle">Персональний Whitelist (0)</div>
+  <div class="card">
+    <div class="add-form">
+      <input type="text" id="manualHostInput" placeholder="example.com" />
+      <button type="button" class="btn btn-primary" id="btnAddManual">Додати</button>
+    </div>
+    <ul class="whitelist-list" id="whitelistUl">
+      <li class="empty-state">Список порожній</li>
+    </ul>
+  </div>
+
+  <!-- КЕРУВАННЯ / СКИДАННЯ -->
+  <div class="section-title">Скидання та налаштування</div>
+  <div class="footer-actions">
+    <button type="button" class="btn btn-danger" id="btnClearAllWhitelist">🗑️ Очистити список</button>
+    <button type="button" class="btn btn-secondary" id="btnResetContext">🔄 Скинути Context</button>
+  </div>
+
+  <div id="toastMessage" class="toast-msg toast-success">Зміни успішно застосовано!</div>
+
+  <script type="module" src="./main.ts"></script>
+</body>
+</html>
