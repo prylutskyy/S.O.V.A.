@@ -1,9 +1,9 @@
 import { ActiveThreatContext, ThreatAssessment } from '../types';
-import { PopoverUI } from './popover-ui';
+import { UnifiedFrictionModal } from './unified-modal';
 
 export class SecurityFriction {
   /**
-   * Застосування адаптивного тертя (Security Friction) через спливаюче вікно над кнопкою (Hover / Popover)
+   * Застосування адаптивного тертя (Security Friction) через центроване універсальне модальне вікно
    */
   public static apply(
     form: HTMLFormElement,
@@ -29,17 +29,17 @@ export class SecurityFriction {
       form.style.backgroundColor = 'rgba(245, 158, 11, 0.04)';
     }
 
-    // Шукаємо кнопку, до якої прив'язати спливаюче вікно
-    const targetAnchor =
-      anchorElement ||
-      form.querySelector<HTMLElement>('button[type="submit"], input[type="submit"], button') ||
-      form;
-
-    // Виклик спливаючого вікна безпосередньо над кнопкою
-    PopoverUI.showButtonPopover({
-      anchorElement: targetAnchor,
-      assessment,
-      targetHost,
+    // Виклик універсального центрованого модального вікна
+    UnifiedFrictionModal.show({
+      type: 'form',
+      title: 'Призупинено відправку форми',
+      badgeText: `РІВЕНЬ РИЗИКУ: ${assessment.level} (${assessment.score}/100)`,
+      contextLabel: 'Цільовий сервер',
+      contextValue: targetHost,
+      triggers: assessment.triggers,
+      explanation: '💡 Цей ресурс не є офіційним акредитованим платіжним еквайрингом (LiqPay, Stripe, Portmone). Передача реквізитів банківської картки чи паролів стороннім серверам загрожує несанкціонованим списанням коштів!',
+      allowRememberDomain: true,
+      domainToRemember: targetHost,
       onProceed: () => {
         console.log('[ThreatShield] Користувач усвідомлено розблокував відправку форми');
         form.dataset.threatShieldApproved = 'true';
@@ -57,7 +57,54 @@ export class SecurityFriction {
         }
       },
       onCancel: () => {
-        console.log('[ThreatShield] Користувач закрив спливаюче вікно безпеки');
+        console.log('[ThreatShield] Користувач скасував відправку підозрілої форми');
+      },
+    });
+  }
+
+  /**
+   * Застосування тертя при спробі надіслати карткові дані в чаті
+   */
+  public static applyToChat(
+    chatInput: HTMLInputElement | HTMLTextAreaElement,
+    leakage: { hasCard: boolean; hasCvv: boolean; cards: string[] },
+    onProceed: () => void,
+    onCancel?: () => void
+  ): void {
+    const currentPlatform = window.location.hostname || 'Відкритий чат маркетплейсу';
+
+    const triggers: Array<{ message: string; severity: string }> = [];
+    if (leakage.hasCard) {
+      triggers.push({
+        message: 'У тексті повідомлення виявлено номер банківської картки (Luhn валідація)',
+        severity: 'CRITICAL',
+      });
+    }
+    if (leakage.hasCvv) {
+      triggers.push({
+        message: 'Виявлено секретний тризначний код безпеки картки (CVV/CVC)',
+        severity: 'CRITICAL',
+      });
+    }
+
+    UnifiedFrictionModal.show({
+      type: 'chat',
+      title: 'Призупинено надсилання в чаті',
+      badgeText: 'ВИТІК ПЛАТІЖНИХ ДАНИХ (CRITICAL)',
+      contextLabel: 'Платформа діалогу',
+      contextValue: currentPlatform,
+      triggers,
+      explanation: '💡 Порада кібербезпеки: Для отримання оплати іншій стороні ніколи не потрібні CVV або термін дії вашої картки (достатньо лише номера IBAN або 16 цифр). Повна передача реквізитів у незахищеному чаті призводить до крадіжки грошей!',
+      allowRememberDomain: false,
+      onProceed: () => {
+        console.log('[ThreatShield] Користувач свідомо розблокував відправку повідомлення в чаті');
+        chatInput.dataset.threatShieldApproved = 'true';
+        chatInput.style.outline = '2px solid #22c55e';
+        onProceed();
+      },
+      onCancel: () => {
+        console.log('[ThreatShield] Користувач скасував відправку повідомлення в чаті');
+        if (onCancel) onCancel();
       },
     });
   }

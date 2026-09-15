@@ -262,25 +262,59 @@ export default defineContentScript({
       }
     });
 
-    // Блокування Enter у чаті при спробі відправити реквізити (БЕЗ alert!)
+    // =========================================================================
+    // Блокування відправки в чаті (Enter або кнопка Надіслати) із викликом модального вікна
+    // =========================================================================
+    const interceptChatSend = (inputElement: HTMLInputElement | HTMLTextAreaElement, event: Event) => {
+      if (inputElement.dataset.threatShieldApproved === 'true') {
+        console.log('[ThreatShield:Content] Відправка повідомлення в чаті дозволена (усвідомлене розблокування).');
+        delete inputElement.dataset.threatShieldApproved;
+        return;
+      }
+
+      const leakage = checkOutboundChatLeakage(inputElement.value || '');
+      if (leakage.isLeaking) {
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+
+        SecurityFriction.applyToChat(inputElement, leakage, () => {
+          // При усвідомленому підтвердженні:
+          inputElement.dataset.threatShieldApproved = 'true';
+          inputElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }));
+        });
+      }
+    };
+
+    // 1. Натискання Enter у полі чату
     document.addEventListener(
       'keydown',
       (event) => {
         if (event.key === 'Enter' && !event.shiftKey) {
           const target = event.target as HTMLElement;
           if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) {
-            const leakage = checkOutboundChatLeakage((target as HTMLInputElement).value || '');
-            if (leakage.isLeaking) {
-              event.preventDefault();
-              event.stopPropagation();
-              event.stopImmediatePropagation();
-
-              // Замість alert виводимо акцентований верхній тост
-              PopoverUI.showTopToast(
-                '🛑 ВІДПРАВКУ ЗАБЛОКОВАНО: Видаліть номер банківської картки або CVV з тексту повідомлення перед відправленням!'
-              );
+            if (!target.closest('form')) {
+              interceptChatSend(target as HTMLInputElement | HTMLTextAreaElement, event);
             }
           }
+        }
+      },
+      true
+    );
+
+    // 2. Клік по кнопці відправки чату (поза формою)
+    document.addEventListener(
+      'click',
+      (event) => {
+        const target = event.target as HTMLElement;
+        const btn = target.closest<HTMLButtonElement>('button, input[type="button"]');
+        if (!btn || btn.closest('form')) return;
+
+        // Пошук зв'язаного інпуту чату
+        const container = btn.closest('.chat-box, .message-input, div');
+        const chatInput = container?.querySelector<HTMLInputElement | HTMLTextAreaElement>('textarea, input[type="text"]');
+        if (chatInput && (chatInput.tagName === 'TEXTAREA' || chatInput.tagName === 'INPUT')) {
+          interceptChatSend(chatInput, event);
         }
       },
       true
