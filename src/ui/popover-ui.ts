@@ -29,18 +29,20 @@ export class PopoverUI {
       .join('');
 
     popover.style.cssText = `
-      position: absolute !important;
+      position: fixed !important;
       z-index: 2147483647 !important;
-      width: 380px !important;
+      width: 390px !important;
+      max-width: calc(100vw - 24px) !important;
       background: #ffffff !important;
       color: #0f172a !important;
       border: 2px solid #ef4444 !important;
       border-radius: 12px !important;
-      box-shadow: 0 15px 35px rgba(0,0,0,0.25), 0 5px 15px rgba(0,0,0,0.1) !important;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3), 0 6px 16px rgba(239,68,68,0.15) !important;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
       padding: 16px !important;
       box-sizing: border-box !important;
       animation: threatPopoverFade 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      pointer-events: auto !important;
     `;
 
     popover.innerHTML = `
@@ -60,7 +62,7 @@ export class PopoverUI {
             </span>
           </div>
         </div>
-        <button id="threat-popover-close" style="
+        <button id="threat-popover-close" type="button" style="
           background: none; border: none; font-size: 18px; color: #64748b; cursor: pointer; padding: 0 4px; line-height: 1;
         ">✕</button>
       </div>
@@ -79,35 +81,44 @@ export class PopoverUI {
       </label>
 
       <div style="display: flex; gap: 8px; justify-content: flex-end;">
-        <button id="threat-popover-cancel" style="
+        <button id="threat-popover-cancel" type="button" style="
           background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;
         ">Скасувати</button>
-        <button id="threat-popover-override" disabled style="
+        <button id="threat-popover-override" type="button" disabled style="
           background: #e2e8f0; color: #94a3b8; border: 1px solid #cbd5e1; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: not-allowed; transition: all 0.2s;
         ">⏳ Зачекайте (3с)...</button>
       </div>
     `;
 
-    document.body.appendChild(popover);
+    // Додаємо до body або documentElement
+    (document.body || document.documentElement).appendChild(popover);
     this.activePopover = popover;
 
-    // Розрахунок позиціонування над кнопкою
+    // Розрахунок точного позиціонування через fixed viewport координати
     const popoverRect = popover.getBoundingClientRect();
-    let top = anchorRect.top + window.scrollY - popoverRect.height - 12;
-    let left = anchorRect.left + window.scrollX;
+    let top = anchorRect.top - popoverRect.height - 12;
+    let left = anchorRect.left;
 
-    // Якщо зверху недостатньо місця — розміщуємо під кнопкою
-    if (top < window.scrollY + 10) {
-      top = anchorRect.bottom + window.scrollY + 12;
+    // Якщо над кнопкою недостатньо місця (менше 10px від верху вікна) — розміщуємо під кнопкою
+    if (top < 10) {
+      top = anchorRect.bottom + 12;
     }
 
-    // Запобігання виходу за межі екрана праворуч
-    if (left + popoverRect.width > window.innerWidth - 20) {
-      left = Math.max(10, window.innerWidth - popoverRect.width - 20);
+    // Якщо під кнопкою виходить за нижній край екрана
+    if (top + popoverRect.height > window.innerHeight - 10) {
+      top = Math.max(10, window.innerHeight - popoverRect.height - 10);
     }
 
-    popover.style.top = `${Math.max(10, top)}px`;
-    popover.style.left = `${Math.max(10, left)}px`;
+    // Запобігання виходу за правий край екрана
+    if (left + popoverRect.width > window.innerWidth - 12) {
+      left = Math.max(10, window.innerWidth - popoverRect.width - 12);
+    }
+    if (left < 10) {
+      left = 10;
+    }
+
+    popover.style.top = `${Math.round(top)}px`;
+    popover.style.left = `${Math.round(left)}px`;
 
     // Обробники кнопок
     const btnClose = popover.querySelector('#threat-popover-close');
