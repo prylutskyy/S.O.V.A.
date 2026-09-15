@@ -12,6 +12,7 @@ import { isAccreditedPaymentGateway } from '../src/core/payment-gateways';
 import { UserWhitelistManager } from '../src/core/user-whitelist';
 import { RiskEngine } from '../src/core/risk-engine';
 import { SecurityFriction } from '../src/ui/friction';
+import { PopoverUI } from '../src/ui/popover-ui';
 import { ActiveThreatContext, HeuristicResult, ThreatAssessment } from '../src/types';
 
 export default defineContentScript({
@@ -22,7 +23,7 @@ export default defineContentScript({
 
     let activeContext: ActiveThreatContext | null = null;
 
-    // Фонова асинхронна ініціалізація кешів (НЕ блокує реєстрацію обробників подій!)
+    // Фонова асинхронна ініціалізація кешів
     UserWhitelistManager.init().catch((e) => console.error('[ThreatShield] UserWhitelist init error:', e));
 
     try {
@@ -109,7 +110,7 @@ export default defineContentScript({
     };
 
     // =========================================================================
-    // 1. РІВЕНЬ ПЕРЕХОПЛЕННЯ 1: Клік по кнопці відправки форми (до події submit!)
+    // 1. РІВЕНЬ 1: Клік по кнопці відправки форми (до події submit)
     // =========================================================================
     document.addEventListener(
       'click',
@@ -124,26 +125,26 @@ export default defineContentScript({
         if (!form) return;
 
         if (form.dataset.threatShieldApproved === 'true') {
-          return; // Користувач свідомо дозволив відправку
+          return;
         }
 
         const { assessment, formState, targetHost } = evaluateFormThreat(form);
         console.log('[ThreatShield:ClickIntercept] Оцінка форми перед кліком:', { assessment, formState });
 
         if (shouldBlock(assessment, formState, targetHost)) {
-          // Зупиняємо клік, щоб браузер навіть не створив подію submit і не викликав inline onsubmit!
           event.preventDefault();
           event.stopPropagation();
           event.stopImmediatePropagation();
 
-          SecurityFriction.apply(form, assessment);
+          // Відображаємо плаваючий Popover над самою кнопкою
+          SecurityFriction.apply(form, assessment, submitBtn);
         }
       },
-      true // Capture phase!
+      true
     );
 
     // =========================================================================
-    // 2. РІВЕНЬ ПЕРЕХОПЛЕННЯ 2: Натискання Enter у полях форми
+    // 2. РІВЕНЬ 2: Натискання Enter у полях форми
     // =========================================================================
     document.addEventListener(
       'keydown',
@@ -160,16 +161,16 @@ export default defineContentScript({
               event.stopPropagation();
               event.stopImmediatePropagation();
 
-              SecurityFriction.apply(form, assessment);
+              SecurityFriction.apply(form, assessment, target);
             }
           }
         }
       },
-      true // Capture phase!
+      true
     );
 
     // =========================================================================
-    // 3. РІВЕНЬ ПЕРЕХОПЛЕННЯ 3: Подія submit на формі (capture фаза)
+    // 3. РІВЕНЬ 3: Подія submit на формі (capture фаза)
     // =========================================================================
     document.addEventListener(
       'submit',
@@ -184,7 +185,6 @@ export default defineContentScript({
         }
 
         const { assessment, formState, targetHost } = evaluateFormThreat(form);
-        console.log('[ThreatShield:SubmitIntercept] Оцінка форми на submit:', { assessment, formState });
 
         if (shouldBlock(assessment, formState, targetHost)) {
           event.preventDefault();
@@ -201,11 +201,11 @@ export default defineContentScript({
           } catch {}
         }
       },
-      true // Capture phase!
+      true
     );
 
     // =========================================================================
-    // 4. ЗАХИСТ ВІД ВИТОКУ ДАНИХ У ЧАТІ
+    // 4. ЗАХИСТ ВІД ВИТОКУ ДАНИХ У ЧАТІ (ВЕРХНІЙ ПЛАВАЮЧИЙ ТОСТ)
     // =========================================================================
     const handleChatInput = (target: HTMLInputElement | HTMLTextAreaElement) => {
       const text = target.value || '';
@@ -213,33 +213,17 @@ export default defineContentScript({
 
       if (leakage.isLeaking) {
         target.style.outline = '3px solid #ef4444';
-        target.style.backgroundColor = 'rgba(239, 68, 68, 0.08)';
+        target.style.backgroundColor = 'rgba(239, 68, 68, 0.05)';
 
-        let warningBadge = target.parentElement?.querySelector('.threat-shield-chat-warning') as HTMLElement;
-        if (!warningBadge && target.parentElement) {
-          warningBadge = document.createElement('div');
-          warningBadge.className = 'threat-shield-chat-warning';
-          warningBadge.style.cssText = `
-            background: #fee2e2;
-            color: #991b1b;
-            border: 1px solid #f87171;
-            padding: 6px 10px;
-            font-size: 12px;
-            border-radius: 6px;
-            margin-top: 6px;
-            font-weight: 500;
-          `;
-          target.parentElement.appendChild(warningBadge);
-        }
-
-        if (warningBadge) {
-          warningBadge.innerText = leakage.warningMessage || 'Увага: виявлено реквізити картки в повідомленні!';
-        }
+        // Показуємо закріплений плаваючий банер у самому верху сторінки (не ламає верстку!)
+        PopoverUI.showTopToast(
+          leakage.warningMessage ||
+            'Ви намагаєтеся надіслати реквізити банківської картки у відкритому чаті! Продавцю для отримання коштів CVV та повні реквізити картки ніколи не потрібні.'
+        );
       } else {
         target.style.outline = '';
         target.style.backgroundColor = '';
-        const warningBadge = target.parentElement?.querySelector('.threat-shield-chat-warning');
-        if (warningBadge) warningBadge.remove();
+        PopoverUI.hideTopToast();
       }
     };
 
@@ -250,7 +234,7 @@ export default defineContentScript({
       }
     });
 
-    // Блокування Enter у повідомленні чату при витоку
+    // Блокування Enter у чаті при спробі відправити реквізити (БЕЗ alert!)
     document.addEventListener(
       'keydown',
       (event) => {
@@ -262,11 +246,10 @@ export default defineContentScript({
               event.preventDefault();
               event.stopPropagation();
               event.stopImmediatePropagation();
-              alert(
-                `🛑 [ДІЮ ЗАБЛОКОВАНО: ВИТІК РЕКВІЗИТІВ КАРТКИ В ЧАТІ]\n\n` +
-                `Система виявила номер банківської картки або CVV у тексті вашого повідомлення.\n\n` +
-                `Пам'ятайте: покупець на маркетплейсі не повинен знати ваш CVV або номер картки для переказу коштів за схемою OLX Доставка.\n` +
-                `Очистіть чутливі дані перед відправленням повідомлення!`
+
+              // Замість alert виводимо акцентований верхній тост
+              PopoverUI.showTopToast(
+                '🛑 ВІДПРАВКУ ЗАБЛОКОВАНО: Видаліть номер банківської картки або CVV з тексту повідомлення перед відправленням!'
               );
             }
           }
@@ -276,7 +259,7 @@ export default defineContentScript({
     );
 
     // =========================================================================
-    // 5. ДЕТЕКЦІЯ СОЦІНЖЕНЕРІЇ ТА ВИВЕДЕННЯ В МЕСЕНДЖЕРИ НА ПЛАТФОРМАХ
+    // 5. ДЕТЕКЦІЯ СОЦІНЖЕНЕРІЇ ТА ВИВЕДЕННЯ В МЕСЕНДЖЕРИ
     // =========================================================================
     const isPlatform = isMonitoredPlatform(currentHost) || window.location.protocol === 'file:';
 
@@ -288,7 +271,6 @@ export default defineContentScript({
           if (target && target.href) {
             const scan = scanTextForLures(target.href + ' ' + target.innerText);
             if (scan.detected) {
-              console.warn('[ThreatShield:Content] Клік по маніпулятивному лінку:', target.href);
               try {
                 chrome.runtime.sendMessage({
                   type: 'LURE_DETECTED',

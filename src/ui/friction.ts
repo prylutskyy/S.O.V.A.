@@ -1,13 +1,14 @@
 import { ActiveThreatContext, ThreatAssessment } from '../types';
-import { FrictionModal } from './friction-modal';
+import { PopoverUI } from './popover-ui';
 
 export class SecurityFriction {
   /**
-   * Застосування адаптивного тертя (Security Friction) через модальне вікно усвідомленого підтвердження
+   * Застосування адаптивного тертя (Security Friction) через спливаюче вікно над кнопкою (Hover / Popover)
    */
   public static apply(
     form: HTMLFormElement,
     assessment: ThreatAssessment,
+    anchorElement?: HTMLElement,
     onProceedCallback?: () => void
   ): void {
     let targetHost = window.location.hostname;
@@ -16,34 +17,38 @@ export class SecurityFriction {
       if (rawAction) {
         targetHost = new URL(rawAction, window.location.href).hostname;
       }
-    } catch {
-      // fallback
-    }
+    } catch {}
 
     // Візуальне маркування форми
     if (assessment.level === 'CRITICAL') {
-      form.style.outline = '4px solid #ef4444';
-      form.style.backgroundColor = 'rgba(239, 68, 68, 0.05)';
+      form.style.outline = '3px solid #ef4444';
+      form.style.backgroundColor = 'rgba(239, 68, 68, 0.04)';
       form.style.transition = 'all 0.3s ease';
     } else if (assessment.level === 'HIGH') {
-      form.style.outline = '3px dashed #f59e0b';
-      form.style.backgroundColor = 'rgba(245, 158, 11, 0.05)';
+      form.style.outline = '2px dashed #f59e0b';
+      form.style.backgroundColor = 'rgba(245, 158, 11, 0.04)';
     }
 
-    // Виклик сучасного модального вікна замість alert()
-    FrictionModal.show({
+    // Шукаємо кнопку, до якої прив'язати спливаюче вікно
+    const targetAnchor =
+      anchorElement ||
+      form.querySelector<HTMLElement>('button[type="submit"], input[type="submit"], button') ||
+      form;
+
+    // Виклик спливаючого вікна безпосередньо над кнопкою
+    PopoverUI.showButtonPopover({
+      anchorElement: targetAnchor,
       assessment,
       targetHost,
       onProceed: () => {
-        // Користувач свідомо підтвердив довіру до сайту
-        console.log('[ThreatShield] Користувач усвідомлено розблокував дію');
+        console.log('[ThreatShield] Користувач усвідомлено розблокував відправку форми');
         form.dataset.threatShieldApproved = 'true';
         form.style.outline = '2px solid #22c55e';
 
         if (onProceedCallback) {
           onProceedCallback();
         } else {
-          // Повторне відправлення форми в легітимному режимі
+          // Повторне легітимне відправлення форми
           if (typeof form.requestSubmit === 'function') {
             form.requestSubmit();
           } else {
@@ -52,13 +57,13 @@ export class SecurityFriction {
         }
       },
       onCancel: () => {
-        console.log('[ThreatShield] Користувач скасував потенційно небезпечну дію');
+        console.log('[ThreatShield] Користувач закрив спливаюче вікно безпеки');
       },
     });
   }
 
   /**
-   * Виведення індикаторного банера про зшиту сесію (Tainted Context Window)
+   * Виведення верхнього попереджувального банера про активне вікно підозри
    */
   public static showContextWarningBanner(context: ActiveThreatContext): void {
     const existing = document.getElementById('threat-shield-context-banner');
@@ -67,22 +72,22 @@ export class SecurityFriction {
     const banner = document.createElement('div');
     banner.id = 'threat-shield-context-banner';
     banner.style.cssText = `
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      background: linear-gradient(90deg, #b91c1c, #ea580c);
-      color: white;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      font-size: 13px;
-      font-weight: 500;
-      padding: 10px 16px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-      z-index: 2147483647;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      box-sizing: border-box;
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 100% !important;
+      background: linear-gradient(90deg, #b91c1c, #ea580c) !important;
+      color: white !important;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+      font-size: 13px !important;
+      font-weight: 500 !important;
+      padding: 10px 16px !important;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2) !important;
+      z-index: 2147483646 !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      box-sizing: border-box !important;
     `;
 
     const keywords = context.detectedKeywords.join(', ');
@@ -93,8 +98,7 @@ export class SecurityFriction {
         <span style="font-size: 18px;">🛡️</span>
         <span>
           <strong>Adaptive Threat Shield [Зшивання сесії]:</strong> 
-          Цей сайт відкрито у вікні підозрілого контексту (${elapsedMin} хв тому на платформі <em>${context.sourcePlatform}</em> зафіксовано маніпулятивні маркери: <u>${keywords}</u>).
-          Базовий ризик форми підвищено!
+          Сайт відкрито під час активного вікна загрози (${elapsedMin} хв тому на <em>${context.sourcePlatform}</em> зафіксовано: <u>${keywords}</u>).
         </span>
       </div>
       <button id="threat-shield-close-banner" style="
@@ -105,11 +109,10 @@ export class SecurityFriction {
         border-radius: 4px;
         cursor: pointer;
         font-size: 12px;
-      ">Зрозуміло</button>
+      ">✕</button>
     `;
 
     document.body.prepend(banner);
-
     document.getElementById('threat-shield-close-banner')?.addEventListener('click', () => {
       banner.remove();
     });
