@@ -1,13 +1,14 @@
 export type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
 
-export interface ThreatContext {
-  sourcePlatform?: string;
-  scenario?: string;
+export interface ActiveThreatContext {
+  sourcePlatform: string;
+  scenario: string;
   threatLevel: RiskLevel;
   detectedKeywords: string[];
   offPlatformLure: boolean;
   timestamp: number;
   ttlMs: number;
+  targetSuspiciousUrl?: string;
 }
 
 export interface HeuristicResult {
@@ -24,4 +25,12 @@ export interface ThreatAssessment {
   level: RiskLevel;
   triggers: HeuristicResult[];
   timestamp: number;
+  contextActive?: boolean;
+}
+
+export interface LureDetectionResult {
+  detected: boolean;
+  keywords: string[];
+  isOffPlatformLure: boolean;
+  suspiciousUrls: string[];
 }
