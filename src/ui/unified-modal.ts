@@ -18,9 +18,19 @@ export interface UnifiedModalOptions {
 export class UnifiedFrictionModal {
   private static activeModal: HTMLElement | null = null;
   private static countdownInterval: number | null = null;
+  private static previousBodyOverflow: string | null = null;
+  private static previousHtmlOverflow: string | null = null;
 
   public static show(options: UnifiedModalOptions): void {
     this.close();
+
+    // Заборона гортання основної сторінки (Scroll Lock)
+    if (this.previousBodyOverflow === null) {
+      this.previousBodyOverflow = document.body.style.overflow;
+      this.previousHtmlOverflow = document.documentElement.style.overflow;
+    }
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
 
     const modalRoot = document.createElement('div');
     modalRoot.id = 'threat-shield-unified-modal';
@@ -252,6 +262,29 @@ export class UnifiedFrictionModal {
       }
     });
 
+    // Запобігання прокручуванню сторінки колесиком або тачем на бекдропі
+    modalRoot.addEventListener(
+      'wheel',
+      (e) => {
+        const target = e.target as HTMLElement;
+        if (!target.closest('#threat-modal-card')) {
+          e.preventDefault();
+        }
+      },
+      { passive: false }
+    );
+
+    modalRoot.addEventListener(
+      'touchmove',
+      (e) => {
+        const target = e.target as HTMLElement;
+        if (!target.closest('#threat-modal-card')) {
+          e.preventDefault();
+        }
+      },
+      { passive: false }
+    );
+
     // 3-секундний когнітивний таймер усвідомлення (Security Friction)
     let timeLeft = 3;
     this.countdownInterval = window.setInterval(() => {
@@ -288,6 +321,16 @@ export class UnifiedFrictionModal {
     if (this.activeModal) {
       this.activeModal.remove();
       this.activeModal = null;
+    }
+
+    // Відновлення гортання сторінки
+    if (this.previousBodyOverflow !== null) {
+      document.body.style.overflow = this.previousBodyOverflow;
+      this.previousBodyOverflow = null;
+    }
+    if (this.previousHtmlOverflow !== null) {
+      document.documentElement.style.overflow = this.previousHtmlOverflow;
+      this.previousHtmlOverflow = null;
     }
   }
 }
