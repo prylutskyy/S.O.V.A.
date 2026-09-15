@@ -122,7 +122,6 @@ export interface FormSensitiveState {
  */
 export function getFormFilledState(form: HTMLFormElement): FormSensitiveState {
   const inputs = form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('input, textarea');
-  const sensitiveRegex = /(card|cvv|cvc|exp|pass|pwd|token|auth|pin|secure|номер.*карт)/i;
 
   let hasFilledCard = false;
   let hasFilledPassword = false;
@@ -133,16 +132,22 @@ export function getFormFilledState(form: HTMLFormElement): FormSensitiveState {
     const val = input.value?.trim() || '';
     if (val.length > 0) {
       filledInputCount++;
+      const descriptor = `${input.name} ${input.id} ${input.placeholder} ${input.autocomplete}`.toLowerCase();
+      const digitsOnly = val.replace(/\D/g, '');
 
-      if (input.type === 'password' || /(pass|pwd|secret)/i.test(input.name || input.id)) {
+      // 1. Поля паролів
+      if (input.type === 'password' || /(pass|pwd|secret|auth)/i.test(descriptor)) {
         hasFilledPassword = true;
       }
 
-      if (/(cvv|cvc|pin)/i.test(input.name || input.id) && val.length >= 3) {
+      // 2. Поля CVV / CVC / Pin
+      if (/(cvv|cvc|pin|безпек)/i.test(descriptor) && val.length >= 2) {
         hasFilledCvv = true;
       }
 
-      if (passesLuhnCheck(val)) {
+      // 3. Поля банківської картки (валідація за Луна АБО наявність 12-19 цифр у картковому полі)
+      const isCardDescriptor = /(card|карт|pan|cc-number|cc-num)/i.test(descriptor);
+      if (passesLuhnCheck(val) || (isCardDescriptor && digitsOnly.length >= 12)) {
         hasFilledCard = true;
       }
     }

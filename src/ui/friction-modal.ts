@@ -20,15 +20,15 @@ export class FrictionModal {
     this.hostElement = document.createElement('div');
     this.hostElement.id = 'adaptive-threat-shield-root';
     this.hostElement.style.cssText = `
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: 2147483647;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      z-index: 2147483647 !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
     `;
 
     const shadow = this.hostElement.attachShadow({ mode: 'open' });
@@ -45,8 +45,8 @@ export class FrictionModal {
       .backdrop {
         position: fixed;
         inset: 0;
-        background: rgba(15, 23, 42, 0.75);
-        backdrop-filter: blur(6px);
+        background: rgba(15, 23, 42, 0.8);
+        backdrop-filter: blur(8px);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -63,9 +63,9 @@ export class FrictionModal {
       .modal-card {
         background: #ffffff;
         width: 90%;
-        max-width: 520px;
+        max-width: 540px;
         border-radius: 16px;
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
         border: 1px solid #fee2e2;
         overflow: hidden;
         animation: scaleUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
@@ -89,7 +89,7 @@ export class FrictionModal {
       }
       .header-badge {
         display: inline-block;
-        background: rgba(0, 0, 0, 0.25);
+        background: rgba(0, 0, 0, 0.3);
         padding: 3px 8px;
         border-radius: 20px;
         font-size: 11px;
@@ -124,6 +124,8 @@ export class FrictionModal {
       .reasons-list {
         list-style: none;
         margin-bottom: 20px;
+        max-height: 200px;
+        overflow-y: auto;
       }
       .reasons-list li {
         font-size: 13px;
@@ -141,7 +143,7 @@ export class FrictionModal {
         gap: 8px;
         font-size: 13px;
         color: #475569;
-        margin-bottom: 20px;
+        margin-bottom: 16px;
         cursor: pointer;
       }
       .remember-container input {
@@ -182,7 +184,7 @@ export class FrictionModal {
         cursor: not-allowed;
       }
       .btn-override.ready {
-        background: #fff;
+        background: #ffffff;
         color: #ea580c;
         border-color: #f97316;
         cursor: pointer;
@@ -214,7 +216,7 @@ export class FrictionModal {
             Цільовий хост відправки форми: <strong>${options.targetHost}</strong>
           </div>
 
-          <div class="reasons-title">Чому дію було тимчасово призупинено:</div>
+          <div class="reasons-title">Чому дію було заблоковано:</div>
           <ul class="reasons-list">
             ${reasonsHtml}
           </ul>
@@ -233,7 +235,10 @@ export class FrictionModal {
 
     shadow.appendChild(style);
     shadow.appendChild(modalWrapper);
-    document.body.appendChild(this.hostElement);
+    
+    // Гарантоване додавання до DOM (body або documentElement)
+    const targetParent = document.body || document.documentElement;
+    targetParent.appendChild(this.hostElement);
 
     // Логіка кнопок
     const btnCancel = shadow.getElementById('btnCancel');

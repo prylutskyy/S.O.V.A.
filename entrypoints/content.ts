@@ -4,6 +4,7 @@ import {
   passesLuhnCheck,
   getFormFilledState,
   checkOutboundChatLeakage,
+  FormSensitiveState,
 } from '../src/heuristics/input-detector';
 import { scanTextForLures } from '../src/heuristics/lure-detector';
 import { isWhitelisted, isMonitoredPlatform } from '../src/core/whitelist';
@@ -11,84 +12,201 @@ import { isAccreditedPaymentGateway } from '../src/core/payment-gateways';
 import { UserWhitelistManager } from '../src/core/user-whitelist';
 import { RiskEngine } from '../src/core/risk-engine';
 import { SecurityFriction } from '../src/ui/friction';
-import { ActiveThreatContext, HeuristicResult } from '../src/types';
+import { ActiveThreatContext, HeuristicResult, ThreatAssessment } from '../src/types';
 
 export default defineContentScript({
   matches: ['<all_urls>'],
-  async main() {
+  main() {
     const currentHost = window.location.hostname.toLowerCase();
     console.log('[ThreatShield:Content] Ініціалізація на хості:', currentHost || 'local file');
 
-    // 1. Ініціалізація кешу користувацького білого списку
-    await UserWhitelistManager.init();
-
     let activeContext: ActiveThreatContext | null = null;
 
-    // 2. Запит до Background Worker щодо наявності активного контексту (Tainted Context Window)
-    try {
-      const response = await chrome.runtime.sendMessage({ type: 'GET_ACTIVE_CONTEXT' });
-      if (response && response.context) {
-        activeContext = response.context;
-        console.log('[ThreatShield:Content] Отримано активний контекст загрози:', activeContext);
+    // Фонова асинхронна ініціалізація кешів (НЕ блокує реєстрацію обробників подій!)
+    UserWhitelistManager.init().catch((e) => console.error('[ThreatShield] UserWhitelist init error:', e));
 
-        const isUserAllowed = UserWhitelistManager.isDomainAllowedSync(currentHost);
-        if (!isWhitelisted(currentHost) && !isUserAllowed && currentHost !== activeContext.sourcePlatform) {
-          SecurityFriction.showContextWarningBanner(activeContext);
+    try {
+      chrome.runtime.sendMessage({ type: 'GET_ACTIVE_CONTEXT' }).then((response) => {
+        if (response && response.context) {
+          activeContext = response.context;
+          console.log('[ThreatShield:Content] Отримано активний контекст загрози:', activeContext);
+
+          const isUserAllowed = UserWhitelistManager.isDomainAllowedSync(currentHost);
+          if (!isWhitelisted(currentHost) && !isUserAllowed && currentHost !== activeContext.sourcePlatform) {
+            SecurityFriction.showContextWarningBanner(activeContext);
+          }
         }
-      }
+      }).catch(() => {});
     } catch {
-      // Background worker ще завантажується
+      // background worker ще стартує
     }
 
-    // 3. Детекція соцінженерії та виведення в месенджери на платформах комунікації
-    const isPlatform = isMonitoredPlatform(currentHost) || window.location.protocol === 'file:';
+    // =========================================================================
+    // СИНХРОННА ОЦІНКА ФОРМИ
+    // =========================================================================
+    const evaluateFormThreat = (
+      form: HTMLFormElement
+    ): { assessment: ThreatAssessment; formState: FormSensitiveState; targetHost: string } => {
+      const rawAction = form.getAttribute('action') || form.action;
+      let targetHost = currentHost;
+      try {
+        if (rawAction && rawAction !== '#') {
+          targetHost = new URL(rawAction, window.location.href).hostname.toLowerCase();
+        }
+      } catch {}
 
-    if (isPlatform) {
-      // Кліки по сторонніх лінках (Off-Platform Lure)
-      document.addEventListener(
-        'click',
-        (event) => {
-          const target = (event.target as HTMLElement).closest('a');
-          if (target && target.href) {
-            const scan = scanTextForLures(target.href + ' ' + target.innerText);
-            if (scan.detected) {
-              console.warn('[ThreatShield:Content] Зафіксовано клік по маніпулятивному лінку:', target.href);
-              chrome.runtime.sendMessage({
-                type: 'LURE_DETECTED',
-                payload: {
-                  sourcePlatform: currentHost || 'marketplace-chat',
-                  keywords: scan.keywords,
-                  offPlatformLure: scan.isOffPlatformLure,
-                  suspiciousUrl: target.href,
-                },
-              });
-            }
-          }
+      const formState = getFormFilledState(form);
+      const heuristics: HeuristicResult[] = [];
+
+      heuristics.push(checkFormActionMismatch(form));
+      heuristics.push(...checkSensitiveAndHiddenInputs(form));
+
+      if (formState.hasFilledCard) {
+        heuristics.push({
+          name: 'luhn_card_number_detected',
+          triggered: true,
+          severity: 'CRITICAL',
+          scoreContribution: 40,
+          message: 'У формі введено номер банківської картки!',
+        });
+      }
+
+      let contextBonus = 0;
+      if (activeContext && !isWhitelisted(currentHost)) {
+        contextBonus = 35;
+        heuristics.push({
+          name: 'tainted_context_window_active',
+          triggered: true,
+          severity: 'HIGH',
+          scoreContribution: 35,
+          message: `Зшивання розірваних сесій: перехід після підозрілої активності на ${activeContext.sourcePlatform}.`,
+        });
+      }
+
+      const assessment = RiskEngine.evaluate(
+        heuristics,
+        {
+          action: 'submit',
+          hasFilledSensitive: formState.hasFilledAnySensitive,
+          isEntirelyEmpty: formState.isEntirelyEmpty,
         },
-        true
+        contextBonus
       );
 
-      // Копіювання реквізитів/посилань
-      document.addEventListener('copy', () => {
-        const selection = window.getSelection()?.toString() || '';
-        if (selection) {
-          const scan = scanTextForLures(selection);
-          if (scan.detected) {
-            console.warn('[ThreatShield:Content] Зафіксовано копіювання підозрілого контакту/посилання:', selection);
-            chrome.runtime.sendMessage({
-              type: 'LURE_DETECTED',
-              payload: {
-                sourcePlatform: currentHost || 'marketplace-chat',
-                keywords: scan.keywords,
-                offPlatformLure: scan.isOffPlatformLure,
-              },
-            });
+      if (activeContext) {
+        assessment.contextActive = true;
+      }
+
+      return { assessment, formState, targetHost };
+    };
+
+    const shouldBlock = (assessment: ThreatAssessment, formState: FormSensitiveState, targetHost: string): boolean => {
+      if (UserWhitelistManager.isDomainAllowedSync(targetHost)) return false;
+      if (isAccreditedPaymentGateway(targetHost)) return false;
+
+      // Блокуємо якщо CRITICAL або HIGH при заповнених чутливих даних
+      return assessment.level === 'CRITICAL' || (assessment.level === 'HIGH' && formState.hasFilledAnySensitive);
+    };
+
+    // =========================================================================
+    // 1. РІВЕНЬ ПЕРЕХОПЛЕННЯ 1: Клік по кнопці відправки форми (до події submit!)
+    // =========================================================================
+    document.addEventListener(
+      'click',
+      (event) => {
+        const target = event.target as HTMLElement;
+        const submitBtn = target.closest<HTMLButtonElement | HTMLInputElement>(
+          'button[type="submit"], input[type="submit"], button:not([type])'
+        );
+        if (!submitBtn) return;
+
+        const form = submitBtn.closest('form');
+        if (!form) return;
+
+        if (form.dataset.threatShieldApproved === 'true') {
+          return; // Користувач свідомо дозволив відправку
+        }
+
+        const { assessment, formState, targetHost } = evaluateFormThreat(form);
+        console.log('[ThreatShield:ClickIntercept] Оцінка форми перед кліком:', { assessment, formState });
+
+        if (shouldBlock(assessment, formState, targetHost)) {
+          // Зупиняємо клік, щоб браузер навіть не створив подію submit і не викликав inline onsubmit!
+          event.preventDefault();
+          event.stopPropagation();
+          event.stopImmediatePropagation();
+
+          SecurityFriction.apply(form, assessment);
+        }
+      },
+      true // Capture phase!
+    );
+
+    // =========================================================================
+    // 2. РІВЕНЬ ПЕРЕХОПЛЕННЯ 2: Натискання Enter у полях форми
+    // =========================================================================
+    document.addEventListener(
+      'keydown',
+      (event) => {
+        if (event.key === 'Enter' && !event.shiftKey) {
+          const target = event.target as HTMLElement;
+          if (target && target.tagName === 'INPUT') {
+            const form = target.closest('form');
+            if (!form || form.dataset.threatShieldApproved === 'true') return;
+
+            const { assessment, formState, targetHost } = evaluateFormThreat(form);
+            if (shouldBlock(assessment, formState, targetHost)) {
+              event.preventDefault();
+              event.stopPropagation();
+              event.stopImmediatePropagation();
+
+              SecurityFriction.apply(form, assessment);
+            }
           }
         }
-      });
-    }
+      },
+      true // Capture phase!
+    );
 
-    // 4. Захист від передачі реквізитів картки у звичайному чаті платформи (Outbound Chat Leak Protection)
+    // =========================================================================
+    // 3. РІВЕНЬ ПЕРЕХОПЛЕННЯ 3: Подія submit на формі (capture фаза)
+    // =========================================================================
+    document.addEventListener(
+      'submit',
+      (event) => {
+        const form = event.target as HTMLFormElement;
+        if (!form || !(form instanceof HTMLFormElement)) return;
+
+        if (form.dataset.threatShieldApproved === 'true') {
+          console.log('[ThreatShield:Content] Сабміт форми дозволено (усвідомлене розблокування).');
+          delete form.dataset.threatShieldApproved;
+          return;
+        }
+
+        const { assessment, formState, targetHost } = evaluateFormThreat(form);
+        console.log('[ThreatShield:SubmitIntercept] Оцінка форми на submit:', { assessment, formState });
+
+        if (shouldBlock(assessment, formState, targetHost)) {
+          event.preventDefault();
+          event.stopPropagation();
+          event.stopImmediatePropagation();
+
+          SecurityFriction.apply(form, assessment);
+
+          try {
+            chrome.runtime.sendMessage({
+              type: 'THREAT_DETECTED',
+              payload: { url: window.location.href, assessment },
+            });
+          } catch {}
+        }
+      },
+      true // Capture phase!
+    );
+
+    // =========================================================================
+    // 4. ЗАХИСТ ВІД ВИТОКУ ДАНИХ У ЧАТІ
+    // =========================================================================
     const handleChatInput = (target: HTMLInputElement | HTMLTextAreaElement) => {
       const text = target.value || '';
       const leakage = checkOutboundChatLeakage(text);
@@ -132,7 +250,7 @@ export default defineContentScript({
       }
     });
 
-    // Блокування Enter у чаті при спробі відправити реквізити
+    // Блокування Enter у повідомленні чату при витоку
     document.addEventListener(
       'keydown',
       (event) => {
@@ -157,112 +275,56 @@ export default defineContentScript({
       true
     );
 
-    // 5. ПОВНІСТЮ СИНХРОННЕ ПРОСЛУХОВУВАННЯ ТА ПЕРЕХОПЛЕННЯ САБМІТУ
-    document.addEventListener(
-      'submit',
-      (event) => {
-        const form = event.target as HTMLFormElement;
-        if (!form || !(form instanceof HTMLFormElement)) {
-          return;
-        }
+    // =========================================================================
+    // 5. ДЕТЕКЦІЯ СОЦІНЖЕНЕРІЇ ТА ВИВЕДЕННЯ В МЕСЕНДЖЕРИ НА ПЛАТФОРМАХ
+    // =========================================================================
+    const isPlatform = isMonitoredPlatform(currentHost) || window.location.protocol === 'file:';
 
-        // Якщо користувач вже свідомо розблокував цю форму — пропускаємо сабміт
-        if (form.dataset.threatShieldApproved === 'true') {
-          console.log('[ThreatShield:Content] Сабміт форми дозволено (усвідомлене розблокування користувачем).');
-          delete form.dataset.threatShieldApproved;
-          return;
-        }
-
-        const rawAction = form.getAttribute('action') || form.action;
-        let targetHost = currentHost;
-        try {
-          if (rawAction && rawAction !== '#') {
-            targetHost = new URL(rawAction, window.location.href).hostname.toLowerCase();
+    if (isPlatform) {
+      document.addEventListener(
+        'click',
+        (event) => {
+          const target = (event.target as HTMLElement).closest('a');
+          if (target && target.href) {
+            const scan = scanTextForLures(target.href + ' ' + target.innerText);
+            if (scan.detected) {
+              console.warn('[ThreatShield:Content] Клік по маніпулятивному лінку:', target.href);
+              try {
+                chrome.runtime.sendMessage({
+                  type: 'LURE_DETECTED',
+                  payload: {
+                    sourcePlatform: currentHost || 'marketplace-chat',
+                    keywords: scan.keywords,
+                    offPlatformLure: scan.isOffPlatformLure,
+                    suspiciousUrl: target.href,
+                  },
+                });
+              } catch {}
+            }
           }
-        } catch {}
+        },
+        true
+      );
 
-        // Синхронна перевірка білого списку користувача
-        if (UserWhitelistManager.isDomainAllowedSync(targetHost)) {
-          console.log(`[ThreatShield:Content] Домен ${targetHost} є в білому списку користувача. Дозволено.`);
-          return;
+      document.addEventListener('copy', () => {
+        const selection = window.getSelection()?.toString() || '';
+        if (selection) {
+          const scan = scanTextForLures(selection);
+          if (scan.detected) {
+            try {
+              chrome.runtime.sendMessage({
+                type: 'LURE_DETECTED',
+                payload: {
+                  sourcePlatform: currentHost || 'marketplace-chat',
+                  keywords: scan.keywords,
+                  offPlatformLure: scan.isOffPlatformLure,
+                },
+              });
+            } catch {}
+          }
         }
-
-        // Синхронна перевірка акредитованого платіжного шлюзу
-        if (isAccreditedPaymentGateway(targetHost)) {
-          console.log(`[ThreatShield:Content] Акредитований платіжний шлюз (${targetHost}). Дозволено.`);
-          return;
-        }
-
-        const heuristics: HeuristicResult[] = [];
-        const formState = getFormFilledState(form);
-
-        heuristics.push(checkFormActionMismatch(form));
-        heuristics.push(...checkSensitiveAndHiddenInputs(form));
-
-        if (formState.hasFilledCard) {
-          heuristics.push({
-            name: 'luhn_card_number_detected',
-            triggered: true,
-            severity: 'CRITICAL',
-            scoreContribution: 40,
-            message: 'У формі введено валідний номер банківської картки (алгоритм Луна)!',
-          });
-        }
-
-        let contextBonus = 0;
-        if (activeContext && !isWhitelisted(currentHost)) {
-          contextBonus = 35;
-          heuristics.push({
-            name: 'tainted_context_window_active',
-            triggered: true,
-            severity: 'HIGH',
-            scoreContribution: 35,
-            message: `Зшивання розірваних сесій: перехід після підозрілої активності на ${activeContext.sourcePlatform}.`,
-          });
-        }
-
-        const assessment = RiskEngine.evaluate(
-          heuristics,
-          {
-            action: 'submit',
-            hasFilledSensitive: formState.hasFilledAnySensitive,
-            isEntirelyEmpty: formState.isEntirelyEmpty,
-          },
-          contextBonus
-        );
-
-        if (activeContext) {
-          assessment.contextActive = true;
-        }
-
-        console.log('[ThreatShield:Content] Синхронна оцінка сабміту форми:', {
-          score: assessment.score,
-          level: assessment.level,
-          formState,
-        });
-
-        // НЕГАЙНЕ ТА СИНХРОННЕ ПРИПИНЕННЯ САБМІТУ
-        if (assessment.level === 'CRITICAL' || (assessment.level === 'HIGH' && formState.hasFilledAnySensitive)) {
-          // Блокуємо стандартну дію браузера та всі inline onsubmit обробники сторінки!
-          event.preventDefault();
-          event.stopPropagation();
-          event.stopImmediatePropagation();
-
-          // Відображаємо модальне вікно Security Friction
-          SecurityFriction.apply(form, assessment);
-
-          // Сповіщення фонового воркера (асинхронно у фоні)
-          chrome.runtime.sendMessage({
-            type: 'THREAT_DETECTED',
-            payload: {
-              url: window.location.href,
-              assessment,
-            },
-          });
-        }
-      },
-      true // КРИТИЧНО: Capture фаза перехоплює подію першою до обробників сторінки
-    );
+      });
+    }
 
     // Моніторинг фокусу на чутливих полях
     document.addEventListener('focusin', (event) => {
@@ -271,7 +333,6 @@ export default defineContentScript({
         const input = target as HTMLInputElement;
         if (input.type === 'password' || /(card|cvv|pin)/i.test(input.name || input.id)) {
           if (activeContext && !isWhitelisted(currentHost)) {
-            console.warn('[ThreatShield:Content] Фокус на картковому полі у стані підвищеної підозри!');
             input.style.border = '2px solid #ea580c';
           }
         }
