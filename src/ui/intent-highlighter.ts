@@ -65,8 +65,9 @@ export class IntentHighlighter {
 
     let node: Node | null;
     while ((node = walker.nextNode())) {
+      regex.lastIndex = 0;
       if (node.nodeValue && regex.test(node.nodeValue)) {
-        // Не чіпаємо посилання <a> напряму, якщо вони вже існують
+        // Не чіпаємо вже розмічені <mark> та теги <script>
         if (node.parentElement?.tagName !== 'MARK' && node.parentElement?.tagName !== 'SCRIPT') {
           textNodes.push(node as Text);
         }
