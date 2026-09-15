@@ -38,9 +38,37 @@ export default defineContentScript({
           }
         }
       }).catch(() => {});
-    } catch {
-      // background worker ще стартує
-    }
+    } catch {}
+
+    // Маркування сторінки та створення каналу зв'язку для тестових сторінок
+    document.documentElement.setAttribute('data-threat-shield-loaded', 'true');
+    window.postMessage({ type: 'THREAT_SHIELD_READY', version: '0.2.0' }, '*');
+
+    window.addEventListener('message', async (event) => {
+      if (!event.data || typeof event.data !== 'object') return;
+
+      if (event.data.type === 'THREAT_SHIELD_PING') {
+        window.postMessage({ type: 'THREAT_SHIELD_PONG', version: '0.2.0' }, '*');
+      }
+
+      if (event.data.type === 'THREAT_SHIELD_CLEAR_WHITELIST') {
+        await UserWhitelistManager.clearAll();
+        console.log('[ThreatShield:Content] Персональний білий список користувача успішно очищено.');
+        window.postMessage({ type: 'THREAT_SHIELD_WHITELIST_CLEARED' }, '*');
+      }
+
+      if (event.data.type === 'THREAT_SHIELD_CLEAR_CONTEXT') {
+        try {
+          if (typeof chrome !== 'undefined' && chrome.runtime) {
+            await chrome.runtime.sendMessage({ type: 'CLEAR_CONTEXT' });
+          }
+        } catch {}
+        activeContext = null;
+        document.getElementById('threat-shield-context-banner')?.remove();
+        console.log('[ThreatShield:Content] Tainted Context Window успішно очищено.');
+        window.postMessage({ type: 'THREAT_SHIELD_CONTEXT_CLEARED' }, '*');
+      }
+    });
 
     // =========================================================================
     // СИНХРОННА ОЦІНКА ФОРМИ

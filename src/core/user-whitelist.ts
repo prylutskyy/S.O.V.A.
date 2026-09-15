@@ -58,6 +58,13 @@ export class UserWhitelistManager {
     }
   }
 
+  public static async clearAll(): Promise<void> {
+    this.cachedDomains.clear();
+    if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+      await chrome.storage.local.remove(USER_WHITELIST_KEY);
+    }
+  }
+
   public static async removeDomain(hostname: string): Promise<void> {
     const cleanHost = hostname.toLowerCase().trim();
     this.cachedDomains.delete(cleanHost);
