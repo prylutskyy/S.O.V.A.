@@ -7,6 +7,7 @@ import {
   FormSensitiveState,
 } from '../src/heuristics/input-detector';
 import { scanTextForLures } from '../src/heuristics/lure-detector';
+import { ChatChannelMonitor } from '../src/heuristics/chat-channel';
 import { isWhitelisted, isMonitoredPlatform } from '../src/core/whitelist';
 import { isAccreditedPaymentGateway } from '../src/core/payment-gateways';
 import { UserWhitelistManager } from '../src/core/user-whitelist';
@@ -288,15 +289,21 @@ export default defineContentScript({
         return;
       }
 
-      const leakage = checkOutboundChatLeakage(inputElement.value || '');
-      if (leakage.isLeaking) {
+      const outbound = ChatChannelMonitor.checkOutbound(inputElement.value || '');
+      const isLeaking = outbound.hasCard || outbound.hasCvv;
+
+      if (isLeaking) {
         event.preventDefault();
         event.stopPropagation();
         event.stopImmediatePropagation();
 
         SecurityFriction.applyToChat(
           inputElement,
-          leakage,
+          {
+            hasCard: outbound.hasCard,
+            hasCvv: outbound.hasCvv,
+            cards: outbound.cards,
+          },
           () => {
             // При усвідомленому підтвердженні:
             inputElement.dataset.threatShieldApproved = 'true';
@@ -343,11 +350,33 @@ export default defineContentScript({
     );
 
     // =========================================================================
-    // 5. ДЕТЕКЦІЯ СОЦІНЖЕНЕРІЇ ТА ВИВЕДЕННЯ В МЕСЕНДЖЕРИ
+    // 5. ДЕТЕКЦІЯ СОЦІНЖЕНЕРІЇ ТА РОЗМЕЖУВАННЯ ВХІДНИХ/ВИХІДНИХ ПОВІДОМЛЕНЬ ЧАТУ
     // =========================================================================
     const isPlatform = isMonitoredPlatform(currentHost) || window.location.protocol === 'file:';
 
     if (isPlatform) {
+      ChatChannelMonitor.init(
+        currentHost || 'marketplace-chat',
+        (lureEvent) => {
+          try {
+            chrome.runtime.sendMessage({
+              type: 'LURE_DETECTED',
+              payload: {
+                sourcePlatform: lureEvent.sourcePlatform,
+                keywords: lureEvent.keywords,
+                offPlatformLure: lureEvent.isOffPlatformLure,
+                suspiciousUrl: lureEvent.suspiciousUrls[0] || undefined,
+              },
+            }).then((resp) => {
+              if (resp && resp.context) {
+                activeContext = resp.context as ActiveThreatContext;
+                console.log('[ThreatShield:ChatChannel] Tainted Context активовано через вхідне повідомлення:', activeContext);
+              }
+            }).catch(() => {});
+          } catch {}
+        }
+      );
+
       document.addEventListener(
         'click',
         (event) => {

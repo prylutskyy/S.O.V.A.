@@ -34,7 +34,7 @@ export class TextHighlighter {
           end: match.index + raw.length,
           text: raw,
           type: 'card',
-          tooltip: '💳 [Номер картки]: Виявлено банківську картку. Не надсилайте повні реквізити у відкритому чаті!',
+          tooltip: '[Номер картки] Виявлено банківську картку. Не надсилайте повні реквізити у відкритому чаті.',
         });
       }
     }
@@ -47,7 +47,7 @@ export class TextHighlighter {
         end: match.index + match[0].length,
         text: match[0],
         type: 'cvv',
-        tooltip: '🔒 [Секретний CVV/CVC]: Код безпеки ніколи не потрібен покупцю або іншій стороні!',
+        tooltip: '[Секретний CVV/CVC] Код безпеки ніколи не потрібен покупцю або іншій стороні!',
       });
     }
 
@@ -65,7 +65,7 @@ export class TextHighlighter {
             end,
             text: match[0],
             type: 'exp',
-            tooltip: '📅 [Термін дії картки]: Конфіденційні платіжні реквізити.',
+            tooltip: '[Термін дії картки] Конфіденційні платіжні реквізити.',
           });
         }
       }
