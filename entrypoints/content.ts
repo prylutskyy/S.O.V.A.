@@ -30,12 +30,13 @@ export default defineContentScript({
     try {
       chrome.runtime.sendMessage({ type: 'GET_ACTIVE_CONTEXT' }).then((response) => {
         if (response && response.context) {
-          activeContext = response.context;
-          console.log('[ThreatShield:Content] Отримано активний контекст загрози:', activeContext);
+          const ctx = response.context as ActiveThreatContext;
+          activeContext = ctx;
+          console.log('[ThreatShield:Content] Отримано активний контекст загрози:', ctx);
 
           const isUserAllowed = UserWhitelistManager.isDomainAllowedSync(currentHost);
-          if (!isWhitelisted(currentHost) && !isUserAllowed && currentHost !== activeContext.sourcePlatform) {
-            SecurityFriction.showContextWarningBanner(activeContext);
+          if (!isWhitelisted(currentHost) && !isUserAllowed && currentHost !== ctx.sourcePlatform) {
+            SecurityFriction.showContextWarningBanner(ctx);
           }
         }
       }).catch(() => {});
@@ -68,6 +69,29 @@ export default defineContentScript({
         document.getElementById('threat-shield-context-banner')?.remove();
         console.log('[ThreatShield:Content] Tainted Context Window успішно очищено.');
         window.postMessage({ type: 'THREAT_SHIELD_CONTEXT_CLEARED' }, '*');
+      }
+
+      if (event.data.type === 'THREAT_SHIELD_TRIGGER_LURE') {
+        try {
+          if (typeof chrome !== 'undefined' && chrome.runtime) {
+            const resp = await chrome.runtime.sendMessage({
+              type: 'LURE_DETECTED',
+              payload: {
+                sourcePlatform: event.data.platform || 'olx.ua',
+                keywords: event.data.keywords || ['olx доставка', 'отримати кошти', 'оплата замовлення'],
+                offPlatformLure: true,
+                suspiciousUrl: event.data.suspiciousUrl || 'https://novaposhta-pay.fake.com/order123',
+              },
+            });
+            if (resp && resp.context) {
+              const ctx = resp.context as ActiveThreatContext;
+              activeContext = ctx;
+              SecurityFriction.showContextWarningBanner(ctx);
+            }
+          }
+        } catch {}
+        console.log('[ThreatShield:Content] Імітація соцінженерної приманки успішно активована.');
+        window.postMessage({ type: 'THREAT_SHIELD_LURE_TRIGGERED' }, '*');
       }
     });
 
@@ -165,8 +189,8 @@ export default defineContentScript({
           event.stopPropagation();
           event.stopImmediatePropagation();
 
-          // Відображаємо плаваючий Popover над самою кнопкою
-          SecurityFriction.apply(form, assessment, submitBtn);
+          // Відображаємо модальне вікно безпеки з XAI
+          SecurityFriction.apply(form, assessment, submitBtn, undefined, activeContext);
         }
       },
       true
@@ -190,7 +214,7 @@ export default defineContentScript({
               event.stopPropagation();
               event.stopImmediatePropagation();
 
-              SecurityFriction.apply(form, assessment, target);
+              SecurityFriction.apply(form, assessment, target, undefined, activeContext);
             }
           }
         }
@@ -220,7 +244,7 @@ export default defineContentScript({
           event.stopPropagation();
           event.stopImmediatePropagation();
 
-          SecurityFriction.apply(form, assessment);
+          SecurityFriction.apply(form, assessment, undefined, undefined, activeContext);
 
           try {
             chrome.runtime.sendMessage({
@@ -270,11 +294,17 @@ export default defineContentScript({
         event.stopPropagation();
         event.stopImmediatePropagation();
 
-        SecurityFriction.applyToChat(inputElement, leakage, () => {
-          // При усвідомленому підтвердженні:
-          inputElement.dataset.threatShieldApproved = 'true';
-          inputElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }));
-        });
+        SecurityFriction.applyToChat(
+          inputElement,
+          leakage,
+          () => {
+            // При усвідомленому підтвердженні:
+            inputElement.dataset.threatShieldApproved = 'true';
+            inputElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }));
+          },
+          undefined,
+          activeContext
+        );
       }
     };
 

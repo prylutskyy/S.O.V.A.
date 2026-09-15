@@ -34,3 +34,6 @@ export interface LureDetectionResult {
   isOffPlatformLure: boolean;
   suspiciousUrls: string[];
 }
+
+export * from './xai';
+

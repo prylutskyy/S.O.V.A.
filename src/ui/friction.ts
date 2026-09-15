@@ -1,5 +1,6 @@
 import { ActiveThreatContext, ThreatAssessment } from '../types';
 import { UnifiedFrictionModal } from './unified-modal';
+import { ShadowHost } from './shadow-host';
 
 export class SecurityFriction {
   /**
@@ -9,7 +10,8 @@ export class SecurityFriction {
     form: HTMLFormElement,
     assessment: ThreatAssessment,
     anchorElement?: HTMLElement,
-    onProceedCallback?: () => void
+    onProceedCallback?: () => void,
+    activeContext?: ActiveThreatContext | null
   ): void {
     let targetHost = window.location.hostname;
     const rawAction = form.getAttribute('action') || form.action;
@@ -19,15 +21,17 @@ export class SecurityFriction {
       }
     } catch {}
 
-    // Чистий Дзен: жодного втручання в інлайн-стилі форми чи сторінки
+    // Чистий Дзен + Ізольований Shadow DOM: жодного втручання в інлайн-стилі форми
     UnifiedFrictionModal.show({
       type: 'form',
       title: 'Призупинено відправку форми',
       badgeText: `РІВЕНЬ РИЗИКУ: ${assessment.level} (${assessment.score}/100)`,
+      badgeLevel: assessment.level === 'CRITICAL' ? 'CRITICAL' : 'HIGH',
       contextLabel: 'Цільовий сервер',
       contextValue: targetHost,
       triggers: assessment.triggers,
-      explanation: '💡 Цей ресурс не є офіційним акредитованим платіжним еквайрингом (LiqPay, Stripe, Portmone). Передача реквізитів банківської картки чи паролів стороннім серверам загрожує несанкціонованим списанням коштів!',
+      assessment,
+      activeContext,
       allowRememberDomain: true,
       domainToRemember: targetHost,
       onProceed: () => {
@@ -58,7 +62,8 @@ export class SecurityFriction {
     chatInput: HTMLInputElement | HTMLTextAreaElement,
     leakage: { hasCard: boolean; hasCvv: boolean; cards: string[] },
     onProceed: () => void,
-    onCancel?: () => void
+    onCancel?: () => void,
+    activeContext?: ActiveThreatContext | null
   ): void {
     const currentPlatform = window.location.hostname || 'Відкритий чат маркетплейсу';
 
@@ -80,10 +85,12 @@ export class SecurityFriction {
       type: 'chat',
       title: 'Призупинено надсилання в чаті',
       badgeText: 'ВИТІК ПЛАТІЖНИХ ДАНИХ (CRITICAL)',
+      badgeLevel: 'CRITICAL',
       contextLabel: 'Платформа діалогу',
       contextValue: currentPlatform,
       triggers,
-      explanation: '💡 Порада кібербезпеки: Для отримання оплати іншій стороні ніколи не потрібні CVV або термін дії вашої картки (достатньо лише номера IBAN або 16 цифр). Повна передача реквізитів у незахищеному чаті призводить до крадіжки грошей!',
+      activeContext,
+      chatLeakage: { hasCard: leakage.hasCard, hasCvv: leakage.hasCvv },
       allowRememberDomain: false,
       onProceed: () => {
         console.log('[ThreatShield] Користувач свідомо розблокував відправку повідомлення в чаті');
@@ -98,10 +105,11 @@ export class SecurityFriction {
   }
 
   /**
-   * Виведення верхнього попереджувального банера про активне вікно підозри
+   * Виведення верхнього попереджувального банера про активне вікно підозри в Shadow DOM
    */
   public static showContextWarningBanner(context: ActiveThreatContext): void {
-    const existing = document.getElementById('threat-shield-context-banner');
+    const root = ShadowHost.getRoot();
+    const existing = root.getElementById('threat-shield-context-banner');
     if (existing) return;
 
     const banner = document.createElement('div');
@@ -160,9 +168,9 @@ export class SecurityFriction {
       ">✕</button>
     `;
 
-    document.body.prepend(banner);
-    document.getElementById('threat-shield-close-banner')?.addEventListener('click', () => {
-      banner.remove();
+    ShadowHost.append(banner);
+    banner.querySelector('#threat-shield-close-banner')?.addEventListener('click', () => {
+      ShadowHost.remove(banner);
     });
   }
 }

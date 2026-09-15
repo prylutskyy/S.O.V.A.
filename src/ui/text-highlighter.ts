@@ -1,4 +1,5 @@
 import { passesLuhnCheck } from '../heuristics/input-detector';
+import { ShadowHost } from './shadow-host';
 
 export interface SensitiveSpan {
   start: number;
@@ -180,7 +181,7 @@ export class TextHighlighter {
       z-index: 2147483640 !important;
     `;
 
-    document.body.appendChild(overlay);
+    ShadowHost.append(overlay);
 
     // Синхронізація скролу всередині textarea
     element.addEventListener('scroll', () => {
@@ -264,7 +265,7 @@ export class TextHighlighter {
         <span id="threat-tooltip-content"></span>
       `;
 
-      document.body.appendChild(this.tooltipEl);
+      ShadowHost.append(this.tooltipEl);
     }
 
     const content = this.tooltipEl.querySelector('#threat-tooltip-content');

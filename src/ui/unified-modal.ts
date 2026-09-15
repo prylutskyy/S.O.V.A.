@@ -1,4 +1,8 @@
+import { ActiveThreatContext, ThreatAssessment } from '../types';
 import { UserWhitelistManager } from '../core/user-whitelist';
+import { XaiEngine } from '../xai/xai-engine';
+import { SvgAttackGraph } from './svg-attack-graph';
+import { ShadowHost } from './shadow-host';
 
 export interface UnifiedModalOptions {
   type: 'form' | 'chat';
@@ -8,9 +12,12 @@ export interface UnifiedModalOptions {
   contextLabel: string;
   contextValue: string;
   triggers: Array<{ message: string; severity?: string }>;
-  explanation: string;
+  explanation?: string;
   allowRememberDomain?: boolean;
   domainToRemember?: string;
+  assessment?: ThreatAssessment;
+  activeContext?: ActiveThreatContext | null;
+  chatLeakage?: { hasCard: boolean; hasCvv: boolean };
   onProceed: (rememberDomain: boolean) => void;
   onCancel: () => void;
 }
@@ -21,10 +28,10 @@ export class UnifiedFrictionModal {
   private static previousBodyOverflow: string | null = null;
   private static previousHtmlOverflow: string | null = null;
 
-  public static show(options: UnifiedModalOptions): void {
+  public static async show(options: UnifiedModalOptions): Promise<void> {
     this.close();
 
-    // Заборона гортання основної сторінки (Scroll Lock)
+    // 1. Заборона гортання основної сторінки (Scroll Lock)
     if (this.previousBodyOverflow === null) {
       this.previousBodyOverflow = document.body.style.overflow;
       this.previousHtmlOverflow = document.documentElement.style.overflow;
@@ -32,8 +39,31 @@ export class UnifiedFrictionModal {
     document.body.style.overflow = 'hidden';
     document.documentElement.style.overflow = 'hidden';
 
+    // 2. Створення кореневого елемента всередині ShadowRoot (ізоляція від CSS сайту)
     const modalRoot = document.createElement('div');
     modalRoot.id = 'threat-shield-unified-modal';
+
+    const fallbackAssessment: ThreatAssessment = options.assessment || {
+      score: options.badgeLevel === 'CRITICAL' ? 95 : 65,
+      level: options.badgeLevel || 'CRITICAL',
+      triggers: options.triggers.map((t) => ({
+        name: 'generic_trigger',
+        triggered: true,
+        severity: (t.severity as any) || 'CRITICAL',
+        scoreContribution: 35,
+        message: t.message,
+      })),
+      timestamp: Date.now(),
+    };
+
+    // 3. Генерація розширеного пояснення XAI (Explainable AI)
+    const xai = await XaiEngine.generateExplanation({
+      type: options.type,
+      targetHost: options.contextValue,
+      activeContext: options.activeContext,
+      assessment: fallbackAssessment,
+      chatLeakage: options.chatLeakage,
+    });
 
     const reasonsHtml = options.triggers
       .map(
@@ -64,14 +94,84 @@ export class UnifiedFrictionModal {
       `
         : '';
 
+    // Розкладка факторів формули XAI
+    const breakdown = xai.breakdown;
+    const formulaHtml = `
+      <div style="
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 12px 14px;
+        margin-bottom: 14px;
+      ">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #475569; letter-spacing: 0.04em;">
+            Декомпозиція індексу ризику: f(R_tech, C_env, A_user)
+          </span>
+          <span style="font-size: 12px; font-weight: 800; color: #dc2626; font-family: ui-monospace, monospace;">
+            ${breakdown.totalScore}/100
+          </span>
+        </div>
+
+        <!-- R_tech -->
+        <div style="margin-bottom: 6px;">
+          <div style="display: flex; justify-content: space-between; font-size: 11px; color: #334155; margin-bottom: 2px;">
+            <span>🔧 <strong>R_tech</strong> (Технічні евристики):</span>
+            <span style="font-weight: 600;">${breakdown.technical.score}/${breakdown.technical.maxScore}</span>
+          </div>
+          <div style="height: 5px; background: #e2e8f0; border-radius: 3px; overflow: hidden;">
+            <div style="height: 100%; width: ${breakdown.technical.percentage}%; background: #3b82f6; border-radius: 3px;"></div>
+          </div>
+        </div>
+
+        <!-- C_env -->
+        <div style="margin-bottom: 6px;">
+          <div style="display: flex; justify-content: space-between; font-size: 11px; color: #334155; margin-bottom: 2px;">
+            <span>🌐 <strong>C_env</strong> (Міжсесійний контекст):</span>
+            <span style="font-weight: 600;">${breakdown.contextual.score}/${breakdown.contextual.maxScore}</span>
+          </div>
+          <div style="height: 5px; background: #e2e8f0; border-radius: 3px; overflow: hidden;">
+            <div style="height: 100%; width: ${breakdown.contextual.percentage}%; background: #f59e0b; border-radius: 3px;"></div>
+          </div>
+        </div>
+
+        <!-- A_user -->
+        <div>
+          <div style="display: flex; justify-content: space-between; font-size: 11px; color: #334155; margin-bottom: 2px;">
+            <span>👤 <strong>A_user</strong> (Намір та дія):</span>
+            <span style="font-weight: 600;">${breakdown.userAction.score}/${breakdown.userAction.maxScore}</span>
+          </div>
+          <div style="height: 5px; background: #e2e8f0; border-radius: 3px; overflow: hidden;">
+            <div style="height: 100%; width: ${breakdown.userAction.percentage}%; background: #ef4444; border-radius: 3px;"></div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Контрзаходи (Countermeasures)
+    const countermeasuresHtml = xai.countermeasures
+      .map(
+        (c) => `
+        <div style="display: flex; align-items: flex-start; gap: 6px; font-size: 11.5px; color: #334155; margin-bottom: 4px; line-height: 1.4;">
+          <span style="color: #22c55e; font-weight: 700;">✓</span>
+          <span>${c}</span>
+        </div>
+      `
+      )
+      .join('');
+
+    const engineBadgeText =
+      xai.engineType === 'chrome-builtin-ai' ? '⚡ Gemini Nano (On-Device AI)' : '🧠 Adaptive Contextual XAI';
+
     modalRoot.style.cssText = `
       position: fixed !important;
       inset: 0 !important;
       width: 100vw !important;
       height: 100vh !important;
       z-index: 2147483647 !important;
-      background: rgba(15, 23, 42, 0.6) !important;
+      background: rgba(15, 23, 42, 0.65) !important;
       backdrop-filter: blur(8px) !important;
+      -webkit-backdrop-filter: blur(8px) !important;
       display: flex !important;
       align-items: center !important;
       justify-content: center !important;
@@ -82,21 +182,10 @@ export class UnifiedFrictionModal {
     `;
 
     modalRoot.innerHTML = `
-      <style>
-        @keyframes threatBackdropFade {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        @keyframes threatModalScale {
-          from { opacity: 0; transform: scale(0.96) translateY(8px); }
-          to { opacity: 1; transform: scale(1) translateY(0); }
-        }
-      </style>
-
       <div id="threat-modal-card" style="
         background: #ffffff !important;
         width: 100% !important;
-        max-width: 480px !important;
+        max-width: 520px !important;
         border-radius: 16px !important;
         box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.35), 0 0 0 1px rgba(226, 232, 240, 0.9) !important;
         overflow: hidden !important;
@@ -108,16 +197,16 @@ export class UnifiedFrictionModal {
       ">
         <!-- ВЕРХНЯ ЧАСТИНА (HEADER) -->
         <div style="
-          padding: 18px 20px !important;
+          padding: 16px 20px !important;
           display: flex !important;
           align-items: flex-start !important;
           justify-content: space-between !important;
           border-bottom: 1px solid #f1f5f9 !important;
         ">
-          <div style="display: flex; align-items: center; gap: 10px;">
+          <div style="display: flex; align-items: center; gap: 12px;">
             <div style="
-              width: 36px;
-              height: 36px;
+              width: 38px;
+              height: 38px;
               border-radius: 10px;
               background: #fef2f2;
               border: 1px solid #fee2e2;
@@ -131,10 +220,13 @@ export class UnifiedFrictionModal {
               <div style="font-size: 15px; font-weight: 700; color: #0f172a; line-height: 1.2;">
                 ${options.title}
               </div>
-              <div style="display: inline-flex; align-items: center; gap: 5px; margin-top: 3px;">
-                <span style="width: 6px; height: 6px; border-radius: 50%; background: #ef4444;"></span>
-                <span style="font-size: 11px; font-weight: 600; color: #dc2626;">
+              <div style="display: flex; align-items: center; gap: 8px; margin-top: 3px;">
+                <span style="display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; color: #dc2626; background: #fee2e2; padding: 1px 7px; border-radius: 10px;">
+                  <span style="width: 6px; height: 6px; border-radius: 50%; background: #ef4444;"></span>
                   ${options.badgeText}
+                </span>
+                <span style="font-size: 10.5px; font-weight: 600; color: #64748b;">
+                  ${engineBadgeText}
                 </span>
               </div>
             </div>
@@ -157,14 +249,14 @@ export class UnifiedFrictionModal {
         </div>
 
         <!-- ОСНОВНА ЧАСТИНА (BODY) -->
-        <div style="padding: 18px 20px; max-height: 65vh; overflow-y: auto;">
+        <div style="padding: 16px 20px; max-height: 70vh; overflow-y: auto;">
           <!-- Контекстний рядок -->
           <div style="
             background: #f8fafc;
             border: 1px solid #e2e8f0;
             border-radius: 8px;
             padding: 8px 12px;
-            margin-bottom: 14px;
+            margin-bottom: 12px;
             font-size: 12px;
             color: #64748b;
             display: flex;
@@ -177,25 +269,67 @@ export class UnifiedFrictionModal {
             </strong>
           </div>
 
-          <!-- Список тригерів -->
-          <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: #64748b; margin-bottom: 8px;">
-            Виявлені фактори ризику:
-          </div>
-          <div style="margin-bottom: 14px;">
-            ${reasonsHtml}
+          <!-- Діагноз XAI -->
+          <div style="
+            font-size: 12.5px;
+            font-weight: 600;
+            color: #991b1b;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            padding: 9px 12px;
+            margin-bottom: 12px;
+            line-height: 1.4;
+          ">
+            🎯 <strong>Діагноз загрози:</strong> ${xai.diagnosis}
           </div>
 
-          <!-- Пояснення XAI / Порада безпеки -->
+          <!-- Візуальний граф ланцюга атаки (SVG Attack Graph) -->
+          <div id="threat-modal-graph-slot"></div>
+
+          <!-- Формула оцінки ризику XAI -->
+          ${formulaHtml}
+
+          <!-- Розгорнуте пояснення людською мовою -->
           <div style="
             background: #eff6ff;
             border: 1px solid #bfdbfe;
-            border-radius: 8px;
-            padding: 10px 12px;
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin-bottom: 12px;
             font-size: 12px;
-            color: #1e40af;
-            line-height: 1.45;
+            color: #1e3a8a;
+            line-height: 1.5;
           ">
-            ${options.explanation}
+            ${xai.plainLanguageExplanation}
+          </div>
+
+          <!-- Рекомендації та заходи безпеки -->
+          <div style="
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin-bottom: 12px;
+          ">
+            <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: #166534; margin-bottom: 6px;">
+              🛡️ Рекомендовані заходи безпеки:
+            </div>
+            ${countermeasuresHtml}
+          </div>
+
+          <!-- Освітня порада -->
+          <div style="
+            font-size: 11.5px;
+            color: #64748b;
+            background: #f8fafc;
+            border-radius: 6px;
+            padding: 8px 10px;
+            margin-bottom: 8px;
+            line-height: 1.4;
+            border-left: 3px solid #3b82f6;
+          ">
+            ${xai.educationalTip}
           </div>
 
           ${rememberHtml}
@@ -238,8 +372,16 @@ export class UnifiedFrictionModal {
       </div>
     `;
 
-    (document.body || document.documentElement).appendChild(modalRoot);
+    // Монтуємо модальне вікно в ізольований ShadowRoot
+    ShadowHost.append(modalRoot);
     this.activeModal = modalRoot;
+
+    // Вставляємо згенерований динамічний SVG граф у слот
+    const graphSlot = modalRoot.querySelector('#threat-modal-graph-slot');
+    if (graphSlot) {
+      const graphElement = SvgAttackGraph.render(xai.chain);
+      graphSlot.appendChild(graphElement);
+    }
 
     // Обробники
     const btnClose = modalRoot.querySelector('#threat-modal-close-btn');
@@ -255,14 +397,14 @@ export class UnifiedFrictionModal {
     btnClose?.addEventListener('click', handleCancel);
     btnCancel?.addEventListener('click', handleCancel);
 
-    // Клік по бекдропу поза карткою закриває (як скасування)
+    // Клік по бекдропу за межами картки
     modalRoot.addEventListener('click', (e) => {
       if (e.target === modalRoot) {
         handleCancel();
       }
     });
 
-    // Запобігання прокручуванню сторінки колесиком або тачем на бекдропі
+    // Запобігання скролу
     modalRoot.addEventListener(
       'wheel',
       (e) => {
@@ -319,7 +461,7 @@ export class UnifiedFrictionModal {
       this.countdownInterval = null;
     }
     if (this.activeModal) {
-      this.activeModal.remove();
+      ShadowHost.remove(this.activeModal);
       this.activeModal = null;
     }
 
