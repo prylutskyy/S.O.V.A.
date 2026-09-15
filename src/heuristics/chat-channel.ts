@@ -1,5 +1,6 @@
 import { scanTextForLures } from './lure-detector';
 import { checkOutboundChatLeakage } from './input-detector';
+import { IntentHighlighter } from '../ui/intent-highlighter';
 
 export type MessageDirection = 'inbound' | 'outbound' | 'unknown';
 
@@ -210,6 +211,9 @@ export class ChatChannelMonitor {
    * Сканує ВИКЛЮЧНО на соцінженерні приманки (lures), але НЕ блокує за наявність картки!
    */
   private static processInboundMessage(element: HTMLElement): void {
+    // 1. Передбачення наміру співрозмовника за кластерами слів (жовте підсвічування + плавна лінія XAI)
+    IntentHighlighter.highlightInboundElement(element);
+
     const textEl = element.querySelector<HTMLElement>('[data-testid="message"], [data-nx-name="TextContainer"], .bubble') || element;
     let text = textEl.innerText?.trim() || element.innerText?.trim() || '';
     
