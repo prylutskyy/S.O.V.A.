@@ -1,6 +1,7 @@
 import { ActiveThreatContext, ThreatAssessment } from '../types';
 import { UnifiedFrictionModal } from './unified-modal';
 import { ShadowHost } from './shadow-host';
+import { XaiEngine } from '../xai/xai-engine';
 
 export class SecurityFriction {
   /**
@@ -21,6 +22,8 @@ export class SecurityFriction {
       }
     } catch {}
 
+    const detectedAmount = XaiEngine.extractFinancialAmount(form);
+
     // Чистий Дзен + Ізольований Shadow DOM: жодного втручання в інлайн-стилі форми
     UnifiedFrictionModal.show({
       type: 'form',
@@ -32,6 +35,7 @@ export class SecurityFriction {
       triggers: assessment.triggers,
       assessment,
       activeContext,
+      detectedAmount,
       allowRememberDomain: true,
       domainToRemember: targetHost,
       onProceed: () => {
@@ -66,6 +70,7 @@ export class SecurityFriction {
     activeContext?: ActiveThreatContext | null
   ): void {
     const currentPlatform = window.location.hostname || 'Відкритий чат маркетплейсу';
+    const detectedAmount = XaiEngine.extractFinancialAmount(chatInput);
 
     const triggers: Array<{ message: string; severity: string }> = [];
     if (leakage.hasCard) {
@@ -90,6 +95,7 @@ export class SecurityFriction {
       contextValue: currentPlatform,
       triggers,
       activeContext,
+      detectedAmount,
       chatLeakage: { hasCard: leakage.hasCard, hasCvv: leakage.hasCvv },
       allowRememberDomain: false,
       onProceed: () => {

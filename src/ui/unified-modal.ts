@@ -17,6 +17,7 @@ export interface UnifiedModalOptions {
   assessment?: ThreatAssessment;
   activeContext?: ActiveThreatContext | null;
   chatLeakage?: { hasCard: boolean; hasCvv: boolean };
+  detectedAmount?: string;
   onProceed: (rememberDomain: boolean) => void;
   onCancel: () => void;
 }
@@ -71,6 +72,7 @@ export class UnifiedFrictionModal {
       activeContext: options.activeContext,
       assessment: fallbackAssessment,
       chatLeakage: options.chatLeakage,
+      detectedAmount: options.detectedAmount,
     });
 
     const primaryActionLabel = options.type === 'chat' ? 'Скасувати надсилання' : 'Залишити сторінку';

@@ -7,13 +7,25 @@ export interface XaiEvaluationOptions {
   activeContext?: ActiveThreatContext | null;
   assessment: ThreatAssessment;
   chatLeakage?: { hasCard: boolean; hasCvv: boolean };
+  detectedAmount?: string;
+}
+
+export interface ScenarioDetails {
+  diagnosis: string;
+  attackScenario: string;
+  attackCategory: 'AUTOFILL_TRAP' | 'DELIVERY_SCAM' | 'UNTRUSTED_GATEWAY' | 'CHAT_LEAK';
+  userIntendedAction: string;
+  threatReality: string;
+  financialRisk: string;
+  exposedAssets: string[];
+  shortAttackName: string;
 }
 
 /**
  * XAI Engine (Explainable Artificial Intelligence)
  * Аналітичний рушій системи Adaptive Threat Shield.
  * Синтезує авторитетні та зрозумілі пояснення природи вебзагроз для кінцевого користувача
- * та декомпонує вектор ризику на математичні складові для аудиту системи.
+ * за формулою контрасту (очікування vs реальність) та формує декомпозицію ризику.
  */
 export class XaiEngine {
   /**
@@ -23,18 +35,18 @@ export class XaiEngine {
     // 1. Декомпозиція формули RiskScore = f(R_tech, C_env, A_user)
     const breakdown = this.calculateBreakdown(options);
 
-    // 2. Реконструкція кроків ланцюга атаки
-    const chain = this.reconstructAttackChain(options);
+    // 2. Визначення точного сценарію загрози, матеріальних ризиків (гроші + дані)
+    const scenario = this.determineScenario(options);
 
-    // 3. Формування діагнозу та сценарію
-    const { diagnosis, attackScenario } = this.determineScenario(options);
+    // 3. Реконструкція кроків ланцюга атаки
+    const chain = this.reconstructAttackChain(options, scenario);
 
-    // 4. Генерація розгорнутого пояснення: перевірка Chrome Built-in AI або синтез
+    // 4. Генерація розгорнутого людиноорієнтованого пояснення через Chrome Built-in AI (Prompt API / Gemini Nano)
     let plainLanguageExplanation = '';
     let engineType: 'chrome-builtin-ai' | 'adaptive-contextual-xai' = 'adaptive-contextual-xai';
 
     try {
-      const chromeAiText = await this.tryChromePromptApi(options, diagnosis, breakdown);
+      const chromeAiText = await this.tryChromePromptApi(options, scenario);
       if (chromeAiText) {
         plainLanguageExplanation = chromeAiText;
         engineType = 'chrome-builtin-ai';
@@ -44,17 +56,16 @@ export class XaiEngine {
     }
 
     if (!plainLanguageExplanation) {
-      plainLanguageExplanation = this.synthesizeExplanation(options);
+      plainLanguageExplanation = this.synthesizeExplanation(options, scenario);
     }
 
     // 5. Формування рекомендацій та порад
-    const countermeasures = this.getCounters(options);
-    const educationalTip = this.getEducationalTip(options);
+    const countermeasures = this.getCounters(options, scenario);
+    const educationalTip = this.getEducationalTip(scenario);
 
-    // 6. Формування лаконічного людиноорієнтованого контенту (Apple HIG style)
-    const human = this.determineHumanContent(options);
+    // 6. Формування лаконічного контенту у стилі Apple HIG
+    const human = this.determineHumanContent(options, scenario);
 
-    // Якщо Chrome Prompt AI або контекстний синтезатор сформували динамічне пояснення — оновлюємо humanCoreWarning
     if (plainLanguageExplanation) {
       human.humanCoreWarning = plainLanguageExplanation;
     }
@@ -62,7 +73,7 @@ export class XaiEngine {
     const summary =
       options.type === 'chat'
         ? 'Спроба відкритої передачі банківських реквізитів у чаті'
-        : `Блокування підозрілої форми на домені ${options.targetHost}`;
+        : `Блокування загрози "${scenario.shortAttackName}" на домені ${options.targetHost}`;
 
     return {
       summary,
@@ -72,8 +83,8 @@ export class XaiEngine {
       humanChecklist: human.humanChecklist,
       riskLevel: options.assessment.level,
       totalScore: options.assessment.score,
-      diagnosis,
-      attackScenario,
+      diagnosis: scenario.diagnosis,
+      attackScenario: scenario.attackScenario,
       chain,
       breakdown,
       plainLanguageExplanation,
@@ -84,12 +95,238 @@ export class XaiEngine {
   }
 
   /**
+   * Сканування DOM для визначення фінансової суми операції
+   */
+  public static extractFinancialAmount(container?: HTMLElement | null): string {
+    try {
+      if (container) {
+        const amountInputs = container.querySelectorAll<HTMLInputElement>(
+          'input[name*="amount" i], input[name*="sum" i], input[name*="price" i], input[id*="amount" i]'
+        );
+        for (const input of amountInputs) {
+          const val = parseFloat(input.value);
+          if (!isNaN(val) && val > 0) {
+            return `${val.toLocaleString('uk-UA')} грн`;
+          }
+        }
+      }
+
+      const scope =
+        container?.closest('.reddit-post, .chat-msg, form, article, main') ||
+        container ||
+        (typeof document !== 'undefined' ? document.body : null);
+
+      if (scope) {
+        const text = scope.textContent || '';
+        const match = text.match(
+          /(?:сума|до\s+отримання|до\s+сплати|ціна|вартість|разом)?\s*:?\s*(\d[\d\s,.]*)\s*(?:грн|uah|₴)/i
+        );
+        if (match && match[1]) {
+          const clean = match[1].trim().replace(/\s+/g, ' ');
+          if (clean.length > 0 && clean.length <= 12) {
+            return `${clean} грн`;
+          }
+        }
+      }
+    } catch {}
+
+    return 'кошти на балансі вашої картки';
+  }
+
+  /**
+   * Класифікація точного сценарію загрози, формування контрасту та переліку активів
+   */
+  public static determineScenario(options: XaiEvaluationOptions): ScenarioDetails {
+    const financialRisk = options.detectedAmount || this.extractFinancialAmount() || 'кошти на балансі вашої картки';
+    const triggersText = options.assessment.triggers.map((t) => t.message).join(' ').toLowerCase();
+
+    // 1. Атака прихованого автозаповнення (Autofill Trap)
+    const isAutofill = options.assessment.triggers.some(
+      (t) =>
+        t.name === 'hidden_sensitive_fields' ||
+        t.message.toLowerCase().includes('прихован') ||
+        t.message.toLowerCase().includes('autofill')
+    );
+
+    if (isAutofill) {
+      const exposedAssets = ['номер банківської картки', 'секретний CVV-код', 'термін дії картки'];
+      return {
+        attackCategory: 'AUTOFILL_TRAP',
+        attackScenario: 'Прихована DOM-пастка автозаповнення (Autofill Trap)',
+        diagnosis: 'Потайне зчитування збережених платіжних даних браузера через невидимі поля',
+        userIntendedAction: 'Ви заповнили лише видимі звичайні поля форми (ім\'я чи логін)',
+        threatReality: 'ця сторінка потай викрадає збережені в браузері реквізити картки через невидимі поля автозаповнення',
+        financialRisk,
+        exposedAssets,
+        shortAttackName: 'атака прихованого автозаповнення (Autofill Trap)',
+      };
+    }
+
+    // 2. Шахрайство під виглядом доставки (Escrow Delivery Scam)
+    const isDelivery =
+      !!options.activeContext ||
+      triggersText.includes('доставк') ||
+      triggersText.includes('escrow') ||
+      triggersText.includes('виплат') ||
+      triggersText.includes('отриманн');
+
+    if (isDelivery) {
+      const platform = options.activeContext?.sourcePlatform || 'маркетплейсу';
+      const exposedAssets = ['номер банківської картки', 'секретний код безпеки CVV'];
+      return {
+        attackCategory: 'DELIVERY_SCAM',
+        attackScenario: `Шахрайство під виглядом безпечної угоди (${platform})`,
+        diagnosis: `Підміна платіжної сторінки ${platform} для списання коштів жертви замість зарахування`,
+        userIntendedAction: `Вам обіцяли зарахувати ${financialRisk} за товар`,
+        threatReality: 'ця сторінка вимагає секретний код CVV і насправді надішле банку запит на списання грошей з вашої картки',
+        financialRisk,
+        exposedAssets,
+        shortAttackName: 'шахрайство з підробленою доставкою (Escrow Scam)',
+      };
+    }
+
+    // 3. Відкритий витік у чаті (Chat Leak)
+    if (options.type === 'chat') {
+      const hasCvv = !!options.chatLeakage?.hasCvv || triggersText.includes('cvv');
+      const exposedAssets = hasCvv
+        ? ['секретний тризначний код CVV', 'номер банківської картки']
+        : ['номер банківської картки'];
+
+      return {
+        attackCategory: 'CHAT_LEAK',
+        attackScenario: 'Відкрита передача платіжних даних у чаті',
+        diagnosis: 'Спроба надсилання конфіденційних реквізитів картки у незахищеному повідомленні',
+        userIntendedAction: 'Ви вводите платіжні реквізити у відкритому чаті',
+        threatReality: hasCvv
+          ? 'передача секретного CVV дозволить співрозмовнику списати гроші без вашого відома (покупцеві CVV не потрібен)'
+          : 'відправка реквізитів картки сторонній особі створює пряму загрозу несанкціонованого списання',
+        financialRisk: 'всі кошти на балансі вашої картки',
+        exposedAssets,
+        shortAttackName: 'витік платіжних даних у чаті',
+      };
+    }
+
+    // 4. Недовірений платіжний вузол (Untrusted Gateway / Action Mismatch)
+    const exposedAssets = ['номер банківської картки', 'секретний код CVV'];
+    return {
+      attackCategory: 'UNTRUSTED_GATEWAY',
+      attackScenario: 'Неліцензований платіжний вузол',
+      diagnosis: `Відправка банківських реквізитів на неакредитований сервер ${options.targetHost}`,
+      userIntendedAction: `Ви намагаєтеся сплатити замовлення на суму ${financialRisk}`,
+      threatReality: `сайт надсилає реквізити не банку, а на сторонній неперевірений сервер (${options.targetHost}) без банківської акредитації`,
+      financialRisk,
+      exposedAssets,
+      shortAttackName: 'фішинговий платіжний вузол',
+    };
+  }
+
+  /**
+   * Інтеграція з Chrome Built-in AI (Prompt API / Gemini Nano)
+   * Формулювання попередження за суворими правилами контрасту та захисту активів
+   */
+  private static async tryChromePromptApi(
+    options: XaiEvaluationOptions,
+    scenario: ScenarioDetails
+  ): Promise<string | null> {
+    try {
+      const win = window as any;
+      const ai = win.ai || win.model || (navigator as any).ai;
+      if (!ai || (!ai.languageModel && !ai.assistant)) {
+        return null;
+      }
+
+      const factory = ai.languageModel || ai.assistant;
+      const capabilities = await factory.capabilities?.();
+      if (capabilities && capabilities.available === 'no') {
+        return null;
+      }
+
+      const prompt = `
+Виявлена вебзагроза для аналізу:
+- Ситуація користувача: ${scenario.userIntendedAction}
+- Фактична прихована загроза: ${scenario.threatReality}
+- Фінансовий збиток (сума під загрозою): ${scenario.financialRisk}
+- Чутливі дані, які будуть вкрадені: ${scenario.exposedAssets.join(', ')}
+- Сторонній сервер: ${options.targetHost}
+- Короткий тип атаки: ${scenario.shortAttackName}
+
+Завдання:
+Сформулюй чітке та спокійне попередження (2-3 речення) українською мовою у стилі Apple для звичайної людини (наприклад, працівниці бухгалтерії):
+1. Застосуй формулу контрасту: поясни людині різницю між тим, що вона хотіла зробити, і тим, що насправді відбудеться з її грошима та даними.
+2. Обов'язково вкажи суму (${scenario.financialRisk}) та які конкретно реквізити (${scenario.exposedAssets.join(', ')}) опиняться в руках зловмисників.
+3. Заверши реченням з назвою загрози: «— це ${scenario.shortAttackName}».
+
+Суворі обмеження:
+- Категорично заборонено використовувати слова «маркери», «змінні», службові назви або технічні ідентифікатори в лапках («підтвердження_оплати», «заклик_до_переходу»).
+- Без емодзі та без складного комп'ютерного сленгу. Текст має бути зрозумілим для будь-якої людини.
+`.trim();
+
+      const aiPromise = (async () => {
+        const session = await factory.create({
+          systemPrompt:
+            'Ви — асистент кібербезпеки Apple. Ваше завдання — вберегти людину від крадіжки грошей та витоку персональних даних. ' +
+            'Пояснюйте суть загрози простою людською мовою через контраст «очікування користувача проти реальної загрози». ' +
+            'Обов\'язково називайте конкретні фінансові втрати та перелік даних, які будуть викрадені. Без сленгу, без емодзі.',
+        });
+        const resp = await session.prompt(prompt);
+        session.destroy?.();
+        return resp && resp.trim().length > 25 ? resp.trim() : null;
+      })();
+
+      // Запобігаємо зависанню інтерфейсу: 1500 мс на відповідь Local LLM
+      const timeoutPromise = new Promise<null>((resolve) => setTimeout(() => resolve(null), 1500));
+
+      return await Promise.race([aiPromise, timeoutPromise]);
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Адаптивний контекстний синтезатор (Primary / High-Reliability Fallback XAI)
+   * Реалізує ту ж саму формулу контрасту зі 100% гарантією швидкості та якості
+   */
+  private static synthesizeExplanation(
+    options: XaiEvaluationOptions,
+    scenario: ScenarioDetails
+  ): string {
+    const assetsStr = scenario.exposedAssets.join(', ');
+
+    switch (scenario.attackCategory) {
+      case 'AUTOFILL_TRAP':
+        return (
+          `${scenario.userIntendedAction}, але ця сторінка потай зчитує збережені дані вашої картки (${assetsStr}) через невидимі поля автозаповнення. ` +
+          `Якщо продовжити, ви ризикуєте втратити ${scenario.financialRisk} та розкрити реквізити картки стороннім особам — це ${scenario.shortAttackName}.`
+        );
+
+      case 'DELIVERY_SCAM':
+        return (
+          `${scenario.userIntendedAction}, але ця сторінка вимагає секретний тризначний код CVV і насправді надішле запит на списання коштів з вашої картки. ` +
+          `Ви ризикуєте втратити ${scenario.financialRisk} та передати шахраям ${assetsStr} — це ${scenario.shortAttackName}.`
+        );
+
+      case 'CHAT_LEAK':
+        return (
+          `${scenario.userIntendedAction}. ` +
+          `Для переказу чи зарахування коштів іншій стороні потрібен виключно 16-значний номер картки. ` +
+          `Передача ${assetsStr} дозволить співрозмовнику списати ${scenario.financialRisk} без вашого відома — це ${scenario.shortAttackName}.`
+        );
+
+      case 'UNTRUSTED_GATEWAY':
+      default:
+        return (
+          `${scenario.userIntendedAction}, але сайт передає реквізити не банку, а на сторонній неперевірений сервер (${options.targetHost}). ` +
+          `Ви ризикуєте втратити ${scenario.financialRisk} та скомпрометувати ${assetsStr} — це ${scenario.shortAttackName}.`
+        );
+    }
+  }
+
+  /**
    * Розрахунок внеску факторів формули: R_tech, C_env, A_user
    */
   private static calculateBreakdown(options: XaiEvaluationOptions): XaiRiskBreakdown {
     const { assessment, activeContext, type } = options;
 
-    // R_tech (Технічні евристики: Luhn, невідповідність action, приховані поля)
     let techScore = 0;
     const techTriggers: string[] = [];
     assessment.triggers.forEach((t) => {
@@ -98,17 +335,17 @@ export class XaiEngine {
         techTriggers.push(t.message);
       }
     });
+
     const technical: XaiRiskFactor = {
       name: 'R_tech',
       label: 'Технічні евристики форми',
       score: techScore,
       maxScore: 60,
       percentage: Math.min(100, Math.round((techScore / 60) * 100)),
-      description: 'Аналіз структури форми, перевірка алгоритму Луна та ліцензії платіжного еквайрингу',
+      description: 'Аналіз структури форми, валідація Луна та перевірка платіжного еквайрингу',
       details: techTriggers.length > 0 ? techTriggers : ['Форма містить стандартні поля без аномалій DOM'],
     };
 
-    // C_env (Контекст середовища / Tainted Context Window)
     let envScore = 0;
     const envDetails: string[] = [];
     if (activeContext) {
@@ -121,31 +358,32 @@ export class XaiEngine {
     } else {
       envDetails.push('Міжсесійний контекст чистий: пряме відкриття вебсторінки');
     }
+
     const contextual: XaiRiskFactor = {
       name: 'C_env',
       label: 'Міжсесійний контекст (Tainted Context)',
       score: envScore,
       maxScore: 35,
       percentage: Math.min(100, Math.round((envScore / 35) * 100)),
-      description: 'Зшивання розірваних сесій: виявлення переходу з перевіреного маркетплейсу на невідомий URL',
+      description: 'Зшивання сесій: перехід із платформи комунікації на платіжний вузол',
       details: envDetails,
     };
 
-    // A_user (Дія та намір користувача)
     let actionScore = type === 'chat' ? 45 : 35;
     const actionDetails: string[] = [];
     if (type === 'chat') {
-      actionDetails.push('Користувач ініціював надсилання повідомлення, що містить номер картки та/або CVV-код');
+      actionDetails.push('Користувач ініціював надсилання повідомлення, що містить банківські реквізити');
     } else {
-      actionDetails.push('Користувач ініціював відправку заповненої платіжної форми з банківськими даними');
+      actionDetails.push('Користувач ініціював відправку платіжної форми з банківськими даними');
     }
+
     const userAction: XaiRiskFactor = {
       name: 'A_user',
       label: 'Намір дії користувача (User Action)',
       score: actionScore,
       maxScore: 45,
       percentage: Math.min(100, Math.round((actionScore / 45) * 100)),
-      description: 'Оцінка потенційного збитку від виконання поточної дії користувача',
+      description: 'Оцінка потенційного матеріального збитку від поточної дії',
       details: actionDetails,
     };
 
@@ -163,7 +401,10 @@ export class XaiEngine {
   /**
    * Реконструкція кроків ланцюга атаки
    */
-  private static reconstructAttackChain(options: XaiEvaluationOptions): AttackChainStep[] {
+  private static reconstructAttackChain(
+    options: XaiEvaluationOptions,
+    scenario: ScenarioDetails
+  ): AttackChainStep[] {
     const steps: AttackChainStep[] = [];
     const now = Date.now();
 
@@ -182,18 +423,18 @@ export class XaiEngine {
         id: 'step-chat-2',
         stepNumber: 2,
         title: 'Введення платіжних реквізитів',
-        description: 'У текстовому полі введено номер картки або секретний код безпеки',
+        description: 'У текстовому полі введено номер картки або секретний код CVV',
         sourceNode: 'Поле вводу',
         severity: 'HIGH',
         timestamp: now - 5000,
         icon: '2',
-        evidence: options.chatLeakage?.hasCvv ? 'Виявлено секретний CVV-код' : 'Виявлено номер банківської картки',
+        evidence: scenario.exposedAssets.join(', '),
       });
       steps.push({
         id: 'step-chat-3',
         stepNumber: 3,
         title: 'Витік платіжних даних',
-        description: 'Відправка повідомлення передасть конфіденційні реквізити співрозмовнику',
+        description: 'Відправка повідомлення передасть реквізити співрозмовнику',
         sourceNode: 'Сервер чату',
         severity: 'CRITICAL',
         timestamp: now,
@@ -207,7 +448,7 @@ export class XaiEngine {
         id: 'step-chain-1',
         stepNumber: 1,
         title: 'Соцінженерна приманка',
-        description: `Спілкування на перевіреній платформі ${options.activeContext.sourcePlatform}`,
+        description: `Спілкування на платформі ${options.activeContext.sourcePlatform}`,
         sourceNode: options.activeContext.sourcePlatform,
         severity: 'MEDIUM',
         timestamp: options.activeContext.timestamp,
@@ -233,7 +474,7 @@ export class XaiEngine {
         severity: 'CRITICAL',
         timestamp: now,
         icon: '3',
-        evidence: 'Номер картки верифіковано алгоритмом Луна',
+        evidence: scenario.exposedAssets.join(', '),
       });
       return steps;
     }
@@ -252,242 +493,154 @@ export class XaiEngine {
       id: 'step-direct-2',
       stepNumber: 2,
       title: 'Збір реквізитів',
-      description: 'Спроба відправки повних реквізитів банківської картки на сторонній сервер',
+      description: 'Спроба відправки банківських даних на сторонній сервер',
       sourceNode: 'Платіжна форма',
       severity: 'CRITICAL',
       timestamp: now,
       icon: '2',
-      evidence: 'Відсутній акредитований банківський шлюз',
+      evidence: scenario.exposedAssets.join(', '),
     });
 
     return steps;
   }
 
   /**
-   * Визначення назви сценарію та діагнозу
-   */
-  private static determineScenario(options: XaiEvaluationOptions): { diagnosis: string; attackScenario: string } {
-    if (options.type === 'chat') {
-      return {
-        diagnosis: 'Спроба передачі конфіденційних банківських реквізитів у відкритому чаті',
-        attackScenario: 'Direct Card Credential Leakage',
-      };
-    }
-
-    if (options.activeContext) {
-      return {
-        diagnosis: `Міжсесійний фішинг під виглядом доставки (${options.activeContext.sourcePlatform} → ${options.targetHost})`,
-        attackScenario: 'Cross-Session Marketplace Delivery Scam',
-      };
-    }
-
-    return {
-      diagnosis: `Несанкціонований збір банківських реквізитів на недовіреному сервері ${options.targetHost}`,
-      attackScenario: 'Unauthorized Payment Gateway Harvest',
-    };
-  }
-
-  /**
-   * Спроба використати Chrome Built-in AI (Prompt API / Gemini Nano)
-   */
-  private static async tryChromePromptApi(
-    options: XaiEvaluationOptions,
-    diagnosis: string,
-    breakdown: XaiRiskBreakdown
-  ): Promise<string | null> {
-    try {
-      const win = window as any;
-      const ai = win.ai || win.model || (navigator as any).ai;
-      if (!ai || (!ai.languageModel && !ai.assistant)) {
-        return null;
-      }
-
-      const factory = ai.languageModel || ai.assistant;
-      const capabilities = await factory.capabilities?.();
-      if (capabilities && capabilities.available === 'no') {
-        return null;
-      }
-
-      const lureContext = options.activeContext
-        ? `Користувач перейшов із платформи ${options.activeContext.sourcePlatform}, де в чаті було зафіксовано приманку: "${options.activeContext.detectedKeywords.join(', ')}".`
-        : 'Прямий візит на вебсторінку.';
-
-      const triggersList = options.assessment.triggers.map((t) => t.message).join('; ');
-
-      const prompt = `
-Виявлена загроза кібербезпеки:
-- Сценарій: ${diagnosis}
-- Рівень загрози: ${options.assessment.level} (${options.assessment.score}/100)
-- Домен форми/дії: ${options.targetHost}
-- Контекст сесії: ${lureContext}
-- Виявлені симптоми: ${triggersList}
-${options.chatLeakage?.hasCvv ? '- Небезпека: спроба передачі захисного коду CVV у чаті.' : ''}
-
-Завдання:
-Сформулюй для користувача зрозуміле пояснення загрози (2-3 спокійні речення) українською мовою у стилі Apple. Поясни, чому це призведе до крадіжки коштів і чому не можна продовжувати. Без емодзі.
-      `.trim();
-
-      const aiPromise = (async () => {
-        const session = await factory.create({
-          systemPrompt:
-            'Ви — інтелектуальний асистент безпеки в стилі Apple. Пояснюйте суть загрози авторитетно, стисло, спокійно та українською мовою без емодзі.',
-        });
-        const resp = await session.prompt(prompt);
-        session.destroy?.();
-        return resp && resp.trim().length > 15 ? resp.trim() : null;
-      })();
-
-      // Запобігаємо зависанню інтерфейсу: жорсткий таймаут 1200 мс на відповідь LLM
-      const timeoutPromise = new Promise<null>((resolve) => setTimeout(() => resolve(null), 1200));
-
-      return await Promise.race([aiPromise, timeoutPromise]);
-    } catch {
-      return null;
-    }
-  }
-
-  /**
-   * Адаптивний контекстний синтезатор (Primary / High-Reliability XAI)
-   */
-  private static synthesizeExplanation(options: XaiEvaluationOptions): string {
-    if (options.type === 'chat') {
-      if (options.chatLeakage?.hasCvv) {
-        return (
-          'У тексті повідомлення виявлено секретний CVV-код картки. ' +
-          'Для переказу чи отримання коштів іншій стороні ніколи не потрібен захисний код зі звороту картки. ' +
-          'Його відправка відкриє стороннім доступ до списання всіх ваших заощаджень.'
-        );
-      }
-      return (
-        'У тексті повідомлення виявлено реквізити банківської картки. ' +
-        'Для переказу чи отримання коштів іншій особі достатньо лише 16-значного номера картки або IBAN. ' +
-        'Ніколи не надсилайте термін дії або коди безпеки у відкритому діалозі.'
-      );
-    }
-
-    if (options.activeContext) {
-      const kw =
-        options.activeContext.detectedKeywords.length > 0
-          ? ` (виявлено маніпулятивні маркери: «${options.activeContext.detectedKeywords.slice(0, 2).join(', ')}»)`
-          : '';
-      return (
-        `Цей сайт імітує сторінку сервісу після переходу з чату ${options.activeContext.sourcePlatform}${kw}. ` +
-        `Форма запитує платіжні реквізити та секретний код безпеки CVV. ` +
-        `Офіційні сервіси доставки ніколи не вимагають введення CVV для зарахування коштів — заповнення призведе до списання грошей з вашого рахунку.`
-      );
-    }
-
-    return (
-      `Вебсайт ${options.targetHost} запитує реквізити банківської картки, але не використовує акредитований банківський шлюз ` +
-      `(LiqPay, Portmone, Stripe). Форма передає дані на неліцензований сторонній сервер, що створює пряму загрозу втрати грошей.`
-    );
-  }
-
-  /**
    * Контрзаходи (Countermeasures)
    */
-  private static getCounters(options: XaiEvaluationOptions): string[] {
-    if (options.type === 'chat') {
-      return [
-        'Видаліть CVV-код та термін дії картки з тексту повідомлення.',
-        'Для отримання коштів іншій особі достатньо надати лише номер картки або IBAN.',
-        'Ніколи не повідомляйте одноразові коди підтвердження з SMS або банківських додатків.',
-      ];
-    }
+  private static getCounters(options: XaiEvaluationOptions, scenario: ScenarioDetails): string[] {
+    switch (scenario.attackCategory) {
+      case 'AUTOFILL_TRAP':
+        return [
+          'Негайно залиште сторінку та не надсилайте форму.',
+          'Перевірте налаштування автозаповнення браузера та видаліть збережені картки з пам’яті.',
+          'Ніколи не підтверджуйте автозаповнення на сторонніх чи невідомих сайтах.',
+        ];
 
-    if (options.activeContext) {
-      return [
-        `Залиште сторінку ${options.targetHost} та поверніться до додатку ${options.activeContext.sourcePlatform}.`,
-        'Здійснюйте доставку та оплату виключно через офіційний функціонал платформи.',
-        'Пам\'ятайте: для зарахування коштів за товар банк ніколи не вимагає вводити CVV чи паролі.',
-      ];
-    }
+      case 'DELIVERY_SCAM':
+        return [
+          `Залиште сторінку ${options.targetHost} та поверніться до офіційного додатку ${options.activeContext?.sourcePlatform || 'маркетплейсу'}.`,
+          'Для зарахування коштів за товар покупцеві достатньо знати лише 16 цифр картки або IBAN.',
+          'Ніколи не вказуйте тризначний код CVV чи баланс картки для «отримання виплати».',
+        ];
 
-    return [
-      `Не надсилайте платіжні реквізити серверу ${options.targetHost}.`,
-      'Здійснюйте оплату лише на сайтах із підключеними сертифікованими шлюзами банків.',
-      'Перевіряйте правильність написання адреси сайту в рядку браузера.',
-    ];
+      case 'CHAT_LEAK':
+        return [
+          'Видаліть CVV-код та термін дії картки з поля вводу повідомлення.',
+          'Для отримання переказу надішліть лише номер картки або розрахунковий рахунок IBAN.',
+          'Ніколи не повідомляйте одноразові коди безпеки з SMS або push-повідомлень банку.',
+        ];
+
+      case 'UNTRUSTED_GATEWAY':
+      default:
+        return [
+          `Не надсилайте платіжні реквізити серверу ${options.targetHost}.`,
+          'Здійснюйте оплату лише через акредитовані банківські шлюзи (LiqPay, Portmone, WayForPay).',
+          'Перевіряйте правильність адреси сайту в рядку браузера.',
+        ];
+    }
   }
 
   /**
    * Освітня порада
    */
-  private static getEducationalTip(options: XaiEvaluationOptions): string {
-    if (options.type === 'chat') {
-      return 'Код CVV на звороті картки призначений виключно для авторизації списання коштів власником. Жоден покупець не потребує його для здійснення переказу.';
-    }
+  private static getEducationalTip(scenario: ScenarioDetails): string {
+    switch (scenario.attackCategory) {
+      case 'AUTOFILL_TRAP':
+        return 'Шахраї часто використовують звичайну форму підписки чи входу, приховуючи за межами екрана поля «Номер картки» та «CVV», які браузер автоматично заповнює з вашої пам’яті.';
 
-    return 'Акредитовані платіжні шлюзи (LiqPay, Stripe, Portmone) завжди працюють на виділених доменах банків із сертифікатами PCI DSS і ніколи не використовують сторонні сторінки.';
+      case 'DELIVERY_SCAM':
+        return 'Код CVV (3 цифри на звороті) призначений виключно для зняття або списання коштів. Банківські системи ніколи не вимагають введення CVV для зарахування грошей продавцю.';
+
+      case 'CHAT_LEAK':
+        return 'Секретний тризначний код CVV разом із номером картки дає змогу розрахуватися нею в інтернеті без вашої згоди. Тримайте його в таємниці навіть від покупців.';
+
+      case 'UNTRUSTED_GATEWAY':
+      default:
+        return 'Акредитовані платіжні шлюзи захищені міжнародним стандартом безпеки PCI DSS і приймають дані картки на захищених захищених серверах банку, а не на сайті магазину.';
+    }
   }
 
   /**
-   * Лаконічний контент у стилі Apple Human Interface Guidelines (без емодзі)
+   * Лаконічний контент у стилі Apple Human Interface Guidelines
    */
-  private static determineHumanContent(options: XaiEvaluationOptions): {
+  private static determineHumanContent(
+    options: XaiEvaluationOptions,
+    scenario: ScenarioDetails
+  ): {
     humanTitle: string;
     humanSubtitle: string;
     humanCoreWarning: string;
     humanChecklist: { good: string[]; bad: string[] };
   } {
-    if (options.type === 'chat') {
-      return {
-        humanTitle: 'Витік платіжних реквізитів',
-        humanSubtitle: 'У тексті повідомлення виявлено конфіденційні банківські дані.',
-        humanCoreWarning:
-          'Ви намагаєтеся надіслати секретний код безпеки CVV або термін дії картки. ' +
-          'Для отримання оплати іншій людині потрібен лише 16-значний номер картки. ' +
-          'Передача коду зі звороту картки дозволяє співрозмовнику безперешкодно списати всі кошти з вашого рахунку.',
-        humanChecklist: {
-          good: [
-            'Для переказу достатньо лише 16 цифр картки або номера IBAN',
-            'Спілкуйтеся виключно через офіційні канали платформи',
-          ],
-          bad: [
-            'Передавати тризначний код CVV на звороті картки',
-            'Повідомляти термін дії або одноразові коди з SMS',
-          ],
-        },
-      };
-    }
+    switch (scenario.attackCategory) {
+      case 'AUTOFILL_TRAP':
+        return {
+          humanTitle: 'Прихована пастка автозаповнення',
+          humanSubtitle: 'Спроба таємного зчитування карткових даних через невидимі поля.',
+          humanCoreWarning: this.synthesizeExplanation(options, scenario),
+          humanChecklist: {
+            good: [
+              'Заповнювати лише ті поля, які ви бачите на власні очі',
+              'Перевіряти, які саме дані браузер підставляє в автозаповнення',
+            ],
+            bad: [
+              'Дозволяти автоматичне заповнення платіжних реквізитів на підозрілих сайтах',
+              'Ігнорувати попередження системи безпеки про невидимі інпути',
+            ],
+          },
+        };
 
-    if (options.activeContext) {
-      return {
-        humanTitle: 'Підозріла платіжна форма',
-        humanSubtitle: 'Спроба несанкціонованого списання коштів через сторонній сайт.',
-        humanCoreWarning:
-          `Цей вебсайт імітує сторінку оплати після переходу з чату ${options.activeContext.sourcePlatform}. ` +
-          'Форма запитує секретний код безпеки CVV. Для отримання грошей за товар цей код ніколи не потрібен — ' +
-          'його введення призведе до списання коштів сторонніми особами.',
-        humanChecklist: {
-          good: [
-            'Для зарахування оплати потрібен виключно номер картки',
-            'Оформлюйте замовлення лише в офіційному додатку платформи',
-          ],
-          bad: [
-            'Вводити код CVV (три цифри на звороті) для «отримання» оплати',
-            'Переходити за платіжними посиланнями у сторонніх месенджерах',
-          ],
-        },
-      };
-    }
+      case 'DELIVERY_SCAM':
+        return {
+          humanTitle: 'Шахрайство під виглядом доставки',
+          humanSubtitle: 'Спроба несанкціонованого списання коштів замість зарахування.',
+          humanCoreWarning: this.synthesizeExplanation(options, scenario),
+          humanChecklist: {
+            good: [
+              'Для зарахування коштів передавати лише 16 цифр картки або IBAN',
+              'Перевіряти статус угоди виключно в офіційному додатку маркетплейсу',
+            ],
+            bad: [
+              'Вводити код CVV (три цифри на звороті) для «отримання» грошей',
+              'Переходити за платіжними посиланнями у сторонніх месенджерах',
+            ],
+          },
+        };
 
-    return {
-      humanTitle: 'Неліцензована форма оплати',
-      humanSubtitle: 'Вебсайт не підключений до сертифікованого банківського шлюзу.',
-      humanCoreWarning:
-        'Цей сайт намагається отримати реквізити вашої банківської картки напряму, без використання офіційного еквайрингу ' +
-        '(LiqPay, Portmone, Stripe). Відправка даних на неперевірений сервер загрожує втратою грошей.',
-      humanChecklist: {
-        good: [
-          'Здійснювати оплату через офіційні банківські сервіси',
-          'Перевіряти доменне ім’я сайту перед введенням реквізитів',
-        ],
-        bad: [
-          'Вводити реквізити картки на сторонніх невідомих сторінках',
-          'Ігнорувати попередження системи безпеки браузера',
-        ],
-      },
-    };
+      case 'CHAT_LEAK':
+        return {
+          humanTitle: 'Витік платіжних реквізитів у чаті',
+          humanSubtitle: 'У відкритому діалозі виявлено конфіденційні банківські реквізити.',
+          humanCoreWarning: this.synthesizeExplanation(options, scenario),
+          humanChecklist: {
+            good: [
+              'Для переказу повідомляти виключно 16-значний номер картки',
+              'Спілкуватися лише всередині захищених чатів платформи',
+            ],
+            bad: [
+              'Надсилати тризначний код CVV зі звороту картки або термін дії',
+              'Передавати одноразові коди підтвердження з банківських SMS',
+            ],
+          },
+        };
+
+      case 'UNTRUSTED_GATEWAY':
+      default:
+        return {
+          humanTitle: 'Неліцензована форма оплати',
+          humanSubtitle: 'Сайт не підключений до сертифікованого банківського шлюзу.',
+          humanCoreWarning: this.synthesizeExplanation(options, scenario),
+          humanChecklist: {
+            good: [
+              'Здійснювати оплату через офіційні банківські шлюзи (LiqPay, Portmone)',
+              'Перевіряти адресу сайту в адресному рядку браузера',
+            ],
+            bad: [
+              'Вводити реквізити картки на сторонніх сторінках без сертифікату PCI DSS',
+              'Ігнорувати попередження браузера про ненадійні вузли',
+            ],
+          },
+        };
+    }
   }
 }
