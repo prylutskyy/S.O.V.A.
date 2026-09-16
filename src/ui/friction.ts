@@ -24,7 +24,7 @@ export class SecurityFriction {
     } catch {}
 
     const detectedAmount = XaiEngine.extractFinancialAmount(form);
-    const vaultScan = VaultScanner.scanFormSync(form);
+    const vaultScan = VaultScanner.scanFormSync(form, targetHost);
 
     // Чистий Дзен + Ізольований Shadow DOM: жодного втручання в інлайн-стилі форми
     UnifiedFrictionModal.show({

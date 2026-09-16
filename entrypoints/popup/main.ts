@@ -247,31 +247,43 @@ document.addEventListener('DOMContentLoaded', async () => {
         vaultLabelInput.value = 'Дівоче прізвище матері';
         vaultRealInput.placeholder = 'Людмила';
         vaultDecoyInput.value = 'Оксана';
-        vaultKeywordsInput.value = 'дівоче, дівоче прізвище, прізвище матері, maiden, mother';
-        break;
-      case 'FATHER_NAME':
-        vaultLabelInput.value = "Ім'я батька";
-        vaultRealInput.placeholder = 'Лео';
-        vaultDecoyInput.value = 'Олександр';
-        vaultKeywordsInput.value = "батька, ім'я батька, по батькові, father";
+        vaultKeywordsInput.value = 'дівоче, прізвище матері, maiden, mother, девичья фамилия';
         break;
       case 'TAX_ID':
-        vaultLabelInput.value = 'РНОКПП (ІПН)';
+        vaultLabelInput.value = 'РНОКПП (ІПН / Податковий код)';
         vaultRealInput.placeholder = '3124567890';
         vaultDecoyInput.value = '2987654321';
-        vaultKeywordsInput.value = 'рнокпп, іпн, ідентифікаційний код, tax_id';
-        break;
-      case 'PASSPORT_ID':
-        vaultLabelInput.value = 'Номер паспорта';
-        vaultRealInput.placeholder = 'АА 123456';
-        vaultDecoyInput.value = 'АА 654321';
-        vaultKeywordsInput.value = 'паспорт, номер паспорта, passport, id card';
+        vaultKeywordsInput.value = 'рнокпп, іпн, код платника, tax id, inn, налоговый номер';
         break;
       case 'SECRET_WORD':
-        vaultLabelInput.value = 'Кодове секретне слово';
+        vaultLabelInput.value = 'Секретне / Кодове слово банку';
         vaultRealInput.placeholder = 'Калина';
         vaultDecoyInput.value = 'Дніпро';
-        vaultKeywordsInput.value = 'кодове слово, секретне слово, secret word';
+        vaultKeywordsInput.value = 'кодове слово, секретне слово, codeword, secret word, контрольное слово';
+        break;
+      case 'PASSPORT_ID':
+        vaultLabelInput.value = 'Номер паспорта / ID-картки';
+        vaultRealInput.placeholder = 'АА 123456';
+        vaultDecoyInput.value = 'АА 654321';
+        vaultKeywordsInput.value = 'паспорт, id картка, passport, document number, паспортные данные';
+        break;
+      case 'DATE_OF_BIRTH':
+        vaultLabelInput.value = 'Дата народження';
+        vaultRealInput.placeholder = '15.08.1985';
+        vaultDecoyInput.value = '01.01.1990';
+        vaultKeywordsInput.value = 'дата народження, день народження, date of birth, dob, birthday, дата рождения';
+        break;
+      case 'FINANCIAL_PHONE':
+        vaultLabelInput.value = 'Фінансовий номер телефону';
+        vaultRealInput.placeholder = '+380501234567';
+        vaultDecoyInput.value = '+380679876543';
+        vaultKeywordsInput.value = 'фінансовий номер, прив’язаний телефон, financial phone, bank mobile, финансовый номер';
+        break;
+      case 'FATHER_NAME':
+        vaultLabelInput.value = "Ім'я батька / По батькові";
+        vaultRealInput.placeholder = 'Лео';
+        vaultDecoyInput.value = 'Олександр';
+        vaultKeywordsInput.value = "ім'я батька, по батькові, father's name, patronymic, имя отца, отчество";
         break;
       case 'CUSTOM':
       default:

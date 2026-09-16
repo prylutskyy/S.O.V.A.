@@ -1,10 +1,14 @@
 export type VaultItemCategory =
   | 'MOTHER_MAIDEN_NAME'
-  | 'FATHER_NAME'
   | 'TAX_ID'
-  | 'PASSPORT_ID'
   | 'SECRET_WORD'
+  | 'PASSPORT_ID'
+  | 'DATE_OF_BIRTH'
+  | 'FINANCIAL_PHONE'
+  | 'FATHER_NAME'
   | 'CUSTOM';
+
+export type VaultSensitivityTier = 'TIER_A_ABSOLUTE' | 'TIER_B_CONDITIONAL';
 
 export interface VaultItem {
   id: string;
@@ -22,4 +26,5 @@ export interface VaultMatchResult {
   detectedFieldLabel: string;
   matchType: 'VALUE_MATCH' | 'FIELD_LABEL_MATCH';
   isDecoyAvailable: boolean;
+  tier: VaultSensitivityTier;
 }

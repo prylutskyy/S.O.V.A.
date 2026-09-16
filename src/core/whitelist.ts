@@ -43,6 +43,10 @@ export const MONITORED_PLATFORMS = new Set<string>([
 
 export function isWhitelisted(hostname: string): boolean {
   const cleanHost = hostname.toLowerCase().trim();
+  // Державні сервіси України (.gov.ua) мають апріорний імунітет до перевірок
+  if (cleanHost.endsWith('.gov.ua') || cleanHost === 'gov.ua') {
+    return true;
+  }
   if (WHITELISTED_DOMAINS.has(cleanHost)) {
     return true;
   }

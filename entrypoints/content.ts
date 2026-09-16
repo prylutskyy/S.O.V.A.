@@ -121,7 +121,7 @@ export default defineContentScript({
       heuristics.push(...checkSensitiveAndHiddenInputs(form));
 
       // DLP: Інспекція полів форми на конфіденційні маркери з Vault
-      const vaultScan = VaultScanner.scanFormSync(form);
+      const vaultScan = VaultScanner.scanFormSync(form, currentHost);
       if (vaultScan.triggers.length > 0) {
         heuristics.push(...vaultScan.triggers);
         formState.hasFilledAnySensitive = true;
