@@ -55,7 +55,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   const manualHostInput = document.getElementById('manualHostInput') as HTMLInputElement;
   const btnAddManual = document.getElementById('btnAddManual') as HTMLButtonElement;
   const btnClearAllWhitelist = document.getElementById('btnClearAllWhitelist') as HTMLButtonElement;
-  
 
   // Settings elements
   const btnResetContext = document.getElementById('btnResetContext') as HTMLButtonElement;
@@ -550,5 +549,3 @@ document.addEventListener('DOMContentLoaded', async () => {
   // За замовчуванням першим відкриваємо розділ СТАТИСТИКИ
   await setActiveTab('stats');
 });
-
-
