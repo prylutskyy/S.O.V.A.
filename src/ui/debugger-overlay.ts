@@ -2,6 +2,7 @@ export class DebuggerOverlay {
   private static container: HTMLElement | null = null;
   private static logsList: HTMLElement | null = null;
   private static statusBar: HTMLElement | null = null;
+  private static currentSessionId: string | null = null;
   private static logElements: Map<string, HTMLElement> = new Map();
   private static isDragging = false;
   private static offsetX = 0;
@@ -159,6 +160,7 @@ export class DebuggerOverlay {
   }
 
   public static setSession(id: string | null, severity: string = 'LOW') {
+    this.currentSessionId = id;
     if (!this.statusBar) return;
     if (id) {
       this.statusBar.style.display = 'flex';
@@ -172,11 +174,31 @@ export class DebuggerOverlay {
     }
   }
 
-  public static log(step: string, data: any, color: string = '#4ADE80') {
+  public static log(stepKey: string, data: any, customColor?: string, broadcast: boolean = true) {
     this.show();
-    if (!this.logsList) return;
+    if (!this.container || !this.logsList) return;
 
-    let logItem = this.logElements.get(step);
+    // Broadcast to other tabs sharing this session
+    if (broadcast && this.currentSessionId) {
+      try {
+        if (typeof chrome !== 'undefined' && chrome.runtime) {
+          chrome.runtime.sendMessage({
+            type: 'BROADCAST_LOG',
+            payload: {
+              sessionId: this.currentSessionId,
+              stepKey,
+              data,
+              customColor
+            }
+          });
+        }
+      } catch {}
+    }
+
+    const time = new Date().toLocaleTimeString();
+    const color = customColor || '#4ADE80';
+
+    let logItem = this.logElements.get(stepKey);
     let dataLabel: HTMLElement;
 
     if (!logItem) {
@@ -202,7 +224,7 @@ export class DebuggerOverlay {
       logItem.appendChild(dataLabel);
 
       this.logsList.appendChild(logItem);
-      this.logElements.set(step, logItem);
+      this.logElements.set(stepKey, logItem);
     } else {
       // Update color and text of existing element
       logItem.style.borderLeftColor = color;

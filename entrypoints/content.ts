@@ -98,18 +98,22 @@ export default defineContentScript({
       }).catch(() => {});
     } catch {}
 
-    // Слухач повідомлень від background worker (оновлення або очищення контексту на льоту)
     if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.onMessage) {
       chrome.runtime.onMessage.addListener((msg) => {
         if (msg && msg.type === 'CONTEXT_CLEARED') {
           activeContext = null;
           GlobalInputInterceptor.setHardLock(null);
+          ChatChannelMonitor.reset();
           SecurityFriction.removeContextWarningBanner();
           if (debugMode) {
-            DebuggerOverlay.log('🔗 Зшивання Сесій (Context)', 'Контекст очищено', '#22C55E');
+            DebuggerOverlay.setSession(null);
+            DebuggerOverlay.log('🔗 Зшивання Сесій (Context)', 'Контекст очищено через іншу вкладку', '#22C55E');
           }
         } else if (msg && msg.type === 'CONTEXT_UPDATED' && msg.context) {
           applyContext(msg.context as ActiveThreatContext);
+        } else if (msg && msg.type === 'RECEIVE_BROADCAST_LOG' && debugMode) {
+          const { stepKey, data, customColor } = msg.payload;
+          DebuggerOverlay.log(stepKey, data, customColor, false);
         }
       });
     }

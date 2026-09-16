@@ -61,12 +61,46 @@ export default defineBackground(() => {
         sendResponse({ success: false });
         return false;
       }
-      contextManager.clearTaintedContext(tabId).then(() => {
-        if (chrome.action) {
-          chrome.action.setBadgeText({ text: '', tabId });
+      
+      contextManager.getActiveTaintedContext(tabId).then(async (ctx) => {
+        if (ctx && ctx.sessionId) {
+          const tabs = await chrome.tabs.query({});
+          for (const tab of tabs) {
+            if (tab.id) {
+              const tabCtx = await contextManager.getActiveTaintedContext(tab.id);
+              if (tabCtx && tabCtx.sessionId === ctx.sessionId) {
+                await contextManager.clearTaintedContext(tab.id);
+                if (chrome.action) chrome.action.setBadgeText({ text: '', tabId: tab.id });
+                chrome.tabs.sendMessage(tab.id, { type: 'CONTEXT_CLEARED' }).catch(() => {});
+              }
+            }
+          }
+        } else {
+          await contextManager.clearTaintedContext(tabId);
+          if (chrome.action) chrome.action.setBadgeText({ text: '', tabId });
+          chrome.tabs.sendMessage(tabId, { type: 'CONTEXT_CLEARED' }).catch(() => {});
         }
         sendResponse({ success: true });
       });
+      return true;
+    }
+
+    if (message.type === 'BROADCAST_LOG') {
+      const { sessionId, stepKey, data, customColor } = message.payload;
+      chrome.tabs.query({}).then(async (tabs) => {
+        for (const tab of tabs) {
+          if (tab.id && tab.id !== tabId) {
+            const tabCtx = await contextManager.getActiveTaintedContext(tab.id);
+            if (tabCtx && tabCtx.sessionId === sessionId) {
+              chrome.tabs.sendMessage(tab.id, {
+                type: 'RECEIVE_BROADCAST_LOG',
+                payload: { stepKey: `${stepKey} (Вкладка ${tabId})`, data, customColor }
+              }).catch(() => {});
+            }
+          }
+        }
+      });
+      sendResponse({ success: true });
       return true;
     }
 
