@@ -205,4 +205,15 @@ export class SecurityFriction {
       ShadowHost.remove(banner);
     });
   }
+
+  /**
+   * Примусове видалення банера контексту з Shadow DOM (наприклад, при скиданні Tainted Context)
+   */
+  public static removeContextWarningBanner(): void {
+    const root = ShadowHost.getRoot();
+    const existing = root.getElementById('threat-shield-context-banner');
+    if (existing) {
+      ShadowHost.remove(existing as HTMLElement);
+    }
+  }
 }

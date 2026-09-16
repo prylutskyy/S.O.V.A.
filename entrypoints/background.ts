@@ -42,6 +42,16 @@ export default defineBackground(() => {
         if (chrome.action) {
           chrome.action.setBadgeText({ text: '' });
         }
+        // Оповіщаємо всі вкладки про очищення контексту
+        if (chrome.tabs && chrome.tabs.query) {
+          chrome.tabs.query({}, (tabs) => {
+            for (const tab of tabs) {
+              if (tab.id) {
+                chrome.tabs.sendMessage(tab.id, { type: 'CONTEXT_CLEARED' }).catch(() => {});
+              }
+            }
+          });
+        }
         sendResponse({ status: 'CLEARED' });
       });
       return true;

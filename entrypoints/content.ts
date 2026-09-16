@@ -39,13 +39,26 @@ export default defineContentScript({
           activeContext = ctx;
           console.log('[ThreatShield:Content] Отримано активний контекст загрози:', ctx);
 
-          const isUserAllowed = UserWhitelistManager.isDomainAllowedSync(currentHost);
-          if (!isWhitelisted(currentHost) && !isUserAllowed && currentHost !== ctx.sourcePlatform) {
-            SecurityFriction.showContextWarningBanner(ctx);
+          // На локальних тестових сторінках (file://) банер відображається виключно при явному запуску симуляції
+          if (window.location.protocol !== 'file:') {
+            const isUserAllowed = UserWhitelistManager.isDomainAllowedSync(currentHost);
+            if (!isWhitelisted(currentHost) && !isUserAllowed && currentHost !== ctx.sourcePlatform) {
+              SecurityFriction.showContextWarningBanner(ctx);
+            }
           }
         }
       }).catch(() => {});
     } catch {}
+
+    // Слухач сповіщень від background worker (наприклад, скидання контексту на іншій вкладці чи в popup)
+    if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.onMessage) {
+      chrome.runtime.onMessage.addListener((msg) => {
+        if (msg && msg.type === 'CONTEXT_CLEARED') {
+          activeContext = null;
+          SecurityFriction.removeContextWarningBanner();
+        }
+      });
+    }
 
     // Маркування сторінки та створення каналу зв'язку для тестових сторінок
     document.documentElement.setAttribute('data-threat-shield-loaded', 'true');
@@ -71,7 +84,7 @@ export default defineContentScript({
           }
         } catch {}
         activeContext = null;
-        document.getElementById('threat-shield-context-banner')?.remove();
+        SecurityFriction.removeContextWarningBanner();
         console.log('[ThreatShield:Content] Tainted Context Window успішно очищено.');
         window.postMessage({ type: 'THREAT_SHIELD_CONTEXT_CLEARED' }, '*');
       }
@@ -376,22 +389,12 @@ export default defineContentScript({
       ChatChannelMonitor.init(
         currentHost || 'marketplace-chat',
         (lureEvent) => {
-          try {
-            chrome.runtime.sendMessage({
-              type: 'LURE_DETECTED',
-              payload: {
-                sourcePlatform: lureEvent.sourcePlatform,
-                keywords: lureEvent.keywords,
-                offPlatformLure: lureEvent.isOffPlatformLure,
-                suspiciousUrl: lureEvent.suspiciousUrls[0] || undefined,
-              },
-            }).then((resp) => {
-              if (resp && resp.context) {
-                activeContext = resp.context as ActiveThreatContext;
-                console.log('[ThreatShield:ChatChannel] Tainted Context активовано через вхідне повідомлення:', activeContext);
-              }
-            }).catch(() => {});
-          } catch {}
+          console.log('[ThreatShield:ChatChannel] Виявлено соцінженерне повідомлення в чаті (пасивний моніторинг):', lureEvent);
+          // Важливо: пасивне виявлення повідомлення в чаті НЕ надсилає LURE_DETECTED і НЕ зшиває сесії завчасно!
+          // Зшивання сесій (Tainted Context Window) активується ТІЛЬКИ при реальній дії користувача:
+          // 1) Клік по підозрілому посиланню (обробник 'click' по <a> нижче)
+          // 2) Копіювання тексту або посилання бота в буфер обміну (обробник 'copy' нижче)
+          // 3) Або явний запуск симуляції на тестовому стенді
         }
       );
 
