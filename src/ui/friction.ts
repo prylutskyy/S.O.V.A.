@@ -121,7 +121,7 @@ export class SecurityFriction {
   /**
    * Повідомлення про зшивання сесій (Floating Dynamic Island / Capsule у стилі Apple)
    */
-  public static showContextWarningBanner(context: ActiveThreatContext, customSubtitle?: string, rawTextToScan?: string, intentType?: string): void {
+  public static showContextWarningBanner(context: ActiveThreatContext, customSubtitle?: string, rawTextToScan?: string, intentType?: string, onClose?: () => void, confidence?: number): void {
     const root = ShadowHost.getRoot();
     const existing = root.getElementById('threat-shield-context-banner');
     if (existing) {
@@ -152,6 +152,7 @@ export class SecurityFriction {
     `;
 
     const subtitle = customSubtitle || 'Посилений моніторинг форм';
+    const isHardLock = confidence && confidence >= 50;
 
     banner.innerHTML = `
       <style>
@@ -179,15 +180,18 @@ export class SecurityFriction {
         <div style="font-size: 12.5px; color: #1A1A1A; display: flex; flex-direction: column; gap: 2px;">
           <strong style="font-weight: 600; color: #1A1A1A;">${context.sourcePlatform}</strong>
           <span style="color: #D97706; font-weight: 500;">${subtitle}</span>
+          ${isHardLock ? '<span style="color:#DC2626; font-size: 11px;">(Блокування вводу)</span>' : ''}
         </div>
 
-        <button id="threat-shield-close-banner" type="button" title="Закрити" style="
-          width: 18px; height: 18px; border-radius: 50%; border: none;
+        <button id="threat-shield-close-banner" type="button" title="Закрити" ${isHardLock ? 'disabled' : ''} style="
+          width: ${isHardLock ? '24px' : '18px'}; height: ${isHardLock ? '24px' : '18px'}; border-radius: 50%; border: none;
           background: #F3F4F6; color: #9CA3AF; cursor: pointer;
           display: flex; align-items: center; justify-content: center;
-          font-size: 10px; line-height: 1; padding: 0; margin-left: auto;
+          font-size: ${isHardLock ? '11px' : '10px'}; line-height: 1; padding: 0; margin-left: auto;
+          transition: opacity 0.2s;
+          ${isHardLock ? 'opacity: 0.5; cursor: not-allowed;' : ''}
         ">
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          ${isHardLock ? '10s' : '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'}
         </button>
       </div>
 
@@ -203,8 +207,25 @@ export class SecurityFriction {
     const resultDiv = banner.querySelector('#ts-ai-banner-result') as HTMLElement;
     const closeBtn = banner.querySelector('#threat-shield-close-banner') as HTMLButtonElement;
 
+    if (isHardLock) {
+      let timeLeft = 10;
+      const interval = setInterval(() => {
+        timeLeft--;
+        if (timeLeft > 0) {
+          closeBtn.innerText = `${timeLeft}s`;
+        } else {
+          clearInterval(interval);
+          closeBtn.disabled = false;
+          closeBtn.style.opacity = '1';
+          closeBtn.style.cursor = 'pointer';
+          closeBtn.innerHTML = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+        }
+      }, 1000);
+    }
+
     closeBtn.addEventListener('click', () => {
       ShadowHost.remove(banner);
+      if (onClose) onClose();
     });
 
     btnAi.addEventListener('click', () => {
@@ -229,6 +250,11 @@ export class SecurityFriction {
               resultDiv.style.background = '#F0FDF4';
               resultDiv.style.color = '#166534';
               resultDiv.innerHTML = `<b>ШІ відхилив:</b> ${aiResult.reasoning}`;
+              // If AI says it's safe, auto-close the banner and unlock
+              setTimeout(() => {
+                ShadowHost.remove(banner);
+                if (onClose) onClose();
+              }, 3000);
             }
             btnAi.style.display = 'none';
           });
@@ -238,11 +264,15 @@ export class SecurityFriction {
       }
     });
 
-    setTimeout(() => {
-      if (root.contains(banner) && btnAi.style.display !== 'none' && !btnAi.disabled) {
-        ShadowHost.remove(banner);
-      }
-    }, 8000);
+    // Don't auto-close if it's a Hard Lock. The user must manually close it.
+    if (!isHardLock) {
+      setTimeout(() => {
+        if (root.contains(banner) && btnAi.style.display !== 'none' && !btnAi.disabled) {
+          ShadowHost.remove(banner);
+          if (onClose) onClose();
+        }
+      }, 10000);
+    }
   }
 
   /**

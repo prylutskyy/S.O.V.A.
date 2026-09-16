@@ -117,7 +117,8 @@ export default defineContentScript({
         offPlatformLure: boolean,
         bannerSubtitle: string,
         rawTextToScan?: string,
-        intentType?: string
+        intentType?: string,
+        confidence?: number
       ) => {
         const localContext: ActiveThreatContext = {
           suspiciousUrl,
@@ -126,7 +127,16 @@ export default defineContentScript({
           timestamp: Date.now(),
         };
         activeContext = localContext;
-        SecurityFriction.showContextWarningBanner(localContext, bannerSubtitle, rawTextToScan, intentType);
+        
+        // If confidence is high (>= 50), we Hard Lock the user from interacting further
+        if (confidence && confidence >= 50) {
+          GlobalInputInterceptor.setHardLock(localContext);
+        }
+
+        SecurityFriction.showContextWarningBanner(localContext, bannerSubtitle, rawTextToScan, intentType, () => {
+          GlobalInputInterceptor.setHardLock(null);
+          activeContext = null;
+        });
 
         try {
           chrome.runtime.sendMessage({
@@ -148,7 +158,8 @@ export default defineContentScript({
           event.isOffPlatformLure,
           event.isOffPlatformLure ? 'Зафіксовано спробу виведення в інший месенджер' : 'Зафіксовано спробу переходу за підозрілим посиланням',
           event.text,
-          'UNKNOWN'
+          'UNKNOWN',
+          event.confidence
         );
       });
 
