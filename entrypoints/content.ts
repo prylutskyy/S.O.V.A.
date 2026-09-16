@@ -131,8 +131,13 @@ export default defineContentScript({
           }
         } catch {}
         activeContext = null;
+        GlobalInputInterceptor.setHardLock(null);
+        ChatChannelMonitor.reset();
+        if (debugMode) {
+          DebuggerOverlay.log('🔗 Зшивання Сесій (Context)', 'Контекст очищено', '#22C55E');
+        }
         SecurityFriction.removeContextWarningBanner();
-        console.log('[ThreatShield:Content] Tainted Context Window успішно очищено.');
+        console.log('[ThreatShield:Content] Tainted Context Window примусово очищено.');
         window.postMessage({ type: 'THREAT_SHIELD_CONTEXT_CLEARED' }, '*');
       }
 

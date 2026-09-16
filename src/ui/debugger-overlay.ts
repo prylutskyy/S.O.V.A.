@@ -62,6 +62,20 @@ export class DebuggerOverlay {
       this.clear();
     };
 
+    const resetContextBtn = document.createElement('span');
+    resetContextBtn.innerText = 'Скинути Контекст';
+    Object.assign(resetContextBtn.style, {
+      cursor: 'pointer',
+      fontSize: '10px',
+      color: '#EF4444',
+      textTransform: 'uppercase',
+      marginLeft: '5px'
+    });
+    resetContextBtn.onclick = () => {
+      window.postMessage({ type: 'THREAT_SHIELD_CLEAR_CONTEXT' }, '*');
+      this.log('Система', 'Контекст загрози примусово очищено', '#22C55E');
+    };
+
     const closeBtn = document.createElement('span');
     closeBtn.innerText = 'x';
     Object.assign(closeBtn.style, {
@@ -76,6 +90,7 @@ export class DebuggerOverlay {
       this.logElements.clear();
     };
 
+    headerControls.appendChild(resetContextBtn);
     headerControls.appendChild(clearBtn);
     headerControls.appendChild(closeBtn);
     header.appendChild(headerControls);

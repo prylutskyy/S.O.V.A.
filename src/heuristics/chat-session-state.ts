@@ -15,6 +15,8 @@ export class ChatSessionState {
   private static readonly MAX_MESSAGES = 5;
   private static readonly TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes
 
+  public static reset() { this.messages = []; }
+
   public static addMessageAndEvaluate(
     rawText: string,
     direction: 'inbound' | 'outbound'
