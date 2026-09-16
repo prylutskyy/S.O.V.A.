@@ -78,13 +78,26 @@ export default defineBackground(() => {
       // We must run this in an Offscreen Document because the Prompt API
       // is often bound to the DOM (window) and not available in the Service Worker.
       setupOffscreenDocument('offscreen.html').then(() => {
-        chrome.runtime.sendMessage({
-          target: 'offscreen',
-          type: 'AI_VERIFY',
-          payload: { text, intentType, triggerWord }
-        }, (response) => {
-          sendResponse(response);
-        });
+        const attemptSend = (retries: number) => {
+          chrome.runtime.sendMessage({
+            target: 'offscreen',
+            type: 'AI_VERIFY',
+            payload: { text, intentType, triggerWord }
+          }, (response) => {
+            if (chrome.runtime.lastError) {
+              if (retries > 0) {
+                console.warn(`[ThreatShield:Background] Offscreen not ready yet, retrying... (${retries} left)`);
+                setTimeout(() => attemptSend(retries - 1), 200);
+              } else {
+                console.error('[ThreatShield:Background] Offscreen failed to receive message:', chrome.runtime.lastError.message);
+                sendResponse({ aiResult: null });
+              }
+              return;
+            }
+            sendResponse(response);
+          });
+        };
+        attemptSend(10); // Retry up to 10 times (2 seconds total)
       }).catch(e => {
         console.error('[ThreatShield:Background] Failed to setup offscreen doc:', e);
         sendResponse({ aiResult: null });

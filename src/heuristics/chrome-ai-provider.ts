@@ -51,7 +51,9 @@ export class ChromeBuiltinAIProvider implements IAIProvider {
         session = await provider.create(createOptions);
       } catch (e) {
         if (this.abortSignal?.aborted) throw e;
-        session = await provider.create(this.abortSignal ? { signal: this.abortSignal } : undefined);
+        console.warn('[ThreatShield:AI] create(options) failed, falling back to empty create()...', e);
+        // Do NOT pass any arguments here, some Chrome builds reject unknown objects in create()
+        session = await provider.create();
       }
 
       // 1. Інтелектуальне обрізання тексту (Sliding Window Truncation)
@@ -76,7 +78,14 @@ export class ChromeBuiltinAIProvider implements IAIProvider {
 Context to look for: ${contextRules}
 Message: "${truncatedText}"`;
       
-      const responseText = await session.prompt(prompt, this.abortSignal ? { signal: this.abortSignal } : undefined);
+      let responseText = '';
+      try {
+        responseText = await session.prompt(prompt, this.abortSignal ? { signal: this.abortSignal } : undefined);
+      } catch (e) {
+        if (this.abortSignal?.aborted) throw e;
+        console.warn('[ThreatShield:AI] session.prompt(options) failed, trying without options...', e);
+        responseText = await session.prompt(prompt);
+      }
       
       // Attempt to parse JSON safely
       let cleanJson = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
