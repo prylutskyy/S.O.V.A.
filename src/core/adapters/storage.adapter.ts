@@ -25,6 +25,24 @@ export class ChromeSessionStorageAdapter implements IStorageAdapter {
   }
 }
 
+export class ChromeLocalStorageAdapter implements IStorageAdapter {
+  public async get<T>(key: string): Promise<T | null> {
+    if (typeof chrome === 'undefined' || !chrome.storage) return null;
+    const result = await chrome.storage.local.get(key);
+    return result[key] || null;
+  }
+
+  public async set<T>(key: string, value: T): Promise<void> {
+    if (typeof chrome === 'undefined' || !chrome.storage) return;
+    await chrome.storage.local.set({ [key]: value });
+  }
+
+  public async remove(key: string): Promise<void> {
+    if (typeof chrome === 'undefined' || !chrome.storage) return;
+    await chrome.storage.local.remove(key);
+  }
+}
+
 export class InMemoryStorageAdapter implements IStorageAdapter {
   private storage = new Map<string, any>();
 
