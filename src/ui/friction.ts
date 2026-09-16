@@ -234,27 +234,41 @@ export class SecurityFriction {
 
       try {
         if (typeof chrome !== 'undefined' && chrome.runtime) {
-          chrome.runtime.sendMessage({ type: 'AI_VERIFY', payload: { text: rawTextToScan || context.targetSuspiciousUrl || '', intentType: intentType || 'UNKNOWN' } }, (response) => {
+          const scanText = rawTextToScan || context.targetSuspiciousUrl || '';
+          
+          // Log to Neuromonitor immediately
+          import('../ui/debugger-overlay').then(({ DebuggerOverlay }) => {
+            DebuggerOverlay.log('ШІ Арбітр', `Запит відправлено до Gemini Nano.\nТекст: ${scanText.substring(0, 100)}${scanText.length > 100 ? '...' : ''}`, '#3B82F6');
+          });
+
+          chrome.runtime.sendMessage({ type: 'AI_VERIFY', payload: { text: scanText, intentType: intentType || 'UNKNOWN' } }, (response) => {
             const aiResult = response?.aiResult;
             resultDiv.style.display = 'block';
-            if (!aiResult) {
-              resultDiv.style.background = '#FEF2F2';
-              resultDiv.style.color = '#DC2626';
-              resultDiv.innerHTML = `Помилка: ШІ недоступний`;
-            } else if (aiResult.isScam) {
-              resultDiv.style.background = '#FEF2F2';
-              resultDiv.style.color = '#DC2626';
-              resultDiv.innerHTML = `<b>ШІ підтвердив:</b> ${aiResult.reasoning}`;
-            } else {
-              resultDiv.style.background = '#F0FDF4';
-              resultDiv.style.color = '#166534';
-              resultDiv.innerHTML = `<b>ШІ Підтвердив:</b> ${aiResult.reasoning}`;
-              // If AI says it's safe, auto-close the banner and unlock
-              setTimeout(() => {
-                ShadowHost.remove(banner);
-                if (onClearThreat) onClearThreat();
-              }, 3000);
-            }
+
+            import('../ui/debugger-overlay').then(({ DebuggerOverlay }) => {
+              if (!aiResult) {
+                resultDiv.style.background = '#FEF2F2';
+                resultDiv.style.color = '#DC2626';
+                resultDiv.innerHTML = `<b>Помилка:</b> Gemini Nano недоступний`;
+                DebuggerOverlay.log('ШІ Арбітр: Збій', 'Gemini Nano не зміг обробити запит.', '#EF4444');
+              } else if (aiResult.isScam) {
+                resultDiv.style.background = '#FEF2F2';
+                resultDiv.style.color = '#DC2626';
+                resultDiv.innerHTML = `<b>ШІ підтверджує загрозу:</b> ${aiResult.reasoning}`;
+                DebuggerOverlay.log('ШІ Арбітр: Скам', `Впевненість: ${aiResult.confidence}%\nВисновок: ${aiResult.reasoning}`, '#EF4444');
+              } else {
+                resultDiv.style.background = '#F0FDF4';
+                resultDiv.style.color = '#166534';
+                resultDiv.innerHTML = `<b>ШІ спростував загрозу:</b> ${aiResult.reasoning}`;
+                DebuggerOverlay.log('ШІ Арбітр: Безпечно', `Впевненість: ${aiResult.confidence}%\nВисновок: ${aiResult.reasoning}`, '#22C55E');
+                // If AI says it's safe, auto-close the banner and unlock
+                setTimeout(() => {
+                  ShadowHost.remove(banner);
+                  if (onClearThreat) onClearThreat();
+                }, 3000);
+              }
+            });
+
             btnAi.style.display = 'none';
           });
         }

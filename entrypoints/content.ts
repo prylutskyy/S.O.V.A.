@@ -233,7 +233,7 @@ export default defineContentScript({
         (event.suspiciousUrls && event.suspiciousUrls[0]) || event.text,
         event.keywords,
         event.isOffPlatformLure,
-        event.isOffPlatformLure ? 'Зафіксовано спробу виведення в інший месенджер' : 'Зафіксовано спробу переходу за підозрілим посиланням',
+        event.isOffPlatformLure ? 'У повідомленні виявлено перенаправлення на інший месенджер' : 'У повідомленні виявлено підозріле посилання',
         event.text,
         'UNKNOWN',
         event.confidence
@@ -528,7 +528,13 @@ export default defineContentScript({
             clearTimeout(timeoutId);
             GlobalInputInterceptor.setSoftLock(false);
             const aiResult = response?.aiResult;
-            if (debugMode) DebuggerOverlay.log('4. AI Response (Tier 2)', aiResult || 'Unavailable (Background)', '#A855F7');
+            if (debugMode) {
+              if (aiResult) {
+                DebuggerOverlay.log('ШІ Арбітр (Copy)', `Впевненість: ${aiResult.confidence}%\nВисновок: ${aiResult.reasoning}`, aiResult.isScam ? '#EF4444' : '#22C55E');
+              } else {
+                DebuggerOverlay.log('ШІ Арбітр (Copy)', 'Gemini Nano не відповів або недоступний.', '#EF4444');
+              }
+            }
             if (aiResult && !aiResult.isScam) {
               console.log('[ThreatShield:AI] AI відхилив тригер (False Positive):', aiResult.reasoning);
               return;
@@ -540,8 +546,8 @@ export default defineContentScript({
               scan.matchedSpans.map(s => s.text),
               isOffPlatformLure,
               isOffPlatformLure
-                ? 'Зафіксовано виведення в месенджер'
-                : 'Зафіксовано копіювання підозрілого посилання'
+                ? 'Виявлено спробу переходу в сторонній месенджер'
+                : 'У скопійованому тексті виявлено підозріле посилання'
             );
           });
         }
