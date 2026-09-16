@@ -88,12 +88,13 @@ describe('IntentClassifier', () => {
   });
 
   describe('Fuzzy Matching & Obfuscation Defeat', () => {
-    it('should detect highly obfuscated delivery scams', () => {
-      const obfuscatedText = 'Оформляйте 0 л x д 0 с т a в к у і я скину посилання httрs://fake.com';
+    it('should detect highly obfuscated delivery scams and extract URL', () => {
+      const obfuscatedText = 'Оформляйте 0 л x д 0 с т a в к у і я скину посилання olx-pay [.] com';
       const result = IntentClassifier.classify(obfuscatedText);
 
       expect(result.hasFormedIntent).toBe(true);
       expect(result.intentType).toBe('ESCROW_DELIVERY_SCAM');
+      expect(result.suspiciousUrls).toContain('https://olx-pay.com');
     });
 
     it('should detect off-platform redirects even with weird characters', () => {

@@ -1,4 +1,5 @@
 import { TextNormalizer } from './text-normalizer';
+import { UrlExtractor } from './url-extractor';
 
 export type ScamIntentType =
   | 'ESCROW_DELIVERY_SCAM'
@@ -23,6 +24,7 @@ export interface IntentClassificationResult {
   clustersDetected: string[];
   explanation?: string;
   whereToBeCareful?: string;
+  suspiciousUrls?: string[];
 }
 
 interface ClusterRule {
@@ -228,6 +230,8 @@ export class IntentClassifier {
 
       if (hasMinClusters && hasMinScore && hasRequiredPattern) {
         const words = matchedSpans.map((s) => s.text);
+        const suspiciousUrls = UrlExtractor.extract(rawText);
+
         return {
           hasFormedIntent: true,
           intentType: def.type,
@@ -237,6 +241,7 @@ export class IntentClassifier {
           clustersDetected: activeClusters,
           explanation: def.explanationTemplate(activeClusters, words),
           whereToBeCareful: def.carefulAdvice,
+          suspiciousUrls,
         };
       }
     }
@@ -245,6 +250,7 @@ export class IntentClassifier {
       hasFormedIntent: false,
       matchedSpans,
       clustersDetected: Array.from(detectedClusterMap.keys()),
+      suspiciousUrls: UrlExtractor.extract(rawText),
     };
   }
 }

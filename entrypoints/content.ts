@@ -6,7 +6,7 @@ import {
   checkOutboundChatLeakage,
   FormSensitiveState,
 } from '../src/heuristics/input-detector';
-import { scanTextForLures } from '../src/heuristics/lure-detector';
+import { IntentClassifier } from '../src/heuristics/intent-classifier';
 import { ChatChannelMonitor } from '../src/heuristics/chat-channel';
 import { isWhitelisted, isMonitoredPlatform } from '../src/core/whitelist';
 import { isAccreditedPaymentGateway } from '../src/core/payment-gateways';
@@ -479,8 +479,8 @@ export default defineContentScript({
         detectedKeywords: keywords,
         offPlatformLure,
         targetSuspiciousUrl: suspiciousUrl,
-        activatedAt: Date.now(),
-        expiresAt: Date.now() + 15 * 60 * 1000,
+        timestamp: Date.now(),
+        ttlMs: 15 * 60 * 1000,
       };
 
       activeContext = localContext;
@@ -532,13 +532,14 @@ export default defineContentScript({
         }
 
         if (textToScan) {
-          const scan = scanTextForLures(textToScan);
-          if (scan.detected) {
+          const scan = IntentClassifier.classify(textToScan);
+          if (scan.hasFormedIntent) {
+            const isOffPlatformLure = scan.clustersDetected.includes('off_platform');
             triggerLureContext(
-              targetUrl || scan.suspiciousUrls[0] || textToScan,
-              scan.keywords,
-              scan.isOffPlatformLure,
-              scan.isOffPlatformLure
+              targetUrl || (scan.suspiciousUrls && scan.suspiciousUrls[0]) || textToScan,
+              scan.matchedSpans.map(s => s.text),
+              isOffPlatformLure,
+              isOffPlatformLure
                 ? 'Зафіксовано виведення в месенджер'
                 : 'Зафіксовано перехід за підозрілим посиланням'
             );
@@ -551,13 +552,14 @@ export default defineContentScript({
     document.addEventListener('copy', () => {
       const selection = getCopiedText();
       if (selection) {
-        const scan = scanTextForLures(selection);
-        if (scan.detected) {
+        const scan = IntentClassifier.classify(selection);
+        if (scan.hasFormedIntent) {
+          const isOffPlatformLure = scan.clustersDetected.includes('off_platform');
           triggerLureContext(
-            scan.suspiciousUrls[0] || selection,
-            scan.keywords,
-            scan.isOffPlatformLure,
-            scan.isOffPlatformLure
+            (scan.suspiciousUrls && scan.suspiciousUrls[0]) || selection,
+            scan.matchedSpans.map(s => s.text),
+            isOffPlatformLure,
+            isOffPlatformLure
               ? 'Зафіксовано виведення в месенджер'
               : 'Зафіксовано копіювання підозрілого посилання'
           );
@@ -566,3 +568,5 @@ export default defineContentScript({
     });
   },
 });
+
+
