@@ -15,6 +15,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   const tabContentWhitelist = document.getElementById('tabContentWhitelist') as HTMLElement;
   const tabContentSettings = document.getElementById('tabContentSettings') as HTMLElement;
 
+  const toggleDebugMode = document.getElementById('toggleDebugMode') as HTMLInputElement;
+  const aiStatusText = document.getElementById('aiStatusText') as HTMLElement;
+
   // Init Debug Mode
   chrome.storage.local.get(['debugModeEnabled'], (res) => {
     toggleDebugMode.checked = !!res.debugModeEnabled;
@@ -52,8 +55,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const manualHostInput = document.getElementById('manualHostInput') as HTMLInputElement;
   const btnAddManual = document.getElementById('btnAddManual') as HTMLButtonElement;
   const btnClearAllWhitelist = document.getElementById('btnClearAllWhitelist') as HTMLButtonElement;
-  const toggleDebugMode = document.getElementById('toggleDebugMode') as HTMLInputElement;
-  const aiStatusText = document.getElementById('aiStatusText') as HTMLElement;
+  
 
   // Settings elements
   const btnResetContext = document.getElementById('btnResetContext') as HTMLButtonElement;
@@ -548,4 +550,5 @@ document.addEventListener('DOMContentLoaded', async () => {
   // За замовчуванням першим відкриваємо розділ СТАТИСТИКИ
   await setActiveTab('stats');
 });
+
 
