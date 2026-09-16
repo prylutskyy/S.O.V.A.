@@ -34,6 +34,30 @@ interface CarouselSlide {
   evidence?: string;
 }
 
+// Claude design language tokens
+const C = {
+  text:        '#1A1A1A',
+  textSec:     '#6B7280',
+  textMuted:   '#9CA3AF',
+  surface:     '#FFFFFF',
+  canvas:      '#F9F9F8',
+  border:      '#E5E7EB',
+  borderStr:   '#D1D5DB',
+  red:         '#DC2626',
+  redBg:       '#FEF2F2',
+  redBd:       '#FECACA',
+  amber:       '#D97706',
+  amberBg:     '#FFFBEB',
+  amberBd:     '#FDE68A',
+  green:       '#16A34A',
+  greenBg:     '#F0FDF4',
+  greenBd:     '#BBF7D0',
+  blue:        '#1D4ED8',
+  blueBg:      '#EFF6FF',
+  blueBd:      '#BFDBFE',
+  font:        `system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`,
+};
+
 export class UnifiedFrictionModal {
   private static activeModal: HTMLElement | null = null;
   private static countdownInterval: number | null = null;
@@ -44,7 +68,6 @@ export class UnifiedFrictionModal {
   public static async show(options: UnifiedModalOptions): Promise<void> {
     this.close();
 
-    // 1. Блокування гортання сторінки (Scroll Lock)
     if (this.previousBodyOverflow === null) {
       this.previousBodyOverflow = document.body.style.overflow;
       this.previousHtmlOverflow = document.documentElement.style.overflow;
@@ -52,7 +75,6 @@ export class UnifiedFrictionModal {
     document.body.style.overflow = 'hidden';
     document.documentElement.style.overflow = 'hidden';
 
-    // 2. Ізольований контейнер у Shadow DOM
     const modalRoot = document.createElement('div');
     modalRoot.id = 'threat-shield-unified-modal';
 
@@ -71,7 +93,6 @@ export class UnifiedFrictionModal {
 
     const vaultItems = options.vaultItems || options.vaultMatches?.map((m) => m.matchedItem);
 
-    // 3. Генерація лаконічного аналізу через XAI Engine
     const xai = await XaiEngine.generateExplanation({
       type: options.type,
       targetHost: options.contextValue,
@@ -82,571 +103,214 @@ export class UnifiedFrictionModal {
       vaultItems,
     });
 
-    const primaryActionLabel = options.type === 'chat' ? 'Скасувати надсилання' : 'Залишити сторінку';
-
-    // 4. Побудова карток для інтерактивної каруселі XAI
+    const primaryActionLabel = options.type === 'chat' ? 'Скасувати надсилання' : 'Повернутися до безпеки';
     const slides = this.buildCarouselSlides(options, xai);
 
-    const getBadgeStyles = (type: 'critical' | 'warning' | 'info') => {
-      switch (type) {
-        case 'critical':
-          return 'background: rgba(215, 0, 21, 0.08); color: #d70015; border: 1px solid rgba(215, 0, 21, 0.18);';
-        case 'warning':
-          return 'background: rgba(255, 149, 0, 0.10); color: #b45309; border: 1px solid rgba(255, 149, 0, 0.22);';
-        case 'info':
-          return 'background: rgba(0, 113, 227, 0.08); color: #0071e3; border: 1px solid rgba(0, 113, 227, 0.20);';
-      }
+    const getBadgeStyle = (type: 'critical' | 'warning' | 'info') => {
+      if (type === 'critical') return `background:${C.redBg};color:${C.red};border:1px solid ${C.redBd};`;
+      if (type === 'warning')  return `background:${C.amberBg};color:${C.amber};border:1px solid ${C.amberBd};`;
+      return `background:${C.blueBg};color:${C.blue};border:1px solid ${C.blueBd};`;
     };
 
-    const slidesHtml = slides
-      .map(
-        (slide) => `
-        <div class="threat-carousel-slide" style="
-          flex: 0 0 100%;
-          width: 100%;
-          box-sizing: border-box;
-          display: flex;
-          flex-direction: column;
-          padding: 2px 2px;
-        ">
-          <div style="margin-bottom: 8px;">
-            <span style="
-              display: inline-block;
-              font-size: 11.5px;
-              font-weight: 600;
-              letter-spacing: 0.03em;
-              text-transform: uppercase;
-              padding: 3px 8px;
-              border-radius: 6px;
-              ${getBadgeStyles(slide.badgeType)}
-            ">
-              ${slide.badge}
-            </span>
-          </div>
+    const slidesHtml = slides.map((slide) => `
+      <div class="ts-slide" style="flex:0 0 100%;width:100%;box-sizing:border-box;display:flex;flex-direction:column;padding:2px;">
+        <span style="display:inline-block;font-size:10.5px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;padding:2px 8px;border-radius:5px;margin-bottom:8px;${getBadgeStyle(slide.badgeType)}">${slide.badge}</span>
+        <div style="font-size:14px;font-weight:600;color:${C.text};line-height:1.35;margin-bottom:6px;">${slide.title}</div>
+        <div style="font-size:13px;line-height:1.5;color:${C.textSec};margin-bottom:${slide.evidence ? '8px' : '2px'};">${slide.description}</div>
+        ${slide.evidence ? `<div style="background:${C.canvas};border:1px solid ${C.border};border-radius:6px;padding:6px 10px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;color:${C.textSec};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${slide.evidence}</div>` : ''}
+      </div>
+    `).join('');
 
-          <div style="
-            font-size: 15.5px;
-            font-weight: 600;
-            color: #1d1d1f;
-            line-height: 1.35;
-            margin-bottom: 6px;
-          ">
-            ${slide.title}
-          </div>
+    const dotsHtml = slides.map((_, idx) => `
+      <button type="button" class="ts-dot" data-index="${idx}" style="width:7px;height:7px;border-radius:50%;background:${idx === 0 ? C.text : C.borderStr};border:none;padding:0;cursor:pointer;transition:all 0.15s;${idx === 0 ? 'transform:scale(1.2);' : ''}"></button>
+    `).join('');
 
-          <div style="
-            font-size: 13.5px;
-            line-height: 1.5;
-            color: #3a3a3c;
-            margin-bottom: ${slide.evidence ? '8px' : '2px'};
-          ">
-            ${slide.description}
-          </div>
+    const rememberHtml = options.allowRememberDomain && options.domainToRemember ? `
+      <label style="display:flex;align-items:center;gap:9px;font-size:12.5px;color:${C.textSec};margin-top:14px;padding-top:12px;border-top:1px solid ${C.border};cursor:pointer;">
+        <input type="checkbox" id="ts-remember" style="accent-color:${C.text};cursor:pointer;width:15px;height:15px;">
+        <span>Довіряти домену <strong style="color:${C.text};">${options.domainToRemember}</strong></span>
+      </label>
+    ` : '';
 
-          ${
-            slide.evidence
-              ? `
-            <div style="
-              background: #f2f2f7;
-              border-radius: 6px;
-              padding: 6px 10px;
-              font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-              font-size: 12px;
-              color: #2c2c2e;
-              overflow: hidden;
-              text-overflow: ellipsis;
-              white-space: nowrap;
-            ">
-              ${slide.evidence}
-            </div>
-          `
-              : ''
-          }
-        </div>
-      `
-      )
-      .join('');
-
-    const dotsHtml = slides
-      .map(
-        (_, idx) => `
-        <button type="button" class="threat-carousel-dot" data-index="${idx}" aria-label="Слайд ${idx + 1}" style="
-          width: 8px;
-          height: 8px;
-          border-radius: 50%;
-          background: ${idx === 0 ? '#0071e3' : '#c7c7cc'};
-          border: none;
-          padding: 0;
-          cursor: pointer;
-          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-          transform: ${idx === 0 ? 'scale(1.25)' : 'scale(1)'};
-        "></button>
-      `
-      )
-      .join('');
-
-    const rememberHtml =
-      options.allowRememberDomain && options.domainToRemember
-        ? `
-        <label style="
-          display: flex;
-          align-items: center;
-          gap: 9px;
-          font-size: 13px;
-          color: #424245;
-          margin-top: 14px;
-          padding-top: 10px;
-          border-top: 1px solid #e5e5ea;
-          cursor: pointer;
-          user-select: none;
-        ">
-          <input type="checkbox" id="threat-modal-remember" style="accent-color: #0071e3; cursor: pointer; width: 16px; height: 16px;">
-          <span>Додати домен <strong>${options.domainToRemember}</strong> до персонального білого списку</span>
-        </label>
-      `
-        : '';
-
-    // Стилі бекдропу (Apple System Ultra-Thin Blur)
+    // Backdrop
     modalRoot.style.cssText = `
-      position: fixed !important;
-      inset: 0 !important;
-      width: 100vw !important;
-      height: 100vh !important;
-      z-index: 2147483647 !important;
-      background: rgba(0, 0, 0, 0.38) !important;
-      backdrop-filter: blur(16px) saturate(180%) !important;
-      -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
-      display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      padding: 16px !important;
-      box-sizing: border-box !important;
-      animation: threatBackdropFade 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
-      pointer-events: auto !important;
+      position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;
+      z-index:2147483647!important;background:rgba(0,0,0,0.35)!important;
+      display:flex!important;align-items:center!important;justify-content:center!important;
+      padding:16px!important;box-sizing:border-box!important;
+      animation:tsBackdrop 0.15s ease!important;pointer-events:auto!important;
     `;
 
+    const isCritical = fallbackAssessment.level === 'CRITICAL';
+
     modalRoot.innerHTML = `
-      <div id="threat-modal-card" style="
-        background: #ffffff !important;
-        width: 100% !important;
-        max-width: 460px !important;
-        border-radius: 18px !important;
-        box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.28), 0 0 0 1px rgba(0, 0, 0, 0.08) !important;
-        overflow: hidden !important;
-        font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
-        animation: threatModalScale 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
-        color: #1d1d1f !important;
-        display: flex !important;
-        flex-direction: column !important;
-        padding: 28px 28px 22px 28px !important;
-        box-sizing: border-box !important;
+      <style>
+        @keyframes tsBackdrop { from{opacity:0} to{opacity:1} }
+        @keyframes tsModal { from{opacity:0;transform:scale(0.97) translateY(6px)} to{opacity:1;transform:scale(1) translateY(0)} }
+        .ts-btn-primary { width:100%;height:42px;background:${C.text};color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:opacity 0.12s;font-family:${C.font}; }
+        .ts-btn-primary:hover { opacity:0.84; }
+        .ts-btn-override { background:transparent;border:none;color:${C.textMuted};font-size:13px;font-weight:400;cursor:not-allowed;padding:4px 0;transition:color 0.12s;font-family:${C.font}; }
+        .ts-btn-override.active { color:${C.red};cursor:pointer; }
+        .ts-btn-link { background:transparent;border:none;color:${C.blue};font-size:13px;cursor:pointer;padding:4px 0;transition:opacity 0.12s;font-family:${C.font}; }
+        .ts-btn-link:hover { opacity:0.7; }
+        .ts-btn-decoy { width:100%;height:40px;background:${C.greenBg};color:${C.green};border:1px solid ${C.greenBd};border-radius:9px;font-size:13.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:background 0.12s;margin-bottom:10px;font-family:${C.font}; }
+        .ts-btn-decoy:hover { background:${C.greenBd}; }
+        .ts-carousel-nav { width:28px;height:28px;border-radius:50%;border:1px solid ${C.border};background:${C.surface};color:${C.text};display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.12s; }
+        .ts-carousel-nav:hover { background:${C.canvas}; }
+      </style>
+
+      <div id="ts-modal-card" style="
+        background:${C.surface};width:100%;max-width:440px;border-radius:16px;
+        box-shadow:0 20px 50px -10px rgba(0,0,0,0.22),0 0 0 1px ${C.border};
+        overflow:hidden;font-family:${C.font};
+        animation:tsModal 0.2s cubic-bezier(0.16,1,0.3,1);
+        color:${C.text};display:flex;flex-direction:column;
+        padding:26px 24px 20px;box-sizing:border-box;
       ">
-        <!-- ГОЛОВНА ІКОНКА (ВЕКТОРНИЙ ЩИТ У СТИЛІ SF SYMBOLS) -->
-        <div style="
-          width: 50px;
-          height: 50px;
-          border-radius: 50%;
-          background: rgba(215, 0, 21, 0.08);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          margin: 0 auto 16px auto;
-        ">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#d70015" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-            <line x1="12" y1="8" x2="12" y2="12"/>
-            <line x1="12" y1="16" x2="12.01" y2="16"/>
+        <!-- ICON -->
+        <div style="width:44px;height:44px;border-radius:11px;background:${isCritical ? C.redBg : C.amberBg};border:1px solid ${isCritical ? C.redBd : C.amberBd};display:flex;align-items:center;justify-content:center;margin:0 auto 16px auto;color:${isCritical ? C.red : C.amber};">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            ${isCritical
+              ? '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>'
+              : '<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>'}
           </svg>
         </div>
 
-        <!-- ЗАГОЛОВОК ДІАЛОГУ (ЗБІЛЬШЕНИЙ) -->
-        <div style="
-          font-size: 19px;
-          font-weight: 600;
-          color: #1d1d1f;
-          text-align: center;
-          letter-spacing: -0.015em;
-          line-height: 1.3;
-          margin-bottom: 10px;
-        ">
-          ${xai.humanTitle}
-        </div>
+        <!-- TITLE -->
+        <div style="font-size:18px;font-weight:600;color:${C.text};text-align:center;letter-spacing:-0.015em;line-height:1.3;margin-bottom:8px;">${xai.humanTitle}</div>
 
-        <!-- ОСНОВНЕ ПОВІДОМЛЕННЯ ШІ (ГОЛОВНИЙ ТЕКСТ ВІКНА) -->
-        <div style="
-          font-size: 14.5px;
-          line-height: 1.55;
-          color: #424245;
-          text-align: center;
-          letter-spacing: -0.01em;
-          margin-bottom: 20px;
-        ">
-          ${xai.humanCoreWarning}
-        </div>
+        <!-- SUBTITLE -->
+        <div style="font-size:13.5px;line-height:1.55;color:${C.textSec};text-align:center;margin-bottom:18px;">${xai.humanCoreWarning}</div>
 
-        <!-- КОНТЕКСТНИЙ РЯДОК (ХОСТ + РІВЕНЬ РИЗИКУ) -->
-        <div style="
-          background: #f5f5f7;
-          border-radius: 10px;
-          padding: 10px 14px;
-          margin-bottom: 20px;
-          font-size: 12.5px;
-          color: #6e6e73;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        ">
-          <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 260px;">
-            Вузол: <strong style="color: #1d1d1f; font-family: ui-monospace, SFMono-Regular, monospace; font-size: 12.5px;">${options.contextValue}</strong>
+        <!-- CONTEXT ROW -->
+        <div style="background:${C.canvas};border:1px solid ${C.border};border-radius:8px;padding:9px 13px;margin-bottom:16px;font-size:12px;color:${C.textSec};display:flex;justify-content:space-between;align-items:center;">
+          <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:260px;">
+            ${options.contextLabel}: <strong style="color:${C.text};font-family:ui-monospace,monospace;font-size:11.5px;">${options.contextValue}</strong>
           </span>
-          <span style="font-weight: 600; color: #d70015; white-space: nowrap;">
-            Ризик: ${fallbackAssessment.score}/100
-          </span>
+          <span style="font-weight:600;color:${isCritical ? C.red : C.amber};white-space:nowrap;font-size:11.5px;">Ризик: ${fallbackAssessment.score}/100</span>
         </div>
 
-        <!-- ОПЦІЯ ПІДСТАНОВКИ CANARY DECOY (ЯКЩО ВИЯВЛЕНО ПОЛЯ З DECOY) -->
-        ${
-          options.vaultMatches && options.vaultMatches.some((m) => m.isDecoyAvailable)
-            ? `
-          <button id="threat-modal-decoy-btn" type="button" style="
-            width: 100%;
-            height: 42px;
-            background: rgba(52, 199, 89, 0.08);
-            color: #248a3d;
-            border: 1px solid rgba(52, 199, 89, 0.3);
-            border-radius: 11px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 7px;
-            transition: background 0.15s;
-            margin-bottom: 10px;
-          ">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-              <polyline points="9 12 11 14 15 10"/>
-            </svg>
+        <!-- DECOY BUTTON (if available) -->
+        ${options.vaultMatches && options.vaultMatches.some((m) => m.isDecoyAvailable) ? `
+          <button id="ts-decoy-btn" class="ts-btn-decoy">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
             Підставити безпечні дані (Canary Decoy)
           </button>
-        `
-            : ''
-        }
+        ` : ''}
 
-        <!-- ГОЛОВНА РЯТІВНА ДІЯ (APPLE FILL BUTTON) -->
-        <button id="threat-modal-primary-btn" type="button" style="
-          width: 100%;
-          height: 44px;
-          background: #0071e3;
-          color: #ffffff;
-          border: none;
-          border-radius: 11px;
-          font-size: 14.5px;
-          font-weight: 500;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          transition: background 0.15s;
-          margin-bottom: 12px;
-        ">
-          ${primaryActionLabel}
-        </button>
+        <!-- PRIMARY ACTION -->
+        <button id="ts-primary-btn" class="ts-btn-primary">${primaryActionLabel}</button>
 
-        <!-- ДРУГОРЯДНИЙ РЯДОК ДІЙ -->
-        <div style="
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          font-size: 13px;
-          padding: 0 4px;
-        ">
-          <button id="threat-modal-inspect-toggle-btn" type="button" style="
-            background: transparent;
-            border: none;
-            color: #0071e3;
-            font-size: 13px;
-            font-weight: 400;
-            cursor: pointer;
-            padding: 4px 0;
-            transition: opacity 0.15s;
-          ">
-            Докладніше про оцінку
-          </button>
-
-          <button id="threat-modal-override-btn" type="button" disabled style="
-            background: transparent;
-            border: none;
-            color: #86868b;
-            font-size: 13px;
-            font-weight: 400;
-            cursor: not-allowed;
-            padding: 4px 0;
-            transition: color 0.15s;
-          ">
-            Продовжити (3с)...
-          </button>
+        <!-- SECONDARY ROW -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding:0 2px;">
+          <button id="ts-inspect-btn" class="ts-btn-link">Докладніше</button>
+          <button id="ts-override-btn" class="ts-btn-override" disabled>Продовжити (3с)...</button>
         </div>
 
-        <!-- КОМПАКТНА ІНТЕРАКТИВНА КАРУСЕЛЬ XAI ДЕТАЛЕЙ -->
-        <div id="threat-modal-inspector-panel" style="
-          display: none;
-          background: #fbfbfd;
-          border: 1px solid #e5e5ea;
-          border-radius: 14px;
-          padding: 16px 18px;
-          margin-top: 14px;
-          animation: threatBackdropFade 0.2s ease-in-out;
-        ">
-          <!-- ШАПКА КАРУСЕЛІ -->
-          <div style="
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid #e5e5ea;
-          ">
-            <span style="font-weight: 600; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.04em; color: #86868b;">
-              Фактори оцінювання
-            </span>
-            <span id="threat-carousel-counter" style="font-size: 12px; font-weight: 600; color: #0071e3;">
-              1 з ${slides.length}
-            </span>
+        <!-- INSPECTOR PANEL -->
+        <div id="ts-inspector" style="display:none;background:${C.canvas};border:1px solid ${C.border};border-radius:12px;padding:14px 16px;margin-top:14px;">
+          <!-- CAROUSEL HEADER -->
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid ${C.border};">
+            <span style="font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:${C.textMuted};">Фактори оцінювання</span>
+            <span id="ts-counter" style="font-size:11.5px;font-weight:600;color:${C.text};">1 з ${slides.length}</span>
           </div>
 
-          <!-- В'ЮПОРТ КАРУСЕЛІ -->
-          <div id="threat-carousel-viewport" style="
-            position: relative;
-            overflow: hidden;
-            width: 100%;
-          ">
-            <div id="threat-carousel-track" style="
-              display: flex;
-              transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
-              width: 100%;
-            ">
+          <!-- CAROUSEL -->
+          <div id="ts-viewport" style="position:relative;overflow:hidden;width:100%;">
+            <div id="ts-track" style="display:flex;transition:transform 0.25s cubic-bezier(0.16,1,0.3,1);width:100%;">
               ${slidesHtml}
             </div>
           </div>
 
-          <!-- НАВІГАЦІЯ КАРУСЕЛІ (Якщо більше 1 картки) -->
-          ${
-            slides.length > 1
-              ? `
-            <div style="
-              display: flex;
-              align-items: center;
-              justify-content: space-between;
-              margin-top: 12px;
-              padding-top: 10px;
-              border-top: 1px solid #f0f0f2;
-            ">
-              <button id="threat-carousel-prev" type="button" aria-label="Попередній фактор" style="
-                width: 28px;
-                height: 28px;
-                border-radius: 50%;
-                border: 1px solid #d1d1d6;
-                background: #ffffff;
-                color: #1d1d1f;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                cursor: pointer;
-                box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-                transition: background 0.15s;
-              ">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="15 18 9 12 15 6"></polyline>
-                </svg>
-              </button>
-
-              <div id="threat-carousel-dots" style="display: flex; gap: 7px; align-items: center;">
-                ${dotsHtml}
-              </div>
-
-              <button id="threat-carousel-next" type="button" aria-label="Наступний фактор" style="
-                width: 28px;
-                height: 28px;
-                border-radius: 50%;
-                border: 1px solid #d1d1d6;
-                background: #ffffff;
-                color: #1d1d1f;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                cursor: pointer;
-                box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-                transition: background 0.15s;
-              ">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="9 18 15 12 9 6"></polyline>
-                </svg>
-              </button>
-            </div>
-          `
-              : ''
-          }
+          <!-- CAROUSEL NAV -->
+          ${slides.length > 1 ? `
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding-top:10px;border-top:1px solid ${C.border};">
+            <button id="ts-prev" class="ts-carousel-nav" aria-label="Назад">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <div id="ts-dots" style="display:flex;gap:6px;align-items:center;">${dotsHtml}</div>
+            <button id="ts-next" class="ts-carousel-nav" aria-label="Далі">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+          </div>
+          ` : ''}
 
           ${rememberHtml}
         </div>
       </div>
     `;
 
-    // Монтування всередину ShadowRoot
     ShadowHost.append(modalRoot);
     this.activeModal = modalRoot;
 
-    // Обробники
-    const btnPrimary = modalRoot.querySelector('#threat-modal-primary-btn');
-    const btnOverride = modalRoot.querySelector('#threat-modal-override-btn') as HTMLButtonElement;
-    const btnInspectToggle = modalRoot.querySelector('#threat-modal-inspect-toggle-btn');
-    const inspectorPanel = modalRoot.querySelector('#threat-modal-inspector-panel') as HTMLElement;
-    const checkRemember = modalRoot.querySelector('#threat-modal-remember') as HTMLInputElement;
-
-    // Hover ефект на головну кнопку
-    btnPrimary?.addEventListener('mouseenter', () => {
-      (btnPrimary as HTMLElement).style.background = '#0077ed';
-    });
-    btnPrimary?.addEventListener('mouseleave', () => {
-      (btnPrimary as HTMLElement).style.background = '#0071e3';
-    });
+    const btnPrimary   = modalRoot.querySelector('#ts-primary-btn') as HTMLButtonElement;
+    const btnOverride  = modalRoot.querySelector('#ts-override-btn') as HTMLButtonElement;
+    const btnInspect   = modalRoot.querySelector('#ts-inspect-btn') as HTMLButtonElement;
+    const inspector    = modalRoot.querySelector('#ts-inspector') as HTMLElement;
+    const checkRemember= modalRoot.querySelector('#ts-remember') as HTMLInputElement;
+    const btnDecoy     = modalRoot.querySelector('#ts-decoy-btn');
 
     let isInspectorOpen = false;
-    btnInspectToggle?.addEventListener('click', () => {
+    btnInspect?.addEventListener('click', () => {
       isInspectorOpen = !isInspectorOpen;
-      if (inspectorPanel) {
-        inspectorPanel.style.display = isInspectorOpen ? 'block' : 'none';
-      }
-      if (btnInspectToggle) {
-        btnInspectToggle.textContent = isInspectorOpen ? 'Приховати деталі' : 'Докладніше про оцінку';
-      }
+      inspector.style.display = isInspectorOpen ? 'block' : 'none';
+      btnInspect.textContent = isInspectorOpen ? 'Сховати деталі' : 'Докладніше';
     });
 
-    // Підстановка фіктивних Canary-значень
-    const btnDecoy = modalRoot.querySelector('#threat-modal-decoy-btn');
-    btnDecoy?.addEventListener('mouseenter', () => {
-      (btnDecoy as HTMLElement).style.background = 'rgba(52, 199, 89, 0.15)';
-    });
-    btnDecoy?.addEventListener('mouseleave', () => {
-      (btnDecoy as HTMLElement).style.background = 'rgba(52, 199, 89, 0.08)';
-    });
     btnDecoy?.addEventListener('click', () => {
       if (options.vaultMatches && options.vaultMatches.length > 0) {
         const count = VaultScanner.applyDecoys(options.vaultMatches);
         this.close();
         options.onCancel();
-        alert(`Безпека захищена: замість реальних даних у форму підставлено ${count} фіктивних значень (Canary Decoy).`);
+        alert(`Захист активовано: ${count} фіктивних значень підставлено замість реальних даних (Canary Decoy).`);
       }
     });
 
-    // 5. Логіка гортання каруселі
-    let currentSlideIndex = 0;
+    // Carousel
+    let currentSlide = 0;
     const totalSlides = slides.length;
-    const track = modalRoot.querySelector('#threat-carousel-track') as HTMLElement;
-    const counter = modalRoot.querySelector('#threat-carousel-counter') as HTMLElement;
-    const dots = modalRoot.querySelectorAll('.threat-carousel-dot');
-    const prevBtn = modalRoot.querySelector('#threat-carousel-prev') as HTMLElement;
-    const nextBtn = modalRoot.querySelector('#threat-carousel-next') as HTMLElement;
+    const track   = modalRoot.querySelector('#ts-track') as HTMLElement;
+    const counter = modalRoot.querySelector('#ts-counter') as HTMLElement;
+    const dots    = modalRoot.querySelectorAll('.ts-dot');
+    const prevBtn = modalRoot.querySelector('#ts-prev') as HTMLElement;
+    const nextBtn = modalRoot.querySelector('#ts-next') as HTMLElement;
 
-    const updateCarousel = (newIndex: number) => {
+    const goToSlide = (idx: number) => {
       if (totalSlides <= 1 || !track) return;
-      currentSlideIndex = (newIndex + totalSlides) % totalSlides;
-      track.style.transform = `translateX(-${currentSlideIndex * 100}%)`;
-
-      if (counter) {
-        counter.textContent = `${currentSlideIndex + 1} з ${totalSlides}`;
-      }
-
-      dots.forEach((dot, idx) => {
-        const dotEl = dot as HTMLElement;
-        if (idx === currentSlideIndex) {
-          dotEl.style.background = '#0071e3';
-          dotEl.style.transform = 'scale(1.25)';
-        } else {
-          dotEl.style.background = '#c7c7cc';
-          dotEl.style.transform = 'scale(1)';
-        }
+      currentSlide = (idx + totalSlides) % totalSlides;
+      track.style.transform = `translateX(-${currentSlide * 100}%)`;
+      if (counter) counter.textContent = `${currentSlide + 1} з ${totalSlides}`;
+      dots.forEach((dot, i) => {
+        const el = dot as HTMLElement;
+        el.style.background = i === currentSlide ? C.text : C.borderStr;
+        el.style.transform   = i === currentSlide ? 'scale(1.2)' : 'scale(1)';
       });
     };
 
     if (totalSlides > 1) {
-      prevBtn?.addEventListener('click', () => updateCarousel(currentSlideIndex - 1));
-      nextBtn?.addEventListener('click', () => updateCarousel(currentSlideIndex + 1));
-
-      prevBtn?.addEventListener('mouseenter', () => {
-        prevBtn.style.background = '#f5f5f7';
-      });
-      prevBtn?.addEventListener('mouseleave', () => {
-        prevBtn.style.background = '#ffffff';
-      });
-
-      nextBtn?.addEventListener('mouseenter', () => {
-        nextBtn.style.background = '#f5f5f7';
-      });
-      nextBtn?.addEventListener('mouseleave', () => {
-        nextBtn.style.background = '#ffffff';
-      });
-
+      prevBtn?.addEventListener('click', () => goToSlide(currentSlide - 1));
+      nextBtn?.addEventListener('click', () => goToSlide(currentSlide + 1));
       dots.forEach((dot) => {
         dot.addEventListener('click', (e) => {
           const idx = Number((e.currentTarget as HTMLElement).dataset.index);
-          if (!isNaN(idx)) updateCarousel(idx);
+          if (!isNaN(idx)) goToSlide(idx);
         });
       });
-
-      // Підтримка навігації стрілками клавіатури, коли деталі відкриті
       this.keydownListener = (e: KeyboardEvent) => {
         if (!isInspectorOpen) return;
-        if (e.key === 'ArrowLeft') {
-          updateCarousel(currentSlideIndex - 1);
-        } else if (e.key === 'ArrowRight') {
-          updateCarousel(currentSlideIndex + 1);
-        }
+        if (e.key === 'ArrowLeft') goToSlide(currentSlide - 1);
+        if (e.key === 'ArrowRight') goToSlide(currentSlide + 1);
       };
       window.addEventListener('keydown', this.keydownListener);
     }
 
-    const handleCancel = () => {
-      this.close();
-      options.onCancel();
-    };
-
+    const handleCancel = () => { this.close(); options.onCancel(); };
     btnPrimary?.addEventListener('click', handleCancel);
+    modalRoot.addEventListener('click', (e) => { if (e.target === modalRoot) handleCancel(); });
+    modalRoot.addEventListener('wheel', (e) => { if (!(e.target as HTMLElement).closest('#ts-modal-card')) e.preventDefault(); }, { passive: false });
+    modalRoot.addEventListener('touchmove', (e) => { if (!(e.target as HTMLElement).closest('#ts-modal-card')) e.preventDefault(); }, { passive: false });
 
-    // Клік по бекдропу закриває та рятує
-    modalRoot.addEventListener('click', (e) => {
-      if (e.target === modalRoot) {
-        handleCancel();
-      }
-    });
-
-    // Запобігання скролу
-    modalRoot.addEventListener(
-      'wheel',
-      (e) => {
-        const target = e.target as HTMLElement;
-        if (!target.closest('#threat-modal-card')) {
-          e.preventDefault();
-        }
-      },
-      { passive: false }
-    );
-
-    modalRoot.addEventListener(
-      'touchmove',
-      (e) => {
-        const target = e.target as HTMLElement;
-        if (!target.closest('#threat-modal-card')) {
-          e.preventDefault();
-        }
-      },
-      { passive: false }
-    );
-
-    // 3-секундний когнітивний таймер для розблокування небезпечної дії
+    // 3-second countdown
     let timeLeft = 3;
     this.countdownInterval = window.setInterval(() => {
       timeLeft--;
@@ -656,8 +320,7 @@ export class UnifiedFrictionModal {
         if (this.countdownInterval) clearInterval(this.countdownInterval);
         btnOverride.disabled = false;
         btnOverride.innerText = 'Продовжити на свій ризик';
-        btnOverride.style.color = '#d70015';
-        btnOverride.style.cursor = 'pointer';
+        btnOverride.classList.add('active');
       }
     }, 1000);
 
@@ -673,151 +336,102 @@ export class UnifiedFrictionModal {
   }
 
   public static close(): void {
-    if (this.countdownInterval) {
-      clearInterval(this.countdownInterval);
-      this.countdownInterval = null;
-    }
-    if (this.keydownListener) {
-      window.removeEventListener('keydown', this.keydownListener);
-      this.keydownListener = null;
-    }
-    if (this.activeModal) {
-      ShadowHost.remove(this.activeModal);
-      this.activeModal = null;
-    }
-
-    // Відновлення гортання сторінки
-    if (this.previousBodyOverflow !== null) {
-      document.body.style.overflow = this.previousBodyOverflow;
-      this.previousBodyOverflow = null;
-    }
-    if (this.previousHtmlOverflow !== null) {
-      document.documentElement.style.overflow = this.previousHtmlOverflow;
-      this.previousHtmlOverflow = null;
-    }
+    if (this.countdownInterval) { clearInterval(this.countdownInterval); this.countdownInterval = null; }
+    if (this.keydownListener) { window.removeEventListener('keydown', this.keydownListener); this.keydownListener = null; }
+    if (this.activeModal) { ShadowHost.remove(this.activeModal); this.activeModal = null; }
+    if (this.previousBodyOverflow !== null) { document.body.style.overflow = this.previousBodyOverflow; this.previousBodyOverflow = null; }
+    if (this.previousHtmlOverflow !== null) { document.documentElement.style.overflow = this.previousHtmlOverflow; this.previousHtmlOverflow = null; }
   }
 
-  /**
-   * Створення карток для каруселі XAI
-   */
   private static buildCarouselSlides(options: UnifiedModalOptions, xai: any): CarouselSlide[] {
     const slides: CarouselSlide[] = [];
 
-    // 1. Тригери
     if (options.triggers && options.triggers.length > 0) {
       for (const t of options.triggers) {
         const rawMsg = t.message.replace(/[⚠️🚨💳🔒💬⚡●✓✗]/g, '').trim();
         const lower = rawMsg.toLowerCase();
-
         let title = 'Підозрілий патерн';
         let badge = 'Критично';
         let badgeType: 'critical' | 'warning' | 'info' = 'critical';
         let description = rawMsg;
-        let evidence: string | undefined = undefined;
+        let evidence: string | undefined;
 
         if (lower.includes('лун') || lower.includes('номер банківськ') || lower.includes('номер картки')) {
-          title = 'Валідація номера банківської картки';
-          badge = 'Платіжні дані';
-          badgeType = 'critical';
-          description = 'У формі введено коректний номер картки за контрольним алгоритмом Луна (Luhn Algorithm). Недовірений сайт намагається отримати доступ до вашого рахунку.';
+          title = 'Номер банківської картки'; badge = 'Платіжні дані'; badgeType = 'critical';
+          description = 'У формі введено коректний номер картки за алгоритмом Луна. Недовірений сайт намагається отримати доступ до вашого рахунку.';
           evidence = 'Luhn Validation: SUCCESS';
         } else if (lower.includes('прихован') || lower.includes('autofill') || lower.includes('автозаповнен')) {
-          title = 'Прихована DOM-пастка автозаповнення';
-          badge = 'DOM-пастка';
-          badgeType = 'critical';
-          description = 'Сторінка містить невидимі поля банківської картки для тихого перехоплення реквізитів з пам’яті браузера.';
+          title = 'Прихована пастка автозаповнення'; badge = 'DOM-пастка'; badgeType = 'critical';
+          description = 'Сторінка містить невидимі поля для тихого перехоплення реквізитів з пам\'яті браузера.';
           evidence = 'autocomplete="cc-number" / "cc-csc"';
         } else if (lower.includes('цільовий') || lower.includes('вузол') || lower.includes('хост') || lower.includes('невідповідн') || lower.includes('action')) {
-          title = 'Невідповідність отримувача платежу';
-          badge = 'Недовірений сервер';
-          badgeType = 'critical';
-          description = `Дані форми відправляються на сервер ${options.contextValue}, який не належить до переліку акредитованих платіжних систем України (НБУ/PCI-DSS).`;
+          title = 'Невідомий отримувач платежу'; badge = 'Недовірений сервер'; badgeType = 'critical';
+          description = `Дані форми відправляються на сервер ${options.contextValue}, який не є акредитованою платіжною системою.`;
           evidence = `action: ${options.contextValue}`;
         } else if (lower.includes('cvv') || lower.includes('cvc')) {
-          title = 'Секретний тризначний код безпеки (CVV)';
-          badge = 'Критичний витік';
-          badgeType = 'critical';
-          description = 'Виявлено спробу передачі секретного CVV/CVC коду. Жоден офіційний маркетплейс чи служба підтримки ніколи не запитує цей код у чатах.';
-          evidence = 'Secret Card Verification Value';
-        } else if (
-          t.name === 'urgency_scarcity_manipulation' ||
-          lower.includes('термінов') ||
-          lower.includes('таймер') ||
-          lower.includes('dark pattern')
-        ) {
-          title = 'Штучне нагнітання терміновості (Dark Pattern)';
-          badge = 'Психологічний тиск';
-          badgeType = 'warning';
-          description = 'Сторінка використовує фіктивний зворотний таймер або погрози анулювання замовлення, щоб викликати паніку та примусити до необдуманих дій.';
+          title = 'CVV/CVC — секретний код картки'; badge = 'Критичний витік'; badgeType = 'critical';
+          description = 'Виявлено спробу передачі CVV/CVC коду. Жоден легітимний маркетплейс чи служба підтримки ніколи не запитує цей код у чатах.';
+          evidence = 'Card Verification Value';
+        } else if (t.name === 'urgency_scarcity_manipulation' || lower.includes('термінов') || lower.includes('таймер') || lower.includes('dark pattern')) {
+          title = 'Штучний тиск терміновості'; badge = 'Психологічна маніпуляція'; badgeType = 'warning';
+          description = 'Сторінка використовує фіктивний таймер або погрози, щоб змусити вас діяти необдумано.';
           const timerText = (t.details as any)?.timerText;
           evidence = timerText ? `Зворотний відлік: ${timerText}` : 'Urgency Scarcity Manipulation';
         } else {
-          title = 'Виявлений фактор загрози';
-          badge = t.severity === 'CRITICAL' ? 'Критично' : 'Попередження';
+          title = 'Виявлений ризик'; badge = t.severity === 'CRITICAL' ? 'Критично' : 'Попередження';
           badgeType = t.severity === 'CRITICAL' ? 'critical' : 'warning';
           description = rawMsg;
         }
-
         slides.push({ badge, badgeType, title, description, evidence });
       }
     }
 
-    // 2. Зшивання сесій (Cross-Session Stitching)
     if (options.activeContext) {
       const minutesAgo = Math.max(1, Math.round((Date.now() - options.activeContext.timestamp) / 60000));
       const kws = options.activeContext.detectedKeywords || [];
       slides.push({
-        badge: 'Зшивання сесій',
-        badgeType: 'warning',
-        title: 'Зв\'язок із діалогом у сторонньому чаті',
-        description: `Зафіксовано перехід із платформи "${options.activeContext.sourcePlatform}" (${minutesAgo} хв тому). Шахрай заздалегідь підготував приманку в чаті перед перенаправленням на цей платіжний вузол.`,
+        badge: 'Зшивання сесій', badgeType: 'warning',
+        title: 'Зв\'язок із попереднім чатом',
+        description: `Зафіксовано перехід з "${options.activeContext.sourcePlatform}" (${minutesAgo} хв тому). Шахрай заздалегідь підготував приманку перед перенаправленням.`,
         evidence: kws.length > 0 ? `Фрази-приманки: "${kws.slice(0, 3).join('", "')}"` : `Джерело: ${options.activeContext.sourcePlatform}`,
       });
     }
 
-    // 2.1. Захист персональних маркерів (Personal Data Vault)
     const vaultItems = options.vaultItems || options.vaultMatches?.map((m) => m.matchedItem);
     if (vaultItems && vaultItems.length > 0) {
-      const distinctLabels = Array.from(new Set(vaultItems.map((i) => i.label))).join(', ');
+      const labels = Array.from(new Set(vaultItems.map((i) => i.label))).join(', ');
       slides.push({
-        badge: 'Personal Data Vault',
-        badgeType: 'critical',
-        title: 'Захист персональних маркерів відновлення',
-        description: `Форма випитує захищені маркери особи (${distinctLabels}), які використовуються банківськими установами для верифікації клієнта. Відправка цих даних неперевіреному ресурсу створює пряму загрозу перехоплення доступу до банківських кабінетів.`,
-        evidence: `Контрольні маркери: ${distinctLabels}`,
+        badge: 'Personal Data Vault', badgeType: 'critical',
+        title: 'Захист персональних маркерів',
+        description: `Форма випитує захищені дані (${labels}), що використовуються банками для верифікації. Відправка неперевіреному ресурсу загрожує вашим рахункам.`,
+        evidence: `Маркери: ${labels}`,
       });
     }
 
-    // 3. Діагноз сценарію атаки від XAI Engine
     if (xai?.attackScenario && xai?.diagnosis && !slides.some((s) => s.title.toLowerCase() === xai.attackScenario.toLowerCase())) {
       slides.push({
-        badge: 'Сценарій атаки',
-        badgeType: 'warning',
+        badge: 'Сценарій атаки', badgeType: 'warning',
         title: xai.attackScenario,
         description: xai.diagnosis,
         evidence: xai.engineType === 'chrome-builtin-ai' ? 'Gemini Nano (On-Device AI)' : 'Contextual XAI Engine',
       });
     }
 
-    // 4. Порада безпеки (Countermeasure)
     if (xai?.educationalTip) {
       slides.push({
-        badge: 'Порада захисту',
-        badgeType: 'info',
-        title: 'Як уникнути фінансових втрат',
+        badge: 'Порада безпеки', badgeType: 'info',
+        title: 'Як уникнути шахрайства',
         description: xai.educationalTip,
-        evidence: 'Ніколи не підтверджуйте отримання коштів введенням CVV чи балансу',
+        evidence: 'Ніколи не підтверджуйте отримання коштів введенням CVV',
       });
     }
 
-    // Запасний слайд
     if (slides.length === 0) {
       slides.push({
-        badge: 'Оцінка загрози',
-        badgeType: 'critical',
+        badge: 'Оцінка загрози', badgeType: 'critical',
         title: 'Виявлено ризик для безпеки',
-        description: xai?.humanCoreWarning || 'Ця сторінка вимагає підозрілих платіжних дій, які можуть загрожувати вашим коштам.',
-        evidence: `Цільовий вузол: ${options.contextValue}`,
+        description: xai?.humanCoreWarning || 'Ця сторінка вимагає підозрілих дій, що можуть загрожувати вашим даним.',
+        evidence: `Сайт: ${options.contextValue}`,
       });
     }
 

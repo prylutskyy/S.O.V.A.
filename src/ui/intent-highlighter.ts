@@ -154,97 +154,67 @@ export class IntentHighlighter {
     card.style.cssText = `
       position: fixed !important;
       z-index: 2147483647 !important;
-      width: 380px !important;
+      width: 360px !important;
       max-width: calc(100vw - 32px) !important;
-      background: #ffffff !important;
-      border: 1px solid rgba(245, 158, 11, 0.35) !important;
-      border-radius: 14px !important;
-      box-shadow: 0 16px 36px -6px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(0, 0, 0, 0.04) !important;
-      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif !important;
-      padding: 18px 20px !important;
+      background: #FFFFFF !important;
+      border: 1px solid #E5E7EB !important;
+      border-top: 3px solid #D97706 !important;
+      border-radius: 12px !important;
+      box-shadow: 0 8px 24px -4px rgba(0,0,0,0.12), 0 1px 3px rgba(0,0,0,0.06) !important;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+      padding: 16px 18px !important;
       box-sizing: border-box !important;
-      color: #1d1d1f !important;
+      color: #1A1A1A !important;
       pointer-events: auto !important;
-      animation: threatCardFadeIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      animation: tsIntentCardIn 0.15s ease !important;
     `;
+
 
     card.innerHTML = `
       <style>
-        @keyframes threatCardFadeIn {
-          from { opacity: 0; transform: scale(0.96) translateY(4px); }
+        @keyframes tsIntentCardIn {
+          from { opacity: 0; transform: scale(0.97) translateY(3px); }
           to { opacity: 1; transform: scale(1) translateY(0); }
         }
       </style>
 
-      <!-- БЕЙДЖ НАМІРУ ТА ВПЕВНЕНОСТІ -->
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-        <span style="
-          display: inline-flex;
-          align-items: center;
-          gap: 5px;
-          background: rgba(245, 158, 11, 0.12);
-          color: #b45309;
-          font-size: 11px;
-          font-weight: 600;
-          padding: 3px 8px;
-          border-radius: 12px;
-          letter-spacing: 0.02em;
-        ">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"></circle>
-            <line x1="12" y1="8" x2="12" y2="12"></line>
-            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      <!-- BADGE + CONFIDENCE -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <span style="display:inline-flex;align-items:center;gap:5px;background:#FFFBEB;color:#D97706;font-size:11px;font-weight:600;padding:3px 8px;border-radius:999px;border:1px solid #FDE68A;letter-spacing:0.02em;">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
           </svg>
-          Передбачений намір
+          Підозрілий намір
         </span>
-        <span style="font-size: 11.5px; color: #86868b; font-weight: 500;">
-          Впевненість: <strong>${classification.confidence || 85}%</strong>
+        <span style="font-size:11.5px;color:#9CA3AF;font-weight:500;">
+          Впевненість: <strong style="color:#6B7280;">${classification.confidence || 85}%</strong>
         </span>
       </div>
 
-      <!-- ЗАГОЛОВОК НАМІРУ -->
-      <div style="font-size: 15px; font-weight: 600; color: #1d1d1f; margin-bottom: 8px; line-height: 1.35;">
+      <!-- TITLE -->
+      <div style="font-size:14px;font-weight:600;color:#1A1A1A;margin-bottom:7px;line-height:1.3;">
         ${classification.intentTitle || 'Виявлено маніпулятивний намір'}
       </div>
 
-      <!-- ЧОМУ СИСТЕМА ЗВЕРНУЛА УВАГУ (ПОЯСНЕННЯ LLM / XAI) -->
-      <div style="font-size: 13px; line-height: 1.5; color: #424245; margin-bottom: 12px;">
+      <!-- EXPLANATION -->
+      <div style="font-size:12.5px;line-height:1.5;color:#6B7280;margin-bottom:11px;">
         ${classification.explanation}
       </div>
 
-      <!-- ДЕ КРАЩЕ БУТИ УВАЖНІШИМ (РЕКОМЕНДАЦІЯ БЕЗПЕКИ) -->
-      <div style="
-        background: #fbfbfd;
-        border-left: 3px solid #f59e0b;
-        border-radius: 6px;
-        padding: 8px 12px;
-        font-size: 12px;
-        line-height: 1.45;
-        color: #6e6e73;
-        margin-bottom: 12px;
-      ">
-        <strong style="color: #1d1d1f; display: block; margin-bottom: 2px;">Рекомендація безпеки:</strong>
+      <!-- RECOMMENDATION -->
+      <div style="background:#FFFBEB;border:1px solid #FDE68A;border-radius:7px;padding:8px 11px;font-size:11.5px;line-height:1.45;color:#6B7280;margin-bottom:11px;">
+        <strong style="color:#1A1A1A;display:block;margin-bottom:2px;">Що варто зробити:</strong>
         ${classification.whereToBeCareful}
       </div>
 
-      <!-- СПИСОК ВИЯВЛЕНИХ СЛІВ КЛАСТЕРА -->
-      <div style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center;">
-        <span style="font-size: 11px; color: #86868b;">Ключові фрази:</span>
-        ${classification.matchedSpans
-          .map(
-            (s) => `
-          <span style="
-            background: #f5f5f7;
-            border: 1px solid #e5e5ea;
-            border-radius: 4px;
-            font-size: 11px;
-            padding: 1px 6px;
-            color: #1d1d1f;
-            font-family: ui-monospace, SFMono-Regular, monospace;
-          ">${s.text}</span>
-        `
-          )
-          .join('')}
+      <!-- MATCHED WORDS -->
+      <div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center;">
+        <span style="font-size:10.5px;color:#9CA3AF;">Ключові слова:</span>
+        ${classification.matchedSpans.map((s: any) => `
+          <span style="background:#F9F9F8;border:1px solid #E5E7EB;border-radius:4px;font-size:10.5px;padding:1px 6px;color:#1A1A1A;font-family:ui-monospace,SFMono-Regular,monospace;">${s.text}</span>
+        `).join('')}
       </div>
     `;
 

@@ -136,19 +136,17 @@ export class SecurityFriction {
       left: 50% !important;
       transform: translateX(-50%) !important;
       max-width: calc(100vw - 32px) !important;
-      background: rgba(255, 255, 255, 0.95) !important;
-      backdrop-filter: blur(20px) saturate(180%) !important;
-      -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
-      border: 1px solid rgba(0, 0, 0, 0.12) !important;
-      box-shadow: 0 10px 30px -4px rgba(0, 0, 0, 0.15), 0 2px 8px -2px rgba(0, 0, 0, 0.08) !important;
+      background: #FFFFFF !important;
+      border: 1px solid #E5E7EB !important;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.10), 0 1px 3px rgba(0,0,0,0.06) !important;
       border-radius: 9999px !important;
       padding: 7px 14px 7px 10px !important;
       z-index: 2147483646 !important;
       display: flex !important;
       align-items: center !important;
-      gap: 10px !important;
-      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif !important;
-      animation: threatCapsuleDrop 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      gap: 9px !important;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+      animation: tsCapsuleDrop 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
       pointer-events: auto !important;
       user-select: none !important;
     `;
@@ -157,50 +155,36 @@ export class SecurityFriction {
 
     banner.innerHTML = `
       <style>
-        @keyframes threatCapsuleDrop {
-          from { opacity: 0; transform: translate(-50%, -16px) scale(0.96); }
-          to { opacity: 1; transform: translate(-50%, 0) scale(1); }
+        @keyframes tsCapsuleDrop {
+          from { opacity: 0; transform: translate(-50%, -14px); }
+          to   { opacity: 1; transform: translate(-50%, 0); }
         }
       </style>
+
       <div style="
-        width: 24px;
-        height: 24px;
-        border-radius: 50%;
-        background: rgba(255, 149, 0, 0.14);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
+        width: 22px; height: 22px; border-radius: 50%;
+        background: #FFFBEB; border: 1px solid #FDE68A;
+        display: flex; align-items: center; justify-content: center; flex-shrink: 0;
       ">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ff9500" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"/>
-          <polyline points="12 6 12 12 16 14"/>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
         </svg>
       </div>
 
-      <div style="font-size: 12.5px; color: #1d1d1f; font-weight: 500; letter-spacing: -0.01em; display: flex; align-items: center; gap: 6px; white-space: nowrap;">
-        <span><strong style="font-weight: 600; color: #1d1d1f;">${context.sourcePlatform}</strong></span>
-        <span style="color: #86868b;">·</span>
-        <span style="color: #ea580c; font-weight: 500;">${subtitle}</span>
+      <div style="font-size: 12.5px; color: #1A1A1A; display: flex; align-items: center; gap: 5px; white-space: nowrap;">
+        <strong style="font-weight: 600; color: #1A1A1A;">${context.sourcePlatform}</strong>
+        <span style="color: #D1D5DB;">·</span>
+        <span style="color: #D97706; font-weight: 500;">${subtitle}</span>
       </div>
 
       <button id="threat-shield-close-banner" type="button" title="Закрити" style="
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        border: none;
-        background: rgba(0, 0, 0, 0.06);
-        color: #6e6e73;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 11px;
-        line-height: 1;
-        padding: 0;
-        margin-left: 2px;
-        transition: background 0.15s, color 0.15s;
-        flex-shrink: 0;
+        width: 18px; height: 18px; border-radius: 50%; border: none;
+        background: #F3F4F6; color: #9CA3AF; cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 10px; line-height: 1; padding: 0; margin-left: 2px;
+        transition: background 0.12s, color 0.12s; flex-shrink: 0;
       ">✕</button>
     `;
 
@@ -221,3 +205,4 @@ export class SecurityFriction {
     }
   }
 }
+

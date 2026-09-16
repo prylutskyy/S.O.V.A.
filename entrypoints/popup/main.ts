@@ -158,7 +158,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // 1. Рендеринг лівої колонки (Master Sidebar)
-    vaultSidebarList.innerHTML = '<div class="vault-sidebar-title">Об\'єкти захисту (' + items.length + ')</div>';
+    vaultSidebarList.innerHTML = '<div class="vault-section-label">Об\'єкти захисту (' + items.length + ')</div>';
 
     items.forEach((item) => {
       const isFilled = Boolean(item.realValue && item.realValue.trim().length > 0);
@@ -168,30 +168,27 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       const btn = document.createElement('button');
       btn.type = 'button';
-      btn.className = `vault-nav-item ${isSelected ? 'active' : ''} ${!isActive ? 'disabled-state' : ''}`;
+      btn.className = `vault-item ${isSelected ? 'active' : ''} ${!isActive ? 'inactive' : ''}`;
       btn.dataset.id = item.id;
 
       let statusText = 'Активний';
-      let dotClass = 'green';
+      let statusClass = 'on';
 
       if (!isFilled) {
         statusText = 'Не заповнено';
-        dotClass = 'grey';
+        statusClass = '';
       } else if (!isEnabled) {
         statusText = 'Вимкнено';
-        dotClass = 'grey';
+        statusClass = '';
       }
 
       btn.innerHTML = `
-        <div class="vault-nav-icon">
+        <div class="vault-item-icon">
           ${getCategoryIconSvg(item.category)}
         </div>
-        <div class="vault-nav-info">
-          <span class="vault-nav-label" title="${item.label}">${item.label}</span>
-          <span class="vault-nav-status ${isActive ? 'active' : 'inactive'}">
-            <span class="status-indicator-dot ${dotClass}"></span>
-            <span>${statusText}</span>
-          </span>
+        <div class="vault-item-info">
+          <span class="vault-item-label" title="${item.label}">${item.label}</span>
+          <span class="vault-item-status ${statusClass}">${statusText}</span>
         </div>
       `;
 
@@ -204,6 +201,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // 2. Рендеринг правої колонки (Detail Panel) для обраного елемента
+
     const selectedItem = items.find((i) => i.id === selectedVaultItemId);
     if (!selectedItem) return;
 
@@ -211,11 +209,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     const tier = PersonalVaultManager.getCategoryTier(selectedItem.category);
     if (tier === 'TIER_A_ABSOLUTE') {
       detailItemTier.innerText = 'Tier A: Абсолютний захист';
-      detailItemTier.className = 'tier-badge tier-a';
+      detailItemTier.className = 'tier-tag a';
     } else {
       detailItemTier.innerText = 'Tier B: Контекстний захист';
-      detailItemTier.className = 'tier-badge tier-b';
+      detailItemTier.className = 'tier-tag b';
     }
+
 
     const isItemEnabled = selectedItem.enabled !== false;
     detailItemToggle.checked = isItemEnabled;
@@ -315,18 +314,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         li.className = 'list-entry';
         li.innerHTML = `
           <span style="font-weight: 500; color: var(--text-primary);">${domain}</span>
-          <button type="button" class="btn-remove-entry" title="Видалити зі списку">
+          <button type="button" class="btn-remove" title="Видалити зі списку">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
           </button>
         `;
 
-        const btnRemove = li.querySelector('.btn-remove-entry');
+        const btnRemove = li.querySelector('.btn-remove');
         btnRemove?.addEventListener('click', async () => {
           await UserWhitelistManager.removeDomain(domain);
           showToast(`Видалено: ${domain}`);
           await renderWhitelist();
           updateCurrentTabState();
         });
+
 
         whitelistUl.appendChild(li);
       });
@@ -346,11 +346,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     btnToggleCurrent.style.display = 'inline-flex';
     if (isAllowed) {
       btnToggleCurrent.innerText = '✕ Прибрати з довірених';
-      btnToggleCurrent.className = 'btn-action-danger';
+      btnToggleCurrent.className = 'btn-danger';
     } else {
-      btnToggleCurrent.innerText = '✓ Довіряти цьому сайту';
-      btnToggleCurrent.className = 'btn-action-primary';
+      btnToggleCurrent.innerText = '✓ Довіряти';
+      btnToggleCurrent.className = 'btn-primary';
     }
+
   };
 
   try {
