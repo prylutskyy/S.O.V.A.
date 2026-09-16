@@ -25,7 +25,7 @@ import { GlobalInputInterceptor } from '../src/heuristics/input-interceptor';
 
 export default defineContentScript({
   matches: ['<all_urls>'],
-  main() {
+  async main() {
     GlobalInputInterceptor.init();
     
     let currentHost = window.location.hostname.toLowerCase();
@@ -36,28 +36,34 @@ export default defineContentScript({
     const aiVerifier = new AILureVerifier(new ChromeBuiltinAIProvider());
 
     let debugMode = false;
-    chrome.storage.local.get(['debugModeEnabled'], (res) => { 
+    let activeContext: ActiveThreatContext | null = null;
+    
+    // Await storage to prevent race condition when restoring context
+    try {
+      const res = await chrome.storage.local.get(['debugModeEnabled']);
       debugMode = !!res.debugModeEnabled; 
       ChatChannelMonitor.debugMode = debugMode;
       if (debugMode) DebuggerOverlay.show();
-    });
-    chrome.storage.onChanged.addListener((changes) => { 
+    } catch (e) {}
+
+    chrome.storage.onChanged.addListener((changes) => {
       if (changes.debugModeEnabled) {
         debugMode = changes.debugModeEnabled.newValue;
         ChatChannelMonitor.debugMode = debugMode;
         if (debugMode) {
           DebuggerOverlay.show();
+          if (activeContext && activeContext.sessionId) {
+            DebuggerOverlay.setSession(activeContext.sessionId, activeContext.threatLevel);
+          }
         } else {
           DebuggerOverlay.hide();
         }
       }
     });
 
-    console.log('[ThreatShield:Content] Ініціалізовано на хості:', currentHost || 'local file');
+    console.log('[ThreatShield:Content] Ініціалізація на сайті:', currentHost || 'local file');
 
-    let activeContext: ActiveThreatContext | null = null;
-
-    // Фонова асинхронна ініціалізація кешів
+    // Базові менеджери користувацького стану
     UserWhitelistManager.init().catch((e) => console.error('[ThreatShield] UserWhitelist init error:', e));
     PersonalVaultManager.init().catch((e) => console.error('[ThreatShield] PersonalVault init error:', e));
 
