@@ -3,11 +3,20 @@ import { PersonalVaultManager } from '../../src/core/personal-vault';
 import { VaultItemCategory } from '../../src/types/vault';
 
 document.addEventListener('DOMContentLoaded', async () => {
-  // Elements: Tabs
-  const tabBtnWhitelist = document.getElementById('tabBtnWhitelist') as HTMLButtonElement;
+  // Elements: Navigation Tabs
+  const tabBtnStats = document.getElementById('tabBtnStats') as HTMLButtonElement;
   const tabBtnVault = document.getElementById('tabBtnVault') as HTMLButtonElement;
-  const tabContentWhitelist = document.getElementById('tabContentWhitelist') as HTMLElement;
+  const tabBtnWhitelist = document.getElementById('tabBtnWhitelist') as HTMLButtonElement;
+  const tabBtnSettings = document.getElementById('tabBtnSettings') as HTMLButtonElement;
+
+  // Elements: Content Sections
+  const tabContentStats = document.getElementById('tabContentStats') as HTMLElement;
   const tabContentVault = document.getElementById('tabContentVault') as HTMLElement;
+  const tabContentWhitelist = document.getElementById('tabContentWhitelist') as HTMLElement;
+  const tabContentSettings = document.getElementById('tabContentSettings') as HTMLElement;
+
+  // Elements: Statistics Tab
+  const statProtectedMarkers = document.getElementById('statProtectedMarkers') as HTMLElement;
 
   // Elements: Whitelist tab
   const currentHostLabel = document.getElementById('currentHostLabel') as HTMLElement;
@@ -17,6 +26,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   const manualHostInput = document.getElementById('manualHostInput') as HTMLInputElement;
   const btnAddManual = document.getElementById('btnAddManual') as HTMLButtonElement;
   const btnClearAllWhitelist = document.getElementById('btnClearAllWhitelist') as HTMLButtonElement;
+
+  // Elements: Settings tab
   const btnResetContext = document.getElementById('btnResetContext') as HTMLButtonElement;
   const toastMessage = document.getElementById('toastMessage') as HTMLElement;
 
@@ -38,26 +49,48 @@ document.addEventListener('DOMContentLoaded', async () => {
     toastMessage.style.display = 'block';
     setTimeout(() => {
       toastMessage.style.display = 'none';
-    }, 1800);
+    }, 2000);
   };
 
-  // --- Вкладки (Segmented Control) ---
-  tabBtnWhitelist.addEventListener('click', () => {
-    tabBtnWhitelist.classList.add('active');
-    tabBtnVault.classList.remove('active');
-    tabContentWhitelist.style.display = 'block';
-    tabContentVault.style.display = 'none';
-  });
+  // --- Механізм перемикання вкладок у стилі Proton Pass ---
+  type TabName = 'stats' | 'vault' | 'whitelist' | 'settings';
 
-  tabBtnVault.addEventListener('click', async () => {
-    tabBtnVault.classList.add('active');
-    tabBtnWhitelist.classList.remove('active');
-    tabContentVault.style.display = 'block';
-    tabContentWhitelist.style.display = 'none';
-    await renderVault();
-  });
+  const setActiveTab = async (tab: TabName) => {
+    // Оновлюємо стан кнопок
+    tabBtnStats.classList.toggle('active', tab === 'stats');
+    tabBtnVault.classList.toggle('active', tab === 'vault');
+    tabBtnWhitelist.classList.toggle('active', tab === 'whitelist');
+    tabBtnSettings.classList.toggle('active', tab === 'settings');
 
-  // Очищення та валідація введеного домену
+    // Оновлюємо видимість вмісту
+    tabContentStats.style.display = tab === 'stats' ? 'flex' : 'none';
+    tabContentVault.style.display = tab === 'vault' ? 'flex' : 'none';
+    tabContentWhitelist.style.display = tab === 'whitelist' ? 'flex' : 'none';
+    tabContentSettings.style.display = tab === 'settings' ? 'flex' : 'none';
+
+    // Оновлюємо динамічні дані при переході
+    if (tab === 'stats') {
+      const items = await PersonalVaultManager.getItems();
+      if (statProtectedMarkers) {
+        statProtectedMarkers.innerText = String(items.length);
+      }
+    } else if (tab === 'vault') {
+      await renderVault();
+    } else if (tab === 'whitelist') {
+      await renderWhitelist();
+      await updateCurrentTabState();
+    }
+  };
+
+  tabBtnStats.addEventListener('click', () => setActiveTab('stats'));
+  tabBtnVault.addEventListener('click', () => setActiveTab('vault'));
+  tabBtnWhitelist.addEventListener('click', () => setActiveTab('whitelist'));
+  tabBtnSettings.addEventListener('click', () => setActiveTab('settings'));
+
+  // ==========================================
+  // ЛОГІКА ДОВІРЕНИХ САЙТІВ (WHITELIST)
+  // ==========================================
+
   const cleanDomain = (raw: string): string => {
     let d = raw.trim().toLowerCase();
     try {
@@ -70,24 +103,31 @@ document.addEventListener('DOMContentLoaded', async () => {
     return d.replace(/^www\./, '');
   };
 
-  // Оновлення списку доменів в інтерфейсі
   const renderWhitelist = async () => {
     const domains = await UserWhitelistManager.getDomains();
-    whitelistTitle.innerText = `Довірені сайти (${domains.length})`;
+    whitelistTitle.innerHTML = `
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="9 11 12 14 22 4"></polyline>
+        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+      </svg>
+      <span>Довірені ресурси (${domains.length})</span>
+    `;
 
     whitelistUl.innerHTML = '';
     if (domains.length === 0) {
-      whitelistUl.innerHTML = '<li class="empty-note">Немає доданих сайтів</li>';
+      whitelistUl.innerHTML = '<li class="list-entry" style="justify-content: center; color: var(--text-muted);">Немає доданих сайтів</li>';
     } else {
       domains.sort().forEach((domain) => {
         const li = document.createElement('li');
-        li.className = 'whitelist-entry';
+        li.className = 'list-entry';
         li.innerHTML = `
-          <span class="domain-text">${domain}</span>
-          <button type="button" class="btn-entry-remove" title="Видалити зі списку">✕</button>
+          <span style="font-weight: 500; color: var(--text-primary);">${domain}</span>
+          <button type="button" class="btn-remove-entry" title="Видалити зі списку">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
         `;
 
-        const btnRemove = li.querySelector('.btn-entry-remove');
+        const btnRemove = li.querySelector('.btn-remove-entry');
         btnRemove?.addEventListener('click', async () => {
           await UserWhitelistManager.removeDomain(domain);
           showToast(`Видалено: ${domain}`);
@@ -100,7 +140,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   };
 
-  // Перевірка поточного сайту у вкладці
   const updateCurrentTabState = async () => {
     if (!currentTabHost) {
       currentHostLabel.innerText = 'Немає активної сторінки';
@@ -111,13 +150,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     currentHostLabel.innerText = currentTabHost;
     const isAllowed = UserWhitelistManager.isDomainAllowedSync(currentTabHost);
 
-    btnToggleCurrent.style.display = 'inline-block';
+    btnToggleCurrent.style.display = 'inline-flex';
     if (isAllowed) {
-      btnToggleCurrent.innerText = 'Не довіряти';
-      btnToggleCurrent.className = 'btn-action-text btn-remove-allow';
+      btnToggleCurrent.innerText = '✕ Прибрати з довірених';
+      btnToggleCurrent.className = 'btn-action-danger';
     } else {
-      btnToggleCurrent.innerText = '+ Довіряти';
-      btnToggleCurrent.className = 'btn-action-text btn-allow';
+      btnToggleCurrent.innerText = '✓ Довіряти цьому сайту';
+      btnToggleCurrent.className = 'btn-action-primary';
     }
   };
 
@@ -140,28 +179,26 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.error('Tabs query error:', e);
   }
 
-  // Клік по кнопці додавання/видалення поточного сайту
   btnToggleCurrent.addEventListener('click', async () => {
     if (!currentTabHost || currentTabHost.startsWith('local-file')) return;
 
     const isAllowed = UserWhitelistManager.isDomainAllowedSync(currentTabHost);
     if (isAllowed) {
       await UserWhitelistManager.removeDomain(currentTabHost);
-      showToast(`Видалено ${currentTabHost}`);
+      showToast(`Видалено: ${currentTabHost}`);
     } else {
       await UserWhitelistManager.allowDomain(currentTabHost);
-      showToast(`Додано ${currentTabHost}`);
+      showToast(`Додано до довірених: ${currentTabHost}`);
     }
     await renderWhitelist();
     updateCurrentTabState();
   });
 
-  // Ручне додавання домену
   btnAddManual.addEventListener('click', async () => {
     const rawVal = manualHostInput.value;
     const domain = cleanDomain(rawVal);
     if (!domain || domain.length < 3) {
-      alert('Будь ласка, введіть коректний домен (наприклад: myshop.ua)');
+      alert('Будь ласка, введіть коректну адресу сайту (наприклад: myshop.ua)');
       return;
     }
 
@@ -178,9 +215,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  // Очистити весь список
   btnClearAllWhitelist.addEventListener('click', async () => {
-    if (confirm('Очистити всі домени з персонального списку довірених?')) {
+    if (confirm('Очистити всі додані домени зі списку довірених?')) {
       await UserWhitelistManager.clearAll();
       showToast('Список довірених сайтів очищено');
       await renderWhitelist();
@@ -188,14 +224,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  // Скинути Tainted Context Window
+  // ==========================================
+  // СКИДАННЯ СЕСІЇ (SETTINGS & CONTEXT)
+  // ==========================================
+
   btnResetContext.addEventListener('click', async () => {
     try {
       if (typeof chrome !== 'undefined' && chrome.runtime) {
         await chrome.runtime.sendMessage({ type: 'CLEAR_CONTEXT' });
       }
     } catch {}
-    showToast('Контекстне вікно загрози скинуто');
+    showToast('Стан тривоги успішно скинуто');
   });
 
   // ==========================================
@@ -204,32 +243,45 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const renderVault = async () => {
     const items = await PersonalVaultManager.getItems();
-    vaultTitle.innerText = `Захищені маркери (${items.length})`;
+    vaultTitle.innerHTML = `
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+      <span>Захищені дані у сховищі (${items.length})</span>
+    `;
+
+    if (statProtectedMarkers) {
+      statProtectedMarkers.innerText = String(items.length);
+    }
 
     vaultUl.innerHTML = '';
     if (items.length === 0) {
-      vaultUl.innerHTML = '<li class="empty-note">У сховищі немає збережених маркерів</li>';
+      vaultUl.innerHTML = '<li class="list-entry" style="justify-content: center; color: var(--text-muted);">Сховище пусте</li>';
       return;
     }
 
     items.forEach((item) => {
       const li = document.createElement('li');
-      li.className = 'vault-item';
+      li.className = 'vault-entry';
       li.innerHTML = `
-        <div class="vault-item-header">
-          <span class="vault-item-label">${item.label}</span>
-          <button type="button" class="btn-entry-remove" title="Видалити маркер" data-id="${item.id}">✕</button>
+        <div class="vault-entry-top">
+          <div class="vault-entry-label">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--proton-purple)" stroke-width="2.3"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <span>${item.label}</span>
+          </div>
+          <button type="button" class="btn-remove-entry" title="Видалити" data-id="${item.id}">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
         </div>
-        <div class="vault-item-details">
-          <span class="vault-val-real" title="Справжнє секретне значення">🔐 ${item.realValue}</span>
-          <span class="vault-val-decoy" title="Підставляється при активації Canary Decoy">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-            Декой: ${item.decoyValue}
+        <div class="vault-entry-values">
+          <span class="val-real-pill" title="Конфіденційне значення під захистом">🔐 ${item.realValue}</span>
+          <span class="val-decoy-pill" title="Підставляється як пастка">
+            🛡️ Декой: ${item.decoyValue}
           </span>
         </div>
       `;
 
-      const btnRemove = li.querySelector('.btn-entry-remove');
+      const btnRemove = li.querySelector('.btn-remove-entry');
       btnRemove?.addEventListener('click', async () => {
         await PersonalVaultManager.deleteItem(item.id);
         showToast(`Видалено: ${item.label}`);
@@ -240,7 +292,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   };
 
-  // Автозаповнення форми при зміні категорії
   const applyCategoryDefaults = (category: VaultItemCategory) => {
     switch (category) {
       case 'MOTHER_MAIDEN_NAME':
@@ -299,7 +350,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     applyCategoryDefaults(vaultCategorySelect.value as VaultItemCategory);
   });
 
-  // Додавання нового маркера до сховища
   btnAddVaultItem.addEventListener('click', async () => {
     const category = vaultCategorySelect.value as VaultItemCategory;
     const label = vaultLabelInput.value.trim();
@@ -308,11 +358,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     const rawKeywords = vaultKeywordsInput.value.trim();
 
     if (!label) {
-      alert('Будь ласка, вкажіть назву поля або маркера');
+      alert('Будь ласка, вкажіть зрозумілу назву для поля');
       return;
     }
     if (!realValue) {
-      alert('Будь ласка, введіть справжнє значення для моніторингу');
+      alert('Будь ласка, введіть справжнє значення для захисту');
       return;
     }
 
@@ -329,25 +379,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     vaultRealInput.value = '';
-    showToast(`Збережено маркер: ${label}`);
+    showToast(`Збережено в сховище: ${label}`);
     await renderVault();
   });
 
-  // Скидання сховища до дефолтних налаштувань
   btnResetVaultDefaults.addEventListener('click', async () => {
-    if (confirm('Відновити стандартні тестові маркери (Людмила, Лео, РНОКПП)?')) {
+    if (confirm('Відновити стандартні зразки даних сховища (Людмила, Лео, РНОКПП)?')) {
       await PersonalVaultManager.resetToDefaults();
-      showToast('Сховище відновлено до стандартних значень');
+      showToast('Сховище відновлено до стандартних');
       await renderVault();
     }
   });
 
-  // Початкове налаштування полів форми
+  // Початкове автозаповнення полів форми
   applyCategoryDefaults(vaultCategorySelect.value as VaultItemCategory);
 
   // Ініціалізація
   await UserWhitelistManager.init();
   await PersonalVaultManager.init();
-  await renderWhitelist();
-  updateCurrentTabState();
+
+  // За замовчуванням завжди відкриваємо першу вкладку: СТАТИСТИКА
+  await setActiveTab('stats');
 });

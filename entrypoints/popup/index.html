@@ -3,450 +3,1116 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Adaptive Threat Shield</title>
+  <title>Threat Shield — Розумний захист</title>
   <style>
+    :root {
+      --proton-purple: #6d4aff;
+      --proton-purple-hover: #5936e0;
+      --proton-purple-light: #f3f0ff;
+      --proton-purple-border: #e2d9ff;
+      --bg-canvas: #f8f9fc;
+      --surface-card: #ffffff;
+      --text-primary: #171923;
+      --text-secondary: #5b616e;
+      --text-muted: #8c93a3;
+      --border-subtle: #edf0f5;
+      --border-card: #e5e8ed;
+      --success-green: #10b981;
+      --success-green-bg: #ecfdf5;
+      --success-green-border: #a7f3d0;
+      --warning-amber: #f59e0b;
+      --warning-amber-bg: #fffbeb;
+      --danger-red: #ef4444;
+      --danger-red-bg: #fef2f2;
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+      --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+      --font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-family: var(--font-family);
       -webkit-font-smoothing: antialiased;
     }
+
     body {
-      width: 350px;
-      background: #fbfbfd;
-      color: #1d1d1f;
+      width: 380px;
+      max-height: 590px;
+      background: var(--bg-canvas);
+      color: var(--text-primary);
       font-size: 13px;
-      padding: 16px;
       user-select: none;
-      max-height: 580px;
       overflow-y: auto;
+      display: flex;
+      flex-direction: column;
     }
-    /* Заголовок у стилі macOS Navigation Bar */
-    .header {
+
+    /* Кастомний скролбар у стилі сучасних застосунків */
+    body::-webkit-scrollbar {
+      width: 5px;
+    }
+    body::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    body::-webkit-scrollbar-thumb {
+      background: #d1d5db;
+      border-radius: 4px;
+    }
+    body::-webkit-scrollbar-thumb:hover {
+      background: #9ca3af;
+    }
+
+    /* HEADER У СТИЛІ PROTON */
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding-bottom: 12px;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-      margin-bottom: 12px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-subtle);
     }
-    .brand {
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--proton-purple) 0%, #8b5cf6 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 6px rgba(109, 74, 255, 0.3);
+      flex-shrink: 0;
+    }
+
+    .brand-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+
+    .brand-tagline {
+      font-size: 10.5px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--success-green);
+      background: var(--success-green-bg);
+      border: 1px solid var(--success-green-border);
+      padding: 4px 9px;
+      border-radius: 9999px;
+    }
+
+    .pulse-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--success-green);
+      box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25);
+      animation: pulseAnim 2s infinite;
+    }
+
+    @keyframes pulseAnim {
+      0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5); }
+      70% { box-shadow: 0 0 0 5px rgba(16, 185, 129, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+
+    /* ПАНЕЛЬ ПЕРЕМИКАННЯ ВКЛАДОК (PROTON PASS SEGMENTED BAR) */
+    .tab-navigation {
+      display: flex;
+      background: #ffffff;
+      padding: 6px 16px;
+      gap: 6px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .tab-btn {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 8px 4px;
+      background: transparent;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      color: var(--text-secondary);
+      font-size: 11px;
+      font-weight: 500;
+      transition: all 0.15s ease;
+    }
+
+    .tab-btn svg {
+      width: 17px;
+      height: 17px;
+      stroke: currentColor;
+      transition: stroke 0.15s ease, transform 0.15s ease;
+    }
+
+    .tab-btn:hover {
+      color: var(--proton-purple);
+      background: var(--proton-purple-light);
+    }
+
+    .tab-btn.active {
+      color: var(--proton-purple);
+      background: var(--proton-purple-light);
+      font-weight: 700;
+    }
+
+    .tab-btn.active svg {
+      transform: scale(1.08);
+      stroke: var(--proton-purple);
+    }
+
+    /* ОСНОВНИЙ ВМІСТ ВСТУПУ */
+    .tab-content {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* КАРТКИ PROTON PASS */
+    .card {
+      background: var(--surface-card);
+      border: 1px solid var(--border-card);
+      border-radius: 12px;
+      padding: 14px;
+      box-shadow: var(--shadow-card);
+      transition: border-color 0.15s ease;
+    }
+
+    .card-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* HERO CARD: ГОЛОВНИЙ СТАТУС БЕЗПЕКИ */
+    .hero-status-card {
+      background: linear-gradient(135deg, #ffffff 0%, #faf8ff 100%);
+      border: 1px solid var(--proton-purple-border);
+      border-radius: 14px;
+      padding: 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: var(--shadow-card);
+    }
+
+    .hero-shield-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: var(--proton-purple-light);
+      border: 1px solid var(--proton-purple-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: var(--proton-purple);
+    }
+
+    .hero-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .hero-title {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.01em;
+    }
+
+    .hero-subtitle {
+      font-size: 11px;
+      color: var(--text-secondary);
+      line-height: 1.35;
+    }
+
+    /* СІТКА ПОКАЗНИКІВ СТАТИСТИКИ (2x2 GRID) */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .stat-card {
+      background: var(--surface-card);
+      border: 1px solid var(--border-card);
+      border-radius: 12px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .stat-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .stat-icon {
+      width: 26px;
+      height: 26px;
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .stat-icon.purple { background: var(--proton-purple-light); color: var(--proton-purple); }
+    .stat-icon.green { background: var(--success-green-bg); color: var(--success-green); }
+    .stat-icon.amber { background: var(--warning-amber-bg); color: var(--warning-amber); }
+    .stat-icon.blue { background: #eff6ff; color: #2563eb; }
+
+    .stat-badge {
+      font-size: 9.5px;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 6px;
+    }
+    .stat-badge.purple { background: var(--proton-purple-light); color: var(--proton-purple); }
+    .stat-badge.green { background: var(--success-green-bg); color: var(--success-green); }
+
+    .stat-value {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text-primary);
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      margin-top: 4px;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      line-height: 1.25;
+    }
+
+    /* ЖУРНАЛ ОСТАННІХ ПОДІЙ ЗАХИСТУ */
+    .events-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .event-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 9px;
+      background: #fafbfc;
+      border: 1px solid var(--border-subtle);
+      transition: background 0.15s ease;
+    }
+
+    .event-item:hover {
+      background: #f4f6fa;
+    }
+
+    .event-icon-box {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .event-body {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .event-title {
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--text-primary);
+      line-height: 1.25;
+    }
+
+    .event-meta {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 2px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .event-tag {
+      display: inline-block;
+      font-size: 9.5px;
+      font-weight: 600;
+      padding: 1px 5px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+    .event-tag.safe { background: var(--success-green-bg); color: var(--success-green); }
+    .event-tag.shield { background: var(--proton-purple-light); color: var(--proton-purple); }
+    .event-tag.alert { background: var(--warning-amber-bg); color: #b45309; }
+
+    /* ПОРАДА ДНЯ ДЛЯ ПОЧАТКІВЦІВ */
+    .tip-card {
+      background: #faf9fe;
+      border: 1px solid var(--proton-purple-border);
+      border-radius: 12px;
+      padding: 12px;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .tip-icon {
+      color: var(--proton-purple);
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .tip-text {
+      font-size: 11px;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    .tip-text strong {
+      color: var(--text-primary);
+    }
+
+    /* ПОТОЧНИЙ САЙТ У WHITELIST */
+    .current-site-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 12px;
+      background: #fafbfc;
+      border-radius: 10px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .site-domain-box {
       display: flex;
       align-items: center;
       gap: 8px;
+      min-width: 0;
     }
-    .brand-title {
-      font-size: 14px;
+
+    .site-icon-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success-green);
+      flex-shrink: 0;
+    }
+
+    .site-domain-text {
+      font-size: 12.5px;
       font-weight: 600;
-      color: #1d1d1f;
-      letter-spacing: -0.01em;
+      color: var(--text-primary);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
-    .status-pill {
+
+    /* КНОПКИ ДІЙ */
+    .btn-action-primary {
+      background: var(--proton-purple);
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease;
       display: inline-flex;
       align-items: center;
-      gap: 5px;
-      font-size: 11px;
-      font-weight: 500;
-      color: #15803d;
-      background: rgba(34, 197, 94, 0.1);
-      padding: 2px 8px;
-      border-radius: 9999px;
-    }
-    .status-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: #22c55e;
+      justify-content: center;
+      gap: 6px;
+      white-space: nowrap;
     }
 
-    /* Сегментований перемикач вкладок (Apple HIG Segmented Control) */
-    .segmented-control {
-      display: flex;
-      background: rgba(118, 118, 128, 0.12);
+    .btn-action-primary:hover {
+      background: var(--proton-purple-hover);
+    }
+
+    .btn-action-primary:active {
+      transform: scale(0.98);
+    }
+
+    .btn-action-danger {
+      background: #fee2e2;
+      color: #b91c1c;
+      border: 1px solid #fecaca;
       border-radius: 8px;
-      padding: 2px;
-      margin-bottom: 14px;
-    }
-    .segment-btn {
-      flex: 1;
-      background: transparent;
-      border: none;
-      border-radius: 6px;
-      padding: 6px 4px;
+      padding: 6px 12px;
       font-size: 11.5px;
-      font-weight: 500;
-      color: #636366;
+      font-weight: 600;
       cursor: pointer;
-      transition: all 0.15s ease;
-      text-align: center;
-    }
-    .segment-btn.active {
-      background: #ffffff;
-      color: #1d1d1f;
-      font-weight: 600;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 1px rgba(0, 0, 0, 0.04);
+      transition: background 0.15s ease;
+      white-space: nowrap;
     }
 
-    /* Секції та картки */
-    .section-label {
-      font-size: 11px;
-      font-weight: 600;
-      color: #86868b;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      margin-bottom: 6px;
-      padding-left: 2px;
-    }
-    .card {
-      background: #ffffff;
-      border: 1px solid rgba(0, 0, 0, 0.07);
-      border-radius: 12px;
-      padding: 12px 14px;
-      margin-bottom: 14px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+    .btn-action-danger:hover {
+      background: #fecaca;
     }
 
-    /* Поточний сайт */
-    .current-site-row {
+    /* СПИСКИ ДОВІРЕНИХ ТА VAULT */
+    .scroll-list {
+      max-height: 160px;
+      overflow-y: auto;
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding-right: 2px;
+    }
+
+    .list-entry {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
-    }
-    .current-domain {
-      font-size: 13px;
-      font-weight: 600;
-      color: #1d1d1f;
-      word-break: break-all;
-    }
-    .btn-action-text {
-      background: transparent;
-      border: none;
+      padding: 8px 10px;
+      background: #fcfdfe;
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
       font-size: 12px;
-      font-weight: 500;
-      cursor: pointer;
-      padding: 3px 0;
-      white-space: nowrap;
-      transition: opacity 0.15s;
-    }
-    .btn-allow {
-      color: #0071e3;
-    }
-    .btn-remove-allow {
-      color: #d70015;
+      transition: background 0.15s ease;
     }
 
-    /* Форма додавання */
+    .list-entry:hover {
+      background: #f6f8fb;
+    }
+
+    .btn-remove-entry {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.15s ease, background 0.15s ease;
+    }
+
+    .btn-remove-entry:hover {
+      color: var(--danger-red);
+      background: var(--danger-red-bg);
+    }
+
+    /* ІНПУТИ ТА ФОРМИ */
+    .form-group {
+      margin-bottom: 10px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+
     .input-row {
       display: flex;
-      gap: 6px;
-      margin-bottom: 8px;
+      gap: 8px;
     }
+
     .input-field, .select-field {
-      flex: 1;
-      height: 30px;
-      background: #f5f5f7;
-      border: 1px solid transparent;
+      width: 100%;
+      height: 34px;
+      background: #fafbfc;
+      border: 1px solid var(--border-card);
       border-radius: 8px;
       padding: 0 10px;
       font-size: 12px;
-      color: #1d1d1f;
+      color: var(--text-primary);
       outline: none;
-      transition: border 0.15s, background 0.15s;
-      width: 100%;
+      transition: all 0.15s ease;
     }
+
     .input-field:focus, .select-field:focus {
       background: #ffffff;
-      border-color: #0071e3;
-    }
-    .form-group {
-      margin-bottom: 8px;
-    }
-    .form-label {
-      font-size: 10.5px;
-      font-weight: 500;
-      color: #636366;
-      margin-bottom: 3px;
-      display: block;
-    }
-    .btn-add {
-      height: 30px;
-      background: #0071e3;
-      color: #ffffff;
-      border: none;
-      border-radius: 8px;
-      padding: 0 12px;
-      font-size: 12px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background 0.15s;
-      white-space: nowrap;
-    }
-    .btn-add:hover {
-      background: #0077ed;
-    }
-    .btn-primary-block {
-      width: 100%;
-      height: 32px;
-      background: #0071e3;
-      color: #ffffff;
-      border: none;
-      border-radius: 8px;
-      font-size: 12px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background 0.15s;
-      margin-top: 4px;
-    }
-    .btn-primary-block:hover {
-      background: #0077ed;
+      border-color: var(--proton-purple);
+      box-shadow: 0 0 0 3px rgba(109, 74, 255, 0.12);
     }
 
-    /* Список довірених */
-    .whitelist-container, .vault-container {
-      max-height: 140px;
-      overflow-y: auto;
-      list-style: none;
+    /* ЕЛЕМЕНТИ VAULT */
+    .vault-entry {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 10px;
+      background: #fafbfc;
+      border: 1px solid var(--border-subtle);
+      border-radius: 9px;
     }
-    .whitelist-entry {
+
+    .vault-entry-top {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 6px 0;
-      border-bottom: 1px solid #f2f2f7;
-      font-size: 12px;
-    }
-    .whitelist-entry:last-child {
-      border-bottom: none;
-    }
-    .domain-text {
-      color: #1d1d1f;
-      font-weight: 400;
-    }
-    .btn-entry-remove {
-      background: transparent;
-      border: none;
-      color: #86868b;
-      cursor: pointer;
-      font-size: 12px;
-      padding: 2px 4px;
-      transition: color 0.15s;
-    }
-    .btn-entry-remove:hover {
-      color: #d70015;
-    }
-    .empty-note {
-      font-size: 12px;
-      color: #86868b;
-      text-align: center;
-      padding: 10px 0;
     }
 
-    /* Картки сховища Vault */
-    .vault-item {
-      padding: 8px 0;
-      border-bottom: 1px solid #f2f2f7;
-    }
-    .vault-item:last-child {
-      border-bottom: none;
-    }
-    .vault-item-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 4px;
-    }
-    .vault-item-label {
+    .vault-entry-label {
+      font-size: 12px;
       font-weight: 600;
-      font-size: 12px;
-      color: #1d1d1f;
-    }
-    .vault-item-details {
+      color: var(--text-primary);
       display: flex;
       align-items: center;
       gap: 6px;
-      font-size: 11px;
-      flex-wrap: wrap;
     }
-    .vault-val-real {
-      color: #636366;
-      background: #f5f5f7;
-      padding: 1px 6px;
-      border-radius: 4px;
+
+    .vault-entry-values {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      font-size: 11px;
+    }
+
+    .val-real-pill {
+      background: #f1f3f7;
+      color: var(--text-primary);
+      padding: 2px 7px;
+      border-radius: 5px;
       font-family: ui-monospace, SFMono-Regular, monospace;
       font-size: 10.5px;
     }
-    .vault-val-decoy {
-      display: inline-flex;
-      align-items: center;
-      gap: 3px;
-      color: #15803d;
-      background: rgba(34, 197, 94, 0.1);
-      border: 1px solid rgba(34, 197, 94, 0.2);
-      padding: 1px 6px;
-      border-radius: 4px;
+
+    .val-decoy-pill {
+      background: var(--success-green-bg);
+      color: #065f46;
+      border: 1px solid var(--success-green-border);
+      padding: 2px 7px;
+      border-radius: 5px;
+      font-weight: 600;
       font-size: 10.5px;
-      font-weight: 500;
     }
 
-    /* Нижні дії */
-    .footer-row {
+    /* НИЖНІ ДІЇ / СИСТЕМНІ КНОПКИ */
+    .action-row {
       display: flex;
       gap: 8px;
     }
-    .btn-subtle {
+
+    .btn-secondary {
       flex: 1;
-      height: 32px;
+      height: 34px;
       background: #ffffff;
-      border: 1px solid rgba(0, 0, 0, 0.08);
+      border: 1px solid var(--border-card);
       border-radius: 8px;
       font-size: 11.5px;
-      font-weight: 500;
-      color: #424245;
+      font-weight: 600;
+      color: var(--text-secondary);
       cursor: pointer;
-      transition: background 0.15s, color 0.15s;
-    }
-    .btn-subtle:hover {
-      background: #f5f5f7;
-      color: #1d1d1f;
-    }
-    .btn-subtle-danger:hover {
-      color: #d70015;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
     }
 
-    /* Спливаючий системний тост */
+    .btn-secondary:hover {
+      background: #f6f8fb;
+      color: var(--text-primary);
+      border-color: #d1d5db;
+    }
+
+    .btn-secondary-danger:hover {
+      background: var(--danger-red-bg);
+      color: var(--danger-red);
+      border-color: #fecaca;
+    }
+
+    /* ПОЯСНЮВАЛЬНІ КАРТКИ ДЛЯ НОВАЧКІВ */
+    .info-banner {
+      background: #f5f3ff;
+      border: 1px solid var(--proton-purple-border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 11px;
+      color: #4c1d95;
+      line-height: 1.4;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .info-banner svg {
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* ПОВІДОМЛЕННЯ-ТОСТ */
     .toast-pill {
       position: fixed;
-      bottom: 12px;
+      bottom: 16px;
       left: 50%;
       transform: translateX(-50%);
-      background: rgba(29, 29, 31, 0.9);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
+      background: #171923;
       color: #ffffff;
-      font-size: 11px;
-      font-weight: 500;
-      padding: 5px 12px;
+      font-size: 11.5px;
+      font-weight: 600;
+      padding: 6px 14px;
       border-radius: 9999px;
       display: none;
       white-space: nowrap;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      animation: threatToastFade 0.2s ease;
-      z-index: 999;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+      animation: toastIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 1000;
     }
-    @keyframes threatToastFade {
-      from { opacity: 0; transform: translate(-50%, 6px); }
+
+    @keyframes toastIn {
+      from { opacity: 0; transform: translate(-50%, 8px); }
       to { opacity: 1; transform: translate(-50%, 0); }
     }
   </style>
 </head>
 <body>
-  <!-- HEADER -->
-  <div class="header">
-    <div class="brand">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0071e3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+
+  <!-- ШАПКА ЗАСТОСУНКУ (PROTON PASS STYLE) -->
+  <header class="app-header">
+    <div class="brand-group">
+      <div class="brand-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          <path d="m9 12 2 2 4-4"/>
+        </svg>
+      </div>
+      <div class="brand-info">
+        <span class="brand-name">Threat Shield</span>
+        <span class="brand-tagline">Розумний захист від фішингу</span>
+      </div>
+    </div>
+    <div class="status-badge" title="Система аналізу в реальному часі активна">
+      <span class="pulse-dot"></span>
+      <span>Захищено</span>
+    </div>
+  </header>
+
+  <!-- НАВІГАЦІЯ ПО ВКЛАДКАХ (4 ЗРУЧНИХ РОЗДІЛИ) -->
+  <nav class="tab-navigation">
+    <button type="button" class="tab-btn active" id="tabBtnStats">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="20" x2="18" y2="10"></line>
+        <line x1="12" y1="20" x2="12" y2="4"></line>
+        <line x1="6" y1="20" x2="6" y2="14"></line>
       </svg>
-      <span class="brand-title">Threat Shield</span>
-    </div>
-    <div class="status-pill">
-      <span class="status-dot"></span>
-      <span>Активний</span>
-    </div>
-  </div>
+      <span>Статистика</span>
+    </button>
+    <button type="button" class="tab-btn" id="tabBtnVault">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+      </svg>
+      <span>Сховище</span>
+    </button>
+    <button type="button" class="tab-btn" id="tabBtnWhitelist">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="2" y1="12" x2="22" y2="12"></line>
+        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+      </svg>
+      <span>Сайти</span>
+    </button>
+    <button type="button" class="tab-btn" id="tabBtnSettings">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"></circle>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+      </svg>
+      <span>Сесії</span>
+    </button>
+  </nav>
 
-  <!-- СЕГМЕНТОВАНИЙ ПЕРЕМИКАЧ ВКЛАДОК -->
-  <div class="segmented-control">
-    <button type="button" class="segment-btn active" id="tabBtnWhitelist">Довірені сайти</button>
-    <button type="button" class="segment-btn" id="tabBtnVault">Сховище даних (Vault)</button>
-  </div>
+  <!-- =========================================================================
+       ВКЛАДКА 1: СТАТИСТИКА ТА ОГЛЯД БЕЗПЕКИ (ПЕРША СТОРІНКА ЗА ЗАМОВЧУВАННЯМ)
+       ========================================================================= -->
+  <main class="tab-content" id="tabContentStats">
+    <!-- ГОЛОВНА КАРТКА СТАТУСУ -->
+    <div class="hero-status-card">
+      <div class="hero-shield-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          <path d="m9 12 2 2 4-4"/>
+        </svg>
+      </div>
+      <div class="hero-info">
+        <div class="hero-title">Ваш веб-захист активний</div>
+        <div class="hero-subtitle">Всі форми та чати автоматично перевіряються на шахрайські пастки.</div>
+      </div>
+    </div>
 
-  <!-- ВКЛАДКА 1: ДОВІРЕНІ САЙТИ (WHITELIST) -->
-  <div id="tabContentWhitelist">
-    <!-- ПОТОЧНИЙ САЙТ -->
-    <div class="section-label">Поточна сторінка</div>
+    <!-- СІТКА ПОКАЗНИКІВ БЛОКУВАНЬ (MOCK DATA ДЛЯ ДЕМОНСТРАЦІЇ) -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-header">
+          <div class="stat-icon purple">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
+            </svg>
+          </div>
+          <span class="stat-badge purple">+3 сьогодні</span>
+        </div>
+        <div class="stat-value" id="statBlockedScams">14</div>
+        <div class="stat-label">Загроз заблоковано</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-header">
+          <div class="stat-icon green">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+              <line x1="1" y1="10" x2="23" y2="10"></line>
+            </svg>
+          </div>
+          <span class="stat-badge green">0 витоків</span>
+        </div>
+        <div class="stat-value" id="statSavedCards">3</div>
+        <div class="stat-label">Витоки карток зупинено</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-header">
+          <div class="stat-icon blue">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+          </div>
+          <span class="stat-badge purple">Сховище</span>
+        </div>
+        <div class="stat-value" id="statProtectedMarkers">7</div>
+        <div class="stat-label">Маркерів у Vault</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-header">
+          <div class="stat-icon amber">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="1" x2="12" y2="23"></line>
+              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+            </svg>
+          </div>
+          <span class="stat-badge green">Орієнтовно</span>
+        </div>
+        <div class="stat-value" id="statSavedMoney">12 500 ₴</div>
+        <div class="stat-label">Збережено коштів</div>
+      </div>
+    </div>
+
+    <!-- ЖУРНАЛ ОСТАННІХ ПОДІЙ ЗАХИСТУ -->
     <div class="card">
-      <div class="current-site-row">
-        <span class="current-domain" id="currentHostLabel">Визначення...</span>
-        <button type="button" class="btn-action-text btn-allow" id="btnToggleCurrent" style="display: none;">
+      <div class="card-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+        <span>Останні відвернені загрози</span>
+      </div>
+      <ul class="events-list">
+        <li class="event-item">
+          <div class="event-icon-box" style="background: #fee2e2; color: #dc2626;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </div>
+          <div class="event-body">
+            <div class="event-title">Спроба відправити CVV у чаті маркетплейсу</div>
+            <div class="event-meta">
+              <span>15 хв тому</span>
+              <span>•</span>
+              <span class="event-tag safe">Заблоковано</span>
+            </div>
+          </div>
+        </li>
+
+        <li class="event-item">
+          <div class="event-icon-box" style="background: var(--proton-purple-light); color: var(--proton-purple);">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          </div>
+          <div class="event-body">
+            <div class="event-title">Підроблене посилання на «Отримання коштів»</div>
+            <div class="event-meta">
+              <span>3 год тому</span>
+              <span>•</span>
+              <span class="event-tag shield">Перехоплено</span>
+            </div>
+          </div>
+        </li>
+
+        <li class="event-item">
+          <div class="event-icon-box" style="background: var(--warning-amber-bg); color: #d97706;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <div class="event-body">
+            <div class="event-title">Фіктивний зворотний таймер (Dark Pattern)</div>
+            <div class="event-meta">
+              <span>Вчора</span>
+              <span>•</span>
+              <span class="event-tag alert">Виявлено маніпуляцію</span>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- КОРИСНА ПОРАДА ДЛЯ ПОЧАТКІВЦІВ -->
+    <div class="tip-card">
+      <div class="tip-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="16" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+      </div>
+      <div class="tip-text">
+        <strong>Порада з безпеки:</strong> Справжні служби доставки та покупці ніколи не просять вводити CVV-код чи дівоче прізвище матері для зарахування вам грошей.
+      </div>
+    </div>
+  </main>
+
+  <!-- =========================================================================
+       ВКЛАДКА 2: ПРИВАТНЕ СХОВИЩЕ (PERSONAL VAULT)
+       ========================================================================= -->
+  <section class="tab-content" id="tabContentVault" style="display: none;">
+    <!-- ПІДКАЗКА ДЛЯ ПОЧАТКІВЦІВ -->
+    <div class="info-banner">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+      </svg>
+      <div>
+        <strong>Як це працює?</strong> Вкажіть тут секретні дані, якими ви користуєтеся в банку. Якщо підозріла сторінка спробує їх виманити, розширення попередить вас або підставить безпечну пастку (декой).
+      </div>
+    </div>
+
+    <!-- АКТИВНІ МАРКЕРИ -->
+    <div class="card">
+      <div class="card-title" id="vaultTitle">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        <span>Захищені дані у сховищі</span>
+      </div>
+      <ul class="scroll-list" id="vaultUl">
+        <li class="list-entry" style="justify-content: center; color: var(--text-muted);">
+          Сховище пусте
+        </li>
+      </ul>
+    </div>
+
+    <!-- ФОРМА ДОДАВАННЯ МАРКЕРА -->
+    <div class="card">
+      <div class="card-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        <span>Додати нові конфіденційні дані</span>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="vaultCategorySelect">Тип конфіденційних даних:</label>
+        <select id="vaultCategorySelect" class="select-field">
+          <option value="MOTHER_MAIDEN_NAME">1. Дівоче прізвище матері (Абсолютний маркер)</option>
+          <option value="TAX_ID">2. РНОКПП / ІПН (Податковий номер)</option>
+          <option value="SECRET_WORD">3. Секретне / Кодове слово банку</option>
+          <option value="PASSPORT_ID">4. Номер паспорта / ID-картки</option>
+          <option value="DATE_OF_BIRTH">5. Дата народження</option>
+          <option value="FINANCIAL_PHONE">6. Фінансовий номер телефону</option>
+          <option value="FATHER_NAME">7. Ім'я батька / по батькові</option>
+          <option value="CUSTOM">Інший власний маркер</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="vaultLabelInput">Зрозуміла назва:</label>
+        <input type="text" id="vaultLabelInput" class="input-field" placeholder="Дівоче прізвище матері" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="vaultRealInput">Ваше справжнє значення (суворо конфіденційно):</label>
+        <input type="text" id="vaultRealInput" class="input-field" placeholder="Людмила" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="vaultDecoyInput">Безпечна підстановка (декой для шахраїв):</label>
+        <input type="text" id="vaultDecoyInput" class="input-field" placeholder="Оксана" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="vaultKeywordsInput">Слова для пошуку (UK / EN / RU через кому):</label>
+        <input type="text" id="vaultKeywordsInput" class="input-field" placeholder="дівоче, прізвище матері, maiden" />
+      </div>
+
+      <button type="button" class="btn-action-primary" id="btnAddVaultItem" style="width: 100%; height: 34px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><polyline points="20 6 9 17 4 12"/></svg>
+        <span>Зберегти в захищене сховище</span>
+      </button>
+    </div>
+
+    <div class="action-row">
+      <button type="button" class="btn-secondary" id="btnResetVaultDefaults">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+        <span>Відновити стандартні</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       ВКЛАДКА 3: ДОВІРЕНІ САЙТИ (WHITELIST)
+       ========================================================================= -->
+  <section class="tab-content" id="tabContentWhitelist" style="display: none;">
+    <!-- ПОТОЧНА СТОРІНКА -->
+    <div class="card">
+      <div class="card-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="2" y1="12" x2="22" y2="12"></line>
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+        </svg>
+        <span>Поточний сайт у вкладці</span>
+      </div>
+      <div class="current-site-bar">
+        <div class="site-domain-box">
+          <span class="site-icon-dot"></span>
+          <span class="site-domain-text" id="currentHostLabel">Визначення...</span>
+        </div>
+        <button type="button" class="btn-action-primary" id="btnToggleCurrent" style="display: none; padding: 4px 10px; font-size: 11px;">
           Довіряти
         </button>
       </div>
     </div>
 
-    <!-- БІЛИЙ СПИСОК -->
-    <div class="section-label" id="whitelistTitle">Довірені сайти</div>
+    <!-- СПИСОК ДОВІРЕНИХ САЙТІВ -->
     <div class="card">
-      <div class="input-row">
-        <input type="text" class="input-field" id="manualHostInput" placeholder="myshop.ua" />
-        <button type="button" class="btn-add" id="btnAddManual">Додати</button>
+      <div class="card-title" id="whitelistTitle">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 11 12 14 22 4"></polyline>
+          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+        </svg>
+        <span>Список довірених ресурсів</span>
       </div>
-      <ul class="whitelist-container" id="whitelistUl">
-        <li class="empty-note">Немає доданих сайтів</li>
+
+      <div class="input-row" style="margin-bottom: 10px;">
+        <input type="text" class="input-field" id="manualHostInput" placeholder="myshop.ua або bank.ua" />
+        <button type="button" class="btn-action-primary" id="btnAddManual" style="padding: 0 14px;">
+          Додати
+        </button>
+      </div>
+
+      <ul class="scroll-list" id="whitelistUl">
+        <li class="list-entry" style="justify-content: center; color: var(--text-muted);">
+          Немає доданих сайтів
+        </li>
       </ul>
     </div>
 
-    <!-- НАЛАШТУВАННЯ ТА СКИДАННЯ -->
-    <div class="section-label">Керування сесіями</div>
-    <div class="footer-row">
-      <button type="button" class="btn-subtle" id="btnResetContext">Скинути контекст</button>
-      <button type="button" class="btn-subtle btn-subtle-danger" id="btnClearAllWhitelist">Очистити список</button>
+    <!-- ДІЇ ЗІ СПИСКОМ -->
+    <div class="action-row">
+      <button type="button" class="btn-secondary btn-secondary-danger" id="btnClearAllWhitelist">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+        <span>Очистити весь список</span>
+      </button>
     </div>
-  </div>
+  </section>
 
-  <!-- ВКЛАДКА 2: СХОВИЩЕ ДАНИХ ТА CANARY DECOYS (VAULT) -->
-  <div id="tabContentVault" style="display: none;">
-    <!-- АКТИВНІ МАРКЕРИ -->
-    <div class="section-label" id="vaultTitle">Захищені маркери (3)</div>
+  <!-- =========================================================================
+       ВКЛАДКА 4: СЕСІЇ ТА НАЛАШТУВАННЯ (SETTINGS & CONTEXT)
+       ========================================================================= -->
+  <section class="tab-content" id="tabContentSettings" style="display: none;">
+    <!-- ЗШИВАННЯ СЕСІЙ -->
     <div class="card">
-      <ul class="vault-container" id="vaultUl">
-        <li class="empty-note">Сховище пусте</li>
-      </ul>
+      <div class="card-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+        </svg>
+        <span>Зшивання розірваних сесій (Cross-Session)</span>
+      </div>
+      <p style="font-size: 11.5px; color: var(--text-secondary); line-height: 1.4; margin-bottom: 12px;">
+        Якщо вас намагалися вивести із чату OLX чи Viber на сторонній сайт, розширення активує 15-хвилинне вікно пильності для захисту банківських форм.
+      </p>
+      <button type="button" class="btn-secondary" id="btnResetContext" style="width: 100%;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+        <span>Скинути стан тривоги (Tainted Context)</span>
+      </button>
     </div>
 
-    <!-- ФОРМА ДОДАВАННЯ МАРКЕРА -->
-    <div class="section-label">Додати новий маркер</div>
+    <!-- ПРО СИСТЕМУ ЗАХИСТУ -->
     <div class="card">
-      <div class="form-group">
-        <label class="form-label" for="vaultCategorySelect">Тип маркера відновлення:</label>
-        <select id="vaultCategorySelect" class="select-field">
-          <option value="MOTHER_MAIDEN_NAME">1. Дівоче прізвище матері (Tier A)</option>
-          <option value="TAX_ID">2. РНОКПП / ІПН (Податковий номер)</option>
-          <option value="SECRET_WORD">3. Секретне / Кодове слово (Tier A)</option>
-          <option value="PASSPORT_ID">4. Номер паспорта / ID-картки</option>
-          <option value="DATE_OF_BIRTH">5. Дата народження</option>
-          <option value="FINANCIAL_PHONE">6. Фінансовий номер телефону</option>
-          <option value="FATHER_NAME">7. Ім'я батька / по батькові</option>
-          <option value="CUSTOM">Інший персональний маркер</option>
-        </select>
+      <div class="card-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="16" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+        <span>Конфіденційність та On-Device аналіз</span>
       </div>
-      <div class="form-group">
-        <label class="form-label" for="vaultLabelInput">Назва поля:</label>
-        <input type="text" id="vaultLabelInput" class="input-field" placeholder="Дівоче прізвище матері" />
+      <div style="display: flex; flex-direction: column; gap: 8px; font-size: 11.5px; color: var(--text-secondary);">
+        <div style="display: flex; justify-content: space-between;">
+          <span>Режим обробки:</span>
+          <strong style="color: var(--success-green);">100% Локально (On-Device)</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between;">
+          <span>Передача на сервери:</span>
+          <strong style="color: var(--text-primary);">Вимкнена (Повний Дзен)</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between;">
+          <span>Версія системи:</span>
+          <strong style="color: var(--text-primary);">v0.2.0 (Proton Edition)</strong>
+        </div>
       </div>
-      <div class="form-group">
-        <label class="form-label" for="vaultRealInput">Справжнє секретне значення:</label>
-        <input type="text" id="vaultRealInput" class="input-field" placeholder="Людмила" />
-      </div>
-      <div class="form-group">
-        <label class="form-label" for="vaultDecoyInput">Безпечний декой (Canary Decoy):</label>
-        <input type="text" id="vaultDecoyInput" class="input-field" placeholder="Оксана" />
-      </div>
-      <div class="form-group">
-        <label class="form-label" for="vaultKeywordsInput">Ключові слова пошуку (через кому):</label>
-        <input type="text" id="vaultKeywordsInput" class="input-field" placeholder="дівоче, прізвище матері, maiden" />
-      </div>
-      <button type="button" class="btn-primary-block" id="btnAddVaultItem">Зберегти в сховище</button>
     </div>
+  </section>
 
-    <!-- КЕРУВАННЯ СХОВИЩЕМ -->
-    <div class="section-label">Скидання сховища</div>
-    <div class="footer-row">
-      <button type="button" class="btn-subtle" id="btnResetVaultDefaults">Відновити стандартні</button>
-    </div>
-  </div>
-
+  <!-- СИСТЕМНИЙ ТОСТ ДЛЯ СПОВІЩЕНЬ -->
   <div id="toastMessage" class="toast-pill">Налаштування оновлено</div>
 
   <script type="module" src="./main.ts"></script>
