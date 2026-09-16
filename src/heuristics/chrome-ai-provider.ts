@@ -14,10 +14,14 @@ export class ChromeBuiltinAIProvider implements IAIProvider {
     if (!provider) return false;
     
     try {
-      const capabilities = await provider.capabilities();
-      return capabilities.available === 'readily' || capabilities.available === 'after-download';
-    } catch {
-      return false;
+      if (typeof provider.capabilities === 'function') {
+        const capabilities = await provider.capabilities();
+        return capabilities?.available === 'readily' || capabilities?.available === 'after-download';
+      }
+      return typeof provider.create === 'function';
+    } catch (e) {
+      console.warn('[ThreatShield:AI] provider.capabilities() threw an error, falling back to create check:', e);
+      return typeof provider.create === 'function';
     }
   }
 
@@ -29,17 +33,29 @@ export class ChromeBuiltinAIProvider implements IAIProvider {
 
     let session;
     try {
-      session = await provider.create({
-        systemPrompt: `You are a cybersecurity AI analyzing a chat message for social engineering or scams.
+      try {
+        session = await provider.create({
+          systemPrompt: `You are a cybersecurity AI analyzing a chat message for social engineering or scams.
 Follow these rules strictly:
 1. You must respond ONLY with a valid JSON object. Do not include markdown code blocks (\`\`\`json).
 2. The JSON format must be exactly: {"isScam": boolean, "confidence": number, "reasoning": "string"}
 3. Confidence is 0-100.
 Context of the scam we are looking for: ${contextRules}`,
-        temperature: 0.1, // low temp for deterministic JSON output
-      });
+          temperature: 0.1,
+        });
+      } catch (e) {
+        console.warn('[ThreatShield:AI] create(options) failed, trying create() without options...', e);
+        session = await provider.create();
+      }
 
-      const prompt = `Analyze this message and return the JSON: "${text}"`;
+      const prompt = `System Instructions: You are a cybersecurity AI analyzing a chat message for social engineering or scams.
+Strict Rules:
+1. You must respond ONLY with a valid JSON object. Do not include markdown code blocks.
+2. The JSON format must be exactly: {"isScam": boolean, "confidence": number, "reasoning": "string"}
+3. Confidence is 0-100.
+Context of the scam we are looking for: ${contextRules}
+
+User Message to Analyze: "${text}"`;
       const responseText = await session.prompt(prompt);
       
       // Attempt to parse JSON safely
