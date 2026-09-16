@@ -6,6 +6,13 @@ import { ChromeBuiltinAIProvider } from '../src/heuristics/chrome-ai-provider';
 export default defineBackground(() => {
   console.log('[ThreatShield:Background] Service Worker активовано');
 
+  chrome.runtime.onInstalled.addListener(() => {
+    // Allow content scripts to read/write to session storage
+    if (chrome.storage && chrome.storage.session) {
+      chrome.storage.session.setAccessLevel({ accessLevel: 'TRUSTED_AND_UNTRUSTED_CONTEXTS' }).catch(console.error);
+    }
+  });
+
   // Слухач повідомлень від Content Scripts
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     const tabId = sender.tab?.id;
