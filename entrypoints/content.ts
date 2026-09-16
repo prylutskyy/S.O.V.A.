@@ -283,6 +283,15 @@ export default defineContentScript({
         assessment.contextActive = true;
       }
 
+      if (debugMode) {
+        DebuggerOverlay.log('Форма: Оцінка Ризику', `${assessment.score} балів (Рівень: ${assessment.level})`, assessment.score >= 50 ? '#EF4444' : '#F59E0B');
+        if (assessment.triggers.length > 0) {
+          DebuggerOverlay.log('Форма: Спрацьовані Тригери', assessment.triggers.map(t => `${t.name} (+${t.scoreContribution})`), '#F59E0B');
+        } else {
+          DebuggerOverlay.log('Форма: Спрацьовані Тригери', 'Немає тригерів', '#22C55E');
+        }
+      }
+
       return { assessment, formState, targetHost };
     };
 
@@ -451,11 +460,21 @@ export default defineContentScript({
       if (selection) {
         const scan = IntentClassifier.classify(selection);
         if (debugMode) {
-          DebuggerOverlay.log('Input Text (Copy)', selection, '#9CA3AF');
-          if (scan.clustersDetected.length > 0) DebuggerOverlay.log('Clusters', scan.clustersDetected, '#EAB308');
+          DebuggerOverlay.log('Буфер Обміну (Copy)', selection, '#9CA3AF');
+          if (scan.clustersDetected.length > 0) {
+            DebuggerOverlay.log('Копіювання: Кластери', scan.clustersDetected, '#EAB308');
+          }
+          if (scan.matchedSpans && scan.matchedSpans.length > 0) {
+            DebuggerOverlay.log('Копіювання: Тригерні Слова', scan.matchedSpans.map(s => s.text), '#F59E0B');
+          }
+          if (scan.hasFormedIntent) {
+            DebuggerOverlay.log('Копіювання: Класифікація', scan.intentType, '#EF4444');
+          } else {
+            DebuggerOverlay.log('Копіювання: Класифікація', 'Безпечно', '#22C55E');
+          }
         }
+
         if (scan.hasFormedIntent) {
-          if (debugMode) DebuggerOverlay.log('3. Intent Formed!', scan.intentType, '#EF4444');
           GlobalInputInterceptor.setSoftLock(true);
           ToastNotifier.show('ШІ аналізує скопійований текст...', 'info', 2000);
           

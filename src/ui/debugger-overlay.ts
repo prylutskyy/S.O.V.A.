@@ -1,6 +1,7 @@
 export class DebuggerOverlay {
   private static container: HTMLElement | null = null;
   private static logsList: HTMLElement | null = null;
+  private static logElements: Map<string, HTMLElement> = new Map();
   private static isDragging = false;
   private static offsetX = 0;
   private static offsetY = 0;
@@ -45,18 +46,39 @@ export class DebuggerOverlay {
     });
     header.innerText = 'Threat Shield Pipeline';
 
+    const headerControls = document.createElement('div');
+    headerControls.style.display = 'flex';
+    headerControls.style.gap = '10px';
+
+    const clearBtn = document.createElement('span');
+    clearBtn.innerText = 'Очистити';
+    Object.assign(clearBtn.style, {
+      cursor: 'pointer',
+      fontSize: '10px',
+      color: '#4ADE80',
+      textTransform: 'uppercase'
+    });
+    clearBtn.onclick = () => {
+      this.clear();
+    };
+
     const closeBtn = document.createElement('span');
-    closeBtn.innerText = '×';
+    closeBtn.innerText = 'x';
     Object.assign(closeBtn.style, {
       cursor: 'pointer',
-      fontSize: '16px',
-      color: '#aaa'
+      fontSize: '14px',
+      color: '#aaa',
+      marginLeft: '10px'
     });
     closeBtn.onclick = () => {
       this.container?.remove();
       this.container = null;
+      this.logElements.clear();
     };
-    header.appendChild(closeBtn);
+
+    headerControls.appendChild(clearBtn);
+    headerControls.appendChild(closeBtn);
+    header.appendChild(headerControls);
 
     this.logsList = document.createElement('div');
     Object.assign(this.logsList.style, {
@@ -98,33 +120,51 @@ export class DebuggerOverlay {
     }
   }
 
+  public static clear() {
+    if (this.logsList) {
+      this.logsList.innerHTML = '';
+      this.logElements.clear();
+    }
+  }
+
   public static log(step: string, data: any, color: string = '#4ADE80') {
     this.show();
     if (!this.logsList) return;
 
-    const logItem = document.createElement('div');
-    Object.assign(logItem.style, {
-      borderLeft: `3px solid ${color}`,
-      paddingLeft: '8px',
-      backgroundColor: 'rgba(255,255,255,0.05)',
-      padding: '6px',
-      borderRadius: '4px'
-    });
+    let logItem = this.logElements.get(step);
+    let dataLabel: HTMLElement;
 
-    const stepLabel = document.createElement('div');
-    stepLabel.style.fontWeight = 'bold';
-    stepLabel.style.color = color;
-    stepLabel.innerText = step;
-    
-    const dataLabel = document.createElement('div');
-    dataLabel.style.marginTop = '4px';
-    dataLabel.style.wordBreak = 'break-word';
+    if (!logItem) {
+      logItem = document.createElement('div');
+      Object.assign(logItem.style, {
+        borderLeft: `3px solid ${color}`,
+        paddingLeft: '8px',
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        padding: '6px',
+        borderRadius: '4px'
+      });
+
+      const stepLabel = document.createElement('div');
+      stepLabel.style.fontWeight = 'bold';
+      stepLabel.style.color = color;
+      stepLabel.innerText = step;
+      
+      dataLabel = document.createElement('div');
+      dataLabel.style.marginTop = '4px';
+      dataLabel.style.wordBreak = 'break-word';
+
+      logItem.appendChild(stepLabel);
+      logItem.appendChild(dataLabel);
+
+      this.logsList.appendChild(logItem);
+      this.logElements.set(step, logItem);
+    } else {
+      // Update color and text of existing element
+      logItem.style.borderLeftColor = color;
+      (logItem.children[0] as HTMLElement).style.color = color;
+      dataLabel = logItem.children[1] as HTMLElement;
+    }
+
     dataLabel.innerText = typeof data === 'object' ? JSON.stringify(data, null, 2) : String(data);
-
-    logItem.appendChild(stepLabel);
-    logItem.appendChild(dataLabel);
-
-    this.logsList.appendChild(logItem);
-    this.logsList.scrollTop = this.logsList.scrollHeight;
   }
 }

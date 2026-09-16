@@ -251,12 +251,36 @@ export class ChatChannelMonitor {
 
     // Використовуємо stateful-класифікатор, який пам'ятає попередні повідомлення
     const scan = ChatSessionState.addMessageAndEvaluate(text, 'inbound');
-    if (this.debugMode) {
-      DebuggerOverlay.log('Input Text', text, '#9CA3AF');
-      if (scan.normalizedText !== text) DebuggerOverlay.log('1. Normalized (Tier 1)', scan.normalizedText, '#3B82F6');
-      if (scan.clustersDetected.length > 0) DebuggerOverlay.log('2. Clusters Matched', scan.clustersDetected, '#EAB308');
-      if (scan.suspiciousUrls && scan.suspiciousUrls.length > 0) DebuggerOverlay.log('2. UrlExtractor', scan.suspiciousUrls, '#EAB308');
-    }
+      if (this.debugMode) {
+        DebuggerOverlay.log('Текст повідомлення', text, '#9CA3AF');
+        
+        if (scan.normalizedText !== text) {
+          DebuggerOverlay.log('1. Нормалізація', scan.normalizedText, '#3B82F6');
+        }
+        
+        if (scan.clustersDetected.length > 0) {
+          DebuggerOverlay.log('2. Виявлені Кластери', scan.clustersDetected, '#EAB308');
+        }
+        
+        if (scan.matchedSpans && scan.matchedSpans.length > 0) {
+          const triggerWords = scan.matchedSpans.map(s => s.text);
+          DebuggerOverlay.log('2a. Тригерні Слова', triggerWords, '#F59E0B');
+        }
+
+        if (scan.suspiciousUrls && scan.suspiciousUrls.length > 0) {
+          DebuggerOverlay.log('2b. Підозрілі Лінійки (URLs)', scan.suspiciousUrls, '#EF4444');
+        }
+        
+        if (scan.hasFormedIntent) {
+          DebuggerOverlay.log('3. Класифікація Загрози', {
+            intent: scan.intentType,
+            confidence: `${scan.confidence}%`,
+            action: scan.confidence && scan.confidence >= 50 ? 'Hard Lock (Блокування)' : 'Soft Lock (Попередження)'
+          }, '#EF4444');
+        } else {
+          DebuggerOverlay.log('3. Класифікація Загрози', 'Загрози не виявлено', '#22C55E');
+        }
+      }
 
     // Важлива логіка: жертва може процитувати шахрая "Платити на цей номер 4149...",
     // це є вихідний текст і ми зупинимо це як leakage даних!
