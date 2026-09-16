@@ -86,4 +86,21 @@ describe('IntentClassifier', () => {
       expect(result.hasFormedIntent).toBe(false);
     });
   });
+
+  describe('Fuzzy Matching & Obfuscation Defeat', () => {
+    it('should detect highly obfuscated delivery scams', () => {
+      const obfuscatedText = 'Оформляйте 0 л x д 0 с т a в к у і я скину посилання httрs://fake.com';
+      const result = IntentClassifier.classify(obfuscatedText);
+
+      expect(result.hasFormedIntent).toBe(true);
+      expect(result.intentType).toBe('ESCROW_DELIVERY_SCAM');
+    });
+
+    it('should detect off-platform redirects even with weird characters', () => {
+      const text = 'переходь у v 1 b е r';
+      const result = IntentClassifier.classify(text);
+      expect(result.hasFormedIntent).toBe(true);
+      expect(result.intentType).toBe('OFF_PLATFORM_REDIRECT');
+    });
+  });
 });

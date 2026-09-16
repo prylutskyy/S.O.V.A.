@@ -1,0 +1,96 @@
+export class TextNormalizer {
+  /**
+   * Словник для заміни символів-двійників (homoglyphs) та цифр на відповідні кириличні літери.
+   */
+  private static readonly homoglyphMap: Record<string, string> = {
+    // Латиниця -> Кирилиця
+    'a': 'а',
+    'c': 'с',
+    'e': 'е',
+    'o': 'о',
+    'p': 'р',
+    'x': 'х',
+    'y': 'у',
+    'i': 'і',
+    // Цифри -> Кирилиця
+    '0': 'о',
+    '1': 'і',
+    '3': 'з',
+    '4': 'ч',
+    '6': 'б'
+  };
+
+  /**
+   * Нормалізує текст для протидії обфускації:
+   * 1. Переводить у нижній регістр
+   * 2. Видаляє пробіли та специфічні символи розділення всередині слів (о п л а т а -> оплата)
+   * 3. Замінює символи-двійники
+   * 
+   * УВАГА: Ця функція оптимізована для пошуку ключових слів. 
+   * Вона видаляє всі пробіли, тому результат — це суцільний рядок.
+   * Використовувати тільки для перевірки через Regex/Fuzzy алгоритми!
+   */
+  public static normalizeForMatching(text: string): string {
+    if (!text) return '';
+
+    // 1. Нижній регістр
+    let normalized = text.toLowerCase();
+
+    // 2. Видалення пробілів, дефісів, крапок, ком, нижніх підкреслень 
+    // (які часто використовують шахраї для розділення літер)
+    normalized = normalized.replace(/[\s\-_.,!?'"~*^]/g, '');
+
+    // 3. Заміна гомогліфів
+    let result = '';
+    for (let i = 0; i < normalized.length; i++) {
+      const char = normalized[i];
+      result += this.homoglyphMap[char] || char;
+    }
+
+    return result;
+  }
+
+  /**
+   * Створює масив слів, де кожне слово нормалізоване (але пробіли між оригінальними словами збережені).
+   * Автоматично "склеює" літери, якщо шахрай написав слово через пробіл (о п л а т а -> оплата).
+   */
+  public static normalizeWords(text: string): string {
+    if (!text) return '';
+
+    // 1. Попередня заміна гомогліфів та нижній регістр для всього тексту
+    let preNormalized = '';
+    const lower = text.toLowerCase();
+    for (let i = 0; i < lower.length; i++) {
+      const char = lower[i];
+      preNormalized += this.homoglyphMap[char] || char;
+    }
+
+    // 2. Розбиваємо по пробілах, видаляємо пунктуацію
+    const tokens = preNormalized
+      .split(/\s+/)
+      .map(word => word.replace(/[\-_.,!?'"~*^]/g, ''))
+      .filter(w => w.length > 0);
+
+    // 3. Склеювання поодиноких літер (о п л а т а -> оплата)
+    const resultTokens: string[] = [];
+    let currentWord = '';
+
+    for (let i = 0; i < tokens.length; i++) {
+      const token = tokens[i];
+      if (token.length === 1) {
+        currentWord += token;
+      } else {
+        if (currentWord.length > 0) {
+          resultTokens.push(currentWord);
+          currentWord = '';
+        }
+        resultTokens.push(token);
+      }
+    }
+    if (currentWord.length > 0) {
+      resultTokens.push(currentWord);
+    }
+
+    return resultTokens.join(' ');
+  }
+}

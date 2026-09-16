@@ -1,3 +1,5 @@
+import { TextNormalizer } from './text-normalizer';
+
 export type ScamIntentType =
   | 'ESCROW_DELIVERY_SCAM'
   | 'OFF_PLATFORM_REDIRECT'
@@ -48,7 +50,7 @@ export class IntentClassifier {
       cluster: 'delivery_action',
       weight: 30,
       patterns: [
-        /(?:olx|олх)[-_\s]?доставк[а-яіїє]*/gi,
+        /(?:оlх|олх)[-_\s]?доставк[а-яіїє]*/gi,
         /(?:я\s+вже\s+)?оформи[ла-я]*(\s+замовлення)?/gi,
         /безпечн[а-я]\s+угод[а-я]/gi,
         /перш[а-я]\s+угод[а-я]/gi,
@@ -71,16 +73,16 @@ export class IntentClassifier {
       patterns: [
         /(?:перейдіть|перевірте|виділіть|вставте|відкрийте|тисніть|клікніть|ось)\s*(?:за\s+)?(?:цим\s+)?(?:посиланн[яі]|лінк[а-я]*)/gi,
         /посиланн[яі]|лінк[а-я]*/gi,
-        /https?:\/\/[^\s]+/gi,
+        /httрs?:\/\/[^\s]+/gi,
       ],
     },
     {
       cluster: 'off_platform',
       weight: 35,
       patterns: [
-        /t\.me\/[a-z0-9_]+/gi,
-        /вайбер|viber|телеграм|telegram|в\s+тг|чат-?бот[а-я]*|боті?|ботом|whatsapp|ватсап/gi,
-        /wa\.me\/[0-9]+/gi,
+        /t\.mе\/[a-z0-9_]+/gi,
+        /вайбер|vіbеr|телеграм|tеlеgram|в\s+тг|чат-?бот[а-я]*|боті?|ботом|whatsарр|ватсап/gi,
+        /wа\.mе\/[0-9]+/gi,
       ],
     },
     {
@@ -89,7 +91,7 @@ export class IntentClassifier {
       patterns: [
         /перевірк[а-я](\s*(профіл[а-я]|даних|картк[а-я]))?/gi,
         /верифікаці[а-я](\s*(профіл[а-я]|даних|картк[а-я]))?/gi,
-        /номер\s+картки|код\s+безпеки|cvv|cvc|баланс\s+на\s+картці|залишок\s+коштів/gi,
+        /номер\s+картки|код\s+безпеки|сvv|сvс|баланс\s+на\s+картці|залишок\s+коштів/gi,
         /пароль\s+з\s+смс|код\s+з\s+смс|підтвердження\s+банку/gi,
       ],
     },
@@ -172,10 +174,12 @@ export class IntentClassifier {
   /**
    * Класифікація вхідного тексту на наявність сформованого наміру
    */
-  public static classify(text: string): IntentClassificationResult {
-    if (!text || text.trim().length < 6) {
+  public static classify(rawText: string): IntentClassificationResult {
+    if (!rawText || rawText.trim().length < 6) {
       return { hasFormedIntent: false, matchedSpans: [], clustersDetected: [] };
     }
+
+    const text = TextNormalizer.normalizeWords(rawText);
 
     const matchedSpans: IntentMatchSpan[] = [];
     const detectedClusterMap: Map<string, number> = new Map();
@@ -184,61 +188,54 @@ export class IntentClassifier {
     for (const rule of this.clusters) {
       for (const pattern of rule.patterns) {
         pattern.lastIndex = 0;
-        let match: RegExpExecArray | null;
-
+        let match;
         while ((match = pattern.exec(text)) !== null) {
-          const matchText = match[0];
-          const start = match.index;
-          const end = start + matchText.length;
+          matchedSpans.push({
+            start: match.index,
+            end: match.index + match[0].length,
+            text: match[0],
+            cluster: rule.cluster,
+          });
 
-          // Уникаємо накладання
-          const exists = matchedSpans.some(
-            (s) => Math.abs(s.start - start) < 3 && Math.abs(s.end - end) < 3
-          );
-
-          if (!exists) {
-            matchedSpans.push({
-              start,
-              end,
-              text: matchText,
-              cluster: rule.cluster,
-            });
-
-            const currentScore = detectedClusterMap.get(rule.cluster) || 0;
-            detectedClusterMap.set(rule.cluster, currentScore + rule.weight);
-          }
+          const currentMax = detectedClusterMap.get(rule.cluster) || 0;
+          detectedClusterMap.set(rule.cluster, Math.max(currentMax, rule.weight));
         }
       }
     }
 
-    if (matchedSpans.length === 0) {
-      return { hasFormedIntent: false, matchedSpans: [], clustersDetected: [] };
+    if (detectedClusterMap.size === 0) {
+      return { hasFormedIntent: false, matchedSpans, clustersDetected: [] };
     }
-
-    // Сортуємо спани за позицією в тексті
-    matchedSpans.sort((a, b) => a.start - b.start);
-    const clustersDetected = Array.from(detectedClusterMap.keys());
-    const totalScore = Array.from(detectedClusterMap.values()).reduce((a, b) => a + b, 0);
 
     // 2. Зіставлення з визначеннями намірів
     for (const def of this.intentDefinitions) {
-      const matchesRule = def.requiredClusters.some((reqList) =>
-        reqList.every((req) => clustersDetected.includes(req))
-      );
+      const activeClusters = Array.from(detectedClusterMap.keys());
+      const hasMinClusters = activeClusters.length >= def.minClusters;
 
-      if (matchesRule && clustersDetected.length >= def.minClusters && totalScore >= def.minScore) {
+      let score = 0;
+      for (const c of activeClusters) {
+        score += detectedClusterMap.get(c) || 0;
+      }
+      const hasMinScore = score >= def.minScore;
+
+      let hasRequiredPattern = false;
+      for (const requiredSet of def.requiredClusters) {
+        if (requiredSet.every((c) => activeClusters.includes(c))) {
+          hasRequiredPattern = true;
+          break;
+        }
+      }
+
+      if (hasMinClusters && hasMinScore && hasRequiredPattern) {
         const words = matchedSpans.map((s) => s.text);
-        const explanation = def.explanationTemplate(clustersDetected, words);
-        const confidence = Math.min(96, 50 + totalScore / 2);
-
         return {
           hasFormedIntent: true,
           intentType: def.type,
           intentTitle: def.title,
-          confidence: Math.round(confidence),
+          confidence: Math.min(score, 100),
           matchedSpans,
-          clustersDetected,
-          explanation,
+          clustersDetected: activeClusters,
+          explanation: def.explanationTemplate(activeClusters, words),
           whereToBeCareful: def.carefulAdvice,
         };
       }
@@ -247,7 +244,7 @@ export class IntentClassifier {
     return {
       hasFormedIntent: false,
       matchedSpans,
-      clustersDetected,
+      clustersDetected: Array.from(detectedClusterMap.keys()),
     };
   }
 }
