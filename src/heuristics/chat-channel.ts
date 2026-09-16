@@ -263,61 +263,34 @@ export class ChatChannelMonitor {
     // Ми скануємо вхідні повідомлення на наявність намірів:
     if (scan.hasFormedIntent) {
       if (this.debugMode) DebuggerOverlay.log('3. Intent Formed!', scan.intentType, '#EF4444');
-      GlobalInputInterceptor.setSoftLock(true);
-      ToastNotifier.show('ШІ перевіряє чат на наявність загроз...', 'info', 2000);
+      // TIER 1: Миттєве виявлення загрози (без виклику ШІ)
+      ToastNotifier.show('Увага! Підозрілий контекст зафіксовано.', 'error', 3000);
+      
+      this.recentLuresCache.add(text);
+      if (this.recentLuresCache.size > 50) {
+        this.recentLuresCache.clear();
+      }
 
-      // Fallback timeout
-      let hasTimedOut = false;
-      const timeoutId = setTimeout(() => {
-        hasTimedOut = true;
-        GlobalInputInterceptor.setSoftLock(false);
-        if (this.debugMode) DebuggerOverlay.log('4. AI Response (Tier 2)', 'Timeout (Took > 30s)', '#EF4444');
-        console.warn('[ThreatShield:ChatChannel] AI timeout fallback triggered');
-      }, 30000);
+      const keywords = scan.matchedSpans.map(s => s.text);
+      const suspiciousUrls = scan.suspiciousUrls || [];
+      const isOffPlatformLure = scan.clustersDetected.includes('off_platform');
 
-      const triggerWord = scan.matchedSpans?.[0]?.text;
-
-      // TIER 2: AI Verification (Gemini Nano) via Background Script
-      chrome.runtime.sendMessage({ type: 'AI_VERIFY', payload: { text, intentType: scan.intentType, triggerWord } }, (response) => {
-        if (hasTimedOut) return;
-        clearTimeout(timeoutId);
-        GlobalInputInterceptor.setSoftLock(false);
-        const aiResult = response?.aiResult;
-        if (this.debugMode) DebuggerOverlay.log('4. AI Response (Tier 2)', aiResult || 'Unavailable (Background)', '#A855F7');
-        // Якщо AI працює і каже що це не шахрайство - пропускаємо
-        if (aiResult && !aiResult.isScam) {
-          console.log('[ThreatShield:ChatChannel] AI відхилив тригер (False Positive):', aiResult.reasoning);
-          return;
-        }
-
-        ToastNotifier.show('⚠️ Обережно! Співрозмовник намагається вивести вас з платформи. Нічого не оплачуйте!', 'error', 8000);
-        this.recentLuresCache.add(text);
-        if (this.recentLuresCache.size > 50) {
-          this.recentLuresCache.clear();
-        }
-
-        const keywords = scan.matchedSpans.map(s => s.text);
-        const suspiciousUrls = scan.suspiciousUrls || [];
-        const isOffPlatformLure = scan.clustersDetected.includes('off_platform');
-
-        console.warn('[ThreatShield:ChatChannel] Зафіксовано спробу фішингу або соцінженерії:', {
-          text: text.slice(0, 80),
-          keywords,
-          urls: suspiciousUrls,
-          aiVerification: aiResult || 'Skipped/Unavailable'
-        });
-
-        if (this.onLureDetectedCallback) {
-          this.onLureDetectedCallback({
-            sourcePlatform: this.sourceHost || 'marketplace-chat',
-            text,
-            keywords,
-            isOffPlatformLure,
-            suspiciousUrls,
-            timestamp: Date.now(),
-          });
-        }
+      console.warn('[ThreatShield:ChatChannel] Виявлено загрозу (Tier 1):', {
+        text: text.slice(0, 80),
+        keywords,
+        urls: suspiciousUrls
       });
+
+      if (this.onLureDetectedCallback) {
+        this.onLureDetectedCallback({
+          sourcePlatform: this.sourceHost,
+          text,
+          keywords,
+          isOffPlatformLure,
+          suspiciousUrls,
+          timestamp: Date.now(),
+        });
+      }
     }
   }
 

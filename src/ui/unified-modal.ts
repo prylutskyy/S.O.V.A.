@@ -22,6 +22,8 @@ export interface UnifiedModalOptions {
   detectedAmount?: string;
   vaultMatches?: VaultMatchResult[];
   vaultItems?: VaultItem[];
+  rawTextToScan?: string;
+  intentType?: string;
   onProceed: (rememberDomain: boolean) => void;
   onCancel: () => void;
 }
@@ -147,6 +149,8 @@ export class UnifiedFrictionModal {
       <style>
         @keyframes tsBackdrop { from{opacity:0} to{opacity:1} }
         @keyframes tsModal { from{opacity:0;transform:scale(0.97) translateY(6px)} to{opacity:1;transform:scale(1) translateY(0)} }
+        @keyframes tsSpin { 100% { transform: rotate(360deg); } }
+        .ts-spinner { animation: tsSpin 1s linear infinite; }
         .ts-btn-primary { width:100%;height:42px;background:${C.text};color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:opacity 0.12s;font-family:${C.font}; }
         .ts-btn-primary:hover { opacity:0.84; }
         .ts-btn-override { background:transparent;border:none;color:${C.textMuted};font-size:13px;font-weight:400;cursor:not-allowed;padding:4px 0;transition:color 0.12s;font-family:${C.font}; }
@@ -201,6 +205,12 @@ export class UnifiedFrictionModal {
         <!-- PRIMARY ACTION -->
         <button id="ts-primary-btn" class="ts-btn-primary">${primaryActionLabel}</button>
 
+        <!-- AI ARBITER -->
+        <button id="ts-ai-arbiter-btn" style="width:100%;height:40px;background:#E0E7FF;color:#4338CA;border:1px solid #C7D2FE;border-radius:9px;font-size:13.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:opacity 0.12s;margin-top:10px;font-family:${C.font};">
+          🤖 Сумніваєтесь? Запитати ШІ
+        </button>
+        <div id="ts-ai-arbiter-result" style="display:none;font-size:12.5px;padding:10px;border-radius:8px;margin-top:10px;width:100%;box-sizing:border-box;font-family:${C.font};"></div>
+
         <!-- SECONDARY ROW -->
         <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding:0 2px;">
           <button id="ts-inspect-btn" class="ts-btn-link">Докладніше</button>
@@ -249,6 +259,52 @@ export class UnifiedFrictionModal {
     const inspector    = modalRoot.querySelector('#ts-inspector') as HTMLElement;
     const checkRemember= modalRoot.querySelector('#ts-remember') as HTMLInputElement;
     const btnDecoy     = modalRoot.querySelector('#ts-decoy-btn');
+
+    const btnAi = modalRoot.querySelector('#ts-ai-arbiter-btn') as HTMLButtonElement;
+    const aiResultDiv = modalRoot.querySelector('#ts-ai-arbiter-result') as HTMLElement;
+
+    if (btnAi && aiResultDiv) {
+      btnAi.addEventListener('click', () => {
+        btnAi.disabled = true;
+        btnAi.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="ts-spinner" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> ШІ аналізує... (до 30с)';
+        btnAi.style.opacity = '0.7';
+
+        try {
+          if (typeof chrome !== 'undefined' && chrome.runtime) {
+            const scanText = options.rawTextToScan || options.contextValue || '';
+            chrome.runtime.sendMessage({ type: 'AI_VERIFY', payload: { text: scanText, intentType: options.intentType || 'UNKNOWN' } }, (response) => {
+              const aiResult = response?.aiResult;
+              aiResultDiv.style.display = 'block';
+              if (!aiResult) {
+                aiResultDiv.style.background = C.redBg;
+                aiResultDiv.style.color = C.red;
+                aiResultDiv.style.border = `1px solid ${C.redBd}`;
+                aiResultDiv.innerHTML = '<b>Помилка:</b> ШІ недоступний.';
+              } else if (aiResult.isScam) {
+                aiResultDiv.style.background = C.redBg;
+                aiResultDiv.style.color = C.red;
+                aiResultDiv.style.border = `1px solid ${C.redBd}`;
+                aiResultDiv.innerHTML = '<b>ШІ підтверджує загрозу:</b> ' + aiResult.reasoning;
+              } else {
+                aiResultDiv.style.background = C.greenBg;
+                aiResultDiv.style.color = C.green;
+                aiResultDiv.style.border = `1px solid ${C.greenBd}`;
+                aiResultDiv.innerHTML = '<b>ШІ відхилив загрозу:</b> ' + aiResult.reasoning;
+                
+                // Unlock override instantly
+                if (this.countdownInterval) clearInterval(this.countdownInterval);
+                btnOverride.disabled = false;
+                btnOverride.innerText = 'Продовжити (Безпечно за версією ШІ)';
+                btnOverride.classList.add('active');
+              }
+              btnAi.style.display = 'none';
+            });
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      });
+    }
 
     let isInspectorOpen = false;
     btnInspect?.addEventListener('click', () => {

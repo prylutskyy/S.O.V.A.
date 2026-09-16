@@ -111,6 +111,47 @@ export default defineContentScript({
         window.postMessage({ type: 'THREAT_SHIELD_CONTEXT_CLEARED' }, '*');
       }
 
+      const triggerLureContext = (
+        suspiciousUrl: string,
+        keywords: string[],
+        offPlatformLure: boolean,
+        bannerSubtitle: string,
+        rawTextToScan?: string,
+        intentType?: string
+      ) => {
+        const localContext: ActiveThreatContext = {
+          suspiciousUrl,
+          keywords,
+          offPlatformLure,
+          timestamp: Date.now(),
+        };
+        activeContext = localContext;
+        SecurityFriction.showContextWarningBanner(localContext, bannerSubtitle, rawTextToScan, intentType);
+
+        try {
+          chrome.runtime.sendMessage({
+            type: 'LURE_DETECTED',
+            payload: {
+              sourcePlatform: currentHost || 'web-chat',
+              keywords,
+              offPlatformLure,
+              suspiciousUrl,
+            },
+          });
+        } catch {}
+      };
+
+      ChatChannelMonitor.init(currentHost, (event) => {
+        triggerLureContext(
+          (event.suspiciousUrls && event.suspiciousUrls[0]) || event.text,
+          event.keywords,
+          event.isOffPlatformLure,
+          event.isOffPlatformLure ? 'Зафіксовано спробу виведення в інший месенджер' : 'Зафіксовано спробу переходу за підозрілим посиланням',
+          event.text,
+          'UNKNOWN'
+        );
+      });
+
       if (event.data.type === 'THREAT_SHIELD_TRIGGER_LURE') {
         try {
           if (typeof chrome !== 'undefined' && chrome.runtime) {
