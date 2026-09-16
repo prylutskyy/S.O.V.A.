@@ -1,23 +1,16 @@
 import { ActiveThreatContext } from '../types';
+import { IStorageAdapter, ChromeSessionStorageAdapter } from './adapters/storage.adapter';
 
-const CONTEXT_STORAGE_KEY = 'tainted_context_window';
+export const CONTEXT_STORAGE_KEY = 'tainted_context_window';
 const DEFAULT_TTL_MS = 15 * 60 * 1000; // 15 хвилин життя контексту
 
 export class ContextManager {
-  /**
-   * Отримання безпечного сховища сесії (chrome.storage.session живе тільки в RAM)
-   */
-  private static getStorage(): chrome.storage.StorageArea {
-    if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.session) {
-      return chrome.storage.session;
-    }
-    return chrome.storage.local;
-  }
+  constructor(private storage: IStorageAdapter) {}
 
   /**
    * Запис активного вікна загрози (Tainted Context Window)
    */
-  public static async setTaintedContext(
+  public async setTaintedContext(
     context: Omit<ActiveThreatContext, 'timestamp' | 'ttlMs'>,
     customTtlMs: number = DEFAULT_TTL_MS
   ): Promise<ActiveThreatContext> {
@@ -27,8 +20,7 @@ export class ContextManager {
       ttlMs: customTtlMs,
     };
 
-    const storage = this.getStorage();
-    await storage.set({ [CONTEXT_STORAGE_KEY]: fullContext });
+    await this.storage.set(CONTEXT_STORAGE_KEY, fullContext);
     console.log('[ThreatShield:Context] Активовано Tainted Context Window:', fullContext);
     return fullContext;
   }
@@ -36,12 +28,9 @@ export class ContextManager {
   /**
    * Отримання поточного активного контексту з перевіркою валідності TTL
    */
-  public static async getActiveTaintedContext(): Promise<ActiveThreatContext | null> {
+  public async getActiveTaintedContext(): Promise<ActiveThreatContext | null> {
     try {
-      const storage = this.getStorage();
-      const result = await storage.get(CONTEXT_STORAGE_KEY);
-      const context: ActiveThreatContext | undefined = result[CONTEXT_STORAGE_KEY];
-
+      const context = await this.storage.get<ActiveThreatContext>(CONTEXT_STORAGE_KEY);
       if (!context) {
         return null;
       }
@@ -66,8 +55,10 @@ export class ContextManager {
   /**
    * Очищення контекстного вікна
    */
-  public static async clearTaintedContext(): Promise<void> {
-    const storage = this.getStorage();
-    await storage.remove(CONTEXT_STORAGE_KEY);
+  public async clearTaintedContext(): Promise<void> {
+    await this.storage.remove(CONTEXT_STORAGE_KEY);
   }
 }
+
+// Singleton for production use
+export const contextManager = new ContextManager(new ChromeSessionStorageAdapter());

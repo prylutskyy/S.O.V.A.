@@ -1,4 +1,4 @@
-import { ContextManager } from '../src/core/context-manager';
+import { contextManager } from '../src/core/context-manager';
 import { isWhitelisted } from '../src/core/whitelist';
 
 export default defineBackground(() => {
@@ -11,7 +11,7 @@ export default defineBackground(() => {
 
       console.warn('[ThreatShield:Background] Зафіксовано спробу виведення / соцінженерії:', message.payload);
 
-      ContextManager.setTaintedContext({
+      contextManager.setTaintedContext({
         sourcePlatform: sourcePlatform || (sender.tab?.url ? new URL(sender.tab.url).hostname : 'unknown'),
         scenario: 'ESCROW_DELIVERY_FRAUD',
         threatLevel: 'HIGH',
@@ -41,14 +41,14 @@ export default defineBackground(() => {
     }
 
     if (message.type === 'GET_ACTIVE_CONTEXT') {
-      ContextManager.getActiveTaintedContext().then((ctx) => {
+      contextManager.getActiveTaintedContext().then((ctx) => {
         sendResponse({ context: ctx });
       });
       return true;
     }
 
     if (message.type === 'CLEAR_CONTEXT') {
-      ContextManager.clearTaintedContext().then(() => {
+      contextManager.clearTaintedContext().then(() => {
         if (chrome.action) {
           chrome.action.setBadgeText({ text: '' });
         }
@@ -86,7 +86,7 @@ export default defineBackground(() => {
       try {
         const url = new URL(tab.url);
         if (url.protocol.startsWith('http')) {
-          const activeContext = await ContextManager.getActiveTaintedContext();
+          const activeContext = await contextManager.getActiveTaintedContext();
           if (activeContext && !isWhitelisted(url.hostname)) {
             console.warn(
               `[ThreatShield:Background] Виявлено відвідування невідомого домену (${url.hostname}) під час активного вікна загрози! Платформа-джерело: ${activeContext.sourcePlatform}`
