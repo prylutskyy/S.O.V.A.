@@ -60,7 +60,27 @@ export class GlobalInputInterceptor {
         if (this.hardLockContext) {
           e.preventDefault();
           e.stopImmediatePropagation();
-          ToastNotifier.show('Відправку заблоковано! Виявлено загрозу безпеці.', 'error', 3000);
+          
+          import('../ui/unified-modal').then(({ UnifiedFrictionModal }) => {
+            UnifiedFrictionModal.show({
+              type: 'chat',
+              title: 'Відправку заблоковано',
+              badgeText: 'Активна атака',
+              badgeLevel: 'CRITICAL',
+              contextLabel: 'Платформа',
+              contextValue: window.location.hostname,
+              triggers: [{ message: 'Діє глобальне блокування через виявлену спробу шахрайства або маніпуляції у чаті.', severity: 'CRITICAL' }],
+              activeContext: this.hardLockContext,
+              onProceed: () => {
+                this.hardLockContext = null;
+                import('../ui/friction').then(({ SecurityFriction }) => {
+                  SecurityFriction.removeContextWarningBanner();
+                });
+                ToastNotifier.show('Блокування знято. Повторіть дію.', 'info', 4000);
+              },
+              onCancel: () => {}
+            });
+          });
           return;
         }
       }

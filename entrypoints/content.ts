@@ -241,8 +241,8 @@ export default defineContentScript({
         heuristics.push({
           name: 'luhn_card_number_detected',
           triggered: true,
-          severity: 'HIGH',
-          scoreContribution: 60,
+          severity: 'MEDIUM',
+          scoreContribution: 40,
           message: 'У формі знайдено номер банківської картки!',
         });
       }
@@ -323,7 +323,7 @@ export default defineContentScript({
       const outbound = ChatChannelMonitor.checkOutbound(inputElement.value || '');
       const hasCvv = outbound.hasCvv || detectedCvv || isFieldCvv(inputElement);
       const vaultScan = VaultScanner.scanTextSync(inputElement.value || '');
-      const isLeaking = outbound.hasCard || hasCvv || vaultScan.matchedItems.length > 0;
+      const isLeaking = hasCvv || vaultScan.matchedItems.length > 0;
 
       if (isLeaking) {
         event.preventDefault();
