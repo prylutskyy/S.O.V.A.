@@ -23,15 +23,16 @@ export default defineBackground(() => {
         return false;
       }
       
-      const { sourcePlatform, keywords, offPlatformLure, suspiciousUrl } = message.payload;
+      const { sessionId, sourcePlatform, keywords, offPlatformLure, suspiciousUrl } = message.payload;
       console.warn(`[ThreatShield:Background] Отримано сигнал небезпеки на вкладці ${tabId}:`, message.payload);
 
       contextManager.setTaintedContext(tabId, {
+        sessionId,
         sourcePlatform: sourcePlatform || (sender.tab?.url ? new URL(sender.tab.url).hostname : 'unknown'),
-        scenario: 'ESCROW_DELIVERY_FRAUD',
+        scenario: 'UNKNOWN',
         threatLevel: 'HIGH',
-        detectedKeywords: keywords,
-        offPlatformLure,
+        detectedKeywords: keywords || [],
+        offPlatformLure: !!offPlatformLure,
         targetSuspiciousUrl: suspiciousUrl,
       }).then((ctx) => {
         if (chrome.action) {

@@ -1,6 +1,7 @@
 export type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
 
 export interface ActiveThreatContext {
+  sessionId?: string;
   sourcePlatform: string;
   scenario: string;
   threatLevel: RiskLevel;

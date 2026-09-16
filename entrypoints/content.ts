@@ -27,7 +27,12 @@ export default defineContentScript({
   matches: ['<all_urls>'],
   main() {
     GlobalInputInterceptor.init();
-    const currentHost = window.location.hostname.toLowerCase();
+    
+    let currentHost = window.location.hostname.toLowerCase();
+    if (!currentHost && window.location.protocol === 'file:') {
+      const parts = window.location.pathname.split('/');
+      currentHost = 'file://' + (parts[parts.length - 1] || 'local-file');
+    }
     const aiVerifier = new AILureVerifier(new ChromeBuiltinAIProvider());
 
     let debugMode = false;
@@ -69,7 +74,8 @@ export default defineContentScript({
       console.log('[ThreatShield:Content] Отримано спадковий контекст загрози:', ctx);
 
       if (debugMode) {
-        DebuggerOverlay.log('🔗 Зшивання Сесій (Context)', `Успадковано загрозу з: ${ctx.sourcePlatform} (+35 штрафних балів до наступних форм)`, '#EF4444');
+        const sessionLabel = ctx.sessionId ? `[${ctx.sessionId}] ` : '';
+        DebuggerOverlay.log('🔗 Зшивання Сесій (Context)', `${sessionLabel}Успадковано загрозу з: ${ctx.sourcePlatform} (+35 штрафних балів до наступних форм)`, '#EF4444');
       }
 
       if (shouldDisplayContextBanner(ctx)) {
@@ -163,7 +169,10 @@ export default defineContentScript({
       intentType?: string,
       confidence?: number
     ) => {
+      const sessionId = `#S-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+      
       const localContext: ActiveThreatContext = {
+        sessionId,
         sourcePlatform: currentHost,
         scenario: intentType || 'UNKNOWN',
         threatLevel: (confidence && confidence >= 50) ? 'HIGH' : 'LOW',
@@ -189,7 +198,8 @@ export default defineContentScript({
         chrome.runtime.sendMessage({
           type: 'LURE_DETECTED',
           payload: {
-            sourcePlatform: currentHost || 'web-chat',
+            sessionId,
+            sourcePlatform: currentHost,
             keywords,
             offPlatformLure,
             suspiciousUrl,
