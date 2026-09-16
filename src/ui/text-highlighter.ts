@@ -40,16 +40,21 @@ export class TextHighlighter {
       }
     }
 
-    // 2. Пошук CVV / CVC кодів
-    const cvvRegex = /\b(?:cvv|cvc|код безпеки)[\s:=]*([0-9]{3,4})\b/gi;
+    // 2. Пошук CVV / CVC кодів (підтримка кирилиці 'свв', 'код безпеки' та різних роздільників)
+    const cvvRegex = /(?:^|[^\p{L}\p{N}])((?:cvv|cvc|cvv2|cvc2|свв|свс|код\s*безпеки|код\s*картки|security\s*code)[\s:=_-]*[0-9]{3,4})(?:$|[^\p{L}\p{N}])/giu;
     while ((match = cvvRegex.exec(text)) !== null) {
+      const matchText = match[1];
+      const offset = match[0].indexOf(matchText);
+      const start = match.index + offset;
+      const end = start + matchText.length;
       spans.push({
-        start: match.index,
-        end: match.index + match[0].length,
-        text: match[0],
+        start,
+        end,
+        text: matchText,
         type: 'cvv',
         tooltip: '[Секретний CVV/CVC] Код безпеки ніколи не потрібен покупцю або іншій стороні!',
       });
+      cvvRegex.lastIndex = end;
     }
 
     // 3. Пошук терміну дії (у контексті наявності картки)

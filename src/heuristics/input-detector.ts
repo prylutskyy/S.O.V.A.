@@ -50,6 +50,8 @@ export function extractCardNumbersFromText(text: string): string[] {
   return [...new Set(validCards)];
 }
 
+export const CVV_IN_TEXT_REGEX = /(?:^|[^\p{L}\p{N}])(?:cvv|cvc|cvv2|cvc2|свв|свс|код\s*безпеки|код\s*картки|security\s*code)[\s:=_-]*([0-9]{3,4})(?:$|[^\p{L}\p{N}])/iu;
+
 /**
  * Комплексний аналіз вихідного тексту (повідомлення чату) на витік платіжних даних
  */
@@ -62,7 +64,7 @@ export function checkOutboundChatLeakage(text: string): {
 } {
   const cards = extractCardNumbersFromText(text);
   const hasCard = cards.length > 0;
-  const hasCvv = /\b(cvv|cvc|код безпеки)[\s:=]*\d{3,4}\b/i.test(text);
+  const hasCvv = CVV_IN_TEXT_REGEX.test(text);
 
   if (hasCard || hasCvv) {
     let reason = '';
@@ -140,9 +142,10 @@ export function getFormFilledState(form: HTMLFormElement): FormSensitiveState {
         hasFilledPassword = true;
       }
 
-      // 2. Поля CVV / CVC / Pin
-      const hasCvvInText = /\b(cvv|cvc|код безпеки)[\s:=]*\d{3,4}\b/i.test(val);
-      if ((/(cvv|cvc|pin|безпек)/i.test(descriptor) && val.length >= 2) || hasCvvInText) {
+      // 2. Поля CVV / CVC / Pin / Код безпеки
+      const hasCvvInText = CVV_IN_TEXT_REGEX.test(val);
+      const isCvvDescriptor = /(cvv|cvc|csc|pin|безпек)/i.test(descriptor);
+      if ((isCvvDescriptor && (digitsOnly.length === 3 || digitsOnly.length === 4 || val.length >= 2)) || hasCvvInText) {
         hasFilledCvv = true;
       }
 

@@ -156,6 +156,16 @@ export default defineContentScript({
         });
       }
 
+      if (formState.hasFilledCvv) {
+        heuristics.push({
+          name: 'cvv_code_detected',
+          triggered: true,
+          severity: 'CRITICAL',
+          scoreContribution: 40,
+          message: 'У формі введено секретний код безпеки банківської картки (CVV/CVC)!',
+        });
+      }
+
       let contextBonus = 0;
       if (activeContext && !isWhitelisted(currentHost)) {
         contextBonus = 35;
@@ -194,18 +204,35 @@ export default defineContentScript({
     };
 
     // =========================================================================
-    // Блокування відправки в чаті (Enter, клік на кнопку або submit форми)
+    // Блокування відправки в чаті та формах (Enter, клік на кнопку або submit форми)
     // =========================================================================
-    const interceptChatSend = (inputElement: HTMLInputElement | HTMLTextAreaElement, event: Event) => {
+    const isFieldCvv = (input: HTMLInputElement | HTMLTextAreaElement): boolean => {
+      const descriptor = `${input.name} ${input.id} ${input.placeholder} ${input.autocomplete} ${input.getAttribute('aria-label') || ''}`.toLowerCase();
+      const val = input.value?.trim() || '';
+      const digitsOnly = val.replace(/\D/g, '');
+      const isCvvDescriptor = /(cvv|cvc|csc|pin|безпек)/i.test(descriptor);
+      const isLengthMatch = (digitsOnly.length === 3 || digitsOnly.length === 4) || (val.length >= 3 && val.length <= 4);
+      return isCvvDescriptor && isLengthMatch;
+    };
+
+    const ACTIVE_INPUTS_SELECTOR =
+      'input:not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="hidden"]):not([type="file"]):not([type="checkbox"]):not([type="radio"]), textarea';
+
+    const interceptChatSend = (
+      inputElement: HTMLInputElement | HTMLTextAreaElement,
+      event: Event,
+      detectedCvv: boolean = false
+    ) => {
       if (inputElement.dataset.threatShieldApproved === 'true') {
-        console.log('[ThreatShield:Content] Відправка повідомлення в чаті дозволена (усвідомлене розблокування).');
+        console.log('[ThreatShield:Content] Відправка повідомлення дозволена (усвідомлене розблокування).');
         delete inputElement.dataset.threatShieldApproved;
         return;
       }
 
       const outbound = ChatChannelMonitor.checkOutbound(inputElement.value || '');
+      const hasCvv = outbound.hasCvv || detectedCvv || isFieldCvv(inputElement);
       const vaultScan = VaultScanner.scanTextSync(inputElement.value || '');
-      const isLeaking = outbound.hasCard || outbound.hasCvv || vaultScan.matchedItems.length > 0;
+      const isLeaking = outbound.hasCard || hasCvv || vaultScan.matchedItems.length > 0;
 
       if (isLeaking) {
         event.preventDefault();
@@ -216,7 +243,7 @@ export default defineContentScript({
           inputElement,
           {
             hasCard: outbound.hasCard,
-            hasCvv: outbound.hasCvv,
+            hasCvv,
             cards: outbound.cards,
           },
           () => {
@@ -256,21 +283,22 @@ export default defineContentScript({
         const form = btn.closest('form');
         let textInputs: (HTMLInputElement | HTMLTextAreaElement)[] = [];
         if (form) {
-          textInputs = Array.from(form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('input[type="text"], input:not([type]), textarea'));
+          textInputs = Array.from(form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>(ACTIVE_INPUTS_SELECTOR));
         } else {
           const container = btn.closest('.chat-box, .message-input, .columns, div');
           if (container) {
-            textInputs = Array.from(container.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('textarea, input[type="text"], input:not([type])'));
+            textInputs = Array.from(container.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>(ACTIVE_INPUTS_SELECTOR));
           }
         }
 
-        // Перевіряємо, чи є в полі витік реквізитів картки або маркерів Vault
+        // Перевіряємо, чи є в полі витік реквізитів картки, CVV або маркерів Vault
         for (const input of textInputs) {
           if (input.dataset.threatShieldApproved === 'true') continue;
           const outbound = ChatChannelMonitor.checkOutbound(input.value || '');
+          const hasCvv = outbound.hasCvv || isFieldCvv(input);
           const vaultScan = VaultScanner.scanTextSync(input.value || '');
-          if (outbound.hasCard || outbound.hasCvv || vaultScan.matchedItems.length > 0) {
-            interceptChatSend(input, event);
+          if (outbound.hasCard || hasCvv || vaultScan.matchedItems.length > 0) {
+            interceptChatSend(input, event, hasCvv);
             return;
           }
         }
@@ -304,9 +332,10 @@ export default defineContentScript({
 
             // 1. Перевірка на витік картки/CVV/Vault у тексті повідомлення
             const outbound = ChatChannelMonitor.checkOutbound(input.value || '');
+            const hasCvv = outbound.hasCvv || isFieldCvv(input);
             const vaultScan = VaultScanner.scanTextSync(input.value || '');
-            if (outbound.hasCard || outbound.hasCvv || vaultScan.matchedItems.length > 0) {
-              interceptChatSend(input, event);
+            if (outbound.hasCard || hasCvv || vaultScan.matchedItems.length > 0) {
+              interceptChatSend(input, event, hasCvv);
               return;
             }
 
@@ -343,16 +372,15 @@ export default defineContentScript({
           return;
         }
 
-        // Перевіряємо текстові інпути форми на витік платіжних або Vault даних
-        const textInputs = form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>(
-          'input[type="text"], input:not([type]), textarea'
-        );
+        // Перевіряємо поля форми на витік платіжних або Vault даних
+        const textInputs = form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>(ACTIVE_INPUTS_SELECTOR);
         for (const input of Array.from(textInputs)) {
           if (input.dataset.threatShieldApproved === 'true') continue;
           const outbound = ChatChannelMonitor.checkOutbound(input.value || '');
+          const hasCvv = outbound.hasCvv || isFieldCvv(input);
           const vaultScan = VaultScanner.scanTextSync(input.value || '');
-          if (outbound.hasCard || outbound.hasCvv || vaultScan.matchedItems.length > 0) {
-            interceptChatSend(input, event);
+          if (outbound.hasCard || hasCvv || vaultScan.matchedItems.length > 0) {
+            interceptChatSend(input, event, hasCvv);
             return;
           }
         }
