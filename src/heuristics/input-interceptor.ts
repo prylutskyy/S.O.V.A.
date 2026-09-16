@@ -53,14 +53,14 @@ export class GlobalInputInterceptor {
         if (this.isSoftLocked) {
           e.preventDefault();
           e.stopImmediatePropagation();
-          ToastNotifier.show('⏳ Зачекайте, штучний інтелект перевіряє безпеку чату...', 'warning', 2000);
+          ToastNotifier.show('Зачекайте, штучний інтелект перевіряє безпеку чату...', 'warning', 2000);
           return;
         }
 
         if (this.hardLockContext) {
           e.preventDefault();
           e.stopImmediatePropagation();
-          ToastNotifier.show('⛔ Відправку заблоковано! Виявлено загрозу безпеці.', 'error', 3000);
+          ToastNotifier.show('Відправку заблоковано! Виявлено загрозу безпеці.', 'error', 3000);
           return;
         }
       }

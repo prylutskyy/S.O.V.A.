@@ -18,7 +18,6 @@ import { VaultScanner } from '../src/heuristics/vault-scanner';
 import { UrgencyDetector } from '../src/heuristics/urgency-detector';
 import { RiskEngine } from '../src/core/risk-engine';
 import { SecurityFriction } from '../src/ui/friction';
-import { PopoverUI } from '../src/ui/popover-ui';
 import { ToastNotifier } from '../src/ui/toast-notifier';
 import { DebuggerOverlay } from '../src/ui/debugger-overlay';
 import { ActiveThreatContext, HeuristicResult, ThreatAssessment } from '../src/types';

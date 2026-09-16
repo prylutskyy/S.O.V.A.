@@ -207,7 +207,7 @@ export class UnifiedFrictionModal {
 
         <!-- AI ARBITER -->
         <button id="ts-ai-arbiter-btn" style="width:100%;height:40px;background:#E0E7FF;color:#4338CA;border:1px solid #C7D2FE;border-radius:9px;font-size:13.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:opacity 0.12s;margin-top:10px;font-family:${C.font};">
-          🤖 Сумніваєтесь? Запитати ШІ
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg> Сумніваєтесь? Запитати ШІ
         </button>
         <div id="ts-ai-arbiter-result" style="display:none;font-size:12.5px;padding:10px;border-radius:8px;margin-top:10px;width:100%;box-sizing:border-box;font-family:${C.font};"></div>
 
@@ -404,7 +404,7 @@ export class UnifiedFrictionModal {
 
     if (options.triggers && options.triggers.length > 0) {
       for (const t of options.triggers) {
-        const rawMsg = t.message.replace(/[⚠️🚨💳🔒💬⚡●✓✗]/g, '').trim();
+        const rawMsg = t.message.replace(/[●✓✗]/g, '').trim();
         const lower = rawMsg.toLowerCase();
         let title = 'Підозрілий патерн';
         let badge = 'Критично';

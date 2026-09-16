@@ -196,7 +196,7 @@ export class SecurityFriction {
       </div>
 
       <button id="ts-ask-ai-banner-btn" style="background:#E0E7FF;color:#4338CA;border:1px solid #C7D2FE;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:opacity 0.2s;width:100%;">
-        🤖 Сумніваєтесь? Запитати ШІ
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg> Сумніваєтесь? Запитати ШІ
       </button>
       <div id="ts-ai-banner-result" style="display:none;font-size:12px;padding:8px;border-radius:6px;width:100%;box-sizing:border-box;"></div>
     `;

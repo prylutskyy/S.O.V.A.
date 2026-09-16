@@ -475,10 +475,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     btnToggleCurrent.style.display = 'inline-flex';
     if (isAllowed) {
-      btnToggleCurrent.innerText = '✕ Прибрати з довірених';
+      btnToggleCurrent.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Прибрати з довірених';
       btnToggleCurrent.className = 'btn-danger';
     } else {
-      btnToggleCurrent.innerText = '✓ Довіряти';
+      btnToggleCurrent.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px"><polyline points="20 6 9 17 4 12"/></svg> Довіряти';
       btnToggleCurrent.className = 'btn-primary';
     }
 
