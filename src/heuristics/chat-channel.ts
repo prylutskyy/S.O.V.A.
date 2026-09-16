@@ -3,6 +3,7 @@ import { AILureVerifier } from './ai-verifier';
 import { ChromeBuiltinAIProvider } from './chrome-ai-provider';
 import { checkOutboundChatLeakage } from './input-detector';
 import { IntentHighlighter } from '../ui/intent-highlighter';
+import { DebuggerOverlay } from '../ui/debugger-overlay';
 
 export type MessageDirection = 'inbound' | 'outbound' | 'unknown';
 
@@ -29,6 +30,7 @@ export class ChatChannelMonitor {
   private static recentLuresCache: Set<string> = new Set();
   private static onLureDetectedCallback: ((event: InboundLureEvent) => void) | null = null;
   private static sourceHost: string = '';
+  public static debugMode = false;
 
   /**
    * Визначення напрямку повідомлення: Inbound (чуже/вхідне) чи Outbound (моє/вихідне)
@@ -248,14 +250,22 @@ export class ChatChannelMonitor {
     if (this.recentLuresCache.has(text)) return;
 
     const scan = IntentClassifier.classify(text);
+    if (this.debugMode) {
+      DebuggerOverlay.log('Input Text', text, '#9CA3AF');
+      if (scan.normalizedText !== text) DebuggerOverlay.log('1. Normalized (Tier 1)', scan.normalizedText, '#3B82F6');
+      if (scan.clustersDetected.length > 0) DebuggerOverlay.log('2. Clusters Matched', scan.clustersDetected, '#EAB308');
+      if (scan.suspiciousUrls && scan.suspiciousUrls.length > 0) DebuggerOverlay.log('2. UrlExtractor', scan.suspiciousUrls, '#EAB308');
+    }
 
     // Важлива логіка: жертва може процитувати шахрая "Платити на цей номер 4149...",
     // це є вихідний текст і ми зупинимо це як leakage даних!
     // Ми скануємо вхідні повідомлення на наявність намірів:
     if (scan.hasFormedIntent) {
+      if (this.debugMode) DebuggerOverlay.log('3. Intent Formed!', scan.intentType, '#EF4444');
       // TIER 2: AI Verification (Gemini Nano)
       const aiVerifier = new AILureVerifier(new ChromeBuiltinAIProvider());
       aiVerifier.verifyIntent(text, scan.intentType!).then((aiResult) => {
+        if (this.debugMode) DebuggerOverlay.log('4. AI Response (Tier 2)', aiResult || 'Unavailable', '#A855F7');
         // Якщо AI працює і каже що це не шахрайство - пропускаємо
         if (aiResult && !aiResult.isScam) {
           console.log('[ThreatShield:ChatChannel] AI відхилив тригер (False Positive):', aiResult.reasoning);
@@ -318,4 +328,6 @@ export class ChatChannelMonitor {
     this.recentLuresCache.clear();
   }
 }
+
+
 

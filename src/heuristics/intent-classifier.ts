@@ -25,6 +25,7 @@ export interface IntentClassificationResult {
   explanation?: string;
   whereToBeCareful?: string;
   suspiciousUrls?: string[];
+  normalizedText: string;
 }
 
 interface ClusterRule {
@@ -178,7 +179,7 @@ export class IntentClassifier {
    */
   public static classify(rawText: string): IntentClassificationResult {
     if (!rawText || rawText.trim().length < 6) {
-      return { hasFormedIntent: false, matchedSpans: [], clustersDetected: [] };
+      return { hasFormedIntent: false, matchedSpans: [], clustersDetected: [], normalizedText: rawText || '' };
     }
 
     const text = TextNormalizer.normalizeWords(rawText);
@@ -206,7 +207,7 @@ export class IntentClassifier {
     }
 
     if (detectedClusterMap.size === 0) {
-      return { hasFormedIntent: false, matchedSpans, clustersDetected: [] };
+      return { hasFormedIntent: false, matchedSpans, clustersDetected: [], normalizedText: text };
     }
 
     // 2. Зіставлення з визначеннями намірів
@@ -242,6 +243,7 @@ export class IntentClassifier {
           explanation: def.explanationTemplate(activeClusters, words),
           whereToBeCareful: def.carefulAdvice,
           suspiciousUrls,
+          normalizedText: text,
         };
       }
     }
@@ -251,6 +253,8 @@ export class IntentClassifier {
       matchedSpans,
       clustersDetected: Array.from(detectedClusterMap.keys()),
       suspiciousUrls: UrlExtractor.extract(rawText),
+      normalizedText: text,
     };
   }
 }
+

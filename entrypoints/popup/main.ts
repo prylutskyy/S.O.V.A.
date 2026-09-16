@@ -15,6 +15,31 @@ document.addEventListener('DOMContentLoaded', async () => {
   const tabContentWhitelist = document.getElementById('tabContentWhitelist') as HTMLElement;
   const tabContentSettings = document.getElementById('tabContentSettings') as HTMLElement;
 
+  // Init Debug Mode
+  chrome.storage.local.get(['debugModeEnabled'], (res) => {
+    toggleDebugMode.checked = !!res.debugModeEnabled;
+  });
+  toggleDebugMode.addEventListener('change', (e) => {
+    chrome.storage.local.set({ debugModeEnabled: (e.target as HTMLInputElement).checked });
+  });
+
+  // Init AI Status
+  const checkAI = async () => {
+    if (typeof (window as any).ai !== 'undefined' && (window as any).ai.languageModel) {
+      try {
+        const caps = await (window as any).ai.languageModel.capabilities();
+        aiStatusText.textContent = caps.available === 'no' ? 'Gemini Nano: Підтримується, але не завантажено' : 'Gemini Nano: Активно та готово';
+        aiStatusText.style.color = caps.available === 'no' ? 'var(--amber)' : 'var(--green)';
+      } catch {
+        aiStatusText.textContent = 'Gemini Nano: Помилка перевірки';
+      }
+    } else {
+      aiStatusText.textContent = 'Gemini Nano: Не підтримується цим браузером';
+      aiStatusText.style.color = 'var(--red)';
+    }
+  };
+  checkAI();
+
   // Stats elements
   const statProtectedMarkers = document.getElementById('statProtectedMarkers') as HTMLElement;
   const statVaultBadge = document.getElementById('statVaultBadge') as HTMLElement;
@@ -27,6 +52,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   const manualHostInput = document.getElementById('manualHostInput') as HTMLInputElement;
   const btnAddManual = document.getElementById('btnAddManual') as HTMLButtonElement;
   const btnClearAllWhitelist = document.getElementById('btnClearAllWhitelist') as HTMLButtonElement;
+  const toggleDebugMode = document.getElementById('toggleDebugMode') as HTMLInputElement;
+  const aiStatusText = document.getElementById('aiStatusText') as HTMLElement;
 
   // Settings elements
   const btnResetContext = document.getElementById('btnResetContext') as HTMLButtonElement;
@@ -521,3 +548,4 @@ document.addEventListener('DOMContentLoaded', async () => {
   // За замовчуванням першим відкриваємо розділ СТАТИСТИКИ
   await setActiveTab('stats');
 });
+

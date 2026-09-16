@@ -18,6 +18,7 @@ import { VaultScanner } from '../src/heuristics/vault-scanner';
 import { UrgencyDetector } from '../src/heuristics/urgency-detector';
 import { RiskEngine } from '../src/core/risk-engine';
 import { SecurityFriction } from '../src/ui/friction';
+import { DebuggerOverlay } from '../src/ui/debugger-overlay';
 import { PopoverUI } from '../src/ui/popover-ui';
 import { TextHighlighter } from '../src/ui/text-highlighter';
 import { ActiveThreatContext, HeuristicResult, ThreatAssessment } from '../src/types';
@@ -30,6 +31,9 @@ export default defineContentScript({
     console.log('[ThreatShield:Content] Ініціалізація на хості:', currentHost || 'local file');
 
     let activeContext: ActiveThreatContext | null = null;
+      let debugMode = false;
+      chrome.storage.local.get(['debugModeEnabled'], (res) => { debugMode = !!res.debugModeEnabled; });
+      chrome.storage.onChanged.addListener((changes) => { if (changes.debugModeEnabled) debugMode = changes.debugModeEnabled.newValue; });
 
     // Фонова асинхронна ініціалізація кешів
     UserWhitelistManager.init().catch((e) => console.error('[ThreatShield] UserWhitelist init error:', e));
@@ -536,6 +540,10 @@ export default defineContentScript({
 
         if (textToScan) {
           const scan = IntentClassifier.classify(textToScan);
+          if (debugMode) {
+            DebuggerOverlay.log('Input Text (Click)', textToScan, '#9CA3AF');
+            if (scan.clustersDetected.length > 0) DebuggerOverlay.log('Clusters', scan.clustersDetected, '#EAB308');
+          }
           if (scan.hasFormedIntent) {
             const isOffPlatformLure = scan.clustersDetected.includes('off_platform');
             triggerLureContext(
@@ -556,6 +564,10 @@ export default defineContentScript({
       const selection = getCopiedText();
       if (selection) {
         const scan = IntentClassifier.classify(selection);
+          if (debugMode) {
+            DebuggerOverlay.log('Input Text (Copy)', selection, '#9CA3AF');
+            if (scan.clustersDetected.length > 0) DebuggerOverlay.log('Clusters', scan.clustersDetected, '#EAB308');
+          }
         if (scan.hasFormedIntent) {
           const isOffPlatformLure = scan.clustersDetected.includes('off_platform');
           triggerLureContext(
@@ -571,6 +583,8 @@ export default defineContentScript({
     });
   },
 });
+
+
 
 
 
