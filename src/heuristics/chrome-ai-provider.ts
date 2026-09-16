@@ -43,7 +43,15 @@ export class ChromeBuiltinAIProvider implements IAIProvider {
     try {
       try {
         const createOptions: any = {
-          systemPrompt: `Answer ONLY with JSON {"isScam": true/false}. Is this an escrow/delivery scam?`,
+          systemPrompt: `You are a cybersecurity expert analyzing chat messages from Ukrainian marketplaces (OLX, Prom) or social networks.
+Your goal is to detect social engineering, phishing, and payment scams.
+Answer ONLY in valid JSON format.
+Required JSON schema:
+{
+  "isScam": boolean,
+  "confidence": number (0-100),
+  "reasoning": string (in Ukrainian, max 2 sentences explaining why)
+}`,
           temperature: 0.1,
         };
         if (this.abortSignal) createOptions.signal = this.abortSignal;
@@ -52,31 +60,26 @@ export class ChromeBuiltinAIProvider implements IAIProvider {
       } catch (e) {
         if (this.abortSignal?.aborted) throw e;
         console.warn('[ThreatShield:AI] create(options) failed, falling back to empty create()...', e);
-        // Do NOT pass any arguments here, some Chrome builds reject unknown objects in create()
         session = await provider.create();
       }
 
-      // 1. Інтелектуальне обрізання тексту (Sliding Window Truncation)
       let truncatedText = text;
       const MAX_LEN = 300;
-      
       if (text.length > MAX_LEN) {
         if (triggerWord && text.includes(triggerWord)) {
-          // Якщо ми знаємо тригерне слово, вирізаємо вікно навколо нього
           const triggerIndex = text.indexOf(triggerWord);
           const start = Math.max(0, triggerIndex - Math.floor(MAX_LEN / 2));
           const end = Math.min(text.length, start + MAX_LEN);
           truncatedText = (start > 0 ? '...' : '') + text.substring(start, end) + (end < text.length ? '...' : '');
         } else {
-          // Якщо тригер невідомий (або не знайдений), беремо перші 300 символів
           truncatedText = text.substring(0, MAX_LEN) + '...';
         }
       }
 
-      // 2. Спартанський промпт
-      const prompt = `Task: Analyze if this message is a scam.
-Context to look for: ${contextRules}
-Message: "${truncatedText}"`;
+      const prompt = `Analyze this message.
+Specific context/rules to consider: ${contextRules}
+Message to analyze: "${truncatedText}"
+Respond ONLY with JSON.`;
       
       let responseText = '';
       try {
@@ -87,12 +90,10 @@ Message: "${truncatedText}"`;
         responseText = await session.prompt(prompt);
       }
       
-      // Attempt to parse JSON safely
-      let cleanJson = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
-      let parsed: any = { isScam: false }; // Default fallback
+      let cleanJson = responseText.replace(/```json/gi, '').replace(/```/g, '').trim();
+      let parsed: any = { isScam: false, confidence: 0, reasoning: 'Не вдалося розпарсити відповідь ШІ.' };
       
       try {
-        // Find the first { and last } to extract JSON
         const firstBrace = cleanJson.indexOf('{');
         const lastBrace = cleanJson.lastIndexOf('}');
         if (firstBrace !== -1 && lastBrace !== -1) {
@@ -100,18 +101,19 @@ Message: "${truncatedText}"`;
         }
         parsed = JSON.parse(cleanJson);
       } catch (parseError) {
-        console.warn('[ThreatShield:AI] Failed to parse JSON, falling back to regex matching. Text:', responseText);
-        // Fallback: search for true/false textually
+        console.warn('[ThreatShield:AI] Failed to parse JSON. Text:', responseText);
         const lowerText = responseText.toLowerCase();
         if (lowerText.includes('"isscam": true') || lowerText.includes('"isscam":true')) {
           parsed.isScam = true;
+          parsed.confidence = 80;
+          parsed.reasoning = 'Виявлено ознаки шахрайства, але ШІ повернув невалідний формат.';
         }
       }
       
       return {
         isScam: parsed.isScam === true || String(parsed.isScam).toLowerCase() === 'true',
-        confidence: parsed.isScam ? 90 : 10,
-        reasoning: parsed.reasoning || (parsed.isScam ? 'Заблоковано ШІ' : 'Безпечно')
+        confidence: typeof parsed.confidence === 'number' ? parsed.confidence : (parsed.isScam ? 85 : 15),
+        reasoning: parsed.reasoning || (parsed.isScam ? 'Повідомлення відповідає патернам соціальної інженерії.' : 'Повідомлення виглядає безпечним.')
       };
     } catch (e) {
       console.error('[ThreatShield:AI] Помилка верифікації:', e);
