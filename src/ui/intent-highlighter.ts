@@ -12,7 +12,7 @@ export class IntentHighlighter {
    * Якщо класифікатор виявляє сформований намір — виділяємо слова жовтим кольором
    */
   public static highlightInboundElement(element: HTMLElement): boolean {
-    const textEl = element.querySelector<HTMLElement>('[data-testid="message"], [data-nx-name="TextContainer"], .bubble') || element;
+    const textEl = element.querySelector<HTMLElement>('[data-testid="message"], [data-nx-name="TextContainer"], .bubble, .tag, p, span') || element;
     const text = textEl.innerText?.trim() || '';
 
     if (text.length < 10) return false;

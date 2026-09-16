@@ -194,58 +194,133 @@ export default defineContentScript({
     };
 
     // =========================================================================
-    // 1. РІВЕНЬ 1: Клік по кнопці відправки форми (до події submit)
+    // Блокування відправки в чаті (Enter, клік на кнопку або submit форми)
+    // =========================================================================
+    const interceptChatSend = (inputElement: HTMLInputElement | HTMLTextAreaElement, event: Event) => {
+      if (inputElement.dataset.threatShieldApproved === 'true') {
+        console.log('[ThreatShield:Content] Відправка повідомлення в чаті дозволена (усвідомлене розблокування).');
+        delete inputElement.dataset.threatShieldApproved;
+        return;
+      }
+
+      const outbound = ChatChannelMonitor.checkOutbound(inputElement.value || '');
+      const vaultScan = VaultScanner.scanTextSync(inputElement.value || '');
+      const isLeaking = outbound.hasCard || outbound.hasCvv || vaultScan.matchedItems.length > 0;
+
+      if (isLeaking) {
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+
+        SecurityFriction.applyToChat(
+          inputElement,
+          {
+            hasCard: outbound.hasCard,
+            hasCvv: outbound.hasCvv,
+            cards: outbound.cards,
+          },
+          () => {
+            // При усвідомленому підтвердженні:
+            inputElement.dataset.threatShieldApproved = 'true';
+            const form = inputElement.closest('form');
+            if (form) {
+              form.dataset.threatShieldApproved = 'true';
+              if (typeof form.requestSubmit === 'function') {
+                form.requestSubmit();
+              } else {
+                form.submit();
+              }
+            } else {
+              inputElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }));
+            }
+          },
+          undefined,
+          activeContext
+        );
+      }
+    };
+
+    // =========================================================================
+    // 1. РІВЕНЬ 1: Клік по кнопці відправки форми або чату (до події submit)
     // =========================================================================
     document.addEventListener(
       'click',
       (event) => {
         const target = event.target as HTMLElement;
-        const submitBtn = target.closest<HTMLButtonElement | HTMLInputElement>(
-          'button[type="submit"], input[type="submit"], button:not([type])'
+        const btn = target.closest<HTMLButtonElement | HTMLInputElement>(
+          'button, input[type="submit"], input[type="button"]'
         );
-        if (!submitBtn) return;
+        if (!btn) return;
 
-        const form = submitBtn.closest('form');
-        if (!form) return;
-
-        if (form.dataset.threatShieldApproved === 'true') {
-          return;
+        // Пошук зв'язаних текстових полів (у формі або в спільному контейнері чату)
+        const form = btn.closest('form');
+        let textInputs: (HTMLInputElement | HTMLTextAreaElement)[] = [];
+        if (form) {
+          textInputs = Array.from(form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('input[type="text"], input:not([type]), textarea'));
+        } else {
+          const container = btn.closest('.chat-box, .message-input, .columns, div');
+          if (container) {
+            textInputs = Array.from(container.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('textarea, input[type="text"], input:not([type])'));
+          }
         }
 
-        const { assessment, formState, targetHost } = evaluateFormThreat(form);
-        console.log('[ThreatShield:ClickIntercept] Оцінка форми перед кліком:', { assessment, formState });
+        // Перевіряємо, чи є в полі витік реквізитів картки або маркерів Vault
+        for (const input of textInputs) {
+          if (input.dataset.threatShieldApproved === 'true') continue;
+          const outbound = ChatChannelMonitor.checkOutbound(input.value || '');
+          const vaultScan = VaultScanner.scanTextSync(input.value || '');
+          if (outbound.hasCard || outbound.hasCvv || vaultScan.matchedItems.length > 0) {
+            interceptChatSend(input, event);
+            return;
+          }
+        }
 
-        if (shouldBlock(assessment, formState, targetHost)) {
-          event.preventDefault();
-          event.stopPropagation();
-          event.stopImmediatePropagation();
-
-          // Відображаємо модальне вікно безпеки з XAI
-          SecurityFriction.apply(form, assessment, submitBtn, undefined, activeContext);
+        // Класична перевірка форми оплати (якщо це повноцінна форма)
+        if (form) {
+          if (form.dataset.threatShieldApproved === 'true') return;
+          const { assessment, formState, targetHost } = evaluateFormThreat(form);
+          if (shouldBlock(assessment, formState, targetHost)) {
+            event.preventDefault();
+            event.stopPropagation();
+            event.stopImmediatePropagation();
+            SecurityFriction.apply(form, assessment, btn, undefined, activeContext);
+          }
         }
       },
       true
     );
 
     // =========================================================================
-    // 2. РІВЕНЬ 2: Натискання Enter у полях форми
+    // 2. РІВЕНЬ 2: Натискання Enter у полях вводу чату та форм
     // =========================================================================
     document.addEventListener(
       'keydown',
       (event) => {
         if (event.key === 'Enter' && !event.shiftKey) {
           const target = event.target as HTMLElement;
-          if (target && target.tagName === 'INPUT') {
-            const form = target.closest('form');
-            if (!form || form.dataset.threatShieldApproved === 'true') return;
+          if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) {
+            const input = target as HTMLInputElement | HTMLTextAreaElement;
+            if (input.dataset.threatShieldApproved === 'true') return;
 
-            const { assessment, formState, targetHost } = evaluateFormThreat(form);
-            if (shouldBlock(assessment, formState, targetHost)) {
-              event.preventDefault();
-              event.stopPropagation();
-              event.stopImmediatePropagation();
+            // 1. Перевірка на витік картки/CVV/Vault у тексті повідомлення
+            const outbound = ChatChannelMonitor.checkOutbound(input.value || '');
+            const vaultScan = VaultScanner.scanTextSync(input.value || '');
+            if (outbound.hasCard || outbound.hasCvv || vaultScan.matchedItems.length > 0) {
+              interceptChatSend(input, event);
+              return;
+            }
 
-              SecurityFriction.apply(form, assessment, target, undefined, activeContext);
+            // 2. Якщо поле всередині традиційної форми
+            const form = input.closest('form');
+            if (form) {
+              if (form.dataset.threatShieldApproved === 'true') return;
+              const { assessment, formState, targetHost } = evaluateFormThreat(form);
+              if (shouldBlock(assessment, formState, targetHost)) {
+                event.preventDefault();
+                event.stopPropagation();
+                event.stopImmediatePropagation();
+                SecurityFriction.apply(form, assessment, target, undefined, activeContext);
+              }
             }
           }
         }
@@ -268,8 +343,21 @@ export default defineContentScript({
           return;
         }
 
-        const { assessment, formState, targetHost } = evaluateFormThreat(form);
+        // Перевіряємо текстові інпути форми на витік платіжних або Vault даних
+        const textInputs = form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>(
+          'input[type="text"], input:not([type]), textarea'
+        );
+        for (const input of Array.from(textInputs)) {
+          if (input.dataset.threatShieldApproved === 'true') continue;
+          const outbound = ChatChannelMonitor.checkOutbound(input.value || '');
+          const vaultScan = VaultScanner.scanTextSync(input.value || '');
+          if (outbound.hasCard || outbound.hasCvv || vaultScan.matchedItems.length > 0) {
+            interceptChatSend(input, event);
+            return;
+          }
+        }
 
+        const { assessment, formState, targetHost } = evaluateFormThreat(form);
         if (shouldBlock(assessment, formState, targetHost)) {
           event.preventDefault();
           event.stopPropagation();
@@ -310,136 +398,56 @@ export default defineContentScript({
     });
 
     // =========================================================================
-    // Блокування відправки в чаті (Enter або кнопка Надіслати) із викликом модального вікна
+    // 5. УНІВЕРСАЛЬНИЙ МОНІТОРИНГ ЧАТІВ ТА СОЦІНЖЕНЕРНИХ ПРИМАНОК (ДІЄ НА ВСІХ САЙТАХ)
     // =========================================================================
-    const interceptChatSend = (inputElement: HTMLInputElement | HTMLTextAreaElement, event: Event) => {
-      if (inputElement.dataset.threatShieldApproved === 'true') {
-        console.log('[ThreatShield:Content] Відправка повідомлення в чаті дозволена (усвідомлене розблокування).');
-        delete inputElement.dataset.threatShieldApproved;
-        return;
+    ChatChannelMonitor.init(
+      currentHost || 'web-chat',
+      (lureEvent) => {
+        console.log('[ThreatShield:ChatChannel] Виявлено соцінженерне повідомлення в чаті (пасивний моніторинг):', lureEvent);
       }
-
-      const outbound = ChatChannelMonitor.checkOutbound(inputElement.value || '');
-      const vaultScan = VaultScanner.scanTextSync(inputElement.value || '');
-      const isLeaking = outbound.hasCard || outbound.hasCvv || vaultScan.matchedItems.length > 0;
-
-      if (isLeaking) {
-        event.preventDefault();
-        event.stopPropagation();
-        event.stopImmediatePropagation();
-
-        SecurityFriction.applyToChat(
-          inputElement,
-          {
-            hasCard: outbound.hasCard,
-            hasCvv: outbound.hasCvv,
-            cards: outbound.cards,
-          },
-          () => {
-            // При усвідомленому підтвердженні:
-            inputElement.dataset.threatShieldApproved = 'true';
-            inputElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }));
-          },
-          undefined,
-          activeContext
-        );
-      }
-    };
-
-    // 1. Натискання Enter у полі чату
-    document.addEventListener(
-      'keydown',
-      (event) => {
-        if (event.key === 'Enter' && !event.shiftKey) {
-          const target = event.target as HTMLElement;
-          if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) {
-            if (!target.closest('form')) {
-              interceptChatSend(target as HTMLInputElement | HTMLTextAreaElement, event);
-            }
-          }
-        }
-      },
-      true
     );
 
-    // 2. Клік по кнопці відправки чату (поза формою)
     document.addEventListener(
       'click',
       (event) => {
-        const target = event.target as HTMLElement;
-        const btn = target.closest<HTMLButtonElement>('button, input[type="button"]');
-        if (!btn || btn.closest('form')) return;
-
-        // Пошук зв'язаного інпуту чату
-        const container = btn.closest('.chat-box, .message-input, div');
-        const chatInput = container?.querySelector<HTMLInputElement | HTMLTextAreaElement>('textarea, input[type="text"]');
-        if (chatInput && (chatInput.tagName === 'TEXTAREA' || chatInput.tagName === 'INPUT')) {
-          interceptChatSend(chatInput, event);
-        }
-      },
-      true
-    );
-
-    // =========================================================================
-    // 5. ДЕТЕКЦІЯ СОЦІНЖЕНЕРІЇ ТА РОЗМЕЖУВАННЯ ВХІДНИХ/ВИХІДНИХ ПОВІДОМЛЕНЬ ЧАТУ
-    // =========================================================================
-    const isPlatform = isMonitoredPlatform(currentHost) || window.location.protocol === 'file:';
-
-    if (isPlatform) {
-      ChatChannelMonitor.init(
-        currentHost || 'marketplace-chat',
-        (lureEvent) => {
-          console.log('[ThreatShield:ChatChannel] Виявлено соцінженерне повідомлення в чаті (пасивний моніторинг):', lureEvent);
-          // Важливо: пасивне виявлення повідомлення в чаті НЕ надсилає LURE_DETECTED і НЕ зшиває сесії завчасно!
-          // Зшивання сесій (Tainted Context Window) активується ТІЛЬКИ при реальній дії користувача:
-          // 1) Клік по підозрілому посиланню (обробник 'click' по <a> нижче)
-          // 2) Копіювання тексту або посилання бота в буфер обміну (обробник 'copy' нижче)
-          // 3) Або явний запуск симуляції на тестовому стенді
-        }
-      );
-
-      document.addEventListener(
-        'click',
-        (event) => {
-          const target = (event.target as HTMLElement).closest('a');
-          if (target && target.href) {
-            const scan = scanTextForLures(target.href + ' ' + target.innerText);
-            if (scan.detected) {
-              try {
-                chrome.runtime.sendMessage({
-                  type: 'LURE_DETECTED',
-                  payload: {
-                    sourcePlatform: currentHost || 'marketplace-chat',
-                    keywords: scan.keywords,
-                    offPlatformLure: scan.isOffPlatformLure,
-                    suspiciousUrl: target.href,
-                  },
-                });
-              } catch {}
-            }
-          }
-        },
-        true
-      );
-
-      document.addEventListener('copy', () => {
-        const selection = window.getSelection()?.toString() || '';
-        if (selection) {
-          const scan = scanTextForLures(selection);
+        const target = (event.target as HTMLElement).closest('a');
+        if (target && target.href) {
+          const scan = scanTextForLures(target.href + ' ' + target.innerText);
           if (scan.detected) {
             try {
               chrome.runtime.sendMessage({
                 type: 'LURE_DETECTED',
                 payload: {
-                  sourcePlatform: currentHost || 'marketplace-chat',
+                  sourcePlatform: currentHost || 'web-chat',
                   keywords: scan.keywords,
                   offPlatformLure: scan.isOffPlatformLure,
+                  suspiciousUrl: target.href,
                 },
               });
             } catch {}
           }
         }
-      });
-    }
+      },
+      true
+    );
+
+    document.addEventListener('copy', () => {
+      const selection = window.getSelection()?.toString() || '';
+      if (selection) {
+        const scan = scanTextForLures(selection);
+        if (scan.detected) {
+          try {
+            chrome.runtime.sendMessage({
+              type: 'LURE_DETECTED',
+              payload: {
+                sourcePlatform: currentHost || 'web-chat',
+                keywords: scan.keywords,
+                offPlatformLure: scan.isOffPlatformLure,
+              },
+            });
+          } catch {}
+        }
+      }
+    });
   },
 });

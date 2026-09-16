@@ -72,6 +72,13 @@ export class ChatChannelMonitor {
     }
 
     // 4. Селектори класів та дата-атрибутів популярних чатів та маркетплейсів
+    if (element.closest('.has-text-right, .text-right, .chat-end, .is-right, .justify-end, .self-end, .align-right')) {
+      return 'outbound';
+    }
+    if (element.closest('.has-text-left, .text-left, .chat-start, .is-left, .justify-start, .self-start, .align-left')) {
+      return 'inbound';
+    }
+
     const classStr = typeof element.className === 'string' ? element.className : (element.getAttribute('class') || '');
     const classAndAttr = (classStr + ' ' + (element.getAttribute('data-direction') || '') + ' ' + (element.getAttribute('data-author') || '')).toLowerCase();
 
@@ -83,7 +90,8 @@ export class ChatChannelMonitor {
       classAndAttr.includes('from-me') ||
       classAndAttr.includes('author-self') ||
       classAndAttr.includes('is-me') ||
-      classAndAttr.includes('chat-msg-out')
+      classAndAttr.includes('chat-msg-out') ||
+      classAndAttr.includes('has-text-right')
     ) {
       return 'outbound';
     }
@@ -96,7 +104,8 @@ export class ChatChannelMonitor {
       classAndAttr.includes('from-them') ||
       classAndAttr.includes('author-other') ||
       classAndAttr.includes('chat-msg-in') ||
-      classAndAttr.includes('interlocutor')
+      classAndAttr.includes('interlocutor') ||
+      classAndAttr.includes('has-text-left')
     ) {
       return 'inbound';
     }
@@ -181,6 +190,12 @@ export class ChatChannelMonitor {
       '.message',
       '[role="row"]',
       '.bubble',
+      '.has-text-left',
+      '.has-text-right',
+      '.tag',
+      '[class*="chat-"]',
+      '[class*="msg-"]',
+      '[class*="message-"]',
       'li',
     ].join(', ');
 
@@ -214,7 +229,7 @@ export class ChatChannelMonitor {
     // 1. Передбачення наміру співрозмовника за кластерами слів (жовте підсвічування + плавна лінія XAI)
     IntentHighlighter.highlightInboundElement(element);
 
-    const textEl = element.querySelector<HTMLElement>('[data-testid="message"], [data-nx-name="TextContainer"], .bubble') || element;
+    const textEl = element.querySelector<HTMLElement>('[data-testid="message"], [data-nx-name="TextContainer"], .bubble, .tag, p, span') || element;
     let text = textEl.innerText?.trim() || element.innerText?.trim() || '';
     
     // Додаємо прямі посилання з тегів <a>, якщо вони не відображаються відкритим текстом

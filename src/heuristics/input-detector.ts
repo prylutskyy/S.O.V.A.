@@ -141,13 +141,15 @@ export function getFormFilledState(form: HTMLFormElement): FormSensitiveState {
       }
 
       // 2. Поля CVV / CVC / Pin
-      if (/(cvv|cvc|pin|безпек)/i.test(descriptor) && val.length >= 2) {
+      const hasCvvInText = /\b(cvv|cvc|код безпеки)[\s:=]*\d{3,4}\b/i.test(val);
+      if ((/(cvv|cvc|pin|безпек)/i.test(descriptor) && val.length >= 2) || hasCvvInText) {
         hasFilledCvv = true;
       }
 
-      // 3. Поля банківської картки (валідація за Луна АБО наявність 12-19 цифр у картковому полі)
+      // 3. Поля банківської картки (валідація за Луна, виявлення картки в тексті АБО картковий дескриптор)
+      const hasCardInText = extractCardNumbersFromText(val).length > 0;
       const isCardDescriptor = /(card|карт|pan|cc-number|cc-num)/i.test(descriptor);
-      if (passesLuhnCheck(val) || (isCardDescriptor && digitsOnly.length >= 12)) {
+      if (hasCardInText || passesLuhnCheck(val) || (isCardDescriptor && digitsOnly.length >= 12)) {
         hasFilledCard = true;
       }
     }
