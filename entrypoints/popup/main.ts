@@ -28,9 +28,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Init AI Status
   const checkAI = async () => {
-    if (typeof (window as any).ai !== 'undefined' && (window as any).ai.languageModel) {
+    let provider: any = null;
+    if (typeof (window as any).LanguageModel !== 'undefined') provider = (window as any).LanguageModel;
+    else if (typeof (window as any).ai !== 'undefined' && (window as any).ai.languageModel) provider = (window as any).ai.languageModel;
+
+    if (provider) {
       try {
-        const caps = await (window as any).ai.languageModel.capabilities();
+        const caps = await provider.capabilities();
         aiStatusText.textContent = caps.available === 'no' ? 'Gemini Nano: Підтримується, але не завантажено' : 'Gemini Nano: Активно та готово';
         aiStatusText.style.color = caps.available === 'no' ? 'var(--amber)' : 'var(--green)';
       } catch {
