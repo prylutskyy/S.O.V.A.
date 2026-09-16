@@ -23,7 +23,7 @@ export class SecurityFriction {
       }
     } catch {}
 
-    const detectedAmount = XaiEngine.extractFinancialAmount(form);
+    const detectedAmount = XaiEngine.extractFinancialAmount(form) || undefined;
     const vaultScan = VaultScanner.scanFormSync(form, targetHost);
 
     // Чистий Дзен + Ізольований Shadow DOM: жодного втручання в інлайн-стилі форми
@@ -73,7 +73,7 @@ export class SecurityFriction {
     activeContext?: ActiveThreatContext | null
   ): void {
     const currentPlatform = window.location.hostname || 'Відкритий чат маркетплейсу';
-    const detectedAmount = XaiEngine.extractFinancialAmount(chatInput);
+    const detectedAmount = XaiEngine.extractFinancialAmount(chatInput) || undefined;
     const vaultScan = VaultScanner.scanTextSync(chatInput.value || '');
 
     const triggers: Array<{ message: string; severity: string }> = [];
