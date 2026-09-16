@@ -6,12 +6,18 @@ export default defineBackground(() => {
 
   // Слухач повідомлень від Content Scripts
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    const tabId = sender.tab?.id;
+
     if (message.type === 'LURE_DETECTED') {
+      if (!tabId) {
+        sendResponse({ success: false });
+        return false;
+      }
+      
       const { sourcePlatform, keywords, offPlatformLure, suspiciousUrl } = message.payload;
+      console.warn(`[ThreatShield:Background] Отримано сигнал небезпеки на вкладці ${tabId}:`, message.payload);
 
-      console.warn('[ThreatShield:Background] Зафіксовано спробу виведення / соцінженерії:', message.payload);
-
-      contextManager.setTaintedContext({
+      contextManager.setTaintedContext(tabId, {
         sourcePlatform: sourcePlatform || (sender.tab?.url ? new URL(sender.tab.url).hostname : 'unknown'),
         scenario: 'ESCROW_DELIVERY_FRAUD',
         threatLevel: 'HIGH',
@@ -19,59 +25,46 @@ export default defineBackground(() => {
         offPlatformLure,
         targetSuspiciousUrl: suspiciousUrl,
       }).then((ctx) => {
-        // Оновлюємо бейдж розширення
         if (chrome.action) {
-          chrome.action.setBadgeText({ text: '!' });
-          chrome.action.setBadgeBackgroundColor({ color: '#ea580c' });
+          chrome.action.setBadgeText({ text: '!', tabId });
+          chrome.action.setBadgeBackgroundColor({ color: '#ea580c', tabId });
         }
-        // Оповіщаємо всі відкриті вкладки про новий активний контекст загрози
-        if (chrome.tabs && chrome.tabs.query) {
-          chrome.tabs.query({}, (tabs) => {
-            for (const tab of tabs) {
-              if (tab.id) {
-                chrome.tabs.sendMessage(tab.id, { type: 'CONTEXT_UPDATED', context: ctx }).catch(() => {});
-              }
-            }
-          });
-        }
-        sendResponse({ status: 'CONTEXT_RECORDED', context: ctx });
+        chrome.tabs.sendMessage(tabId, { type: 'CONTEXT_UPDATED', payload: ctx }).catch(() => {});
+        sendResponse({ success: true });
       });
-
-      return true; // Асинхронна відповідь
+      return true; // Keep channel open for async
     }
 
     if (message.type === 'GET_ACTIVE_CONTEXT') {
-      contextManager.getActiveTaintedContext().then((ctx) => {
+      if (!tabId) {
+        sendResponse({ context: null });
+        return false;
+      }
+      contextManager.getActiveTaintedContext(tabId).then((ctx) => {
         sendResponse({ context: ctx });
       });
       return true;
     }
 
     if (message.type === 'CLEAR_CONTEXT') {
-      contextManager.clearTaintedContext().then(() => {
+      if (!tabId) {
+        sendResponse({ success: false });
+        return false;
+      }
+      contextManager.clearTaintedContext(tabId).then(() => {
         if (chrome.action) {
-          chrome.action.setBadgeText({ text: '' });
+          chrome.action.setBadgeText({ text: '', tabId });
         }
-        // Оповіщаємо всі вкладки про очищення контексту
-        if (chrome.tabs && chrome.tabs.query) {
-          chrome.tabs.query({}, (tabs) => {
-            for (const tab of tabs) {
-              if (tab.id) {
-                chrome.tabs.sendMessage(tab.id, { type: 'CONTEXT_CLEARED' }).catch(() => {});
-              }
-            }
-          });
-        }
-        sendResponse({ status: 'CLEARED' });
+        sendResponse({ success: true });
       });
       return true;
     }
 
     if (message.type === 'THREAT_DETECTED') {
-      console.warn('[ThreatShield:Background] Критична дія заблокована на вкладці:', sender.tab?.url);
-      if (chrome.action) {
-        chrome.action.setBadgeText({ text: 'ERR' });
-        chrome.action.setBadgeBackgroundColor({ color: '#dc2626' });
+      console.warn(`[ThreatShield:Background] Критична дія заблокована на вкладці ${tabId}:`, sender.tab?.url);
+      if (chrome.action && tabId) {
+        chrome.action.setBadgeText({ text: 'ERR', tabId });
+        chrome.action.setBadgeBackgroundColor({ color: '#dc2626', tabId });
       }
       sendResponse({ status: 'ACKNOWLEDGED' });
       return true;
@@ -80,22 +73,34 @@ export default defineBackground(() => {
     return false;
   });
 
-  // Відстеження відкриття нових вкладок або оновлення URL
+  // Автоматична перевірка при зміні вкладок
   chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     if (changeInfo.status === 'complete' && tab.url) {
       try {
         const url = new URL(tab.url);
         if (url.protocol.startsWith('http')) {
-          const activeContext = await contextManager.getActiveTaintedContext();
-          if (activeContext && !isWhitelisted(url.hostname)) {
-            console.warn(
-              `[ThreatShield:Background] Виявлено відвідування невідомого домену (${url.hostname}) під час активного вікна загрози! Платформа-джерело: ${activeContext.sourcePlatform}`
-            );
+          const domain = url.hostname.replace(/^www\./, '');
+          if (isWhitelisted(domain)) {
+            return;
+          }
+
+          const activeContext = await contextManager.getActiveTaintedContext(tabId);
+          if (activeContext) {
+            console.log(`[ThreatShield] Відвідування ${domain} під час активного Tainted Context на вкладці ${tabId}!`);
+            if (chrome.action) {
+              chrome.action.setBadgeText({ text: '!', tabId });
+              chrome.action.setBadgeBackgroundColor({ color: '#ea580c', tabId });
+            }
           }
         }
-      } catch {
-        // Ігноруємо службові вкладки
-      }
+      } catch {}
+    }
+  });
+
+  // Tab Lineage: поширюємо контекст на нові вкладки, відкриті з фішингової
+  chrome.tabs.onCreated.addListener(async (tab) => {
+    if (tab.id && tab.openerTabId) {
+      await contextManager.propagateContext(tab.openerTabId, tab.id);
     }
   });
 });
