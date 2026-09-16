@@ -1,11 +1,12 @@
 import { passesLuhnCheck } from '../heuristics/input-detector';
 import { ShadowHost } from './shadow-host';
+import { PersonalVaultManager } from '../core/personal-vault';
 
 export interface SensitiveSpan {
   start: number;
   end: number;
   text: string;
-  type: 'card' | 'cvv' | 'exp';
+  type: 'card' | 'cvv' | 'exp' | 'vault';
   tooltip: string;
 }
 
@@ -18,7 +19,7 @@ export class TextHighlighter {
    * Пошук фрагментів із чутливими даними у тексті
    */
   public static findSensitiveSpans(text: string): SensitiveSpan[] {
-    if (!text || text.length < 3) return [];
+    if (!text || text.length < 2) return [];
 
     const spans: SensitiveSpan[] = [];
 
@@ -67,6 +68,59 @@ export class TextHighlighter {
             type: 'exp',
             tooltip: '[Термін дії картки] Конфіденційні платіжні реквізити.',
           });
+        }
+      }
+    }
+
+    // 4. Пошук збережених персональних маркерів із Personal Vault
+    const vaultItems = PersonalVaultManager.getItemsSync();
+    if (vaultItems && vaultItems.length > 0) {
+      const activeItems = vaultItems.filter((i) => i.enabled !== false && Boolean(i.realValue));
+      for (const item of activeItems) {
+        const real = item.realValue.trim();
+        if (real.length < 2) continue;
+
+        // Пошук входження значення маркера (без урахування регістру)
+        const escaped = real.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(escaped, 'gi');
+        let vMatch: RegExpExecArray | null;
+        while ((vMatch = regex.exec(text)) !== null) {
+          const start = vMatch.index;
+          const end = vMatch.index + vMatch[0].length;
+          const isOverlapping = spans.some((s) => (start >= s.start && start < s.end) || (end > s.start && end <= s.end));
+          if (!isOverlapping) {
+            spans.push({
+              start,
+              end,
+              text: vMatch[0],
+              type: 'vault',
+              tooltip: `[Personal Vault] Виявлено маркер безпеки: «${item.label}». Не передавайте його стороннім!`,
+            });
+          }
+        }
+
+        // Для фінансового номера телефону перевіряємо формат без +380 (напр. 0501234567 або 501234567)
+        if (item.category === 'FINANCIAL_PHONE') {
+          const phoneDigits = real.replace(/\D/g, '');
+          if (phoneDigits.length >= 7) {
+            const shortPhone = phoneDigits.slice(-7);
+            const phoneRegex = new RegExp(`(?:\\+?380|0)?\\d{2}[\\s-]?${shortPhone.slice(0, 3)}[\\s-]?${shortPhone.slice(3)}`, 'g');
+            let pMatch: RegExpExecArray | null;
+            while ((pMatch = phoneRegex.exec(text)) !== null) {
+              const start = pMatch.index;
+              const end = pMatch.index + pMatch[0].length;
+              const isOverlapping = spans.some((s) => (start >= s.start && start < s.end) || (end > s.start && end <= s.end));
+              if (!isOverlapping) {
+                spans.push({
+                  start,
+                  end,
+                  text: pMatch[0],
+                  type: 'vault',
+                  tooltip: `[Personal Vault] Виявлено фінансовий номер телефону (${item.label})!`,
+                });
+              }
+            }
+          }
         }
       }
     }
