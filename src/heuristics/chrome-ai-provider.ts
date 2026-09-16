@@ -3,9 +3,11 @@ import '../types/ai.d.ts';
 
 export class ChromeBuiltinAIProvider implements IAIProvider {
   private getProvider(): any {
-    if (typeof window === 'undefined') return null;
-    if ((window as any).LanguageModel) return (window as any).LanguageModel;
-    if ((window as any).ai?.languageModel) return (window as any).ai.languageModel;
+    const globalObj = typeof globalThis !== 'undefined' ? globalThis : (typeof window !== 'undefined' ? window : self);
+    if (!globalObj) return null;
+    
+    if ((globalObj as any).LanguageModel) return (globalObj as any).LanguageModel;
+    if ((globalObj as any).ai?.languageModel) return (globalObj as any).ai.languageModel;
     return null;
   }
 
