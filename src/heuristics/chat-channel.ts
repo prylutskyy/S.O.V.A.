@@ -271,6 +271,7 @@ export class ChatChannelMonitor {
       const timeoutId = setTimeout(() => {
         if (!aiResponded) {
           GlobalInputInterceptor.setSoftLock(false);
+          if (this.debugMode) DebuggerOverlay.log('4. AI Response (Tier 2)', 'Timeout (Hanged)', '#EF4444');
           console.warn('[ThreatShield:ChatChannel] AI timeout fallback triggered');
         }
       }, 10000);

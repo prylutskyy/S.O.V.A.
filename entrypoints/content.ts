@@ -558,7 +558,10 @@ export default defineContentScript({
             
             let aiResponded = false;
             const timeoutId = setTimeout(() => {
-              if (!aiResponded) GlobalInputInterceptor.setSoftLock(false);
+              if (!aiResponded) {
+                GlobalInputInterceptor.setSoftLock(false);
+                if (debugMode) DebuggerOverlay.log('4. AI Response (Tier 2)', 'Timeout (Hanged)', '#EF4444');
+              }
             }, 10000);
 
             chrome.runtime.sendMessage({ type: 'AI_VERIFY', payload: { text: textToScan, intentType: scan.intentType } }, (response) => {
@@ -603,7 +606,10 @@ export default defineContentScript({
           
           let aiResponded = false;
           const timeoutId = setTimeout(() => {
-            if (!aiResponded) GlobalInputInterceptor.setSoftLock(false);
+            if (!aiResponded) {
+              GlobalInputInterceptor.setSoftLock(false);
+              if (debugMode) DebuggerOverlay.log('4. AI Response (Tier 2)', 'Timeout (Hanged)', '#EF4444');
+            }
           }, 10000);
 
           chrome.runtime.sendMessage({ type: 'AI_VERIFY', payload: { text: selection, intentType: scan.intentType } }, (response) => {

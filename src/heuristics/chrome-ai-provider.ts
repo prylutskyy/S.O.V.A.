@@ -42,41 +42,39 @@ export class ChromeBuiltinAIProvider implements IAIProvider {
     let session;
     try {
       try {
-        session = await provider.create({
-          systemPrompt: `You are a cybersecurity AI analyzing a chat message for social engineering or scams.
-Follow these rules strictly:
-1. You must respond ONLY with a valid JSON object. Do not include markdown code blocks (\`\`\`json).
-2. The JSON format must be exactly: {"isScam": boolean, "confidence": number, "reasoning": "string"}
-3. Confidence is 0-100.
-Context of the scam we are looking for: ${contextRules}`,
+        const createOptions: any = {
+          systemPrompt: `Answer ONLY with JSON {"isScam": true/false}. Is this an escrow/delivery scam?`,
           temperature: 0.1,
-          signal: this.abortSignal,
-        });
+        };
+        // Add signal if supported
+        if (this.abortSignal) createOptions.signal = this.abortSignal;
+        
+        session = await provider.create(createOptions);
       } catch (e) {
         if (this.abortSignal?.aborted) throw e;
         console.warn('[ThreatShield:AI] create(options) failed, trying create() without options...', e);
-        session = await provider.create({ signal: this.abortSignal });
+        session = await provider.create(this.abortSignal ? { signal: this.abortSignal } : undefined);
       }
 
-      const prompt = `System Instructions: You are a cybersecurity AI analyzing a chat message for social engineering or scams.
-Strict Rules:
-1. You must respond ONLY with a valid JSON object. Do not include markdown code blocks.
-2. The JSON format must be exactly: {"isScam": boolean, "confidence": number, "reasoning": "string"}
-3. Confidence is 0-100.
-Context of the scam we are looking for: ${contextRules}
+      // 1. Жорсткий ліміт вхідного тексту (Truncation)
+      // Беремо лише перші 300 символів, щоб не перевантажувати LLM і не викликати freeze
+      const truncatedText = text.length > 300 ? text.substring(0, 300) + '...' : text;
 
-User Message to Analyze: "${text}"`;
+      // 2. Спартанський промпт
+      const prompt = `Task: Analyze if this message is a scam.
+Context to look for: ${contextRules}
+Message: "${truncatedText}"`;
       
-      const responseText = await session.prompt(prompt, { signal: this.abortSignal });
+      const responseText = await session.prompt(prompt, this.abortSignal ? { signal: this.abortSignal } : undefined);
       
       // Attempt to parse JSON safely
       const cleanJson = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
       const parsed = JSON.parse(cleanJson);
       
       return {
-        isScam: !!parsed.isScam,
-        confidence: typeof parsed.confidence === 'number' ? parsed.confidence : 50,
-        reasoning: parsed.reasoning || 'No reasoning provided',
+        isScam: parsed.isScam === true || String(parsed.isScam).toLowerCase() === 'true',
+        confidence: parsed.isScam ? 90 : 10,
+        reasoning: parsed.reasoning || (parsed.isScam ? 'Заблоковано ШІ' : 'Безпечно')
       };
     } catch (e) {
       console.error('[ThreatShield:AI] Помилка верифікації:', e);
