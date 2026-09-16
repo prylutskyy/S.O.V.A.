@@ -2,6 +2,12 @@ import { IAIProvider, AIValidationResult } from './ai-provider.interface';
 import '../types/ai.d.ts';
 
 export class ChromeBuiltinAIProvider implements IAIProvider {
+  private abortSignal?: AbortSignal;
+
+  constructor(signal?: AbortSignal) {
+    this.abortSignal = signal;
+  }
+
   private getProvider(): any {
     const globalObj = typeof globalThis !== 'undefined' ? globalThis : (typeof window !== 'undefined' ? window : self);
     if (!globalObj) return null;
@@ -44,10 +50,12 @@ Follow these rules strictly:
 3. Confidence is 0-100.
 Context of the scam we are looking for: ${contextRules}`,
           temperature: 0.1,
+          signal: this.abortSignal,
         });
       } catch (e) {
+        if (this.abortSignal?.aborted) throw e;
         console.warn('[ThreatShield:AI] create(options) failed, trying create() without options...', e);
-        session = await provider.create();
+        session = await provider.create({ signal: this.abortSignal });
       }
 
       const prompt = `System Instructions: You are a cybersecurity AI analyzing a chat message for social engineering or scams.
@@ -58,7 +66,8 @@ Strict Rules:
 Context of the scam we are looking for: ${contextRules}
 
 User Message to Analyze: "${text}"`;
-      const responseText = await session.prompt(prompt);
+      
+      const responseText = await session.prompt(prompt, { signal: this.abortSignal });
       
       // Attempt to parse JSON safely
       const cleanJson = responseText.replace(/```json/g, '').replace(/```/g, '').trim();

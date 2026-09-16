@@ -548,7 +548,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   // =========================================================================
-  // 4. СКИДАННЯ СЕСІЇ (SETTINGS & CONTEXT)
+  // 4. НАЛАШТУВАННЯ (SETTINGS & CONTEXT)
   // =========================================================================
   btnResetContext.addEventListener('click', async () => {
     try {
@@ -556,7 +556,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         await chrome.runtime.sendMessage({ type: 'CLEAR_CONTEXT' });
       }
     } catch {}
-    showToast('Стан тривоги успішно скинуто');
+    toastMessage.textContent = 'Контекст тривоги скинуто.';
+    toastMessage.className = 'toast show';
+    setTimeout(() => { toastMessage.className = 'toast'; }, 3000);
+  });
+
+  const btnAbortAI = document.getElementById('btnAbortAI') as HTMLButtonElement;
+  btnAbortAI.addEventListener('click', async () => {
+    try {
+      if (typeof chrome !== 'undefined' && chrome.runtime) {
+        await chrome.runtime.sendMessage({ type: 'ABORT_AI' });
+      }
+    } catch {}
+    toastMessage.textContent = 'Сигнал зупинки ШІ надіслано.';
+    toastMessage.className = 'toast show';
+    setTimeout(() => { toastMessage.className = 'toast'; }, 3000);
   });
 
   // =========================================================================

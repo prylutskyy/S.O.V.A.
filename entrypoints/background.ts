@@ -93,6 +93,13 @@ export default defineBackground(() => {
       return true; // Keep channel open for async
     }
 
+    if (message.type === 'ABORT_AI') {
+      console.log('[ThreatShield:Background] Forwarding ABORT_AI to offscreen...');
+      chrome.runtime.sendMessage({ target: 'offscreen', type: 'ABORT_AI' }).catch(() => {});
+      sendResponse({ success: true });
+      return true;
+    }
+
     return false;
   });
 

@@ -556,7 +556,14 @@ export default defineContentScript({
             GlobalInputInterceptor.setSoftLock(true);
             ToastNotifier.show('ШІ аналізує натискання на безпеку...', 'info', 2000);
             
+            let aiResponded = false;
+            const timeoutId = setTimeout(() => {
+              if (!aiResponded) GlobalInputInterceptor.setSoftLock(false);
+            }, 10000);
+
             chrome.runtime.sendMessage({ type: 'AI_VERIFY', payload: { text: textToScan, intentType: scan.intentType } }, (response) => {
+              aiResponded = true;
+              clearTimeout(timeoutId);
               GlobalInputInterceptor.setSoftLock(false);
               const aiResult = response?.aiResult;
               if (debugMode) DebuggerOverlay.log('4. AI Response (Tier 2)', aiResult || 'Unavailable (Background)', '#A855F7');
@@ -594,7 +601,14 @@ export default defineContentScript({
           GlobalInputInterceptor.setSoftLock(true);
           ToastNotifier.show('ШІ аналізує скопійований текст...', 'info', 2000);
           
+          let aiResponded = false;
+          const timeoutId = setTimeout(() => {
+            if (!aiResponded) GlobalInputInterceptor.setSoftLock(false);
+          }, 10000);
+
           chrome.runtime.sendMessage({ type: 'AI_VERIFY', payload: { text: selection, intentType: scan.intentType } }, (response) => {
+            aiResponded = true;
+            clearTimeout(timeoutId);
             GlobalInputInterceptor.setSoftLock(false);
             const aiResult = response?.aiResult;
             if (debugMode) DebuggerOverlay.log('4. AI Response (Tier 2)', aiResult || 'Unavailable (Background)', '#A855F7');
