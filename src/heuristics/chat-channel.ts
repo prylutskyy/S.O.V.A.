@@ -1,4 +1,6 @@
-import { scanTextForLures } from './lure-detector';
+import { IntentClassifier } from './intent-classifier';
+import { AILureVerifier } from './ai-verifier';
+import { ChromeBuiltinAIProvider } from './chrome-ai-provider';
 import { checkOutboundChatLeakage } from './input-detector';
 import { IntentHighlighter } from '../ui/intent-highlighter';
 
@@ -245,33 +247,48 @@ export class ChatChannelMonitor {
     // Запобігаємо повторному аналізу однакового тексту
     if (this.recentLuresCache.has(text)) return;
 
-    const scan = scanTextForLures(text);
+    const scan = IntentClassifier.classify(text);
 
-    // Зверніть увагу: навіть якщо співрозмовник написав "скиньте на мою картку 4149...",
-    // ми НЕ блокуємо екран і не вважаємо це витоком даних!
-    // Ми реагуємо ТІЛЬКИ якщо є ознаки приманки або підозрілого зовнішнього посилання:
-    if (scan.detected) {
-      this.recentLuresCache.add(text);
-      if (this.recentLuresCache.size > 50) {
-        this.recentLuresCache.clear();
-      }
+    // Важлива логіка: жертва може процитувати шахрая "Платити на цей номер 4149...",
+    // це є вихідний текст і ми зупинимо це як leakage даних!
+    // Ми скануємо вхідні повідомлення на наявність намірів:
+    if (scan.hasFormedIntent) {
+      // TIER 2: AI Verification (Gemini Nano)
+      const aiVerifier = new AILureVerifier(new ChromeBuiltinAIProvider());
+      aiVerifier.verifyIntent(text, scan.intentType!).then((aiResult) => {
+        // Якщо AI працює і каже що це не шахрайство - пропускаємо
+        if (aiResult && !aiResult.isScam) {
+          console.log('[ThreatShield:ChatChannel] AI відхилив тригер (False Positive):', aiResult.reasoning);
+          return;
+        }
 
-      console.warn('[ThreatShield:ChatChannel] Зафіксовано вхідну приманку від співрозмовника:', {
-        text: text.slice(0, 80),
-        keywords: scan.keywords,
-        urls: scan.suspiciousUrls,
-      });
+        this.recentLuresCache.add(text);
+        if (this.recentLuresCache.size > 50) {
+          this.recentLuresCache.clear();
+        }
 
-      if (this.onLureDetectedCallback) {
-        this.onLureDetectedCallback({
-          sourcePlatform: this.sourceHost || 'marketplace-chat',
-          text,
-          keywords: scan.keywords,
-          isOffPlatformLure: scan.isOffPlatformLure,
-          suspiciousUrls: scan.suspiciousUrls,
-          timestamp: Date.now(),
+        const keywords = scan.matchedSpans.map(s => s.text);
+        const suspiciousUrls = scan.suspiciousUrls || [];
+        const isOffPlatformLure = scan.clustersDetected.includes('off_platform');
+
+        console.warn('[ThreatShield:ChatChannel] Зафіксовано спробу фішингу або соцінженерії:', {
+          text: text.slice(0, 80),
+          keywords,
+          urls: suspiciousUrls,
+          aiVerification: aiResult || 'Skipped/Unavailable'
         });
-      }
+
+        if (this.onLureDetectedCallback) {
+          this.onLureDetectedCallback({
+            sourcePlatform: this.sourceHost || 'marketplace-chat',
+            text,
+            keywords,
+            isOffPlatformLure,
+            suspiciousUrls,
+            timestamp: Date.now(),
+          });
+        }
+      });
     }
   }
 
@@ -301,3 +318,4 @@ export class ChatChannelMonitor {
     this.recentLuresCache.clear();
   }
 }
+

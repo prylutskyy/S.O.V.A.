@@ -7,6 +7,8 @@ import {
   FormSensitiveState,
 } from '../src/heuristics/input-detector';
 import { IntentClassifier } from '../src/heuristics/intent-classifier';
+import { AILureVerifier } from '../src/heuristics/ai-verifier';
+import { ChromeBuiltinAIProvider } from '../src/heuristics/chrome-ai-provider';
 import { ChatChannelMonitor } from '../src/heuristics/chat-channel';
 import { isWhitelisted, isMonitoredPlatform } from '../src/core/whitelist';
 import { isAccreditedPaymentGateway } from '../src/core/payment-gateways';
@@ -24,6 +26,7 @@ export default defineContentScript({
   matches: ['<all_urls>'],
   main() {
     const currentHost = window.location.hostname.toLowerCase();
+      const aiVerifier = new AILureVerifier(new ChromeBuiltinAIProvider());
     console.log('[ThreatShield:Content] Ініціалізація на хості:', currentHost || 'local file');
 
     let activeContext: ActiveThreatContext | null = null;
@@ -297,7 +300,7 @@ export default defineContentScript({
 
     document.addEventListener(
       'click',
-      (event) => {
+      async (event) => {
         const target = event.target as HTMLElement;
         const btn = target.closest<HTMLButtonElement | HTMLInputElement>(
           'button, input[type="submit"], input[type="button"]'
@@ -512,7 +515,7 @@ export default defineContentScript({
 
     document.addEventListener(
       'click',
-      (event) => {
+      async (event) => {
         const target = event.target as HTMLElement;
         const a = target.closest('a');
         let textToScan = '';
@@ -549,7 +552,7 @@ export default defineContentScript({
       true
     );
 
-    document.addEventListener('copy', () => {
+    document.addEventListener('copy', async () => {
       const selection = getCopiedText();
       if (selection) {
         const scan = IntentClassifier.classify(selection);
@@ -568,5 +571,9 @@ export default defineContentScript({
     });
   },
 });
+
+
+
+
 
 
