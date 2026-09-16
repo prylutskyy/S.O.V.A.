@@ -235,7 +235,7 @@ export class SecurityFriction {
 
       try {
         if (typeof chrome !== 'undefined' && chrome.runtime) {
-          chrome.runtime.sendMessage({ type: 'AI_VERIFY', payload: { text: rawTextToScan || context.suspiciousUrl, intentType: intentType || 'UNKNOWN' } }, (response) => {
+          chrome.runtime.sendMessage({ type: 'AI_VERIFY', payload: { text: rawTextToScan || context.targetSuspiciousUrl || '', intentType: intentType || 'UNKNOWN' } }, (response) => {
             const aiResult = response?.aiResult;
             resultDiv.style.display = 'block';
             if (!aiResult) {

@@ -111,58 +111,6 @@ export default defineContentScript({
         window.postMessage({ type: 'THREAT_SHIELD_CONTEXT_CLEARED' }, '*');
       }
 
-      const triggerLureContext = (
-        suspiciousUrl: string,
-        keywords: string[],
-        offPlatformLure: boolean,
-        bannerSubtitle: string,
-        rawTextToScan?: string,
-        intentType?: string,
-        confidence?: number
-      ) => {
-        const localContext: ActiveThreatContext = {
-          suspiciousUrl,
-          keywords,
-          offPlatformLure,
-          timestamp: Date.now(),
-        };
-        activeContext = localContext;
-        
-        // If confidence is high (>= 50), we Hard Lock the user from interacting further
-        if (confidence && confidence >= 50) {
-          GlobalInputInterceptor.setHardLock(localContext);
-        }
-
-        SecurityFriction.showContextWarningBanner(localContext, bannerSubtitle, rawTextToScan, intentType, () => {
-          GlobalInputInterceptor.setHardLock(null);
-          activeContext = null;
-        });
-
-        try {
-          chrome.runtime.sendMessage({
-            type: 'LURE_DETECTED',
-            payload: {
-              sourcePlatform: currentHost || 'web-chat',
-              keywords,
-              offPlatformLure,
-              suspiciousUrl,
-            },
-          });
-        } catch {}
-      };
-
-      ChatChannelMonitor.init(currentHost, (event) => {
-        triggerLureContext(
-          (event.suspiciousUrls && event.suspiciousUrls[0]) || event.text,
-          event.keywords,
-          event.isOffPlatformLure,
-          event.isOffPlatformLure ? 'Зафіксовано спробу виведення в інший месенджер' : 'Зафіксовано спробу переходу за підозрілим посиланням',
-          event.text,
-          'UNKNOWN',
-          event.confidence
-        );
-      });
-
       if (event.data.type === 'THREAT_SHIELD_TRIGGER_LURE') {
         try {
           if (typeof chrome !== 'undefined' && chrome.runtime) {
@@ -185,6 +133,62 @@ export default defineContentScript({
         console.log('[ThreatShield:Content] Імітація соцінженерної приманки успішно активована.');
         window.postMessage({ type: 'THREAT_SHIELD_LURE_TRIGGERED' }, '*');
       }
+    }); // <--- Correctly close message listener here
+
+    const triggerLureContext = (
+      suspiciousUrl: string,
+      keywords: string[],
+      offPlatformLure: boolean,
+      bannerSubtitle: string,
+      rawTextToScan?: string,
+      intentType?: string,
+      confidence?: number
+    ) => {
+      const localContext: ActiveThreatContext = {
+        sourcePlatform: currentHost,
+        scenario: intentType || 'UNKNOWN',
+        threatLevel: (confidence && confidence >= 50) ? 'HIGH' : 'LOW',
+        targetSuspiciousUrl: suspiciousUrl,
+        detectedKeywords: keywords,
+        offPlatformLure,
+        timestamp: Date.now(),
+        ttlMs: 15 * 60 * 1000
+      };
+      activeContext = localContext;
+      
+      // If confidence is high (>= 50), we Hard Lock the user from interacting further
+      if (confidence && confidence >= 50) {
+        GlobalInputInterceptor.setHardLock(localContext);
+      }
+
+      SecurityFriction.showContextWarningBanner(localContext, bannerSubtitle, rawTextToScan, intentType, () => {
+        GlobalInputInterceptor.setHardLock(null);
+        activeContext = null;
+      });
+
+      try {
+        chrome.runtime.sendMessage({
+          type: 'LURE_DETECTED',
+          payload: {
+            sourcePlatform: currentHost || 'web-chat',
+            keywords,
+            offPlatformLure,
+            suspiciousUrl,
+          },
+        });
+      } catch {}
+    };
+
+    ChatChannelMonitor.init(currentHost, (event) => {
+      triggerLureContext(
+        (event.suspiciousUrls && event.suspiciousUrls[0]) || event.text,
+        event.keywords,
+        event.isOffPlatformLure,
+        event.isOffPlatformLure ? 'Зафіксовано спробу виведення в інший месенджер' : 'Зафіксовано спробу переходу за підозрілим посиланням',
+        event.text,
+        'UNKNOWN',
+        event.confidence
+      );
     });
 
     // =========================================================================
@@ -362,7 +366,7 @@ export default defineContentScript({
     };
 
     document.addEventListener('copy', async () => {
-      const selection = getCopiedText();
+      const selection = window.getSelection()?.toString().trim();
       if (selection) {
         const scan = IntentClassifier.classify(selection);
         if (debugMode) {
