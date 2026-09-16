@@ -24,13 +24,16 @@ export class GlobalInputInterceptor {
       let isSubmission = false;
       
       if (e.type === 'click') {
-        // If clicking a link, a button, or something that looks like a send button
-        if (
-          target.tagName === 'A' || 
+        const closestA = target.closest('a');
+        const isNavigationLink = closestA && closestA.hasAttribute('href') && closestA.getAttribute('href') !== '#' && !closestA.getAttribute('href')?.startsWith('javascript:');
+        
+        if (isNavigationLink) {
+          isSubmission = false;
+        } else if (
           target.tagName === 'BUTTON' || 
           target.closest('button') || 
-          target.closest('a') ||
-          target.getAttribute('role') === 'button'
+          target.getAttribute('role') === 'button' ||
+          (closestA && closestA.getAttribute('role') === 'button')
         ) {
           isSubmission = true;
         }
