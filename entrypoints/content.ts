@@ -63,34 +63,40 @@ export default defineContentScript({
       return true;
     };
 
+    const applyContext = (ctx: ActiveThreatContext) => {
+      activeContext = ctx;
+      GlobalInputInterceptor.setHardLock(ctx);
+      console.log('[ThreatShield:Content] Отримано спадковий контекст загрози:', ctx);
+
+      if (debugMode) {
+        DebuggerOverlay.log('🔗 Зшивання Сесій (Context)', `Успадковано загрозу з: ${ctx.sourcePlatform} (+35 штрафних балів до наступних форм)`, '#EF4444');
+      }
+
+      if (shouldDisplayContextBanner(ctx)) {
+        SecurityFriction.showContextWarningBanner(ctx);
+      }
+    };
+
     try {
       chrome.runtime.sendMessage({ type: 'GET_ACTIVE_CONTEXT' }).then((response) => {
         if (response && response.context) {
-          const ctx = response.context as ActiveThreatContext;
-          activeContext = ctx;
-          GlobalInputInterceptor.setHardLock(ctx);
-          console.log('[ThreatShield:Content] Отримано активний контекст загрози:', ctx);
-
-          if (shouldDisplayContextBanner(ctx)) {
-            SecurityFriction.showContextWarningBanner(ctx);
-          }
+          applyContext(response.context as ActiveThreatContext);
         }
       }).catch(() => {});
     } catch {}
 
-    // Слухач сповіщень від background worker (скидання або оновлення контексту на всіх вкладках)
+    // Слухач повідомлень від background worker (оновлення або очищення контексту на льоту)
     if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.onMessage) {
       chrome.runtime.onMessage.addListener((msg) => {
         if (msg && msg.type === 'CONTEXT_CLEARED') {
           activeContext = null;
           GlobalInputInterceptor.setHardLock(null);
           SecurityFriction.removeContextWarningBanner();
-        } else if (msg && msg.type === 'CONTEXT_UPDATED' && msg.context) {
-          activeContext = msg.context as ActiveThreatContext;
-          GlobalInputInterceptor.setHardLock(activeContext);
-          if (shouldDisplayContextBanner(activeContext)) {
-            SecurityFriction.showContextWarningBanner(activeContext);
+          if (debugMode) {
+            DebuggerOverlay.log('🔗 Зшивання Сесій (Context)', 'Контекст очищено', '#22C55E');
           }
+        } else if (msg && msg.type === 'CONTEXT_UPDATED' && msg.context) {
+          applyContext(msg.context as ActiveThreatContext);
         }
       });
     }
