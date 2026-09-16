@@ -99,40 +99,31 @@ export class XaiEngine {
   /**
    * Сканування DOM для визначення фінансової суми операції
    */
-  public static extractFinancialAmount(container?: HTMLElement | null): string {
+  public static extractFinancialAmount(container?: HTMLElement | null): string | null {
     try {
-      if (container) {
-        const amountInputs = container.querySelectorAll<HTMLInputElement>(
-          'input[name*="amount" i], input[name*="sum" i], input[name*="price" i], input[id*="amount" i]'
-        );
-        for (const input of amountInputs) {
-          const val = parseFloat(input.value);
-          if (!isNaN(val) && val > 0) {
-            return `${val.toLocaleString('uk-UA')} грн`;
-          }
-        }
-      }
+      if (!container) return null;
 
-      const scope =
-        container?.closest('.reddit-post, .chat-msg, form, article, main') ||
-        container ||
-        (typeof document !== 'undefined' ? document.body : null);
-
-      if (scope) {
-        const text = scope.textContent || '';
-        const match = text.match(
-          /(?:сума|до\s+отримання|до\s+сплати|ціна|вартість|разом)?\s*:?\s*(\d[\d\s,.]*)\s*(?:грн|uah|₴)/i
-        );
+      if (container instanceof HTMLInputElement || container instanceof HTMLTextAreaElement) {
+        const val = container.value || '';
+        const match = val.match(/(?:ціна|до сплати|до оплати|сума|вартість|разом)?\s*:?\s*(\d[\d\s,.]*)\s*(?:грн|uah|₴)/i);
         if (match && match[1]) {
-          const clean = match[1].trim().replace(/\s+/g, ' ');
-          if (clean.length > 0 && clean.length <= 12) {
-            return `${clean} грн`;
-          }
+          return `${match[1].trim().replace(/\s+/g, ' ')} грн`;
         }
       }
-    } catch {}
 
-    return 'кошти на балансі вашої картки';
+      const amountInputs = container.querySelectorAll<HTMLInputElement>(
+        'input[name*="amount" i], input[name*="sum" i], input[name*="price" i], input[id*="amount" i]'
+      );
+      for (const input of amountInputs) {
+        const val = parseFloat(input.value);
+        if (!isNaN(val) && val > 0) {
+          return `${val.toLocaleString('uk-UA')} грн`;
+        }
+      }
+    } catch (e) {
+      // ignore
+    }
+    return null;
   }
 
   /**

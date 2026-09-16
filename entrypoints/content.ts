@@ -273,7 +273,7 @@ export default defineContentScript({
         heuristics,
         {
           action: 'submit',
-          hasFilledSensitive: formState.hasFilledAnySensitive,
+          hasFilledSensitive: formState.hasFilledCvv || formState.hasFilledPassword || (vaultScan && vaultScan.matches.length > 0),
           isEntirelyEmpty: formState.isEntirelyEmpty,
         },
         contextBonus
