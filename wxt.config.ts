@@ -5,7 +5,7 @@ export default defineConfig({
     name: 'Adaptive Threat Shield',
     description: 'Система адаптивного оцінювання та реагування на вебзагрози з урахуванням контексту користувацьких дій',
     version: '0.2.0',
-    permissions: ['storage', 'activeTab', 'scripting', 'tabs'],
+    permissions: ['storage', 'activeTab', 'scripting', 'tabs', 'offscreen'],
     host_permissions: ['<all_urls>'],
   },
 });

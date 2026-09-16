@@ -74,21 +74,52 @@ export default defineBackground(() => {
 
     if (message.type === 'AI_VERIFY') {
       const { text, intentType } = message.payload;
-      const aiVerifier = new AILureVerifier(new ChromeBuiltinAIProvider());
       
-      aiVerifier.verifyIntent(text, intentType).then((aiResult) => {
-        sendResponse({ aiResult });
-      }).catch((e) => {
-        console.error('[ThreatShield:Background] AI_VERIFY Error:', e);
+      // We must run this in an Offscreen Document because the Prompt API
+      // is often bound to the DOM (window) and not available in the Service Worker.
+      setupOffscreenDocument('offscreen.html').then(() => {
+        chrome.runtime.sendMessage({
+          target: 'offscreen',
+          type: 'AI_VERIFY',
+          payload: { text, intentType }
+        }, (response) => {
+          sendResponse(response);
+        });
+      }).catch(e => {
+        console.error('[ThreatShield:Background] Failed to setup offscreen doc:', e);
         sendResponse({ aiResult: null });
       });
+      
       return true; // Keep channel open for async
     }
 
     return false;
   });
 
-  // Автоматична перевірка при зміні вкладок
+  // Helper to ensure offscreen document exists
+  let creatingOffscreen: Promise<void> | null = null;
+  async function setupOffscreenDocument(path: string) {
+    if (await chrome.offscreen.hasDocument()) return;
+    
+    if (creatingOffscreen) {
+      await creatingOffscreen;
+      return;
+    }
+
+    creatingOffscreen = chrome.offscreen.createDocument({
+      url: path,
+      reasons: ['DOM_PARSER' as chrome.offscreen.Reason],
+      justification: 'Accessing DOM-bound Gemini Nano Prompt API',
+    });
+    
+    try {
+      await creatingOffscreen;
+    } finally {
+      creatingOffscreen = null;
+    }
+  }
+
+  // Обробка оновлення URL для білих списківри зміні вкладок
   chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     if (changeInfo.status === 'complete' && tab.url) {
       try {
