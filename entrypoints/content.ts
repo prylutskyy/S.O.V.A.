@@ -206,9 +206,8 @@ export default defineContentScript({
       }
 
       SecurityFriction.showContextWarningBanner(localContext, bannerSubtitle, rawTextToScan, intentType, () => {
-        GlobalInputInterceptor.setHardLock(null);
-        activeContext = null;
-        if (debugMode) DebuggerOverlay.setSession(null);
+        // AI Verification successful -> clear the context completely
+        window.postMessage({ type: 'THREAT_SHIELD_CLEAR_CONTEXT' }, '*');
       });
 
       try {

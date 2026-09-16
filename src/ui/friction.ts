@@ -225,7 +225,6 @@ export class SecurityFriction {
 
     closeBtn.addEventListener('click', () => {
       ShadowHost.remove(banner);
-      if (onClose) onClose();
     });
 
     btnAi.addEventListener('click', () => {
@@ -249,11 +248,11 @@ export class SecurityFriction {
             } else {
               resultDiv.style.background = '#F0FDF4';
               resultDiv.style.color = '#166534';
-              resultDiv.innerHTML = `<b>ШІ відхилив:</b> ${aiResult.reasoning}`;
+              resultDiv.innerHTML = `<b>ШІ Підтвердив:</b> ${aiResult.reasoning}`;
               // If AI says it's safe, auto-close the banner and unlock
               setTimeout(() => {
                 ShadowHost.remove(banner);
-                if (onClose) onClose();
+                if (onClearThreat) onClearThreat();
               }, 3000);
             }
             btnAi.style.display = 'none';
@@ -269,7 +268,6 @@ export class SecurityFriction {
       setTimeout(() => {
         if (root.contains(banner) && btnAi.style.display !== 'none' && !btnAi.disabled) {
           ShadowHost.remove(banner);
-          if (onClose) onClose();
         }
       }, 10000);
     }
