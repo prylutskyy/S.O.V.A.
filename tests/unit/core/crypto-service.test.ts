@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { CryptoService } from './crypto-service';
+import { CryptoService } from '../../../src/core/crypto-service';
 
 describe('CryptoService', () => {
   it('should generate a random salt of correct length', () => {

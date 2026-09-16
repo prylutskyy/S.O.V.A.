@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { PersonalVaultManager } from './personal-vault';
-import { DEFAULT_VAULT_ITEMS } from './personal-vault';
+import { PersonalVaultManager } from '../../../src/core/personal-vault';
+import { DEFAULT_VAULT_ITEMS } from '../../../src/core/personal-vault';
 
 // Mock chrome API
 const mockStorage: Record<string, any> = {};
