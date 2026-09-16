@@ -32,8 +32,16 @@ export default defineContentScript({
     const aiVerifier = new AILureVerifier(new ChromeBuiltinAIProvider());
 
     let debugMode = false;
-    chrome.storage.local.get(['debugModeEnabled'], (res) => { debugMode = !!res.debugModeEnabled; });
-    chrome.storage.onChanged.addListener((changes) => { if (changes.debugModeEnabled) debugMode = changes.debugModeEnabled.newValue; });
+    chrome.storage.local.get(['debugModeEnabled'], (res) => { 
+      debugMode = !!res.debugModeEnabled; 
+      ChatChannelMonitor.debugMode = debugMode;
+    });
+    chrome.storage.onChanged.addListener((changes) => { 
+      if (changes.debugModeEnabled) {
+        debugMode = changes.debugModeEnabled.newValue;
+        ChatChannelMonitor.debugMode = debugMode;
+      }
+    });
 
     console.log('[ThreatShield:Content] Ініціалізовано на хості:', currentHost || 'local file');
 
