@@ -1,24 +1,25 @@
 import { UserWhitelistManager } from '../../src/core/user-whitelist';
 import { PersonalVaultManager } from '../../src/core/personal-vault';
-import { VaultItemCategory } from '../../src/types/vault';
+import { VaultItem, VaultItemCategory } from '../../src/types/vault';
 
 document.addEventListener('DOMContentLoaded', async () => {
-  // Elements: Navigation Tabs
+  // Navigation Tabs
   const tabBtnStats = document.getElementById('tabBtnStats') as HTMLButtonElement;
   const tabBtnVault = document.getElementById('tabBtnVault') as HTMLButtonElement;
   const tabBtnWhitelist = document.getElementById('tabBtnWhitelist') as HTMLButtonElement;
   const tabBtnSettings = document.getElementById('tabBtnSettings') as HTMLButtonElement;
 
-  // Elements: Content Sections
+  // Content Sections
   const tabContentStats = document.getElementById('tabContentStats') as HTMLElement;
   const tabContentVault = document.getElementById('tabContentVault') as HTMLElement;
   const tabContentWhitelist = document.getElementById('tabContentWhitelist') as HTMLElement;
   const tabContentSettings = document.getElementById('tabContentSettings') as HTMLElement;
 
-  // Elements: Statistics Tab
+  // Stats elements
   const statProtectedMarkers = document.getElementById('statProtectedMarkers') as HTMLElement;
+  const statVaultBadge = document.getElementById('statVaultBadge') as HTMLElement;
 
-  // Elements: Whitelist tab
+  // Whitelist elements
   const currentHostLabel = document.getElementById('currentHostLabel') as HTMLElement;
   const btnToggleCurrent = document.getElementById('btnToggleCurrent') as HTMLButtonElement;
   const whitelistTitle = document.getElementById('whitelistTitle') as HTMLElement;
@@ -27,22 +28,26 @@ document.addEventListener('DOMContentLoaded', async () => {
   const btnAddManual = document.getElementById('btnAddManual') as HTMLButtonElement;
   const btnClearAllWhitelist = document.getElementById('btnClearAllWhitelist') as HTMLButtonElement;
 
-  // Elements: Settings tab
+  // Settings elements
   const btnResetContext = document.getElementById('btnResetContext') as HTMLButtonElement;
   const toastMessage = document.getElementById('toastMessage') as HTMLElement;
 
-  // Elements: Vault tab
-  const vaultTitle = document.getElementById('vaultTitle') as HTMLElement;
-  const vaultUl = document.getElementById('vaultUl') as HTMLUListElement;
-  const vaultCategorySelect = document.getElementById('vaultCategorySelect') as HTMLSelectElement;
-  const vaultLabelInput = document.getElementById('vaultLabelInput') as HTMLInputElement;
-  const vaultRealInput = document.getElementById('vaultRealInput') as HTMLInputElement;
-  const vaultDecoyInput = document.getElementById('vaultDecoyInput') as HTMLInputElement;
-  const vaultKeywordsInput = document.getElementById('vaultKeywordsInput') as HTMLInputElement;
-  const btnAddVaultItem = document.getElementById('btnAddVaultItem') as HTMLButtonElement;
+  // Vault Master-Detail Elements
+  const vaultSidebarList = document.getElementById('vaultSidebarList') as HTMLElement;
+  const detailItemLabel = document.getElementById('detailItemLabel') as HTMLElement;
+  const detailItemTier = document.getElementById('detailItemTier') as HTMLElement;
+  const detailSwitchText = document.getElementById('detailSwitchText') as HTMLElement;
+  const detailItemToggle = document.getElementById('detailItemToggle') as HTMLInputElement;
+  const detailRealInput = document.getElementById('detailRealInput') as HTMLInputElement;
+  const detailDecoyInput = document.getElementById('detailDecoyInput') as HTMLInputElement;
+  const detailKeywordsInput = document.getElementById('detailKeywordsInput') as HTMLInputElement;
+  const btnSaveDetailItem = document.getElementById('btnSaveDetailItem') as HTMLButtonElement;
+  const btnClearDetailItem = document.getElementById('btnClearDetailItem') as HTMLButtonElement;
   const btnResetVaultDefaults = document.getElementById('btnResetVaultDefaults') as HTMLButtonElement;
+  const detailHelpBox = document.getElementById('detailHelpBox') as HTMLElement;
 
   let currentTabHost: string = '';
+  let selectedVaultItemId: string = '';
 
   const showToast = (msg: string) => {
     toastMessage.innerText = msg;
@@ -52,30 +57,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     }, 2000);
   };
 
-  // --- Механізм перемикання вкладок у стилі Proton Pass ---
+  // --- Навігація по вкладках ---
   type TabName = 'stats' | 'vault' | 'whitelist' | 'settings';
 
   const setActiveTab = async (tab: TabName) => {
-    // Оновлюємо стан кнопок
     tabBtnStats.classList.toggle('active', tab === 'stats');
     tabBtnVault.classList.toggle('active', tab === 'vault');
     tabBtnWhitelist.classList.toggle('active', tab === 'whitelist');
     tabBtnSettings.classList.toggle('active', tab === 'settings');
 
-    // Оновлюємо видимість вмісту
     tabContentStats.style.display = tab === 'stats' ? 'flex' : 'none';
     tabContentVault.style.display = tab === 'vault' ? 'flex' : 'none';
     tabContentWhitelist.style.display = tab === 'whitelist' ? 'flex' : 'none';
     tabContentSettings.style.display = tab === 'settings' ? 'flex' : 'none';
 
-    // Оновлюємо динамічні дані при переході
     if (tab === 'stats') {
-      const items = await PersonalVaultManager.getItems();
-      if (statProtectedMarkers) {
-        statProtectedMarkers.innerText = String(items.length);
-      }
+      await updateStatsDisplay();
     } else if (tab === 'vault') {
-      await renderVault();
+      await renderVaultSplitView();
     } else if (tab === 'whitelist') {
       await renderWhitelist();
       await updateCurrentTabState();
@@ -87,9 +86,203 @@ document.addEventListener('DOMContentLoaded', async () => {
   tabBtnWhitelist.addEventListener('click', () => setActiveTab('whitelist'));
   tabBtnSettings.addEventListener('click', () => setActiveTab('settings'));
 
-  // ==========================================
-  // ЛОГІКА ДОВІРЕНИХ САЙТІВ (WHITELIST)
-  // ==========================================
+  // =========================================================================
+  // 1. СТАТИСТИКА (ТОЧНІ ОБ'ЄКТИВНІ ПОКАЗНИКИ ЗАХИСТУ)
+  // =========================================================================
+  const updateStatsDisplay = async () => {
+    const items = await PersonalVaultManager.getItems();
+    const activeCount = items.filter((i) => i.enabled !== false && Boolean(i.realValue)).length;
+
+    if (statProtectedMarkers) {
+      statProtectedMarkers.innerText = String(activeCount);
+    }
+    if (statVaultBadge) {
+      statVaultBadge.innerText = `${activeCount} активних`;
+    }
+  };
+
+  // =========================================================================
+  // 2. ДВОКОЛОНКОВЕ СХОВИЩЕ VAULT (MASTER-DETAIL SPLIT VIEW)
+  // =========================================================================
+
+  // Іконки для кожної категорії
+  const getCategoryIconSvg = (cat: VaultItemCategory): string => {
+    switch (cat) {
+      case 'MOTHER_MAIDEN_NAME':
+        return '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
+      case 'TAX_ID':
+        return '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>';
+      case 'SECRET_WORD':
+        return '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
+      case 'PASSPORT_ID':
+        return '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="7" y1="8" x2="17" y2="8"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="7" y1="16" x2="12" y2="16"/></svg>';
+      case 'DATE_OF_BIRTH':
+        return '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>';
+      case 'FINANCIAL_PHONE':
+        return '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>';
+      case 'FATHER_NAME':
+        return '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>';
+      default:
+        return '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
+    }
+  };
+
+  // Пояснення простою мовою для малодосвідчених користувачів
+  const getCategoryExplanation = (cat: VaultItemCategory): string => {
+    switch (cat) {
+      case 'MOTHER_MAIDEN_NAME':
+        return '<strong>Чому це важливо?</strong> Дівоче прізвище матері — це абсолютний секретний маркер банку. Жоден справжній інтернет-магазин чи служба доставки ніколи не мають права запитувати його для оплати чи зарахування коштів.';
+      case 'TAX_ID':
+        return '<strong>Чому це важливо?</strong> Номер РНОКПП (ІПН) шахраї виманюють для підробки фінансових договорів та швидких онлайн-кредитів. Розширення блокує форми, які вимагають його без вагомої причини.';
+      case 'SECRET_WORD':
+        return '<strong>Чому це важливо?</strong> Секретне кодове слово банку дає повний доступ до телефонного банкінгу та зміни фінансового номера картки. Його введення на сторонніх сайтах категорично неприпустиме.';
+      case 'PASSPORT_ID':
+        return '<strong>Чому це важливо?</strong> Серія та номер паспорта чи ID-картки запитуються зловмисниками для проходження фіктивного KYC або викрадення особистих акаунтів.';
+      case 'DATE_OF_BIRTH':
+        return '<strong>Чому це важливо?</strong> Разом з вашим іменем дата народження використовується для верифікації в службах клієнтської підтримки.';
+      case 'FINANCIAL_PHONE':
+        return '<strong>Чому це важливо?</strong> Фінансовий номер отримує одноразові коди підтвердження платежів. Захист виявляє спроби підміни або виманювання вашого прив’язаного номера.';
+      case 'FATHER_NAME':
+        return "<strong>Чому це важливо?</strong> Ім'я батька / по батькові використовується банківськими системами як додатковий верифікатор особи клієнта.";
+      default:
+        return '<strong>Власний маркер:</strong> Будь-яка інша конфіденційна фраза чи комбінація символів, яку ви хочете захистити від витоку через фішингові форми.';
+    }
+  };
+
+  // Рендеринг двоколонкового сховища
+  const renderVaultSplitView = async () => {
+    const items = await PersonalVaultManager.getItems();
+
+    if (!selectedVaultItemId || !items.some((i) => i.id === selectedVaultItemId)) {
+      selectedVaultItemId = items[0]?.id || '';
+    }
+
+    // 1. Рендеринг лівої колонки (Master Sidebar)
+    vaultSidebarList.innerHTML = '<div class="vault-sidebar-title">Об\'єкти захисту (' + items.length + ')</div>';
+
+    items.forEach((item) => {
+      const isFilled = Boolean(item.realValue && item.realValue.trim().length > 0);
+      const isEnabled = item.enabled !== false;
+      const isActive = isFilled && isEnabled;
+      const isSelected = item.id === selectedVaultItemId;
+
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = `vault-nav-item ${isSelected ? 'active' : ''} ${!isActive ? 'disabled-state' : ''}`;
+      btn.dataset.id = item.id;
+
+      let statusText = 'Активний';
+      let dotClass = 'green';
+
+      if (!isFilled) {
+        statusText = 'Не заповнено';
+        dotClass = 'grey';
+      } else if (!isEnabled) {
+        statusText = 'Вимкнено';
+        dotClass = 'grey';
+      }
+
+      btn.innerHTML = `
+        <div class="vault-nav-icon">
+          ${getCategoryIconSvg(item.category)}
+        </div>
+        <div class="vault-nav-info">
+          <span class="vault-nav-label" title="${item.label}">${item.label}</span>
+          <span class="vault-nav-status ${isActive ? 'active' : 'inactive'}">
+            <span class="status-indicator-dot ${dotClass}"></span>
+            <span>${statusText}</span>
+          </span>
+        </div>
+      `;
+
+      btn.addEventListener('click', () => {
+        selectedVaultItemId = item.id;
+        renderVaultSplitView();
+      });
+
+      vaultSidebarList.appendChild(btn);
+    });
+
+    // 2. Рендеринг правої колонки (Detail Panel) для обраного елемента
+    const selectedItem = items.find((i) => i.id === selectedVaultItemId);
+    if (!selectedItem) return;
+
+    detailItemLabel.innerText = selectedItem.label;
+    const tier = PersonalVaultManager.getCategoryTier(selectedItem.category);
+    if (tier === 'TIER_A_ABSOLUTE') {
+      detailItemTier.innerText = 'Tier A: Абсолютний захист';
+      detailItemTier.className = 'tier-badge tier-a';
+    } else {
+      detailItemTier.innerText = 'Tier B: Контекстний захист';
+      detailItemTier.className = 'tier-badge tier-b';
+    }
+
+    const isItemEnabled = selectedItem.enabled !== false;
+    detailItemToggle.checked = isItemEnabled;
+    detailSwitchText.innerText = isItemEnabled ? 'Активний' : 'Вимкнено';
+
+    detailRealInput.value = selectedItem.realValue || '';
+    detailDecoyInput.value = selectedItem.decoyValue || '';
+    detailKeywordsInput.value = (selectedItem.keywords || []).join(', ');
+
+    detailHelpBox.innerHTML = getCategoryExplanation(selectedItem.category);
+  };
+
+  // Обробник перемикання тумблера
+  detailItemToggle.addEventListener('change', () => {
+    detailSwitchText.innerText = detailItemToggle.checked ? 'Активний' : 'Вимкнено';
+  });
+
+  // Збереження змін у правій колонці
+  btnSaveDetailItem.addEventListener('click', async () => {
+    const items = await PersonalVaultManager.getItems();
+    const item = items.find((i) => i.id === selectedVaultItemId);
+    if (!item) return;
+
+    const realVal = detailRealInput.value.trim();
+    const decoyVal = detailDecoyInput.value.trim();
+    const rawKw = detailKeywordsInput.value.trim();
+    const isEnabled = detailItemToggle.checked;
+
+    const keywords = rawKw
+      ? rawKw.split(',').map((k) => k.trim()).filter(Boolean)
+      : item.keywords;
+
+    await PersonalVaultManager.saveItem({
+      id: item.id,
+      category: item.category,
+      label: item.label,
+      realValue: realVal,
+      decoyValue: decoyVal || PersonalVaultManager.generateDefaultDecoy(item.category),
+      keywords,
+      enabled: isEnabled,
+    });
+
+    showToast(`Налаштування збережено: ${item.label}`);
+    await renderVaultSplitView();
+    await updateStatsDisplay();
+  });
+
+  // Очищення значення
+  btnClearDetailItem.addEventListener('click', async () => {
+    detailRealInput.value = '';
+    detailItemToggle.checked = false;
+    detailSwitchText.innerText = 'Вимкнено';
+  });
+
+  // Відновлення стандартних маркерів
+  btnResetVaultDefaults.addEventListener('click', async () => {
+    if (confirm('Відновити стандартні зразки даних сховища?')) {
+      await PersonalVaultManager.resetToDefaults();
+      showToast('Сховище відновлено до стандартних');
+      await renderVaultSplitView();
+      await updateStatsDisplay();
+    }
+  });
+
+  // =========================================================================
+  // 3. ДОВІРЕНІ САЙТИ (WHITELIST)
+  // =========================================================================
 
   const cleanDomain = (raw: string): string => {
     let d = raw.trim().toLowerCase();
@@ -110,7 +303,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         <polyline points="9 11 12 14 22 4"></polyline>
         <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
       </svg>
-      <span>Довірені ресурси (${domains.length})</span>
+      <span>Довірені сайти (${domains.length})</span>
     `;
 
     whitelistUl.innerHTML = '';
@@ -160,7 +353,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   };
 
-  // Отримуємо поточну активну вкладку
   try {
     if (typeof chrome !== 'undefined' && chrome.tabs && chrome.tabs.query) {
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -224,10 +416,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  // ==========================================
-  // СКИДАННЯ СЕСІЇ (SETTINGS & CONTEXT)
-  // ==========================================
-
+  // =========================================================================
+  // 4. СКИДАННЯ СЕСІЇ (SETTINGS & CONTEXT)
+  // =========================================================================
   btnResetContext.addEventListener('click', async () => {
     try {
       if (typeof chrome !== 'undefined' && chrome.runtime) {
@@ -237,167 +428,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     showToast('Стан тривоги успішно скинуто');
   });
 
-  // ==========================================
-  // ЛОГІКА СХОВИЩА VAULT & CANARY DECOYS
-  // ==========================================
-
-  const renderVault = async () => {
-    const items = await PersonalVaultManager.getItems();
-    vaultTitle.innerHTML = `
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-      </svg>
-      <span>Захищені дані у сховищі (${items.length})</span>
-    `;
-
-    if (statProtectedMarkers) {
-      statProtectedMarkers.innerText = String(items.length);
-    }
-
-    vaultUl.innerHTML = '';
-    if (items.length === 0) {
-      vaultUl.innerHTML = '<li class="list-entry" style="justify-content: center; color: var(--text-muted);">Сховище пусте</li>';
-      return;
-    }
-
-    items.forEach((item) => {
-      const li = document.createElement('li');
-      li.className = 'vault-entry';
-      li.innerHTML = `
-        <div class="vault-entry-top">
-          <div class="vault-entry-label">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--proton-purple)" stroke-width="2.3"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-            <span>${item.label}</span>
-          </div>
-          <button type="button" class="btn-remove-entry" title="Видалити" data-id="${item.id}">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-          </button>
-        </div>
-        <div class="vault-entry-values">
-          <span class="val-real-pill" title="Конфіденційне значення під захистом">🔐 ${item.realValue}</span>
-          <span class="val-decoy-pill" title="Підставляється як пастка">
-            🛡️ Декой: ${item.decoyValue}
-          </span>
-        </div>
-      `;
-
-      const btnRemove = li.querySelector('.btn-remove-entry');
-      btnRemove?.addEventListener('click', async () => {
-        await PersonalVaultManager.deleteItem(item.id);
-        showToast(`Видалено: ${item.label}`);
-        await renderVault();
-      });
-
-      vaultUl.appendChild(li);
-    });
-  };
-
-  const applyCategoryDefaults = (category: VaultItemCategory) => {
-    switch (category) {
-      case 'MOTHER_MAIDEN_NAME':
-        vaultLabelInput.value = 'Дівоче прізвище матері';
-        vaultRealInput.placeholder = 'Людмила';
-        vaultDecoyInput.value = 'Оксана';
-        vaultKeywordsInput.value = 'дівоче, прізвище матері, maiden, mother, девичья фамилия';
-        break;
-      case 'TAX_ID':
-        vaultLabelInput.value = 'РНОКПП (ІПН / Податковий код)';
-        vaultRealInput.placeholder = '3124567890';
-        vaultDecoyInput.value = '2987654321';
-        vaultKeywordsInput.value = 'рнокпп, іпн, код платника, tax id, inn, налоговый номер';
-        break;
-      case 'SECRET_WORD':
-        vaultLabelInput.value = 'Секретне / Кодове слово банку';
-        vaultRealInput.placeholder = 'Калина';
-        vaultDecoyInput.value = 'Дніпро';
-        vaultKeywordsInput.value = 'кодове слово, секретне слово, codeword, secret word, контрольное слово';
-        break;
-      case 'PASSPORT_ID':
-        vaultLabelInput.value = 'Номер паспорта / ID-картки';
-        vaultRealInput.placeholder = 'АА 123456';
-        vaultDecoyInput.value = 'АА 654321';
-        vaultKeywordsInput.value = 'паспорт, id картка, passport, document number, паспортные данные';
-        break;
-      case 'DATE_OF_BIRTH':
-        vaultLabelInput.value = 'Дата народження';
-        vaultRealInput.placeholder = '15.08.1985';
-        vaultDecoyInput.value = '01.01.1990';
-        vaultKeywordsInput.value = 'дата народження, день народження, date of birth, dob, birthday, дата рождения';
-        break;
-      case 'FINANCIAL_PHONE':
-        vaultLabelInput.value = 'Фінансовий номер телефону';
-        vaultRealInput.placeholder = '+380501234567';
-        vaultDecoyInput.value = '+380679876543';
-        vaultKeywordsInput.value = 'фінансовий номер, прив’язаний телефон, financial phone, bank mobile, финансовый номер';
-        break;
-      case 'FATHER_NAME':
-        vaultLabelInput.value = "Ім'я батька / По батькові";
-        vaultRealInput.placeholder = 'Лео';
-        vaultDecoyInput.value = 'Олександр';
-        vaultKeywordsInput.value = "ім'я батька, по батькові, father's name, patronymic, имя отца, отчество";
-        break;
-      case 'CUSTOM':
-      default:
-        vaultLabelInput.value = '';
-        vaultRealInput.placeholder = 'Ваше значення';
-        vaultDecoyInput.value = '';
-        vaultKeywordsInput.value = '';
-        break;
-    }
-  };
-
-  vaultCategorySelect.addEventListener('change', () => {
-    applyCategoryDefaults(vaultCategorySelect.value as VaultItemCategory);
-  });
-
-  btnAddVaultItem.addEventListener('click', async () => {
-    const category = vaultCategorySelect.value as VaultItemCategory;
-    const label = vaultLabelInput.value.trim();
-    const realValue = vaultRealInput.value.trim();
-    const decoyValue = vaultDecoyInput.value.trim();
-    const rawKeywords = vaultKeywordsInput.value.trim();
-
-    if (!label) {
-      alert('Будь ласка, вкажіть зрозумілу назву для поля');
-      return;
-    }
-    if (!realValue) {
-      alert('Будь ласка, введіть справжнє значення для захисту');
-      return;
-    }
-
-    const keywords = rawKeywords
-      ? rawKeywords.split(',').map((k) => k.trim()).filter(Boolean)
-      : [label.toLowerCase()];
-
-    await PersonalVaultManager.saveItem({
-      category,
-      label,
-      realValue,
-      decoyValue: decoyValue || PersonalVaultManager.generateDefaultDecoy(category),
-      keywords,
-    });
-
-    vaultRealInput.value = '';
-    showToast(`Збережено в сховище: ${label}`);
-    await renderVault();
-  });
-
-  btnResetVaultDefaults.addEventListener('click', async () => {
-    if (confirm('Відновити стандартні зразки даних сховища (Людмила, Лео, РНОКПП)?')) {
-      await PersonalVaultManager.resetToDefaults();
-      showToast('Сховище відновлено до стандартних');
-      await renderVault();
-    }
-  });
-
-  // Початкове автозаповнення полів форми
-  applyCategoryDefaults(vaultCategorySelect.value as VaultItemCategory);
-
-  // Ініціалізація
+  // =========================================================================
+  // ІНІЦІАЛІЗАЦІЯ
+  // =========================================================================
   await UserWhitelistManager.init();
   await PersonalVaultManager.init();
 
-  // За замовчуванням завжди відкриваємо першу вкладку: СТАТИСТИКА
+  // За замовчуванням першим відкриваємо розділ СТАТИСТИКИ
   await setActiveTab('stats');
 });

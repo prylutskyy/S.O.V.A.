@@ -194,6 +194,7 @@ export class PersonalVaultManager {
       decoyValue: item.decoyValue.trim() || this.generateDefaultDecoy(item.category),
       keywords: item.keywords.map((k) => k.trim().toLowerCase()).filter(Boolean),
       createdAt: Date.now(),
+      enabled: item.enabled !== false,
     };
 
     if (existingIndex >= 0) {
@@ -265,7 +266,8 @@ export class PersonalVaultManager {
     items: VaultItem[] = this.cachedItems
   ): VaultItem | null {
     const lower = descriptor.toLowerCase();
-    for (const item of items) {
+    const activeItems = items.filter((i) => i.enabled !== false && Boolean(i.realValue));
+    for (const item of activeItems) {
       for (const kw of item.keywords) {
         if (kw && lower.includes(kw.toLowerCase())) {
           return item;
@@ -287,8 +289,9 @@ export class PersonalVaultManager {
     if (!cleanVal || cleanVal.length < 2) return null;
 
     const digitsOnlyVal = cleanVal.replace(/\D/g, '');
+    const activeItems = items.filter((i) => i.enabled !== false && Boolean(i.realValue));
 
-    for (const item of items) {
+    for (const item of activeItems) {
       const realClean = item.realValue.trim().toLowerCase();
       if (!realClean) continue;
 

@@ -18,6 +18,7 @@ export interface VaultItem {
   decoyValue: string;
   keywords: string[];
   createdAt: number;
+  enabled?: boolean;
 }
 
 export interface VaultMatchResult {
