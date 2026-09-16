@@ -344,7 +344,10 @@ export class ChatChannelMonitor {
     this.processedElements = new WeakSet();
     this.recentLuresCache.clear();
   }
+
+  public static reset(): void {
+    this.processedElements = new WeakSet();
+    this.recentLuresCache.clear();
+    ChatSessionState.reset();
+  }
 }
-
-
-
