@@ -235,10 +235,25 @@ export class SecurityFriction {
       try {
         if (typeof chrome !== 'undefined' && chrome.runtime) {
           const scanText = rawTextToScan || context.targetSuspiciousUrl || '';
+          const intentLabel = intentType || 'UNKNOWN';
           
-          // Log to Neuromonitor immediately
+          const contextRulesMap: Record<string, string> = {
+            ESCROW_DELIVERY_SCAM: 'Шукати спроби підробити доставку маркетплейсу (OLX Delivery), де відправник просить перейти за посиланням для отримання коштів. Справжні покупці не надсилають посилань для отримання грошей.',
+            OFF_PLATFORM_REDIRECT: 'Шукати спроби перевести розмову з поточної платформи (Telegram, Viber, WhatsApp) одразу після початку контакту.',
+            VERIFICATION_PHISHING: 'Шукати підробних тех-підтримок або адміністраторів платформи, що просять верифікувати акаунт через персональні дані або посилання.',
+            PAYMENT_CREDENTIAL_THEFT: 'Шукати прямі запити чутливих банківських даних: CVV-коди, терміни дії, SMS-коди, поточний баланс.',
+            URGENCY_PRESSURE: 'Шукати маніпулятивний психологічний тиск ("зробіть це зараз або аккаунт заблокують", "оплата скасується через 5 хвилин").'
+          };
+          const contextRules = contextRulesMap[intentLabel] || 'Загальний аналіз на соціальну інженерію та фішинг.';
+          const systemPrompt = `Ви - експерт з кібербезпеки, що аналізує повідомлення з українських маркетплейсів (OLX, Prom) або соціальних мереж. Мета: виявити соціальну інженерію, фішинг та шахрайство. Відповідь виключно у JSON: {"isScam": boolean, "confidence": 0-100, "reasoning": "пояснення українською"}`;
+
+          // Log to Neuromonitor with full context
           import('../ui/debugger-overlay').then(({ DebuggerOverlay }) => {
-            DebuggerOverlay.log('ШІ Арбітр', `Запит відправлено до Gemini Nano.\nТекст: ${scanText.substring(0, 100)}${scanText.length > 100 ? '...' : ''}`, '#3B82F6');
+            DebuggerOverlay.logAI('ШІ Арбітр → Аналіз', '⏳ Запит відправлено, очікую відповідь...', '#3B82F6', {
+              systemPrompt,
+              contextRules,
+              textSent: scanText
+            });
           });
 
           chrome.runtime.sendMessage({ type: 'AI_VERIFY', payload: { text: scanText, intentType: intentType || 'UNKNOWN' } }, (response) => {
@@ -250,18 +265,17 @@ export class SecurityFriction {
                 resultDiv.style.background = '#FEF2F2';
                 resultDiv.style.color = '#DC2626';
                 resultDiv.innerHTML = `<b>Помилка:</b> Gemini Nano недоступний`;
-                DebuggerOverlay.log('ШІ Арбітр: Збій', 'Gemini Nano не зміг обробити запит.', '#EF4444');
+                DebuggerOverlay.logAI('ШІ Арбітр → Аналіз', '❌ Gemini Nano не зміг обробити запит.', '#EF4444');
               } else if (aiResult.isScam) {
                 resultDiv.style.background = '#FEF2F2';
                 resultDiv.style.color = '#DC2626';
                 resultDiv.innerHTML = `<b>ШІ підтверджує загрозу:</b> ${aiResult.reasoning}`;
-                DebuggerOverlay.log('ШІ Арбітр: Скам', `Впевненість: ${aiResult.confidence}%\nВисновок: ${aiResult.reasoning}`, '#EF4444');
+                DebuggerOverlay.logAI('ШІ Арбітр → Аналіз', `🔴 СКАМ підтверджено\nВпевненість: ${aiResult.confidence}%\n\n"${aiResult.reasoning}"`, '#EF4444');
               } else {
                 resultDiv.style.background = '#F0FDF4';
                 resultDiv.style.color = '#166534';
                 resultDiv.innerHTML = `<b>ШІ спростував загрозу:</b> ${aiResult.reasoning}`;
-                DebuggerOverlay.log('ШІ Арбітр: Безпечно', `Впевненість: ${aiResult.confidence}%\nВисновок: ${aiResult.reasoning}`, '#22C55E');
-                // If AI says it's safe, auto-close the banner and unlock
+                DebuggerOverlay.logAI('ШІ Арбітр → Аналіз', `🟢 Загрозу спростовано\nВпевненість: ${aiResult.confidence}%\n\n"${aiResult.reasoning}"`, '#22C55E');
                 setTimeout(() => {
                   ShadowHost.remove(banner);
                   if (onClearThreat) onClearThreat();

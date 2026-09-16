@@ -6,7 +6,7 @@ export class DebuggerOverlay {
     sessionId: null as string | null,
     severity: 'LOW' as string,
     score: 0,
-    logs: [] as Array<{ id: string; stepKey: string; data: any; color: string; time: string; isAi: boolean; isForm: boolean }>
+    logs: [] as Array<{ id: string; stepKey: string; data: any; color: string; time: string; isAi: boolean; isForm: boolean; aiContext?: { systemPrompt: string; contextRules: string; textSent: string; }; expanded?: boolean }>
   };
 
   private static isDragging = false;
@@ -106,6 +106,43 @@ export class DebuggerOverlay {
     this.render();
   }
 
+  public static logAI(stepKey: string, data: any, customColor?: string, aiContext?: { systemPrompt: string; contextRules: string; textSent: string }) {
+    this.show();
+
+    if (this.state.sessionId) {
+      try {
+        if (typeof chrome !== 'undefined' && chrome.runtime) {
+          chrome.runtime.sendMessage({
+            type: 'BROADCAST_LOG',
+            payload: { sessionId: this.state.sessionId, stepKey, data, customColor }
+          });
+        }
+      } catch {}
+    }
+
+    const time = new Date().toLocaleTimeString();
+    const color = customColor || '#3B82F6';
+    const existingIndex = this.state.logs.findIndex(l => l.stepKey === stepKey);
+
+    if (existingIndex >= 0) {
+      this.state.logs[existingIndex] = { ...this.state.logs[existingIndex], data, color, time, aiContext };
+    } else {
+      this.state.logs.push({
+        id: Math.random().toString(36).substring(7),
+        stepKey,
+        data,
+        color,
+        time,
+        isAi: true,
+        isForm: false,
+        aiContext,
+        expanded: false
+      });
+    }
+
+    this.render();
+  }
+
   private static render() {
     if (!this.shadowRoot) return;
 
@@ -125,6 +162,29 @@ export class DebuggerOverlay {
       if (log.isAi) icon = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="${log.color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10H12V2z"></path><path d="M12 12l8.66-5"></path></svg>`;
       else if (log.isForm) icon = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="${log.color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>`;
 
+      const aiInspectorHtml = log.aiContext ? `
+        <div class="ai-inspector" data-id="${log.id}">
+          <button class="ai-inspector-toggle" data-id="${log.id}">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            Деталі запиту до ШІ
+          </button>
+          <div class="ai-inspector-body" id="ai-body-${log.id}" style="display:none">
+            <div class="ai-section">
+              <div class="ai-section-label">🤖 Системний промпт (роль ШІ)</div>
+              <pre class="ai-section-code">${log.aiContext.systemPrompt}</pre>
+            </div>
+            <div class="ai-section">
+              <div class="ai-section-label">📋 Контекст / Правила для перевірки</div>
+              <pre class="ai-section-code">${log.aiContext.contextRules}</pre>
+            </div>
+            <div class="ai-section">
+              <div class="ai-section-label">💬 Текст, переданий для аналізу</div>
+              <pre class="ai-section-code">${log.aiContext.textSent}</pre>
+            </div>
+          </div>
+        </div>
+      ` : '';
+
       logsHtml += `
         <div class="log-node">
           <div class="node-icon" style="background: ${log.color}22; border-color: ${log.color}">
@@ -136,6 +196,7 @@ export class DebuggerOverlay {
               <span class="time">${log.time}</span>
             </div>
             <pre class="node-data">${dataStr}</pre>
+            ${aiInspectorHtml}
           </div>
           ${!isLast ? '<div class="flow-line"></div>' : ''}
         </div>
@@ -373,6 +434,57 @@ export class DebuggerOverlay {
           font-size: 13px;
           font-weight: 500;
         }
+        .ai-inspector {
+          margin-top: 8px;
+        }
+        .ai-inspector-toggle {
+          background: #1e3a5f;
+          border: 1px solid #2563eb44;
+          color: #60a5fa;
+          font-size: 10px;
+          font-weight: 600;
+          padding: 4px 8px;
+          border-radius: 4px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 5px;
+          width: 100%;
+          text-align: left;
+          transition: background 0.15s;
+        }
+        .ai-inspector-toggle:hover {
+          background: #1e40af44;
+        }
+        .ai-inspector-body {
+          margin-top: 6px;
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+        }
+        .ai-section {
+          background: #0a1628;
+          border: 1px solid #1e3a5f;
+          border-radius: 4px;
+          padding: 7px 9px;
+        }
+        .ai-section-label {
+          font-size: 9px;
+          font-weight: 700;
+          color: #475569;
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
+          margin-bottom: 4px;
+        }
+        .ai-section-code {
+          font-family: monospace;
+          font-size: 10px;
+          color: #94a3b8;
+          margin: 0;
+          white-space: pre-wrap;
+          word-break: break-word;
+          line-height: 1.5;
+        }
       </style>
       <div class="monitor-wrapper">
         <div class="header" id="drag-handle">
@@ -427,6 +539,20 @@ export class DebuggerOverlay {
     });
     this.shadowRoot.getElementById('btn-close')?.addEventListener('click', () => {
       this.hide();
+    });
+
+    // AI Inspector expand/collapse toggles
+    this.shadowRoot.querySelectorAll('.ai-inspector-toggle').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const id = (btn as HTMLElement).dataset.id;
+        const body = this.shadowRoot!.getElementById(`ai-body-${id}`);
+        if (body) {
+          const isOpen = body.style.display !== 'none';
+          body.style.display = isOpen ? 'none' : 'flex';
+          const svg = btn.querySelector('svg polyline');
+          if (svg) (svg as SVGElement).setAttribute('points', isOpen ? '6 9 12 15 18 9' : '6 15 12 9 18 15');
+        }
+      });
     });
 
     // Auto-scroll
