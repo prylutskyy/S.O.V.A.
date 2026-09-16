@@ -242,9 +242,9 @@ export default defineContentScript({
         heuristics.push({
           name: 'luhn_card_number_detected',
           triggered: true,
-          severity: 'CRITICAL',
-          scoreContribution: 40,
-          message: 'У формі введено номер банківської картки!',
+          severity: 'HIGH',
+          scoreContribution: 60,
+          message: 'У формі знайдено номер банківської картки!',
         });
       }
 
@@ -364,8 +364,7 @@ export default defineContentScript({
       } catch {}
       return (
         isAccreditedPaymentGateway(targetHost) ||
-        UserWhitelistManager.isDomainAllowedSync(targetHost) ||
-        isWhitelisted(targetHost)
+        UserWhitelistManager.isDomainAllowedSync(targetHost)
       );
     };
 
