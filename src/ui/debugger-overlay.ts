@@ -214,7 +214,7 @@ export class DebuggerOverlay {
       const stepLabel = document.createElement('div');
       stepLabel.style.fontWeight = 'bold';
       stepLabel.style.color = color;
-      stepLabel.innerText = step;
+      stepLabel.innerText = stepKey;
       
       dataLabel = document.createElement('div');
       dataLabel.style.marginTop = '4px';
