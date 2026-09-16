@@ -32,6 +32,13 @@ export default defineContentScript({
     UserWhitelistManager.init().catch((e) => console.error('[ThreatShield] UserWhitelist init error:', e));
     PersonalVaultManager.init().catch((e) => console.error('[ThreatShield] PersonalVault init error:', e));
 
+    const shouldDisplayContextBanner = (ctx: ActiveThreatContext): boolean => {
+      if (UserWhitelistManager.isDomainAllowedSync(currentHost) || isWhitelisted(currentHost)) {
+        return false;
+      }
+      return true;
+    };
+
     try {
       chrome.runtime.sendMessage({ type: 'GET_ACTIVE_CONTEXT' }).then((response) => {
         if (response && response.context) {
@@ -39,23 +46,24 @@ export default defineContentScript({
           activeContext = ctx;
           console.log('[ThreatShield:Content] Отримано активний контекст загрози:', ctx);
 
-          // На локальних тестових сторінках (file://) банер відображається виключно при явному запуску симуляції
-          if (window.location.protocol !== 'file:') {
-            const isUserAllowed = UserWhitelistManager.isDomainAllowedSync(currentHost);
-            if (!isWhitelisted(currentHost) && !isUserAllowed && currentHost !== ctx.sourcePlatform) {
-              SecurityFriction.showContextWarningBanner(ctx);
-            }
+          if (shouldDisplayContextBanner(ctx)) {
+            SecurityFriction.showContextWarningBanner(ctx);
           }
         }
       }).catch(() => {});
     } catch {}
 
-    // Слухач сповіщень від background worker (наприклад, скидання контексту на іншій вкладці чи в popup)
+    // Слухач сповіщень від background worker (скидання або оновлення контексту на всіх вкладках)
     if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.onMessage) {
       chrome.runtime.onMessage.addListener((msg) => {
         if (msg && msg.type === 'CONTEXT_CLEARED') {
           activeContext = null;
           SecurityFriction.removeContextWarningBanner();
+        } else if (msg && msg.type === 'CONTEXT_UPDATED' && msg.context) {
+          activeContext = msg.context as ActiveThreatContext;
+          if (shouldDisplayContextBanner(activeContext)) {
+            SecurityFriction.showContextWarningBanner(activeContext);
+          }
         }
       });
     }
@@ -435,24 +443,82 @@ export default defineContentScript({
       }
     );
 
+    const triggerLureContext = (
+      suspiciousUrl: string,
+      keywords: string[],
+      offPlatformLure: boolean,
+      bannerSubtitle: string
+    ) => {
+      const localContext: ActiveThreatContext = {
+        sourcePlatform: currentHost || 'web-chat',
+        scenario: 'ESCROW_DELIVERY_FRAUD',
+        threatLevel: 'HIGH',
+        detectedKeywords: keywords,
+        offPlatformLure,
+        targetSuspiciousUrl: suspiciousUrl,
+        activatedAt: Date.now(),
+        expiresAt: Date.now() + 15 * 60 * 1000,
+      };
+
+      activeContext = localContext;
+      SecurityFriction.showContextWarningBanner(localContext, bannerSubtitle);
+
+      try {
+        chrome.runtime.sendMessage({
+          type: 'LURE_DETECTED',
+          payload: {
+            sourcePlatform: currentHost || 'web-chat',
+            keywords,
+            offPlatformLure,
+            suspiciousUrl,
+          },
+        });
+      } catch {}
+    };
+
+    const getCopiedText = (): string => {
+      let text = window.getSelection()?.toString() || '';
+      if (!text && document.activeElement) {
+        const el = document.activeElement as HTMLInputElement | HTMLTextAreaElement;
+        if (el && typeof el.selectionStart === 'number' && typeof el.selectionEnd === 'number' && el.value) {
+          text = el.value.substring(el.selectionStart, el.selectionEnd);
+        }
+      }
+      return text.trim();
+    };
+
     document.addEventListener(
       'click',
       (event) => {
-        const target = (event.target as HTMLElement).closest('a');
-        if (target && target.href) {
-          const scan = scanTextForLures(target.href + ' ' + target.innerText);
+        const target = event.target as HTMLElement;
+        const a = target.closest('a');
+        let textToScan = '';
+        let targetUrl = '';
+
+        if (a && a.href) {
+          targetUrl = a.href;
+          textToScan = `${a.href} ${a.innerText || ''}`;
+        } else {
+          // Для чатів (як otr.to), де посилання рендеряться звичайним текстом у тегах span/div
+          const clickedText = (target.innerText || target.textContent || '').trim();
+          const urlMatch = clickedText.match(/(?:https?:\/\/[^\s]+|t\.me\/[a-z0-9_]+|wa\.me\/[0-9]+|\b(?:[a-z0-9-]+\.)+(?:com|ua|fake|net|org|site|online|top|me|to)(?:\/[^\s]*)?)/i);
+          if (urlMatch) {
+            targetUrl = urlMatch[0];
+            textToScan = clickedText;
+          }
+        }
+
+        if (textToScan) {
+          const scan = scanTextForLures(textToScan);
           if (scan.detected) {
-            try {
-              chrome.runtime.sendMessage({
-                type: 'LURE_DETECTED',
-                payload: {
-                  sourcePlatform: currentHost || 'web-chat',
-                  keywords: scan.keywords,
-                  offPlatformLure: scan.isOffPlatformLure,
-                  suspiciousUrl: target.href,
-                },
-              });
-            } catch {}
+            triggerLureContext(
+              targetUrl || scan.suspiciousUrls[0] || textToScan,
+              scan.keywords,
+              scan.isOffPlatformLure,
+              scan.isOffPlatformLure
+                ? 'Зафіксовано виведення в месенджер'
+                : 'Зафіксовано перехід за підозрілим посиланням'
+            );
           }
         }
       },
@@ -460,20 +526,18 @@ export default defineContentScript({
     );
 
     document.addEventListener('copy', () => {
-      const selection = window.getSelection()?.toString() || '';
+      const selection = getCopiedText();
       if (selection) {
         const scan = scanTextForLures(selection);
         if (scan.detected) {
-          try {
-            chrome.runtime.sendMessage({
-              type: 'LURE_DETECTED',
-              payload: {
-                sourcePlatform: currentHost || 'web-chat',
-                keywords: scan.keywords,
-                offPlatformLure: scan.isOffPlatformLure,
-              },
-            });
-          } catch {}
+          triggerLureContext(
+            scan.suspiciousUrls[0] || selection,
+            scan.keywords,
+            scan.isOffPlatformLure,
+            scan.isOffPlatformLure
+              ? 'Зафіксовано виведення в месенджер'
+              : 'Зафіксовано копіювання підозрілого посилання'
+          );
         }
       }
     });

@@ -24,6 +24,16 @@ export default defineBackground(() => {
           chrome.action.setBadgeText({ text: '!' });
           chrome.action.setBadgeBackgroundColor({ color: '#ea580c' });
         }
+        // Оповіщаємо всі відкриті вкладки про новий активний контекст загрози
+        if (chrome.tabs && chrome.tabs.query) {
+          chrome.tabs.query({}, (tabs) => {
+            for (const tab of tabs) {
+              if (tab.id) {
+                chrome.tabs.sendMessage(tab.id, { type: 'CONTEXT_UPDATED', context: ctx }).catch(() => {});
+              }
+            }
+          });
+        }
         sendResponse({ status: 'CONTEXT_RECORDED', context: ctx });
       });
 

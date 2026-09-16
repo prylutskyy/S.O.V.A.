@@ -121,10 +121,12 @@ export class SecurityFriction {
   /**
    * Повідомлення про зшивання сесій (Floating Dynamic Island / Capsule у стилі Apple)
    */
-  public static showContextWarningBanner(context: ActiveThreatContext): void {
+  public static showContextWarningBanner(context: ActiveThreatContext, customSubtitle?: string): void {
     const root = ShadowHost.getRoot();
     const existing = root.getElementById('threat-shield-context-banner');
-    if (existing) return;
+    if (existing) {
+      ShadowHost.remove(existing as HTMLElement);
+    }
 
     const banner = document.createElement('div');
     banner.id = 'threat-shield-context-banner';
@@ -134,11 +136,11 @@ export class SecurityFriction {
       left: 50% !important;
       transform: translateX(-50%) !important;
       max-width: calc(100vw - 32px) !important;
-      background: rgba(255, 255, 255, 0.9) !important;
+      background: rgba(255, 255, 255, 0.95) !important;
       backdrop-filter: blur(20px) saturate(180%) !important;
       -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
-      border: 1px solid rgba(0, 0, 0, 0.08) !important;
-      box-shadow: 0 10px 30px -4px rgba(0, 0, 0, 0.12), 0 2px 8px -2px rgba(0, 0, 0, 0.06) !important;
+      border: 1px solid rgba(0, 0, 0, 0.12) !important;
+      box-shadow: 0 10px 30px -4px rgba(0, 0, 0, 0.15), 0 2px 8px -2px rgba(0, 0, 0, 0.08) !important;
       border-radius: 9999px !important;
       padding: 7px 14px 7px 10px !important;
       z-index: 2147483646 !important;
@@ -151,6 +153,8 @@ export class SecurityFriction {
       user-select: none !important;
     `;
 
+    const subtitle = customSubtitle || 'Посилений моніторинг форм';
+
     banner.innerHTML = `
       <style>
         @keyframes threatCapsuleDrop {
@@ -162,7 +166,7 @@ export class SecurityFriction {
         width: 24px;
         height: 24px;
         border-radius: 50%;
-        background: rgba(255, 149, 0, 0.12);
+        background: rgba(255, 149, 0, 0.14);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -175,9 +179,9 @@ export class SecurityFriction {
       </div>
 
       <div style="font-size: 12.5px; color: #1d1d1f; font-weight: 500; letter-spacing: -0.01em; display: flex; align-items: center; gap: 6px; white-space: nowrap;">
-        <span>Перехід із <strong style="font-weight: 600; color: #1d1d1f;">${context.sourcePlatform}</strong></span>
+        <span><strong style="font-weight: 600; color: #1d1d1f;">${context.sourcePlatform}</strong></span>
         <span style="color: #86868b;">·</span>
-        <span style="color: #6e6e73;">Посилений моніторинг форм</span>
+        <span style="color: #ea580c; font-weight: 500;">${subtitle}</span>
       </div>
 
       <button id="threat-shield-close-banner" type="button" title="Закрити" style="
@@ -185,8 +189,8 @@ export class SecurityFriction {
         height: 20px;
         border-radius: 50%;
         border: none;
-        background: rgba(0, 0, 0, 0.05);
-        color: #86868b;
+        background: rgba(0, 0, 0, 0.06);
+        color: #6e6e73;
         cursor: pointer;
         display: flex;
         align-items: center;

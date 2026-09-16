@@ -26,16 +26,16 @@ const SCAM_KEYWORD_PATTERNS = [
 ];
 
 /**
- * Пошук сторонніх посилань у повідомленні
+ * Пошук сторонніх посилань та доменів у повідомленні
  */
-const URL_REGEX = /(https?:\/\/[^\s]+)/gi;
+const URL_REGEX = /(?:https?:\/\/[^\s]+|t\.me\/[a-z0-9_]+|wa\.me\/[0-9]+|\b(?:[a-z0-9-]+\.)+(?:com|ua|org|net|fake|site|online|top|me|to)(?:\/[^\s]*)?)/gi;
 
 export function scanTextForLures(text: string): LureDetectionResult {
   const foundKeywords: string[] = [];
   let isOffPlatformLure = false;
   const suspiciousUrls: string[] = [];
 
-  if (!text || text.length < 5) {
+  if (!text || text.trim().length < 4) {
     return { detected: false, keywords: [], isOffPlatformLure: false, suspiciousUrls: [] };
   }
 
@@ -58,28 +58,34 @@ export function scanTextForLures(text: string): LureDetectionResult {
   // 3. Екстракція посилань
   const urls = text.match(URL_REGEX);
   if (urls) {
-    for (const url of urls) {
+    for (const rawUrl of urls) {
+      const normalizedUrl = rawUrl.startsWith('http')
+        ? rawUrl
+        : rawUrl.startsWith('t.me')
+        ? `https://${rawUrl}`
+        : `https://${rawUrl}`;
+
       try {
-        const parsed = new URL(url);
+        const parsed = new URL(normalizedUrl);
         // Якщо домен містить слова olx, nova, delivery, verify, pay, але не є офіційним
         if (
           /(olx|dostavka|pay|verify|nova|poshta)/i.test(parsed.hostname) &&
           !parsed.hostname.endsWith('olx.ua') &&
           !parsed.hostname.endsWith('novaposhta.ua')
         ) {
-          suspiciousUrls.push(url);
+          suspiciousUrls.push(rawUrl);
           foundKeywords.push('підозрілий_фішинговий_домен');
         } else {
-          suspiciousUrls.push(url);
+          suspiciousUrls.push(rawUrl);
         }
       } catch {
-        // Ігноруємо биті URL
+        suspiciousUrls.push(rawUrl);
       }
     }
   }
 
-  // Детекція вважається позитивною, якщо є виведення в месенджер, підозрілий URL або від 2 ключових маркерів
-  const detected = isOffPlatformLure || suspiciousUrls.length > 0 || foundKeywords.length >= 2;
+  // Детекція вважається позитивною, якщо є виведення в месенджер, підозрілий URL або ключовий маркер
+  const detected = isOffPlatformLure || suspiciousUrls.length > 0 || foundKeywords.length >= 1;
 
   return {
     detected,
