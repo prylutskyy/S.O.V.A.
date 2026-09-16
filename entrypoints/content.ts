@@ -522,6 +522,25 @@ export default defineContentScript({
           }, 30000);
 
           const triggerWord = scan.matchedSpans?.[0]?.text;
+          const intentLabel = scan.intentType || 'UNKNOWN';
+
+          const contextRulesMap: Record<string, string> = {
+            ESCROW_DELIVERY_SCAM: 'Шукати спроби підробити доставку маркетплейсу (OLX Delivery). Справжні покупці не надсилають посилань для отримання грошей.',
+            OFF_PLATFORM_REDIRECT: 'Шукати спроби перевести розмову в Telegram, Viber, WhatsApp.',
+            VERIFICATION_PHISHING: 'Шукати підробні запити верифікації акаунту.',
+            PAYMENT_CREDENTIAL_THEFT: 'Шукати запити CVV-кодів, терміну дії картки, SMS-кодів.',
+            URGENCY_PRESSURE: 'Шукати маніпулятивний психологічний тиск з штучними дедлайнами.'
+          };
+          const contextRules = contextRulesMap[intentLabel] || 'Загальний аналіз на соціальну інженерію та фішинг.';
+          const systemPrompt = `Ви - експерт з кібербезпеки. Відповідь виключно у JSON: {"isScam": boolean, "confidence": 0-100, "reasoning": "пояснення українською"}`;
+
+          if (debugMode) {
+            DebuggerOverlay.logAI('ШІ Арбітр → Буфер обміну', '⏳ Аналізую скопійований текст...', '#3B82F6', {
+              systemPrompt,
+              contextRules,
+              textSent: selection
+            });
+          }
 
           chrome.runtime.sendMessage({ type: 'AI_VERIFY', payload: { text: selection, intentType: scan.intentType, triggerWord } }, (response) => {
             if (hasTimedOut) return;
@@ -530,9 +549,14 @@ export default defineContentScript({
             const aiResult = response?.aiResult;
             if (debugMode) {
               if (aiResult) {
-                DebuggerOverlay.log('ШІ Арбітр (Copy)', `Впевненість: ${aiResult.confidence}%\nВисновок: ${aiResult.reasoning}`, aiResult.isScam ? '#EF4444' : '#22C55E');
+                DebuggerOverlay.logAI('ШІ Арбітр → Буфер обміну',
+                  aiResult.isScam
+                    ? `🔴 СКАМ підтверджено\nВпевненість: ${aiResult.confidence}%\n\n"${aiResult.reasoning}"`
+                    : `🟢 Загрозу спростовано\nВпевненість: ${aiResult.confidence}%\n\n"${aiResult.reasoning}"`,
+                  aiResult.isScam ? '#EF4444' : '#22C55E'
+                );
               } else {
-                DebuggerOverlay.log('ШІ Арбітр (Copy)', 'Gemini Nano не відповів або недоступний.', '#EF4444');
+                DebuggerOverlay.logAI('ШІ Арбітр → Буфер обміну', '❌ Gemini Nano не відповів або недоступний.', '#EF4444');
               }
             }
             if (aiResult && !aiResult.isScam) {

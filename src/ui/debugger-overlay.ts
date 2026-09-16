@@ -125,7 +125,9 @@ export class DebuggerOverlay {
     const existingIndex = this.state.logs.findIndex(l => l.stepKey === stepKey);
 
     if (existingIndex >= 0) {
-      this.state.logs[existingIndex] = { ...this.state.logs[existingIndex], data, color, time, aiContext };
+      // Preserve existing aiContext if a new one is not provided (e.g., when updating with result)
+      const updatedContext = aiContext !== undefined ? aiContext : this.state.logs[existingIndex].aiContext;
+      this.state.logs[existingIndex] = { ...this.state.logs[existingIndex], data, color, time, aiContext: updatedContext };
     } else {
       this.state.logs.push({
         id: Math.random().toString(36).substring(7),
