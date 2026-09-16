@@ -1,6 +1,7 @@
 export class DebuggerOverlay {
   private static container: HTMLElement | null = null;
   private static logsList: HTMLElement | null = null;
+  private static statusBar: HTMLElement | null = null;
   private static logElements: Map<string, HTMLElement> = new Map();
   private static isDragging = false;
   private static offsetX = 0;
@@ -95,6 +96,19 @@ export class DebuggerOverlay {
     headerControls.appendChild(closeBtn);
     header.appendChild(headerControls);
 
+    this.statusBar = document.createElement('div');
+    Object.assign(this.statusBar.style, {
+      padding: '8px 12px',
+      backgroundColor: '#262626',
+      borderBottom: '1px solid #444',
+      fontSize: '11px',
+      fontWeight: 'bold',
+      color: '#A1A1AA',
+      display: 'none',
+      justifyContent: 'space-between',
+      alignItems: 'center'
+    });
+
     this.logsList = document.createElement('div');
     Object.assign(this.logsList.style, {
       padding: '10px',
@@ -106,6 +120,7 @@ export class DebuggerOverlay {
     });
 
     this.container.appendChild(header);
+    this.container.appendChild(this.statusBar);
     this.container.appendChild(this.logsList);
     document.body.appendChild(this.container);
 
@@ -139,6 +154,21 @@ export class DebuggerOverlay {
     if (this.logsList) {
       this.logsList.innerHTML = '';
       this.logElements.clear();
+      this.setSession(null);
+    }
+  }
+
+  public static setSession(id: string | null, severity: string = 'LOW') {
+    if (!this.statusBar) return;
+    if (id) {
+      this.statusBar.style.display = 'flex';
+      const color = severity === 'HIGH' || severity === 'CRITICAL' ? '#EF4444' : '#F59E0B';
+      this.statusBar.innerHTML = `
+        <span>ID Сесії: <span style="color: #fff">${id}</span></span>
+        <span style="color: ${color}">${severity} RISK</span>
+      `;
+    } else {
+      this.statusBar.style.display = 'none';
     }
   }
 

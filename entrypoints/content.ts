@@ -74,6 +74,7 @@ export default defineContentScript({
       console.log('[ThreatShield:Content] Отримано спадковий контекст загрози:', ctx);
 
       if (debugMode) {
+        if (ctx.sessionId) DebuggerOverlay.setSession(ctx.sessionId, ctx.threatLevel);
         const sessionLabel = ctx.sessionId ? `[${ctx.sessionId}] ` : '';
         DebuggerOverlay.log('🔗 Зшивання Сесій (Context)', `${sessionLabel}Успадковано загрозу з: ${ctx.sourcePlatform} (+35 штрафних балів до наступних форм)`, '#EF4444');
       }
@@ -189,6 +190,10 @@ export default defineContentScript({
       };
       activeContext = localContext;
       
+      if (debugMode) {
+        DebuggerOverlay.setSession(sessionId, localContext.threatLevel);
+      }
+      
       // If confidence is high (>= 50), we Hard Lock the user from interacting further
       if (confidence && confidence >= 50) {
         GlobalInputInterceptor.setHardLock(localContext);
@@ -197,6 +202,7 @@ export default defineContentScript({
       SecurityFriction.showContextWarningBanner(localContext, bannerSubtitle, rawTextToScan, intentType, () => {
         GlobalInputInterceptor.setHardLock(null);
         activeContext = null;
+        if (debugMode) DebuggerOverlay.setSession(null);
       });
 
       try {
