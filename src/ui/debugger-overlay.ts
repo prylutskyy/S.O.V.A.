@@ -5,8 +5,11 @@ export class DebuggerOverlay {
   private static offsetX = 0;
   private static offsetY = 0;
 
-  private static init() {
-    if (this.container) return;
+  public static show() {
+    if (this.container) {
+      this.container.style.display = 'flex';
+      return;
+    }
 
     this.container = document.createElement('div');
     this.container.id = 'threatshield-debugger';
@@ -89,8 +92,14 @@ export class DebuggerOverlay {
     });
   }
 
+  public static hide() {
+    if (this.container) {
+      this.container.style.display = 'none';
+    }
+  }
+
   public static log(step: string, data: any, color: string = '#4ADE80') {
-    this.init();
+    this.show();
     if (!this.logsList) return;
 
     const logItem = document.createElement('div');

@@ -35,11 +35,17 @@ export default defineContentScript({
     chrome.storage.local.get(['debugModeEnabled'], (res) => { 
       debugMode = !!res.debugModeEnabled; 
       ChatChannelMonitor.debugMode = debugMode;
+      if (debugMode) DebuggerOverlay.show();
     });
     chrome.storage.onChanged.addListener((changes) => { 
       if (changes.debugModeEnabled) {
         debugMode = changes.debugModeEnabled.newValue;
         ChatChannelMonitor.debugMode = debugMode;
+        if (debugMode) {
+          DebuggerOverlay.show();
+        } else {
+          DebuggerOverlay.hide();
+        }
       }
     });
 
