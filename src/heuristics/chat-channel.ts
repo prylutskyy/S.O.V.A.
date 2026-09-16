@@ -276,8 +276,10 @@ export class ChatChannelMonitor {
         }
       }, 10000);
 
+      const triggerWord = scan.matchedSpans?.[0]?.text;
+
       // TIER 2: AI Verification (Gemini Nano) via Background Script
-      chrome.runtime.sendMessage({ type: 'AI_VERIFY', payload: { text, intentType: scan.intentType } }, (response) => {
+      chrome.runtime.sendMessage({ type: 'AI_VERIFY', payload: { text, intentType: scan.intentType, triggerWord } }, (response) => {
         aiResponded = true;
         clearTimeout(timeoutId);
         GlobalInputInterceptor.setSoftLock(false);

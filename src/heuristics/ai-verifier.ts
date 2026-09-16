@@ -19,16 +19,16 @@ export class AILureVerifier {
    * Викликає AI для верифікації наміру (Рівень 2).
    * Повертає результат, або null якщо AI недоступний.
    */
-  public async verifyIntent(text: string, detectedType: ScamIntentType): Promise<AIValidationResult | null> {
+  public async verifyIntent(text: string, detectedType: ScamIntentType, triggerWord?: string): Promise<AIValidationResult | null> {
     const isAvailable = await this.aiProvider.isAvailable();
     if (!isAvailable) {
-      console.log('[ThreatShield:AIVerifier] Нейромережа недоступна, пропускаємо Рівень 2.');
+      console.log('[ThreatShield:AIVerifier] Нейромережа недоступна, пропускаємо рівень 2.');
       return null;
     }
 
     const rules = AILureVerifier.intentContextRules[detectedType] || 'Analyze for general social engineering.';
     console.log(`[ThreatShield:AIVerifier] Запуск перевірки Рівня 2 (Gemini Nano) для типу: ${detectedType}`);
     
-    return this.aiProvider.verifyIntent(text, rules);
+    return this.aiProvider.verifyIntent(text, rules, triggerWord);
   }
 }

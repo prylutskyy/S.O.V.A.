@@ -5,6 +5,13 @@ export interface AIValidationResult {
 }
 
 export interface IAIProvider {
+  /**
+   * Перевіряє доступність локального AI (Gemini Nano)
+   */
   isAvailable(): Promise<boolean>;
-  verifyIntent(text: string, contextRules: string): Promise<AIValidationResult | null>;
+
+  /**
+   * Аналізує текст на наявність маніпуляцій з урахуванням виявленого контексту.
+   */
+  verifyIntent(text: string, contextRules: string, triggerWord?: string): Promise<AIValidationResult | null>;
 }

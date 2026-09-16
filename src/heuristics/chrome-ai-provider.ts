@@ -33,7 +33,7 @@ export class ChromeBuiltinAIProvider implements IAIProvider {
     }
   }
 
-  public async verifyIntent(text: string, contextRules: string): Promise<AIValidationResult | null> {
+  public async verifyIntent(text: string, contextRules: string, triggerWord?: string): Promise<AIValidationResult | null> {
     const provider = this.getProvider();
     if (!provider || !(await this.isAvailable())) {
       return null;
@@ -46,19 +46,30 @@ export class ChromeBuiltinAIProvider implements IAIProvider {
           systemPrompt: `Answer ONLY with JSON {"isScam": true/false}. Is this an escrow/delivery scam?`,
           temperature: 0.1,
         };
-        // Add signal if supported
         if (this.abortSignal) createOptions.signal = this.abortSignal;
         
         session = await provider.create(createOptions);
       } catch (e) {
         if (this.abortSignal?.aborted) throw e;
-        console.warn('[ThreatShield:AI] create(options) failed, trying create() without options...', e);
         session = await provider.create(this.abortSignal ? { signal: this.abortSignal } : undefined);
       }
 
-      // 1. Жорсткий ліміт вхідного тексту (Truncation)
-      // Беремо лише перші 300 символів, щоб не перевантажувати LLM і не викликати freeze
-      const truncatedText = text.length > 300 ? text.substring(0, 300) + '...' : text;
+      // 1. Інтелектуальне обрізання тексту (Sliding Window Truncation)
+      let truncatedText = text;
+      const MAX_LEN = 300;
+      
+      if (text.length > MAX_LEN) {
+        if (triggerWord && text.includes(triggerWord)) {
+          // Якщо ми знаємо тригерне слово, вирізаємо вікно навколо нього
+          const triggerIndex = text.indexOf(triggerWord);
+          const start = Math.max(0, triggerIndex - Math.floor(MAX_LEN / 2));
+          const end = Math.min(text.length, start + MAX_LEN);
+          truncatedText = (start > 0 ? '...' : '') + text.substring(start, end) + (end < text.length ? '...' : '');
+        } else {
+          // Якщо тригер невідомий (або не знайдений), беремо перші 300 символів
+          truncatedText = text.substring(0, MAX_LEN) + '...';
+        }
+      }
 
       // 2. Спартанський промпт
       const prompt = `Task: Analyze if this message is a scam.

@@ -564,7 +564,9 @@ export default defineContentScript({
               }
             }, 10000);
 
-            chrome.runtime.sendMessage({ type: 'AI_VERIFY', payload: { text: textToScan, intentType: scan.intentType } }, (response) => {
+            const triggerWord = scan.matchedSpans?.[0]?.text;
+
+            chrome.runtime.sendMessage({ type: 'AI_VERIFY', payload: { text: textToScan, intentType: scan.intentType, triggerWord } }, (response) => {
               aiResponded = true;
               clearTimeout(timeoutId);
               GlobalInputInterceptor.setSoftLock(false);
@@ -612,7 +614,9 @@ export default defineContentScript({
             }
           }, 10000);
 
-          chrome.runtime.sendMessage({ type: 'AI_VERIFY', payload: { text: selection, intentType: scan.intentType } }, (response) => {
+          const triggerWord = scan.matchedSpans?.[0]?.text;
+
+          chrome.runtime.sendMessage({ type: 'AI_VERIFY', payload: { text: selection, intentType: scan.intentType, triggerWord } }, (response) => {
             aiResponded = true;
             clearTimeout(timeoutId);
             GlobalInputInterceptor.setSoftLock(false);

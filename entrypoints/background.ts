@@ -73,7 +73,7 @@ export default defineBackground(() => {
     }
 
     if (message.type === 'AI_VERIFY') {
-      const { text, intentType } = message.payload;
+      const { text, intentType, triggerWord } = message.payload;
       
       // We must run this in an Offscreen Document because the Prompt API
       // is often bound to the DOM (window) and not available in the Service Worker.
@@ -81,7 +81,7 @@ export default defineBackground(() => {
         chrome.runtime.sendMessage({
           target: 'offscreen',
           type: 'AI_VERIFY',
-          payload: { text, intentType }
+          payload: { text, intentType, triggerWord }
         }, (response) => {
           sendResponse(response);
         });
