@@ -51,4 +51,17 @@ describe('ChatSessionState', () => {
     // We're just ensuring it doesn't crash here.
     expect(true).toBe(true);
   });
+
+  it('should calculate confidence >= 50 for critical threats (Phase 3 Risk Matrix)', () => {
+    // Escrow Delivery Scam requires Delivery + Link (or similar combo)
+    const res = ChatSessionState.addMessageAndEvaluate('оформлюйте olx доставка через мій лінк https://fake-olx.com', 'inbound');
+    
+    // It should identify it as ESCROW_DELIVERY_SCAM
+    expect(res.hasFormedIntent).toBe(true);
+    expect(res.intentType).toBe('ESCROW_DELIVERY_SCAM');
+    
+    // The confidence MUST be >= 50 to trigger the Phase 4 Hard Lock UI
+    expect(res.confidence).toBeDefined();
+    expect(res.confidence).toBeGreaterThanOrEqual(50);
+  });
 });
