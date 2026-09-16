@@ -103,10 +103,26 @@ Respond ONLY with JSON.`;
       } catch (parseError) {
         console.warn('[ThreatShield:AI] Failed to parse JSON. Text:', responseText);
         const lowerText = responseText.toLowerCase();
-        if (lowerText.includes('"isscam": true') || lowerText.includes('"isscam":true')) {
+        
+        // Regex extraction for manual parsing
+        if (lowerText.includes('"isscam": true') || lowerText.includes('"isscam":true') || lowerText.includes('"isscam":  true')) {
           parsed.isScam = true;
-          parsed.confidence = 80;
-          parsed.reasoning = 'Виявлено ознаки шахрайства, але ШІ повернув невалідний формат.';
+        }
+        
+        const confMatch = responseText.match(/"confidence"\s*:\s*(\d+)/i);
+        if (confMatch && confMatch[1]) {
+          parsed.confidence = parseInt(confMatch[1], 10);
+        } else {
+          parsed.confidence = parsed.isScam ? 80 : 20;
+        }
+        
+        // Extract reasoning (everything between "reasoning": " and the last ")
+        const reasoningMatch = responseText.match(/"reasoning"\s*:\s*"([^]*)"\s*\}/i);
+        if (reasoningMatch && reasoningMatch[1]) {
+          // Remove internal unescaped quotes
+          parsed.reasoning = reasoningMatch[1].replace(/\\"/g, "'").replace(/"/g, "'").trim();
+        } else {
+          parsed.reasoning = parsed.isScam ? 'Виявлено ознаки шахрайства (відповідь ШІ не стандартизована).' : 'Не виявлено чітких загроз (відповідь ШІ не стандартизована).';
         }
       }
       

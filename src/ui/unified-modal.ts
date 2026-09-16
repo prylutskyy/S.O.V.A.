@@ -272,31 +272,43 @@ export class UnifiedFrictionModal {
         try {
           if (typeof chrome !== 'undefined' && chrome.runtime) {
             const scanText = options.rawTextToScan || options.contextValue || '';
+            
+            import('./debugger-overlay').then(({ DebuggerOverlay }) => {
+              DebuggerOverlay.log('ШІ Арбітр', `Запит відправлено до Gemini Nano.\nТекст: ${scanText.substring(0, 100)}...`, '#3B82F6');
+            });
+
             chrome.runtime.sendMessage({ type: 'AI_VERIFY', payload: { text: scanText, intentType: options.intentType || 'UNKNOWN' } }, (response) => {
               const aiResult = response?.aiResult;
               aiResultDiv.style.display = 'block';
-              if (!aiResult) {
-                aiResultDiv.style.background = C.redBg;
-                aiResultDiv.style.color = C.red;
-                aiResultDiv.style.border = `1px solid ${C.redBd}`;
-                aiResultDiv.innerHTML = '<b>Помилка:</b> ШІ недоступний.';
-              } else if (aiResult.isScam) {
-                aiResultDiv.style.background = C.redBg;
-                aiResultDiv.style.color = C.red;
-                aiResultDiv.style.border = `1px solid ${C.redBd}`;
-                aiResultDiv.innerHTML = '<b>ШІ підтверджує загрозу:</b> ' + aiResult.reasoning;
-              } else {
-                aiResultDiv.style.background = C.greenBg;
-                aiResultDiv.style.color = C.green;
-                aiResultDiv.style.border = `1px solid ${C.greenBd}`;
-                aiResultDiv.innerHTML = '<b>ШІ відхилив загрозу:</b> ' + aiResult.reasoning;
-                
-                // Unlock override instantly
-                if (this.countdownInterval) clearInterval(this.countdownInterval);
-                btnOverride.disabled = false;
-                btnOverride.innerText = 'Продовжити (Безпечно за версією ШІ)';
-                btnOverride.classList.add('active');
-              }
+              
+              import('./debugger-overlay').then(({ DebuggerOverlay }) => {
+                if (!aiResult) {
+                  aiResultDiv.style.background = C.redBg;
+                  aiResultDiv.style.color = C.red;
+                  aiResultDiv.style.border = `1px solid ${C.redBd}`;
+                  aiResultDiv.innerHTML = '<b>Помилка:</b> ШІ не відповів або недоступний.';
+                  DebuggerOverlay.log('ШІ Арбітр: Збій', 'Gemini Nano не зміг обробити запит.', '#EF4444');
+                } else if (aiResult.isScam) {
+                  aiResultDiv.style.background = C.redBg;
+                  aiResultDiv.style.color = C.red;
+                  aiResultDiv.style.border = `1px solid ${C.redBd}`;
+                  aiResultDiv.innerHTML = '<b>ШІ Підтвердив Загрозу:</b> ' + aiResult.reasoning;
+                  DebuggerOverlay.log('ШІ Арбітр: Скам', `Впевненість: ${aiResult.confidence}%\nВисновок: ${aiResult.reasoning}`, '#EF4444');
+                } else {
+                  aiResultDiv.style.background = C.greenBg;
+                  aiResultDiv.style.color = C.green;
+                  aiResultDiv.style.border = `1px solid ${C.greenBd}`;
+                  aiResultDiv.innerHTML = '<b>ШІ Спростував Загрозу:</b> ' + aiResult.reasoning;
+                  DebuggerOverlay.log('ШІ Арбітр: Безпечно', `Впевненість: ${aiResult.confidence}%\nВисновок: ${aiResult.reasoning}`, '#22C55E');
+                  
+                  // Unlock override instantly
+                  if (this.countdownInterval) clearInterval(this.countdownInterval);
+                  btnOverride.disabled = false;
+                  btnOverride.innerText = 'Продовжити (Відправити Дані)';
+                  btnOverride.classList.add('active');
+                }
+              });
+
               btnAi.style.display = 'none';
             });
           }
