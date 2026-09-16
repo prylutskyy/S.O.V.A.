@@ -339,19 +339,9 @@ export default defineContentScript({
             cards: outbound.cards,
           },
           () => {
-            // При усвідомленому підтвердженні:
+            // Синтетичні події не працюють в SPA (React), тому просто даємо дозвіл і просимо повторити дію.
             inputElement.dataset.threatShieldApproved = 'true';
-            const form = inputElement.closest('form');
-            if (form) {
-              form.dataset.threatShieldApproved = 'true';
-              if (typeof form.requestSubmit === 'function') {
-                form.requestSubmit();
-              } else {
-                form.submit();
-              }
-            } else {
-              inputElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }));
-            }
+            ToastNotifier.show('Блокування знято. Натисніть Відправити або Enter ще раз.', 'info', 4000);
           },
           undefined,
           activeContext
@@ -378,6 +368,85 @@ export default defineContentScript({
         isWhitelisted(targetHost)
       );
     };
+
+    document.addEventListener(
+      'click',
+      (event) => {
+        const target = event.target as HTMLElement;
+        const submitBtn = target.closest('button[type="submit"], input[type="submit"], [role="button"], button') as HTMLElement;
+        
+        if (submitBtn) {
+          const form = submitBtn.closest('form');
+          if (form) {
+            if (isFormWhitelisted(form)) return;
+            if (form.dataset.threatShieldApproved === 'true') return;
+
+            const { assessment, formState, targetHost } = evaluateFormThreat(form);
+            if (shouldBlock(assessment, formState, targetHost)) {
+              event.preventDefault();
+              event.stopPropagation();
+              event.stopImmediatePropagation();
+              SecurityFriction.apply(form, assessment, submitBtn, undefined, activeContext);
+            }
+          } else {
+            // Chat Send button check
+            const container = submitBtn.closest('[data-testid="conversation-layout"], .chat, .messenger');
+            if (container) {
+              const input = container.querySelector(ACTIVE_INPUTS_SELECTOR) as HTMLInputElement | HTMLTextAreaElement;
+              if (input && input.value) {
+                interceptChatSend(input, event, false);
+              }
+            }
+          }
+        }
+      },
+      true
+    );
+
+    document.addEventListener(
+      'keydown',
+      (event) => {
+        const target = event.target as HTMLElement;
+        if (event.key === 'Enter' && !event.shiftKey) {
+          if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.getAttribute('role') === 'textbox') {
+            const input = target as HTMLInputElement | HTMLTextAreaElement;
+            const form = input.closest('form');
+            if (form) {
+              if (isFormWhitelisted(form)) return;
+              if (form.dataset.threatShieldApproved === 'true') return;
+              const { assessment, formState, targetHost } = evaluateFormThreat(form);
+              if (shouldBlock(assessment, formState, targetHost)) {
+                event.preventDefault();
+                event.stopPropagation();
+                event.stopImmediatePropagation();
+                SecurityFriction.apply(form, assessment, undefined, undefined, activeContext);
+              }
+            } else {
+              interceptChatSend(input, event, false);
+            }
+          }
+        }
+      },
+      true
+    );
+
+    document.addEventListener(
+      'submit',
+      (event) => {
+        const form = event.target as HTMLFormElement;
+        if (isFormWhitelisted(form)) return;
+        if (form.dataset.threatShieldApproved === 'true') return;
+
+        const { assessment, formState, targetHost } = evaluateFormThreat(form);
+        if (shouldBlock(assessment, formState, targetHost)) {
+          event.preventDefault();
+          event.stopPropagation();
+          event.stopImmediatePropagation();
+          SecurityFriction.apply(form, assessment, undefined, undefined, activeContext);
+        }
+      },
+      true
+    );
 
     document.addEventListener('copy', async () => {
       const selection = window.getSelection()?.toString().trim();
