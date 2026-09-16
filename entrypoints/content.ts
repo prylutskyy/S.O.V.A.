@@ -278,6 +278,23 @@ export default defineContentScript({
     // =========================================================================
     // 1. РІВЕНЬ 1: Клік по кнопці відправки форми або чату (до події submit)
     // =========================================================================
+
+    const isFormWhitelisted = (form: HTMLFormElement | null): boolean => {
+      if (!form) return false;
+      const rawAction = form.getAttribute('action') || form.action;
+      let targetHost = currentHost;
+      try {
+        if (rawAction && rawAction !== '#' && !rawAction.startsWith('javascript:')) {
+          targetHost = new URL(rawAction, window.location.href).hostname.toLowerCase();
+        }
+      } catch {}
+      return (
+        isAccreditedPaymentGateway(targetHost) ||
+        UserWhitelistManager.isDomainAllowedSync(targetHost) ||
+        isWhitelisted(targetHost)
+      );
+    };
+
     document.addEventListener(
       'click',
       (event) => {
@@ -300,14 +317,16 @@ export default defineContentScript({
         }
 
         // Перевіряємо, чи є в полі витік реквізитів картки, CVV або маркерів Vault
-        for (const input of textInputs) {
-          if (input.dataset.threatShieldApproved === 'true') continue;
-          const outbound = ChatChannelMonitor.checkOutbound(input.value || '');
-          const hasCvv = outbound.hasCvv || isFieldCvv(input);
-          const vaultScan = VaultScanner.scanTextSync(input.value || '');
-          if (outbound.hasCard || hasCvv || vaultScan.matchedItems.length > 0) {
-            interceptChatSend(input, event, hasCvv);
-            return;
+        if (!isFormWhitelisted(form)) {
+          for (const input of textInputs) {
+            if (input.dataset.threatShieldApproved === 'true') continue;
+            const outbound = ChatChannelMonitor.checkOutbound(input.value || '');
+            const hasCvv = outbound.hasCvv || isFieldCvv(input);
+            const vaultScan = VaultScanner.scanTextSync(input.value || '');
+            if (outbound.hasCard || hasCvv || vaultScan.matchedItems.length > 0) {
+              interceptChatSend(input, event, hasCvv);
+              return;
+            }
           }
         }
 
@@ -339,16 +358,18 @@ export default defineContentScript({
             if (input.dataset.threatShieldApproved === 'true') return;
 
             // 1. Перевірка на витік картки/CVV/Vault у тексті повідомлення
-            const outbound = ChatChannelMonitor.checkOutbound(input.value || '');
-            const hasCvv = outbound.hasCvv || isFieldCvv(input);
-            const vaultScan = VaultScanner.scanTextSync(input.value || '');
-            if (outbound.hasCard || hasCvv || vaultScan.matchedItems.length > 0) {
-              interceptChatSend(input, event, hasCvv);
-              return;
+            const form = input.closest('form');
+            if (!isFormWhitelisted(form)) {
+              const outbound = ChatChannelMonitor.checkOutbound(input.value || '');
+              const hasCvv = outbound.hasCvv || isFieldCvv(input);
+              const vaultScan = VaultScanner.scanTextSync(input.value || '');
+              if (outbound.hasCard || hasCvv || vaultScan.matchedItems.length > 0) {
+                interceptChatSend(input, event, hasCvv);
+                return;
+              }
             }
 
             // 2. Якщо поле всередині традиційної форми
-            const form = input.closest('form');
             if (form) {
               if (form.dataset.threatShieldApproved === 'true') return;
               const { assessment, formState, targetHost } = evaluateFormThreat(form);
@@ -381,15 +402,17 @@ export default defineContentScript({
         }
 
         // Перевіряємо поля форми на витік платіжних або Vault даних
-        const textInputs = form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>(ACTIVE_INPUTS_SELECTOR);
-        for (const input of Array.from(textInputs)) {
-          if (input.dataset.threatShieldApproved === 'true') continue;
-          const outbound = ChatChannelMonitor.checkOutbound(input.value || '');
-          const hasCvv = outbound.hasCvv || isFieldCvv(input);
-          const vaultScan = VaultScanner.scanTextSync(input.value || '');
-          if (outbound.hasCard || hasCvv || vaultScan.matchedItems.length > 0) {
-            interceptChatSend(input, event, hasCvv);
-            return;
+        if (!isFormWhitelisted(form)) {
+          const textInputs = form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>(ACTIVE_INPUTS_SELECTOR);
+          for (const input of Array.from(textInputs)) {
+            if (input.dataset.threatShieldApproved === 'true') continue;
+            const outbound = ChatChannelMonitor.checkOutbound(input.value || '');
+            const hasCvv = outbound.hasCvv || isFieldCvv(input);
+            const vaultScan = VaultScanner.scanTextSync(input.value || '');
+            if (outbound.hasCard || hasCvv || vaultScan.matchedItems.length > 0) {
+              interceptChatSend(input, event, hasCvv);
+              return;
+            }
           }
         }
 
