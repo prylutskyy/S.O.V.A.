@@ -267,20 +267,19 @@ export class ChatChannelMonitor {
       ToastNotifier.show('ШІ перевіряє чат на наявність загроз...', 'info', 2000);
 
       // Fallback timeout
-      let aiResponded = false;
+      let hasTimedOut = false;
       const timeoutId = setTimeout(() => {
-        if (!aiResponded) {
-          GlobalInputInterceptor.setSoftLock(false);
-          if (this.debugMode) DebuggerOverlay.log('4. AI Response (Tier 2)', 'Timeout (Hanged)', '#EF4444');
-          console.warn('[ThreatShield:ChatChannel] AI timeout fallback triggered');
-        }
-      }, 10000);
+        hasTimedOut = true;
+        GlobalInputInterceptor.setSoftLock(false);
+        if (this.debugMode) DebuggerOverlay.log('4. AI Response (Tier 2)', 'Timeout (Took > 30s)', '#EF4444');
+        console.warn('[ThreatShield:ChatChannel] AI timeout fallback triggered');
+      }, 30000);
 
       const triggerWord = scan.matchedSpans?.[0]?.text;
 
       // TIER 2: AI Verification (Gemini Nano) via Background Script
       chrome.runtime.sendMessage({ type: 'AI_VERIFY', payload: { text, intentType: scan.intentType, triggerWord } }, (response) => {
-        aiResponded = true;
+        if (hasTimedOut) return;
         clearTimeout(timeoutId);
         GlobalInputInterceptor.setSoftLock(false);
         const aiResult = response?.aiResult;

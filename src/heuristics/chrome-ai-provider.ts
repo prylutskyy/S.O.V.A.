@@ -79,8 +79,25 @@ Message: "${truncatedText}"`;
       const responseText = await session.prompt(prompt, this.abortSignal ? { signal: this.abortSignal } : undefined);
       
       // Attempt to parse JSON safely
-      const cleanJson = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
-      const parsed = JSON.parse(cleanJson);
+      let cleanJson = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
+      let parsed: any = { isScam: false }; // Default fallback
+      
+      try {
+        // Find the first { and last } to extract JSON
+        const firstBrace = cleanJson.indexOf('{');
+        const lastBrace = cleanJson.lastIndexOf('}');
+        if (firstBrace !== -1 && lastBrace !== -1) {
+          cleanJson = cleanJson.substring(firstBrace, lastBrace + 1);
+        }
+        parsed = JSON.parse(cleanJson);
+      } catch (parseError) {
+        console.warn('[ThreatShield:AI] Failed to parse JSON, falling back to regex matching. Text:', responseText);
+        // Fallback: search for true/false textually
+        const lowerText = responseText.toLowerCase();
+        if (lowerText.includes('"isscam": true') || lowerText.includes('"isscam":true')) {
+          parsed.isScam = true;
+        }
+      }
       
       return {
         isScam: parsed.isScam === true || String(parsed.isScam).toLowerCase() === 'true',

@@ -556,18 +556,17 @@ export default defineContentScript({
             GlobalInputInterceptor.setSoftLock(true);
             ToastNotifier.show('ШІ аналізує натискання на безпеку...', 'info', 2000);
             
-            let aiResponded = false;
+            let hasTimedOut = false;
             const timeoutId = setTimeout(() => {
-              if (!aiResponded) {
-                GlobalInputInterceptor.setSoftLock(false);
-                if (debugMode) DebuggerOverlay.log('4. AI Response (Tier 2)', 'Timeout (Hanged)', '#EF4444');
-              }
-            }, 10000);
+              hasTimedOut = true;
+              GlobalInputInterceptor.setSoftLock(false);
+              if (debugMode) DebuggerOverlay.log('4. AI Response (Tier 2)', 'Timeout (Took > 30s)', '#EF4444');
+            }, 30000);
 
             const triggerWord = scan.matchedSpans?.[0]?.text;
 
             chrome.runtime.sendMessage({ type: 'AI_VERIFY', payload: { text: textToScan, intentType: scan.intentType, triggerWord } }, (response) => {
-              aiResponded = true;
+              if (hasTimedOut) return;
               clearTimeout(timeoutId);
               GlobalInputInterceptor.setSoftLock(false);
               const aiResult = response?.aiResult;
@@ -606,18 +605,17 @@ export default defineContentScript({
           GlobalInputInterceptor.setSoftLock(true);
           ToastNotifier.show('ШІ аналізує скопійований текст...', 'info', 2000);
           
-          let aiResponded = false;
+          let hasTimedOut = false;
           const timeoutId = setTimeout(() => {
-            if (!aiResponded) {
-              GlobalInputInterceptor.setSoftLock(false);
-              if (debugMode) DebuggerOverlay.log('4. AI Response (Tier 2)', 'Timeout (Hanged)', '#EF4444');
-            }
-          }, 10000);
+            hasTimedOut = true;
+            GlobalInputInterceptor.setSoftLock(false);
+            if (debugMode) DebuggerOverlay.log('4. AI Response (Tier 2)', 'Timeout (Took > 30s)', '#EF4444');
+          }, 30000);
 
           const triggerWord = scan.matchedSpans?.[0]?.text;
 
           chrome.runtime.sendMessage({ type: 'AI_VERIFY', payload: { text: selection, intentType: scan.intentType, triggerWord } }, (response) => {
-            aiResponded = true;
+            if (hasTimedOut) return;
             clearTimeout(timeoutId);
             GlobalInputInterceptor.setSoftLock(false);
             const aiResult = response?.aiResult;
