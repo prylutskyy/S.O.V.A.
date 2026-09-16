@@ -19,13 +19,15 @@ import { UrgencyDetector } from '../src/heuristics/urgency-detector';
 import { RiskEngine } from '../src/core/risk-engine';
 import { SecurityFriction } from '../src/ui/friction';
 import { PopoverUI } from '../src/ui/popover-ui';
-import { TextHighlighter } from '../src/ui/text-highlighter';
+import { ToastNotifier } from '../src/ui/toast-notifier';
 import { DebuggerOverlay } from '../src/ui/debugger-overlay';
 import { ActiveThreatContext, HeuristicResult, ThreatAssessment } from '../src/types';
+import { GlobalInputInterceptor } from '../src/heuristics/input-interceptor';
 
 export default defineContentScript({
   matches: ['<all_urls>'],
   main() {
+    GlobalInputInterceptor.init();
     const currentHost = window.location.hostname.toLowerCase();
     const aiVerifier = new AILureVerifier(new ChromeBuiltinAIProvider());
 
@@ -53,6 +55,7 @@ export default defineContentScript({
         if (response && response.context) {
           const ctx = response.context as ActiveThreatContext;
           activeContext = ctx;
+          GlobalInputInterceptor.setHardLock(ctx);
           console.log('[ThreatShield:Content] Отримано активний контекст загрози:', ctx);
 
           if (shouldDisplayContextBanner(ctx)) {
@@ -67,9 +70,11 @@ export default defineContentScript({
       chrome.runtime.onMessage.addListener((msg) => {
         if (msg && msg.type === 'CONTEXT_CLEARED') {
           activeContext = null;
+          GlobalInputInterceptor.setHardLock(null);
           SecurityFriction.removeContextWarningBanner();
         } else if (msg && msg.type === 'CONTEXT_UPDATED' && msg.context) {
           activeContext = msg.context as ActiveThreatContext;
+          GlobalInputInterceptor.setHardLock(activeContext);
           if (shouldDisplayContextBanner(activeContext)) {
             SecurityFriction.showContextWarningBanner(activeContext);
           }
@@ -548,8 +553,11 @@ export default defineContentScript({
           }
           if (scan.hasFormedIntent) {
             if (debugMode) DebuggerOverlay.log('3. Intent Formed!', scan.intentType, '#EF4444');
+            GlobalInputInterceptor.setSoftLock(true);
+            ToastNotifier.show('ШІ аналізує натискання на безпеку...', 'info', 2000);
             
             chrome.runtime.sendMessage({ type: 'AI_VERIFY', payload: { text: textToScan, intentType: scan.intentType } }, (response) => {
+              GlobalInputInterceptor.setSoftLock(false);
               const aiResult = response?.aiResult;
               if (debugMode) DebuggerOverlay.log('4. AI Response (Tier 2)', aiResult || 'Unavailable (Background)', '#A855F7');
               if (aiResult && !aiResult.isScam) {
@@ -583,8 +591,11 @@ export default defineContentScript({
         }
         if (scan.hasFormedIntent) {
           if (debugMode) DebuggerOverlay.log('3. Intent Formed!', scan.intentType, '#EF4444');
+          GlobalInputInterceptor.setSoftLock(true);
+          ToastNotifier.show('ШІ аналізує скопійований текст...', 'info', 2000);
           
           chrome.runtime.sendMessage({ type: 'AI_VERIFY', payload: { text: selection, intentType: scan.intentType } }, (response) => {
+            GlobalInputInterceptor.setSoftLock(false);
             const aiResult = response?.aiResult;
             if (debugMode) DebuggerOverlay.log('4. AI Response (Tier 2)', aiResult || 'Unavailable (Background)', '#A855F7');
             if (aiResult && !aiResult.isScam) {

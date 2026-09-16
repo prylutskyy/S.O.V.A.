@@ -2,7 +2,8 @@ import { IntentClassifier } from './intent-classifier';
 import { AILureVerifier } from './ai-verifier';
 import { ChromeBuiltinAIProvider } from './chrome-ai-provider';
 import { checkOutboundChatLeakage } from './input-detector';
-import { IntentHighlighter } from '../ui/intent-highlighter';
+import { ToastNotifier } from '../ui/toast-notifier';
+import { GlobalInputInterceptor } from './input-interceptor';
 import { DebuggerOverlay } from '../ui/debugger-overlay';
 
 export type MessageDirection = 'inbound' | 'outbound' | 'unknown';
@@ -262,8 +263,12 @@ export class ChatChannelMonitor {
     // Ми скануємо вхідні повідомлення на наявність намірів:
     if (scan.hasFormedIntent) {
       if (this.debugMode) DebuggerOverlay.log('3. Intent Formed!', scan.intentType, '#EF4444');
+      GlobalInputInterceptor.setSoftLock(true);
+      ToastNotifier.show('ШІ перевіряє чат на наявність загроз...', 'info', 2000);
+
       // TIER 2: AI Verification (Gemini Nano) via Background Script
       chrome.runtime.sendMessage({ type: 'AI_VERIFY', payload: { text, intentType: scan.intentType } }, (response) => {
+        GlobalInputInterceptor.setSoftLock(false);
         const aiResult = response?.aiResult;
         if (this.debugMode) DebuggerOverlay.log('4. AI Response (Tier 2)', aiResult || 'Unavailable (Background)', '#A855F7');
         // Якщо AI працює і каже що це не шахрайство - пропускаємо
@@ -272,6 +277,7 @@ export class ChatChannelMonitor {
           return;
         }
 
+        ToastNotifier.show('⚠️ Обережно! Співрозмовник намагається вивести вас з платформи. Нічого не оплачуйте!', 'error', 8000);
         this.recentLuresCache.add(text);
         if (this.recentLuresCache.size > 50) {
           this.recentLuresCache.clear();
