@@ -1,0 +1,110 @@
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { PersonalVaultManager } from './personal-vault';
+import { DEFAULT_VAULT_ITEMS } from './personal-vault';
+
+// Mock chrome API
+const mockStorage: Record<string, any> = {};
+const mockSessionStorage: Record<string, any> = {};
+globalThis.chrome = {
+  storage: {
+    local: {
+      get: vi.fn().mockImplementation(async (key) => ({ [key]: mockStorage[key] })),
+      set: vi.fn().mockImplementation(async (obj) => {
+        Object.assign(mockStorage, obj);
+      }),
+    },
+    session: {
+      get: vi.fn().mockImplementation(async (key) => ({ [key]: mockSessionStorage[key] })),
+      set: vi.fn().mockImplementation(async (obj) => {
+        Object.assign(mockSessionStorage, obj);
+      }),
+      remove: vi.fn().mockImplementation(async (key) => {
+        delete mockSessionStorage[key];
+      }),
+    },
+    onChanged: { addListener: vi.fn() },
+  },
+} as any;
+
+describe('PersonalVaultManager', () => {
+  beforeEach(async () => {
+    // Clear storage and reset state
+    for (const key in mockStorage) delete mockStorage[key];
+    for (const key in mockSessionStorage) delete mockSessionStorage[key];
+    PersonalVaultManager['isInitialized'] = false;
+    PersonalVaultManager['cachedItems'] = [];
+    await PersonalVaultManager.lock();
+    vi.clearAllMocks();
+  });
+
+  it('should be locked by default', () => {
+    expect(PersonalVaultManager.isLocked()).toBe(true);
+    expect(PersonalVaultManager.getItemsSync().length).toBe(0);
+  });
+
+  it('should correctly report if vault is setup', async () => {
+    expect(await PersonalVaultManager.hasVaultSetup()).toBe(false);
+    await PersonalVaultManager.setupMasterPassword('password');
+    expect(await PersonalVaultManager.hasVaultSetup()).toBe(true);
+  });
+
+  it('should initialize with locked state if encrypted data exists', async () => {
+    // Pre-populate mock storage with "encrypted" payload format
+    mockStorage['threat_shield_personal_vault_encrypted'] = {
+      salt: [1,2,3], iv: [1,2,3], ciphertext: [1,2,3]
+    };
+    
+    await PersonalVaultManager.init();
+    
+    expect(PersonalVaultManager.isLocked()).toBe(true);
+    expect(PersonalVaultManager.getItemsSync().length).toBe(0);
+  });
+
+  it('should unlock successfully with correct password', async () => {
+    // Setup a new vault with a password
+    await PersonalVaultManager.setupMasterPassword('my-strong-password');
+    expect(PersonalVaultManager.isLocked()).toBe(false);
+    expect(PersonalVaultManager.getItemsSync().length).toBe(DEFAULT_VAULT_ITEMS.length);
+    
+    // Now simulate browser restart
+    await PersonalVaultManager.lock();
+    PersonalVaultManager['isInitialized'] = false;
+    expect(PersonalVaultManager.isLocked()).toBe(true);
+    
+    // Try to unlock
+    const success = await PersonalVaultManager.unlock('my-strong-password');
+    expect(success).toBe(true);
+    expect(PersonalVaultManager.isLocked()).toBe(false);
+    expect(PersonalVaultManager.getItemsSync().length).toBe(DEFAULT_VAULT_ITEMS.length);
+  });
+
+  it('should fail to unlock with wrong password', async () => {
+    await PersonalVaultManager.setupMasterPassword('my-strong-password');
+    
+    await PersonalVaultManager.lock();
+    
+    const success = await PersonalVaultManager.unlock('wrong-password');
+    expect(success).toBe(false);
+    expect(PersonalVaultManager.isLocked()).toBe(true);
+  });
+  
+  it('should encrypt items when saved while unlocked', async () => {
+    await PersonalVaultManager.setupMasterPassword('password');
+    
+    await PersonalVaultManager.saveItem({
+      category: 'CUSTOM',
+      label: 'My Secret',
+      realValue: '12345',
+      decoyValue: '54321',
+      keywords: ['secret']
+    });
+    
+    // Check storage - it should be encrypted payload, not raw array
+    const rawData = mockStorage['threat_shield_personal_vault_encrypted'];
+    expect(rawData).toBeDefined();
+    expect(rawData.ciphertext).toBeDefined();
+    expect(rawData.salt).toBeDefined();
+    expect(rawData.iv).toBeDefined();
+    expect(Array.isArray(rawData)).toBe(false); // Should not be a raw array
+  });
+});

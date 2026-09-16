@@ -1,6 +1,8 @@
 import { VaultItem, VaultItemCategory, VaultSensitivityTier } from '../types/vault';
+import { CryptoService } from './crypto-service';
 
 const VAULT_STORAGE_KEY = 'threat_shield_personal_vault';
+const ENCRYPTED_VAULT_KEY = 'threat_shield_personal_vault_encrypted';
 
 export const DEFAULT_VAULT_ITEMS: VaultItem[] = [
   {
@@ -118,8 +120,109 @@ export const DEFAULT_VAULT_ITEMS: VaultItem[] = [
 ];
 
 export class PersonalVaultManager {
-  private static cachedItems: VaultItem[] = DEFAULT_VAULT_ITEMS;
+  private static cachedItems: VaultItem[] = [];
   private static isInitialized = false;
+
+  private static locked: boolean = true;
+  private static masterKey: CryptoKey | null = null;
+
+  public static isLocked(): boolean {
+    return this.locked;
+  }
+
+  public static async lock(): Promise<void> {
+    this.locked = true;
+    this.masterKey = null;
+    this.cachedItems = [];
+    if (typeof chrome !== 'undefined' && chrome.storage?.session) {
+      await chrome.storage.session.remove('threat_shield_vault_decrypted');
+    }
+  }
+
+  public static async hasVaultSetup(): Promise<boolean> {
+    if (!chrome?.storage?.local) return false;
+    const result = await chrome.storage.local.get(ENCRYPTED_VAULT_KEY);
+    return !!result[ENCRYPTED_VAULT_KEY];
+  }
+
+  public static async setupMasterPassword(password: string): Promise<void> {
+    const salt = CryptoService.generateSalt();
+    const key = await CryptoService.deriveKey(password, salt);
+    
+    this.masterKey = key;
+    this.locked = false;
+    this.cachedItems = DEFAULT_VAULT_ITEMS;
+    
+    await this.persistEncrypted(salt);
+  }
+
+  public static async unlock(password: string): Promise<boolean> {
+    try {
+      if (!chrome?.storage?.local) return false;
+      const result = await chrome.storage.local.get(ENCRYPTED_VAULT_KEY);
+      const payload = result[ENCRYPTED_VAULT_KEY];
+      if (!payload || !payload.salt) {
+        return false;
+      }
+      
+      const salt = new Uint8Array(payload.salt);
+      const key = await CryptoService.deriveKey(password, salt);
+      
+      const decryptedJson = await CryptoService.decryptText(payload, key);
+      const parsedItems = JSON.parse(decryptedJson);
+      
+      this.masterKey = key;
+      this.locked = false;
+      this.cachedItems = parsedItems;
+      
+      if (chrome?.storage?.session) {
+        await chrome.storage.session.set({ 'threat_shield_vault_decrypted': parsedItems });
+      }
+      
+      return true;
+    } catch (e) {
+      console.warn('[ThreatShield] Failed to unlock vault', e);
+      return false; // Wrong password or corrupted data
+    }
+  }
+
+  private static async persistEncrypted(salt?: Uint8Array): Promise<void> {
+    if (!this.masterKey || this.locked) return;
+    
+    try {
+      if (!chrome?.storage?.local) return;
+      
+      let currentSalt = salt;
+      if (!currentSalt) {
+        const result = await chrome.storage.local.get(ENCRYPTED_VAULT_KEY);
+        const payload = result[ENCRYPTED_VAULT_KEY];
+        if (payload && payload.salt) {
+          currentSalt = new Uint8Array(payload.salt);
+        } else {
+          currentSalt = CryptoService.generateSalt();
+        }
+      }
+      
+      const json = JSON.stringify(this.cachedItems);
+      const encrypted = await CryptoService.encryptText(json, this.masterKey);
+      
+      const storagePayload = {
+        salt: Array.from(currentSalt),
+        iv: encrypted.iv,
+        ciphertext: encrypted.ciphertext
+      };
+      
+      await chrome.storage.local.set({ [ENCRYPTED_VAULT_KEY]: storagePayload });
+      
+      // Update session storage as well
+      if (chrome?.storage?.session) {
+        await chrome.storage.session.set({ 'threat_shield_vault_decrypted': this.cachedItems });
+      }
+      
+    } catch (e) {
+      console.error('[ThreatShield] Error saving encrypted vault', e);
+    }
+  }
 
   /**
    * Визначення рівня чутливості категорії
@@ -138,23 +241,30 @@ export class PersonalVaultManager {
    */
   public static async init(): Promise<void> {
     try {
-      if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
-        const result = await chrome.storage.local.get(VAULT_STORAGE_KEY);
-        if (result && Array.isArray(result[VAULT_STORAGE_KEY]) && result[VAULT_STORAGE_KEY].length > 0) {
-          this.cachedItems = result[VAULT_STORAGE_KEY];
+      if (typeof chrome !== 'undefined' && chrome.storage?.session) {
+        const result = await chrome.storage.session.get('threat_shield_vault_decrypted');
+        if (result && Array.isArray(result['threat_shield_vault_decrypted'])) {
+          this.cachedItems = result['threat_shield_vault_decrypted'];
+          this.locked = false;
         } else {
-          await chrome.storage.local.set({ [VAULT_STORAGE_KEY]: DEFAULT_VAULT_ITEMS });
-          this.cachedItems = DEFAULT_VAULT_ITEMS;
+          this.cachedItems = [];
+          this.locked = true;
         }
-        this.isInitialized = true;
 
-        // Підписка на оновлення з Popup
+        // Слухаємо зміни з інших контекстів (наприклад, розблокування в Popup)
         chrome.storage.onChanged.addListener((changes, area) => {
-          if (area === 'local' && changes[VAULT_STORAGE_KEY]) {
-            this.cachedItems = changes[VAULT_STORAGE_KEY].newValue || DEFAULT_VAULT_ITEMS;
+          if (area === 'session' && changes['threat_shield_vault_decrypted']) {
+            if (changes['threat_shield_vault_decrypted'].newValue) {
+              this.cachedItems = changes['threat_shield_vault_decrypted'].newValue;
+              this.locked = false;
+            } else {
+              this.cachedItems = [];
+              this.locked = true;
+            }
           }
         });
       }
+      this.isInitialized = true;
     } catch (e) {
       console.error('[ThreatShield:Vault] Помилка ініціалізації сховища:', e);
     }
@@ -164,7 +274,7 @@ export class PersonalVaultManager {
    * Синхронне миттєве отримання маркерів (для обробників click/submit/input)
    */
   public static getItemsSync(): VaultItem[] {
-    return this.cachedItems;
+    return this.locked ? [] : this.cachedItems;
   }
 
   /**
@@ -174,7 +284,7 @@ export class PersonalVaultManager {
     if (!this.isInitialized) {
       await this.init();
     }
-    return this.cachedItems;
+    return this.getItemsSync();
   }
 
   /**
@@ -182,7 +292,9 @@ export class PersonalVaultManager {
    */
   public static async saveItem(
     item: Omit<VaultItem, 'id' | 'createdAt'> & { id?: string }
-  ): Promise<VaultItem> {
+  ): Promise<VaultItem | null> {
+    if (this.locked) return null;
+
     const items = await this.getItems();
     const existingIndex = item.id ? items.findIndex((i) => i.id === item.id) : -1;
 
@@ -204,9 +316,7 @@ export class PersonalVaultManager {
     }
 
     this.cachedItems = items;
-    if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
-      await chrome.storage.local.set({ [VAULT_STORAGE_KEY]: items });
-    }
+    await this.persistEncrypted();
 
     return savedItem;
   }
@@ -215,22 +325,23 @@ export class PersonalVaultManager {
    * Видалити маркер за ID
    */
   public static async deleteItem(id: string): Promise<void> {
+    if (this.locked) return;
+    
     const items = await this.getItems();
     const filtered = items.filter((i) => i.id !== id);
     this.cachedItems = filtered;
-    if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
-      await chrome.storage.local.set({ [VAULT_STORAGE_KEY]: filtered });
-    }
+    
+    await this.persistEncrypted();
   }
 
   /**
    * Скинути до дефолтних налаштувань
    */
   public static async resetToDefaults(): Promise<void> {
+    if (this.locked) return;
+    
     this.cachedItems = DEFAULT_VAULT_ITEMS;
-    if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
-      await chrome.storage.local.set({ [VAULT_STORAGE_KEY]: DEFAULT_VAULT_ITEMS });
-    }
+    await this.persistEncrypted();
   }
 
   /**
