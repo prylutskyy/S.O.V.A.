@@ -260,55 +260,94 @@
 
   <!-- TAB 2 -->
   <section class="tab-content" id="tabContentVault" style="display:none;">
-    <div class="vault-layout">
-      <aside class="vault-list" id="vaultSidebarList">
-        <div class="vault-section-label">Об'єкти захисту</div>
-      </aside>
-      <section class="vault-detail" id="vaultDetailPanel">
-        <div class="detail-header">
-          <div>
-            <div class="detail-title" id="detailItemLabel">Дівоче прізвище матері</div>
-            <div class="tier-tag a" id="detailItemTier">Tier A: Абсолютний маркер</div>
-          </div>
-          <div class="toggle-wrap">
-            <span class="toggle-label" id="detailSwitchText">Активний</span>
-            <label class="switch"><input type="checkbox" id="detailItemToggle" checked><span class="slider"></span></label>
-          </div>
-        </div>
-        <div class="card" style="padding:12px 14px;">
-          <div class="form-group">
-            <label class="form-label" for="detailRealInput">Справжнє значення (конфіденційно)</label>
-            <input type="text" id="detailRealInput" class="input-field" placeholder="Введіть справжнє значення">
-            <div class="input-hint">Якщо підозрілий сайт спробує зчитати це значення — ви отримаєте попередження.</div>
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="detailDecoyInput">Безпечна підстановка (декой для шахраїв)</label>
-            <input type="text" id="detailDecoyInput" class="input-field" placeholder="Фальшиве значення">
-            <div class="input-hint">Автоматично підставляється замість справжніх даних при спробі крадіжки.</div>
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="detailKeywordsInput">Слова для виявлення (UK / EN / RU)</label>
-            <input type="text" id="detailKeywordsInput" class="input-field" placeholder="ключові, слова, через, кому">
-          </div>
-          <div class="btn-row" style="margin-top:10px;">
-            <button type="button" class="btn-primary" id="btnSaveDetailItem" style="flex:1;">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><polyline points="20 6 9 17 4 12"/></svg>
-              Зберегти
-            </button>
-            <button type="button" class="btn-secondary" id="btnClearDetailItem">Очистити</button>
-          </div>
-        </div>
-        <div class="help-box" id="detailHelpBox">
-          <strong>Чому це важливо?</strong> Дівоче прізвище матері використовується банками як кодове слово. Шахраї випитують його для скидання пароля або перехоплення доступу до інтернет-банкінгу.
-        </div>
-      </section>
+    
+    <!-- Setup state -->
+    <div id="vaultSetupState" style="display:none;" class="card">
+      <div class="hero-icon" style="margin:0 auto 10px; background:var(--blue-bg); color:var(--blue); border-color:var(--blue-bd);">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      </div>
+      <h3 style="text-align:center; margin-bottom: 5px; font-size:15px;">Захистіть свої дані</h3>
+      <p style="text-align:center; color:var(--text-secondary); margin-bottom:15px;">Створіть майстер-пароль для шифрування вашого Personal Vault. Дані зберігатимуться локально.</p>
+      <div class="form-group">
+        <input type="password" id="vaultSetupPassword" class="input-field" placeholder="Придумайте надійний пароль">
+      </div>
+      <div class="form-group">
+        <input type="password" id="vaultSetupConfirm" class="input-field" placeholder="Підтвердіть пароль">
+      </div>
+      <button type="button" class="btn-primary" id="btnSetupVault" style="width:100%; justify-content:center; margin-top:5px;">Створити сховище</button>
     </div>
-    <div style="display:flex;justify-content:space-between;align-items:center;padding-top:2px;">
-      <button type="button" class="btn-secondary" id="btnResetVaultDefaults">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-        Відновити стандартні дані
-      </button>
-      <span style="font-size:10.5px;color:var(--text-muted);">Шифрується локально</span>
+
+    <!-- Locked state -->
+    <div id="vaultLockedState" style="display:none;" class="card">
+      <div class="hero-icon" style="margin:0 auto 10px; background:var(--amber-bg); color:var(--amber); border-color:var(--amber-bd);">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      </div>
+      <h3 style="text-align:center; margin-bottom: 5px; font-size:15px;">Сховище заблоковано</h3>
+      <p style="text-align:center; color:var(--text-secondary); margin-bottom:15px;">Введіть пароль, щоб розблокувати налаштування та активувати сканування чутливих даних.</p>
+      <div class="form-group">
+        <input type="password" id="vaultUnlockPassword" class="input-field" placeholder="Ваш майстер-пароль">
+      </div>
+      <button type="button" class="btn-primary" id="btnUnlockVault" style="width:100%; justify-content:center; margin-top:5px;">Розблокувати</button>
+    </div>
+
+    <!-- Unlocked state -->
+    <div id="vaultUnlockedState" style="display:none;">
+      <div class="vault-layout">
+        <aside class="vault-list" id="vaultSidebarList">
+          <div class="vault-section-label">Об'єкти захисту</div>
+        </aside>
+        <section class="vault-detail" id="vaultDetailPanel">
+          <div class="detail-header">
+            <div>
+              <div class="detail-title" id="detailItemLabel">Дівоче прізвище матері</div>
+              <div class="tier-tag a" id="detailItemTier">Tier A: Абсолютний маркер</div>
+            </div>
+            <div class="toggle-wrap">
+              <span class="toggle-label" id="detailSwitchText">Активний</span>
+              <label class="switch"><input type="checkbox" id="detailItemToggle" checked><span class="slider"></span></label>
+            </div>
+          </div>
+          <div class="card" style="padding:12px 14px;">
+            <div class="form-group">
+              <label class="form-label" for="detailRealInput">Справжнє значення (конфіденційно)</label>
+              <input type="text" id="detailRealInput" class="input-field" placeholder="Введіть справжнє значення">
+              <div class="input-hint">Якщо підозрілий сайт спробує зчитати це значення — ви отримаєте попередження.</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="detailDecoyInput">Безпечна підстановка (декой для шахраїв)</label>
+              <input type="text" id="detailDecoyInput" class="input-field" placeholder="Фальшиве значення">
+              <div class="input-hint">Автоматично підставляється замість справжніх даних при спробі крадіжки.</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="detailKeywordsInput">Слова для виявлення (UK / EN / RU)</label>
+              <input type="text" id="detailKeywordsInput" class="input-field" placeholder="ключові, слова, через, кому">
+            </div>
+            <div class="btn-row" style="margin-top:10px;">
+              <button type="button" class="btn-primary" id="btnSaveDetailItem" style="flex:1;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><polyline points="20 6 9 17 4 12"/></svg>
+                Зберегти
+              </button>
+              <button type="button" class="btn-secondary" id="btnClearDetailItem">Очистити</button>
+            </div>
+          </div>
+          <div class="help-box" id="detailHelpBox">
+            <strong>Чому це важливо?</strong> Дівоче прізвище матері використовується банками як кодове слово. Шахраї випитують його для скидання пароля або перехоплення доступу до інтернет-банкінгу.
+          </div>
+        </section>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding-top:2px;">
+        <button type="button" class="btn-secondary" id="btnResetVaultDefaults">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+          Відновити стандартні дані
+        </button>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size:10.5px;color:var(--text-muted);">Шифрується AES-GCM 256</span>
+          <button type="button" class="btn-secondary" id="btnLockVault" style="padding: 4px 8px; font-size: 11px;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            Заблокувати
+          </button>
+        </div>
+      </div>
     </div>
   </section>
 

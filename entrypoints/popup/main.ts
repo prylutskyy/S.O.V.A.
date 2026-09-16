@@ -33,6 +33,18 @@ document.addEventListener('DOMContentLoaded', async () => {
   const toastMessage = document.getElementById('toastMessage') as HTMLElement;
 
   // Vault Master-Detail Elements
+  const vaultSetupState = document.getElementById('vaultSetupState') as HTMLElement;
+  const vaultLockedState = document.getElementById('vaultLockedState') as HTMLElement;
+  const vaultUnlockedState = document.getElementById('vaultUnlockedState') as HTMLElement;
+  
+  const vaultSetupPassword = document.getElementById('vaultSetupPassword') as HTMLInputElement;
+  const vaultSetupConfirm = document.getElementById('vaultSetupConfirm') as HTMLInputElement;
+  const btnSetupVault = document.getElementById('btnSetupVault') as HTMLButtonElement;
+  
+  const vaultUnlockPassword = document.getElementById('vaultUnlockPassword') as HTMLInputElement;
+  const btnUnlockVault = document.getElementById('btnUnlockVault') as HTMLButtonElement;
+  const btnLockVault = document.getElementById('btnLockVault') as HTMLButtonElement;
+
   const vaultSidebarList = document.getElementById('vaultSidebarList') as HTMLElement;
   const detailItemLabel = document.getElementById('detailItemLabel') as HTMLElement;
   const detailItemTier = document.getElementById('detailItemTier') as HTMLElement;
@@ -90,20 +102,69 @@ document.addEventListener('DOMContentLoaded', async () => {
   // 1. СТАТИСТИКА (ТОЧНІ ОБ'ЄКТИВНІ ПОКАЗНИКИ ЗАХИСТУ)
   // =========================================================================
   const updateStatsDisplay = async () => {
+    const isLocked = PersonalVaultManager.isLocked();
     const items = await PersonalVaultManager.getItems();
     const activeCount = items.filter((i) => i.enabled !== false && Boolean(i.realValue)).length;
 
     if (statProtectedMarkers) {
-      statProtectedMarkers.innerText = String(activeCount);
+      statProtectedMarkers.innerText = isLocked ? 'Забл.' : String(activeCount);
     }
     if (statVaultBadge) {
-      statVaultBadge.innerText = `${activeCount} активних`;
+      if (isLocked) {
+        statVaultBadge.innerText = 'Введіть пароль';
+        statVaultBadge.className = 'stat-badge amber';
+      } else {
+        statVaultBadge.innerText = `${activeCount} активних`;
+        statVaultBadge.className = 'stat-badge green';
+      }
     }
   };
 
   // =========================================================================
   // 2. ДВОКОЛОНКОВЕ СХОВИЩЕ VAULT (MASTER-DETAIL SPLIT VIEW)
   // =========================================================================
+
+  btnSetupVault.addEventListener('click', async () => {
+    const pw = vaultSetupPassword.value;
+    const confirm = vaultSetupConfirm.value;
+    if (!pw || pw.length < 4) {
+      alert('Пароль занадто короткий. Мінімум 4 символи.');
+      return;
+    }
+    if (pw !== confirm) {
+      alert('Паролі не співпадають!');
+      return;
+    }
+    
+    await PersonalVaultManager.setupMasterPassword(pw);
+    vaultSetupPassword.value = '';
+    vaultSetupConfirm.value = '';
+    showToast('Сховище успішно створено та розблоковано!');
+    await renderVaultSplitView();
+    await updateStatsDisplay();
+  });
+  
+  btnUnlockVault.addEventListener('click', async () => {
+    const pw = vaultUnlockPassword.value;
+    if (!pw) return;
+    
+    const success = await PersonalVaultManager.unlock(pw);
+    if (success) {
+      vaultUnlockPassword.value = '';
+      showToast('Сховище розблоковано');
+      await renderVaultSplitView();
+      await updateStatsDisplay();
+    } else {
+      alert('Невірний пароль!');
+    }
+  });
+  
+  btnLockVault.addEventListener('click', async () => {
+    await PersonalVaultManager.lock();
+    showToast('Сховище заблоковано');
+    await renderVaultSplitView();
+    await updateStatsDisplay();
+  });
 
   // Іконки для кожної категорії
   const getCategoryIconSvg = (cat: VaultItemCategory): string => {
@@ -151,6 +212,28 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Рендеринг двоколонкового сховища
   const renderVaultSplitView = async () => {
+    const hasSetup = await PersonalVaultManager.hasVaultSetup();
+    
+    if (!hasSetup) {
+      vaultSetupState.style.display = 'flex';
+      vaultSetupState.style.flexDirection = 'column';
+      vaultLockedState.style.display = 'none';
+      vaultUnlockedState.style.display = 'none';
+      return;
+    }
+    
+    if (PersonalVaultManager.isLocked()) {
+      vaultSetupState.style.display = 'none';
+      vaultLockedState.style.display = 'flex';
+      vaultLockedState.style.flexDirection = 'column';
+      vaultUnlockedState.style.display = 'none';
+      return;
+    }
+    
+    vaultSetupState.style.display = 'none';
+    vaultLockedState.style.display = 'none';
+    vaultUnlockedState.style.display = 'block';
+
     const items = await PersonalVaultManager.getItems();
 
     if (!selectedVaultItemId || !items.some((i) => i.id === selectedVaultItemId)) {
