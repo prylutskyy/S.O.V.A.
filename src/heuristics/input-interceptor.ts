@@ -20,6 +20,12 @@ export class GlobalInputInterceptor {
 
       const target = e.target as HTMLElement;
 
+      // Bypass if the element or its form was already approved by the user
+      const closestForm = target.closest('form');
+      if (target.dataset?.threatShieldApproved === 'true' || (closestForm && closestForm.dataset?.threatShieldApproved === 'true')) {
+        return;
+      }
+
       // Check if the event is a submission action (Click on button/link, or Enter on input)
       let isSubmission = false;
       
@@ -93,6 +99,10 @@ export class GlobalInputInterceptor {
     window.addEventListener('click', intercept, true);
     window.addEventListener('keydown', intercept, true);
     window.addEventListener('submit', (e) => {
+      const form = e.target as HTMLFormElement;
+      if (form && form.dataset?.threatShieldApproved === 'true') {
+        return; // Allow approved forms to pass
+      }
       if (this.isSoftLocked || this.hardLockContext) {
         e.preventDefault();
         e.stopImmediatePropagation();
