@@ -34,11 +34,25 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (provider) {
       try {
-        const caps = await provider.capabilities();
-        aiStatusText.textContent = caps.available === 'no' ? 'Gemini Nano: Підтримується, але не завантажено' : 'Gemini Nano: Активно та готово';
-        aiStatusText.style.color = caps.available === 'no' ? 'var(--amber)' : 'var(--green)';
-      } catch {
-        aiStatusText.textContent = 'Gemini Nano: Помилка перевірки';
+        if (typeof provider.capabilities === 'function') {
+          const caps = await provider.capabilities();
+          aiStatusText.textContent = caps?.available === 'no' ? 'Gemini Nano: Підтримується, але не завантажено' : 'Gemini Nano: Активно та готово';
+          aiStatusText.style.color = caps?.available === 'no' ? 'var(--amber)' : 'var(--green)';
+        } else if (typeof provider.create === 'function') {
+          aiStatusText.textContent = 'Gemini Nano: Активно та готово';
+          aiStatusText.style.color = 'var(--green)';
+        } else {
+          throw new Error('No create method');
+        }
+      } catch (e) {
+        console.warn(e);
+        if (typeof provider.create === 'function') {
+          aiStatusText.textContent = 'Gemini Nano: Активно та готово (без capabilities)';
+          aiStatusText.style.color = 'var(--green)';
+        } else {
+          aiStatusText.textContent = 'Gemini Nano: Помилка перевірки';
+          aiStatusText.style.color = 'var(--amber)';
+        }
       }
     } else {
       aiStatusText.textContent = 'Gemini Nano: Не підтримується цим браузером';

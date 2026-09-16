@@ -548,22 +548,25 @@ export default defineContentScript({
           }
           if (scan.hasFormedIntent) {
             if (debugMode) DebuggerOverlay.log('3. Intent Formed!', scan.intentType, '#EF4444');
-            const aiResult = await aiVerifier.verifyIntent(textToScan, scan.intentType!);
-            if (debugMode) DebuggerOverlay.log('4. AI Response (Tier 2)', aiResult || 'Unavailable', '#A855F7');
-            if (aiResult && !aiResult.isScam) {
-              console.log('[ThreatShield:AI] AI відхилив тригер (False Positive):', aiResult.reasoning);
-              return;
-            }
+            
+            chrome.runtime.sendMessage({ type: 'AI_VERIFY', payload: { text: textToScan, intentType: scan.intentType } }, (response) => {
+              const aiResult = response?.aiResult;
+              if (debugMode) DebuggerOverlay.log('4. AI Response (Tier 2)', aiResult || 'Unavailable (Background)', '#A855F7');
+              if (aiResult && !aiResult.isScam) {
+                console.log('[ThreatShield:AI] AI відхилив тригер (False Positive):', aiResult.reasoning);
+                return;
+              }
 
-            const isOffPlatformLure = scan.clustersDetected.includes('off_platform');
-            triggerLureContext(
-              targetUrl || (scan.suspiciousUrls && scan.suspiciousUrls[0]) || textToScan,
-              scan.matchedSpans.map(s => s.text),
-              isOffPlatformLure,
-              isOffPlatformLure
-                ? 'Зафіксовано виведення в месенджер'
-                : 'Зафіксовано перехід за підозрілим посиланням'
-            );
+              const isOffPlatformLure = scan.clustersDetected.includes('off_platform');
+              triggerLureContext(
+                targetUrl || (scan.suspiciousUrls && scan.suspiciousUrls[0]) || textToScan,
+                scan.matchedSpans.map(s => s.text),
+                isOffPlatformLure,
+                isOffPlatformLure
+                  ? 'Зафіксовано виведення в месенджер'
+                  : 'Зафіксовано перехід за підозрілим посиланням'
+              );
+            });
           }
         }
       },
@@ -580,22 +583,25 @@ export default defineContentScript({
         }
         if (scan.hasFormedIntent) {
           if (debugMode) DebuggerOverlay.log('3. Intent Formed!', scan.intentType, '#EF4444');
-          const aiResult = await aiVerifier.verifyIntent(selection, scan.intentType!);
-          if (debugMode) DebuggerOverlay.log('4. AI Response (Tier 2)', aiResult || 'Unavailable', '#A855F7');
-          if (aiResult && !aiResult.isScam) {
-            console.log('[ThreatShield:AI] AI відхилив тригер (False Positive):', aiResult.reasoning);
-            return;
-          }
+          
+          chrome.runtime.sendMessage({ type: 'AI_VERIFY', payload: { text: selection, intentType: scan.intentType } }, (response) => {
+            const aiResult = response?.aiResult;
+            if (debugMode) DebuggerOverlay.log('4. AI Response (Tier 2)', aiResult || 'Unavailable (Background)', '#A855F7');
+            if (aiResult && !aiResult.isScam) {
+              console.log('[ThreatShield:AI] AI відхилив тригер (False Positive):', aiResult.reasoning);
+              return;
+            }
 
-          const isOffPlatformLure = scan.clustersDetected.includes('off_platform');
-          triggerLureContext(
-            (scan.suspiciousUrls && scan.suspiciousUrls[0]) || selection,
-            scan.matchedSpans.map(s => s.text),
-            isOffPlatformLure,
-            isOffPlatformLure
-              ? 'Зафіксовано виведення в месенджер'
-              : 'Зафіксовано копіювання підозрілого посилання'
-          );
+            const isOffPlatformLure = scan.clustersDetected.includes('off_platform');
+            triggerLureContext(
+              (scan.suspiciousUrls && scan.suspiciousUrls[0]) || selection,
+              scan.matchedSpans.map(s => s.text),
+              isOffPlatformLure,
+              isOffPlatformLure
+                ? 'Зафіксовано виведення в месенджер'
+                : 'Зафіксовано копіювання підозрілого посилання'
+            );
+          });
         }
       }
     });

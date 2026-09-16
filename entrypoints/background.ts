@@ -1,5 +1,7 @@
 import { contextManager } from '../src/core/context-manager';
 import { isWhitelisted } from '../src/core/whitelist';
+import { AILureVerifier } from '../src/heuristics/ai-verifier';
+import { ChromeBuiltinAIProvider } from '../src/heuristics/chrome-ai-provider';
 
 export default defineBackground(() => {
   console.log('[ThreatShield:Background] Service Worker активовано');
@@ -61,13 +63,26 @@ export default defineBackground(() => {
     }
 
     if (message.type === 'THREAT_DETECTED') {
-      console.warn(`[ThreatShield:Background] Критична дія заблокована на вкладці ${tabId}:`, sender.tab?.url);
+      console.warn(`[ThreatShield:Background] Загроза при заповненні на вкладці ${tabId}:`, sender.tab?.url);
       if (chrome.action && tabId) {
         chrome.action.setBadgeText({ text: 'ERR', tabId });
         chrome.action.setBadgeBackgroundColor({ color: '#dc2626', tabId });
       }
       sendResponse({ status: 'ACKNOWLEDGED' });
       return true;
+    }
+
+    if (message.type === 'AI_VERIFY') {
+      const { text, intentType } = message.payload;
+      const aiVerifier = new AILureVerifier(new ChromeBuiltinAIProvider());
+      
+      aiVerifier.verifyIntent(text, intentType).then((aiResult) => {
+        sendResponse({ aiResult });
+      }).catch((e) => {
+        console.error('[ThreatShield:Background] AI_VERIFY Error:', e);
+        sendResponse({ aiResult: null });
+      });
+      return true; // Keep channel open for async
     }
 
     return false;
