@@ -1,4 +1,5 @@
 import { IntentClassifier } from './intent-classifier';
+import { ChatSessionState } from './chat-session-state';
 import { AILureVerifier } from './ai-verifier';
 import { ChromeBuiltinAIProvider } from './chrome-ai-provider';
 import { checkOutboundChatLeakage } from './input-detector';
@@ -250,7 +251,8 @@ export class ChatChannelMonitor {
     // Запобігаємо повторному аналізу однакового тексту
     if (this.recentLuresCache.has(text)) return;
 
-    const scan = IntentClassifier.classify(text);
+    // Використовуємо stateful-класифікатор, який пам'ятає попередні повідомлення
+    const scan = ChatSessionState.addMessageAndEvaluate(text, 'inbound');
     if (this.debugMode) {
       DebuggerOverlay.log('Input Text', text, '#9CA3AF');
       if (scan.normalizedText !== text) DebuggerOverlay.log('1. Normalized (Tier 1)', scan.normalizedText, '#3B82F6');

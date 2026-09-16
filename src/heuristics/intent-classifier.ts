@@ -177,17 +177,14 @@ export class IntentClassifier {
   /**
    * Класифікація вхідного тексту на наявність сформованого наміру
    */
-  public static classify(rawText: string): IntentClassificationResult {
-    if (!rawText || rawText.trim().length < 6) {
-      return { hasFormedIntent: false, matchedSpans: [], clustersDetected: [], normalizedText: rawText || '' };
+  public static extractClusters(rawText: string) {
+    if (!rawText || rawText.trim().length < 4) {
+      return { matchedSpans: [], detectedClusterMap: new Map<string, number>(), normalizedText: rawText || '' };
     }
-
     const text = TextNormalizer.normalizeWords(rawText);
-
     const matchedSpans: IntentMatchSpan[] = [];
     const detectedClusterMap: Map<string, number> = new Map();
 
-    // 1. Пошук збігів за всіма кластерами
     for (const rule of this.clusters) {
       for (const pattern of rule.patterns) {
         pattern.lastIndex = 0;
@@ -199,25 +196,25 @@ export class IntentClassifier {
             text: match[0],
             cluster: rule.cluster,
           });
-
           const currentMax = detectedClusterMap.get(rule.cluster) || 0;
           detectedClusterMap.set(rule.cluster, Math.max(currentMax, rule.weight));
         }
       }
     }
+    return { matchedSpans, detectedClusterMap, normalizedText: text };
+  }
 
-    if (detectedClusterMap.size === 0) {
-      return { hasFormedIntent: false, matchedSpans, clustersDetected: [], normalizedText: text };
+  public static evaluateStatefulIntent(activeClusters: string[], detectedClusterMap: Map<string, number>, matchedSpans: IntentMatchSpan[], rawText: string): IntentClassificationResult {
+    if (activeClusters.length === 0) {
+      return { hasFormedIntent: false, matchedSpans, clustersDetected: [], suspiciousUrls: UrlExtractor.extract(rawText), normalizedText: rawText };
     }
 
-    // 2. Зіставлення з визначеннями намірів
     for (const def of this.intentDefinitions) {
-      const activeClusters = Array.from(detectedClusterMap.keys());
       const hasMinClusters = activeClusters.length >= def.minClusters;
 
       let score = 0;
       for (const c of activeClusters) {
-        score += detectedClusterMap.get(c) || 0;
+        score += detectedClusterMap.get(c) || 35;
       }
       const hasMinScore = score >= def.minScore;
 
@@ -243,7 +240,7 @@ export class IntentClassifier {
           explanation: def.explanationTemplate(activeClusters, words),
           whereToBeCareful: def.carefulAdvice,
           suspiciousUrls,
-          normalizedText: text,
+          normalizedText: rawText,
         };
       }
     }
@@ -251,10 +248,18 @@ export class IntentClassifier {
     return {
       hasFormedIntent: false,
       matchedSpans,
-      clustersDetected: Array.from(detectedClusterMap.keys()),
+      clustersDetected: activeClusters,
       suspiciousUrls: UrlExtractor.extract(rawText),
-      normalizedText: text,
+      normalizedText: rawText,
     };
   }
-}
 
+  public static classify(rawText: string): IntentClassificationResult {
+    const extracted = this.extractClusters(rawText);
+    if (extracted.detectedClusterMap.size === 0) {
+      return { hasFormedIntent: false, matchedSpans: [], clustersDetected: [], normalizedText: extracted.normalizedText };
+    }
+    const activeClusters = Array.from(extracted.detectedClusterMap.keys());
+    return this.evaluateStatefulIntent(activeClusters, extracted.detectedClusterMap, extracted.matchedSpans, rawText);
+  }
+}
