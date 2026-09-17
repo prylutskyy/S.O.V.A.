@@ -105,7 +105,7 @@ export class SecurityFriction {
    */
   public static applyToChat(
     chatInput: HTMLInputElement | HTMLTextAreaElement,
-    leakage: { hasCard: boolean; hasCvv: boolean; cards: string[] },
+    leakage: { hasCard: boolean; hasCvv: boolean; hasExpiry?: boolean; hasOtp?: boolean; cards: string[] },
     onProceed: () => void,
     onCancel?: () => void,
     activeContext?: ActiveThreatContext | null
@@ -115,15 +115,27 @@ export class SecurityFriction {
     const vaultScan = VaultScanner.scanTextSync(chatInput.value || '');
 
     const triggers: Array<{ message: string; severity: string }> = [];
-    if (leakage.hasCard) {
+    if (leakage.hasCard && (leakage.hasCvv || leakage.hasExpiry)) {
       triggers.push({
-        message: 'У тексті повідомлення виявлено номер банківської картки (Luhn валідація)',
+        message: 'У тексті повідомлення виявлено повні платіжні реквізити (номер картки + секретні дані авторизації)!',
         severity: 'CRITICAL',
       });
     }
     if (leakage.hasCvv) {
       triggers.push({
-        message: 'Виявлено секретний тризначний код безпеки картки (CVV/CVC)',
+        message: 'Виявлено секретний тризначний код безпеки картки (CVV/CVC). Для отримання коштів він ніколи не потрібен!',
+        severity: 'CRITICAL',
+      });
+    }
+    if (leakage.hasExpiry) {
+      triggers.push({
+        message: 'Виявлено термін дії банківської картки (MM/YY)!',
+        severity: 'HIGH',
+      });
+    }
+    if (leakage.hasOtp) {
+      triggers.push({
+        message: 'Виявлено одноразовий SMS-код безпеки / пароль підтвердження операції (OTP)!',
         severity: 'CRITICAL',
       });
     }

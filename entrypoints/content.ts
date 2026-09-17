@@ -364,8 +364,10 @@ export default defineContentScript({
 
       const outbound = ChatChannelMonitor.checkOutbound(inputElement.value || '');
       const hasCvv = outbound.hasCvv || detectedCvv || isFieldCvv(inputElement);
+      const hasExpiry = outbound.hasExpiry;
+      const hasOtp = outbound.hasOtp;
       const vaultScan = VaultScanner.scanTextSync(inputElement.value || '');
-      const isLeaking = hasCvv || vaultScan.matchedItems.length > 0;
+      const isLeaking = hasCvv || hasExpiry || hasOtp || vaultScan.matchedItems.length > 0;
 
       if (isLeaking) {
         event.preventDefault();
@@ -377,6 +379,8 @@ export default defineContentScript({
           {
             hasCard: outbound.hasCard,
             hasCvv,
+            hasExpiry,
+            hasOtp,
             cards: outbound.cards,
           },
           () => {

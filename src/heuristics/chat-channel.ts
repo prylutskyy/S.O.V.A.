@@ -23,6 +23,8 @@ export interface OutboundLeakageEvent {
   text: string;
   hasCard: boolean;
   hasCvv: boolean;
+  hasExpiry?: boolean;
+  hasOtp?: boolean;
   cards: string[];
   timestamp: number;
 }
@@ -328,6 +330,8 @@ export class ChatChannelMonitor {
       text,
       hasCard: leakage.hasCard,
       hasCvv: leakage.hasCvv,
+      hasExpiry: leakage.hasExpiry,
+      hasOtp: leakage.hasOtp,
       cards: leakage.cards,
       timestamp: Date.now(),
     };

@@ -52,40 +52,44 @@ export function extractCardNumbersFromText(text: string): string[] {
 
 export const CVV_IN_TEXT_REGEX = /(?:^|[^\p{L}\p{N}])(?:cvv|cvc|cvv2|cvc2|свв|свс|код\s*безпеки|код\s*картки|security\s*code)[\s:=_-]*([0-9]{3,4})(?:$|[^\p{L}\p{N}])/iu;
 
+import { SensitiveAssetDetector } from './sensitive-asset-detector';
+
 /**
- * Комплексний аналіз вихідного тексту (повідомлення чату) на витік платіжних даних
+ * Комплексний аналіз вихідного тексту (повідомлення чату) на витік платіжних та авторизаційних даних (SAD)
+ * Передача лише номера картки (PAN) дозволена для P2P-розрахунків!
  */
 export function checkOutboundChatLeakage(text: string): {
   isLeaking: boolean;
   hasCard: boolean;
   hasCvv: boolean;
+  hasExpiry?: boolean;
+  hasOtp?: boolean;
   cards: string[];
   warningMessage?: string;
 } {
-  const cards = extractCardNumbersFromText(text);
-  const hasCard = cards.length > 0;
-  const hasCvv = CVV_IN_TEXT_REGEX.test(text);
+  const assessment = SensitiveAssetDetector.evaluateOutboundPayload({ text });
+  const assets = assessment.detectedAssets;
 
-  if (hasCard || hasCvv) {
-    let reason = '';
-    if (hasCard && hasCvv) {
-      reason = 'номер банківської картки та секретний CVV/CVC код';
-    } else if (hasCard) {
-      reason = 'номер банківської картки';
-    } else {
-      reason = 'секретний код безпеки CVV/CVC';
-    }
-
+  if (assessment.shouldBlock) {
     return {
       isLeaking: true,
-      hasCard,
-      hasCvv,
-      cards,
-      warningMessage: `[СПРОБА ВИТОКУ ДАНИХ У ЧАТІ]: Ви намагаєтеся надіслати ${reason} у відкритому чаті! Продавцю для отримання коштів CVV та повні реквізити картки ніколи не потрібні.`,
+      hasCard: assets.hasCard,
+      hasCvv: assets.hasCvv,
+      hasExpiry: assets.hasExpiry,
+      hasOtp: assets.hasOtp,
+      cards: assets.cards,
+      warningMessage: `[СПРОБА ВИТОКУ ЧУТЛИВИХ ДАНИХ]: ${assessment.reason}`,
     };
   }
 
-  return { isLeaking: false, hasCard: false, hasCvv: false, cards: [] };
+  return {
+    isLeaking: false,
+    hasCard: assets.hasCard,
+    hasCvv: false,
+    hasExpiry: false,
+    hasOtp: false,
+    cards: assets.cards,
+  };
 }
 
 /**
