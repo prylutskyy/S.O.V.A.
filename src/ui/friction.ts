@@ -3,11 +3,10 @@ import { UnifiedFrictionModal } from './unified-modal';
 import { ShadowHost } from './shadow-host';
 import { XaiEngine } from '../xai/xai-engine';
 import { VaultScanner } from '../heuristics/vault-scanner';
-import { AILureVerifier } from '../heuristics/ai-verifier';
-import { ScamIntentType } from '../heuristics/intent-classifier';
 import { DebuggerOverlay } from './debugger-overlay';
 import { ChatChannelMonitor } from '../heuristics/chat-channel';
 import { HiddenFieldScanResult } from '../heuristics/hidden-field-inspector';
+import { AIArbiterService } from '../ai/ai-arbiter.service';
 
 export class SecurityFriction {
   /**
@@ -311,105 +310,39 @@ export class SecurityFriction {
       foldAndRemove();
     });
 
-    btnAi.addEventListener('click', () => {
+    btnAi.addEventListener('click', async () => {
       btnAi.disabled = true;
       btnAi.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="ts-spinner"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> ШІ аналізує... (до 30с)';
       btnAi.style.opacity = '0.7';
 
-      try {
-        if (typeof chrome !== 'undefined' && chrome.runtime) {
-          const scanText = rawTextToScan || context.targetSuspiciousUrl || '';
-          const intentLabel = (intentType && intentType !== 'UNKNOWN') ? intentType : (context.scenario || 'UNKNOWN');
-          const triggerWord = context.detectedKeywords?.[0];
-          
-          const contextRules = AILureVerifier.intentContextRules[intentLabel as ScamIntentType] || 'Analyze for social engineering, phishing, and payment credential theft.';
-          const systemPrompt = `You are a cybersecurity expert specializing in detecting phishing, payment credential theft, and social engineering attacks on online marketplaces and chats.
+      const aiResult = await AIArbiterService.verify({
+        context,
+        rawTextToScan,
+        intentType,
+        confidence,
+      });
 
-IMPORTANT RULES:
-1. Respond ONLY with a valid JSON object. Do NOT include markdown blocks or any conversational text.
-2. JSON keys MUST strictly be: "isScam", "confidence", "reasoning".
-3. Write "reasoning" in English: concise, direct explanation (1-2 sentences, max 30 words).
+      resultDiv.style.display = 'block';
 
-Required JSON schema:
-{
-  "isScam": boolean,
-  "confidence": number (0-100),
-  "reasoning": string (concise explanation in English)
-}`;
-
-          const raisedFlags: string[] = [
-            `Виявлено загрозу: ${intentLabel}`,
-            `Платформа-джерело: ${context.sourcePlatform}`,
-            context.offPlatformLure ? 'Спроба переведення в сторонній месенджер' : 'Підозріле посилання у тексті',
-            ...(context.detectedKeywords || []).map(k => `Ключове слово: "${k}"`)
-          ];
-
-          let targetHost: string | undefined;
-          try {
-            if (context.targetSuspiciousUrl) targetHost = new URL(context.targetSuspiciousUrl).hostname;
-          } catch {}
-
-          const chatDialogue = ChatChannelMonitor.getDialogueHistory();
-
-          const heuristicContext = {
-            intentType: intentLabel,
-            detectedKeywords: context.detectedKeywords || [],
-            suspiciousUrls: context.targetSuspiciousUrl ? [context.targetSuspiciousUrl] : [],
-            triggeredClusters: context.offPlatformLure ? ['off_platform'] : [],
-            nlpConfidence: confidence || (context.threatLevel === 'HIGH' ? 75 : 25),
-            raisedFlags,
-            chatDialogue,
-            sourcePlatform: context.sourcePlatform,
-            targetHost
-          };
-
-          const aiLogId = DebuggerOverlay.logAI('ШІ Арбітр → Аналіз', '⏳ Запит відправлено, очікую відповідь...', '#3B82F6', {
-            systemPrompt,
-            contextRules,
-            textSent: scanText,
-            chatDialogue,
-            raisedFlags
-          });
-
-          chrome.runtime.sendMessage({
-            type: 'AI_VERIFY',
-            payload: {
-              text: scanText,
-              intentType: intentLabel,
-              triggerWord,
-              heuristicContext
-            }
-          }, (response) => {
-            const aiResult = response?.aiResult;
-            resultDiv.style.display = 'block';
-
-            if (!aiResult) {
-              resultDiv.style.background = '#FEF2F2';
-              resultDiv.style.color = '#DC2626';
-              resultDiv.innerHTML = `<b>Помилка:</b> Gemini Nano недоступний`;
-              DebuggerOverlay.logAI('ШІ Арбітр → Аналіз', '❌ Gemini Nano не зміг обробити запит.', '#EF4444', undefined, aiLogId);
-            } else if (aiResult.isScam) {
-              resultDiv.style.background = '#FEF2F2';
-              resultDiv.style.color = '#DC2626';
-              resultDiv.innerHTML = `<b>ШІ підтверджує загрозу:</b> ${aiResult.reasoning}`;
-              DebuggerOverlay.logAI('ШІ Арбітр → Аналіз', `🔴 СКАМ підтверджено (Впевненість: ${aiResult.confidence}%)\n\nВисновок: "${aiResult.reasoning}"`, '#EF4444', { rawResponse: aiResult.rawResponse }, aiLogId);
-            } else {
-              resultDiv.style.background = '#F0FDF4';
-              resultDiv.style.color = '#166534';
-              resultDiv.innerHTML = `<b>ШІ спростував загрозу:</b> ${aiResult.reasoning}`;
-              DebuggerOverlay.logAI('ШІ Арбітр → Аналіз', `🟢 Загрозу спростовано (Впевненість: ${aiResult.confidence}%)\n\nВисновок: "${aiResult.reasoning}"`, '#22C55E', { rawResponse: aiResult.rawResponse }, aiLogId);
-              setTimeout(() => {
-                foldAndRemove();
-                if (onClearThreat) onClearThreat();
-              }, 3000);
-            }
-
-            btnAi.style.display = 'none';
-          });
-        }
-      } catch (e) {
-        console.error(e);
+      if (!aiResult) {
+        resultDiv.style.background = '#FEF2F2';
+        resultDiv.style.color = '#DC2626';
+        resultDiv.innerHTML = `<b>Помилка:</b> Gemini Nano недоступний`;
+      } else if (aiResult.isScam) {
+        resultDiv.style.background = '#FEF2F2';
+        resultDiv.style.color = '#DC2626';
+        resultDiv.innerHTML = `<b>ШІ підтверджує загрозу:</b> ${aiResult.reasoning}`;
+      } else {
+        resultDiv.style.background = '#F0FDF4';
+        resultDiv.style.color = '#166534';
+        resultDiv.innerHTML = `<b>ШІ спростував загрозу:</b> ${aiResult.reasoning}`;
+        setTimeout(() => {
+          foldAndRemove();
+          if (onClearThreat) onClearThreat();
+        }, 3000);
       }
+
+      btnAi.style.display = 'none';
     });
 
     // Don't auto-close if it's a Hard Lock. The user must manually close it.
