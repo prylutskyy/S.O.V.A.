@@ -564,8 +564,8 @@ export class SecurityFriction {
             cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 5px;
             transition: all 0.12s;
           ">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
-            Показати форму
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            Показати поля
           </button>
         `
             : ''
@@ -601,14 +601,120 @@ export class SecurityFriction {
     const highlightBtn = banner.querySelector('#ts-highlight-form-btn') as HTMLButtonElement | null;
     if (highlightBtn && form) {
       highlightBtn.addEventListener('click', () => {
-        form.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        form.style.outline = '3px solid #D70022';
-        form.style.outlineOffset = '4px';
-        form.style.boxShadow = '0 0 18px rgba(215, 0, 34, 0.45)';
-        form.style.transition = 'all 0.25s ease';
+        const REVEAL_DURATION_MS = 4000;
+
+        type Snapshot = {
+          el: HTMLElement;
+          originalClassName: string;
+          originalStyleAttr: string | null;
+          originalType: string | null;
+          wasDisabled: boolean;
+          originalTabIndex: number;
+        };
+
+        const fieldSnapshots: Snapshot[]  = [];
+        const parentSnapshots: Snapshot[] = [];
+        const processedParents = new Set<HTMLElement>();
+        let firstEl: HTMLElement | null = null;
+
+        // — Знімаємо стилі з самої форми —
+        const formSnapshot: Snapshot = {
+          el:                form,
+          originalClassName: form.getAttribute('class') ?? '',
+          originalStyleAttr: form.getAttribute('style'),
+          originalType:      null,
+          wasDisabled:       false,
+          originalTabIndex:  -1,
+        };
+        form.removeAttribute('class');
+        form.removeAttribute('style');
+
+        // — Обробляємо кожне приховане поле —
+        for (const flaggedInput of scan.flaggedInputs) {
+          const el = flaggedInput.element as HTMLElement;
+
+          // Зберігаємо та чистимо безпосередній батьківський контейнер (div тощо)
+          const parentEl = el.parentElement;
+          if (parentEl && parentEl !== form && !processedParents.has(parentEl)) {
+            processedParents.add(parentEl);
+            parentSnapshots.push({
+              el:                parentEl,
+              originalClassName: parentEl.getAttribute('class') ?? '',
+              originalStyleAttr: parentEl.getAttribute('style'),
+              originalType:      null,
+              wasDisabled:       false,
+              originalTabIndex:  -1,
+            });
+            parentEl.removeAttribute('class');
+            parentEl.removeAttribute('style');
+          }
+
+          fieldSnapshots.push({
+            el,
+            originalClassName: el.getAttribute('class') ?? '',
+            originalStyleAttr: el.getAttribute('style'),
+            originalType:      el.getAttribute('type'),
+            wasDisabled:       (el as HTMLInputElement).disabled,
+            originalTabIndex:  el.tabIndex,
+          });
+
+          // type="hidden": браузер не рендерить — міняємо на text
+          if ((el as HTMLInputElement).type === 'hidden') {
+            el.setAttribute('type', 'text');
+          }
+
+          el.removeAttribute('class');
+          el.removeAttribute('style');
+          (el as HTMLInputElement).disabled = false;
+          el.tabIndex = 0;
+
+          if (!firstEl) firstEl = el;
+        }
+
+        // Прокрутка до першого поля
+        if (firstEl) firstEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+        // Кнопка — заблокована на час показу
+        highlightBtn.textContent       = `👁 Показано ${scan.flaggedInputs.length}с — ховаємо...`;
+        highlightBtn.style.background  = '#EAF7F3';
+        highlightBtn.style.color       = '#008A52';
+        highlightBtn.style.borderColor = '#A3E5D0';
+        highlightBtn.disabled = true;
+
+        // — Через REVEAL_DURATION_MS — відновлюємо все і реактивуємо кнопку —
         setTimeout(() => {
-          form.style.boxShadow = 'none';
-        }, 3500);
+          // Відновлення форми
+          form.setAttribute('class', formSnapshot.originalClassName);
+          if (formSnapshot.originalStyleAttr !== null) form.setAttribute('style', formSnapshot.originalStyleAttr);
+          else                                         form.removeAttribute('style');
+
+          // Відновлення батьківських контейнерів
+          for (const snap of parentSnapshots) {
+            snap.el.setAttribute('class', snap.originalClassName);
+            if (snap.originalStyleAttr !== null) snap.el.setAttribute('style', snap.originalStyleAttr);
+            else                                 snap.el.removeAttribute('style');
+          }
+
+          // Відновлення полів
+          for (const snap of fieldSnapshots) {
+            if (snap.originalType !== null) snap.el.setAttribute('type', snap.originalType);
+            else                            snap.el.removeAttribute('type');
+
+            snap.el.setAttribute('class', snap.originalClassName);
+            if (snap.originalStyleAttr !== null) snap.el.setAttribute('style', snap.originalStyleAttr);
+            else                                 snap.el.removeAttribute('style');
+
+            (snap.el as HTMLInputElement).disabled = snap.wasDisabled;
+            snap.el.tabIndex = snap.originalTabIndex;
+          }
+
+          // Реактивуємо кнопку
+          highlightBtn.textContent       = 'Показати поля';
+          highlightBtn.style.background  = '#F0F0F4';
+          highlightBtn.style.color       = '#15141A';
+          highlightBtn.style.borderColor = '#CFCFD8';
+          highlightBtn.disabled = false;
+        }, REVEAL_DURATION_MS);
       });
     }
 
