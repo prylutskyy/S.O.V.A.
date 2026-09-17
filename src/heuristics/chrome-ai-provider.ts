@@ -224,7 +224,8 @@ ${truncatedText}
       return {
         isScam,
         confidence,
-        reasoning
+        reasoning,
+        rawResponse: responseText
       };
 
     } catch (e) {

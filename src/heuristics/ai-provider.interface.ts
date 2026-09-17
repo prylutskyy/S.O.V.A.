@@ -2,6 +2,7 @@ export interface AIValidationResult {
   isScam: boolean;
   confidence: number;
   reasoning: string;
+  rawResponse?: string;
 }
 
 export interface AIHeuristicContext {

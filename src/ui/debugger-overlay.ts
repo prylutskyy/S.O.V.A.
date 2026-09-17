@@ -15,7 +15,7 @@ export class DebuggerOverlay {
       isAi: boolean;
       isForm: boolean;
       isPending?: boolean;
-      aiContext?: { systemPrompt: string; contextRules: string; textSent: string; raisedFlags?: string[]; formDetails?: string; };
+      aiContext?: { systemPrompt?: string; contextRules?: string; textSent?: string; raisedFlags?: string[]; formDetails?: string; rawResponse?: string; };
       expanded?: boolean;
     }>
   };
@@ -79,7 +79,7 @@ export class DebuggerOverlay {
     customColor?: string,
     broadcast: boolean = true,
     isAi: boolean = false,
-    aiContext?: { systemPrompt: string; contextRules: string; textSent: string; raisedFlags?: string[]; formDetails?: string; },
+    aiContext?: { systemPrompt?: string; contextRules?: string; textSent?: string; raisedFlags?: string[]; formDetails?: string; rawResponse?: string; },
     logId?: string
   ) {
     if (isAi || aiContext || logId || stepKey.toLowerCase().includes('ші') || stepKey.toLowerCase().includes('ai') || stepKey.toLowerCase().includes('llm')) {
@@ -133,7 +133,7 @@ export class DebuggerOverlay {
     stepKey: string,
     data: any,
     customColor?: string,
-    aiContext?: { systemPrompt: string; contextRules: string; textSent: string; raisedFlags?: string[]; formDetails?: string; },
+    aiContext?: { systemPrompt?: string; contextRules?: string; textSent?: string; raisedFlags?: string[]; formDetails?: string; rawResponse?: string; },
     logId?: string
   ): string {
     this.show();
@@ -158,8 +158,11 @@ export class DebuggerOverlay {
     let currentId: string;
     if (targetIndex >= 0) {
       currentId = this.state.logs[targetIndex].id;
-      // Preserve existing aiContext if a new one is not provided
-      const updatedContext = aiContext !== undefined ? aiContext : this.state.logs[targetIndex].aiContext;
+      // Merge existing aiContext with any new fields (e.g. rawResponse)
+      const updatedContext = {
+        ...(this.state.logs[targetIndex].aiContext || {}),
+        ...(aiContext || {})
+      };
       this.state.logs[targetIndex] = {
         ...this.state.logs[targetIndex],
         data,
@@ -256,6 +259,11 @@ export class DebuggerOverlay {
             <div class="ai-section">
               <div class="ai-section-label">📝 Дані введених полів форми</div>
               <pre class="ai-section-code">${log.aiContext.formDetails}</pre>
+            </div>` : ''}
+            ${log.aiContext.rawResponse ? `
+            <div class="ai-section" style="border-color: #2563eb66; background: #0c192e;">
+              <div class="ai-section-label" style="color: #60a5fa;">📥 Повна відповідь від LLM (Raw Response)</div>
+              <pre class="ai-section-code" style="color: #e2e8f0;">${log.aiContext.rawResponse}</pre>
             </div>` : ''}
           </div>
         </div>

@@ -344,6 +344,8 @@ export class UnifiedFrictionModal {
               const aiResult = response?.aiResult;
               aiResultDiv.style.display = 'block';
               
+              const rawSuffix = aiResult?.rawResponse ? `\n\n[Сира відповідь LLM]:\n${aiResult.rawResponse}` : '';
+
               if (!aiResult) {
                 aiResultDiv.style.background = C.redBg;
                 aiResultDiv.style.color = C.red;
@@ -355,13 +357,13 @@ export class UnifiedFrictionModal {
                 aiResultDiv.style.color = C.red;
                 aiResultDiv.style.border = `1px solid ${C.redBd}`;
                 aiResultDiv.innerHTML = '<b>ШІ Підтвердив Загрозу:</b> ' + aiResult.reasoning;
-                DebuggerOverlay.logAI('ШІ Арбітр → Аналіз', `🔴 СКАМ підтверджено\nВпевненість: ${aiResult.confidence}%\n\n"${aiResult.reasoning}"`, '#EF4444', undefined, aiLogId);
+                DebuggerOverlay.logAI('ШІ Арбітр → Аналіз', `🔴 СКАМ підтверджено\nВпевненість: ${aiResult.confidence}%\n\n"${aiResult.reasoning}"${rawSuffix}`, '#EF4444', { rawResponse: aiResult.rawResponse }, aiLogId);
               } else {
                 aiResultDiv.style.background = C.greenBg;
                 aiResultDiv.style.color = C.green;
                 aiResultDiv.style.border = `1px solid ${C.greenBd}`;
                 aiResultDiv.innerHTML = '<b>ШІ Спростував Загрозу:</b> ' + aiResult.reasoning;
-                DebuggerOverlay.logAI('ШІ Арбітр → Аналіз', `🟢 Загрозу спростовано\nВпевненість: ${aiResult.confidence}%\n\n"${aiResult.reasoning}"`, '#22C55E', undefined, aiLogId);
+                DebuggerOverlay.logAI('ШІ Арбітр → Аналіз', `🟢 Загрозу спростовано\nВпевненість: ${aiResult.confidence}%\n\n"${aiResult.reasoning}"${rawSuffix}`, '#22C55E', { rawResponse: aiResult.rawResponse }, aiLogId);
                 
                 if (this.countdownInterval) clearInterval(this.countdownInterval);
                 btnOverride.disabled = false;
