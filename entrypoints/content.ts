@@ -73,7 +73,7 @@ export default defineContentScript({
         if (ctx.sessionId) DebuggerOverlay.setSession(ctx.sessionId, ctx.threatLevel);
         const sessionLabel = ctx.sessionId ? `[${ctx.sessionId}] ` : '';
         DebuggerOverlay.log(
-          '🔗 Зшивання Сесій (Context)',
+          'Зшивання Сесій (Context)',
           `${sessionLabel}Успадковано загрозу з: ${ctx.sourcePlatform} (+35 штрафних балів до наступних форм)`,
           '#EF4444'
         );
@@ -101,7 +101,7 @@ export default defineContentScript({
           SecurityFriction.removeContextWarningBanner();
           if (debugMode) {
             DebuggerOverlay.setSession(null);
-            DebuggerOverlay.log('🔗 Зшивання Сесій (Context)', 'Контекст очищено через іншу вкладку', '#22C55E');
+            DebuggerOverlay.log('Зшивання Сесій (Context)', 'Контекст очищено через іншу вкладку', '#22C55E');
           }
         } else if (msg && msg.type === 'CONTEXT_UPDATED' && msg.context) {
           applyContext(msg.context as ActiveThreatContext);
@@ -139,7 +139,7 @@ export default defineContentScript({
         GlobalInputInterceptor.setHardLock(null);
         ChatChannelMonitor.reset();
         if (debugMode) {
-          DebuggerOverlay.log('🔗 Зшивання Сесій (Context)', 'Контекст очищено', '#22C55E');
+          DebuggerOverlay.log('Зшивання Сесій (Context)', 'Контекст очищено', '#22C55E');
         }
         SecurityFriction.removeContextWarningBanner();
         console.log('[ThreatShield:Content] Tainted Context Window примусово очищено.');
@@ -234,7 +234,7 @@ export default defineContentScript({
           SecurityFriction.showHiddenFieldTrapBanner(scan, form);
           if (debugMode) {
             DebuggerOverlay.log(
-              '⚠️ Форма: Приховані Поля (Trap)',
+              'Форма: Приховані Поля (Trap)',
               `Виявлено та деактивовано ${scan.flaggedInputs.length} прихованих полів (${scan.flaggedTypes.join(', ')}). Техніка: ${scan.flaggedInputs.map((i) => i.cloakingReason).join('; ')}`,
               '#EF4444'
             );

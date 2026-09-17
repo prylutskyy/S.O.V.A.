@@ -327,7 +327,7 @@ Required JSON schema:
 
             const chatDialogue = heuristicContext.chatDialogue;
 
-            const aiLogId = DebuggerOverlay.logAI('ШІ Арбітр → Аналіз', '⏳ Запит відправлено, очікую відповідь...', '#3B82F6', {
+            const aiLogId = DebuggerOverlay.logAI('ШІ Арбітр → Аналіз', 'Запит відправлено, очікую відповідь...', '#3B82F6', {
               systemPrompt,
               contextRules,
               textSent: scanText,
@@ -353,19 +353,19 @@ Required JSON schema:
                 aiResultDiv.style.color = C.red;
                 aiResultDiv.style.border = `1px solid ${C.redBd}`;
                 aiResultDiv.innerHTML = '<b>Помилка:</b> ШІ не відповів або недоступний.';
-                DebuggerOverlay.logAI('ШІ Арбітр → Аналіз', '❌ Gemini Nano не зміг обробити запит.', '#EF4444', undefined, aiLogId);
+                DebuggerOverlay.logAI('ШІ Арбітр → Аналіз', 'Gemini Nano не зміг обробити запит.', '#EF4444', undefined, aiLogId);
               } else if (aiResult.isScam) {
                 aiResultDiv.style.background = C.redBg;
                 aiResultDiv.style.color = C.red;
                 aiResultDiv.style.border = `1px solid ${C.redBd}`;
                 aiResultDiv.innerHTML = '<b>ШІ Підтвердив Загрозу:</b> ' + aiResult.reasoning;
-                DebuggerOverlay.logAI('ШІ Арбітр → Аналіз', `🔴 СКАМ підтверджено (Впевненість: ${aiResult.confidence}%)\n\nВисновок: "${aiResult.reasoning}"`, '#EF4444', { rawResponse: aiResult.rawResponse }, aiLogId);
+                DebuggerOverlay.logAI('ШІ Арбітр → Аналіз', `СКАМ підтверджено (Впевненість: ${aiResult.confidence}%)\n\nВисновок: "${aiResult.reasoning}"`, '#EF4444', { rawResponse: aiResult.rawResponse }, aiLogId);
               } else {
                 aiResultDiv.style.background = C.greenBg;
                 aiResultDiv.style.color = C.green;
                 aiResultDiv.style.border = `1px solid ${C.greenBd}`;
                 aiResultDiv.innerHTML = '<b>ШІ Спростував Загрозу:</b> ' + aiResult.reasoning;
-                DebuggerOverlay.logAI('ШІ Арбітр → Аналіз', `🟢 Загрозу спростовано (Впевненість: ${aiResult.confidence}%)\n\nВисновок: "${aiResult.reasoning}"`, '#22C55E', { rawResponse: aiResult.rawResponse }, aiLogId);
+                DebuggerOverlay.logAI('ШІ Арбітр → Аналіз', `Загрозу спростовано (Впевненість: ${aiResult.confidence}%)\n\nВисновок: "${aiResult.reasoning}"`, '#22C55E', { rawResponse: aiResult.rawResponse }, aiLogId);
                 
                 if (this.countdownInterval) clearInterval(this.countdownInterval);
                 btnOverride.disabled = false;

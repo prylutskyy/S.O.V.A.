@@ -83,7 +83,7 @@ Required JSON schema:
 
     const aiLogId = DebuggerOverlay.logAI(
       'ШІ Арбітр → Аналіз',
-      '⏳ Запит відправлено, очікую відповідь...',
+      'Запит відправлено, очікую відповідь...',
       '#3B82F6',
       {
         systemPrompt,
@@ -111,7 +111,7 @@ Required JSON schema:
             if (!aiResult) {
               DebuggerOverlay.logAI(
                 'ШІ Арбітр → Аналіз',
-                '❌ Gemini Nano не зміг обробити запит.',
+                'Gemini Nano не зміг обробити запит.',
                 '#EF4444',
                 undefined,
                 aiLogId
@@ -120,7 +120,7 @@ Required JSON schema:
             } else if (aiResult.isScam) {
               DebuggerOverlay.logAI(
                 'ШІ Арбітр → Аналіз',
-                `🔴 СКАМ підтверджено (Впевненість: ${aiResult.confidence}%)\n\nВисновок: "${aiResult.reasoning}"`,
+                `СКАМ підтверджено (Впевненість: ${aiResult.confidence}%)\n\nВисновок: "${aiResult.reasoning}"`,
                 '#EF4444',
                 { rawResponse: aiResult.rawResponse },
                 aiLogId
@@ -129,7 +129,7 @@ Required JSON schema:
             } else {
               DebuggerOverlay.logAI(
                 'ШІ Арбітр → Аналіз',
-                `🟢 Загрозу спростовано (Впевненість: ${aiResult.confidence}%)\n\nВисновок: "${aiResult.reasoning}"`,
+                `Загрозу спростовано (Впевненість: ${aiResult.confidence}%)\n\nВисновок: "${aiResult.reasoning}"`,
                 '#22C55E',
                 { rawResponse: aiResult.rawResponse },
                 aiLogId
