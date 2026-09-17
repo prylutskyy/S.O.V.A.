@@ -20,6 +20,7 @@ import { ToastNotifier } from '../src/ui/toast-notifier';
 import { DebuggerOverlay } from '../src/ui/debugger-overlay';
 import { ActiveThreatContext, HeuristicResult, ThreatAssessment } from '../src/types';
 import { GlobalInputInterceptor } from '../src/heuristics/input-interceptor';
+import { ProactiveFormScanner } from '../src/heuristics/hidden-field-inspector';
 
 export default defineContentScript({
   matches: ['<all_urls>'],
@@ -63,6 +64,33 @@ export default defineContentScript({
     // Базові менеджери користувацького стану
     UserWhitelistManager.init().catch((e) => console.error('[ThreatShield] UserWhitelist init error:', e));
     PersonalVaultManager.init().catch((e) => console.error('[ThreatShield] PersonalVault init error:', e));
+
+    // Проактивний сканер прихованих полів (Autofill Phishing Traps)
+    ProactiveFormScanner.init(
+      {
+        onTrapDetected: (scan, form) => {
+          console.warn('[ThreatShield:Content] ⚠️ Виявлено приховані поля у формі (Autofill Phishing)!', scan);
+          SecurityFriction.showHiddenFieldTrapBanner(scan, form);
+          ToastNotifier.show('⚠️ Увага: Форма містить приховані платіжні поля! Автозаповнення знешкоджено.', 'warning', 6000);
+          if (debugMode) {
+            DebuggerOverlay.log(
+              '⚠️ Форма: Приховані Поля (Trap)',
+              `Виявлено та деактивовано ${scan.flaggedInputs.length} прихованих полів (${scan.flaggedTypes.join(', ')}). Техніка: ${scan.flaggedInputs.map(i => i.cloakingReason).join('; ')}`,
+              '#EF4444'
+            );
+          }
+        },
+        isDomainAllowed: (domain) => {
+          if (!domain) return false;
+          return (
+            isAccreditedPaymentGateway(domain) ||
+            UserWhitelistManager.isDomainAllowedSync(domain) ||
+            isWhitelisted(domain)
+          );
+        },
+      },
+      currentHost
+    );
 
     const shouldDisplayContextBanner = (ctx: ActiveThreatContext): boolean => {
       if (UserWhitelistManager.isDomainAllowedSync(currentHost) || isWhitelisted(currentHost)) {

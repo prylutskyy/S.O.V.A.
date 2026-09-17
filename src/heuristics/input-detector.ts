@@ -92,26 +92,13 @@ export function checkOutboundChatLeakage(text: string): {
   };
 }
 
+import { HiddenFieldInspector } from './hidden-field-inspector';
+
 /**
  * Перевірка, чи є поле введення прихованим (техніка крадіжки даних через autofill phishing)
  */
 export function isFieldHidden(element: HTMLElement): boolean {
-  const style = window.getComputedStyle(element);
-  const rect = element.getBoundingClientRect();
-
-  if (
-    style.display === 'none' ||
-    style.visibility === 'hidden' ||
-    parseFloat(style.opacity) === 0 ||
-    rect.width === 0 ||
-    rect.height === 0 ||
-    rect.left < -1000 ||
-    rect.top < -1000
-  ) {
-    return true;
-  }
-
-  return false;
+  return HiddenFieldInspector.isElementCloaked(element).isCloaked;
 }
 
 export interface FormSensitiveState {
@@ -179,39 +166,21 @@ export function getFormFilledState(form: HTMLFormElement): FormSensitiveState {
  * Аналіз форми або елемента вводу на приховані чутливі поля та фішинг автозаповнення
  */
 export function checkSensitiveAndHiddenInputs(form: HTMLFormElement): HeuristicResult[] {
+  const scan = HiddenFieldInspector.scanForm(form);
   const results: HeuristicResult[] = [];
-  const inputs = form.querySelectorAll<HTMLInputElement>('input, textarea, select');
-  const sensitiveRegex = /(card|cvv|cvc|exp|pass|pwd|token|auth|pin|secure|номер.*карт)/i;
 
-  let hasHiddenSensitiveFields = false;
+  if (scan.hasTrap) {
+    results.push(scan.heuristicResult);
+  }
+
+  const inputs = form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>('input, textarea, select');
   let sensitiveCount = 0;
-  const flaggedInputs: string[] = [];
-
   inputs.forEach((input) => {
-    const descriptor = `${input.name} ${input.id} ${input.autocomplete} ${input.placeholder}`.toLowerCase();
-    const isSensitive = sensitiveRegex.test(descriptor) || input.type === 'password';
-
-    if (isSensitive) {
+    if (HiddenFieldInspector.isFieldSensitive(input).isSensitive) {
       sensitiveCount++;
-      if (isFieldHidden(input)) {
-        hasHiddenSensitiveFields = true;
-        flaggedInputs.push(input.name || input.id || input.type);
-      }
     }
   });
 
-  if (hasHiddenSensitiveFields) {
-    results.push({
-      name: 'hidden_sensitive_fields',
-      triggered: true,
-      severity: 'CRITICAL',
-      scoreContribution: 50,
-      message: 'Виявлено приховані поля збору чутливих даних (Autofill Phishing)! Форма намагається викрасти паролі або платіжні дані без відома користувача.',
-      details: { flaggedInputs },
-    });
-  }
-
-  // Присутність полів у розмітці враховується, але з меншою вагою (базова технічна ознака)
   if (sensitiveCount > 0) {
     results.push({
       name: 'sensitive_fields_present',
