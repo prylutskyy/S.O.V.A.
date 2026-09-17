@@ -442,6 +442,11 @@ Required JSON schema:
     if (existing) {
       ShadowHost.remove(existing as HTMLElement);
     }
+    // Також прибираємо загальний банер сесії, якщо він був відкритий, щоб уникнути накладання
+    const contextBanner = root.getElementById('threat-shield-context-banner');
+    if (contextBanner) {
+      ShadowHost.remove(contextBanner as HTMLElement);
+    }
 
     if (form) {
       form.style.outline = '2px dashed #D70022';

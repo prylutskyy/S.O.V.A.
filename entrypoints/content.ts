@@ -71,7 +71,6 @@ export default defineContentScript({
         onTrapDetected: (scan, form) => {
           console.warn('[ThreatShield:Content] ⚠️ Виявлено приховані поля у формі (Autofill Phishing)!', scan);
           SecurityFriction.showHiddenFieldTrapBanner(scan, form);
-          ToastNotifier.show('⚠️ Увага: Форма містить приховані платіжні поля! Автозаповнення знешкоджено.', 'warning', 6000);
           if (debugMode) {
             DebuggerOverlay.log(
               '⚠️ Форма: Приховані Поля (Trap)',
