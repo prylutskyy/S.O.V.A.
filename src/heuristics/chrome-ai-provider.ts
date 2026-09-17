@@ -42,26 +42,26 @@ export class ChromeBuiltinAIProvider implements IAIProvider {
 
     let session;
     try {
-      // ── System Prompt ─────────────────────────────────────────────────────
-      const systemPrompt = `Ти — експерт з кібербезпеки. Твоє завдання: виявити фішинг, крадіжку платіжних даних або соціальну інженерію в українських маркетплейсах (OLX, Prom) і месенджерах.
+      // ── System Prompt (English for maximum performance & consistency) ─────
+      const systemPrompt = `You are a cybersecurity expert specializing in detecting phishing, payment credential theft, and social engineering attacks on online marketplaces and chats.
 
-ВАЖЛИВО:
-1. Відповідай ВИКЛЮЧНО валідним JSON-об'єктом.
-2. Ключі ОБОВ'ЯЗКОВО англійською мовою: "isScam", "confidence", "reasoning". Не перекладай назви ключів на українську!
-3. Пояснення ("reasoning") пиши українською мовою коротко (1-2 лаконічних речення, до 35 слів).
+IMPORTANT RULES:
+1. Respond ONLY with a valid JSON object. Do NOT include markdown blocks or any conversational text.
+2. JSON keys MUST strictly be: "isScam", "confidence", "reasoning".
+3. Write "reasoning" in English: concise, direct explanation (1-2 sentences, max 30 words).
 
-Схема:
+Required JSON schema:
 {
-  "isScam": true або false,
-  "confidence": число від 0 до 100,
-  "reasoning": "Коротке пояснення українською мовою"
+  "isScam": boolean,
+  "confidence": number (0-100),
+  "reasoning": string (concise explanation in English)
 }
 
-Приклад 1:
-{"isScam": true, "confidence": 95, "reasoning": "Фішингове посилання під виглядом безпечної оплати OLX для викрадення даних картки."}
+Example 1 (Malicious):
+{"isScam": true, "confidence": 95, "reasoning": "Phishing lure impersonating marketplace delivery to steal payment card credentials."}
 
-Приклад 2:
-{"isScam": false, "confidence": 90, "reasoning": "Звичайне повідомлення без ознак маніпуляцій, посилань чи збору даних."}`;
+Example 2 (Safe):
+{"isScam": false, "confidence": 90, "reasoning": "Legitimate communication without malicious links, manipulation, or credential requests."}`;
 
       try {
         const createOptions: any = { systemPrompt, temperature: 0.05 };
@@ -112,46 +112,46 @@ export class ChromeBuiltinAIProvider implements IAIProvider {
       if (heuristicContext) {
         const flagLines: string[] = [];
         if (heuristicContext.sourcePlatform || heuristicContext.targetHost) {
-          flagLines.push(`- Маршрут: ${heuristicContext.sourcePlatform || 'невідомо'} ➔ ${heuristicContext.targetHost || 'поточна сторінка'}`);
+          flagLines.push(`- Route: ${heuristicContext.sourcePlatform || 'unknown'} -> ${heuristicContext.targetHost || 'current page'}`);
         }
         if (heuristicContext.intentType && heuristicContext.intentType !== 'UNKNOWN') {
-          flagLines.push(`- Виявлений тип загрози (NLP): ${heuristicContext.intentType}`);
+          flagLines.push(`- Detected intent type (NLP): ${heuristicContext.intentType}`);
         }
         if (heuristicContext.detectedKeywords?.length > 0) {
-          flagLines.push(`- Ключові слова-тригери: ${heuristicContext.detectedKeywords.slice(0, 8).join(', ')}`);
+          flagLines.push(`- Trigger keywords: ${heuristicContext.detectedKeywords.slice(0, 8).join(', ')}`);
         }
         if (heuristicContext.suspiciousUrls?.length > 0) {
-          flagLines.push(`- Підозрілі посилання: ${heuristicContext.suspiciousUrls.join(', ')}`);
+          flagLines.push(`- Suspicious URLs: ${heuristicContext.suspiciousUrls.join(', ')}`);
         }
         if (heuristicContext.triggeredClusters?.length > 0) {
-          flagLines.push(`- Активовані кластери загроз: ${heuristicContext.triggeredClusters.join(', ')}`);
+          flagLines.push(`- Activated threat clusters: ${heuristicContext.triggeredClusters.join(', ')}`);
         }
         if (heuristicContext.raisedFlags && heuristicContext.raisedFlags.length > 0) {
-          flagLines.push(`- Зафіксовані евристичні прапорці:\n  * ${heuristicContext.raisedFlags.join('\n  * ')}`);
+          flagLines.push(`- Raised heuristic flags:\n  * ${heuristicContext.raisedFlags.join('\n  * ')}`);
         }
         if (heuristicContext.formDetails) {
-          flagLines.push(`- Заповнені поля форми:\n  ${heuristicContext.formDetails.split('\n').join('\n  ')}`);
+          flagLines.push(`- Form input fields filled:\n  ${heuristicContext.formDetails.split('\n').join('\n  ')}`);
         }
         if (heuristicContext.nlpConfidence > 0) {
-          flagLines.push(`- Оцінка ризику першого рівня: ${heuristicContext.nlpConfidence}/100`);
+          flagLines.push(`- Tier 1 Risk Score: ${heuristicContext.nlpConfidence}/100`);
         }
 
         if (flagLines.length > 0) {
-          flagsSection = `\nКонтекст загрози та технічні дані (евристики):\n${flagLines.join('\n')}\n`;
+          flagsSection = `\nThreat Context & Heuristics:\n${flagLines.join('\n')}\n`;
         }
       }
 
       // ── Фінальний промпт ──────────────────────────────────────────────────
-      const prompt = `Проаналізуй на фішинг або шахрайство (соціальна інженерія, викрадення платіжних даних).
+      const prompt = `Analyze this action/message for phishing or scam (social engineering, payment theft).
 
-Критерії та правила: ${contextRules}
+Evaluation criteria & context: ${contextRules}
 ${flagsSection}
-Аналізований текст / дані дії:
+Text / action data to analyze:
 """
 ${truncatedText}
 """
 
-Відповідай ТІЛЬКИ валідним JSON-об'єктом. Ключі англійською: "isScam", "confidence", "reasoning".`;
+Respond ONLY with valid JSON. Keys: "isScam", "confidence", "reasoning". Language: English.`;
 
       let responseText = '';
       try {
@@ -321,8 +321,8 @@ ${truncatedText}
 
       if (!reasoning) {
         reasoning = isScam
-          ? 'ШІ виявив патерни шахрайства та спробу збору конфіденційних даних.'
-          : 'Повідомлення або форма не містять виражених ознак шахрайства.';
+          ? 'Scam pattern detected: deceptive intent to harvest sensitive credentials.'
+          : 'No significant indicators of phishing or social engineering detected.';
       }
 
       return {

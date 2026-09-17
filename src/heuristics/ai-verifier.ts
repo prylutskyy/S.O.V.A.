@@ -5,14 +5,14 @@ export class AILureVerifier {
   constructor(private aiProvider: IAIProvider) {}
 
   /**
-   * Словник контексту для різних типів загроз (українською мовою для Gemini Nano)
+   * Context rules dictionary for threat types (optimized in English for Gemini Nano)
    */
   public static intentContextRules: Record<ScamIntentType, string> = {
-    ESCROW_DELIVERY_SCAM: 'Шукати спроби підробити доставку маркетплейсу (OLX Delivery), де відправник просить перейти за посиланням для отримання коштів. Справжні покупці не надсилають посилань для отримання грошей.',
-    OFF_PLATFORM_REDIRECT: 'Шукати спроби перевести розмову з поточної платформи (Telegram, Viber, WhatsApp) одразу після початку контакту.',
-    VERIFICATION_PHISHING: 'Шукати підробних тех-підтримок або адміністраторів платформи, що просять верифікувати акаунт через персональні дані або посилання.',
-    PAYMENT_CREDENTIAL_THEFT: 'Шукати прямі запити чутливих банківських даних: CVV-коди, терміни дії, SMS-коди, поточний баланс.',
-    URGENCY_PRESSURE: 'Шукати маніпулятивний психологічний тиск ("зробіть це зараз або аккаунт заблокують", "оплата скасується через 5 хвилин").'
+    ESCROW_DELIVERY_SCAM: 'Check for fake marketplace escrow or delivery lures (e.g. OLX Delivery) where the sender tells the recipient to follow a link to receive funds. Legitimate buyers never send links to receive money.',
+    OFF_PLATFORM_REDIRECT: 'Check for attempts to redirect the user to external messengers (Telegram, Viber, WhatsApp) immediately after initiating contact.',
+    VERIFICATION_PHISHING: 'Check for fake platform support or administration asking to verify an account or payment card via links.',
+    PAYMENT_CREDENTIAL_THEFT: 'Check for explicit or implicit requests for sensitive payment data: CVV/CVC codes, card expiration date, SMS one-time codes, or balance.',
+    URGENCY_PRESSURE: 'Check for manipulative urgency or pressure (e.g., "act now or account will be blocked", "funds will cancel in 5 minutes").'
   };
 
   /**
@@ -31,7 +31,7 @@ export class AILureVerifier {
       return null;
     }
 
-    const rules = AILureVerifier.intentContextRules[detectedType] || 'Загальний аналіз на соціальну інженерію та фішинг.';
+    const rules = AILureVerifier.intentContextRules[detectedType] || 'Analyze for social engineering, phishing, and payment credential theft.';
     console.log(`[ThreatShield:AIVerifier] Запуск перевірки Рівня 2 (Gemini Nano) для типу: ${detectedType}`);
     
     return this.aiProvider.verifyIntent(text, rules, triggerWord, heuristicContext);

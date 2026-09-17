@@ -279,22 +279,20 @@ export class UnifiedFrictionModal {
             const intentLabel = (options.intentType && options.intentType !== 'UNKNOWN') ? options.intentType : (options.activeContext?.scenario || 'UNKNOWN');
             const triggerWord = options.activeContext?.detectedKeywords?.[0];
 
-            const contextRules = AILureVerifier.intentContextRules[intentLabel as ScamIntentType] || 'Загальний аналіз на соціальну інженерію та фішинг.';
-            const systemPrompt = `Ти — експерт з кібербезпеки та соціальної інженерії, що спеціалізується на виявленні фішингу, крадіжки платіжних даних та шахрайства в українських маркетплейсах (OLX, Prom) і соціальних мережах.
+            const contextRules = AILureVerifier.intentContextRules[intentLabel as ScamIntentType] || 'Analyze for social engineering, phishing, and payment credential theft.';
+            const systemPrompt = `You are a cybersecurity expert specializing in detecting phishing, payment credential theft, and social engineering attacks on online marketplaces and chats.
 
-ВАЖЛИВО: Відповідай ВИКЛЮЧНО валідним JSON-об'єктом. Мова пояснення (поле reasoning) — ТІЛЬКИ українська. Не використовуй англійську мову.
-Обов'язкова схема JSON:
+IMPORTANT RULES:
+1. Respond ONLY with a valid JSON object. Do NOT include markdown blocks or any conversational text.
+2. JSON keys MUST strictly be: "isScam", "confidence", "reasoning".
+3. Write "reasoning" in English: concise, direct explanation (1-2 sentences, max 30 words).
+
+Required JSON schema:
 {
-  "isScam": true або false,
-  "confidence": число від 0 до 100,
-  "reasoning": "Пояснення виключно українською мовою (1-2 речення): чому це небезпечно або безпечно"
-}
-
-Приклад для загрози:
-{"isScam": true, "confidence": 95, "reasoning": "Фішингове посилання під виглядом безпечної оплати OLX для викрадення даних картки."}
-
-Приклад для безпечного тексту:
-{"isScam": false, "confidence": 90, "reasoning": "Звичайне повідомлення без ознак маніпуляцій, посилань чи збору платіжних даних."}`;
+  "isScam": boolean,
+  "confidence": number (0-100),
+  "reasoning": string (concise explanation in English)
+}`;
 
             const raisedFlags: string[] = [];
             if (options.triggers && options.triggers.length > 0) {
