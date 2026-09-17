@@ -15,6 +15,7 @@ export interface AIHeuristicContext {
   formDetails?: string;
   sourcePlatform?: string;
   targetHost?: string;
+  chatDialogue?: string;
 }
 
 export interface IAIProvider {

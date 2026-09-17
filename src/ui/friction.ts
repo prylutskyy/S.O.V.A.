@@ -6,6 +6,7 @@ import { VaultScanner } from '../heuristics/vault-scanner';
 import { AILureVerifier } from '../heuristics/ai-verifier';
 import { ScamIntentType } from '../heuristics/intent-classifier';
 import { DebuggerOverlay } from './debugger-overlay';
+import { ChatChannelMonitor } from '../heuristics/chat-channel';
 
 export class SecurityFriction {
   /**
@@ -317,6 +318,8 @@ Required JSON schema:
             if (context.targetSuspiciousUrl) targetHost = new URL(context.targetSuspiciousUrl).hostname;
           } catch {}
 
+          const chatDialogue = ChatChannelMonitor.getDialogueHistory();
+
           const heuristicContext = {
             intentType: intentLabel,
             detectedKeywords: context.detectedKeywords || [],
@@ -324,6 +327,7 @@ Required JSON schema:
             triggeredClusters: context.offPlatformLure ? ['off_platform'] : [],
             nlpConfidence: confidence || (context.threatLevel === 'HIGH' ? 75 : 25),
             raisedFlags,
+            chatDialogue,
             sourcePlatform: context.sourcePlatform,
             targetHost
           };
@@ -332,6 +336,7 @@ Required JSON schema:
             systemPrompt,
             contextRules,
             textSent: scanText,
+            chatDialogue,
             raisedFlags
           });
 

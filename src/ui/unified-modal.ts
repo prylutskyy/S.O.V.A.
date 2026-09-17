@@ -7,6 +7,7 @@ import { ShadowHost } from './shadow-host';
 import { AILureVerifier } from '../heuristics/ai-verifier';
 import { ScamIntentType } from '../heuristics/intent-classifier';
 import { DebuggerOverlay } from './debugger-overlay';
+import { ChatChannelMonitor } from '../heuristics/chat-channel';
 
 export interface UnifiedModalOptions {
   type: 'form' | 'chat';
@@ -22,6 +23,7 @@ export interface UnifiedModalOptions {
   assessment?: ThreatAssessment;
   activeContext?: ActiveThreatContext | null;
   chatLeakage?: { hasCard: boolean; hasCvv: boolean };
+  chatDialogue?: string;
   detectedAmount?: string;
   vaultMatches?: VaultMatchResult[];
   vaultItems?: VaultItem[];
@@ -318,14 +320,18 @@ Required JSON schema:
               nlpConfidence: options.assessment?.score || (options.badgeLevel === 'CRITICAL' ? 90 : 70),
               raisedFlags,
               formDetails: options.formDetails,
+              chatDialogue: options.chatDialogue || ChatChannelMonitor.getDialogueHistory(),
               sourcePlatform: options.activeContext?.sourcePlatform || window.location.hostname,
               targetHost: options.contextValue || window.location.hostname
             };
+
+            const chatDialogue = heuristicContext.chatDialogue;
 
             const aiLogId = DebuggerOverlay.logAI('ШІ Арбітр → Аналіз', '⏳ Запит відправлено, очікую відповідь...', '#3B82F6', {
               systemPrompt,
               contextRules,
               textSent: scanText,
+              chatDialogue,
               raisedFlags,
               formDetails: options.formDetails
             });

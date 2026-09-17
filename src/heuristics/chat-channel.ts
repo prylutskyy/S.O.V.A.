@@ -224,8 +224,8 @@ export class ChatChannelMonitor {
         this.processedElements.add(el);
         this.processInboundMessage(el);
       } else if (direction === 'outbound') {
-        // Позначаємо як оброблене, щоб не витрачати ресурс на повторний аналіз
         this.processedElements.add(el);
+        this.processOutboundMessage(el);
       }
     }
   }
@@ -319,6 +319,33 @@ export class ChatChannelMonitor {
         });
       }
     }
+  }
+
+  /**
+   * Обробка вихідного повідомлення від користувача (Outbound) для збереження контексту діалогу
+   */
+  private static processOutboundMessage(element: HTMLElement): void {
+    const textEl = element.querySelector<HTMLElement>('[data-testid="message"], [data-nx-name="TextContainer"], .bubble, .tag, p, span') || element;
+    const text = textEl.innerText?.trim() || element.innerText?.trim() || '';
+    if (text.length >= 2) {
+      ChatSessionState.addMessageAndEvaluate(text, 'outbound');
+    }
+  }
+
+  /**
+   * Отримання повної історії листування для ШІ (включаючи поточну чернетку в полі вводу)
+   */
+  public static getDialogueHistory(currentDraft?: string): string {
+    let draft = currentDraft;
+    if (!draft && typeof document !== 'undefined') {
+      const activeInput = document.querySelector<HTMLInputElement | HTMLTextAreaElement>(
+        'input:not([type="submit"]):not([type="button"]):not([type="hidden"]):not([type="checkbox"]):not([type="radio"]), textarea, [role="textbox"], [contenteditable="true"]'
+      );
+      if (activeInput) {
+        draft = (activeInput as HTMLInputElement).value || activeInput.innerText || '';
+      }
+    }
+    return ChatSessionState.getDialogueHistory(draft);
   }
 
   /**

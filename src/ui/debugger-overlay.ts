@@ -133,7 +133,7 @@ export class DebuggerOverlay {
     stepKey: string,
     data: any,
     customColor?: string,
-    aiContext?: { systemPrompt?: string; contextRules?: string; textSent?: string; raisedFlags?: string[]; formDetails?: string; rawResponse?: string; },
+    aiContext?: { systemPrompt?: string; contextRules?: string; textSent?: string; chatDialogue?: string; raisedFlags?: string[]; formDetails?: string; rawResponse?: string; },
     logId?: string
   ): string {
     this.show();
@@ -250,6 +250,11 @@ export class DebuggerOverlay {
               <div class="ai-section-label">💬 Текст, переданий для аналізу</div>
               <pre class="ai-section-code">${log.aiContext.textSent}</pre>
             </div>
+            ${log.aiContext.chatDialogue ? `
+            <div class="ai-section">
+              <div class="ai-section-label">🗣️ Історія діалогу (Обидві сторони + Чернетка)</div>
+              <pre class="ai-section-code">${log.aiContext.chatDialogue}</pre>
+            </div>` : ''}
             ${log.aiContext.raisedFlags && log.aiContext.raisedFlags.length > 0 ? `
             <div class="ai-section">
               <div class="ai-section-label">🚩 Зафіксовані евристичні прапорці</div>

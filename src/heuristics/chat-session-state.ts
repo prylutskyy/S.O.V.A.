@@ -12,10 +12,34 @@ export interface ChatMessageContext {
 
 export class ChatSessionState {
   private static messages: ChatMessageContext[] = [];
-  private static readonly MAX_MESSAGES = 5;
+  private static readonly MAX_MESSAGES = 10;
   private static readonly TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes
 
   public static reset() { this.messages = []; }
+
+  public static getRecentMessages(): ChatMessageContext[] {
+    this.cleanExpired();
+    return [...this.messages];
+  }
+
+  /**
+   * Форматування історії діалогу обох сторін для передачі у промпт ШІ та Нейромонітор
+   */
+  public static getDialogueHistory(currentDraft?: string): string {
+    this.cleanExpired();
+    const lines: string[] = [];
+
+    for (const msg of this.messages) {
+      const speaker = msg.direction === 'outbound' ? '[Ви]' : '[Співрозмовник]';
+      lines.push(`${speaker}: ${msg.rawText}`);
+    }
+
+    if (currentDraft && currentDraft.trim().length > 0) {
+      lines.push(`[Ви (Чернетка)]: ${currentDraft.trim()}`);
+    }
+
+    return lines.join('\n');
+  }
 
   public static addMessageAndEvaluate(
     rawText: string,

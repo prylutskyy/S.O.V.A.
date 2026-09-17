@@ -132,6 +132,9 @@ Example 2 (Safe):
         if (heuristicContext.formDetails) {
           flagLines.push(`- Form input fields filled:\n  ${heuristicContext.formDetails.split('\n').join('\n  ')}`);
         }
+        if (heuristicContext.chatDialogue) {
+          flagLines.push(`- Multi-turn Chat Dialogue History (Both Parties & Current Draft):\n  ${heuristicContext.chatDialogue.split('\n').join('\n  ')}`);
+        }
         if (heuristicContext.nlpConfidence > 0) {
           flagLines.push(`- Tier 1 Risk Score: ${heuristicContext.nlpConfidence}/100`);
         }
