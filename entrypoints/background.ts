@@ -155,6 +155,24 @@ export default defineBackground(() => {
       return true;
     }
 
+    if (message.type === 'CHECK_AI_STATUS') {
+      setupOffscreenDocument('offscreen.html').then(() => {
+        chrome.runtime.sendMessage({
+          target: 'offscreen',
+          type: 'CHECK_AI_STATUS'
+        }, (response) => {
+          if (chrome.runtime.lastError) {
+            sendResponse({ available: false, error: chrome.runtime.lastError.message });
+            return;
+          }
+          sendResponse(response);
+        });
+      }).catch((err) => {
+        sendResponse({ available: false, error: err?.message || 'Failed to setup offscreen' });
+      });
+      return true;
+    }
+
     if (message.type === 'SIMULATE_CHAT_REPLY') {
       setupOffscreenDocument('offscreen.html').then(() => {
         const attemptSend = (retries: number) => {

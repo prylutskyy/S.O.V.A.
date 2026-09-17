@@ -172,6 +172,33 @@ export default defineContentScript({
         window.postMessage({ type: 'THREAT_SHIELD_LURE_TRIGGERED' }, '*');
       }
 
+      if (event.data.type === 'THREAT_SHIELD_CHECK_AI_STATUS') {
+        try {
+          if (typeof chrome !== 'undefined' && chrome.runtime) {
+            const resp = await chrome.runtime.sendMessage({
+              type: 'CHECK_AI_STATUS'
+            });
+            window.postMessage({
+              type: 'THREAT_SHIELD_AI_STATUS_RESULT',
+              requestId: event.data.requestId,
+              status: resp
+            }, '*');
+          } else {
+            window.postMessage({
+              type: 'THREAT_SHIELD_AI_STATUS_RESULT',
+              requestId: event.data.requestId,
+              status: { available: false, error: 'chrome.runtime not available' }
+            }, '*');
+          }
+        } catch (e: any) {
+          window.postMessage({
+            type: 'THREAT_SHIELD_AI_STATUS_RESULT',
+            requestId: event.data.requestId,
+            status: { available: false, error: e?.message }
+          }, '*');
+        }
+      }
+
       if (event.data.type === 'THREAT_SHIELD_SIMULATE_CHAT_REPLY') {
         try {
           if (typeof chrome !== 'undefined' && chrome.runtime) {
@@ -183,7 +210,9 @@ export default defineContentScript({
               type: 'THREAT_SHIELD_SIMULATED_REPLY_RESULT',
               requestId: event.data.requestId,
               reply: resp?.reply,
-              engine: resp?.engine
+              engine: resp?.engine,
+              latencyMs: resp?.latencyMs,
+              reason: resp?.reason
             }, '*');
           }
         } catch (e) {

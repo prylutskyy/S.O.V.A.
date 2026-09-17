@@ -1,5 +1,5 @@
 import { AILureVerifier } from './heuristics/ai-verifier';
-import { ChromeBuiltinAIProvider } from './heuristics/chrome-ai-provider';
+import { ChromeBuiltinAIProvider, getChromeAiLanguageModel, isGeminiAiAvailable, createAiSession } from './heuristics/chrome-ai-provider';
 import { ChatSimulatorEngine } from './heuristics/chat-simulator';
 
 console.log('[ThreatShield:Offscreen] Offscreen document started for Gemini Nano API');
@@ -18,6 +18,24 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       currentAbortController = null;
     }
     sendResponse({ success: true });
+    return true;
+  }
+
+  if (message.type === 'CHECK_AI_STATUS') {
+    (async () => {
+      try {
+        const provider = getChromeAiLanguageModel();
+        const { available, status } = await isGeminiAiAvailable();
+        sendResponse({
+          available,
+          status,
+          hasProvider: !!provider,
+          context: 'offscreen'
+        });
+      } catch (err: any) {
+        sendResponse({ available: false, status: 'error', error: err?.message });
+      }
+    })();
     return true;
   }
 
@@ -53,33 +71,59 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'SIMULATE_CHAT_REPLY') {
     const { persona, history, latestUserMessage, itemContext, customGoal } = message.payload || {};
     
-    const hasWindowAi = typeof (window as any).ai !== 'undefined' && typeof (window as any).ai.languageModel !== 'undefined';
-    
-    if (hasWindowAi) {
-      (async () => {
-        try {
-          const systemPrompt = ChatSimulatorEngine.buildSystemPrompt(persona, itemContext, customGoal);
-          const fullPrompt = ChatSimulatorEngine.buildPromptWithHistory(persona, history || [], latestUserMessage, itemContext, customGoal);
-          
-          const session = await (window as any).ai.languageModel.create({
-            systemPrompt
-          });
-          
-          let reply = await session.prompt(fullPrompt);
-          reply = reply.replace(/^\[(?:Співрозмовник|Покупець|Шахрай)\]:\s*/i, '').replace(/^["']|["']$/g, '').trim();
-          sendResponse({ reply, engine: 'gemini-nano' });
-        } catch (err) {
-          console.warn('[ThreatShield:Offscreen] Gemini Nano simulation failed, falling back to rule engine:', err);
+    (async () => {
+      const startTime = performance.now();
+      try {
+        const status = await isGeminiAiAvailable();
+        console.log('[ThreatShield:Offscreen] Gemini Nano availability check:', status);
+        
+        if (!status.available) {
+          console.warn('[ThreatShield:Offscreen] Gemini Nano unavailable, generating fallback reply. Status:', status.status);
           const reply = ChatSimulatorEngine.generateFallbackReply(persona, history || [], latestUserMessage);
-          sendResponse({ reply, engine: 'fallback-rules' });
+          sendResponse({ reply, engine: 'fallback-rules', reason: `AI unavailable (${status.status})` });
+          return;
         }
-      })();
-      return true;
-    } else {
-      const reply = ChatSimulatorEngine.generateFallbackReply(persona, history || [], latestUserMessage);
-      sendResponse({ reply, engine: 'fallback-rules' });
-      return true;
-    }
+
+        const systemPrompt = ChatSimulatorEngine.buildSystemPrompt(persona, itemContext, customGoal);
+        const fullPrompt = ChatSimulatorEngine.buildPromptWithHistory(persona, history || [], latestUserMessage, itemContext, customGoal);
+        
+        console.log('[ThreatShield:Offscreen] Creating AI session with Gemini Nano...');
+        const session = await createAiSession(systemPrompt, 0.7);
+        
+        console.log('[ThreatShield:Offscreen] Prompting Gemini Nano (prompt length: ' + fullPrompt.length + ')...');
+        let rawReply = await session.prompt(fullPrompt);
+        console.log('[ThreatShield:Offscreen] Raw reply from Gemini Nano:', rawReply);
+
+        try {
+          if (typeof session.destroy === 'function') session.destroy();
+        } catch {}
+
+        let reply = (rawReply || '')
+          .replace(/^\[(?:Співрозмовник|Покупець|Шахрай|Продавець|Клієнт)\]:\s*/i, '')
+          .replace(/^["'«»]|["'«»]$/g, '')
+          .trim();
+
+        // Check for safety refusal or empty response
+        if (!reply || /as an ai|cannot fulfill|safety guidelines|unable to/i.test(reply)) {
+          console.warn('[ThreatShield:Offscreen] Model returned empty or refusal, applying smart fallback:', reply);
+          reply = ChatSimulatorEngine.generateFallbackReply(persona, history || [], latestUserMessage);
+          sendResponse({ reply, engine: 'fallback-rules', reason: 'Model refused or empty' });
+          return;
+        }
+
+        const latencyMs = Math.round(performance.now() - startTime);
+        sendResponse({ reply, engine: 'gemini-nano', latencyMs });
+      } catch (err: any) {
+        console.warn('[ThreatShield:Offscreen] Gemini Nano simulation threw error:', err);
+        const reply = ChatSimulatorEngine.generateFallbackReply(persona, history || [], latestUserMessage);
+        sendResponse({
+          reply,
+          engine: 'fallback-rules',
+          reason: `Execution error: ${err?.message || err}`
+        });
+      }
+    })();
+    return true;
   }
 
   return false;

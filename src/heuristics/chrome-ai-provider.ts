@@ -1,6 +1,61 @@
 import { IAIProvider, AIValidationResult, AIHeuristicContext } from './ai-provider.interface';
 import '../types/ai.d.ts';
 
+export function getChromeAiLanguageModel(): any {
+  const globalObj = typeof globalThis !== 'undefined' ? globalThis : (typeof window !== 'undefined' ? window : self);
+  if (!globalObj) return null;
+  if ((globalObj as any).LanguageModel) return (globalObj as any).LanguageModel;
+  if ((globalObj as any).ai?.languageModel) return (globalObj as any).ai.languageModel;
+  if ((globalObj as any).ai?.assistant) return (globalObj as any).ai.assistant;
+  return null;
+}
+
+export async function isGeminiAiAvailable(): Promise<{ available: boolean; status: string }> {
+  const provider = getChromeAiLanguageModel();
+  if (!provider) return { available: false, status: 'no-provider' };
+  try {
+    if (typeof provider.capabilities === 'function') {
+      const capabilities = await provider.capabilities();
+      const avail = capabilities?.available === 'readily' || capabilities?.available === 'after-download';
+      return { available: avail, status: capabilities?.available || 'unknown' };
+    }
+    return { available: typeof provider.create === 'function', status: 'ready-create' };
+  } catch (e: any) {
+    console.warn('[ThreatShield:AI] provider.capabilities() threw:', e);
+    return { available: typeof provider.create === 'function', status: `capabilities-threw: ${e?.message || e}` };
+  }
+}
+
+export async function createAiSession(systemPrompt?: string, temperature: number = 0.5, signal?: AbortSignal): Promise<any> {
+  const provider = getChromeAiLanguageModel();
+  if (!provider) throw new Error('Gemini Nano provider not found in current execution context');
+
+  if (systemPrompt) {
+    try {
+      const opts: any = { systemPrompt, temperature };
+      if (signal) opts.signal = signal;
+      return await provider.create(opts);
+    } catch (e1) {
+      console.warn('[ThreatShield:AI] create({ systemPrompt }) failed, trying initialPrompts...', e1);
+    }
+
+    try {
+      const opts: any = {
+        initialPrompts: [{ role: 'system', content: systemPrompt }],
+        temperature
+      };
+      if (signal) opts.signal = signal;
+      return await provider.create(opts);
+    } catch (e2) {
+      console.warn('[ThreatShield:AI] create({ initialPrompts }) failed, falling back to bare create()...', e2);
+    }
+  }
+
+  const bareOpts: any = {};
+  if (signal) bareOpts.signal = signal;
+  return await provider.create(bareOpts);
+}
+
 export class ChromeBuiltinAIProvider implements IAIProvider {
   private abortSignal?: AbortSignal;
 
@@ -9,26 +64,12 @@ export class ChromeBuiltinAIProvider implements IAIProvider {
   }
 
   private getProvider(): any {
-    const globalObj = typeof globalThis !== 'undefined' ? globalThis : (typeof window !== 'undefined' ? window : self);
-    if (!globalObj) return null;
-    if ((globalObj as any).LanguageModel) return (globalObj as any).LanguageModel;
-    if ((globalObj as any).ai?.languageModel) return (globalObj as any).ai.languageModel;
-    return null;
+    return getChromeAiLanguageModel();
   }
 
   public async isAvailable(): Promise<boolean> {
-    const provider = this.getProvider();
-    if (!provider) return false;
-    try {
-      if (typeof provider.capabilities === 'function') {
-        const capabilities = await provider.capabilities();
-        return capabilities?.available === 'readily' || capabilities?.available === 'after-download';
-      }
-      return typeof provider.create === 'function';
-    } catch (e) {
-      console.warn('[ThreatShield:AI] provider.capabilities() threw:', e);
-      return typeof provider.create === 'function';
-    }
+    const res = await isGeminiAiAvailable();
+    return res.available;
   }
 
   public async verifyIntent(
@@ -64,12 +105,10 @@ Example 2 (Safe):
 {"isScam": false, "confidence": 90, "reasoning": "Legitimate communication without malicious links, manipulation, or credential requests."}`;
 
       try {
-        const createOptions: any = { systemPrompt, temperature: 0.05 };
-        if (this.abortSignal) createOptions.signal = this.abortSignal;
-        session = await provider.create(createOptions);
+        session = await createAiSession(systemPrompt, 0.05, this.abortSignal);
       } catch (e) {
         if (this.abortSignal?.aborted) throw e;
-        console.warn('[ThreatShield:AI] create(options) failed, falling back...', e);
+        console.warn('[ThreatShield:AI] createAiSession failed, falling back...', e);
         session = await provider.create();
       }
 
