@@ -9,9 +9,10 @@
       /* Mozilla Firefox Proton & Acorn Design Tokens */
       --fx-canvas:         #F0F0F4;
       --fx-surface:        #FFFFFF;
-      --fx-surface-hover:  #E0E0E6;
+      --fx-surface-hover:  #E8E8EE;
+      --fx-surface-active: #DFDFE6;
       --fx-border:         #CFCFD8;
-      --fx-border-subtle:  #E0E0E6;
+      --fx-border-subtle:  #E5E5EB;
       --fx-text:           #15141A;
       --fx-text-secondary: #5B5B66;
       --fx-text-muted:     #8F8F9D;
@@ -23,6 +24,7 @@
       --fx-blue-bd:        #B0D5FF;
 
       --fx-green:          #008A52;
+      --fx-green-hover:    #007143;
       --fx-green-bg:       #EAF7F3;
       --fx-green-bd:       #A3E5D0;
 
@@ -41,7 +43,7 @@
       --radius-tag: 4px;
       --radius-input: 4px;
 
-      --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.05);
+      --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06);
       --font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
 
@@ -106,7 +108,7 @@
       line-height: 1.2;
     }
     .brand-tagline {
-      font-size: 10.5px;
+      font-size: 10px;
       color: var(--fx-text-muted);
       margin-top: 1px;
     }
@@ -116,17 +118,27 @@
       gap: 5px;
       font-size: 11px;
       font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 4px;
+      transition: all 0.15s ease;
+    }
+    .status-pill.active {
       color: var(--fx-green);
       background: var(--fx-green-bg);
       border: 1px solid var(--fx-green-bd);
-      padding: 3px 8px;
-      border-radius: 4px;
+    }
+    .status-pill.paused {
+      color: var(--fx-amber);
+      background: var(--fx-amber-bg);
+      border: 1px solid var(--fx-amber-bd);
     }
     .pulse-dot {
       width: 6px;
       height: 6px;
       border-radius: 50%;
-      background: var(--fx-green);
+      background: currentColor;
+    }
+    .status-pill.active .pulse-dot {
       animation: fxPulse 2s infinite;
     }
     @keyframes fxPulse {
@@ -135,20 +147,20 @@
       100% { box-shadow: 0 0 0 0 rgba(0, 138, 82, 0); }
     }
 
-    /* Firefox Tab Navigation */
+    /* Firefox 3-Tab Navigation */
     .tab-nav {
       background: var(--fx-canvas);
       border-bottom: 1px solid var(--fx-border);
       display: flex;
-      padding: 6px 8px 0;
-      gap: 3px;
+      padding: 6px 10px 0;
+      gap: 4px;
     }
     .tab-btn {
       flex: 1;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 5px;
+      gap: 6px;
       padding: 8px 6px;
       background: transparent;
       border: none;
@@ -156,14 +168,14 @@
       border-bottom: 2px solid transparent;
       cursor: pointer;
       color: var(--fx-text-secondary);
-      font-size: 11.5px;
+      font-size: 12px;
       font-weight: 500;
       transition: all 0.12s ease;
       white-space: nowrap;
     }
     .tab-btn svg {
-      width: 13px;
-      height: 13px;
+      width: 14px;
+      height: 14px;
       stroke: currentColor;
       fill: none;
       flex-shrink: 0;
@@ -203,7 +215,7 @@
       margin-bottom: 8px;
     }
     .card-title {
-      font-size: 10.5px;
+      font-size: 11px;
       font-weight: 700;
       color: var(--fx-text-muted);
       text-transform: uppercase;
@@ -213,347 +225,297 @@
       gap: 5px;
     }
     .card-title svg {
-      width: 12px;
-      height: 12px;
+      width: 13px;
+      height: 13px;
     }
 
-    /* Hero Banner */
-    .hero-card {
+    /* Firefox Site Protections Hero Card */
+    .site-card {
       background: var(--fx-surface);
       border: 1px solid var(--fx-border);
       border-radius: var(--radius-card);
       padding: 12px 14px;
       display: flex;
       align-items: center;
-      gap: 12px;
+      justify-content: space-between;
+      gap: 10px;
       box-shadow: var(--shadow-card);
+      transition: border-color 0.15s ease;
     }
-    .hero-icon {
+    .site-card.whitelisted {
+      border-color: var(--fx-amber-bd);
+      background: linear-gradient(180deg, #FFFFFF 0%, #FFFDF9 100%);
+    }
+    .site-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+    .site-icon-box {
       width: 34px;
       height: 34px;
       border-radius: 6px;
-      background: var(--fx-green-bg);
-      border: 1px solid var(--fx-green-bd);
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      color: var(--fx-green);
+      transition: all 0.15s ease;
     }
-    .hero-title {
+    .site-icon-box.active {
+      background: var(--fx-blue-bg);
+      border: 1px solid var(--fx-blue-bd);
+      color: var(--fx-blue);
+    }
+    .site-icon-box.paused {
+      background: var(--fx-amber-bg);
+      border: 1px solid var(--fx-amber-bd);
+      color: var(--fx-amber);
+    }
+    .site-domain-text {
       font-size: 13px;
       font-weight: 700;
       color: var(--fx-text);
-    }
-    .hero-sub {
-      font-size: 11.5px;
-      color: var(--fx-text-secondary);
-      margin-top: 2px;
-      line-height: 1.35;
-    }
-
-    /* Stats Grid (2x2) */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 8px;
-    }
-    .stat-card {
-      background: var(--fx-surface);
-      border: 1px solid var(--fx-border);
-      border-radius: var(--radius-card);
-      padding: 10px 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      box-shadow: var(--shadow-card);
-    }
-    .stat-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .stat-icon {
-      width: 22px;
-      height: 22px;
-      border-radius: 4px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .stat-icon.green { background: var(--fx-green-bg); color: var(--fx-green); }
-    .stat-icon.amber { background: var(--fx-amber-bg); color: var(--fx-amber); }
-    .stat-icon.red   { background: var(--fx-red-bg);   color: var(--fx-red); }
-    .stat-icon.blue  { background: var(--fx-blue-bg);  color: var(--fx-blue); }
-
-    .stat-value {
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--fx-text);
-      line-height: 1.1;
-      letter-spacing: -0.02em;
-    }
-    .stat-label {
-      font-size: 11px;
-      font-weight: 500;
-      color: var(--fx-text-secondary);
-      line-height: 1.25;
-    }
-    .stat-badge {
-      font-size: 9.5px;
-      font-weight: 600;
-      padding: 1px 5px;
-      border-radius: 3px;
-      width: fit-content;
-    }
-    .stat-badge.green { background: var(--fx-green-bg); color: var(--fx-green); }
-    .stat-badge.amber { background: var(--fx-amber-bg); color: var(--fx-amber); }
-    .stat-badge.red   { background: var(--fx-red-bg);   color: var(--fx-red); }
-
-    /* Events List */
-    .events-list {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .event-item {
-      display: flex;
-      align-items: center;
-      gap: 9px;
-      padding: 8px 10px;
-      border-radius: 4px;
-      background: var(--fx-canvas);
-      border: 1px solid var(--fx-border-subtle);
-    }
-    .event-icon {
-      width: 22px;
-      height: 22px;
-      border-radius: 4px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    .event-body {
-      flex: 1;
-      min-width: 0;
-    }
-    .event-title {
-      font-size: 11.5px;
-      font-weight: 500;
-      color: var(--fx-text);
-      line-height: 1.25;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
-    .event-meta {
-      font-size: 10px;
-      color: var(--fx-text-muted);
+    .site-status-text {
+      font-size: 11px;
+      color: var(--fx-text-secondary);
       margin-top: 2px;
       display: flex;
       align-items: center;
-      gap: 5px;
-    }
-    .event-tag {
-      font-size: 9px;
-      font-weight: 600;
-      padding: 1px 5px;
-      border-radius: 3px;
-    }
-    .event-tag.blocked  { background: var(--fx-red-bg);   color: var(--fx-red); }
-    .event-tag.decoy    { background: var(--fx-blue-bg);  color: var(--fx-blue); }
-    .event-tag.detected { background: var(--fx-amber-bg); color: var(--fx-amber); }
-
-    .tip-box {
-      background: var(--fx-surface);
-      border: 1px solid var(--fx-border);
-      border-left: 3px solid var(--fx-blue);
-      border-radius: var(--radius-card);
-      padding: 9px 11px;
-      font-size: 11px;
-      color: var(--fx-text-secondary);
-      line-height: 1.4;
-    }
-    .tip-box strong {
-      color: var(--fx-text);
-    }
-
-    /* Vault Layout (Adapted for Firefox 395px) */
-    .vault-layout {
-      display: flex;
-      gap: 8px;
-      height: 420px;
-    }
-    .vault-list {
-      width: 135px;
-      flex-shrink: 0;
-      display: flex;
-      flex-direction: column;
       gap: 4px;
-      overflow-y: auto;
-      padding-right: 4px;
     }
-    .vault-section-label {
-      font-size: 9.5px;
-      font-weight: 700;
-      color: var(--fx-text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      padding: 4px 2px 2px;
-    }
-    .vault-item {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 7px 8px;
-      background: var(--fx-surface);
-      border: 1px solid var(--fx-border-subtle);
-      border-radius: 4px;
-      cursor: pointer;
-      transition: all 0.12s;
-      text-align: left;
-    }
-    .vault-item:hover {
-      background: var(--fx-surface-hover);
-      border-color: var(--fx-border);
-    }
-    .vault-item.active {
-      background: var(--fx-blue-bg);
-      border-color: var(--fx-blue);
-    }
-    .vault-item.inactive {
-      opacity: 0.45;
-    }
-    .vault-item-icon {
-      width: 20px;
-      height: 20px;
-      border-radius: 4px;
-      background: var(--fx-canvas);
-      border: 1px solid var(--fx-border-subtle);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      color: var(--fx-text-secondary);
-    }
-    .vault-item.active .vault-item-icon {
-      background: var(--fx-blue);
-      border-color: var(--fx-blue);
-      color: #FFFFFF;
-    }
-    .vault-item-info {
-      flex: 1;
-      min-width: 0;
-    }
-    .vault-item-label {
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--fx-text);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      display: block;
-    }
-    .vault-item-status {
-      font-size: 9.5px;
-      color: var(--fx-text-muted);
-      margin-top: 1px;
-      display: block;
-    }
-    .vault-item-status.on {
-      color: var(--fx-green);
-    }
+    .site-status-text.green { color: var(--fx-green); font-weight: 500; }
+    .site-status-text.amber { color: var(--fx-amber); font-weight: 500; }
 
-    .vault-detail {
-      flex: 1;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .detail-header {
-      background: var(--fx-surface);
-      border: 1px solid var(--fx-border);
-      border-radius: var(--radius-card);
-      padding: 10px 12px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .detail-title {
-      font-size: 12.5px;
-      font-weight: 700;
-      color: var(--fx-text);
-    }
-    .tier-tag {
-      font-size: 9px;
-      font-weight: 600;
-      padding: 1px 6px;
-      border-radius: 3px;
-      margin-top: 3px;
-      width: fit-content;
-    }
-    .tier-tag.a {
-      background: var(--fx-red-bg);
-      color: var(--fx-red);
-      border: 1px solid var(--fx-red-bd);
-    }
-    .tier-tag.b {
-      background: var(--fx-blue-bg);
-      color: var(--fx-blue);
-      border: 1px solid var(--fx-blue-bd);
-    }
-
-    /* Firefox Switches */
-    .toggle-wrap {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .toggle-label {
-      font-size: 11px;
-      font-weight: 500;
-      color: var(--fx-text-secondary);
-    }
-    .switch {
+    /* Firefox Proton Big Switch */
+    .fx-switch {
       position: relative;
       display: inline-block;
-      width: 34px;
-      height: 18px;
+      width: 42px;
+      height: 22px;
+      flex-shrink: 0;
     }
-    .switch input {
+    .fx-switch input {
       opacity: 0;
       width: 0;
       height: 0;
     }
-    .slider {
+    .fx-slider {
       position: absolute;
       cursor: pointer;
       inset: 0;
       background: #8F8F9D;
-      transition: .15s ease;
-      border-radius: 18px;
+      transition: 0.15s ease;
+      border-radius: 22px;
     }
-    .slider:before {
+    .fx-slider:before {
       position: absolute;
       content: "";
-      height: 12px;
-      width: 12px;
+      height: 16px;
+      width: 16px;
       left: 3px;
       bottom: 3px;
       background: white;
-      transition: .15s ease;
+      transition: 0.15s ease;
       border-radius: 50%;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.25);
     }
-    input:checked + .slider {
+    input:checked + .fx-slider {
       background: var(--fx-blue);
     }
-    input:checked + .slider:before {
-      transform: translateX(16px);
+    input:checked + .fx-slider:before {
+      transform: translateX(20px);
     }
+
+    /* Tainted Context Warning Banner */
+    .tainted-banner {
+      background: var(--fx-amber-bg);
+      border: 1px solid var(--fx-amber-bd);
+      border-left: 3px solid var(--fx-amber);
+      border-radius: var(--radius-card);
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      animation: fxSlideDown 0.2s ease;
+    }
+    @keyframes fxSlideDown {
+      from { opacity: 0; transform: translateY(-4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .tainted-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .tainted-icon {
+      color: var(--fx-amber);
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .tainted-content {
+      flex: 1;
+    }
+    .tainted-title {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #783C00;
+    }
+    .tainted-desc {
+      font-size: 10.5px;
+      color: #944D00;
+      margin-top: 2px;
+      line-height: 1.35;
+    }
+    .btn-reset-tainted {
+      background: var(--fx-surface);
+      border: 1px solid var(--fx-amber-bd);
+      color: #783C00;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 5px 10px;
+      border-radius: var(--radius-btn);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      transition: all 0.12s ease;
+      width: 100%;
+    }
+    .btn-reset-tainted:hover {
+      background: #FFF9F2;
+      border-color: var(--fx-amber);
+    }
+
+    /* Protection Modules Checklist */
+    .modules-list {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .module-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 7px 9px;
+      background: var(--fx-canvas);
+      border: 1px solid var(--fx-border-subtle);
+      border-radius: 4px;
+      transition: background 0.12s;
+    }
+    .module-item:hover {
+      background: var(--fx-surface-hover);
+    }
+    .module-lead {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+    .module-icon {
+      width: 22px;
+      height: 22px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .module-icon.blue  { background: var(--fx-blue-bg);  color: var(--fx-blue); }
+    .module-icon.green { background: var(--fx-green-bg); color: var(--fx-green); }
+    .module-icon.amber { background: var(--fx-amber-bg); color: var(--fx-amber); }
+    .module-icon.red   { background: var(--fx-red-bg);   color: var(--fx-red); }
+
+    .module-texts {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+    .module-title {
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--fx-text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .module-desc {
+      font-size: 10px;
+      color: var(--fx-text-muted);
+    }
+    .module-pill {
+      font-size: 9.5px;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 3px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .module-pill.green { background: var(--fx-green-bg); color: var(--fx-green); border: 1px solid var(--fx-green-bd); }
+    .module-pill.blue  { background: var(--fx-blue-bg);  color: var(--fx-blue);  border: 1px solid var(--fx-blue-bd); }
+    .module-pill.amber { background: var(--fx-amber-bg); color: var(--fx-amber); border: 1px solid var(--fx-amber-bd); }
+
+    /* Firefox Buttons */
+    .btn-row {
+      display: flex;
+      gap: 6px;
+    }
+    .btn-primary {
+      background: var(--fx-blue);
+      color: #FFFFFF;
+      border: none;
+      border-radius: var(--radius-btn);
+      padding: 6px 12px;
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: background 0.12s;
+    }
+    .btn-primary:hover { background: var(--fx-blue-hover); }
+    .btn-primary:active { background: var(--fx-blue-active); }
+
+    .btn-secondary {
+      background: var(--fx-canvas);
+      border: 1px solid var(--fx-border);
+      border-radius: var(--radius-btn);
+      padding: 6px 10px;
+      font-size: 11.5px;
+      font-weight: 500;
+      color: var(--fx-text);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.12s;
+    }
+    .btn-secondary:hover {
+      background: var(--fx-surface-hover);
+      border-color: var(--fx-text-muted);
+    }
+
+    .btn-danger {
+      background: var(--fx-red-bg);
+      color: var(--fx-red);
+      border: 1px solid var(--fx-red-bd);
+      border-radius: var(--radius-btn);
+      padding: 6px 10px;
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: background 0.12s;
+    }
+    .btn-danger:hover { background: #FCE8EC; }
 
     /* Firefox Form Inputs */
     .form-group {
@@ -589,114 +551,157 @@
       margin-top: 2px;
       line-height: 1.3;
     }
+
+    /* Vault Master-Detail (Lockwise Style) */
+    .vault-categories-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 410px;
+      overflow-y: auto;
+      padding-right: 2px;
+    }
+    .vault-cat-card {
+      background: var(--fx-surface);
+      border: 1px solid var(--fx-border-subtle);
+      border-radius: var(--radius-card);
+      padding: 9px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.12s ease;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    }
+    .vault-cat-card:hover {
+      border-color: var(--fx-blue-bd);
+      background: var(--fx-surface-hover);
+      transform: translateY(-1px);
+    }
+    .vault-cat-lead {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      min-width: 0;
+    }
+    .vault-cat-icon {
+      width: 26px;
+      height: 26px;
+      border-radius: 4px;
+      background: var(--fx-canvas);
+      border: 1px solid var(--fx-border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: var(--fx-text-secondary);
+    }
+    .vault-cat-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--fx-text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .vault-cat-val {
+      font-size: 10px;
+      color: var(--fx-text-muted);
+      margin-top: 1px;
+    }
+    .vault-cat-val.filled {
+      color: var(--fx-green);
+      font-weight: 500;
+    }
+    .vault-cat-end {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .tier-badge {
+      font-size: 9px;
+      font-weight: 600;
+      padding: 1px 5px;
+      border-radius: 3px;
+    }
+    .tier-badge.a { background: var(--fx-red-bg); color: var(--fx-red); border: 1px solid var(--fx-red-bd); }
+    .tier-badge.b { background: var(--fx-blue-bg); color: var(--fx-blue); border: 1px solid var(--fx-blue-bd); }
+
+    /* Vault Detail Editor (Full width) */
+    .vault-editor {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      animation: fxFadeIn 0.15s ease;
+    }
+    @keyframes fxFadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    .editor-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding-bottom: 4px;
+      border-bottom: 1px solid var(--fx-border-subtle);
+    }
+    .btn-back {
+      background: transparent;
+      border: none;
+      color: var(--fx-blue);
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 4px;
+      border-radius: 3px;
+    }
+    .btn-back:hover {
+      background: var(--fx-blue-bg);
+    }
+    .input-with-action {
+      display: flex;
+      gap: 5px;
+      position: relative;
+    }
+    .input-action-btn {
+      position: absolute;
+      right: 6px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: transparent;
+      border: none;
+      color: var(--fx-text-muted);
+      cursor: pointer;
+      padding: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 3px;
+    }
+    .input-action-btn:hover {
+      color: var(--fx-text);
+      background: var(--fx-canvas);
+    }
     .help-box {
       background: var(--fx-canvas);
-      border: 1px solid var(--fx-border);
+      border: 1px solid var(--fx-border-subtle);
       border-radius: 4px;
       padding: 8px 10px;
       font-size: 10.5px;
       color: var(--fx-text-secondary);
       line-height: 1.35;
     }
-    .help-box strong {
-      color: var(--fx-text);
-    }
+    .help-box strong { color: var(--fx-text); }
 
-    /* Firefox Proton Buttons */
-    .btn-row {
-      display: flex;
-      gap: 6px;
-    }
-    .btn-primary {
-      background: var(--fx-blue);
-      color: #FFFFFF;
-      border: none;
-      border-radius: var(--radius-btn);
-      padding: 6px 12px;
-      font-size: 11.5px;
-      font-weight: 600;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      transition: background 0.12s;
-    }
-    .btn-primary:hover {
-      background: var(--fx-blue-hover);
-    }
-    .btn-primary:active {
-      background: var(--fx-blue-active);
-    }
-    .btn-secondary {
-      background: var(--fx-canvas);
-      border: 1px solid var(--fx-border);
-      border-radius: var(--radius-btn);
-      padding: 6px 10px;
-      font-size: 11.5px;
-      font-weight: 500;
-      color: var(--fx-text);
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      transition: all 0.12s;
-    }
-    .btn-secondary:hover {
-      background: var(--fx-surface-hover);
-      border-color: var(--fx-text-muted);
-    }
-    .btn-danger {
-      background: var(--fx-red-bg);
-      color: var(--fx-red);
-      border: 1px solid var(--fx-red-bd);
-      border-radius: var(--radius-btn);
-      padding: 6px 10px;
-      font-size: 11.5px;
-      font-weight: 600;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      transition: background 0.12s;
-    }
-    .btn-danger:hover {
-      background: #FCE8EC;
-    }
-
-    /* Whitelist Site Bar */
-    .site-bar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      padding: 8px 10px;
-      background: var(--fx-canvas);
-      border-radius: 4px;
-      border: 1px solid var(--fx-border-subtle);
-    }
-    .site-domain {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      min-width: 0;
-    }
-    .site-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--fx-green);
-      flex-shrink: 0;
-    }
-    .site-text {
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--fx-text);
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
+    /* Whitelist Scroll List */
     .scroll-list {
-      max-height: 160px;
+      max-height: 150px;
       overflow-y: auto;
       list-style: none;
       display: flex;
@@ -707,7 +712,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 6px 8px;
+      padding: 6px 9px;
       background: var(--fx-canvas);
       border: 1px solid var(--fx-border-subtle);
       border-radius: 4px;
@@ -724,34 +729,9 @@
       display: flex;
       transition: color 0.12s;
     }
-    .btn-remove:hover {
-      color: var(--fx-red);
-    }
+    .btn-remove:hover { color: var(--fx-red); }
 
-    /* Info Table */
-    .info-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 7px 0;
-      border-bottom: 1px solid var(--fx-border-subtle);
-      font-size: 11.5px;
-    }
-    .info-row:last-child {
-      border-bottom: none;
-    }
-    .info-row-label {
-      color: var(--fx-text-secondary);
-    }
-    .info-row-value {
-      font-weight: 600;
-      color: var(--fx-text);
-    }
-    .info-row-value.green {
-      color: var(--fx-green);
-    }
-
-    /* Firefox Toast */
+    /* Toast */
     .toast {
       position: fixed;
       bottom: 14px;
@@ -776,7 +756,7 @@
   </style>
 </head>
 <body>
-  <!-- Firefox Header -->
+  <!-- Firefox Proton Header -->
   <header class="app-header">
     <div class="brand-group">
       <div class="brand-icon">
@@ -789,128 +769,144 @@
         <div class="brand-tagline">Firefox Phishing & Lure Shield</div>
       </div>
     </div>
-    <div class="status-pill" title="Активний моніторинг">
-      <span class="pulse-dot"></span><span>Захищено</span>
+    <div class="status-pill active" id="globalStatusPill">
+      <span class="pulse-dot"></span><span id="globalStatusText">Захищено</span>
     </div>
   </header>
 
-  <!-- Firefox Proton Tabs -->
+  <!-- Firefox 3-Tab Navigation -->
   <nav class="tab-nav">
-    <button type="button" class="tab-btn active" id="tabBtnStats">
-      <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-      <span>Статистика</span>
+    <button type="button" class="tab-btn active" id="tabBtnShield">
+      <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+      <span>Захист</span>
     </button>
     <button type="button" class="tab-btn" id="tabBtnVault">
-      <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+      </svg>
       <span>Сховище</span>
     </button>
-    <button type="button" class="tab-btn" id="tabBtnWhitelist">
-      <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="9 11 12 14 22 4"/></svg>
-      <span>Довірені</span>
-    </button>
     <button type="button" class="tab-btn" id="tabBtnSettings">
-      <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-      <span>Сесії</span>
+      <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+      </svg>
+      <span>Опції</span>
     </button>
   </nav>
 
-  <!-- TAB 1: СТАТИСТИКА -->
-  <main class="tab-content" id="tabContentStats">
-    <div class="hero-card">
-      <div class="hero-icon">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>
-        </svg>
+  <!-- TAB 1: ЗАХИСТ САЙТУ (ГОЛОВНА) -->
+  <main class="tab-content" id="tabContentShield">
+    <!-- Current Site Protection Card (Firefox Protections Style) -->
+    <div class="site-card" id="currentSiteCard">
+      <div class="site-info">
+        <div class="site-icon-box active" id="siteIconBox">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+          </svg>
+        </div>
+        <div style="min-width:0;">
+          <div class="site-domain-text" id="currentSiteDomain">Визначення домену...</div>
+          <div class="site-status-text green" id="currentSiteStatus">
+            <span>Захист увімкнено для цього сайту</span>
+          </div>
+        </div>
       </div>
-      <div>
-        <div class="hero-title">Браузер під захистом Firefox</div>
-        <div class="hero-sub">Автоматичний аудит прихованих полів, захист від витоку карток та перевірка посилань.</div>
-      </div>
+      <label class="fx-switch" title="Увімкнути/вимкнути захист для цього сайту">
+        <input type="checkbox" id="currentSiteToggle" checked>
+        <span class="fx-slider"></span>
+      </label>
     </div>
 
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-header">
-          <div class="stat-icon red"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></div>
-          <div class="stat-badge red">+3 сьогодні</div>
+    <!-- Tainted Context Warning Banner (Appears ONLY during elevated alert) -->
+    <div class="tainted-banner" id="taintedBanner" style="display:none;">
+      <div class="tainted-header">
+        <div class="tainted-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
         </div>
-        <div class="stat-value" id="statBlockedScams">14</div>
-        <div class="stat-label">Загроз заблоковано</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-header">
-          <div class="stat-icon green"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>
-          <div class="stat-badge green">0 витоків</div>
+        <div class="tainted-content">
+          <div class="tainted-title">Підвищений рівень пильності</div>
+          <div class="tainted-desc" id="taintedDescText">Зафіксовано спробу виведення на сторонній ресурс із чату оголошень. Скринінг полів максимально посилено.</div>
         </div>
-        <div class="stat-value" id="statSavedCards">3</div>
-        <div class="stat-label">Витоків карток зупинено</div>
       </div>
-      <div class="stat-card">
-        <div class="stat-header">
-          <div class="stat-icon blue"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
-          <div class="stat-badge green" id="statVaultBadge">Активні</div>
-        </div>
-        <div class="stat-value" id="statProtectedMarkers">7</div>
-        <div class="stat-label">Маркерів у Vault</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-header">
-          <div class="stat-icon amber"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
-          <div class="stat-badge amber">Dark Patterns</div>
-        </div>
-        <div class="stat-value" id="statDarkPatterns">5</div>
-        <div class="stat-label">Маніпуляцій з часом</div>
-      </div>
+      <button type="button" class="btn-reset-tainted" id="btnResetContextHome">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+        Скинути стан тривоги
+      </button>
     </div>
 
+    <!-- Active Protection Modules -->
     <div class="card">
       <div class="card-header">
         <div class="card-title">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          Журнал останніх подій
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Активні засоби оборони
         </div>
       </div>
-      <ul class="events-list">
-        <li class="event-item">
-          <div class="event-icon" style="background:var(--fx-red-bg);color:var(--fx-red)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
-          <div class="event-body">
-            <div class="event-title">Спроба передати CVV-код у чаті</div>
-            <div class="event-meta"><span>15 хв тому</span><span>·</span><span class="event-tag blocked">Заблоковано</span></div>
+      <div class="modules-list">
+        <div class="module-item">
+          <div class="module-lead">
+            <div class="module-icon green"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>
+            <div class="module-texts">
+              <span class="module-title">Захист карток та CVV</span>
+              <span class="module-desc">Блокування передачі платіжних реквізитів у чатах</span>
+            </div>
           </div>
-        </li>
-        <li class="event-item">
-          <div class="event-icon" style="background:var(--fx-blue-bg);color:var(--fx-blue)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
-          <div class="event-body">
-            <div class="event-title">Спроба виманити дівоче прізвище матері</div>
-            <div class="event-meta"><span>2 год тому</span><span>·</span><span class="event-tag decoy">Підставлено декой</span></div>
-          </div>
-        </li>
-        <li class="event-item">
-          <div class="event-icon" style="background:var(--fx-amber-bg);color:var(--fx-amber)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
-          <div class="event-body">
-            <div class="event-title">Фіктивний зворотний відлік на формі</div>
-            <div class="event-meta"><span>Вчора</span><span>·</span><span class="event-tag detected">Маніпуляцію виявлено</span></div>
-          </div>
-        </li>
-      </ul>
-    </div>
+          <span class="module-pill green">Активно</span>
+        </div>
 
-    <div class="tip-box">
-      <strong>Порада безпеки:</strong> Справжні служби доставки ніколи не вимагають CVV-код або паролі для зарахування коштів на вашу картку.
+        <div class="module-item">
+          <div class="module-lead">
+            <div class="module-icon amber"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/><line x1="1" y1="1" x2="23" y2="23"/></svg></div>
+            <div class="module-texts">
+              <span class="module-title">Аудит автозаповнення</span>
+              <span class="module-desc">Виявлення невидимих та прихованих CSS-полів</span>
+            </div>
+          </div>
+          <span class="module-pill green">Активно</span>
+        </div>
+
+        <div class="module-item" id="moduleVaultItem" style="cursor:pointer;" title="Натисніть для переходу до Сховища">
+          <div class="module-lead">
+            <div class="module-icon blue"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+            <div class="module-texts">
+              <span class="module-title">Personal Vault DLP</span>
+              <span class="module-desc" id="vaultProtectionDesc">7 захисних маркерів налаштовано</span>
+            </div>
+          </div>
+          <span class="module-pill blue" id="vaultStatusPill">Захищено</span>
+        </div>
+
+        <div class="module-item">
+          <div class="module-lead">
+            <div class="module-icon blue"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg></div>
+            <div class="module-texts">
+              <span class="module-title">ШІ-арбітр (Gemini Nano)</span>
+              <span class="module-desc" id="homeAiSubtext">Локальний семантичний аналіз намірів</span>
+            </div>
+          </div>
+          <span class="module-pill green" id="homeAiPill">Готово</span>
+        </div>
+      </div>
     </div>
   </main>
 
-  <!-- TAB 2: PERSONAL VAULT -->
+  <!-- TAB 2: PERSONAL VAULT (FIREFOX LOCKWISE STYLE) -->
   <section class="tab-content" id="tabContentVault" style="display:none;">
     <!-- Setup state -->
     <div id="vaultSetupState" style="display:none;" class="card">
-      <div class="hero-icon" style="margin:0 auto 10px; background:var(--fx-blue-bg); color:var(--fx-blue); border-color:var(--fx-blue-bd);">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      <div class="hero-icon" style="margin:0 auto 10px; width:36px; height:36px; border-radius:6px; background:var(--fx-blue-bg); color:var(--fx-blue); border:1px solid var(--fx-blue-bd); display:flex; align-items:center; justify-content:center;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
       </div>
-      <h3 style="text-align:center; margin-bottom: 5px; font-size:14px; font-weight:700;">Захистіть свої дані</h3>
-      <p style="text-align:center; color:var(--fx-text-secondary); margin-bottom:12px; font-size:11.5px; line-height:1.4;">Створіть майстер-пароль для шифрування вашого Personal Vault. Дані зберігаються виключно локально.</p>
+      <h3 style="text-align:center; margin-bottom: 4px; font-size:13.5px; font-weight:700;">Створіть свій Vault</h3>
+      <p style="text-align:center; color:var(--fx-text-secondary); margin-bottom:12px; font-size:11px; line-height:1.4;">Захистіть дівоче прізвище матері, ІПН та секретні слова від витоку. Дані шифруються локально за стандартом AES-GCM 256.</p>
       <div class="form-group">
-        <input type="password" id="vaultSetupPassword" class="input-field" placeholder="Придумайте надійний пароль">
+        <input type="password" id="vaultSetupPassword" class="input-field" placeholder="Придумайте надійний майстер-пароль">
       </div>
       <div class="form-group">
         <input type="password" id="vaultSetupConfirm" class="input-field" placeholder="Підтвердіть пароль">
@@ -920,11 +916,11 @@
 
     <!-- Locked state -->
     <div id="vaultLockedState" style="display:none;" class="card">
-      <div class="hero-icon" style="margin:0 auto 10px; background:var(--fx-amber-bg); color:var(--fx-amber); border-color:var(--fx-amber-bd);">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      <div class="hero-icon" style="margin:0 auto 10px; width:36px; height:36px; border-radius:6px; background:var(--fx-amber-bg); color:var(--fx-amber); border:1px solid var(--fx-amber-bd); display:flex; align-items:center; justify-content:center;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
       </div>
-      <h3 style="text-align:center; margin-bottom: 5px; font-size:14px; font-weight:700;">Сховище заблоковано</h3>
-      <p style="text-align:center; color:var(--fx-text-secondary); margin-bottom:12px; font-size:11.5px; line-height:1.4;">Введіть пароль для розблокування налаштувань та активації DLP-захисту.</p>
+      <h3 style="text-align:center; margin-bottom: 4px; font-size:13.5px; font-weight:700;">Сховище заблоковано</h3>
+      <p style="text-align:center; color:var(--fx-text-secondary); margin-bottom:12px; font-size:11px; line-height:1.4;">Введіть ваш пароль для редагування та активного DLP-захисту реквізитів.</p>
       <div class="form-group">
         <input type="password" id="vaultUnlockPassword" class="input-field" placeholder="Ваш майстер-пароль">
       </div>
@@ -932,58 +928,80 @@
     </div>
 
     <!-- Unlocked state -->
-    <div id="vaultUnlockedState" style="display:none;">
-      <div class="vault-layout">
-        <aside class="vault-list" id="vaultSidebarList">
-          <div class="vault-section-label">Об'єкти захисту</div>
-        </aside>
-        <section class="vault-detail" id="vaultDetailPanel">
-          <div class="detail-header">
-            <div>
-              <div class="detail-title" id="detailItemLabel">Дівоче прізвище матері</div>
-              <div class="tier-tag a" id="detailItemTier">Tier A: Абсолютний захист</div>
-            </div>
-            <div class="toggle-wrap">
-              <span class="toggle-label" id="detailSwitchText">Активний</span>
-              <label class="switch"><input type="checkbox" id="detailItemToggle" checked><span class="slider"></span></label>
-            </div>
+    <div id="vaultUnlockedState" style="display:none; flex-direction:column; gap:8px;">
+      <!-- Master View: List of categories -->
+      <div id="vaultMasterView">
+        <div class="card-header" style="margin-bottom:6px;">
+          <div class="card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            Об'єкти захисту DLP
           </div>
-          <div class="card" style="padding:10px 12px;">
-            <div class="form-group">
-              <label class="form-label" for="detailRealInput">Справжнє значення (конфіденційно)</label>
-              <input type="text" id="detailRealInput" class="input-field" placeholder="Введіть значення">
-              <div class="input-hint">Якщо сайт спробує зчитати це значення — спрацює блокування.</div>
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="detailDecoyInput">Безпечна підстановка (декой)</label>
-              <input type="text" id="detailDecoyInput" class="input-field" placeholder="Фальшиве значення">
-              <div class="input-hint">Підставляється автоматично замість справжніх даних.</div>
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="detailKeywordsInput">Слова для виявлення</label>
-              <input type="text" id="detailKeywordsInput" class="input-field" placeholder="слова, через, кому">
-            </div>
-            <div class="btn-row" style="margin-top:8px;">
-              <button type="button" class="btn-primary" id="btnSaveDetailItem" style="flex:1;">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><polyline points="20 6 9 17 4 12"/></svg>
-                Зберегти
-              </button>
-              <button type="button" class="btn-secondary" id="btnClearDetailItem">Очистити</button>
-            </div>
-          </div>
-          <div class="help-box" id="detailHelpBox">
-            <strong>Чому це важливо?</strong> Дівоче прізвище матері використовується банками як кодове слово. Шахраї випитують його для скидання пароля.
-          </div>
-        </section>
+          <span style="font-size:10.5px; color:var(--fx-text-muted);" id="vaultActiveCountLabel">0 активних</span>
+        </div>
+        <div class="vault-categories-list" id="vaultCategoriesContainer">
+          <!-- Populated dynamically -->
+        </div>
       </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;padding-top:6px;">
+
+      <!-- Detail View: Editor for single item (Full width) -->
+      <div id="vaultDetailView" style="display:none;" class="vault-editor">
+        <div class="editor-topbar">
+          <button type="button" class="btn-back" id="btnBackToVaultList">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><polyline points="15 18 9 12 15 6"/></svg>
+            Усі маркери
+          </button>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span class="tier-badge a" id="detailItemTierBadge">Tier A</span>
+            <label class="fx-switch" title="Активувати/вимкнути захист цього маркера">
+              <input type="checkbox" id="detailItemToggle" checked>
+              <span class="fx-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 id="detailItemTitle" style="font-size:13px; font-weight:700; color:var(--fx-text); margin-bottom:10px;">Дівоче прізвище матері</h3>
+          
+          <div class="form-group">
+            <label class="form-label" for="detailRealInput">Справжнє конфіденційне значення</label>
+            <div class="input-with-action">
+              <input type="password" id="detailRealInput" class="input-field" placeholder="Введіть значення">
+              <button type="button" class="input-action-btn" id="btnTogglePasswordVisibility" title="Показати/приховати">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+            <div class="input-hint">Якщо сайт спробує зчитати це значення — спрацює блокування.</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="detailDecoyInput">Безпечна підстановка (декой)</label>
+            <input type="text" id="detailDecoyInput" class="input-field" placeholder="Фальшиве значення">
+            <div class="input-hint">Підставляється автоматично замість справжніх даних.</div>
+          </div>
+
+          <div class="btn-row" style="margin-top:10px;">
+            <button type="button" class="btn-primary" id="btnSaveDetailItem" style="flex:1; justify-content:center;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><polyline points="20 6 9 17 4 12"/></svg>
+              Зберегти зміни
+            </button>
+            <button type="button" class="btn-secondary" id="btnClearDetailItem">Очистити</button>
+          </div>
+        </div>
+
+        <div class="help-box" id="detailHelpBox">
+          <!-- Dynamic explanation -->
+        </div>
+      </div>
+
+      <!-- Vault Global Footer -->
+      <div style="display:flex; justify-content:space-between; align-items:center; padding-top:4px;">
         <button type="button" class="btn-secondary" id="btnResetVaultDefaults" style="font-size:11px; padding:4px 8px;">
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
           Скинути
         </button>
         <div style="display:flex; align-items:center; gap:6px;">
-          <span style="font-size:10px;color:var(--fx-text-muted);">AES-GCM 256</span>
-          <button type="button" class="btn-secondary" id="btnLockVault" style="padding: 4px 8px; font-size: 11px;">
+          <span style="font-size:10px; color:var(--fx-text-muted);">AES-GCM 256</span>
+          <button type="button" class="btn-secondary" id="btnLockVault" style="padding:4px 8px; font-size:11px;">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
             Заблокувати
           </button>
@@ -992,25 +1010,14 @@
     </div>
   </section>
 
-  <!-- TAB 3: ДОВІРЕНІ САЙТИ -->
-  <section class="tab-content" id="tabContentWhitelist" style="display:none;">
+  <!-- TAB 3: ОПЦІЇ ТА НАЛАШТУВАННЯ -->
+  <section class="tab-content" id="tabContentSettings" style="display:none;">
+    <!-- Whitelist Management -->
     <div class="card">
       <div class="card-header">
         <div class="card-title">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg>
-          Поточний сайт
-        </div>
-      </div>
-      <div class="site-bar">
-        <div class="site-domain"><span class="site-dot"></span><span class="site-text" id="currentHostLabel">Визначення...</span></div>
-        <button type="button" class="btn-primary" id="btnToggleCurrent" style="display:none;">Довіряти</button>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-header">
-        <div class="card-title">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-          <span id="whitelistTitle">Список довірених</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          <span id="whitelistTitle">Довірені сайти (0)</span>
         </div>
       </div>
       <div class="btn-row" style="margin-bottom:8px;">
@@ -1018,65 +1025,47 @@
         <button type="button" class="btn-primary" id="btnAddManual">Додати</button>
       </div>
       <ul class="scroll-list" id="whitelistUl">
-        <li class="list-entry" style="justify-content:center;color:var(--fx-text-muted);">Немає доданих сайтів</li>
+        <li class="list-entry" style="justify-content:center; color:var(--fx-text-muted);">Немає доданих сайтів</li>
       </ul>
+      <div style="margin-top:8px;">
+        <button type="button" class="btn-danger" id="btnClearAllWhitelist" style="width:100%; justify-content:center; font-size:11px; padding:5px;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          Очистити всі довірені сайти
+        </button>
+      </div>
     </div>
-    <div class="btn-row">
-      <button type="button" class="btn-danger" id="btnClearAllWhitelist" style="width:100%; justify-content:center;">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-        Очистити весь список
-      </button>
-    </div>
-  </section>
 
-  <!-- TAB 4: СЕСІЇ ТА НАЛАШТУВАННЯ -->
-  <section class="tab-content" id="tabContentSettings" style="display:none;">
+    <!-- AI & Privacy -->
     <div class="card">
       <div class="card-header">
         <div class="card-title">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-          ШІ та Діагностика
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          Локальний ШІ
         </div>
       </div>
-      <p style="font-size:11.5px;color:var(--fx-text-secondary);line-height:1.4;margin-bottom:10px;">
-        Статус локальної нейромережі: <strong id="aiStatusText">Перевірка...</strong>
+      <p style="font-size:11.5px; color:var(--fx-text-secondary); line-height:1.4; margin-bottom:8px;">
+        Статус Gemini Nano: <strong id="aiStatusText">Перевірка...</strong>
       </p>
-      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
-        <input type="checkbox" id="toggleDebugMode" style="width:15px;height:15px;accent-color:var(--fx-blue); cursor:pointer;">
-        <span style="font-size:12px;font-weight:500;color:var(--fx-text);">Увімкнути візуалізацію (Дебагер)</span>
+      <div style="font-size:10.5px; color:var(--fx-text-muted); line-height:1.35; padding:6px 8px; background:var(--fx-canvas); border-radius:4px;">
+        🔒 Обробка здійснюється повністю всередині браузера. Жоден символ не надсилається на зовнішні сервери.
+      </div>
+    </div>
+
+    <!-- Diagnostics / Developer -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          Діагностика
+        </div>
+      </div>
+      <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+        <input type="checkbox" id="toggleDebugMode" style="width:15px; height:15px; accent-color:var(--fx-blue); cursor:pointer;">
+        <div>
+          <div style="font-size:11.5px; font-weight:600; color:var(--fx-text);">Візуалізація (Дебагер-оверлей)</div>
+          <div style="font-size:10px; color:var(--fx-text-muted);">Показує термінал перевірки форм та ШІ в реальному часі на сторінці</div>
+        </div>
       </label>
-    </div>
-
-    <div class="card">
-      <div class="card-header">
-        <div class="card-title">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-          Зшивання сесій (Tainted Context)
-        </div>
-      </div>
-      <p style="font-size:11.5px;color:var(--fx-text-secondary);line-height:1.4;margin-bottom:10px;">
-        Якщо вас намагалися вивести з чату OLX на сторонній сайт — активується 15-хвилинний захист для форм.
-      </p>
-      <button type="button" class="btn-secondary" id="btnResetContext" style="width:100%; justify-content:center;">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-        Скинути стан тривоги
-      </button>
-      <button type="button" id="btnAbortAI" style="width:100%; margin-top:6px; background-color: var(--fx-amber); color: white; border: none; border-radius: var(--radius-btn); padding: 7px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
-        Зупинити AI-аналіз (Скасувати)
-      </button>
-    </div>
-
-    <div class="card">
-      <div class="card-header">
-        <div class="card-title">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-          Конфіденційність
-        </div>
-      </div>
-      <div class="info-row"><span class="info-row-label">Режим обробки</span><span class="info-row-value green">100% Локально</span></div>
-      <div class="info-row"><span class="info-row-label">Передача на сервери</span><span class="info-row-value">Вимкнена</span></div>
-      <div class="info-row"><span class="info-row-label">Стандарт</span><span class="info-row-value">Firefox Proton MV3</span></div>
     </div>
   </section>
 

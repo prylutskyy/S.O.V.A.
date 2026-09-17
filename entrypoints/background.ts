@@ -15,7 +15,7 @@ export default defineBackground(() => {
 
   // Слухач повідомлень від Content Scripts
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    const tabId = sender.tab?.id;
+    const tabId = sender.tab?.id || message.tabId;
 
     if (message.type === 'LURE_DETECTED') {
       if (!tabId) {

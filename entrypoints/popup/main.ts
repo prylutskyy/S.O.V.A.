@@ -1,8 +1,7 @@
 import { UserWhitelistManager } from '../../src/core/user-whitelist';
 import { PersonalVaultManager } from '../../src/core/personal-vault';
-import { StatsTabController } from './controllers/stats-tab.controller';
+import { ShieldTabController } from './controllers/shield-tab.controller';
 import { VaultTabController } from './controllers/vault-tab.controller';
-import { WhitelistTabController } from './controllers/whitelist-tab.controller';
 import { SettingsTabController } from './controllers/settings-tab.controller';
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -21,41 +20,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   await PersonalVaultManager.init();
 
   // 2. Ініціалізація модульних контролерів вкладок
-  const statsCtrl = new StatsTabController();
-  const vaultCtrl = new VaultTabController(showToast, () => statsCtrl.updateDisplay());
-  const whitelistCtrl = new WhitelistTabController(showToast);
-  new SettingsTabController(showToast);
+  let shieldCtrl: ShieldTabController;
+  let vaultCtrl: VaultTabController;
+  let settingsCtrl: SettingsTabController;
 
-  // 3. Навігація між вкладками
-  const tabs = {
-    stats: {
-      btn: document.getElementById('tabBtnStats') as HTMLButtonElement,
-      content: document.getElementById('tabContentStats') as HTMLElement,
-      onOpen: () => statsCtrl.updateDisplay(),
-    },
-    vault: {
-      btn: document.getElementById('tabBtnVault') as HTMLButtonElement,
-      content: document.getElementById('tabContentVault') as HTMLElement,
-      onOpen: () => vaultCtrl.renderSplitView(),
-    },
-    whitelist: {
-      btn: document.getElementById('tabBtnWhitelist') as HTMLButtonElement,
-      content: document.getElementById('tabContentWhitelist') as HTMLElement,
-      onOpen: async () => {
-        await whitelistCtrl.renderWhitelist();
-        await whitelistCtrl.updateCurrentTabState();
-      },
-    },
-    settings: {
-      btn: document.getElementById('tabBtnSettings') as HTMLButtonElement,
-      content: document.getElementById('tabContentSettings') as HTMLElement,
-      onOpen: () => {},
-    },
-  };
-
-  type TabName = keyof typeof tabs;
-
-  const setActiveTab = async (name: TabName) => {
+  const setActiveTab = async (name: 'shield' | 'vault' | 'settings') => {
     for (const [key, tab] of Object.entries(tabs)) {
       const isActive = key === name;
       tab.btn.classList.toggle('active', isActive);
@@ -64,11 +33,39 @@ document.addEventListener('DOMContentLoaded', async () => {
     await tabs[name].onOpen();
   };
 
-  tabs.stats.btn.addEventListener('click', () => setActiveTab('stats'));
+  // 3. Навігація між вкладками
+  const tabs = {
+    shield: {
+      btn: document.getElementById('tabBtnShield') as HTMLButtonElement,
+      content: document.getElementById('tabContentShield') as HTMLElement,
+      onOpen: async () => {
+        await shieldCtrl.updateDisplay();
+      },
+    },
+    vault: {
+      btn: document.getElementById('tabBtnVault') as HTMLButtonElement,
+      content: document.getElementById('tabContentVault') as HTMLElement,
+      onOpen: async () => {
+        await vaultCtrl.renderSplitView();
+      },
+    },
+    settings: {
+      btn: document.getElementById('tabBtnSettings') as HTMLButtonElement,
+      content: document.getElementById('tabContentSettings') as HTMLElement,
+      onOpen: async () => {
+        await settingsCtrl.renderWhitelist();
+      },
+    },
+  };
+
+  shieldCtrl = new ShieldTabController(showToast, () => setActiveTab('vault'));
+  vaultCtrl = new VaultTabController(showToast, () => shieldCtrl.updateDisplay());
+  settingsCtrl = new SettingsTabController(showToast, () => shieldCtrl.updateDisplay());
+
+  tabs.shield.btn.addEventListener('click', () => setActiveTab('shield'));
   tabs.vault.btn.addEventListener('click', () => setActiveTab('vault'));
-  tabs.whitelist.btn.addEventListener('click', () => setActiveTab('whitelist'));
   tabs.settings.btn.addEventListener('click', () => setActiveTab('settings'));
 
-  // За замовчуванням відкриваємо розділ СТАТИСТИКИ
-  await setActiveTab('stats');
+  // За замовчуванням відкриваємо розділ ЗАХИСТУ САЙТУ
+  await setActiveTab('shield');
 });
