@@ -173,7 +173,7 @@ export class SecurityFriction {
   }
 
   /**
-   * Повідомлення про зшивання сесій (Floating Dynamic Island / Capsule у стилі Apple)
+   * Повідомлення про зшивання сесій (Firefox Doorhanger, розгортання з іконки розширення)
    */
   public static showContextWarningBanner(context: ActiveThreatContext, customSubtitle?: string, rawTextToScan?: string, intentType?: string, onClose?: () => void, confidence?: number): void {
     const root = ShadowHost.getRoot();
@@ -186,22 +186,23 @@ export class SecurityFriction {
     banner.id = 'threat-shield-context-banner';
     banner.style.cssText = `
       position: fixed !important;
-      top: 14px !important;
-      left: 50% !important;
-      transform: translateX(-50%) !important;
+      top: 12px !important;
+      right: 18px !important;
+      width: 370px !important;
       max-width: calc(100vw - 32px) !important;
       background: #FFFFFF !important;
-      border: 1px solid #E5E7EB !important;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.10), 0 1px 3px rgba(0,0,0,0.06) !important;
-      border-radius: 12px !important;
-      padding: 12px 14px 12px 14px !important;
+      border: 1px solid #CFCFD8 !important;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16), 0 0 0 1px rgba(0, 0, 0, 0.06) !important;
+      border-radius: 8px !important;
+      padding: 13px 15px !important;
       z-index: 2147483646 !important;
       display: flex !important;
       flex-direction: column !important;
-      align-items: center !important;
-      gap: 9px !important;
+      align-items: stretch !important;
+      gap: 10px !important;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
-      animation: tsCapsuleDrop 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      transform-origin: calc(100% - 24px) 0px !important;
+      animation: fxDoorhangerUnfold 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
       pointer-events: auto !important;
     `;
 
@@ -210,49 +211,71 @@ export class SecurityFriction {
 
     banner.innerHTML = `
       <style>
-        @keyframes tsCapsuleDrop {
-          from { opacity: 0; transform: translate(-50%, -14px); }
-          to   { opacity: 1; transform: translate(-50%, 0); }
+        @keyframes fxDoorhangerUnfold {
+          0%   { opacity: 0; transform: scale(0.15) translateY(-14px); }
+          75%  { opacity: 1; transform: scale(1.02) translateY(0); }
+          100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        @keyframes fxDoorhangerFold {
+          0%   { opacity: 1; transform: scale(1) translateY(0); }
+          100% { opacity: 0; transform: scale(0.15) translateY(-14px); }
         }
         @keyframes tsSpin { 100% { transform: rotate(360deg); } }
         .ts-spinner { animation: tsSpin 1s linear infinite; }
       </style>
 
-      <div style="display: flex; align-items: center; gap: 8px; width: 100%;">
+      <!-- Firefox Doorhanger Anchor Caret -->
+      <div style="
+        position: absolute;
+        top: -6px;
+        right: 22px;
+        width: 10px;
+        height: 10px;
+        background: #FFFFFF;
+        border-left: 1px solid #CFCFD8;
+        border-top: 1px solid #CFCFD8;
+        transform: rotate(45deg);
+        z-index: 1;
+      "></div>
+
+      <div style="display: flex; align-items: flex-start; gap: 10px; width: 100%;">
         <div style="
-          width: 22px; height: 22px; border-radius: 50%;
-          background: #FFFBEB; border: 1px solid #FDE68A;
-          display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+          width: 28px; height: 28px; border-radius: 6px;
+          background: #FFF4E5; border: 1px solid #FFD599;
+          display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px;
         ">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#D76E00" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
             <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
             <line x1="12" y1="9" x2="12" y2="13"/>
             <line x1="12" y1="17" x2="12.01" y2="17"/>
           </svg>
         </div>
 
-        <div style="font-size: 12.5px; color: #1A1A1A; display: flex; flex-direction: column; gap: 2px;">
-          <strong style="font-weight: 600; color: #1A1A1A;">${context.sourcePlatform}</strong>
-          <span style="color: #D97706; font-weight: 500;">${subtitle}</span>
-          ${isHardLock ? '<span style="color:#DC2626; font-size: 11px;">(Блокування вводу)</span>' : ''}
+        <div style="font-size: 12.5px; color: #15141A; display: flex; flex-direction: column; gap: 2px; flex: 1;">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <strong style="font-weight: 600; color: #15141A; font-size: 13px;">${context.sourcePlatform}</strong>
+            <span style="font-size: 10px; font-weight: 600; background: #E8F2FF; color: #0060DF; padding: 1px 5px; border-radius: 3px;">Firefox Shield</span>
+          </div>
+          <span style="color: #D76E00; font-weight: 500; font-size: 12px; line-height: 1.3;">${subtitle}</span>
+          ${isHardLock ? '<span style="color:#D70022; font-size: 11px; font-weight: 600;">(Блокування вводу чутливих реквізитів)</span>' : ''}
         </div>
 
         <button id="threat-shield-close-banner" type="button" title="Закрити" ${isHardLock ? 'disabled' : ''} style="
-          width: ${isHardLock ? '24px' : '18px'}; height: ${isHardLock ? '24px' : '18px'}; border-radius: 50%; border: none;
-          background: #F3F4F6; color: #9CA3AF; cursor: pointer;
+          width: 22px; height: 22px; border-radius: 4px; border: none;
+          background: #F0F0F4; color: #5B5B66; cursor: pointer;
           display: flex; align-items: center; justify-content: center;
           font-size: ${isHardLock ? '11px' : '10px'}; line-height: 1; padding: 0; margin-left: auto;
-          transition: opacity 0.2s;
+          transition: background 0.15s, opacity 0.2s;
           ${isHardLock ? 'opacity: 0.5; cursor: not-allowed;' : ''}
         ">
-          ${isHardLock ? '10s' : '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'}
+          ${isHardLock ? '10s' : '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'}
         </button>
       </div>
 
-      <button id="ts-ask-ai-banner-btn" style="background:#E0E7FF;color:#4338CA;border:1px solid #C7D2FE;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:opacity 0.2s;width:100%;">
+      <button id="ts-ask-ai-banner-btn" style="background:#0060DF;color:#FFFFFF;border:none;border-radius:4px;padding:7px 12px;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:background 0.15s;width:100%;">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg> Сумніваєтесь? Запитати ШІ
       </button>
-      <div id="ts-ai-banner-result" style="display:none;font-size:12px;padding:8px;border-radius:6px;width:100%;box-sizing:border-box;"></div>
+      <div id="ts-ai-banner-result" style="display:none;font-size:12px;padding:8px 10px;border-radius:4px;width:100%;box-sizing:border-box;border:1px solid transparent;"></div>
     `;
 
     ShadowHost.append(banner);
@@ -260,6 +283,13 @@ export class SecurityFriction {
     const btnAi = banner.querySelector('#ts-ask-ai-banner-btn') as HTMLButtonElement;
     const resultDiv = banner.querySelector('#ts-ai-banner-result') as HTMLElement;
     const closeBtn = banner.querySelector('#threat-shield-close-banner') as HTMLButtonElement;
+
+    const foldAndRemove = () => {
+      banner.style.animation = 'fxDoorhangerFold 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards';
+      setTimeout(() => {
+        ShadowHost.remove(banner);
+      }, 170);
+    };
 
     if (isHardLock) {
       let timeLeft = 10;
@@ -272,13 +302,13 @@ export class SecurityFriction {
           closeBtn.disabled = false;
           closeBtn.style.opacity = '1';
           closeBtn.style.cursor = 'pointer';
-          closeBtn.innerHTML = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+          closeBtn.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
         }
       }, 1000);
     }
 
     closeBtn.addEventListener('click', () => {
-      ShadowHost.remove(banner);
+      foldAndRemove();
     });
 
     btnAi.addEventListener('click', () => {
@@ -369,7 +399,7 @@ Required JSON schema:
               resultDiv.innerHTML = `<b>ШІ спростував загрозу:</b> ${aiResult.reasoning}`;
               DebuggerOverlay.logAI('ШІ Арбітр → Аналіз', `🟢 Загрозу спростовано (Впевненість: ${aiResult.confidence}%)\n\nВисновок: "${aiResult.reasoning}"`, '#22C55E', { rawResponse: aiResult.rawResponse }, aiLogId);
               setTimeout(() => {
-                ShadowHost.remove(banner);
+                foldAndRemove();
                 if (onClearThreat) onClearThreat();
               }, 3000);
             }
@@ -386,7 +416,7 @@ Required JSON schema:
     if (!isHardLock) {
       setTimeout(() => {
         if (root.contains(banner) && btnAi.style.display !== 'none' && !btnAi.disabled) {
-          ShadowHost.remove(banner);
+          foldAndRemove();
         }
       }, 10000);
     }
@@ -404,7 +434,7 @@ Required JSON schema:
   }
 
   /**
-   * Проактивне сповіщення про виявлення пастки автозаповнення (Autofill Phishing / Cloaked Hidden Fields)
+   * Проактивне сповіщення про виявлення пастки автозаповнення (Firefox Doorhanger, розгортання з іконки розширення)
    */
   public static showHiddenFieldTrapBanner(scan: HiddenFieldScanResult, form?: HTMLFormElement): void {
     const root = ShadowHost.getRoot();
@@ -414,7 +444,7 @@ Required JSON schema:
     }
 
     if (form) {
-      form.style.outline = '2px dashed #EF4444';
+      form.style.outline = '2px dashed #D70022';
       form.style.outlineOffset = '4px';
     }
 
@@ -422,22 +452,22 @@ Required JSON schema:
     banner.id = 'threat-shield-hidden-field-banner';
     banner.style.cssText = `
       position: fixed !important;
-      top: 14px !important;
-      left: 50% !important;
-      transform: translateX(-50%) !important;
-      max-width: 600px !important;
-      width: calc(100vw - 32px) !important;
+      top: 12px !important;
+      right: 18px !important;
+      width: 380px !important;
+      max-width: calc(100vw - 32px) !important;
       background: #FFFFFF !important;
-      border: 1.5px solid #EF4444 !important;
-      box-shadow: 0 10px 25px -5px rgba(239, 68, 68, 0.25), 0 8px 10px -6px rgba(239, 68, 68, 0.2) !important;
-      border-radius: 12px !important;
-      padding: 14px 16px !important;
+      border: 1px solid #D70022 !important;
+      box-shadow: 0 8px 24px rgba(215, 0, 34, 0.18), 0 0 0 1px rgba(215, 0, 34, 0.1) !important;
+      border-radius: 8px !important;
+      padding: 13px 15px !important;
       z-index: 2147483647 !important;
       display: flex !important;
       flex-direction: column !important;
       gap: 10px !important;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
-      animation: tsCapsuleDrop 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      transform-origin: calc(100% - 24px) 0px !important;
+      animation: fxDoorhangerUnfold 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
       pointer-events: auto !important;
     `;
 
@@ -453,56 +483,88 @@ Required JSON schema:
       .join(', ');
 
     banner.innerHTML = `
-      <div style="display: flex; align-items: flex-start; gap: 12px; width: 100%;">
+      <style>
+        @keyframes fxDoorhangerUnfold {
+          0%   { opacity: 0; transform: scale(0.15) translateY(-14px); }
+          75%  { opacity: 1; transform: scale(1.02) translateY(0); }
+          100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        @keyframes fxDoorhangerFold {
+          0%   { opacity: 1; transform: scale(1) translateY(0); }
+          100% { opacity: 0; transform: scale(0.15) translateY(-14px); }
+        }
+      </style>
+
+      <!-- Firefox Doorhanger Anchor Caret -->
+      <div style="
+        position: absolute;
+        top: -6px;
+        right: 22px;
+        width: 10px;
+        height: 10px;
+        background: #FFFFFF;
+        border-left: 1px solid #D70022;
+        border-top: 1px solid #D70022;
+        transform: rotate(45deg);
+        z-index: 1;
+      "></div>
+
+      <div style="display: flex; align-items: flex-start; gap: 10px; width: 100%;">
         <div style="
-          width: 32px; height: 32px; border-radius: 50%;
-          background: #FEF2F2; border: 1px solid #FCA5A5;
-          display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+          width: 30px; height: 30px; border-radius: 6px;
+          background: #FDF2F5; border: 1px solid #F8B4C0;
+          display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px;
         ">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#D70022" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
             <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
             <line x1="12" y1="9" x2="12" y2="13"/>
             <line x1="12" y1="17" x2="12.01" y2="17"/>
           </svg>
         </div>
 
-        <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <span style="font-size: 11px; font-weight: 700; background: #FEE2E2; color: #DC2626; padding: 2px 6px; border-radius: 4px; text-transform: uppercase;">
+        <div style="flex: 1; display: flex; flex-direction: column; gap: 3px;">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span style="font-size: 10px; font-weight: 700; background: #FDF2F5; color: #D70022; padding: 1px 5px; border-radius: 3px; text-transform: uppercase;">
               Autofill Trap
             </span>
-            <strong style="font-size: 14px; font-weight: 700; color: #991B1B;">Виявлено приховані поля у формі!</strong>
+            <strong style="font-size: 13px; font-weight: 700; color: #D70022;">Виявлено приховані поля!</strong>
           </div>
-          <p style="font-size: 12.5px; color: #4B5563; margin: 0; line-height: 1.4;">
-            Форма намагається викрасти ваші дані через приховані поля: <strong style="color: #1F2937;">${detectedTypes}</strong>.
-            Коли ви заповнюєте звичайні поля через автозаповнення браузера, приховані поля непомітно копіюють платіжні реквізити.
+          <p style="font-size: 12px; color: #5B5B66; margin: 0; line-height: 1.4;">
+            Форма намагається викрасти дані: <strong style="color: #15141A;">${detectedTypes}</strong> через браузерне автозаповнення.
           </p>
-          <div style="font-size: 11.5px; color: #059669; font-weight: 500; display: flex; align-items: center; gap: 4px; margin-top: 2px;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <div style="font-size: 11.5px; color: #008A52; font-weight: 600; display: flex; align-items: center; gap: 4px; margin-top: 2px;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#008A52" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
               <polyline points="9 12 11 14 15 10"/>
             </svg>
-            Захист активовано: приховані поля знешкоджено (disabled & autocomplete="off").
+            Захист: приховані поля знешкоджено (disabled & autocomplete="off").
           </div>
         </div>
 
         <button id="threat-shield-close-trap-banner" type="button" title="Закрити" style="
-          width: 22px; height: 22px; border-radius: 50%; border: none;
-          background: #F3F4F6; color: #6B7280; cursor: pointer;
+          width: 22px; height: 22px; border-radius: 4px; border: none;
+          background: #F0F0F4; color: #5B5B66; cursor: pointer;
           display: flex; align-items: center; justify-content: center;
-          padding: 0; flex-shrink: 0; transition: background 0.2s;
+          padding: 0; flex-shrink: 0; transition: background 0.15s;
         ">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
       </div>
     `;
 
     ShadowHost.append(banner);
 
+    const foldAndRemove = () => {
+      banner.style.animation = 'fxDoorhangerFold 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards';
+      setTimeout(() => {
+        ShadowHost.remove(banner);
+      }, 170);
+    };
+
     const closeBtn = banner.querySelector('#threat-shield-close-trap-banner') as HTMLButtonElement;
     if (closeBtn) {
       closeBtn.addEventListener('click', () => {
-        ShadowHost.remove(banner);
+        foldAndRemove();
       });
     }
   }

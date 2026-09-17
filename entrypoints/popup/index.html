@@ -3,167 +3,798 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Threat Shield — Розумний захист</title>
+  <title>Threat Shield — Захист Firefox</title>
   <style>
     :root {
-      --canvas:        #F9F9F8;
-      --surface:       #FFFFFF;
-      --surface-hover: #F3F4F6;
-      --border:        #E5E7EB;
-      --border-strong: #D1D5DB;
-      --text-primary:   #1A1A1A;
-      --text-secondary: #6B7280;
-      --text-muted:     #9CA3AF;
-      --green:    #16A34A;  --green-bg: #F0FDF4;  --green-bd: #BBF7D0;
-      --amber:    #D97706;  --amber-bg: #FFFBEB;  --amber-bd: #FDE68A;
-      --red:      #DC2626;  --red-bg:   #FEF2F2;  --red-bd:   #FECACA;
-      --blue:     #1D4ED8;  --blue-bg:  #EFF6FF;  --blue-bd:  #BFDBFE;
-      --radius-card: 10px; --radius-btn: 8px; --radius-tag: 6px;
-      --shadow: 0 1px 3px rgba(0,0,0,0.07);
+      /* Mozilla Firefox Proton & Acorn Design Tokens */
+      --fx-canvas:         #F0F0F4;
+      --fx-surface:        #FFFFFF;
+      --fx-surface-hover:  #E0E0E6;
+      --fx-border:         #CFCFD8;
+      --fx-border-subtle:  #E0E0E6;
+      --fx-text:           #15141A;
+      --fx-text-secondary: #5B5B66;
+      --fx-text-muted:     #8F8F9D;
+
+      --fx-blue:           #0060DF;
+      --fx-blue-hover:     #003EAA;
+      --fx-blue-active:    #002275;
+      --fx-blue-bg:        #E8F2FF;
+      --fx-blue-bd:        #B0D5FF;
+
+      --fx-green:          #008A52;
+      --fx-green-bg:       #EAF7F3;
+      --fx-green-bd:       #A3E5D0;
+
+      --fx-amber:          #D76E00;
+      --fx-amber-bg:       #FFF4E5;
+      --fx-amber-bd:       #FFD599;
+
+      --fx-red:            #D70022;
+      --fx-red-hover:      #A4001A;
+      --fx-red-bg:         #FDF2F5;
+      --fx-red-bd:         #F8B4C0;
+
+      --radius-panel: 8px;
+      --radius-card: 6px;
+      --radius-btn: 4px;
+      --radius-tag: 4px;
+      --radius-input: 4px;
+
+      --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.05);
       --font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font); -webkit-font-smoothing: antialiased; }
-    body { width: 540px; max-height: 600px; background: var(--canvas); color: var(--text-primary); font-size: 13px; user-select: none; overflow-y: auto; display: flex; flex-direction: column; }
-    ::-webkit-scrollbar { width: 4px; }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: var(--font);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      width: 395px;
+      max-height: 590px;
+      background: var(--fx-canvas);
+      color: var(--fx-text);
+      font-size: 12.5px;
+      user-select: none;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Firefox Subtle Scrollbars */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+    ::-webkit-scrollbar-thumb { background: var(--fx-border); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--fx-text-muted); }
 
-    .app-header { position: sticky; top: 0; z-index: 20; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; }
-    .brand-group { display: flex; align-items: center; gap: 10px; }
-    .brand-icon { width: 30px; height: 30px; border-radius: 8px; background: var(--text-primary); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .brand-name { font-size: 14px; font-weight: 600; color: var(--text-primary); letter-spacing: -0.01em; }
-    .brand-tagline { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
-    .status-pill { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 500; color: var(--green); background: var(--green-bg); border: 1px solid var(--green-bd); padding: 3px 10px; border-radius: 999px; }
-    .pulse-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
-    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(22,163,74,0.45); } 70% { box-shadow: 0 0 0 5px rgba(22,163,74,0); } 100% { box-shadow: 0 0 0 0 rgba(22,163,74,0); } }
+    /* Firefox Proton Header */
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: var(--fx-surface);
+      border-bottom: 1px solid var(--fx-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+    }
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+    .brand-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: linear-gradient(135deg, #0060DF 0%, #7542E5 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 2px 5px rgba(0, 96, 223, 0.25);
+    }
+    .brand-name {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--fx-text);
+      line-height: 1.2;
+    }
+    .brand-tagline {
+      font-size: 10.5px;
+      color: var(--fx-text-muted);
+      margin-top: 1px;
+    }
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--fx-green);
+      background: var(--fx-green-bg);
+      border: 1px solid var(--fx-green-bd);
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+    .pulse-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--fx-green);
+      animation: fxPulse 2s infinite;
+    }
+    @keyframes fxPulse {
+      0%   { box-shadow: 0 0 0 0 rgba(0, 138, 82, 0.5); }
+      70%  { box-shadow: 0 0 0 4px rgba(0, 138, 82, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(0, 138, 82, 0); }
+    }
 
-    .tab-nav { background: var(--surface); border-bottom: 1px solid var(--border); display: flex; padding: 0 12px; }
-    .tab-btn { display: flex; align-items: center; gap: 6px; padding: 11px 12px; background: transparent; border: none; border-bottom: 2px solid transparent; margin-bottom: -1px; cursor: pointer; color: var(--text-secondary); font-size: 12.5px; font-weight: 500; transition: color 0.12s, border-color 0.12s; white-space: nowrap; }
-    .tab-btn svg { width: 14px; height: 14px; stroke: currentColor; fill: none; flex-shrink: 0; }
-    .tab-btn:hover { color: var(--text-primary); }
-    .tab-btn.active { color: var(--text-primary); border-bottom-color: var(--text-primary); font-weight: 600; }
+    /* Firefox Tab Navigation */
+    .tab-nav {
+      background: var(--fx-canvas);
+      border-bottom: 1px solid var(--fx-border);
+      display: flex;
+      padding: 6px 8px 0;
+      gap: 3px;
+    }
+    .tab-btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      padding: 8px 6px;
+      background: transparent;
+      border: none;
+      border-radius: 4px 4px 0 0;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      color: var(--fx-text-secondary);
+      font-size: 11.5px;
+      font-weight: 500;
+      transition: all 0.12s ease;
+      white-space: nowrap;
+    }
+    .tab-btn svg {
+      width: 13px;
+      height: 13px;
+      stroke: currentColor;
+      fill: none;
+      flex-shrink: 0;
+    }
+    .tab-btn:hover {
+      background: var(--fx-surface-hover);
+      color: var(--fx-text);
+    }
+    .tab-btn.active {
+      background: var(--fx-surface);
+      color: var(--fx-blue);
+      border-bottom-color: var(--fx-blue);
+      font-weight: 600;
+      box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.04);
+    }
 
-    .tab-content { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
-    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-card); padding: 14px; box-shadow: var(--shadow); }
-    .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-    .card-title { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; display: flex; align-items: center; gap: 5px; }
-    .card-title svg { width: 12px; height: 12px; }
+    /* Content Area */
+    .tab-content {
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
 
-    .hero-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-card); padding: 16px; display: flex; align-items: center; gap: 14px; box-shadow: var(--shadow); }
-    .hero-icon { width: 40px; height: 40px; border-radius: 10px; background: var(--green-bg); border: 1px solid var(--green-bd); display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--green); }
-    .hero-title { font-size: 14px; font-weight: 600; color: var(--text-primary); }
-    .hero-sub { font-size: 12px; color: var(--text-secondary); margin-top: 3px; line-height: 1.4; }
+    /* Firefox Proton Cards */
+    .card {
+      background: var(--fx-surface);
+      border: 1px solid var(--fx-border);
+      border-radius: var(--radius-card);
+      padding: 12px;
+      box-shadow: var(--shadow-card);
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .card-title {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: var(--fx-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .card-title svg {
+      width: 12px;
+      height: 12px;
+    }
 
-    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-card); padding: 12px; display: flex; flex-direction: column; gap: 5px; box-shadow: var(--shadow); }
-    .stat-icon { width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; }
-    .stat-icon.green { background: var(--green-bg); color: var(--green); }
-    .stat-icon.amber { background: var(--amber-bg); color: var(--amber); }
-    .stat-icon.red   { background: var(--red-bg);   color: var(--red); }
-    .stat-icon.blue  { background: var(--blue-bg);  color: var(--blue); }
-    .stat-value { font-size: 22px; font-weight: 700; color: var(--text-primary); letter-spacing: -0.04em; line-height: 1; }
-    .stat-label { font-size: 10.5px; font-weight: 500; color: var(--text-secondary); line-height: 1.3; }
-    .stat-badge { font-size: 9.5px; font-weight: 600; padding: 1px 5px; border-radius: 4px; width: fit-content; }
-    .stat-badge.green { background: var(--green-bg); color: var(--green); }
-    .stat-badge.amber { background: var(--amber-bg); color: var(--amber); }
-    .stat-badge.red   { background: var(--red-bg);   color: var(--red); }
+    /* Hero Banner */
+    .hero-card {
+      background: var(--fx-surface);
+      border: 1px solid var(--fx-border);
+      border-radius: var(--radius-card);
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: var(--shadow-card);
+    }
+    .hero-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 6px;
+      background: var(--fx-green-bg);
+      border: 1px solid var(--fx-green-bd);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: var(--fx-green);
+    }
+    .hero-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--fx-text);
+    }
+    .hero-sub {
+      font-size: 11.5px;
+      color: var(--fx-text-secondary);
+      margin-top: 2px;
+      line-height: 1.35;
+    }
 
-    .events-list { list-style: none; display: flex; flex-direction: column; gap: 6px; }
-    .event-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 8px; background: var(--canvas); border: 1px solid var(--border); }
-    .event-icon { width: 26px; height: 26px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .event-body { flex: 1; min-width: 0; }
-    .event-title { font-size: 12px; font-weight: 500; color: var(--text-primary); line-height: 1.3; }
-    .event-meta { font-size: 10.5px; color: var(--text-muted); margin-top: 2px; display: flex; align-items: center; gap: 5px; }
-    .event-tag { font-size: 9.5px; font-weight: 600; padding: 1px 6px; border-radius: 4px; }
-    .event-tag.blocked  { background: var(--red-bg);   color: var(--red); }
-    .event-tag.decoy    { background: var(--blue-bg);  color: var(--blue); }
-    .event-tag.detected { background: var(--amber-bg); color: var(--amber); }
+    /* Stats Grid (2x2) */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+    .stat-card {
+      background: var(--fx-surface);
+      border: 1px solid var(--fx-border);
+      border-radius: var(--radius-card);
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      box-shadow: var(--shadow-card);
+    }
+    .stat-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .stat-icon {
+      width: 22px;
+      height: 22px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .stat-icon.green { background: var(--fx-green-bg); color: var(--fx-green); }
+    .stat-icon.amber { background: var(--fx-amber-bg); color: var(--fx-amber); }
+    .stat-icon.red   { background: var(--fx-red-bg);   color: var(--fx-red); }
+    .stat-icon.blue  { background: var(--fx-blue-bg);  color: var(--fx-blue); }
 
-    .tip-box { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--amber); border-radius: var(--radius-card); padding: 10px 12px; font-size: 11.5px; color: var(--text-secondary); line-height: 1.4; }
-    .tip-box strong { color: var(--text-primary); }
+    .stat-value {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--fx-text);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+    }
+    .stat-label {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--fx-text-secondary);
+      line-height: 1.25;
+    }
+    .stat-badge {
+      font-size: 9.5px;
+      font-weight: 600;
+      padding: 1px 5px;
+      border-radius: 3px;
+      width: fit-content;
+    }
+    .stat-badge.green { background: var(--fx-green-bg); color: var(--fx-green); }
+    .stat-badge.amber { background: var(--fx-amber-bg); color: var(--fx-amber); }
+    .stat-badge.red   { background: var(--fx-red-bg);   color: var(--fx-red); }
 
-    .vault-layout { display: flex; gap: 10px; height: 430px; }
-    .vault-list { width: 195px; flex-shrink: 0; display: flex; flex-direction: column; gap: 4px; overflow-y: auto; padding-right: 6px; }
-    .vault-section-label { font-size: 10px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; padding: 4px 4px 2px; }
-    .vault-item { display: flex; align-items: center; gap: 8px; padding: 8px 9px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: all 0.12s; }
-    .vault-item:hover { background: var(--surface-hover); border-color: var(--border-strong); }
-    .vault-item.active { background: var(--canvas); border-color: var(--text-primary); }
-    .vault-item.inactive { opacity: 0.48; }
-    .vault-item-icon { width: 22px; height: 22px; border-radius: 5px; background: var(--canvas); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--text-secondary); }
-    .vault-item.active .vault-item-icon { background: var(--text-primary); border-color: var(--text-primary); color: #fff; }
-    .vault-item-info { flex: 1; min-width: 0; }
-    .vault-item-label { font-size: 11.5px; font-weight: 500; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .vault-item-status { font-size: 10px; color: var(--text-muted); margin-top: 1px; }
-    .vault-item-status.on { color: var(--green); }
-    .vault-detail { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
-    .detail-header { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-card); padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; }
-    .detail-title { font-size: 13.5px; font-weight: 600; color: var(--text-primary); }
-    .tier-tag { font-size: 9.5px; font-weight: 600; padding: 2px 7px; border-radius: var(--radius-tag); margin-top: 3px; width: fit-content; }
-    .tier-tag.a { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-bd); }
-    .tier-tag.b { background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue-bd); }
-    .toggle-wrap { display: flex; align-items: center; gap: 7px; }
-    .toggle-label { font-size: 11.5px; font-weight: 500; color: var(--text-secondary); }
-    .switch { position: relative; display: inline-block; width: 34px; height: 19px; }
-    .switch input { opacity: 0; width: 0; height: 0; }
-    .slider { position: absolute; cursor: pointer; inset: 0; background: var(--border-strong); transition: .18s; border-radius: 19px; }
-    .slider:before { position: absolute; content: ""; height: 13px; width: 13px; left: 3px; bottom: 3px; background: white; transition: .18s; border-radius: 50%; box-shadow: 0 1px 3px rgba(0,0,0,0.15); }
-    input:checked + .slider { background: var(--green); }
-    input:checked + .slider:before { transform: translateX(15px); }
+    /* Events List */
+    .events-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .event-item {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 8px 10px;
+      border-radius: 4px;
+      background: var(--fx-canvas);
+      border: 1px solid var(--fx-border-subtle);
+    }
+    .event-icon {
+      width: 22px;
+      height: 22px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .event-body {
+      flex: 1;
+      min-width: 0;
+    }
+    .event-title {
+      font-size: 11.5px;
+      font-weight: 500;
+      color: var(--fx-text);
+      line-height: 1.25;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .event-meta {
+      font-size: 10px;
+      color: var(--fx-text-muted);
+      margin-top: 2px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .event-tag {
+      font-size: 9px;
+      font-weight: 600;
+      padding: 1px 5px;
+      border-radius: 3px;
+    }
+    .event-tag.blocked  { background: var(--fx-red-bg);   color: var(--fx-red); }
+    .event-tag.decoy    { background: var(--fx-blue-bg);  color: var(--fx-blue); }
+    .event-tag.detected { background: var(--fx-amber-bg); color: var(--fx-amber); }
 
-    .form-group { margin-bottom: 8px; }
-    .form-label { display: block; font-size: 11px; font-weight: 600; color: var(--text-secondary); margin-bottom: 4px; }
-    .input-field { width: 100%; height: 33px; background: var(--canvas); border: 1px solid var(--border); border-radius: 7px; padding: 0 10px; font-size: 12px; color: var(--text-primary); outline: none; transition: border-color 0.12s, box-shadow 0.12s; }
-    .input-field:focus { background: var(--surface); border-color: var(--text-primary); box-shadow: 0 0 0 3px rgba(26,26,26,0.07); }
-    .input-hint { font-size: 10px; color: var(--text-muted); margin-top: 3px; }
-    .help-box { background: var(--canvas); border: 1px solid var(--border); border-radius: 8px; padding: 9px 11px; font-size: 11px; color: var(--text-secondary); line-height: 1.4; }
-    .help-box strong { color: var(--text-primary); }
+    .tip-box {
+      background: var(--fx-surface);
+      border: 1px solid var(--fx-border);
+      border-left: 3px solid var(--fx-blue);
+      border-radius: var(--radius-card);
+      padding: 9px 11px;
+      font-size: 11px;
+      color: var(--fx-text-secondary);
+      line-height: 1.4;
+    }
+    .tip-box strong {
+      color: var(--fx-text);
+    }
 
-    .btn-row { display: flex; gap: 7px; }
-    .btn-primary { background: var(--text-primary); color: #fff; border: none; border-radius: var(--radius-btn); padding: 7px 14px; font-size: 12px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; transition: opacity 0.12s; }
-    .btn-primary:hover { opacity: 0.82; }
-    .btn-secondary { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-btn); padding: 6px 12px; font-size: 12px; font-weight: 500; color: var(--text-secondary); cursor: pointer; display: inline-flex; align-items: center; gap: 5px; transition: all 0.12s; }
-    .btn-secondary:hover { background: var(--surface-hover); color: var(--text-primary); border-color: var(--border-strong); }
-    .btn-danger { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-bd); border-radius: var(--radius-btn); padding: 6px 12px; font-size: 12px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; transition: background 0.12s; }
-    .btn-danger:hover { background: var(--red-bd); }
+    /* Vault Layout (Adapted for Firefox 395px) */
+    .vault-layout {
+      display: flex;
+      gap: 8px;
+      height: 420px;
+    }
+    .vault-list {
+      width: 135px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+    .vault-section-label {
+      font-size: 9.5px;
+      font-weight: 700;
+      color: var(--fx-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 4px 2px 2px;
+    }
+    .vault-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 8px;
+      background: var(--fx-surface);
+      border: 1px solid var(--fx-border-subtle);
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.12s;
+      text-align: left;
+    }
+    .vault-item:hover {
+      background: var(--fx-surface-hover);
+      border-color: var(--fx-border);
+    }
+    .vault-item.active {
+      background: var(--fx-blue-bg);
+      border-color: var(--fx-blue);
+    }
+    .vault-item.inactive {
+      opacity: 0.45;
+    }
+    .vault-item-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+      background: var(--fx-canvas);
+      border: 1px solid var(--fx-border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: var(--fx-text-secondary);
+    }
+    .vault-item.active .vault-item-icon {
+      background: var(--fx-blue);
+      border-color: var(--fx-blue);
+      color: #FFFFFF;
+    }
+    .vault-item-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .vault-item-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--fx-text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: block;
+    }
+    .vault-item-status {
+      font-size: 9.5px;
+      color: var(--fx-text-muted);
+      margin-top: 1px;
+      display: block;
+    }
+    .vault-item-status.on {
+      color: var(--fx-green);
+    }
 
-    .site-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 9px 12px; background: var(--canvas); border-radius: 8px; border: 1px solid var(--border); }
-    .site-domain { display: flex; align-items: center; gap: 7px; }
-    .site-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
-    .site-text { font-size: 12.5px; font-weight: 500; color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .scroll-list { max-height: 160px; overflow-y: auto; list-style: none; display: flex; flex-direction: column; gap: 5px; }
-    .list-entry { display: flex; align-items: center; justify-content: space-between; padding: 7px 10px; background: var(--canvas); border: 1px solid var(--border); border-radius: 7px; font-size: 12px; color: var(--text-primary); }
-    .btn-remove { background: transparent; border: none; color: var(--text-muted); cursor: pointer; padding: 3px; border-radius: 4px; display: flex; transition: color 0.12s; }
-    .btn-remove:hover { color: var(--red); }
+    .vault-detail {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .detail-header {
+      background: var(--fx-surface);
+      border: 1px solid var(--fx-border);
+      border-radius: var(--radius-card);
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .detail-title {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--fx-text);
+    }
+    .tier-tag {
+      font-size: 9px;
+      font-weight: 600;
+      padding: 1px 6px;
+      border-radius: 3px;
+      margin-top: 3px;
+      width: fit-content;
+    }
+    .tier-tag.a {
+      background: var(--fx-red-bg);
+      color: var(--fx-red);
+      border: 1px solid var(--fx-red-bd);
+    }
+    .tier-tag.b {
+      background: var(--fx-blue-bg);
+      color: var(--fx-blue);
+      border: 1px solid var(--fx-blue-bd);
+    }
 
-    .info-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
-    .info-row:last-child { border-bottom: none; }
-    .info-row-label { color: var(--text-secondary); }
-    .info-row-value { font-weight: 600; color: var(--text-primary); }
-    .info-row-value.green { color: var(--green); }
+    /* Firefox Switches */
+    .toggle-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .toggle-label {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--fx-text-secondary);
+    }
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 34px;
+      height: 18px;
+    }
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background: #8F8F9D;
+      transition: .15s ease;
+      border-radius: 18px;
+    }
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 12px;
+      width: 12px;
+      left: 3px;
+      bottom: 3px;
+      background: white;
+      transition: .15s ease;
+      border-radius: 50%;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+    input:checked + .slider {
+      background: var(--fx-blue);
+    }
+    input:checked + .slider:before {
+      transform: translateX(16px);
+    }
 
-    .toast { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); background: var(--text-primary); color: #fff; font-size: 12px; font-weight: 500; padding: 6px 14px; border-radius: 999px; display: none; white-space: nowrap; box-shadow: 0 4px 14px rgba(0,0,0,0.18); animation: toastIn 0.18s ease; z-index: 1000; }
-    @keyframes toastIn { from { opacity: 0; transform: translate(-50%, 8px); } to { opacity: 1; transform: translate(-50%, 0); } }
+    /* Firefox Form Inputs */
+    .form-group {
+      margin-bottom: 8px;
+    }
+    .form-label {
+      display: block;
+      font-size: 10.5px;
+      font-weight: 600;
+      color: var(--fx-text-secondary);
+      margin-bottom: 3px;
+    }
+    .input-field {
+      width: 100%;
+      height: 31px;
+      background: var(--fx-surface);
+      border: 1px solid var(--fx-border);
+      border-radius: var(--radius-input);
+      padding: 0 9px;
+      font-size: 11.5px;
+      color: var(--fx-text);
+      outline: none;
+      transition: border-color 0.12s, box-shadow 0.12s;
+    }
+    .input-field:focus {
+      border-color: var(--fx-blue);
+      outline: 2px solid var(--fx-blue);
+      outline-offset: 1px;
+    }
+    .input-hint {
+      font-size: 9.5px;
+      color: var(--fx-text-muted);
+      margin-top: 2px;
+      line-height: 1.3;
+    }
+    .help-box {
+      background: var(--fx-canvas);
+      border: 1px solid var(--fx-border);
+      border-radius: 4px;
+      padding: 8px 10px;
+      font-size: 10.5px;
+      color: var(--fx-text-secondary);
+      line-height: 1.35;
+    }
+    .help-box strong {
+      color: var(--fx-text);
+    }
+
+    /* Firefox Proton Buttons */
+    .btn-row {
+      display: flex;
+      gap: 6px;
+    }
+    .btn-primary {
+      background: var(--fx-blue);
+      color: #FFFFFF;
+      border: none;
+      border-radius: var(--radius-btn);
+      padding: 6px 12px;
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: background 0.12s;
+    }
+    .btn-primary:hover {
+      background: var(--fx-blue-hover);
+    }
+    .btn-primary:active {
+      background: var(--fx-blue-active);
+    }
+    .btn-secondary {
+      background: var(--fx-canvas);
+      border: 1px solid var(--fx-border);
+      border-radius: var(--radius-btn);
+      padding: 6px 10px;
+      font-size: 11.5px;
+      font-weight: 500;
+      color: var(--fx-text);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.12s;
+    }
+    .btn-secondary:hover {
+      background: var(--fx-surface-hover);
+      border-color: var(--fx-text-muted);
+    }
+    .btn-danger {
+      background: var(--fx-red-bg);
+      color: var(--fx-red);
+      border: 1px solid var(--fx-red-bd);
+      border-radius: var(--radius-btn);
+      padding: 6px 10px;
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: background 0.12s;
+    }
+    .btn-danger:hover {
+      background: #FCE8EC;
+    }
+
+    /* Whitelist Site Bar */
+    .site-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 8px 10px;
+      background: var(--fx-canvas);
+      border-radius: 4px;
+      border: 1px solid var(--fx-border-subtle);
+    }
+    .site-domain {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+    }
+    .site-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--fx-green);
+      flex-shrink: 0;
+    }
+    .site-text {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--fx-text);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .scroll-list {
+      max-height: 160px;
+      overflow-y: auto;
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .list-entry {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 8px;
+      background: var(--fx-canvas);
+      border: 1px solid var(--fx-border-subtle);
+      border-radius: 4px;
+      font-size: 11.5px;
+      color: var(--fx-text);
+    }
+    .btn-remove {
+      background: transparent;
+      border: none;
+      color: var(--fx-text-muted);
+      cursor: pointer;
+      padding: 2px;
+      border-radius: 3px;
+      display: flex;
+      transition: color 0.12s;
+    }
+    .btn-remove:hover {
+      color: var(--fx-red);
+    }
+
+    /* Info Table */
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 7px 0;
+      border-bottom: 1px solid var(--fx-border-subtle);
+      font-size: 11.5px;
+    }
+    .info-row:last-child {
+      border-bottom: none;
+    }
+    .info-row-label {
+      color: var(--fx-text-secondary);
+    }
+    .info-row-value {
+      font-weight: 600;
+      color: var(--fx-text);
+    }
+    .info-row-value.green {
+      color: var(--fx-green);
+    }
+
+    /* Firefox Toast */
+    .toast {
+      position: fixed;
+      bottom: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--fx-text);
+      color: #FFFFFF;
+      font-size: 11.5px;
+      font-weight: 500;
+      padding: 6px 12px;
+      border-radius: 4px;
+      display: none;
+      white-space: nowrap;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      animation: fxToastIn 0.18s ease;
+      z-index: 1000;
+    }
+    @keyframes fxToastIn {
+      from { opacity: 0; transform: translate(-50%, 6px); }
+      to   { opacity: 1; transform: translate(-50%, 0); }
+    }
   </style>
 </head>
 <body>
+  <!-- Firefox Header -->
   <header class="app-header">
     <div class="brand-group">
       <div class="brand-icon">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
           <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>
         </svg>
       </div>
       <div>
         <div class="brand-name">Threat Shield</div>
-        <div class="brand-tagline">Захист від фішингу в реальному часі</div>
+        <div class="brand-tagline">Firefox Phishing & Lure Shield</div>
       </div>
     </div>
-    <div class="status-pill" title="Аналіз активний">
+    <div class="status-pill" title="Активний моніторинг">
       <span class="pulse-dot"></span><span>Захищено</span>
     </div>
   </header>
 
+  <!-- Firefox Proton Tabs -->
   <nav class="tab-nav">
     <button type="button" class="tab-btn active" id="tabBtnStats">
       <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
@@ -171,11 +802,11 @@
     </button>
     <button type="button" class="tab-btn" id="tabBtnVault">
       <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-      <span>Сховище (Vault)</span>
+      <span>Сховище</span>
     </button>
     <button type="button" class="tab-btn" id="tabBtnWhitelist">
       <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="9 11 12 14 22 4"/></svg>
-      <span>Довірені сайти</span>
+      <span>Довірені</span>
     </button>
     <button type="button" class="tab-btn" id="tabBtnSettings">
       <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
@@ -183,45 +814,55 @@
     </button>
   </nav>
 
-  <!-- TAB 1 -->
+  <!-- TAB 1: СТАТИСТИКА -->
   <main class="tab-content" id="tabContentStats">
     <div class="hero-card">
       <div class="hero-icon">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>
         </svg>
       </div>
       <div>
-        <div class="hero-title">Браузер під захистом</div>
-        <div class="hero-sub">Усі форми, чати та поля перевіряються автоматично на кожному сайті.</div>
+        <div class="hero-title">Браузер під захистом Firefox</div>
+        <div class="hero-sub">Автоматичний аудит прихованих полів, захист від витоку карток та перевірка посилань.</div>
       </div>
     </div>
+
     <div class="stats-grid">
       <div class="stat-card">
-        <div class="stat-icon red"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></div>
+        <div class="stat-header">
+          <div class="stat-icon red"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></div>
+          <div class="stat-badge red">+3 сьогодні</div>
+        </div>
         <div class="stat-value" id="statBlockedScams">14</div>
         <div class="stat-label">Загроз заблоковано</div>
-        <div class="stat-badge red">+3 сьогодні</div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon green"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>
+        <div class="stat-header">
+          <div class="stat-icon green"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>
+          <div class="stat-badge green">0 витоків</div>
+        </div>
         <div class="stat-value" id="statSavedCards">3</div>
-        <div class="stat-label">Витоки карток зупинено</div>
-        <div class="stat-badge green">0 витоків</div>
+        <div class="stat-label">Витоків карток зупинено</div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon blue"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+        <div class="stat-header">
+          <div class="stat-icon blue"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+          <div class="stat-badge green" id="statVaultBadge">Активні</div>
+        </div>
         <div class="stat-value" id="statProtectedMarkers">7</div>
         <div class="stat-label">Маркерів у Vault</div>
-        <div class="stat-badge green" id="statVaultBadge">Активні</div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon amber"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+        <div class="stat-header">
+          <div class="stat-icon amber"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+          <div class="stat-badge amber">Dark Patterns</div>
+        </div>
         <div class="stat-value" id="statDarkPatterns">5</div>
         <div class="stat-label">Маніпуляцій з часом</div>
-        <div class="stat-badge amber">Dark Patterns</div>
       </div>
     </div>
+
     <div class="card">
       <div class="card-header">
         <div class="card-title">
@@ -231,63 +872,63 @@
       </div>
       <ul class="events-list">
         <li class="event-item">
-          <div class="event-icon" style="background:var(--red-bg);color:var(--red)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+          <div class="event-icon" style="background:var(--fx-red-bg);color:var(--fx-red)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
           <div class="event-body">
-            <div class="event-title">Спроба передати CVV-код у чаті маркетплейсу</div>
+            <div class="event-title">Спроба передати CVV-код у чаті</div>
             <div class="event-meta"><span>15 хв тому</span><span>·</span><span class="event-tag blocked">Заблоковано</span></div>
           </div>
         </li>
         <li class="event-item">
-          <div class="event-icon" style="background:var(--blue-bg);color:var(--blue)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+          <div class="event-icon" style="background:var(--fx-blue-bg);color:var(--fx-blue)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
           <div class="event-body">
             <div class="event-title">Спроба виманити дівоче прізвище матері</div>
             <div class="event-meta"><span>2 год тому</span><span>·</span><span class="event-tag decoy">Підставлено декой</span></div>
           </div>
         </li>
         <li class="event-item">
-          <div class="event-icon" style="background:var(--amber-bg);color:var(--amber)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+          <div class="event-icon" style="background:var(--fx-amber-bg);color:var(--fx-amber)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
           <div class="event-body">
-            <div class="event-title">Фіктивний зворотний відлік для тиску на рішення</div>
+            <div class="event-title">Фіктивний зворотний відлік на формі</div>
             <div class="event-meta"><span>Вчора</span><span>·</span><span class="event-tag detected">Маніпуляцію виявлено</span></div>
           </div>
         </li>
       </ul>
     </div>
+
     <div class="tip-box">
-      <strong>Порада безпеки:</strong> Справжні служби доставки ніколи не вимагають CVV-код або дівоче прізвище матері для зарахування коштів на вашу картку.
+      <strong>Порада безпеки:</strong> Справжні служби доставки ніколи не вимагають CVV-код або паролі для зарахування коштів на вашу картку.
     </div>
   </main>
 
-  <!-- TAB 2 -->
+  <!-- TAB 2: PERSONAL VAULT -->
   <section class="tab-content" id="tabContentVault" style="display:none;">
-    
     <!-- Setup state -->
     <div id="vaultSetupState" style="display:none;" class="card">
-      <div class="hero-icon" style="margin:0 auto 10px; background:var(--blue-bg); color:var(--blue); border-color:var(--blue-bd);">
+      <div class="hero-icon" style="margin:0 auto 10px; background:var(--fx-blue-bg); color:var(--fx-blue); border-color:var(--fx-blue-bd);">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
       </div>
-      <h3 style="text-align:center; margin-bottom: 5px; font-size:15px;">Захистіть свої дані</h3>
-      <p style="text-align:center; color:var(--text-secondary); margin-bottom:15px;">Створіть майстер-пароль для шифрування вашого Personal Vault. Дані зберігатимуться локально.</p>
+      <h3 style="text-align:center; margin-bottom: 5px; font-size:14px; font-weight:700;">Захистіть свої дані</h3>
+      <p style="text-align:center; color:var(--fx-text-secondary); margin-bottom:12px; font-size:11.5px; line-height:1.4;">Створіть майстер-пароль для шифрування вашого Personal Vault. Дані зберігаються виключно локально.</p>
       <div class="form-group">
         <input type="password" id="vaultSetupPassword" class="input-field" placeholder="Придумайте надійний пароль">
       </div>
       <div class="form-group">
         <input type="password" id="vaultSetupConfirm" class="input-field" placeholder="Підтвердіть пароль">
       </div>
-      <button type="button" class="btn-primary" id="btnSetupVault" style="width:100%; justify-content:center; margin-top:5px;">Створити сховище</button>
+      <button type="button" class="btn-primary" id="btnSetupVault" style="width:100%; justify-content:center; margin-top:4px;">Створити сховище</button>
     </div>
 
     <!-- Locked state -->
     <div id="vaultLockedState" style="display:none;" class="card">
-      <div class="hero-icon" style="margin:0 auto 10px; background:var(--amber-bg); color:var(--amber); border-color:var(--amber-bd);">
+      <div class="hero-icon" style="margin:0 auto 10px; background:var(--fx-amber-bg); color:var(--fx-amber); border-color:var(--fx-amber-bd);">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
       </div>
-      <h3 style="text-align:center; margin-bottom: 5px; font-size:15px;">Сховище заблоковано</h3>
-      <p style="text-align:center; color:var(--text-secondary); margin-bottom:15px;">Введіть пароль, щоб розблокувати налаштування та активувати сканування чутливих даних.</p>
+      <h3 style="text-align:center; margin-bottom: 5px; font-size:14px; font-weight:700;">Сховище заблоковано</h3>
+      <p style="text-align:center; color:var(--fx-text-secondary); margin-bottom:12px; font-size:11.5px; line-height:1.4;">Введіть пароль для розблокування налаштувань та активації DLP-захисту.</p>
       <div class="form-group">
         <input type="password" id="vaultUnlockPassword" class="input-field" placeholder="Ваш майстер-пароль">
       </div>
-      <button type="button" class="btn-primary" id="btnUnlockVault" style="width:100%; justify-content:center; margin-top:5px;">Розблокувати</button>
+      <button type="button" class="btn-primary" id="btnUnlockVault" style="width:100%; justify-content:center; margin-top:4px;">Розблокувати</button>
     </div>
 
     <!-- Unlocked state -->
@@ -300,29 +941,29 @@
           <div class="detail-header">
             <div>
               <div class="detail-title" id="detailItemLabel">Дівоче прізвище матері</div>
-              <div class="tier-tag a" id="detailItemTier">Tier A: Абсолютний маркер</div>
+              <div class="tier-tag a" id="detailItemTier">Tier A: Абсолютний захист</div>
             </div>
             <div class="toggle-wrap">
               <span class="toggle-label" id="detailSwitchText">Активний</span>
               <label class="switch"><input type="checkbox" id="detailItemToggle" checked><span class="slider"></span></label>
             </div>
           </div>
-          <div class="card" style="padding:12px 14px;">
+          <div class="card" style="padding:10px 12px;">
             <div class="form-group">
               <label class="form-label" for="detailRealInput">Справжнє значення (конфіденційно)</label>
-              <input type="text" id="detailRealInput" class="input-field" placeholder="Введіть справжнє значення">
-              <div class="input-hint">Якщо підозрілий сайт спробує зчитати це значення — ви отримаєте попередження.</div>
+              <input type="text" id="detailRealInput" class="input-field" placeholder="Введіть значення">
+              <div class="input-hint">Якщо сайт спробує зчитати це значення — спрацює блокування.</div>
             </div>
             <div class="form-group">
-              <label class="form-label" for="detailDecoyInput">Безпечна підстановка (декой для шахраїв)</label>
+              <label class="form-label" for="detailDecoyInput">Безпечна підстановка (декой)</label>
               <input type="text" id="detailDecoyInput" class="input-field" placeholder="Фальшиве значення">
-              <div class="input-hint">Автоматично підставляється замість справжніх даних при спробі крадіжки.</div>
+              <div class="input-hint">Підставляється автоматично замість справжніх даних.</div>
             </div>
             <div class="form-group">
-              <label class="form-label" for="detailKeywordsInput">Слова для виявлення (UK / EN / RU)</label>
-              <input type="text" id="detailKeywordsInput" class="input-field" placeholder="ключові, слова, через, кому">
+              <label class="form-label" for="detailKeywordsInput">Слова для виявлення</label>
+              <input type="text" id="detailKeywordsInput" class="input-field" placeholder="слова, через, кому">
             </div>
-            <div class="btn-row" style="margin-top:10px;">
+            <div class="btn-row" style="margin-top:8px;">
               <button type="button" class="btn-primary" id="btnSaveDetailItem" style="flex:1;">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><polyline points="20 6 9 17 4 12"/></svg>
                 Зберегти
@@ -331,19 +972,19 @@
             </div>
           </div>
           <div class="help-box" id="detailHelpBox">
-            <strong>Чому це важливо?</strong> Дівоче прізвище матері використовується банками як кодове слово. Шахраї випитують його для скидання пароля або перехоплення доступу до інтернет-банкінгу.
+            <strong>Чому це важливо?</strong> Дівоче прізвище матері використовується банками як кодове слово. Шахраї випитують його для скидання пароля.
           </div>
         </section>
       </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;padding-top:2px;">
-        <button type="button" class="btn-secondary" id="btnResetVaultDefaults">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-          Відновити стандартні дані
+      <div style="display:flex;justify-content:space-between;align-items:center;padding-top:6px;">
+        <button type="button" class="btn-secondary" id="btnResetVaultDefaults" style="font-size:11px; padding:4px 8px;">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+          Скинути
         </button>
-        <div style="display:flex; align-items:center; gap:8px;">
-          <span style="font-size:10.5px;color:var(--text-muted);">Шифрується AES-GCM 256</span>
+        <div style="display:flex; align-items:center; gap:6px;">
+          <span style="font-size:10px;color:var(--fx-text-muted);">AES-GCM 256</span>
           <button type="button" class="btn-secondary" id="btnLockVault" style="padding: 4px 8px; font-size: 11px;">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
             Заблокувати
           </button>
         </div>
@@ -351,7 +992,7 @@
     </div>
   </section>
 
-  <!-- TAB 3 -->
+  <!-- TAB 3: ДОВІРЕНІ САЙТИ -->
   <section class="tab-content" id="tabContentWhitelist" style="display:none;">
     <div class="card">
       <div class="card-header">
@@ -377,20 +1018,19 @@
         <button type="button" class="btn-primary" id="btnAddManual">Додати</button>
       </div>
       <ul class="scroll-list" id="whitelistUl">
-        <li class="list-entry" style="justify-content:center;color:var(--text-muted);">Немає доданих сайтів</li>
+        <li class="list-entry" style="justify-content:center;color:var(--fx-text-muted);">Немає доданих сайтів</li>
       </ul>
     </div>
     <div class="btn-row">
-      <button type="button" class="btn-danger" id="btnClearAllWhitelist" style="width:100%;">
+      <button type="button" class="btn-danger" id="btnClearAllWhitelist" style="width:100%; justify-content:center;">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
         Очистити весь список
       </button>
     </div>
   </section>
 
-  <!-- TAB 4 -->
+  <!-- TAB 4: СЕСІЇ ТА НАЛАШТУВАННЯ -->
   <section class="tab-content" id="tabContentSettings" style="display:none;">
-    <!-- AI Status & Debug Card -->
     <div class="card">
       <div class="card-header">
         <div class="card-title">
@@ -398,12 +1038,12 @@
           ШІ та Діагностика
         </div>
       </div>
-      <p style="font-size:12px;color:var(--text-secondary);line-height:1.45;margin-bottom:12px;">
+      <p style="font-size:11.5px;color:var(--fx-text-secondary);line-height:1.4;margin-bottom:10px;">
         Статус локальної нейромережі: <strong id="aiStatusText">Перевірка...</strong>
       </p>
-      <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
-        <input type="checkbox" id="toggleDebugMode" style="width:16px;height:16px;accent-color:var(--text-primary); cursor:pointer;">
-        <span style="font-size:13px;font-weight:500;color:var(--text-primary);">Увімкнути візуалізацію роботи (Дебагер)</span>
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+        <input type="checkbox" id="toggleDebugMode" style="width:15px;height:15px;accent-color:var(--fx-blue); cursor:pointer;">
+        <span style="font-size:12px;font-weight:500;color:var(--fx-text);">Увімкнути візуалізацію (Дебагер)</span>
       </label>
     </div>
 
@@ -411,21 +1051,22 @@
       <div class="card-header">
         <div class="card-title">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-          Зшивання сесій
+          Зшивання сесій (Tainted Context)
         </div>
       </div>
-      <p style="font-size:12px;color:var(--text-secondary);line-height:1.45;margin-bottom:12px;">
-        Якщо вас намагалися вивести з чату OLX чи іншого маркетплейсу на сторонній сайт — розширення зберігає 15-хвилинний стан підвищеної пильності для захисту форм.
+      <p style="font-size:11.5px;color:var(--fx-text-secondary);line-height:1.4;margin-bottom:10px;">
+        Якщо вас намагалися вивести з чату OLX на сторонній сайт — активується 15-хвилинний захист для форм.
       </p>
-      <button type="button" class="btn-secondary" id="btnResetContext" style="width:100%;">
+      <button type="button" class="btn-secondary" id="btnResetContext" style="width:100%; justify-content:center;">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
         Скинути стан тривоги
       </button>
-      <button type="button" id="btnAbortAI" style="width:100%; margin-top:8px; background-color: var(--amber); color: white; border: none; border-radius: 6px; padding: 8px; font-size: 13px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+      <button type="button" id="btnAbortAI" style="width:100%; margin-top:6px; background-color: var(--fx-amber); color: white; border: none; border-radius: var(--radius-btn); padding: 7px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
         Зупинити AI-аналіз (Скасувати)
       </button>
     </div>
+
     <div class="card">
       <div class="card-header">
         <div class="card-title">
@@ -435,7 +1076,7 @@
       </div>
       <div class="info-row"><span class="info-row-label">Режим обробки</span><span class="info-row-value green">100% Локально</span></div>
       <div class="info-row"><span class="info-row-label">Передача на сервери</span><span class="info-row-value">Вимкнена</span></div>
-      <div class="info-row"><span class="info-row-label">Версія</span><span class="info-row-value">v0.2.0</span></div>
+      <div class="info-row"><span class="info-row-label">Стандарт</span><span class="info-row-value">Firefox Proton MV3</span></div>
     </div>
   </section>
 
