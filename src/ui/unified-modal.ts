@@ -42,27 +42,27 @@ interface CarouselSlide {
   evidence?: string;
 }
 
-// Claude design language tokens
+// Mozilla Firefox Proton & Acorn Design Tokens
 const C = {
-  text:        '#1A1A1A',
-  textSec:     '#6B7280',
-  textMuted:   '#9CA3AF',
+  text:        '#15141A',
+  textSec:     '#5B5B66',
+  textMuted:   '#8F8F9D',
   surface:     '#FFFFFF',
-  canvas:      '#F9F9F8',
-  border:      '#E5E7EB',
-  borderStr:   '#D1D5DB',
-  red:         '#DC2626',
-  redBg:       '#FEF2F2',
-  redBd:       '#FECACA',
-  amber:       '#D97706',
-  amberBg:     '#FFFBEB',
-  amberBd:     '#FDE68A',
-  green:       '#16A34A',
-  greenBg:     '#F0FDF4',
-  greenBd:     '#BBF7D0',
-  blue:        '#1D4ED8',
-  blueBg:      '#EFF6FF',
-  blueBd:      '#BFDBFE',
+  canvas:      '#F0F0F4',
+  border:      '#CFCFD8',
+  borderStr:   '#B1B1BD',
+  red:         '#D70022',
+  redBg:       '#FDF2F5',
+  redBd:       '#F8B4C0',
+  amber:       '#D76E00',
+  amberBg:     '#FFF4E5',
+  amberBd:     '#FFD599',
+  green:       '#008A52',
+  greenBg:     '#EAF7F3',
+  greenBd:     '#A3E5D0',
+  blue:        '#0060DF',
+  blueBg:      '#E8F2FF',
+  blueBd:      '#B0D5FF',
   font:        `system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`,
 };
 
@@ -157,21 +157,21 @@ export class UnifiedFrictionModal {
         @keyframes tsModal { from{opacity:0;transform:scale(0.97) translateY(6px)} to{opacity:1;transform:scale(1) translateY(0)} }
         @keyframes tsSpin { 100% { transform: rotate(360deg); } }
         .ts-spinner { animation: tsSpin 1s linear infinite; }
-        .ts-btn-primary { width:100%;height:42px;background:${C.text};color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:opacity 0.12s;font-family:${C.font}; }
-        .ts-btn-primary:hover { opacity:0.84; }
+        .ts-btn-primary { width:100%;height:38px;background:${C.blue};color:#fff;border:none;border-radius:4px;font-size:13.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.12s;font-family:${C.font}; }
+        .ts-btn-primary:hover { background:#003EAA; }
         .ts-btn-override { background:transparent;border:none;color:${C.textMuted};font-size:13px;font-weight:400;cursor:not-allowed;padding:4px 0;transition:color 0.12s;font-family:${C.font}; }
         .ts-btn-override.active { color:${C.red};cursor:pointer; }
         .ts-btn-link { background:transparent;border:none;color:${C.blue};font-size:13px;cursor:pointer;padding:4px 0;transition:opacity 0.12s;font-family:${C.font}; }
         .ts-btn-link:hover { opacity:0.7; }
-        .ts-btn-decoy { width:100%;height:40px;background:${C.greenBg};color:${C.green};border:1px solid ${C.greenBd};border-radius:9px;font-size:13.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:background 0.12s;margin-bottom:10px;font-family:${C.font}; }
+        .ts-btn-decoy { width:100%;height:38px;background:${C.greenBg};color:${C.green};border:1px solid ${C.greenBd};border-radius:4px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:background 0.12s;margin-bottom:10px;font-family:${C.font}; }
         .ts-btn-decoy:hover { background:${C.greenBd}; }
-        .ts-carousel-nav { width:28px;height:28px;border-radius:50%;border:1px solid ${C.border};background:${C.surface};color:${C.text};display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.12s; }
+        .ts-carousel-nav { width:26px;height:26px;border-radius:4px;border:1px solid ${C.border};background:${C.surface};color:${C.text};display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.12s; }
         .ts-carousel-nav:hover { background:${C.canvas}; }
       </style>
 
       <div id="ts-modal-card" style="
-        background:${C.surface};width:100%;max-width:440px;border-radius:16px;
-        box-shadow:0 20px 50px -10px rgba(0,0,0,0.22),0 0 0 1px ${C.border};
+        background:${C.surface};width:100%;max-width:440px;border-radius:8px;
+        box-shadow:0 16px 40px -8px rgba(0,0,0,0.2),0 0 0 1px ${C.border};
         overflow:hidden;font-family:${C.font};
         animation:tsModal 0.2s cubic-bezier(0.16,1,0.3,1);
         color:${C.text};display:flex;flex-direction:column;
