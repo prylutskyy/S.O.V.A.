@@ -1,5 +1,6 @@
 import { AILureVerifier } from './heuristics/ai-verifier';
 import { ChromeBuiltinAIProvider } from './heuristics/chrome-ai-provider';
+import { ChatSimulatorEngine } from './heuristics/chat-simulator';
 
 console.log('[ThreatShield:Offscreen] Offscreen document started for Gemini Nano API');
 
@@ -46,8 +47,39 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       currentAbortController = null;
       sendResponse({ aiResult: null });
     });
+    return true;
+  }
     
-    return true; // Keep message channel open for async response
+  if (message.type === 'SIMULATE_CHAT_REPLY') {
+    const { persona, history, latestUserMessage, itemContext, customGoal } = message.payload || {};
+    
+    const hasWindowAi = typeof (window as any).ai !== 'undefined' && typeof (window as any).ai.languageModel !== 'undefined';
+    
+    if (hasWindowAi) {
+      (async () => {
+        try {
+          const systemPrompt = ChatSimulatorEngine.buildSystemPrompt(persona, itemContext, customGoal);
+          const fullPrompt = ChatSimulatorEngine.buildPromptWithHistory(persona, history || [], latestUserMessage, itemContext, customGoal);
+          
+          const session = await (window as any).ai.languageModel.create({
+            systemPrompt
+          });
+          
+          let reply = await session.prompt(fullPrompt);
+          reply = reply.replace(/^\[(?:Співрозмовник|Покупець|Шахрай)\]:\s*/i, '').replace(/^["']|["']$/g, '').trim();
+          sendResponse({ reply, engine: 'gemini-nano' });
+        } catch (err) {
+          console.warn('[ThreatShield:Offscreen] Gemini Nano simulation failed, falling back to rule engine:', err);
+          const reply = ChatSimulatorEngine.generateFallbackReply(persona, history || [], latestUserMessage);
+          sendResponse({ reply, engine: 'fallback-rules' });
+        }
+      })();
+      return true;
+    } else {
+      const reply = ChatSimulatorEngine.generateFallbackReply(persona, history || [], latestUserMessage);
+      sendResponse({ reply, engine: 'fallback-rules' });
+      return true;
+    }
   }
 
   return false;

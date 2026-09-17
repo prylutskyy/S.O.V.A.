@@ -155,6 +155,34 @@ export default defineBackground(() => {
       return true;
     }
 
+    if (message.type === 'SIMULATE_CHAT_REPLY') {
+      setupOffscreenDocument('offscreen.html').then(() => {
+        const attemptSend = (retries: number) => {
+          chrome.runtime.sendMessage({
+            target: 'offscreen',
+            type: 'SIMULATE_CHAT_REPLY',
+            payload: message.payload
+          }, (response) => {
+            if (chrome.runtime.lastError) {
+              if (retries > 0) {
+                setTimeout(() => attemptSend(retries - 1), 200);
+              } else {
+                console.error('[ThreatShield:Background] Offscreen failed to receive SIMULATE_CHAT_REPLY:', chrome.runtime.lastError.message);
+                sendResponse({ reply: 'Доброго дня! Чим можу допомогти?', engine: 'error-fallback' });
+              }
+              return;
+            }
+            sendResponse(response);
+          });
+        };
+        attemptSend(10);
+      }).catch(e => {
+        console.error('[ThreatShield:Background] Failed to setup offscreen for simulation:', e);
+        sendResponse({ reply: 'Доброго дня!', engine: 'error-fallback' });
+      });
+      return true;
+    }
+
     return false;
   });
 

@@ -171,6 +171,25 @@ export default defineContentScript({
         console.log('[ThreatShield:Content] Імітація соцінженерної приманки успішно активована.');
         window.postMessage({ type: 'THREAT_SHIELD_LURE_TRIGGERED' }, '*');
       }
+
+      if (event.data.type === 'THREAT_SHIELD_SIMULATE_CHAT_REPLY') {
+        try {
+          if (typeof chrome !== 'undefined' && chrome.runtime) {
+            const resp = await chrome.runtime.sendMessage({
+              type: 'SIMULATE_CHAT_REPLY',
+              payload: event.data.payload
+            });
+            window.postMessage({
+              type: 'THREAT_SHIELD_SIMULATED_REPLY_RESULT',
+              requestId: event.data.requestId,
+              reply: resp?.reply,
+              engine: resp?.engine
+            }, '*');
+          }
+        } catch (e) {
+          console.error('[ThreatShield:Content] Failed to bridge SIMULATE_CHAT_REPLY:', e);
+        }
+      }
     }); // <--- Correctly close message listener here
 
     const triggerLureContext = (
