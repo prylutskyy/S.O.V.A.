@@ -337,8 +337,6 @@ export class SecurityFriction {
             const aiResult = response?.aiResult;
             resultDiv.style.display = 'block';
 
-            const rawSuffix = aiResult?.rawResponse ? `\n\n[Сира відповідь LLM]:\n${aiResult.rawResponse}` : '';
-
             if (!aiResult) {
               resultDiv.style.background = '#FEF2F2';
               resultDiv.style.color = '#DC2626';
@@ -348,12 +346,12 @@ export class SecurityFriction {
               resultDiv.style.background = '#FEF2F2';
               resultDiv.style.color = '#DC2626';
               resultDiv.innerHTML = `<b>ШІ підтверджує загрозу:</b> ${aiResult.reasoning}`;
-              DebuggerOverlay.logAI('ШІ Арбітр → Аналіз', `🔴 СКАМ підтверджено\nВпевненість: ${aiResult.confidence}%\n\n"${aiResult.reasoning}"${rawSuffix}`, '#EF4444', { rawResponse: aiResult.rawResponse }, aiLogId);
+              DebuggerOverlay.logAI('ШІ Арбітр → Аналіз', `🔴 СКАМ підтверджено (Впевненість: ${aiResult.confidence}%)\n\nВисновок: "${aiResult.reasoning}"`, '#EF4444', { rawResponse: aiResult.rawResponse }, aiLogId);
             } else {
               resultDiv.style.background = '#F0FDF4';
               resultDiv.style.color = '#166534';
               resultDiv.innerHTML = `<b>ШІ спростував загрозу:</b> ${aiResult.reasoning}`;
-              DebuggerOverlay.logAI('ШІ Арбітр → Аналіз', `🟢 Загрозу спростовано\nВпевненість: ${aiResult.confidence}%\n\n"${aiResult.reasoning}"${rawSuffix}`, '#22C55E', { rawResponse: aiResult.rawResponse }, aiLogId);
+              DebuggerOverlay.logAI('ШІ Арбітр → Аналіз', `🟢 Загрозу спростовано (Впевненість: ${aiResult.confidence}%)\n\nВисновок: "${aiResult.reasoning}"`, '#22C55E', { rawResponse: aiResult.rawResponse }, aiLogId);
               setTimeout(() => {
                 ShadowHost.remove(banner);
                 if (onClearThreat) onClearThreat();

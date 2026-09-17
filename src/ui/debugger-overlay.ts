@@ -261,9 +261,9 @@ export class DebuggerOverlay {
               <pre class="ai-section-code">${log.aiContext.formDetails}</pre>
             </div>` : ''}
             ${log.aiContext.rawResponse ? `
-            <div class="ai-section" style="border-color: #2563eb66; background: #0c192e;">
-              <div class="ai-section-label" style="color: #60a5fa;">📥 Повна відповідь від LLM (Raw Response)</div>
-              <pre class="ai-section-code" style="color: #e2e8f0;">${log.aiContext.rawResponse}</pre>
+            <div class="ai-section raw-response">
+              <div class="ai-section-label">📥 Повна сира відповідь від LLM (Raw Response)</div>
+              <pre class="ai-section-code">${log.aiContext.rawResponse}</pre>
             </div>` : ''}
           </div>
         </div>
@@ -568,6 +568,20 @@ export class DebuggerOverlay {
           white-space: pre-wrap;
           word-break: break-word;
           line-height: 1.5;
+        }
+        .ai-section.raw-response {
+          background: #07111e;
+          border: 1px solid #2563eb55;
+          border-left: 3px solid #3b82f6;
+        }
+        .ai-section.raw-response .ai-section-label {
+          color: #60a5fa;
+        }
+        .ai-section.raw-response .ai-section-code {
+          color: #bfdbfe;
+          font-family: 'JetBrains Mono', Consolas, monospace;
+          max-height: 200px;
+          overflow-y: auto;
         }
       </style>
       <div class="monitor-wrapper">

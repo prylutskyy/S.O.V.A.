@@ -43,21 +43,25 @@ export class ChromeBuiltinAIProvider implements IAIProvider {
     let session;
     try {
       // ── System Prompt ─────────────────────────────────────────────────────
-      const systemPrompt = `Ти — експерт з кібербезпеки та соціальної інженерії, що спеціалізується на виявленні фішингу, крадіжки платіжних даних та шахрайства в українських маркетплейсах (OLX, Prom) і соціальних мережах.
+      const systemPrompt = `Ти — експерт з кібербезпеки. Твоє завдання: виявити фішинг, крадіжку платіжних даних або соціальну інженерію в українських маркетплейсах (OLX, Prom) і месенджерах.
 
-ВАЖЛИВО: Відповідай ВИКЛЮЧНО валідним JSON-об'єктом. Мова пояснення (поле reasoning) — ТІЛЬКИ українська. Не використовуй англійську мову.
-Обов'язкова схема JSON:
+ВАЖЛИВО:
+1. Відповідай ВИКЛЮЧНО валідним JSON-об'єктом.
+2. Ключі ОБОВ'ЯЗКОВО англійською мовою: "isScam", "confidence", "reasoning". Не перекладай назви ключів на українську!
+3. Пояснення ("reasoning") пиши українською мовою коротко (1-2 лаконічних речення, до 35 слів).
+
+Схема:
 {
   "isScam": true або false,
   "confidence": число від 0 до 100,
-  "reasoning": "Пояснення виключно українською мовою (1-2 речення): чому це небезпечно або безпечно"
+  "reasoning": "Коротке пояснення українською мовою"
 }
 
-Приклад для загрози:
+Приклад 1:
 {"isScam": true, "confidence": 95, "reasoning": "Фішингове посилання під виглядом безпечної оплати OLX для викрадення даних картки."}
 
-Приклад для безпечного тексту:
-{"isScam": false, "confidence": 90, "reasoning": "Звичайне повідомлення без ознак маніпуляцій, посилань чи збору платіжних даних."}`;
+Приклад 2:
+{"isScam": false, "confidence": 90, "reasoning": "Звичайне повідомлення без ознак маніпуляцій, посилань чи збору даних."}`;
 
       try {
         const createOptions: any = { systemPrompt, temperature: 0.05 };
@@ -147,7 +151,7 @@ ${flagsSection}
 ${truncatedText}
 """
 
-Відповідай ТІЛЬКИ валідним JSON-об'єктом. Мова reasoning — ТІЛЬКИ українська.`;
+Відповідай ТІЛЬКИ валідним JSON-об'єктом. Ключі англійською: "isScam", "confidence", "reasoning".`;
 
       let responseText = '';
       try {
@@ -160,58 +164,158 @@ ${truncatedText}
 
       console.log('[ThreatShield:AI] Raw response:', responseText);
 
-      // ── Парсинг ────────────────────────────────────────────────────────────
-      let parsed: any = { isScam: false, confidence: 0, reasoning: '' };
+      // ── Багаторівневий стійкий парсинг відповіді ───────────────────────────
+      // 1. Нормалізація лапок і артефактів
+      let cleanText = responseText
+        .replace(/```json/gi, '')
+        .replace(/```/g, '')
+        .replace(/[“”]/g, '"')
+        .trim();
 
+      let parsed: any = null;
+
+      // 2. Спроба стандартного або виправленого JSON.parse
       try {
-        let cleanJson = responseText.replace(/```json/gi, '').replace(/```/g, '').trim();
-        const firstBrace = cleanJson.indexOf('{');
-        const lastBrace = cleanJson.lastIndexOf('}');
-        if (firstBrace !== -1 && lastBrace !== -1) {
-          cleanJson = cleanJson.substring(firstBrace, lastBrace + 1);
+        const firstBrace = cleanText.indexOf('{');
+        let lastBrace = cleanText.lastIndexOf('}');
+        if (firstBrace !== -1) {
+          if (lastBrace === -1 || lastBrace < firstBrace) {
+            let patched = cleanText.substring(firstBrace);
+            const quoteCount = (patched.match(/(?<!\\)"/g) || []).length;
+            if (quoteCount % 2 !== 0) patched += '"';
+            patched += '\n}';
+            parsed = JSON.parse(patched);
+          } else {
+            parsed = JSON.parse(cleanText.substring(firstBrace, lastBrace + 1));
+          }
         }
-        parsed = JSON.parse(cleanJson);
-      } catch (parseError) {
-        console.warn('[ThreatShield:AI] JSON parse failed, trying regex. Raw:', responseText);
+      } catch (e) {
+        console.warn('[ThreatShield:AI] JSON.parse failed, falling back to multi-regex extraction. Raw:', responseText);
+      }
 
-        const lower = responseText.toLowerCase();
-        if (
-          lower.includes('"isscam":true') || lower.includes('"isscam": true') ||
-          lower.includes('"is_scam":true') || lower.includes('"is_scam": true') ||
-          lower.includes('"scam":true') || lower.includes('"scam": true')
-        ) {
-          parsed.isScam = true;
+      // 3. Вилучення вердикту (isScam) — підтримка англійських та українських/російських ключів
+      let isScam = false;
+
+      if (parsed && typeof parsed === 'object') {
+        const rawThreatVal =
+          parsed.isScam ??
+          parsed.is_scam ??
+          parsed.scam ??
+          parsed.isPhishing ??
+          parsed['загроза'] ??
+          parsed['небезпека'] ??
+          parsed['ризик'] ??
+          parsed['рівень загрози'] ??
+          parsed['статус'] ??
+          parsed['вердикт'];
+
+        if (rawThreatVal === true || rawThreatVal === false) {
+          isScam = rawThreatVal;
+        } else if (typeof rawThreatVal === 'string') {
+          isScam = /^(висок|критичн|середн|фішинг|шахрай|так|true|yes|high|critical|danger)/i.test(rawThreatVal.trim());
         }
 
-        const confMatch = responseText.match(/"confidence"\s*:\s*(\d+)/i);
-        if (confMatch) parsed.confidence = parseInt(confMatch[1], 10);
-        else parsed.confidence = parsed.isScam ? 85 : 15;
-
-        const reasonMatch = responseText.match(/"reasoning"\s*:\s*"([\s\S]*?)"\s*[,}]/i);
-        if (reasonMatch && reasonMatch[1]) {
-          parsed.reasoning = reasonMatch[1].replace(/\\"/g, '"').replace(/\\n/g, ' ').trim();
+        const rawType = parsed['тип'] ?? parsed['вид'] ?? parsed.type;
+        if (typeof rawType === 'string' && /фішинг|шахрай|соціал.*інженер|scam|phishing|fraud/i.test(rawType)) {
+          isScam = true;
         }
       }
 
-      // Перевірка всіх можливих варіантів вердикту (isScam, is_scam, scam тощо)
-      const rawScam = parsed.isScam ?? parsed.is_scam ?? parsed.scam ?? parsed.isPhishing ?? parsed.is_phishing;
-      let isScam = rawScam === true || String(rawScam).toLowerCase() === 'true' || String(rawScam).toLowerCase() === 'yes';
+      // Резервний Regex-пошук вердикту в тексті
+      if (!isScam) {
+        const threatRegex = /"(?:isScam|is_scam|scam|threat|загроза|небезпека|ризик|рівень загрози)"\s*[:=]\s*["']?([^"',}\n]+)/i;
+        const threatMatch = cleanText.match(threatRegex);
+        if (threatMatch) {
+          const val = threatMatch[1].trim();
+          if (/^(висок|критичн|середн|фішинг|шахрай|так|true|yes|high|critical|danger)/i.test(val)) {
+            isScam = true;
+          }
+        }
 
-      let confidence = typeof parsed.confidence === 'number' ? Math.max(0, Math.min(100, parsed.confidence)) : (isScam ? 85 : 15);
-      let reasoning = (parsed.reasoning || '').trim();
+        const typeRegex = /"(?:тип|вид|type)"\s*[:=]\s*["']?([^"',}\n]+)/i;
+        const typeMatch = cleanText.match(typeRegex);
+        if (typeMatch) {
+          const val = typeMatch[1].trim();
+          if (/фішинг|шахрай|соціал.*інженер|scam|phishing|fraud/i.test(val)) {
+            isScam = true;
+          }
+        }
+      }
 
-      // Семантичний контроль: якщо пояснення явно свідчить про шахрайство
-      const lowerReasoning = reasoning.toLowerCase();
-      const threatKeywords = ['шахрай', 'фішинг', 'викраденн', 'небезпечн', 'scam', 'phishing', 'fraud', 'злодій', 'підробк', 'фальшив', 'lure'];
+      // 4. Вилучення пояснення (reasoning) — підтримка всіх варіацій ключів
+      let reasoning = '';
+      if (parsed && typeof parsed === 'object') {
+        const rawReason =
+          parsed.reasoning ??
+          parsed['обґрунтування'] ??
+          parsed['обоснование'] ??
+          parsed['пояснення'] ??
+          parsed['висновок'] ??
+          parsed['причина'] ??
+          parsed['опис'] ??
+          parsed.explanation ??
+          parsed.details;
+
+        if (typeof rawReason === 'string') {
+          reasoning = rawReason.trim();
+        }
+      }
+
+      if (!reasoning) {
+        const reasonRegex = /"(?:reasoning|обґрунтування|обоснование|пояснення|висновок|причина|explanation|details)"\s*[:=]\s*["']?([\s\S]*?)(?:["']\s*[,}\n]|\n\s*"|\s*$)/i;
+        const reasonMatch = cleanText.match(reasonRegex);
+        if (reasonMatch && reasonMatch[1]) {
+          reasoning = reasonMatch[1]
+            .replace(/\\"/g, '"')
+            .replace(/\\n/g, ' ')
+            .replace(/["}\]\n]+$/, '')
+            .trim();
+        }
+      }
+
+      // 5. Вилучення впевненості (confidence)
+      let confidence = 0;
+      if (parsed && typeof parsed === 'object') {
+        const rawConf =
+          parsed.confidence ??
+          parsed['впевненість'] ??
+          parsed['ймовірність'] ??
+          parsed['рівень'] ??
+          parsed['загроза'];
+
+        if (typeof rawConf === 'number') {
+          confidence = rawConf;
+        } else if (typeof rawConf === 'string') {
+          const digits = rawConf.match(/\d+/);
+          if (digits) confidence = parseInt(digits[0], 10);
+          else if (/висок|критичн|high|critical/i.test(rawConf)) confidence = 95;
+          else if (/середн|medium/i.test(rawConf)) confidence = 70;
+          else if (/низьк|low/i.test(rawConf)) confidence = 25;
+        }
+      }
+
+      if (confidence === 0) {
+        const confMatch = cleanText.match(/"(?:confidence|впевненість|ймовірність)"\s*[:=]\s*["']?(\d+)/i);
+        if (confMatch) confidence = parseInt(confMatch[1], 10);
+        else confidence = isScam ? 90 : 15;
+      }
+      confidence = Math.max(0, Math.min(100, confidence));
+
+      // 6. Семантичний контроль: якщо текст містить явні слова про загрозу
+      const fullTextLower = (reasoning + ' ' + responseText).toLowerCase();
+      const threatKeywords = [
+        'шахрай', 'фішинг', 'викраденн', 'соціальн.*інженер', 'scam', 'phishing',
+        'fraud', 'злодій', 'підробк', 'фальшив', 'крадіжк', 'lure', 'небезпечн'
+      ];
       const safeKeywords = ['безпечн', 'легітимн', 'немає ознак', 'нормальн', 'safe', 'legitimate'];
 
-      const containsThreatKeyword = threatKeywords.some(w => lowerReasoning.includes(w));
-      const containsSafeKeyword = safeKeywords.some(w => lowerReasoning.includes(w));
+      const hasThreat = threatKeywords.some(w => new RegExp(w, 'i').test(fullTextLower));
+      const hasSafe = safeKeywords.some(w => new RegExp(w, 'i').test(fullTextLower));
 
-      if (containsThreatKeyword && !containsSafeKeyword) {
+      if (hasThreat && !hasSafe) {
         isScam = true;
-        if (confidence < 50) confidence = 85;
-      } else if (containsSafeKeyword && !containsThreatKeyword && !isScam) {
+        if (confidence < 50) confidence = 90;
+      } else if (hasSafe && !hasThreat && !isScam) {
         if (confidence > 50) confidence = 20;
       }
 
