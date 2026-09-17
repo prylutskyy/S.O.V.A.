@@ -4,6 +4,9 @@ import { UserWhitelistManager } from '../core/user-whitelist';
 import { XaiEngine } from '../xai/xai-engine';
 import { VaultScanner } from '../heuristics/vault-scanner';
 import { ShadowHost } from './shadow-host';
+import { AILureVerifier } from '../heuristics/ai-verifier';
+import { ScamIntentType } from '../heuristics/intent-classifier';
+import { DebuggerOverlay } from './debugger-overlay';
 
 export interface UnifiedModalOptions {
   type: 'form' | 'chat';
@@ -23,6 +26,7 @@ export interface UnifiedModalOptions {
   vaultMatches?: VaultMatchResult[];
   vaultItems?: VaultItem[];
   rawTextToScan?: string;
+  formDetails?: string;
   intentType?: string;
   onProceed: (rememberDomain: boolean) => void;
   onCancel: () => void;
@@ -271,60 +275,102 @@ export class UnifiedFrictionModal {
 
         try {
           if (typeof chrome !== 'undefined' && chrome.runtime) {
-            const scanText = options.rawTextToScan || options.contextValue || '';
-          const intentLabel = options.intentType || 'UNKNOWN';
+            const scanText = options.rawTextToScan || options.activeContext?.targetSuspiciousUrl || options.contextValue || '';
+            const intentLabel = (options.intentType && options.intentType !== 'UNKNOWN') ? options.intentType : (options.activeContext?.scenario || 'UNKNOWN');
+            const triggerWord = options.activeContext?.detectedKeywords?.[0];
 
-          const contextRulesMap: Record<string, string> = {
-            ESCROW_DELIVERY_SCAM: 'Шукати спроби підробити доставку маркетплейсу (OLX Delivery), де відправник просить перейти за посиланням для отримання коштів. Справжні покупці не надсилають посилань для отримання грошей.',
-            OFF_PLATFORM_REDIRECT: 'Шукати спроби перевести розмову з поточної платформи (Telegram, Viber, WhatsApp) одразу після початку контакту.',
-            VERIFICATION_PHISHING: 'Шукати підробних тех-підтримок або адміністраторів платформи, що просять верифікувати акаунт через персональні дані або посилання.',
-            PAYMENT_CREDENTIAL_THEFT: 'Шукати прямі запити чутливих банківських даних: CVV-коди, терміни дії, SMS-коди, поточний баланс.',
-            URGENCY_PRESSURE: 'Шукати маніпулятивний психологічний тиск ("зробіть це зараз або аккаунт заблокують", "оплата скасується через 5 хвилин").'
-          };
-          const contextRules = contextRulesMap[intentLabel] || 'Загальний аналіз на соціальну інженерію та фішинг.';
-          const systemPrompt = `Ви - експерт з кібербезпеки, що аналізує повідомлення з українських маркетплейсів (OLX, Prom) або соціальних мереж. Мета: виявити соціальну інженерію, фішинг та шахрайство. Відповідь виключно у JSON: {"isScam": boolean, "confidence": 0-100, "reasoning": "пояснення українською"}`;
+            const contextRules = AILureVerifier.intentContextRules[intentLabel as ScamIntentType] || 'Загальний аналіз на соціальну інженерію та фішинг.';
+            const systemPrompt = `Ти — експерт з кібербезпеки та соціальної інженерії, що спеціалізується на виявленні фішингу, крадіжки платіжних даних та шахрайства в українських маркетплейсах (OLX, Prom) і соціальних мережах.
 
-          import('./debugger-overlay').then(({ DebuggerOverlay }) => {
-            DebuggerOverlay.logAI('ШІ Арбітр → Аналіз', '⏳ Запит відправлено, очікую відповідь...', '#3B82F6', {
+ВАЖЛИВО: Відповідай ВИКЛЮЧНО валідним JSON-об'єктом. Мова пояснення (поле reasoning) — ТІЛЬКИ українська. Не використовуй англійську мову.
+Обов'язкова схема JSON:
+{
+  "isScam": true або false,
+  "confidence": число від 0 до 100,
+  "reasoning": "Пояснення виключно українською мовою (1-2 речення): чому це небезпечно або безпечно"
+}
+
+Приклад для загрози:
+{"isScam": true, "confidence": 95, "reasoning": "Фішингове посилання під виглядом безпечної оплати OLX для викрадення даних картки."}
+
+Приклад для безпечного тексту:
+{"isScam": false, "confidence": 90, "reasoning": "Звичайне повідомлення без ознак маніпуляцій, посилань чи збору платіжних даних."}`;
+
+            const raisedFlags: string[] = [];
+            if (options.triggers && options.triggers.length > 0) {
+              for (const t of options.triggers) {
+                raisedFlags.push(`${t.severity || 'УВАГА'}: ${t.message}`);
+              }
+            }
+            if (options.activeContext) {
+              raisedFlags.push(`Зшита сесія: перехід після активності на ${options.activeContext.sourcePlatform}`);
+            }
+
+            const heuristicContext = {
+              intentType: intentLabel,
+              detectedKeywords: [
+                ...(options.activeContext?.detectedKeywords || []),
+                ...(options.triggers || []).map(t => t.message)
+              ],
+              suspiciousUrls: [
+                ...(options.activeContext?.targetSuspiciousUrl ? [options.activeContext.targetSuspiciousUrl] : []),
+                ...(options.domainToRemember ? [options.domainToRemember] : [])
+              ],
+              triggeredClusters: options.activeContext?.offPlatformLure ? ['off_platform'] : [],
+              nlpConfidence: options.assessment?.score || (options.badgeLevel === 'CRITICAL' ? 90 : 70),
+              raisedFlags,
+              formDetails: options.formDetails,
+              sourcePlatform: options.activeContext?.sourcePlatform || window.location.hostname,
+              targetHost: options.contextValue || window.location.hostname
+            };
+
+            const aiLogId = DebuggerOverlay.logAI('ШІ Арбітр → Аналіз', '⏳ Запит відправлено, очікую відповідь...', '#3B82F6', {
               systemPrompt,
               contextRules,
-              textSent: scanText
+              textSent: scanText,
+              raisedFlags,
+              formDetails: options.formDetails
             });
-          });
 
-          chrome.runtime.sendMessage({ type: 'AI_VERIFY', payload: { text: scanText, intentType: intentLabel } }, (response) => {
-            const aiResult = response?.aiResult;
-            aiResultDiv.style.display = 'block';
-            
-            import('./debugger-overlay').then(({ DebuggerOverlay }) => {
+            chrome.runtime.sendMessage({
+              type: 'AI_VERIFY',
+              payload: {
+                text: scanText,
+                intentType: intentLabel,
+                triggerWord,
+                heuristicContext
+              }
+            }, (response) => {
+              const aiResult = response?.aiResult;
+              aiResultDiv.style.display = 'block';
+              
               if (!aiResult) {
                 aiResultDiv.style.background = C.redBg;
                 aiResultDiv.style.color = C.red;
                 aiResultDiv.style.border = `1px solid ${C.redBd}`;
                 aiResultDiv.innerHTML = '<b>Помилка:</b> ШІ не відповів або недоступний.';
-                DebuggerOverlay.logAI('ШІ Арбітр → Аналіз', '❌ Gemini Nano не зміг обробити запит.', '#EF4444');
+                DebuggerOverlay.logAI('ШІ Арбітр → Аналіз', '❌ Gemini Nano не зміг обробити запит.', '#EF4444', undefined, aiLogId);
               } else if (aiResult.isScam) {
                 aiResultDiv.style.background = C.redBg;
                 aiResultDiv.style.color = C.red;
                 aiResultDiv.style.border = `1px solid ${C.redBd}`;
                 aiResultDiv.innerHTML = '<b>ШІ Підтвердив Загрозу:</b> ' + aiResult.reasoning;
-                DebuggerOverlay.logAI('ШІ Арбітр → Аналіз', `🔴 СКАМ підтверджено\nВпевненість: ${aiResult.confidence}%\n\n"${aiResult.reasoning}"`, '#EF4444');
+                DebuggerOverlay.logAI('ШІ Арбітр → Аналіз', `🔴 СКАМ підтверджено\nВпевненість: ${aiResult.confidence}%\n\n"${aiResult.reasoning}"`, '#EF4444', undefined, aiLogId);
               } else {
                 aiResultDiv.style.background = C.greenBg;
                 aiResultDiv.style.color = C.green;
                 aiResultDiv.style.border = `1px solid ${C.greenBd}`;
                 aiResultDiv.innerHTML = '<b>ШІ Спростував Загрозу:</b> ' + aiResult.reasoning;
-                DebuggerOverlay.logAI('ШІ Арбітр → Аналіз', `🟢 Загрозу спростовано\nВпевненість: ${aiResult.confidence}%\n\n"${aiResult.reasoning}"`, '#22C55E');
+                DebuggerOverlay.logAI('ШІ Арбітр → Аналіз', `🟢 Загрозу спростовано\nВпевненість: ${aiResult.confidence}%\n\n"${aiResult.reasoning}"`, '#22C55E', undefined, aiLogId);
                 
                 if (this.countdownInterval) clearInterval(this.countdownInterval);
                 btnOverride.disabled = false;
                 btnOverride.innerText = 'Продовжити (Відправити Дані)';
                 btnOverride.classList.add('active');
               }
-            });
 
-            btnAi.style.display = 'none';
-          });
+              btnAi.style.display = 'none';
+            });
           }
         } catch (e) {
           console.error(e);

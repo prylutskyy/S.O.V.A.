@@ -6,7 +6,18 @@ export class DebuggerOverlay {
     sessionId: null as string | null,
     severity: 'LOW' as string,
     score: 0,
-    logs: [] as Array<{ id: string; stepKey: string; data: any; color: string; time: string; isAi: boolean; isForm: boolean; aiContext?: { systemPrompt: string; contextRules: string; textSent: string; }; expanded?: boolean }>
+    logs: [] as Array<{
+      id: string;
+      stepKey: string;
+      data: any;
+      color: string;
+      time: string;
+      isAi: boolean;
+      isForm: boolean;
+      isPending?: boolean;
+      aiContext?: { systemPrompt: string; contextRules: string; textSent: string; raisedFlags?: string[]; formDetails?: string; };
+      expanded?: boolean;
+    }>
   };
 
   private static isDragging = false;
@@ -62,7 +73,19 @@ export class DebuggerOverlay {
     this.render();
   }
 
-  public static log(stepKey: string, data: any, customColor?: string, broadcast: boolean = true) {
+  public static log(
+    stepKey: string,
+    data: any,
+    customColor?: string,
+    broadcast: boolean = true,
+    isAi: boolean = false,
+    aiContext?: { systemPrompt: string; contextRules: string; textSent: string; raisedFlags?: string[]; formDetails?: string; },
+    logId?: string
+  ) {
+    if (isAi || aiContext || logId || stepKey.toLowerCase().includes('ші') || stepKey.toLowerCase().includes('ai') || stepKey.toLowerCase().includes('llm')) {
+      return this.logAI(stepKey, data, customColor, aiContext, logId);
+    }
+
     this.show();
 
     if (broadcast && this.state.sessionId) {
@@ -84,7 +107,7 @@ export class DebuggerOverlay {
     const time = new Date().toLocaleTimeString();
     const color = customColor || '#4ADE80';
     
-    const isAi = stepKey.toLowerCase().includes('ai') || stepKey.toLowerCase().includes('llm') || stepKey.toLowerCase().includes('ші');
+    const isStepAi = stepKey.toLowerCase().includes('ai') || stepKey.toLowerCase().includes('llm') || stepKey.toLowerCase().includes('ші');
     const isForm = stepKey.toLowerCase().includes('форма') || stepKey.toLowerCase().includes('form');
 
     // Update existing if stepKey matches, else push new
@@ -98,7 +121,7 @@ export class DebuggerOverlay {
         data,
         color,
         time,
-        isAi,
+        isAi: isStepAi,
         isForm
       });
     }
@@ -106,43 +129,83 @@ export class DebuggerOverlay {
     this.render();
   }
 
-  public static logAI(stepKey: string, data: any, customColor?: string, aiContext?: { systemPrompt: string; contextRules: string; textSent: string }) {
+  public static logAI(
+    stepKey: string,
+    data: any,
+    customColor?: string,
+    aiContext?: { systemPrompt: string; contextRules: string; textSent: string; raisedFlags?: string[]; formDetails?: string; },
+    logId?: string
+  ): string {
     this.show();
-
-    if (this.state.sessionId) {
-      try {
-        if (typeof chrome !== 'undefined' && chrome.runtime) {
-          chrome.runtime.sendMessage({
-            type: 'BROADCAST_LOG',
-            payload: { sessionId: this.state.sessionId, stepKey, data, customColor }
-          });
-        }
-      } catch {}
-    }
 
     const time = new Date().toLocaleTimeString();
     const color = customColor || '#3B82F6';
-    const existingIndex = this.state.logs.findIndex(l => l.stepKey === stepKey);
+    const isPending = typeof data === 'string' && (data.includes('⏳') || data.includes('очікую') || data.includes('Аналізую'));
 
-    if (existingIndex >= 0) {
-      // Preserve existing aiContext if a new one is not provided (e.g., when updating with result)
-      const updatedContext = aiContext !== undefined ? aiContext : this.state.logs[existingIndex].aiContext;
-      this.state.logs[existingIndex] = { ...this.state.logs[existingIndex], data, color, time, aiContext: updatedContext };
+    let targetIndex = -1;
+    if (logId) {
+      targetIndex = this.state.logs.findIndex(l => l.id === logId);
+    } else if (!isPending) {
+      // Find the last pending AI log matching this stepKey so we update it with result
+      for (let i = this.state.logs.length - 1; i >= 0; i--) {
+        if (this.state.logs[i].stepKey === stepKey && this.state.logs[i].isPending) {
+          targetIndex = i;
+          break;
+        }
+      }
+    }
+
+    let currentId: string;
+    if (targetIndex >= 0) {
+      currentId = this.state.logs[targetIndex].id;
+      // Preserve existing aiContext if a new one is not provided
+      const updatedContext = aiContext !== undefined ? aiContext : this.state.logs[targetIndex].aiContext;
+      this.state.logs[targetIndex] = {
+        ...this.state.logs[targetIndex],
+        data,
+        color,
+        time,
+        isPending,
+        aiContext: updatedContext
+      };
     } else {
+      currentId = logId || Math.random().toString(36).substring(7);
       this.state.logs.push({
-        id: Math.random().toString(36).substring(7),
+        id: currentId,
         stepKey,
         data,
         color,
         time,
         isAi: true,
         isForm: false,
+        isPending,
         aiContext,
         expanded: false
       });
     }
 
+    if (this.state.sessionId) {
+      try {
+        if (typeof chrome !== 'undefined' && chrome.runtime) {
+          const effectiveContext = targetIndex >= 0 ? this.state.logs[targetIndex].aiContext : aiContext;
+          chrome.runtime.sendMessage({
+            type: 'BROADCAST_LOG',
+            payload: {
+              sessionId: this.state.sessionId,
+              stepKey,
+              data,
+              customColor: color,
+              isAi: true,
+              aiContext: effectiveContext,
+              logId: currentId
+            }
+          });
+        }
+      } catch {}
+    }
+
     this.render();
+    return currentId;
   }
 
   private static render() {
@@ -164,13 +227,14 @@ export class DebuggerOverlay {
       if (log.isAi) icon = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="${log.color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10H12V2z"></path><path d="M12 12l8.66-5"></path></svg>`;
       else if (log.isForm) icon = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="${log.color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>`;
 
+      const isExpanded = !!log.expanded;
       const aiInspectorHtml = log.aiContext ? `
         <div class="ai-inspector" data-id="${log.id}">
           <button class="ai-inspector-toggle" data-id="${log.id}">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
-            Деталі запиту до ШІ
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="${isExpanded ? '6 15 12 9 18 15' : '6 9 12 15 18 9'}"></polyline></svg>
+            ${isExpanded ? 'Сховати деталі запиту до ШІ' : 'Деталі запиту до ШІ'}
           </button>
-          <div class="ai-inspector-body" id="ai-body-${log.id}" style="display:none">
+          <div class="ai-inspector-body" id="ai-body-${log.id}" style="display:${isExpanded ? 'flex' : 'none'}">
             <div class="ai-section">
               <div class="ai-section-label">🤖 Системний промпт (роль ШІ)</div>
               <pre class="ai-section-code">${log.aiContext.systemPrompt}</pre>
@@ -183,6 +247,16 @@ export class DebuggerOverlay {
               <div class="ai-section-label">💬 Текст, переданий для аналізу</div>
               <pre class="ai-section-code">${log.aiContext.textSent}</pre>
             </div>
+            ${log.aiContext.raisedFlags && log.aiContext.raisedFlags.length > 0 ? `
+            <div class="ai-section">
+              <div class="ai-section-label">🚩 Зафіксовані евристичні прапорці</div>
+              <pre class="ai-section-code">${log.aiContext.raisedFlags.map(f => `• ${f}`).join('\n')}</pre>
+            </div>` : ''}
+            ${log.aiContext.formDetails ? `
+            <div class="ai-section">
+              <div class="ai-section-label">📝 Дані введених полів форми</div>
+              <pre class="ai-section-code">${log.aiContext.formDetails}</pre>
+            </div>` : ''}
           </div>
         </div>
       ` : '';
@@ -547,12 +621,10 @@ export class DebuggerOverlay {
     this.shadowRoot.querySelectorAll('.ai-inspector-toggle').forEach((btn) => {
       btn.addEventListener('click', () => {
         const id = (btn as HTMLElement).dataset.id;
-        const body = this.shadowRoot!.getElementById(`ai-body-${id}`);
-        if (body) {
-          const isOpen = body.style.display !== 'none';
-          body.style.display = isOpen ? 'none' : 'flex';
-          const svg = btn.querySelector('svg polyline');
-          if (svg) (svg as SVGElement).setAttribute('points', isOpen ? '6 9 12 15 18 9' : '6 15 12 9 18 15');
+        const targetLog = this.state.logs.find(l => l.id === id);
+        if (targetLog) {
+          targetLog.expanded = !targetLog.expanded;
+          this.render();
         }
       });
     });

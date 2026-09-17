@@ -29,10 +29,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }
     currentAbortController = new AbortController();
     
-    const { text, intentType, triggerWord } = message.payload;
+    const { text, intentType, triggerWord, heuristicContext } = message.payload;
     const aiVerifier = new AILureVerifier(new ChromeBuiltinAIProvider(currentAbortController.signal));
     
-    aiVerifier.verifyIntent(text, intentType, triggerWord).then((aiResult) => {
+    aiVerifier.verifyIntent(text, intentType, triggerWord, heuristicContext).then((aiResult) => {
       console.log('[ThreatShield:Offscreen] AI Result:', aiResult);
       if (currentAbortController?.signal.aborted) return;
       currentAbortController = null;

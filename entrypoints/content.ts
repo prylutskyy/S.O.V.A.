@@ -7,8 +7,6 @@ import {
   FormSensitiveState,
 } from '../src/heuristics/input-detector';
 import { IntentClassifier } from '../src/heuristics/intent-classifier';
-import { AILureVerifier } from '../src/heuristics/ai-verifier';
-import { ChromeBuiltinAIProvider } from '../src/heuristics/chrome-ai-provider';
 import { ChatChannelMonitor } from '../src/heuristics/chat-channel';
 import { isWhitelisted, isMonitoredPlatform } from '../src/core/whitelist';
 import { isAccreditedPaymentGateway } from '../src/core/payment-gateways';
@@ -33,7 +31,6 @@ export default defineContentScript({
       const parts = window.location.pathname.split('/');
       currentHost = 'file://' + (parts[parts.length - 1] || 'local-file');
     }
-    const aiVerifier = new AILureVerifier(new ChromeBuiltinAIProvider());
 
     let debugMode = false;
     let activeContext: ActiveThreatContext | null = null;
@@ -112,8 +109,8 @@ export default defineContentScript({
         } else if (msg && msg.type === 'CONTEXT_UPDATED' && msg.context) {
           applyContext(msg.context as ActiveThreatContext);
         } else if (msg && msg.type === 'RECEIVE_BROADCAST_LOG' && debugMode) {
-          const { stepKey, data, customColor } = msg.payload;
-          DebuggerOverlay.log(stepKey, data, customColor, false);
+          const { stepKey, data, customColor, isAi, aiContext, logId } = msg.payload;
+          DebuggerOverlay.log(stepKey, data, customColor, false, isAi, aiContext, logId);
         }
       });
     }
@@ -511,69 +508,18 @@ export default defineContentScript({
         }
 
         if (scan.hasFormedIntent) {
-          GlobalInputInterceptor.setSoftLock(true);
-          ToastNotifier.show('ШІ аналізує скопійований текст...', 'info', 2000);
-          
-          let hasTimedOut = false;
-          const timeoutId = setTimeout(() => {
-            hasTimedOut = true;
-            GlobalInputInterceptor.setSoftLock(false);
-            if (debugMode) DebuggerOverlay.log('4. AI Response (Tier 2)', 'Timeout (Took > 30s)', '#EF4444');
-          }, 30000);
-
-          const triggerWord = scan.matchedSpans?.[0]?.text;
-          const intentLabel = scan.intentType || 'UNKNOWN';
-
-          const contextRulesMap: Record<string, string> = {
-            ESCROW_DELIVERY_SCAM: 'Шукати спроби підробити доставку маркетплейсу (OLX Delivery). Справжні покупці не надсилають посилань для отримання грошей.',
-            OFF_PLATFORM_REDIRECT: 'Шукати спроби перевести розмову в Telegram, Viber, WhatsApp.',
-            VERIFICATION_PHISHING: 'Шукати підробні запити верифікації акаунту.',
-            PAYMENT_CREDENTIAL_THEFT: 'Шукати запити CVV-кодів, терміну дії картки, SMS-кодів.',
-            URGENCY_PRESSURE: 'Шукати маніпулятивний психологічний тиск з штучними дедлайнами.'
-          };
-          const contextRules = contextRulesMap[intentLabel] || 'Загальний аналіз на соціальну інженерію та фішинг.';
-          const systemPrompt = `Ви - експерт з кібербезпеки. Відповідь виключно у JSON: {"isScam": boolean, "confidence": 0-100, "reasoning": "пояснення українською"}`;
-
-          if (debugMode) {
-            DebuggerOverlay.logAI('ШІ Арбітр → Буфер обміну', '⏳ Аналізую скопійований текст...', '#3B82F6', {
-              systemPrompt,
-              contextRules,
-              textSent: selection
-            });
-          }
-
-          chrome.runtime.sendMessage({ type: 'AI_VERIFY', payload: { text: selection, intentType: scan.intentType, triggerWord } }, (response) => {
-            if (hasTimedOut) return;
-            clearTimeout(timeoutId);
-            GlobalInputInterceptor.setSoftLock(false);
-            const aiResult = response?.aiResult;
-            if (debugMode) {
-              if (aiResult) {
-                DebuggerOverlay.logAI('ШІ Арбітр → Буфер обміну',
-                  aiResult.isScam
-                    ? `🔴 СКАМ підтверджено\nВпевненість: ${aiResult.confidence}%\n\n"${aiResult.reasoning}"`
-                    : `🟢 Загрозу спростовано\nВпевненість: ${aiResult.confidence}%\n\n"${aiResult.reasoning}"`,
-                  aiResult.isScam ? '#EF4444' : '#22C55E'
-                );
-              } else {
-                DebuggerOverlay.logAI('ШІ Арбітр → Буфер обміну', '❌ Gemini Nano не відповів або недоступний.', '#EF4444');
-              }
-            }
-            if (aiResult && !aiResult.isScam) {
-              console.log('[ThreatShield:AI] AI відхилив тригер (False Positive):', aiResult.reasoning);
-              return;
-            }
-
-            const isOffPlatformLure = scan.clustersDetected.includes('off_platform');
-            triggerLureContext(
-              (scan.suspiciousUrls && scan.suspiciousUrls[0]) || selection,
-              scan.matchedSpans.map(s => s.text),
-              isOffPlatformLure,
-              isOffPlatformLure
-                ? 'Виявлено спробу переходу в сторонній месенджер'
-                : 'У скопійованому тексті виявлено підозріле посилання'
-            );
-          });
+          const isOffPlatformLure = scan.clustersDetected.includes('off_platform');
+          triggerLureContext(
+            (scan.suspiciousUrls && scan.suspiciousUrls[0]) || selection,
+            scan.matchedSpans.map(s => s.text),
+            isOffPlatformLure,
+            isOffPlatformLure
+              ? 'Виявлено спробу переходу в сторонній месенджер'
+              : 'У скопійованому тексті виявлено підозріле посилання',
+            selection,
+            scan.intentType,
+            scan.confidence || 75
+          );
         }
       }
     });
