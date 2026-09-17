@@ -253,7 +253,7 @@ export class SecurityFriction {
         <div style="font-size: 12.5px; color: #15141A; display: flex; flex-direction: column; gap: 2px; flex: 1;">
           <div style="display: flex; align-items: center; gap: 6px;">
             <strong style="font-weight: 600; color: #15141A; font-size: 13px;">${context.sourcePlatform}</strong>
-            <span style="font-size: 10px; font-weight: 600; background: #E8F2FF; color: #0060DF; padding: 1px 5px; border-radius: 3px;">Firefox Shield</span>
+            <span style="font-size: 10px; font-weight: 600; background: #E8F2FF; color: #0060DF; padding: 1px 5px; border-radius: 3px;">Active Shield</span>
           </div>
           <span style="color: #D76E00; font-weight: 500; font-size: 12px; line-height: 1.3;">${subtitle}</span>
           ${isHardLock ? '<span style="color:#D70022; font-size: 11px; font-weight: 600;">(Блокування вводу чутливих реквізитів)</span>' : ''}
@@ -508,7 +508,7 @@ export class SecurityFriction {
         <div style="flex: 1; display: flex; flex-direction: column; gap: 2px;">
           <div style="display: flex; align-items: center; gap: 6px;">
             <strong style="font-size: 13px; font-weight: 700; color: #15141A;">Захист від автозаповнення</strong>
-            <span style="font-size: 10px; font-weight: 600; background: #E8F2FF; color: #0060DF; border: 1px solid #B0D5FF; padding: 1px 5px; border-radius: 3px;">Firefox Shield</span>
+            <span style="font-size: 10px; font-weight: 600; background: #E8F2FF; color: #0060DF; border: 1px solid #B0D5FF; padding: 1px 5px; border-radius: 3px;">Active Shield</span>
           </div>
           <div style="font-size: 12px; font-weight: 600; color: #D70022;">
             Виявлено приховані поля у формі!
