@@ -40,7 +40,7 @@ export class HiddenFieldInspector {
 
   // Regex for card numbers
   private static readonly CARD_NUMBER_REGEX =
-    /(cc-number|card[-_]?num|pan|номер.*карт|номер.*карты)/i;
+    /(cc-number|card[-_]?num|pan|iban|номер.*карт|номер.*карты)/i;
 
   // Regex for CVV / CVC
   private static readonly CVV_REGEX =
@@ -109,9 +109,15 @@ export class HiddenFieldInspector {
       }
     }
 
-    // D. CSS transform (scale(0) або translateX(-9999px))
+    // D. CSS transform (scale(0), matrix(0, ...), або translateX(-9999px))
     const transform = (style.transform || inlineStyle.transform || '').toLowerCase();
-    if (transform && (transform.includes('scale(0)') || transform.includes('-9999px') || transform.includes('-5000px'))) {
+    if (
+      transform &&
+      (transform.includes('scale(0') ||
+        transform.includes('matrix(0') ||
+        transform.includes('-9999px') ||
+        transform.includes('-5000px'))
+    ) {
       return { isCloaked: true, reason: `transform (${transform})`, cloakingTechnique: 'TRANSFORM_CLOAK' };
     }
 
@@ -140,12 +146,12 @@ export class HiddenFieldInspector {
       return { isCloaked: true, reason: `clip-path: ${clipPath}`, cloakingTechnique: 'CLIP_PATH' };
     }
 
-    // I. visually-hidden / sr-only (width: 1px, height: 1px, overflow: hidden)
+    // I. visually-hidden / sr-only (width: <= 3px, height: <= 3px, overflow: hidden)
     const overflow = (style.overflow || inlineStyle.overflow || '').toLowerCase();
     const widthStr = style.width || inlineStyle.width || '';
     const heightStr = style.height || inlineStyle.height || '';
-    const isTinyWidth = widthStr === '1px' || widthStr === '0px' || widthStr === '2px';
-    const isTinyHeight = heightStr === '1px' || heightStr === '0px' || heightStr === '2px';
+    const isTinyWidth = widthStr === '1px' || widthStr === '0px' || widthStr === '2px' || widthStr === '3px';
+    const isTinyHeight = heightStr === '1px' || heightStr === '0px' || heightStr === '2px' || heightStr === '3px';
 
     if (
       (isTinyWidth && isTinyHeight) ||
@@ -153,7 +159,7 @@ export class HiddenFieldInspector {
       el.classList.contains('sr-only')
     ) {
       if (overflow === 'hidden' || clip || isTinyWidth) {
-        return { isCloaked: true, reason: 'visually-hidden dimensions (1px x 1px)', cloakingTechnique: 'VISUALLY_HIDDEN' };
+        return { isCloaked: true, reason: 'visually-hidden dimensions (<= 3px)', cloakingTechnique: 'VISUALLY_HIDDEN' };
       }
     }
 
@@ -171,10 +177,11 @@ export class HiddenFieldInspector {
 
     if (!isMockDom && typeof el.getBoundingClientRect === 'function') {
       const rect = el.getBoundingClientRect();
-      if ((rect.width === 0 || rect.height === 0) && el.isConnected) {
-        return { isCloaked: true, reason: 'zero dimensions (rect.width=0 or rect.height=0)', cloakingTechnique: 'ZERO_DIMENSIONS' };
+      if ((rect.width <= 3 || rect.height <= 3) && el.isConnected) {
+        return { isCloaked: true, reason: `micro dimensions (rect.width=${rect.width}, rect.height=${rect.height})`, cloakingTechnique: 'ZERO_DIMENSIONS' };
       }
-      if (rect.left < -500 || rect.top < -500) {
+      // Безпечна перевірка оффскріну (не залежить від вертикального скролу сторінки)
+      if (rect.right < 0 || rect.left < -500 || (rect.bottom < 0 && ((rect.top + (window.scrollY || 0)) < -500))) {
         return { isCloaked: true, reason: `offscreen position (left=${rect.left}, top=${rect.top})`, cloakingTechnique: 'OFFSCREEN' };
       }
     }

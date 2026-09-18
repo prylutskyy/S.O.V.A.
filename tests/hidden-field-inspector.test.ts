@@ -62,6 +62,26 @@ describe('HiddenFieldInspector (TDD Suite for Autofill Phishing Detection)', () 
       expect(res.reason).toMatch(/transform/i);
     });
 
+    it('виявляє приховування через обчислений transform: matrix(0, 0, 0, 0, 0, 0)', () => {
+      const input = document.createElement('input');
+      input.style.cssText = 'transform: matrix(0, 0, 0, 0, 0, 0);';
+      document.body.appendChild(input);
+
+      const res = HiddenFieldInspector.isElementCloaked(input);
+      expect(res.isCloaked).toBe(true);
+      expect(res.reason).toMatch(/transform/i);
+    });
+
+    it('виявляє приховування через мікро-розміри (width: 3px, height: 3px, overflow: hidden)', () => {
+      const input = document.createElement('input');
+      input.style.cssText = 'width: 3px; height: 3px; overflow: hidden;';
+      document.body.appendChild(input);
+
+      const res = HiddenFieldInspector.isElementCloaked(input);
+      expect(res.isCloaked).toBe(true);
+      expect(res.reason).toMatch(/visually-hidden dimensions/i);
+    });
+
     it('виявляє стандартні display: none та visibility: hidden', () => {
       const input1 = document.createElement('input');
       input1.style.display = 'none';
@@ -100,18 +120,22 @@ describe('HiddenFieldInspector (TDD Suite for Autofill Phishing Detection)', () 
   });
 
   describe('2. Класифікація чутливості полів (Sensitive Payment Field vs Safe CSRF)', () => {
-    it('ідентифікує поля банківських карток як чутливі (cc-number, card_number, pan)', () => {
+    it('ідентифікує поля банківських карток як чутливі (cc-number, card_number, pan, iban)', () => {
       const inp1 = document.createElement('input');
       inp1.autocomplete = 'cc-number';
       const inp2 = document.createElement('input');
       inp2.name = 'card_number';
       const inp3 = document.createElement('input');
       inp3.placeholder = 'Номер картки';
+      const inp4 = document.createElement('input');
+      inp4.name = 'user_iban';
 
       expect(HiddenFieldInspector.isFieldSensitive(inp1).isSensitive).toBe(true);
       expect(HiddenFieldInspector.isFieldSensitive(inp2).isSensitive).toBe(true);
       expect(HiddenFieldInspector.isFieldSensitive(inp3).isSensitive).toBe(true);
+      expect(HiddenFieldInspector.isFieldSensitive(inp4).isSensitive).toBe(true);
       expect(HiddenFieldInspector.isFieldSensitive(inp1).fieldType).toBe('CARD_NUMBER');
+      expect(HiddenFieldInspector.isFieldSensitive(inp4).fieldType).toBe('CARD_NUMBER');
     });
 
     it('ідентифікує поля CVV / CVC коду як критично чутливі (cc-csc, cvv, cvc, pin)', () => {
