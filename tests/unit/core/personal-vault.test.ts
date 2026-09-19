@@ -107,4 +107,82 @@ describe('PersonalVaultManager', () => {
     expect(rawData.iv).toBeDefined();
     expect(Array.isArray(rawData)).toBe(false); // Should not be a raw array
   });
+
+  it('should initialize with all default items empty and disabled', async () => {
+    await PersonalVaultManager.setupMasterPassword('password');
+    const items = PersonalVaultManager.getItemsSync();
+    expect(items.length).toBe(DEFAULT_VAULT_ITEMS.length);
+    for (const item of items) {
+      expect(item.realValue).toBe('');
+      expect(item.decoyValue).toBe('');
+      expect(item.enabled).toBe(false);
+    }
+  });
+
+  it('should automatically activate item when realValue is provided', async () => {
+    await PersonalVaultManager.setupMasterPassword('password');
+    const motherItem = PersonalVaultManager.getItemsSync().find((i) => i.category === 'MOTHER_MAIDEN_NAME')!;
+
+    const updated = await PersonalVaultManager.saveItem({
+      id: motherItem.id,
+      category: motherItem.category,
+      label: motherItem.label,
+      realValue: 'Людмила',
+      decoyValue: 'Оксана',
+      keywords: motherItem.keywords,
+    });
+
+    expect(updated).toBeDefined();
+    expect(updated?.realValue).toBe('Людмила');
+    expect(updated?.enabled).toBe(true);
+  });
+
+  it('should allow explicitly disabling an item even when realValue is present', async () => {
+    await PersonalVaultManager.setupMasterPassword('password');
+    const motherItem = PersonalVaultManager.getItemsSync().find((i) => i.category === 'MOTHER_MAIDEN_NAME')!;
+
+    const updated = await PersonalVaultManager.saveItem({
+      id: motherItem.id,
+      category: motherItem.category,
+      label: motherItem.label,
+      realValue: 'Людмила',
+      decoyValue: 'Оксана',
+      keywords: motherItem.keywords,
+      enabled: false,
+    });
+
+    expect(updated).toBeDefined();
+    expect(updated?.realValue).toBe('Людмила');
+    expect(updated?.enabled).toBe(false);
+  });
+
+  it('should automatically deactivate item when realValue is cleared', async () => {
+    await PersonalVaultManager.setupMasterPassword('password');
+    const motherItem = PersonalVaultManager.getItemsSync().find((i) => i.category === 'MOTHER_MAIDEN_NAME')!;
+
+    // First fill it
+    await PersonalVaultManager.saveItem({
+      id: motherItem.id,
+      category: motherItem.category,
+      label: motherItem.label,
+      realValue: 'Людмила',
+      decoyValue: 'Оксана',
+      keywords: motherItem.keywords,
+    });
+
+    // Now clear it
+    const cleared = await PersonalVaultManager.saveItem({
+      id: motherItem.id,
+      category: motherItem.category,
+      label: motherItem.label,
+      realValue: '',
+      decoyValue: '',
+      keywords: motherItem.keywords,
+      enabled: true, // even if UI sends true, empty value must deactivate
+    });
+
+    expect(cleared).toBeDefined();
+    expect(cleared?.realValue).toBe('');
+    expect(cleared?.enabled).toBe(false);
+  });
 });

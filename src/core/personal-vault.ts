@@ -9,8 +9,8 @@ export const DEFAULT_VAULT_ITEMS: VaultItem[] = [
     id: 'vault-default-mother',
     category: 'MOTHER_MAIDEN_NAME',
     label: 'Дівоче прізвище матері',
-    realValue: 'Людмила',
-    decoyValue: 'Оксана',
+    realValue: '',
+    decoyValue: '',
     keywords: [
       // UK
       'дівоче', 'дівоче прізвище', 'прізвище матері', 'дівоче прізвище матері',
@@ -20,13 +20,14 @@ export const DEFAULT_VAULT_ITEMS: VaultItem[] = [
       'девичья фамилия', 'девичья фамилия матери', 'фамилия матери', 'девичья'
     ],
     createdAt: Date.now(),
+    enabled: false,
   },
   {
     id: 'vault-default-taxid',
     category: 'TAX_ID',
     label: 'РНОКПП (ІПН / Податковий код)',
-    realValue: '3124567890',
-    decoyValue: '2987654321',
+    realValue: '',
+    decoyValue: '',
     keywords: [
       // UK
       'рнокпп', 'іпн', 'ідентифікаційний код', 'податковий номер', 'код платника',
@@ -36,13 +37,14 @@ export const DEFAULT_VAULT_ITEMS: VaultItem[] = [
       'инн', 'идентификационный код', 'налоговый номер', 'код налогоплательщика'
     ],
     createdAt: Date.now(),
+    enabled: false,
   },
   {
     id: 'vault-default-secretword',
     category: 'SECRET_WORD',
     label: 'Секретне / Кодове слово банку',
-    realValue: 'Калина',
-    decoyValue: 'Дніпро',
+    realValue: '',
+    decoyValue: '',
     keywords: [
       // UK
       'кодове слово', 'секретне слово', 'слово-пароль', 'контрольне слово',
@@ -52,13 +54,14 @@ export const DEFAULT_VAULT_ITEMS: VaultItem[] = [
       'кодовое слово', 'секретное слово', 'слово-пароль', 'контрольное слово'
     ],
     createdAt: Date.now(),
+    enabled: false,
   },
   {
     id: 'vault-default-passport',
     category: 'PASSPORT_ID',
     label: 'Номер паспорта / ID-картки',
-    realValue: 'АА 123456',
-    decoyValue: 'АА 654321',
+    realValue: '',
+    decoyValue: '',
     keywords: [
       // UK
       'номер паспорта', 'серія паспорта', 'id картка', 'паспортні дані', 'номер документа',
@@ -68,13 +71,14 @@ export const DEFAULT_VAULT_ITEMS: VaultItem[] = [
       'номер паспорта', 'серия паспорта', 'id карта', 'паспортные данные', 'номер документа'
     ],
     createdAt: Date.now(),
+    enabled: false,
   },
   {
     id: 'vault-default-dob',
     category: 'DATE_OF_BIRTH',
     label: 'Дата народження',
-    realValue: '15.08.1985',
-    decoyValue: '01.01.1990',
+    realValue: '',
+    decoyValue: '',
     keywords: [
       // UK
       'дата народження', 'день народження', 'число народження', 'рік народження',
@@ -84,13 +88,14 @@ export const DEFAULT_VAULT_ITEMS: VaultItem[] = [
       'дата рождения', 'день рождения', 'число рождения', 'год рождения'
     ],
     createdAt: Date.now(),
+    enabled: false,
   },
   {
     id: 'vault-default-phone',
     category: 'FINANCIAL_PHONE',
     label: 'Фінансовий номер телефону',
-    realValue: '+380501234567',
-    decoyValue: '+380679876543',
+    realValue: '',
+    decoyValue: '',
     keywords: [
       // UK
       'фінансовий номер', 'прив’язаний телефон', 'привязаний телефон', 'номер телефону банку', 'основний номер', 'фінансовий телефон',
@@ -100,13 +105,14 @@ export const DEFAULT_VAULT_ITEMS: VaultItem[] = [
       'финансовый номер', 'привязанный телефон', 'номер телефона банка', 'основной телефон', 'финансовый телефон'
     ],
     createdAt: Date.now(),
+    enabled: false,
   },
   {
     id: 'vault-default-father',
     category: 'FATHER_NAME',
     label: "Ім'я батька / По батькові",
-    realValue: 'Лео',
-    decoyValue: 'Олександр',
+    realValue: '',
+    decoyValue: '',
     keywords: [
       // UK
       'ім’я батька', "ім'я батька", 'по батькові', 'прізвище батька', 'по-батькові',
@@ -116,6 +122,7 @@ export const DEFAULT_VAULT_ITEMS: VaultItem[] = [
       'имя отца', 'отчество', 'фамилия отца'
     ],
     createdAt: Date.now(),
+    enabled: false,
   },
 ];
 
@@ -151,7 +158,7 @@ export class PersonalVaultManager {
     
     this.masterKey = key;
     this.locked = false;
-    this.cachedItems = DEFAULT_VAULT_ITEMS;
+    this.cachedItems = DEFAULT_VAULT_ITEMS.map((item) => ({ ...item, createdAt: Date.now() }));
     
     await this.persistEncrypted(salt);
   }
@@ -298,15 +305,21 @@ export class PersonalVaultManager {
     const items = await this.getItems();
     const existingIndex = item.id ? items.findIndex((i) => i.id === item.id) : -1;
 
+    const trimmedReal = (item.realValue || '').trim();
+    const hasReal = trimmedReal.length > 0;
+    // Якщо значення заповнено: активуємо автоматично, якщо користувач явно не вимкнув (item.enabled === false)
+    // Якщо значення порожнє: деактивуємо (enabled: false)
+    const isEnabled = hasReal ? item.enabled !== false : false;
+
     const savedItem: VaultItem = {
       id: item.id || `vault-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
       category: item.category,
       label: item.label.trim(),
-      realValue: item.realValue.trim(),
-      decoyValue: item.decoyValue.trim() || this.generateDefaultDecoy(item.category),
-      keywords: item.keywords.map((k) => k.trim().toLowerCase()).filter(Boolean),
+      realValue: trimmedReal,
+      decoyValue: (item.decoyValue || '').trim() || (hasReal ? this.generateDefaultDecoy(item.category) : ''),
+      keywords: (item.keywords || []).map((k) => k.trim().toLowerCase()).filter(Boolean),
       createdAt: Date.now(),
-      enabled: item.enabled !== false,
+      enabled: isEnabled,
     };
 
     if (existingIndex >= 0) {
@@ -335,12 +348,12 @@ export class PersonalVaultManager {
   }
 
   /**
-   * Скинути до дефолтних налаштувань
+   * Скинути до дефолтних налаштувань (порожні маркери, відстеження вимкнено)
    */
   public static async resetToDefaults(): Promise<void> {
     if (this.locked) return;
     
-    this.cachedItems = DEFAULT_VAULT_ITEMS;
+    this.cachedItems = DEFAULT_VAULT_ITEMS.map((item) => ({ ...item, createdAt: Date.now() }));
     await this.persistEncrypted();
   }
 

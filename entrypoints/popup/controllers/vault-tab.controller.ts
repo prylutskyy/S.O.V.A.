@@ -146,7 +146,7 @@ export class VaultTabController {
 
     items.forEach((item) => {
       const isFilled = Boolean(item.realValue && item.realValue.trim().length > 0);
-      const isEnabled = item.enabled !== false;
+      const isEnabled = item.enabled === true && isFilled;
       const tier = PersonalVaultManager.getCategoryTier(item.category);
 
       const card = document.createElement('div');
@@ -159,6 +159,7 @@ export class VaultTabController {
         valClass = 'filled';
       } else if (isFilled && !isEnabled) {
         valText = 'Вимкнено користувачем';
+        valClass = 'disabled';
       }
 
       card.innerHTML = `
@@ -203,7 +204,8 @@ export class VaultTabController {
     this.detailItemTierBadge.innerText = tier === 'TIER_A_ABSOLUTE' ? 'Tier A (Абсолютний)' : 'Tier B (Контекстний)';
     this.detailItemTierBadge.className = `tier-badge ${tier === 'TIER_A_ABSOLUTE' ? 'a' : 'b'}`;
 
-    this.detailItemToggle.checked = item.enabled !== false;
+    const isFilled = Boolean(item.realValue && item.realValue.trim().length > 0);
+    this.detailItemToggle.checked = item.enabled === true && isFilled;
     this.detailRealInput.value = item.realValue || '';
     this.detailRealInput.type = 'password';
     this.detailDecoyInput.value = item.decoyValue || '';
@@ -270,6 +272,24 @@ export class VaultTabController {
       this.detailRealInput.type = this.detailRealInput.type === 'password' ? 'text' : 'password';
     });
 
+    // Автоматична активація перемикача при введенні значення
+    this.detailRealInput.addEventListener('input', () => {
+      const hasValue = this.detailRealInput.value.trim().length > 0;
+      if (hasValue) {
+        this.detailItemToggle.checked = true;
+      } else {
+        this.detailItemToggle.checked = false;
+      }
+    });
+
+    // Перемикач трекінгу поля
+    this.detailItemToggle.addEventListener('change', () => {
+      if (this.detailItemToggle.checked && this.detailRealInput.value.trim().length === 0) {
+        this.detailItemToggle.checked = false;
+        this.showToast('Спочатку введіть значення для активації захисту');
+      }
+    });
+
     // Збереження маркера
     this.btnSaveDetailItem.addEventListener('click', async () => {
       const items = await PersonalVaultManager.getItems();
@@ -278,19 +298,27 @@ export class VaultTabController {
 
       const realVal = this.detailRealInput.value.trim();
       const decoyVal = this.detailDecoyInput.value.trim();
-      const isEnabled = this.detailItemToggle.checked;
+      const hasValue = realVal.length > 0;
+      const isEnabled = hasValue && this.detailItemToggle.checked;
 
       await PersonalVaultManager.saveItem({
         id: item.id,
         category: item.category,
         label: item.label,
         realValue: realVal,
-        decoyValue: decoyVal || PersonalVaultManager.generateDefaultDecoy(item.category),
+        decoyValue: decoyVal || (hasValue ? PersonalVaultManager.generateDefaultDecoy(item.category) : ''),
         keywords: item.keywords,
         enabled: isEnabled,
       });
 
-      this.showToast(`Збережено: ${item.label}`);
+      if (!hasValue) {
+        this.showToast(`Очищено: ${item.label}`);
+      } else if (isEnabled) {
+        this.showToast(`Збережено та активовано: ${item.label}`);
+      } else {
+        this.showToast(`Збережено (відстеження вимкнено): ${item.label}`);
+      }
+
       await this.renderCategoriesMasterList();
       this.onStatsChanged();
     });
@@ -298,14 +326,15 @@ export class VaultTabController {
     // Очистити поле
     this.btnClearDetailItem.addEventListener('click', () => {
       this.detailRealInput.value = '';
+      this.detailDecoyInput.value = '';
       this.detailItemToggle.checked = false;
     });
 
     // Скинути до стандартних
     this.btnResetVaultDefaults.addEventListener('click', async () => {
-      if (confirm('Відновити типові значення та зразки для сховища?')) {
+      if (confirm('Скинути всі налаштовані маркери та очистити сховище?')) {
         await PersonalVaultManager.resetToDefaults();
-        this.showToast('Сховище відновлено до початкових зразків');
+        this.showToast('Сховище скинуто до початкового стану');
         await this.renderCategoriesMasterList();
         this.onStatsChanged();
       }
