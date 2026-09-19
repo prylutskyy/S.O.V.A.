@@ -70,6 +70,45 @@ describe('IntentClassifier', () => {
     });
   });
 
+  describe('IDENTITY_PROBING', () => {
+    it('should detect requests for Tax ID (РНОКПП / ІПН)', () => {
+      const text = 'Напишіть ваш іпн для оформлення виплати на картку';
+      const result = IntentClassifier.classify(text);
+
+      expect(result.hasFormedIntent).toBe(true);
+      expect(result.intentType).toBe('IDENTITY_PROBING');
+      expect(result.clustersDetected).toContain('identity_probing');
+      expect(result.confidence).toBeGreaterThanOrEqual(40);
+    });
+
+    it('should detect requests for Mother maiden name (Tier A)', () => {
+      const text = 'Для верифікації платежу вкажіть дівоче прізвище матері';
+      const result = IntentClassifier.classify(text);
+
+      expect(result.hasFormedIntent).toBe(true);
+      expect(result.intentType).toBe('IDENTITY_PROBING');
+      expect(result.clustersDetected).toContain('identity_probing');
+    });
+
+    it('should detect requests for bank secret codeword (Tier A)', () => {
+      const text = 'Назвіть кодове слово банку для розблокування коштів';
+      const result = IntentClassifier.classify(text);
+
+      expect(result.hasFormedIntent).toBe(true);
+      expect(result.intentType).toBe('IDENTITY_PROBING');
+      expect(result.clustersDetected).toContain('identity_probing');
+    });
+
+    it('should detect requests for passport details', () => {
+      const text = 'Скиньте номер паспорта для підтвердження особи';
+      const result = IntentClassifier.classify(text);
+
+      expect(result.hasFormedIntent).toBe(true);
+      expect(result.intentType).toBe('IDENTITY_PROBING');
+      expect(result.clustersDetected).toContain('identity_probing');
+    });
+  });
+
   describe('False Positives (Legitimate phrases)', () => {
     it('should NOT trigger on normal questions about delivery', () => {
       const text = 'Привіт, а ви можете відправити Новою Поштою? Яка ціна доставки?';

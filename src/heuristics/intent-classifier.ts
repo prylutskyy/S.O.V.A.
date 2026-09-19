@@ -1,11 +1,13 @@
 import { TextNormalizer } from './text-normalizer';
 import { UrlExtractor } from './url-extractor';
+import { PersonalVaultManager } from '../core/personal-vault';
 
 export type ScamIntentType =
   | 'ESCROW_DELIVERY_SCAM'
   | 'OFF_PLATFORM_REDIRECT'
   | 'VERIFICATION_PHISHING'
   | 'PAYMENT_CREDENTIAL_THEFT'
+  | 'IDENTITY_PROBING'
   | 'URGENCY_PRESSURE';
 
 export interface IntentMatchSpan {
@@ -108,6 +110,26 @@ export class IntentClassifier {
         /анулюється|швидше\s+підтвердіть/gi,
       ],
     },
+    {
+      cluster: 'identity_probing',
+      weight: 45,
+      patterns: [
+        // Запит ІПН / РНОКПП / податкового коду
+        /(?:напишіть|вкажіть|скиньте|скажіть|надайте|продиктуйте|введіть|потрібен|треба|вишліть|дайте)\s+(?:ваш\s+|свій\s+)?(?:іпн|рнокпп|ідентифікаційний\s+код|податковий\s+номер|код\s+платника)/gi,
+        /(?:іпн|рнокпп)\s+(?:отримувача|платника|відправника)/gi,
+        // Запит дівочого прізвища матері (Tier A)
+        /(?:напишіть|вкажіть|скажіть|яке|назвіть|дівоче)\s+(?:дівоче\s+)?прізвище\s*(?:матері)?/gi,
+        /дівоче\s+прізвище(\s+матері)?/gi,
+        /прізвище\s+матері/gi,
+        // Запит кодового слова банку (Tier A)
+        /(?:кодове|секретне|контрольне)\s+слово(?:\s+банку)?/gi,
+        /(?:назвіть|підтвердіть|скажіть|напишіть)\s+(?:кодове|секретне)\s+слово/gi,
+        // Запит паспорта / ID картки
+        /(?:напишіть|скиньте|вкажіть|номер|серія)\s+(?:паспорта|айді|id[-_\s]?картки|документа)/gi,
+        // Запит дати народження
+        /(?:дата|день|рік)\s+народження/gi,
+      ],
+    },
   ];
 
   /**
@@ -172,6 +194,19 @@ export class IntentClassifier {
       carefulAdvice:
         'Ніколи не повідомляйте CVV-код зі звороту картки, залишок на балансі або одноразові коди підтвердження з SMS.',
     },
+    {
+      type: 'IDENTITY_PROBING',
+      title: 'Спроба виманювання персональних маркерів особи (Identity Probing)',
+      requiredClusters: [
+        ['identity_probing'],
+      ],
+      minClusters: 1,
+      minScore: 40,
+      explanationTemplate: (_clusters, words) =>
+        `Співрозмовник випитує конфіденційні персональні дані або банківські маркери безпеки (${words.slice(0, 3).map((w) => `«${w}»`).join(', ')}). Офіційні служби та покупці ніколи не запитують ІПН, дівоче прізвище матері чи кодове слово банку в чаті.`,
+      carefulAdvice:
+        'Ніколи не повідомляйте свій ІПН, дівоче прізвище матері, кодове слово банку або паспортні дані стороннім особам у листуванні.',
+    },
   ];
 
   /**
@@ -201,6 +236,39 @@ export class IntentClassifier {
         }
       }
     }
+
+    // Динамічна перевірка ключових слів активних об'єктів Personal Vault
+    try {
+      const vaultItems = PersonalVaultManager.getItemsSync();
+      if (vaultItems && vaultItems.length > 0) {
+        const actionPromptRegex = /(?:напишіть|вкажіть|скиньте|скажіть|надайте|продиктуйте|введіть|потрібен|треба|вишліть|дайте|підтвердіть)\s+(?:ваш\s+|свій\s+)?/i;
+        for (const item of vaultItems) {
+          if (!item.enabled && item.enabled !== undefined) continue;
+          for (const kw of item.keywords) {
+            const kwClean = kw.trim().toLowerCase();
+            if (kwClean.length >= 3 && text.includes(kwClean)) {
+              const kwIdx = text.indexOf(kwClean);
+              const preceding = text.slice(Math.max(0, kwIdx - 40), kwIdx);
+              if (
+                actionPromptRegex.test(preceding) ||
+                item.category === 'MOTHER_MAIDEN_NAME' ||
+                item.category === 'SECRET_WORD'
+              ) {
+                matchedSpans.push({
+                  start: kwIdx,
+                  end: kwIdx + kwClean.length,
+                  text: text.slice(kwIdx, kwIdx + kwClean.length),
+                  cluster: 'identity_probing',
+                });
+                const currentMax = detectedClusterMap.get('identity_probing') || 0;
+                detectedClusterMap.set('identity_probing', Math.max(currentMax, 45));
+              }
+            }
+          }
+        }
+      }
+    } catch {}
+
     return { matchedSpans, detectedClusterMap, normalizedText: text };
   }
 

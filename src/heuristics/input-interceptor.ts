@@ -10,6 +10,7 @@ import { isWhitelisted } from '../core/whitelist';
 export class GlobalInputInterceptor {
   private static isSoftLocked = false;
   private static hardLockContext: ActiveThreatContext | null = null;
+  private static realtimeDebounceTimer: ReturnType<typeof setTimeout> | null = null;
 
   public static setSoftLock(locked: boolean) {
     this.isSoftLocked = locked;
@@ -21,6 +22,74 @@ export class GlobalInputInterceptor {
    */
   public static setHardLock(context: ActiveThreatContext | null) {
     this.hardLockContext = context;
+  }
+
+  /**
+   * Перевірка, чи має поточний домен апріорний імунітет (державні портали, білі списки, шлюзи)
+   */
+  private static isCurrentHostImmune(): boolean {
+    const host = (typeof window !== 'undefined' && window.location ? window.location.hostname : '').toLowerCase().trim();
+    if (!host) return true;
+    return (
+      isWhitelisted(host) ||
+      host.endsWith('.gov.ua') ||
+      isAccreditedPaymentGateway(host) ||
+      UserWhitelistManager.isDomainAllowedSync(host)
+    );
+  }
+
+  /**
+   * Фоновий вартовий: перевірка введеного тексту на наявність чутливих комбінацій з Private Vault
+   */
+  private static checkRealtimeVaultLeakage(target: HTMLElement, text: string): void {
+    if (this.isCurrentHostImmune()) return;
+    if (!text || text.trim().length < 2) return;
+    if (target.dataset?.threatShieldApproved === 'true') return;
+
+    if (PersonalVaultManager.isLocked()) return;
+    const items = PersonalVaultManager.getItemsSync();
+    if (!items || items.length === 0) return;
+
+    const matchedItem = PersonalVaultManager.findMatchingVaultItemForValue(text, items);
+    if (!matchedItem) {
+      if (target.dataset?.threatShieldHasVaultWarning === 'true') {
+        target.style.outline = '';
+        target.style.outlineOffset = '';
+        delete target.dataset.threatShieldHasVaultWarning;
+      }
+      return;
+    }
+
+    const tier = PersonalVaultManager.getCategoryTier(matchedItem.category);
+    const isTierA = tier === 'TIER_A_ABSOLUTE';
+
+    target.dataset.threatShieldHasVaultWarning = 'true';
+
+    // Запобігання повторному показу сповіщень на кожне натискання клавіші (throttle 6с)
+    const now = Date.now();
+    const lastWarn = parseInt(target.dataset?.threatShieldLastVaultWarn || '0', 10);
+    if (now - lastWarn < 6000) return;
+    target.dataset.threatShieldLastVaultWarn = now.toString();
+
+    if (isTierA) {
+      // Tier A: Дівоче прізвище матері, кодове слово банку
+      target.style.outline = '2px solid #D70022';
+      target.style.outlineOffset = '1px';
+      ToastNotifier.show(
+        `Увага! Введено конфіденційний маркер банку (${matchedItem.label}). Сторонні сайти не мають права його запитувати!`,
+        'error',
+        5000
+      );
+    } else {
+      // Tier B: ІПН, номер паспорта, тощо
+      target.style.outline = '2px solid #D76E00';
+      target.style.outlineOffset = '1px';
+      ToastNotifier.show(
+        `Увага! Введено персональний ідентифікатор особи (${matchedItem.label}). Переконайтеся, що довіряєте цьому сайту.`,
+        'warning',
+        4000
+      );
+    }
   }
 
   /**
@@ -231,6 +300,29 @@ export class GlobalInputInterceptor {
           e.stopImmediatePropagation();
           this.showBlockModal(form, formCheck.reason);
         }
+      }
+    }, true);
+
+    // Безперервний фоновий моніторинг введення (Background Zero-Trust Input Sentinel)
+    window.addEventListener('input', (e) => {
+      const target = e.target as HTMLElement;
+      if (!target) return;
+      const text = this.extractInputText(target);
+      if (this.realtimeDebounceTimer) {
+        window.clearTimeout(this.realtimeDebounceTimer);
+      }
+      this.realtimeDebounceTimer = window.setTimeout(() => {
+        this.checkRealtimeVaultLeakage(target, text);
+      }, 300);
+    }, true);
+
+    window.addEventListener('paste', (e) => {
+      const target = e.target as HTMLElement;
+      if (!target) return;
+      const clipboardData = (e as ClipboardEvent).clipboardData;
+      const pastedText = clipboardData ? clipboardData.getData('text') : '';
+      if (pastedText) {
+        this.checkRealtimeVaultLeakage(target, pastedText);
       }
     }, true);
   }

@@ -17,6 +17,8 @@ export interface InboundLureEvent {
   suspiciousUrls: string[];
   timestamp: number;
   confidence: number;
+  intentType?: string;
+  intentTitle?: string;
 }
 
 export interface OutboundLeakageEvent {
@@ -315,7 +317,9 @@ export class ChatChannelMonitor {
           isOffPlatformLure,
           suspiciousUrls,
           timestamp: Date.now(),
-          confidence: scan.confidence || 0
+          confidence: scan.confidence || 0,
+          intentType: scan.intentType,
+          intentTitle: scan.intentTitle,
         });
       }
     }

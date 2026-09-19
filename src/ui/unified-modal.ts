@@ -8,6 +8,7 @@ import { AILureVerifier } from '../heuristics/ai-verifier';
 import { ScamIntentType } from '../heuristics/intent-classifier';
 import { DebuggerOverlay } from './debugger-overlay';
 import { ChatChannelMonitor } from '../heuristics/chat-channel';
+import { ToastNotifier } from './toast-notifier';
 
 export interface UnifiedModalOptions {
   type: 'form' | 'chat';
@@ -394,7 +395,11 @@ Required JSON schema:
         const count = VaultScanner.applyDecoys(options.vaultMatches);
         this.close();
         options.onCancel();
-        alert(`Захист активовано: ${count} фіктивних значень підставлено замість реальних даних (Canary Decoy).`);
+        ToastNotifier.show(
+          `Захист активовано: ${count} фіктивних значень підставлено замість реальних даних (Canary Decoy).`,
+          'info',
+          5000
+        );
       }
     });
 

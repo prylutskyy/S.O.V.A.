@@ -23,6 +23,9 @@ export const WHITELISTED_DOMAINS = new Set<string>([
   'whatsapp.com',
   'web.whatsapp.com',
   'github.com',
+  'youtube.com',
+  'www.youtube.com',
+  'youtu.be',
   'diia.gov.ua',
 ]);
 
