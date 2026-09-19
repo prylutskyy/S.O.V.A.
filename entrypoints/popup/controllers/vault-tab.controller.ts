@@ -216,6 +216,45 @@ export class VaultTabController {
     this.vaultDetailView.style.display = 'flex';
   }
 
+  private async saveCurrentDetailItem(): Promise<boolean> {
+    const items = await PersonalVaultManager.getItems();
+    const item = items.find((i) => i.id === this.selectedVaultItemId);
+    if (!item) return false;
+
+    const realVal = this.detailRealInput.value.trim();
+    const decoyVal = this.detailDecoyInput.value.trim();
+    const hasValue = realVal.length > 0;
+    const isEnabled = hasValue && this.detailItemToggle.checked;
+
+    const saved = await PersonalVaultManager.saveItem({
+      id: item.id,
+      category: item.category,
+      label: item.label,
+      realValue: realVal,
+      decoyValue: decoyVal || (hasValue ? PersonalVaultManager.generateDefaultDecoy(item.category) : ''),
+      keywords: item.keywords,
+      enabled: isEnabled,
+    });
+
+    if (!saved) {
+      this.showToast('Помилка: сховище заблоковано');
+      await this.renderSplitView();
+      return false;
+    }
+
+    if (!hasValue) {
+      this.showToast(`Очищено: ${item.label}`);
+    } else if (isEnabled) {
+      this.showToast(`Збережено та активовано: ${item.label}`);
+    } else {
+      this.showToast(`Збережено (відстеження вимкнено): ${item.label}`);
+    }
+
+    await this.renderCategoriesMasterList();
+    this.onStatsChanged();
+    return true;
+  }
+
   private bindEvents(): void {
     // Створення сховища
     this.btnSetupVault.addEventListener('click', async () => {
@@ -262,8 +301,22 @@ export class VaultTabController {
       this.onStatsChanged();
     });
 
-    // Повернення зі сторінки редактора до списку
+    // Повернення зі сторінки редактора до списку з автозбереженням змін
     this.btnBackToVaultList.addEventListener('click', async () => {
+      const items = await PersonalVaultManager.getItems();
+      const currentItem = items.find((i) => i.id === this.selectedVaultItemId);
+      if (currentItem) {
+        const realVal = this.detailRealInput.value.trim();
+        const decoyVal = this.detailDecoyInput.value.trim();
+        const isEnabled = this.detailItemToggle.checked && realVal.length > 0;
+        const isChanged = (currentItem.realValue || '') !== realVal ||
+                          (currentItem.decoyValue || '') !== decoyVal ||
+                          (currentItem.enabled ?? false) !== isEnabled;
+        if (isChanged) {
+          await this.saveCurrentDetailItem();
+          return;
+        }
+      }
       await this.renderCategoriesMasterList();
     });
 
@@ -282,6 +335,16 @@ export class VaultTabController {
       }
     });
 
+    // Збереження по клавіші Enter
+    const handleEnterSave = async (e: KeyboardEvent) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        await this.saveCurrentDetailItem();
+      }
+    };
+    this.detailRealInput.addEventListener('keydown', handleEnterSave);
+    this.detailDecoyInput.addEventListener('keydown', handleEnterSave);
+
     // Перемикач трекінгу поля
     this.detailItemToggle.addEventListener('change', () => {
       if (this.detailItemToggle.checked && this.detailRealInput.value.trim().length === 0) {
@@ -290,37 +353,9 @@ export class VaultTabController {
       }
     });
 
-    // Збереження маркера
+    // Збереження маркера по кнопці
     this.btnSaveDetailItem.addEventListener('click', async () => {
-      const items = await PersonalVaultManager.getItems();
-      const item = items.find((i) => i.id === this.selectedVaultItemId);
-      if (!item) return;
-
-      const realVal = this.detailRealInput.value.trim();
-      const decoyVal = this.detailDecoyInput.value.trim();
-      const hasValue = realVal.length > 0;
-      const isEnabled = hasValue && this.detailItemToggle.checked;
-
-      await PersonalVaultManager.saveItem({
-        id: item.id,
-        category: item.category,
-        label: item.label,
-        realValue: realVal,
-        decoyValue: decoyVal || (hasValue ? PersonalVaultManager.generateDefaultDecoy(item.category) : ''),
-        keywords: item.keywords,
-        enabled: isEnabled,
-      });
-
-      if (!hasValue) {
-        this.showToast(`Очищено: ${item.label}`);
-      } else if (isEnabled) {
-        this.showToast(`Збережено та активовано: ${item.label}`);
-      } else {
-        this.showToast(`Збережено (відстеження вимкнено): ${item.label}`);
-      }
-
-      await this.renderCategoriesMasterList();
-      this.onStatsChanged();
+      await this.saveCurrentDetailItem();
     });
 
     // Очистити поле

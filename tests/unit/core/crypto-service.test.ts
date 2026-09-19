@@ -51,4 +51,24 @@ describe('CryptoService', () => {
     
     await expect(CryptoService.decryptText(payload, wrongKey)).rejects.toThrow();
   });
+
+  it('should export key to JWK and import it back with full decryptability', async () => {
+    const password = 'jwk-test-password';
+    const salt = CryptoService.generateSalt();
+    const originalKey = await CryptoService.deriveKey(password, salt);
+
+    const jwk = await CryptoService.exportKeyToJwk(originalKey);
+    expect(jwk).toBeDefined();
+    expect(jwk.kty).toBe('oct');
+    expect(jwk.k).toBeDefined();
+
+    const restoredKey = await CryptoService.importKeyFromJwk(jwk);
+    expect(restoredKey).toBeDefined();
+
+    const originalText = 'Sensitive data round-trip test';
+    const payload = await CryptoService.encryptText(originalText, originalKey);
+    const decryptedText = await CryptoService.decryptText(payload, restoredKey);
+    expect(decryptedText).toBe(originalText);
+  });
 });
+

@@ -3,6 +3,8 @@ import { CryptoService } from './crypto-service';
 
 const VAULT_STORAGE_KEY = 'threat_shield_personal_vault';
 const ENCRYPTED_VAULT_KEY = 'threat_shield_personal_vault_encrypted';
+const VAULT_SESSION_DECRYPTED_KEY = 'threat_shield_vault_decrypted';
+const VAULT_SESSION_KEY_JWK = 'threat_shield_vault_key_jwk';
 
 export const DEFAULT_VAULT_ITEMS: VaultItem[] = [
   {
@@ -129,6 +131,7 @@ export const DEFAULT_VAULT_ITEMS: VaultItem[] = [
 export class PersonalVaultManager {
   private static cachedItems: VaultItem[] = [];
   private static isInitialized = false;
+  private static storageListenerAttached = false;
 
   private static locked: boolean = true;
   private static masterKey: CryptoKey | null = null;
@@ -142,7 +145,10 @@ export class PersonalVaultManager {
     this.masterKey = null;
     this.cachedItems = [];
     if (typeof chrome !== 'undefined' && chrome.storage?.session) {
-      await chrome.storage.session.remove('threat_shield_vault_decrypted');
+      await chrome.storage.session.remove([
+        VAULT_SESSION_DECRYPTED_KEY,
+        VAULT_SESSION_KEY_JWK,
+      ]);
     }
   }
 
@@ -183,7 +189,11 @@ export class PersonalVaultManager {
       this.cachedItems = parsedItems;
       
       if (chrome?.storage?.session) {
-        await chrome.storage.session.set({ 'threat_shield_vault_decrypted': parsedItems });
+        const jwk = await CryptoService.exportKeyToJwk(key);
+        await chrome.storage.session.set({
+          [VAULT_SESSION_DECRYPTED_KEY]: parsedItems,
+          [VAULT_SESSION_KEY_JWK]: jwk,
+        });
       }
       
       return true;
@@ -193,11 +203,14 @@ export class PersonalVaultManager {
     }
   }
 
-  private static async persistEncrypted(salt?: Uint8Array): Promise<void> {
-    if (!this.masterKey || this.locked) return;
+  private static async persistEncrypted(salt?: Uint8Array): Promise<boolean> {
+    if (!this.masterKey || this.locked) {
+      console.warn('[ThreatShield:Vault] Cannot persist: vault is locked or key is missing');
+      return false;
+    }
     
     try {
-      if (!chrome?.storage?.local) return;
+      if (!chrome?.storage?.local) return false;
       
       let currentSalt = salt;
       if (!currentSalt) {
@@ -221,13 +234,18 @@ export class PersonalVaultManager {
       
       await chrome.storage.local.set({ [ENCRYPTED_VAULT_KEY]: storagePayload });
       
-      // Update session storage as well
+      // Update session storage as well (both decrypted items and exported JWK key)
       if (chrome?.storage?.session) {
-        await chrome.storage.session.set({ 'threat_shield_vault_decrypted': this.cachedItems });
+        const jwk = await CryptoService.exportKeyToJwk(this.masterKey);
+        await chrome.storage.session.set({
+          [VAULT_SESSION_DECRYPTED_KEY]: this.cachedItems,
+          [VAULT_SESSION_KEY_JWK]: jwk,
+        });
       }
-      
+      return true;
     } catch (e) {
       console.error('[ThreatShield] Error saving encrypted vault', e);
+      return false;
     }
   }
 
@@ -249,27 +267,61 @@ export class PersonalVaultManager {
   public static async init(): Promise<void> {
     try {
       if (typeof chrome !== 'undefined' && chrome.storage?.session) {
-        const result = await chrome.storage.session.get('threat_shield_vault_decrypted');
-        if (result && Array.isArray(result['threat_shield_vault_decrypted'])) {
-          this.cachedItems = result['threat_shield_vault_decrypted'];
-          this.locked = false;
+        const result = await chrome.storage.session.get([
+          VAULT_SESSION_DECRYPTED_KEY,
+          VAULT_SESSION_KEY_JWK,
+        ]);
+        const items = result[VAULT_SESSION_DECRYPTED_KEY];
+        const jwk = result[VAULT_SESSION_KEY_JWK];
+
+        if (Array.isArray(items) && jwk) {
+          try {
+            this.masterKey = await CryptoService.importKeyFromJwk(jwk);
+            this.cachedItems = items;
+            this.locked = false;
+          } catch (keyErr) {
+            console.warn('[ThreatShield:Vault] Could not import key from session:', keyErr);
+            this.masterKey = null;
+            this.cachedItems = [];
+            this.locked = true;
+          }
         } else {
+          this.masterKey = null;
           this.cachedItems = [];
           this.locked = true;
         }
 
         // Слухаємо зміни з інших контекстів (наприклад, розблокування в Popup)
-        chrome.storage.onChanged.addListener((changes, area) => {
-          if (area === 'session' && changes['threat_shield_vault_decrypted']) {
-            if (changes['threat_shield_vault_decrypted'].newValue) {
-              this.cachedItems = changes['threat_shield_vault_decrypted'].newValue;
-              this.locked = false;
-            } else {
-              this.cachedItems = [];
-              this.locked = true;
+        if (!this.storageListenerAttached && chrome.storage?.onChanged) {
+          chrome.storage.onChanged.addListener(async (changes, area) => {
+            if (area === 'session') {
+              if (changes[VAULT_SESSION_DECRYPTED_KEY] || changes[VAULT_SESSION_KEY_JWK]) {
+                const sessionData = await chrome.storage.session.get([
+                  VAULT_SESSION_DECRYPTED_KEY,
+                  VAULT_SESSION_KEY_JWK,
+                ]);
+                const newItems = sessionData[VAULT_SESSION_DECRYPTED_KEY];
+                const newJwk = sessionData[VAULT_SESSION_KEY_JWK];
+                if (Array.isArray(newItems) && newJwk) {
+                  try {
+                    this.masterKey = await CryptoService.importKeyFromJwk(newJwk);
+                    this.cachedItems = newItems;
+                    this.locked = false;
+                  } catch {
+                    this.masterKey = null;
+                    this.cachedItems = [];
+                    this.locked = true;
+                  }
+                } else {
+                  this.masterKey = null;
+                  this.cachedItems = [];
+                  this.locked = true;
+                }
+              }
             }
-          }
-        });
+          });
+          this.storageListenerAttached = true;
+        }
       }
       this.isInitialized = true;
     } catch (e) {
@@ -300,7 +352,7 @@ export class PersonalVaultManager {
   public static async saveItem(
     item: Omit<VaultItem, 'id' | 'createdAt'> & { id?: string }
   ): Promise<VaultItem | null> {
-    if (this.locked) return null;
+    if (this.locked || !this.masterKey) return null;
 
     const items = await this.getItems();
     const existingIndex = item.id ? items.findIndex((i) => i.id === item.id) : -1;
@@ -329,7 +381,10 @@ export class PersonalVaultManager {
     }
 
     this.cachedItems = items;
-    await this.persistEncrypted();
+    const persisted = await this.persistEncrypted();
+    if (!persisted) {
+      return null;
+    }
 
     return savedItem;
   }
@@ -338,7 +393,7 @@ export class PersonalVaultManager {
    * Видалити маркер за ID
    */
   public static async deleteItem(id: string): Promise<void> {
-    if (this.locked) return;
+    if (this.locked || !this.masterKey) return;
     
     const items = await this.getItems();
     const filtered = items.filter((i) => i.id !== id);
@@ -351,7 +406,7 @@ export class PersonalVaultManager {
    * Скинути до дефолтних налаштувань (порожні маркери, відстеження вимкнено)
    */
   public static async resetToDefaults(): Promise<void> {
-    if (this.locked) return;
+    if (this.locked || !this.masterKey) return;
     
     this.cachedItems = DEFAULT_VAULT_ITEMS.map((item) => ({ ...item, createdAt: Date.now() }));
     await this.persistEncrypted();

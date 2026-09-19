@@ -8,18 +8,49 @@ const mockSessionStorage: Record<string, any> = {};
 globalThis.chrome = {
   storage: {
     local: {
-      get: vi.fn().mockImplementation(async (key) => ({ [key]: mockStorage[key] })),
+      get: vi.fn().mockImplementation(async (keys) => {
+        if (Array.isArray(keys)) {
+          const res: Record<string, any> = {};
+          for (const k of keys) {
+            if (k in mockStorage) res[k] = mockStorage[k];
+          }
+          return res;
+        } else if (typeof keys === 'string') {
+          return { [keys]: mockStorage[keys] };
+        }
+        return { ...mockStorage };
+      }),
       set: vi.fn().mockImplementation(async (obj) => {
         Object.assign(mockStorage, obj);
       }),
+      remove: vi.fn().mockImplementation(async (keys) => {
+        const arr = Array.isArray(keys) ? keys : [keys];
+        for (const k of arr) {
+          delete mockStorage[k];
+        }
+      }),
     },
     session: {
-      get: vi.fn().mockImplementation(async (key) => ({ [key]: mockSessionStorage[key] })),
+      get: vi.fn().mockImplementation(async (keys) => {
+        if (Array.isArray(keys)) {
+          const res: Record<string, any> = {};
+          for (const k of keys) {
+            if (k in mockSessionStorage) res[k] = mockSessionStorage[k];
+          }
+          return res;
+        } else if (typeof keys === 'string') {
+          return { [keys]: mockSessionStorage[keys] };
+        }
+        return { ...mockSessionStorage };
+      }),
       set: vi.fn().mockImplementation(async (obj) => {
         Object.assign(mockSessionStorage, obj);
       }),
-      remove: vi.fn().mockImplementation(async (key) => {
-        delete mockSessionStorage[key];
+      remove: vi.fn().mockImplementation(async (keys) => {
+        const arr = Array.isArray(keys) ? keys : [keys];
+        for (const k of arr) {
+          delete mockSessionStorage[k];
+        }
       }),
     },
     onChanged: { addListener: vi.fn() },
@@ -32,8 +63,10 @@ describe('PersonalVaultManager', () => {
     for (const key in mockStorage) delete mockStorage[key];
     for (const key in mockSessionStorage) delete mockSessionStorage[key];
     PersonalVaultManager['isInitialized'] = false;
+    PersonalVaultManager['storageListenerAttached'] = false;
     PersonalVaultManager['cachedItems'] = [];
-    await PersonalVaultManager.lock();
+    PersonalVaultManager['masterKey'] = null;
+    PersonalVaultManager['locked'] = true;
     vi.clearAllMocks();
   });
 
@@ -185,4 +218,90 @@ describe('PersonalVaultManager', () => {
     expect(cleared?.realValue).toBe('');
     expect(cleared?.enabled).toBe(false);
   });
+
+  it('should preserve masterKey across popup reopen sessions and allow saving multiple different fields', async () => {
+    // 1. Initial setup in first popup session
+    await PersonalVaultManager.setupMasterPassword('secure-pass-123');
+    const initialItems = PersonalVaultManager.getItemsSync();
+    const motherItem = initialItems.find((i) => i.category === 'MOTHER_MAIDEN_NAME')!;
+    
+    // Save Mother's maiden name
+    await PersonalVaultManager.saveItem({
+      id: motherItem.id,
+      category: motherItem.category,
+      label: motherItem.label,
+      realValue: 'Шевченко',
+      decoyValue: 'Коваленко',
+      keywords: motherItem.keywords,
+      enabled: true,
+    });
+
+    // 2. Simulate popup closed (memory wiped clean, but chrome.storage.session & local remain)
+    PersonalVaultManager['isInitialized'] = false;
+    PersonalVaultManager['storageListenerAttached'] = false;
+    PersonalVaultManager['cachedItems'] = [];
+    PersonalVaultManager['masterKey'] = null;
+    PersonalVaultManager['locked'] = true;
+
+    // 3. User reopens popup: init() is called
+    await PersonalVaultManager.init();
+    expect(PersonalVaultManager.isLocked()).toBe(false);
+    expect(PersonalVaultManager['masterKey']).not.toBeNull();
+
+    // Verify mother's maiden name is still there
+    const session1Items = PersonalVaultManager.getItemsSync();
+    expect(session1Items.find((i) => i.category === 'MOTHER_MAIDEN_NAME')?.realValue).toBe('Шевченко');
+
+    // 4. In this second session, user fills and saves a DIFFERENT field (TAX_ID / РНОКПП)
+    const taxItem = session1Items.find((i) => i.category === 'TAX_ID')!;
+    const savedTax = await PersonalVaultManager.saveItem({
+      id: taxItem.id,
+      category: taxItem.category,
+      label: taxItem.label,
+      realValue: '3123456789',
+      decoyValue: '2987654321',
+      keywords: taxItem.keywords,
+      enabled: true,
+    });
+
+    expect(savedTax).not.toBeNull();
+    expect(savedTax?.realValue).toBe('3123456789');
+    expect(savedTax?.enabled).toBe(true);
+
+    // 5. Simulate popup closed AGAIN (second exit)
+    PersonalVaultManager['isInitialized'] = false;
+    PersonalVaultManager['storageListenerAttached'] = false;
+    PersonalVaultManager['cachedItems'] = [];
+    PersonalVaultManager['masterKey'] = null;
+    PersonalVaultManager['locked'] = true;
+
+    // 6. User reopens popup a third time
+    await PersonalVaultManager.init();
+    expect(PersonalVaultManager.isLocked()).toBe(false);
+
+    // 7. Verify BOTH fields are retained and intact!
+    const session2Items = PersonalVaultManager.getItemsSync();
+    const loadedMother = session2Items.find((i) => i.category === 'MOTHER_MAIDEN_NAME');
+    const loadedTax = session2Items.find((i) => i.category === 'TAX_ID');
+
+    expect(loadedMother?.realValue).toBe('Шевченко');
+    expect(loadedMother?.enabled).toBe(true);
+    expect(loadedTax?.realValue).toBe('3123456789');
+    expect(loadedTax?.enabled).toBe(true);
+
+    // 8. Verify that chrome.storage.local encrypted payload also holds both values
+    // by locking, resetting session storage, and unlocking from scratch with master password
+    await PersonalVaultManager.lock();
+    for (const key in mockSessionStorage) delete mockSessionStorage[key];
+    PersonalVaultManager['isInitialized'] = false;
+
+    const unlockSuccess = await PersonalVaultManager.unlock('secure-pass-123');
+    expect(unlockSuccess).toBe(true);
+    expect(PersonalVaultManager.isLocked()).toBe(false);
+
+    const reloadedItems = PersonalVaultManager.getItemsSync();
+    expect(reloadedItems.find((i) => i.category === 'MOTHER_MAIDEN_NAME')?.realValue).toBe('Шевченко');
+    expect(reloadedItems.find((i) => i.category === 'TAX_ID')?.realValue).toBe('3123456789');
+  });
 });
+

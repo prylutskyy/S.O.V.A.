@@ -79,4 +79,25 @@ export class CryptoService {
     const dec = new TextDecoder();
     return dec.decode(decryptedBuffer);
   }
+
+  /**
+   * Експортує AES-GCM CryptoKey у формат JWK для безпечного збереження в межах активної сесії браузера
+   */
+  public static async exportKeyToJwk(key: CryptoKey): Promise<JsonWebKey> {
+    return globalThis.crypto.subtle.exportKey('jwk', key);
+  }
+
+  /**
+   * Відновлює AES-GCM CryptoKey з формату JWK
+   */
+  public static async importKeyFromJwk(jwk: JsonWebKey): Promise<CryptoKey> {
+    return globalThis.crypto.subtle.importKey(
+      'jwk',
+      jwk,
+      { name: 'AES-GCM', length: 256 },
+      true,
+      ['encrypt', 'decrypt']
+    );
+  }
 }
+
