@@ -1,5 +1,5 @@
 import { ActiveThreatContext, ThreatAssessment } from '../types';
-import { AttackChainStep, XaiExplanation, XaiRiskBreakdown, XaiRiskFactor } from '../types/xai';
+import { AttackChainStep, IntentVsRealityContrast, XaiExplanation, XaiRiskBreakdown, XaiRiskFactor } from '../types/xai';
 import { VaultItem } from '../types/vault';
 
 export interface XaiEvaluationOptions {
@@ -77,6 +77,16 @@ export class XaiEngine {
         ? 'Спроба відкритої передачі банківських реквізитів у чаті'
         : `Блокування загрози "${scenario.shortAttackName}" на домені ${options.targetHost}`;
 
+    const verdict = this.determineVerdict(scenario);
+    const intentVsReality: IntentVsRealityContrast = {
+      userIntent: scenario.userIntendedAction,
+      hiddenReality: scenario.threatReality,
+      verdict,
+      financialRisk: scenario.financialRisk,
+      exposedAssets: scenario.exposedAssets,
+      threatName: scenario.shortAttackName,
+    };
+
     return {
       summary,
       humanTitle: human.humanTitle,
@@ -93,7 +103,27 @@ export class XaiEngine {
       countermeasures,
       educationalTip,
       engineType,
+      intentVsReality,
     };
+  }
+
+  /**
+   * Лаконічний вердикт одним реченням за формулою контрасту (Apple HIG / Jony Ive style)
+   */
+  public static determineVerdict(scenario: ScenarioDetails): string {
+    switch (scenario.attackCategory) {
+      case 'AUTOFILL_TRAP':
+        return 'Для звичайної форми реєстрації чи підтвердження введення платіжних реквізитів не потрібне — сторінка потай зчитує збережену картку.';
+      case 'DELIVERY_SCAM':
+        return 'Для зарахування коштів секретний тризначний код CVV ніколи не потрібен — це спроба списання грошей з вашого рахунку.';
+      case 'CHAT_LEAK':
+        return 'Для отримання коштів потрібен лише номер картки або IBAN — передача CVV дає стороннім особам доступ до ваших коштів.';
+      case 'IDENTITY_HARVESTING':
+        return 'Банки ніколи не запитують дівоче прізвище матері чи секретні слова через вебформи сторонніх сайтів.';
+      case 'UNTRUSTED_GATEWAY':
+      default:
+        return 'Цей вебсервер не має банківської сертифікації для безпечного проведення платіжних операцій.';
+    }
   }
 
   /**

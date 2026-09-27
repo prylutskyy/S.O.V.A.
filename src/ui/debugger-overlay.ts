@@ -102,6 +102,7 @@ export class DebuggerOverlay {
   }
 
   public static show() {
+    if (typeof document === 'undefined') return;
     if (this.container) {
       this.container.style.display = 'block';
       this.applyContainerGeometry();

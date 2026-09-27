@@ -31,6 +31,15 @@ export interface XaiRiskBreakdown {
   formula: string;
 }
 
+export interface IntentVsRealityContrast {
+  userIntent: string;
+  hiddenReality: string;
+  verdict: string;
+  financialRisk?: string;
+  exposedAssets: string[];
+  threatName: string;
+}
+
 export interface XaiExplanation {
   summary: string;
   humanTitle: string;
@@ -47,4 +56,5 @@ export interface XaiExplanation {
   countermeasures: string[];
   educationalTip: string;
   engineType: 'chrome-builtin-ai' | 'adaptive-contextual-xai';
+  intentVsReality?: IntentVsRealityContrast;
 }

@@ -18,16 +18,116 @@ export interface AIArbiterVerifyResult {
   rawResponse?: string;
 }
 
+/**
+ * AIArbiterService
+ * Високорівневий асинхронний диспетчер взаємодії з локальним ШІ-арбітром (Gemini Nano).
+ * Реалізує патерн Single-Flight Queue, AbortController для скасування застарілих запитів
+ * та швидке LRU/TTL кешування за відбитком контексту для уникнення навантаження на слабкий CPU/GPU.
+ */
 export class AIArbiterService {
+  private static inflightRequest: {
+    key: string;
+    requestId: number;
+    abortController: AbortController;
+    promise: Promise<AIArbiterVerifyResult | null>;
+  } | null = null;
+
+  private static requestCounter = 0;
+  private static cache = new Map<string, { result: AIArbiterVerifyResult; expiresAt: number }>();
+  public static readonly CACHE_TTL_MS = 5 * 60 * 1000; // 5 хвилин
+
+  /**
+   * Генерація стабільного хеш-ключа контексту для кешування
+   */
+  public static generateCacheKey(options: AIArbiterVerifyOptions): string {
+    const { context, rawTextToScan, intentType } = options;
+    const scanText = (rawTextToScan || context.targetSuspiciousUrl || '').trim();
+    const intent = intentType || context.scenario || 'UNKNOWN';
+    const keywords = (context.detectedKeywords || []).slice().sort().join(',');
+    const platform = context.sourcePlatform || '';
+    const suspiciousUrl = context.targetSuspiciousUrl || '';
+    return `${platform}|${suspiciousUrl}|${intent}|${keywords}|${scanText}`;
+  }
+
+  /**
+   * Очищення кешу та скасування активного запиту (для тестів або скидання сесії)
+   */
+  public static clearCache(): void {
+    this.cache.clear();
+    if (this.inflightRequest) {
+      this.inflightRequest.abortController.abort();
+      this.inflightRequest = null;
+    }
+  }
+
+  /**
+   * Головна точка входу верифікації загрози ШІ
+   */
   public static async verify(
     options: AIArbiterVerifyOptions
   ): Promise<AIArbiterVerifyResult | null> {
-    const { context, rawTextToScan, intentType, confidence } = options;
-
     if (typeof chrome === 'undefined' || !chrome.runtime || !chrome.runtime.sendMessage) {
       return null;
     }
 
+    const cacheKey = this.generateCacheKey(options);
+
+    // 1. Швидкий кеш: якщо однаковий контекст уже перевірявся — 0 мс затримки, 0% CPU
+    const cached = this.cache.get(cacheKey);
+    if (cached && Date.now() < cached.expiresAt) {
+      DebuggerOverlay.logAI(
+        'ШІ Арбітр → Кеш',
+        `Результат миттєво взято з пам'яті (0 мс)\nВпевненість: ${cached.result.confidence}%\nВисновок: "${cached.result.reasoning}"`,
+        cached.result.isScam ? '#EF4444' : '#22C55E',
+        { rawResponse: cached.result.rawResponse }
+      );
+      return cached.result;
+    }
+
+    // 2. Дедуплікація запитів (Request Coalescing): якщо точно такий самий запит уже виконується
+    if (this.inflightRequest && this.inflightRequest.key === cacheKey) {
+      return this.inflightRequest.promise;
+    }
+
+    // 3. Single-Flight: якщо контекст змінився (нові символи/прапорці), скасовуємо попередній запит
+    if (this.inflightRequest) {
+      this.inflightRequest.abortController.abort();
+      DebuggerOverlay.logAI(
+        'ШІ Арбітр → Оновлення',
+        'Попередній інференс скасовано: контекст оновився',
+        '#64748B'
+      );
+      this.inflightRequest = null;
+    }
+
+    const currentRequestId = ++this.requestCounter;
+    const abortController = new AbortController();
+
+    const executionPromise = this.executeInference(options, currentRequestId, abortController, cacheKey);
+
+    this.inflightRequest = {
+      key: cacheKey,
+      requestId: currentRequestId,
+      abortController,
+      promise: executionPromise,
+    };
+
+    try {
+      return await executionPromise;
+    } finally {
+      if (this.inflightRequest?.requestId === currentRequestId) {
+        this.inflightRequest = null;
+      }
+    }
+  }
+
+  private static async executeInference(
+    options: AIArbiterVerifyOptions,
+    requestId: number,
+    abortController: AbortController,
+    cacheKey: string
+  ): Promise<AIArbiterVerifyResult | null> {
+    const { context, rawTextToScan, intentType, confidence } = options;
     const scanText = rawTextToScan || context.targetSuspiciousUrl || '';
     const intentLabel =
       intentType && intentType !== 'UNKNOWN' ? intentType : context.scenario || 'UNKNOWN';
@@ -95,6 +195,16 @@ Required JSON schema:
     );
 
     return new Promise((resolve) => {
+      if (abortController.signal.aborted) {
+        resolve(null);
+        return;
+      }
+
+      const onAbort = () => {
+        resolve(null);
+      };
+      abortController.signal.addEventListener('abort', onAbort, { once: true });
+
       try {
         chrome.runtime.sendMessage(
           {
@@ -107,6 +217,14 @@ Required JSON schema:
             },
           },
           (response) => {
+            abortController.signal.removeEventListener('abort', onAbort);
+
+            // Якщо запит було скасовано або перекрито іншим
+            if (abortController.signal.aborted || this.requestCounter !== requestId) {
+              resolve(null);
+              return;
+            }
+
             const aiResult = response?.aiResult as AIArbiterVerifyResult | undefined;
             if (!aiResult) {
               DebuggerOverlay.logAI(
@@ -118,6 +236,11 @@ Required JSON schema:
               );
               resolve(null);
             } else if (aiResult.isScam) {
+              AIArbiterService.cache.set(cacheKey, {
+                result: aiResult,
+                expiresAt: Date.now() + AIArbiterService.CACHE_TTL_MS,
+              });
+
               DebuggerOverlay.logAI(
                 'ШІ Арбітр → Аналіз',
                 `СКАМ підтверджено (Впевненість: ${aiResult.confidence}%)\n\nВисновок: "${aiResult.reasoning}"`,
@@ -127,6 +250,11 @@ Required JSON schema:
               );
               resolve(aiResult);
             } else {
+              AIArbiterService.cache.set(cacheKey, {
+                result: aiResult,
+                expiresAt: Date.now() + AIArbiterService.CACHE_TTL_MS,
+              });
+
               DebuggerOverlay.logAI(
                 'ШІ Арбітр → Аналіз',
                 `Загрозу спростовано (Впевненість: ${aiResult.confidence}%)\n\nВисновок: "${aiResult.reasoning}"`,
