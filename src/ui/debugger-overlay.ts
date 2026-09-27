@@ -90,6 +90,8 @@ export class DebuggerOverlay {
   private static isDragging = false;
   private static offsetX = 0;
   private static offsetY = 0;
+  private static customPos: { x: number; y: number } | null = null;
+  private static savedDimensions: { width: string; height: string } | null = null;
 
   // Очищення емодзі для чистоти інженерного виводу
   private static stripEmoji(text: string): string {
@@ -126,6 +128,12 @@ export class DebuggerOverlay {
     if (!this.container) return;
 
     if (this.state.isMinimized) {
+      if (this.container.style.width && this.container.style.width !== 'auto') {
+        this.savedDimensions = {
+          width: this.container.style.width,
+          height: this.container.style.height || '640px',
+        };
+      }
       Object.assign(this.container.style, {
         position: 'fixed',
         bottom: '20px',
@@ -137,14 +145,26 @@ export class DebuggerOverlay {
         zIndex: '2147483647',
         display: 'block',
         resize: 'none',
+        overflow: 'visible',
+        borderRadius: '9999px',
+        boxShadow: 'none',
       });
     } else {
-      Object.assign(this.container.style, {
+      const currentWidth =
+        this.savedDimensions?.width ||
+        (this.container.style.width && this.container.style.width !== 'auto'
+          ? this.container.style.width
+          : '480px');
+      const currentHeight =
+        this.savedDimensions?.height ||
+        (this.container.style.height && this.container.style.height !== 'auto'
+          ? this.container.style.height
+          : '640px');
+
+      const baseStyles: Partial<CSSStyleDeclaration> = {
         position: 'fixed',
-        top: '20px',
-        right: '20px',
-        width: '480px',
-        height: '640px',
+        width: currentWidth,
+        height: currentHeight,
         minWidth: '400px',
         minHeight: '520px',
         maxWidth: '92vw',
@@ -155,7 +175,21 @@ export class DebuggerOverlay {
         overflow: 'hidden',
         borderRadius: '20px',
         boxShadow: '0 24px 64px -12px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.12)',
-      });
+      };
+
+      if (this.customPos) {
+        baseStyles.left = `${this.customPos.x}px`;
+        baseStyles.top = `${this.customPos.y}px`;
+        baseStyles.right = 'auto';
+        baseStyles.bottom = 'auto';
+      } else {
+        baseStyles.top = '20px';
+        baseStyles.right = '20px';
+        baseStyles.left = 'auto';
+        baseStyles.bottom = 'auto';
+      }
+
+      Object.assign(this.container.style, baseStyles);
     }
   }
 
@@ -1901,6 +1935,9 @@ export class DebuggerOverlay {
     // Window dragging handle
     const handle = this.shadowRoot.getElementById('drag-handle');
     handle?.addEventListener('mousedown', (e) => {
+      if ((e.target as HTMLElement).closest('button, input, select, a, .sc-win-controls')) {
+        return;
+      }
       this.isDragging = true;
       if (this.container) {
         this.offsetX = e.clientX - this.container.getBoundingClientRect().left;
@@ -1918,7 +1955,14 @@ export class DebuggerOverlay {
       this.render();
     });
 
-    this.shadowRoot.getElementById('btn-clear-all')?.addEventListener('click', () => {
+    this.shadowRoot.getElementById('btn-clear-all')?.addEventListener('click', (e) => {
+      const btn = e.currentTarget as HTMLElement;
+      if (btn) {
+        btn.style.transform = 'scale(0.88)';
+        setTimeout(() => {
+          btn.style.transform = '';
+        }, 140);
+      }
       this.clear();
     });
 
@@ -1957,20 +2001,29 @@ export class DebuggerOverlay {
     this.shadowRoot.getElementById('btn-quick-whitelist')?.addEventListener('click', async (e) => {
       const host = typeof window !== 'undefined' ? window.location.hostname : '';
       if (host) {
+        const btn = e.currentTarget as HTMLElement;
         try {
           await UserWhitelistManager.allowDomain(host);
           this.log('Білий список', `Домен ${host} додано до довірених через оверлей`, '#30D158');
-          const btn = e.currentTarget as HTMLElement;
-          if (btn) btn.innerHTML = `${ICONS.check(12)} <span>Додано!</span>`;
+          if (btn) btn.innerHTML = `${ICONS.check(12, '#30D158')} <span>Додано!</span>`;
         } catch {
           window.postMessage({ type: 'THREAT_SHIELD_ADD_WHITELIST', host }, '*');
+          if (btn) btn.innerHTML = `${ICONS.check(12, '#30D158')} <span>Додано!</span>`;
         }
       }
     });
 
-    this.shadowRoot.getElementById('btn-quick-reset-session')?.addEventListener('click', () => {
+    this.shadowRoot.getElementById('btn-quick-reset-session')?.addEventListener('click', (e) => {
       window.postMessage({ type: 'THREAT_SHIELD_CLEAR_CONTEXT' }, '*');
       this.log('Система', 'Користувач примусово скинув стан тривоги', '#30D158');
+      const btn = e.currentTarget as HTMLElement;
+      if (btn) {
+        const orig = btn.innerHTML;
+        btn.innerHTML = `${ICONS.check(12, '#30D158')} <span>Скинуто!</span>`;
+        setTimeout(() => {
+          btn.innerHTML = orig;
+        }, 1400);
+      }
     });
 
     // Event Console Filters
@@ -1978,11 +2031,19 @@ export class DebuggerOverlay {
     searchInput?.addEventListener('input', (e) => {
       this.state.filterSearch = (e.target as HTMLInputElement).value;
       this.render();
+      const newInput = this.shadowRoot?.getElementById('sc-input-search') as HTMLInputElement | null;
+      if (newInput) {
+        newInput.focus();
+        const len = newInput.value.length;
+        newInput.setSelectionRange(len, len);
+      }
     });
 
     this.shadowRoot.getElementById('btn-clear-search')?.addEventListener('click', () => {
       this.state.filterSearch = '';
       this.render();
+      const newInput = this.shadowRoot?.getElementById('sc-input-search') as HTMLInputElement | null;
+      newInput?.focus();
     });
 
     this.shadowRoot.querySelectorAll('.sc-chip').forEach((chip) => {
@@ -2018,8 +2079,19 @@ export class DebuggerOverlay {
   private static setupDrag() {
     document.addEventListener('mousemove', (e) => {
       if (this.isDragging && this.container) {
-        this.container.style.left = `${e.clientX - this.offsetX}px`;
-        this.container.style.top = `${e.clientY - this.offsetY}px`;
+        const rect = this.container.getBoundingClientRect();
+        const minX = 8;
+        const maxX = typeof window !== 'undefined' ? Math.max(8, window.innerWidth - rect.width - 8) : 800;
+        const minY = 8;
+        const maxY = typeof window !== 'undefined' ? Math.max(8, window.innerHeight - rect.height - 8) : 600;
+
+        const newX = Math.max(minX, Math.min(maxX, e.clientX - this.offsetX));
+        const newY = Math.max(minY, Math.min(maxY, e.clientY - this.offsetY));
+
+        this.customPos = { x: newX, y: newY };
+
+        this.container.style.left = `${newX}px`;
+        this.container.style.top = `${newY}px`;
         this.container.style.right = 'auto';
         this.container.style.bottom = 'auto';
       }
@@ -2027,6 +2099,15 @@ export class DebuggerOverlay {
 
     document.addEventListener('mouseup', () => {
       this.isDragging = false;
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && this.container && this.container.style.display !== 'none') {
+        if (!this.state.isMinimized) {
+          this.state.isMinimized = true;
+          this.render();
+        }
+      }
     });
   }
 }
