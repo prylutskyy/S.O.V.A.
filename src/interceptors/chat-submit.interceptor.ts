@@ -66,7 +66,7 @@ export class ChatSubmitInterceptor {
         },
         () => {
           inputElement.dataset.threatShieldApproved = 'true';
-          ToastNotifier.show('Блокування знято. Натисніть Відправити або Enter ще раз.', 'info', 4000);
+          ToastNotifier.show('Захист тимчасово призупинено. Натисніть «Надіслати» або Enter.', 'info', 4000);
         },
         undefined,
         activeContext

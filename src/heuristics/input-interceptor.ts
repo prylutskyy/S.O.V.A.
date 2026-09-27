@@ -72,20 +72,20 @@ export class GlobalInputInterceptor {
     target.dataset.threatShieldLastVaultWarn = now.toString();
 
     if (isTierA) {
-      // Tier A: Дівоче прізвище матері, кодове слово банку
-      target.style.outline = '2px solid #D70022';
+      // Конфіденційний маркер банку (контрольне слово, дівоче прізвище)
+      target.style.outline = '2px solid #DC2626';
       target.style.outlineOffset = '1px';
       ToastNotifier.show(
-        `Увага! Введено конфіденційний маркер банку (${matchedItem.label}). Сторонні сайти не мають права його запитувати!`,
+        `Зафіксовано введення конфіденційного маркера: «${matchedItem.label}». Сховище рекомендує не передавати його стороннім вебсайтам.`,
         'error',
         5000
       );
     } else {
-      // Tier B: ІПН, номер паспорта, тощо
-      target.style.outline = '2px solid #D76E00';
+      // Персональний ідентифікатор особи
+      target.style.outline = '2px solid #D97706';
       target.style.outlineOffset = '1px';
       ToastNotifier.show(
-        `Увага! Введено персональний ідентифікатор особи (${matchedItem.label}). Переконайтеся, що довіряєте цьому сайту.`,
+        `Ви вводите персональний ідентифікатор: «${matchedItem.label}». Переконайтеся в надійності ресурсу перед надсиланням.`,
         'warning',
         4000
       );
@@ -251,7 +251,7 @@ export class GlobalInputInterceptor {
         if (this.isSoftLocked) {
           e.preventDefault();
           e.stopImmediatePropagation();
-          ToastNotifier.show('Зачекайте, штучний інтелект перевіряє безпеку чату...', 'warning', 2000);
+          ToastNotifier.show('Аналіз безпеки повідомлення в чаті...', 'info', 2000);
           return;
         }
 
@@ -348,7 +348,7 @@ export class GlobalInputInterceptor {
           targetElement.dataset.threatShieldApproved = 'true';
           const closestForm = targetElement.closest('form');
           if (closestForm) closestForm.dataset.threatShieldApproved = 'true';
-          ToastNotifier.show('Дозвіл надано. Повторіть відправку.', 'info', 4000);
+          ToastNotifier.show('Дію підтверджено. Тепер ви можете безпечно надіслати повідомлення.', 'info', 4000);
         },
         onCancel: () => {},
       });

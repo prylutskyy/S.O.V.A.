@@ -178,7 +178,7 @@ export class VaultScanner {
   }
 
   /**
-   * Автоматична підстановка безпечних фіктивних даних (Canary Decoy) у форму
+   * Автоматична підстановка безпечних маскувальних даних (Decoy) у форму
    */
   public static applyDecoys(matches: VaultMatchResult[]): number {
     let replacedCount = 0;

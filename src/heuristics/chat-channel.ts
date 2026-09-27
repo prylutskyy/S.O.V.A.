@@ -292,7 +292,7 @@ export class ChatChannelMonitor {
     if (scan.hasFormedIntent) {
       if (this.debugMode) DebuggerOverlay.log('3. Intent Formed!', scan.intentType, '#EF4444');
       // TIER 1: Миттєве виявлення загрози (без виклику ШІ)
-      ToastNotifier.show('Увага! Підозрілий контекст зафіксовано.', 'error', 3000);
+      ToastNotifier.show('Виявлено ознаки підозрілого діалогу. Будьте пильними.', 'warning', 3000);
       
       this.recentLuresCache.add(text);
       if (this.recentLuresCache.size > 50) {

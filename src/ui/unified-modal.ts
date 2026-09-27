@@ -500,7 +500,7 @@ export class UnifiedFrictionModal {
           ${options.vaultMatches && options.vaultMatches.some((m) => m.isDecoyAvailable) ? `
             <button id="ts-decoy-btn" class="ts-btn-decoy">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="9 12 11 14 15 10"/></svg>
-              <span>Підставити безпечні дані (Canary Decoy)</span>
+              <span>Підставити маскувальні дані зі Сховища</span>
             </button>
           ` : ''}
 
@@ -575,8 +575,14 @@ export class UnifiedFrictionModal {
         const count = VaultScanner.applyDecoys(options.vaultMatches);
         this.close();
         options.onCancel();
+        const pluralValues = ToastNotifier.formatPluralUkrainian(
+          count,
+          'безпечне маскувальне значення',
+          'безпечні маскувальні значення',
+          'безпечних маскувальних значень'
+        );
         ToastNotifier.show(
-          `Захист активовано: ${count} фіктивних значень підставлено замість реальних даних (Canary Decoy).`,
+          `Підставлено ${pluralValues}. Справжні дані вашого Сховища надійно захищено.`,
           'info',
           5000
         );
