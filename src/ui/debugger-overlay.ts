@@ -460,7 +460,7 @@ export class DebuggerOverlay {
   private static exportDiagnosticReport(): string {
     const fpAssessment = this.assessFalsePositive();
     const report = {
-      generator: 'Threat Shield Firefox Neuromonitor',
+      generator: 'Sanctuary Core · Telemetry Hub (MV3)',
       timestamp: new Date().toISOString(),
       url: typeof window !== 'undefined' ? window.location.href : '',
       hostname: typeof window !== 'undefined' ? window.location.hostname : '',
@@ -515,13 +515,13 @@ export class DebuggerOverlay {
     const { sessionId, severity, score, logs, activeTab, userMode, filterCategory, filterSearch } =
       this.state;
 
-    // Світлі кольори Firefox Proton tokens
+    // Apple Calibrated Colors (Sanctuary Palette)
     const riskColor =
       severity === 'CRITICAL' || severity === 'HIGH'
-        ? '#D70022'
+        ? '#FF453A'
         : severity === 'MEDIUM'
-        ? '#D76E00'
-        : '#008A52';
+        ? '#FF9F0A'
+        : '#30D158';
 
     const strokeDasharray = 226; // 2 * pi * r (r=36)
     const strokeDashoffset = strokeDasharray - (strokeDasharray * score) / 100;
@@ -595,7 +595,7 @@ export class DebuggerOverlay {
             </div>
           </div>
 
-          <!-- False Positive & XAI Inspector Card (Firefox Warning Banner Style) -->
+          <!-- False Positive & XAI Inspector Card (Apple Inset Grouped Telemetry) -->
           <div class="fx-card fx-audit-box ${fpInfo.status === 'FP_CANDIDATE' ? 'alert-warning' : fpInfo.status === 'CONFIRMED_THREAT' ? 'alert-danger' : 'alert-success'}">
             <div class="fx-audit-header">
               <span class="fx-badge ${fpInfo.badgeClass}">
@@ -603,7 +603,7 @@ export class DebuggerOverlay {
                 ${fpInfo.badgeText}
               </span>
               <button type="button" class="fx-btn-text" id="btn-copy-fp-report" title="Скопіювати структуровані дані для баг-репорту або Vitest-тесту">
-                ${ICONS.copy(11, '#0060DF')}
+                ${ICONS.copy(11, '#0A84FF')}
                 <span>Копіювати звіт</span>
               </button>
             </div>
@@ -632,8 +632,8 @@ export class DebuggerOverlay {
             `
                 : `
               <div class="fx-friendly-note">
-                ${ICONS.info(13, '#0060DF')}
-                <span><strong>Порада користувачеві:</strong> ${fpInfo.recommendation}</span>
+                ${ICONS.info(13, '#0A84FF')}
+                <span><strong>Рекомендація системи:</strong> ${fpInfo.recommendation}</span>
               </div>
             `
             }
@@ -656,11 +656,11 @@ export class DebuggerOverlay {
               ? `
             <div class="fx-card fx-info-callout">
               <div class="fx-callout-title">
-                ${ICONS.shield(13, '#0060DF')}
-                <span>Як працює захист Threat Shield?</span>
+                ${ICONS.shield(13, '#0A84FF')}
+                <span>Принципи захисту «Цифрового Святилища»</span>
               </div>
               <div class="fx-callout-text">
-                Розширення одночасно аналізує структуру веб-форм, перевіряє приховані поля-пастки (CSS Cloaking), моніторить чати на спроби переведення в сторонні месенджери та звіряє підозрілі сайти з локальною нейромережею. Обробка здійснюється повністю локально без надсилання ваших даних на зовнішні сервери.
+                Система функціонує за принципом нульового розголошення (Zero Knowledge): анатомічний аналізатор форм виявляє приховані поля-пастки (CSS Cloaking), контекстний модуль відстежує підозрілі ланцюги переходів, а локальний нейромодуль Gemini Nano (On-Device) здійснює семантичний арбітраж без передачі ваших даних на сторонні сервери.
               </div>
             </div>
           `
@@ -764,9 +764,9 @@ export class DebuggerOverlay {
       if (aiLogs.length === 0) {
         return `
           <div class="fx-empty-console" style="padding: 40px 20px;">
-            ${ICONS.cpu(32, '#0060DF')}
-            <div style="font-weight:600; color:#15141A; margin-top:8px;">Запитів до Gemini Nano ще не було</div>
-            <div style="color:#5B5B66; font-size:11px; margin-top:4px; max-width:320px; line-height:1.4;">
+            ${ICONS.cpu(32, '#0A84FF')}
+            <div style="font-weight:600; color:#FFFFFF; margin-top:8px;">Запитів до Gemini Nano ще не було</div>
+            <div style="color:rgba(255, 255, 255, 0.6); font-size:11px; margin-top:4px; max-width:320px; line-height:1.4;">
               Локальна нейромережа викликається селективно для перевірки шахрайських намірів у чатах та аналізу підозрілих посилань без надсилання даних на зовнішні сервери.
             </div>
           </div>
@@ -780,7 +780,7 @@ export class DebuggerOverlay {
           <div class="fx-card fx-ai-session-card">
             <div class="fx-ai-header">
               <div class="fx-ai-title-row">
-                <span class="fx-badge badge-blue">GEMINI NANO API</span>
+                <span class="fx-badge badge-blue">GEMINI NANO ON-DEVICE</span>
                 <span class="fx-row-time">${log.time}</span>
               </div>
               <div class="fx-ai-verdict" style="color: ${log.color}">${log.data}</div>
@@ -792,7 +792,7 @@ export class DebuggerOverlay {
                   ? `
                 <div class="fx-ai-block">
                   <div class="fx-ai-block-header">
-                    <span class="fx-ai-block-title">${ICONS.cpu(11, '#0060DF')} СИСТЕМНИЙ ПРОМПТ (РОЛЬ ЕКСПЕРТА)</span>
+                    <span class="fx-ai-block-title">${ICONS.cpu(11, '#0A84FF')} СИСТЕМНИЙ ПРОМПТ (РОЛЬ ЕКСПЕРТА)</span>
                     <button type="button" class="fx-btn-text" data-copy="${encodeURIComponent(ctx.systemPrompt)}">
                       ${ICONS.copy(10)} <span>Копіювати</span>
                     </button>
@@ -808,7 +808,7 @@ export class DebuggerOverlay {
                   ? `
                 <div class="fx-ai-block">
                   <div class="fx-ai-block-header">
-                    <span class="fx-ai-block-title">${ICONS.list(11, '#0060DF')} ПРАВИЛА ВЕРИФІКАЦІЇ (CONTEXT RULES)</span>
+                    <span class="fx-ai-block-title">${ICONS.list(11, '#0A84FF')} ПРАВИЛА ВЕРИФІКАЦІЇ (CONTEXT RULES)</span>
                     <button type="button" class="fx-btn-text" data-copy="${encodeURIComponent(ctx.contextRules)}">
                       ${ICONS.copy(10)} <span>Копіювати</span>
                     </button>
@@ -824,7 +824,7 @@ export class DebuggerOverlay {
                   ? `
                 <div class="fx-ai-block">
                   <div class="fx-ai-block-header">
-                    <span class="fx-ai-block-title">${ICONS.message(11, '#0060DF')} ТЕКСТ / ПОСИЛАННЯ ДЛЯ СКАНУВАННЯ</span>
+                    <span class="fx-ai-block-title">${ICONS.message(11, '#0A84FF')} ТЕКСТ / ПОСИЛАННЯ ДЛЯ СКАНУВАННЯ</span>
                     <button type="button" class="fx-btn-text" data-copy="${encodeURIComponent(ctx.textSent)}">
                       ${ICONS.copy(10)} <span>Копіювати</span>
                     </button>
@@ -840,7 +840,7 @@ export class DebuggerOverlay {
                   ? `
                 <div class="fx-ai-block">
                   <div class="fx-ai-block-header">
-                    <span class="fx-ai-block-title">${ICONS.message(11, '#0060DF')} ІСТОРІЯ ЧАТУ (P2P ДІАЛОГ)</span>
+                    <span class="fx-ai-block-title">${ICONS.message(11, '#0A84FF')} ІСТОРІЯ ЧАТУ (P2P ДІАЛОГ)</span>
                     <button type="button" class="fx-btn-text" data-copy="${encodeURIComponent(ctx.chatDialogue)}">
                       ${ICONS.copy(10)} <span>Копіювати</span>
                     </button>
@@ -856,7 +856,7 @@ export class DebuggerOverlay {
                   ? `
                 <div class="fx-ai-block raw-block">
                   <div class="fx-ai-block-header">
-                    <span class="fx-ai-block-title" style="color:#0060DF;">${ICONS.terminal(11, '#0060DF')} СИРА ВІДПОВІДЬ LLM (RAW JSON RESPONSE)</span>
+                    <span class="fx-ai-block-title" style="color:#0A84FF;">${ICONS.terminal(11, '#0A84FF')} СИРА ВІДПОВІДЬ LLM (RAW JSON RESPONSE)</span>
                     <button type="button" class="fx-btn-text" data-copy="${encodeURIComponent(ctx.rawResponse)}">
                       ${ICONS.copy(10)} <span>Копіювати</span>
                     </button>
@@ -885,8 +885,8 @@ export class DebuggerOverlay {
 
         :host {
           all: initial;
-          font-family: var(--font-sanctuary, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
-          color: var(--sanctuary-ink-primary, #1D1D1F);
+          font-family: var(--font-sanctuary, -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, sans-serif);
+          color: #FFFFFF;
           box-sizing: border-box;
           -webkit-font-smoothing: antialiased;
         }
@@ -895,24 +895,28 @@ export class DebuggerOverlay {
           box-sizing: border-box;
         }
 
+        /* 1. Monolithic Window Container: Translucent Obsidian Glass */
         .fx-window {
           width: 100%;
           height: 100%;
-          background: var(--sanctuary-canvas, #F5F5F7);
-          border: 1px solid var(--sanctuary-hairline, rgba(0, 0, 0, 0.08));
-          border-radius: var(--radius-card, 14px);
-          box-shadow: var(--shadow-modal, 0 16px 48px rgba(0, 0, 0, 0.2));
+          background: rgba(18, 18, 22, 0.94);
+          backdrop-filter: blur(28px) saturate(190%);
+          -webkit-backdrop-filter: blur(28px) saturate(190%);
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          border-radius: 18px;
+          box-shadow: 0 24px 72px -12px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.08);
           display: flex;
           flex-direction: column;
           overflow: hidden;
           font-size: 12px;
+          color: #FFFFFF;
         }
 
-        /* Header (Swiss-Watch Neuromonitor Glass Header) */
+        /* 2. macOS-Style Header / Precision Titlebar */
         .fx-titlebar {
-          background: var(--sanctuary-surface);
-          padding: 9px 12px;
-          border-bottom: 1px solid var(--sanctuary-hairline);
+          background: rgba(28, 28, 34, 0.75);
+          padding: 10px 14px;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.08);
           display: flex;
           justify-content: space-between;
           align-items: center;
@@ -922,148 +926,155 @@ export class DebuggerOverlay {
         .fx-title-group {
           display: flex;
           align-items: center;
-          gap: 8px;
+          gap: 10px;
         }
         .fx-brand-icon {
-          width: 22px;
-          height: 22px;
-          border-radius: 5px;
-          background: linear-gradient(135deg, #0060DF 0%, #7542E5 100%);
+          width: 24px;
+          height: 24px;
+          border-radius: 7px;
+          background: linear-gradient(135deg, #0A84FF 0%, #5E5CE6 100%);
           display: flex;
           align-items: center;
           justify-content: center;
           color: #FFFFFF;
-          box-shadow: 0 1px 4px rgba(0, 96, 223, 0.25);
+          box-shadow: 0 0 12px rgba(10, 132, 255, 0.35);
+        }
+        .fx-title-meta {
+          display: flex;
+          align-items: center;
+          gap: 8px;
         }
         .fx-app-name {
           font-size: 13px;
           font-weight: 700;
-          color: var(--sanctuary-ink-primary);
-          letter-spacing: 0.01em;
+          color: #FFFFFF;
+          letter-spacing: -0.015em;
         }
         .fx-badge-edition {
           font-size: 9px;
           font-weight: 700;
-          background: var(--sanctuary-canvas);
-          border: 1px solid var(--sanctuary-hairline-subtle);
-          color: var(--sanctuary-ink-secondary);
+          background: rgba(255, 255, 255, 0.08);
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          color: rgba(255, 255, 255, 0.7);
           padding: 2px 6px;
           border-radius: 4px;
           text-transform: uppercase;
+          letter-spacing: 0.04em;
         }
 
         /* Window Controls */
         .fx-win-controls {
           display: flex;
           align-items: center;
-          gap: 4px;
+          gap: 5px;
         }
         .fx-segmented-mode {
           display: flex;
-          background: var(--sanctuary-canvas);
-          border: 1px solid var(--sanctuary-hairline);
-          border-radius: 4px;
-          padding: 1px;
-          margin-right: 4px;
+          background: rgba(255, 255, 255, 0.06);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 8px;
+          padding: 2px;
+          margin-right: 6px;
         }
         .fx-mode-btn {
           background: transparent;
           border: none;
-          color: var(--sanctuary-ink-secondary);
-          font-size: 10px;
+          color: rgba(255, 255, 255, 0.6);
+          font-size: 10.5px;
           font-weight: 600;
-          padding: 3px 7px;
-          border-radius: 3px;
+          padding: 3px 8px;
+          border-radius: 6px;
           cursor: pointer;
           display: inline-flex;
           align-items: center;
           gap: 4px;
-          transition: all 0.12s;
+          transition: all 0.15s ease;
         }
         .fx-mode-btn.active {
-          background: var(--sanctuary-blue);
+          background: rgba(255, 255, 255, 0.18);
           color: #FFFFFF;
+          box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
         }
         .fx-tool-icon-btn {
-          background: transparent;
-          border: 1px solid transparent;
-          color: var(--sanctuary-ink-secondary);
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          color: rgba(255, 255, 255, 0.75);
           cursor: pointer;
-          padding: 4px 6px;
-          border-radius: 4px;
+          padding: 5px 7px;
+          border-radius: 7px;
           font-size: 11px;
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          transition: all 0.12s;
+          transition: all 0.14s ease;
         }
         .fx-tool-icon-btn:hover {
-          background: var(--sanctuary-surface-hover);
-          color: var(--sanctuary-ink-primary);
+          background: rgba(255, 255, 255, 0.14);
+          color: #FFFFFF;
+          border-color: rgba(255, 255, 255, 0.2);
         }
         .fx-tool-icon-btn.danger:hover {
-          background: var(--sanctuary-red-bg);
-          color: var(--sanctuary-red);
-          border-color: var(--sanctuary-red-bd);
+          background: rgba(255, 69, 58, 0.22);
+          color: #FF453A;
+          border-color: rgba(255, 69, 58, 0.4);
         }
 
-        /* Tab Navigation (Firefox Proton 3-Tab Bar) */
+        /* 3. Cupertino Navigation Bar */
         .fx-navbar {
-          background: var(--sanctuary-canvas);
-          border-bottom: 1px solid var(--sanctuary-hairline);
+          background: rgba(14, 14, 18, 0.85);
+          border-bottom: 1px solid rgba(255, 255, 255, 0.07);
           display: flex;
-          padding: 5px 10px 0;
-          gap: 4px;
+          padding: 6px 12px;
+          gap: 6px;
         }
         .fx-tab-item {
+          flex: 1;
           background: transparent;
-          border: none;
-          color: var(--sanctuary-ink-secondary);
+          border: 1px solid transparent;
+          color: rgba(255, 255, 255, 0.6);
           font-size: 11.5px;
           font-weight: 500;
-          padding: 7px 11px;
+          padding: 6px 10px;
           cursor: pointer;
-          border-radius: 4px 4px 0 0;
-          border-bottom: 2px solid transparent;
+          border-radius: 8px;
           display: inline-flex;
           align-items: center;
+          justify-content: center;
           gap: 6px;
-          transition: all 0.12s;
+          transition: all 0.15s ease;
         }
         .fx-tab-item:hover {
-          color: var(--sanctuary-ink-primary);
-          background: var(--sanctuary-surface-hover);
+          color: #FFFFFF;
+          background: rgba(255, 255, 255, 0.06);
         }
         .fx-tab-item.active {
-          background: var(--sanctuary-surface);
-          color: var(--sanctuary-blue);
-          border-bottom-color: var(--sanctuary-blue);
+          background: rgba(255, 255, 255, 0.12);
+          color: #FFFFFF;
           font-weight: 600;
-          box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.04);
+          border-color: rgba(255, 255, 255, 0.15);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
         }
         .fx-tab-counter {
           font-size: 9.5px;
           font-weight: 700;
-          background: var(--sanctuary-hairline-subtle);
-          color: var(--sanctuary-ink-secondary);
-          padding: 1px 5px;
+          background: rgba(255, 255, 255, 0.1);
+          color: rgba(255, 255, 255, 0.8);
+          padding: 1px 6px;
           border-radius: 10px;
         }
-        .fx-tab-item.active .fx-tab-counter {
-          background: var(--sanctuary-blue-bg);
-          color: var(--sanctuary-blue);
+        .fx-tab-counter.warning {
+          background: rgba(255, 149, 0, 0.25);
+          color: #FF9F0A;
         }
 
-        /* Viewport */
+        /* 4. Viewport & Scrollbar */
         .fx-viewport {
           flex: 1;
           overflow-y: auto;
-          background: var(--sanctuary-canvas);
+          background: transparent;
           display: flex;
           flex-direction: column;
         }
-
-        /* Firefox Light Scrollbar */
         ::-webkit-scrollbar {
           width: 5px;
           height: 5px;
@@ -1072,21 +1083,21 @@ export class DebuggerOverlay {
           background: transparent;
         }
         ::-webkit-scrollbar-thumb {
-          background: var(--sanctuary-hairline);
+          background: rgba(255, 255, 255, 0.15);
           border-radius: 4px;
         }
         ::-webkit-scrollbar-thumb:hover {
-          background: var(--sanctuary-ink-tertiary);
+          background: rgba(255, 255, 255, 0.28);
         }
 
-        /* Cards & Components */
+        /* 5. Cards & Gauges */
         .fx-card {
-          background: var(--sanctuary-surface);
-          border: 1px solid var(--sanctuary-hairline);
-          border-radius: 6px;
-          padding: 12px;
+          background: rgba(28, 28, 34, 0.65);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 12px;
+          padding: 13px;
           margin-bottom: 10px;
-          box-shadow: var(--shadow-card);
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
         }
         .fx-overview-layout {
           padding: 12px;
@@ -1094,7 +1105,9 @@ export class DebuggerOverlay {
           flex-direction: column;
         }
         .fx-hero-card {
-          padding: 12px 14px;
+          background: linear-gradient(135deg, rgba(28, 28, 36, 0.85) 0%, rgba(18, 18, 24, 0.95) 100%);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          padding: 14px;
         }
         .fx-gauge-section {
           display: flex;
@@ -1118,17 +1131,18 @@ export class DebuggerOverlay {
         }
         .gauge-bg {
           fill: none;
-          stroke: var(--sanctuary-hairline-subtle);
-          stroke-width: 8;
+          stroke: rgba(255, 255, 255, 0.08);
+          stroke-width: 7;
         }
         .gauge-progress {
           fill: none;
           stroke: ${riskColor};
-          stroke-width: 8;
+          stroke-width: 7;
           stroke-linecap: round;
           stroke-dasharray: ${strokeDasharray};
           stroke-dashoffset: ${strokeDashoffset};
           transition: stroke-dashoffset 0.5s ease-out, stroke 0.5s ease;
+          filter: drop-shadow(0 0 6px ${riskColor});
         }
         .gauge-text {
           position: absolute;
@@ -1137,15 +1151,17 @@ export class DebuggerOverlay {
           flex-direction: column;
         }
         .gauge-value {
-          font-size: 18px;
+          font-size: 19px;
           font-weight: 700;
-          color: ${riskColor};
+          color: #FFFFFF;
           line-height: 1;
+          letter-spacing: -0.02em;
         }
         .gauge-label {
           font-size: 8.5px;
-          color: var(--sanctuary-ink-tertiary);
+          color: rgba(255, 255, 255, 0.45);
           text-transform: uppercase;
+          letter-spacing: 0.05em;
           margin-top: 2px;
         }
         .fx-session-details {
@@ -1153,59 +1169,75 @@ export class DebuggerOverlay {
           min-width: 0;
         }
         .fx-session-id {
-          font-family: 'JetBrains Mono', Consolas, monospace;
+          font-family: var(--font-mono, monospace);
           font-size: 11px;
           font-weight: 600;
-          color: var(--sanctuary-ink-primary);
+          color: #FFFFFF;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
-          margin-bottom: 4px;
+          margin-bottom: 5px;
         }
         .fx-subtext {
           font-size: 10.5px;
-          color: var(--sanctuary-ink-secondary);
-          margin-top: 4px;
+          color: rgba(255, 255, 255, 0.6);
+          margin-top: 5px;
         }
         .fx-subtext strong {
-          color: var(--sanctuary-ink-primary);
+          color: #FFFFFF;
         }
 
-        /* Badges (Firefox Proton Tags) */
+        /* Badges */
         .fx-badge {
           display: inline-flex;
           align-items: center;
           gap: 5px;
           font-size: 9.5px;
           font-weight: 700;
-          padding: 3px 7px;
-          border-radius: 4px;
+          padding: 3px 8px;
+          border-radius: 6px;
           text-transform: uppercase;
-          letter-spacing: 0.03em;
+          letter-spacing: 0.04em;
         }
-        .badge-red { background: var(--sanctuary-red-bg); color: var(--sanctuary-red); border: 1px solid var(--sanctuary-red-bd); }
-        .badge-amber { background: var(--sanctuary-amber-bg); color: var(--sanctuary-amber); border: 1px solid var(--sanctuary-amber-bd); }
-        .badge-green { background: var(--sanctuary-green-bg); color: var(--sanctuary-green); border: 1px solid var(--sanctuary-green-bd); }
-        .badge-blue { background: var(--sanctuary-blue-bg); color: var(--sanctuary-blue); border: 1px solid var(--sanctuary-blue-bd); }
+        .badge-red {
+          background: rgba(255, 69, 58, 0.16);
+          color: #FF453A;
+          border: 1px solid rgba(255, 69, 58, 0.32);
+        }
+        .badge-amber {
+          background: rgba(255, 159, 10, 0.16);
+          color: #FF9F0A;
+          border: 1px solid rgba(255, 159, 10, 0.32);
+        }
+        .badge-green {
+          background: rgba(48, 209, 88, 0.16);
+          color: #30D158;
+          border: 1px solid rgba(48, 209, 88, 0.32);
+        }
+        .badge-blue {
+          background: rgba(10, 132, 255, 0.16);
+          color: #0A84FF;
+          border: 1px solid rgba(10, 132, 255, 0.32);
+        }
 
-        /* Audit Box (Firefox Proton Warning / Protection Hero Style) */
+        /* 6. False Positive & XAI Inspector */
         .fx-audit-box {
-          border-left-width: 4px;
+          border-left: 3px solid transparent;
         }
         .fx-audit-box.alert-warning {
-          border-left-color: var(--sanctuary-amber);
-          background: linear-gradient(180deg, #FFFFFF 0%, #FFFDF9 100%);
-          border-color: var(--sanctuary-amber-bd);
+          border-left-color: #FF9F0A;
+          background: linear-gradient(135deg, rgba(38, 30, 20, 0.75) 0%, rgba(22, 20, 18, 0.85) 100%);
+          border-color: rgba(255, 159, 10, 0.25);
         }
         .fx-audit-box.alert-danger {
-          border-left-color: var(--sanctuary-red);
-          background: linear-gradient(180deg, #FFFFFF 0%, #FFF9F9 100%);
-          border-color: var(--sanctuary-red-bd);
+          border-left-color: #FF453A;
+          background: linear-gradient(135deg, rgba(42, 22, 24, 0.75) 0%, rgba(24, 18, 19, 0.85) 100%);
+          border-color: rgba(255, 69, 58, 0.25);
         }
         .fx-audit-box.alert-success {
-          border-left-color: var(--sanctuary-green);
-          background: linear-gradient(180deg, #FFFFFF 0%, #FDFEFE 100%);
-          border-color: var(--sanctuary-green-bd);
+          border-left-color: #30D158;
+          background: linear-gradient(135deg, rgba(20, 36, 26, 0.75) 0%, rgba(18, 24, 20, 0.85) 100%);
+          border-color: rgba(48, 209, 88, 0.25);
         }
         .fx-audit-header {
           display: flex;
@@ -1216,24 +1248,24 @@ export class DebuggerOverlay {
         .fx-btn-text {
           background: transparent;
           border: none;
-          color: var(--sanctuary-blue);
+          color: #0A84FF;
           font-size: 10.5px;
           font-weight: 600;
           cursor: pointer;
           padding: 2px 6px;
-          border-radius: 3px;
+          border-radius: 4px;
           display: inline-flex;
           align-items: center;
           gap: 4px;
-          transition: background 0.12s;
+          transition: all 0.12s;
         }
         .fx-btn-text:hover {
-          background: var(--sanctuary-blue-bg);
+          background: rgba(10, 132, 255, 0.14);
         }
         .fx-audit-desc {
           font-size: 11.5px;
-          color: var(--sanctuary-ink-primary);
-          line-height: 1.45;
+          color: rgba(255, 255, 255, 0.85);
+          line-height: 1.5;
           margin-bottom: 10px;
         }
         .fx-compare-grid {
@@ -1243,75 +1275,83 @@ export class DebuggerOverlay {
           margin-bottom: 10px;
         }
         .fx-compare-col {
-          background: #F7F7FA;
-          border: 1px solid var(--sanctuary-hairline-subtle);
-          border-radius: 4px;
-          padding: 7px 9px;
+          background: rgba(12, 12, 16, 0.65);
+          border: 1px solid rgba(255, 255, 255, 0.07);
+          border-radius: 8px;
+          padding: 8px 10px;
         }
         .fx-col-title {
           display: block;
           font-size: 9px;
           text-transform: uppercase;
-          color: var(--sanctuary-ink-tertiary);
+          color: rgba(255, 255, 255, 0.45);
           font-weight: 700;
+          letter-spacing: 0.03em;
           margin-bottom: 3px;
         }
         .fx-col-val {
-          font-size: 11.5px;
+          font-size: 12px;
           font-weight: 600;
-          color: var(--sanctuary-ink-primary);
+          color: #FFFFFF;
         }
-
         .fx-triggers-box {
-          background: #F7F7FA;
-          border: 1px solid var(--sanctuary-hairline-subtle);
-          border-radius: 4px;
-          padding: 8px;
+          background: rgba(12, 12, 16, 0.65);
+          border: 1px solid rgba(255, 255, 255, 0.07);
+          border-radius: 8px;
+          padding: 9px 10px;
           margin-bottom: 10px;
         }
         .fx-triggers-title {
           font-size: 9.5px;
           font-weight: 700;
-          color: var(--sanctuary-ink-secondary);
+          color: rgba(255, 255, 255, 0.6);
           text-transform: uppercase;
+          letter-spacing: 0.03em;
         }
         .fx-triggers-list {
-          list-style: square inside;
-          font-family: 'JetBrains Mono', Consolas, monospace;
-          font-size: 10.5px;
-          color: var(--sanctuary-amber);
-          margin-top: 4px;
-          line-height: 1.4;
+          list-style: none;
+          padding: 0;
+          margin: 6px 0 0;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 5px;
         }
-
+        .fx-triggers-list li {
+          background: rgba(255, 159, 10, 0.12);
+          border: 1px solid rgba(255, 159, 10, 0.25);
+          color: #FFB340;
+          font-family: var(--font-mono, monospace);
+          font-size: 10px;
+          padding: 2px 7px;
+          border-radius: 5px;
+        }
         .fx-friendly-note {
-          background: #F0F0F4;
-          border: 1px solid var(--sanctuary-hairline-subtle);
-          border-radius: 4px;
+          background: rgba(10, 132, 255, 0.08);
+          border: 1px solid rgba(10, 132, 255, 0.2);
+          border-radius: 8px;
           padding: 8px 10px;
           font-size: 11px;
-          color: var(--sanctuary-ink-secondary);
-          line-height: 1.35;
+          color: rgba(255, 255, 255, 0.85);
+          line-height: 1.4;
           margin-bottom: 10px;
           display: flex;
           align-items: flex-start;
           gap: 6px;
         }
         .fx-friendly-note strong {
-          color: var(--sanctuary-ink-primary);
+          color: #FFFFFF;
         }
-
         .fx-audit-actions {
           display: flex;
           gap: 8px;
         }
         .fx-btn {
           flex: 1;
-          background: var(--sanctuary-blue);
+          background: #0A84FF;
           color: #FFFFFF;
           border: none;
-          padding: 6px 10px;
-          border-radius: 4px;
+          padding: 7px 11px;
+          border-radius: 8px;
           font-size: 11px;
           font-weight: 600;
           cursor: pointer;
@@ -1319,30 +1359,71 @@ export class DebuggerOverlay {
           align-items: center;
           justify-content: center;
           gap: 6px;
-          transition: background 0.12s;
+          transition: all 0.15s ease;
         }
         .fx-btn:hover {
-          background: var(--sanctuary-blue-hover);
+          background: #0077ED;
+          box-shadow: 0 2px 8px rgba(10, 132, 255, 0.35);
         }
         .fx-btn-secondary {
-          background: var(--sanctuary-canvas);
-          color: var(--sanctuary-ink-primary);
-          border: 1px solid var(--sanctuary-hairline);
+          background: rgba(255, 255, 255, 0.08);
+          color: #FFFFFF;
+          border: 1px solid rgba(255, 255, 255, 0.12);
         }
         .fx-btn-secondary:hover {
-          background: var(--sanctuary-surface-hover);
-          border-color: var(--sanctuary-ink-tertiary);
+          background: rgba(255, 255, 255, 0.15);
+          border-color: rgba(255, 255, 255, 0.22);
         }
 
-        /* Callout */
+        /* 7. Decomposition & Callouts */
+        .fx-card-title {
+          font-size: 11.5px;
+          font-weight: 700;
+          color: #FFFFFF;
+          margin-bottom: 8px;
+          letter-spacing: -0.01em;
+        }
+        .fx-waterfall {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+        }
+        .fx-waterfall-step {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 6px 10px;
+          background: rgba(12, 12, 16, 0.6);
+          border: 1px solid rgba(255, 255, 255, 0.06);
+          border-radius: 7px;
+          font-size: 11px;
+          color: rgba(255, 255, 255, 0.85);
+        }
+        .fx-tag {
+          font-size: 9px;
+          font-weight: 700;
+          padding: 2px 6px;
+          border-radius: 4px;
+          background: rgba(255, 255, 255, 0.08);
+          color: rgba(255, 255, 255, 0.5);
+        }
+        .fx-tag-blue {
+          background: rgba(10, 132, 255, 0.2);
+          color: #0A84FF;
+        }
+        .fx-tag-red {
+          background: rgba(255, 69, 58, 0.2);
+          color: #FF453A;
+        }
         .fx-info-callout {
-          background: var(--sanctuary-surface);
-          border-left: 3px solid var(--sanctuary-blue);
+          background: rgba(10, 132, 255, 0.08);
+          border-left: 3px solid #0A84FF;
+          border-color: rgba(10, 132, 255, 0.2);
         }
         .fx-callout-title {
           font-weight: 700;
           font-size: 11.5px;
-          color: var(--sanctuary-ink-primary);
+          color: #FFFFFF;
           margin-bottom: 4px;
           display: flex;
           align-items: center;
@@ -1350,177 +1431,125 @@ export class DebuggerOverlay {
         }
         .fx-callout-text {
           font-size: 11px;
-          color: var(--sanctuary-ink-secondary);
+          color: rgba(255, 255, 255, 0.75);
           line-height: 1.45;
         }
 
-        /* Waterfall */
-        .fx-card-title {
-          font-size: 10.5px;
-          font-weight: 700;
-          color: var(--sanctuary-ink-tertiary);
-          text-transform: uppercase;
-          letter-spacing: 0.05em;
-          margin-bottom: 8px;
-        }
-        .fx-waterfall {
-          display: flex;
-          flex-direction: column;
-          gap: 5px;
-        }
-        .fx-waterfall-step {
-          background: #F7F7FA;
-          border: 1px solid var(--sanctuary-hairline-subtle);
-          border-radius: 4px;
-          padding: 6px 9px;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          font-size: 11px;
-          color: var(--sanctuary-ink-primary);
-        }
-        .fx-tag {
-          font-size: 9.5px;
-          font-weight: 600;
-          padding: 1px 5px;
-          border-radius: 3px;
-          background: var(--sanctuary-hairline-subtle);
-          color: var(--sanctuary-ink-secondary);
-        }
-        .fx-tag-blue {
-          background: var(--sanctuary-blue-bg);
-          color: var(--sanctuary-blue);
-          border: 1px solid var(--sanctuary-blue-bd);
-        }
-        .fx-tag-red {
-          background: var(--sanctuary-red-bg);
-          color: var(--sanctuary-red);
-          border: 1px solid var(--sanctuary-red-bd);
-        }
-
-        /* Events Tab Styles */
+        /* 8. Forensic Event Console */
         .fx-events-wrapper {
           display: flex;
           flex-direction: column;
-          height: 100%;
+          flex: 1;
+          min-height: 0;
         }
         .fx-filter-bar {
-          background: var(--sanctuary-surface);
-          padding: 8px 10px;
-          border-bottom: 1px solid var(--sanctuary-hairline);
+          background: rgba(20, 20, 26, 0.7);
+          padding: 8px 12px;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.07);
           display: flex;
-          flex-wrap: wrap;
-          gap: 8px;
-          align-items: center;
+          flex-direction: column;
+          gap: 6px;
         }
         .fx-search-box {
           position: relative;
-          flex: 1;
-          min-width: 140px;
           display: flex;
           align-items: center;
         }
         .fx-search-box svg {
           position: absolute;
-          left: 8px;
+          left: 9px;
           pointer-events: none;
+          color: rgba(255, 255, 255, 0.4);
         }
         .fx-search-input {
           width: 100%;
-          background: var(--sanctuary-surface);
-          border: 1px solid var(--sanctuary-hairline);
-          border-radius: 4px;
-          padding: 4px 22px 4px 26px;
-          color: var(--sanctuary-ink-primary);
-          font-size: 11.5px;
+          height: 28px;
+          background: rgba(10, 10, 14, 0.8);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 7px;
+          padding: 0 28px 0 28px;
+          color: #FFFFFF;
+          font-size: 11px;
           outline: none;
-          transition: border-color 0.12s, box-shadow 0.12s;
+          transition: border-color 0.14s;
         }
         .fx-search-input:focus {
-          border-color: var(--sanctuary-blue);
-          outline: 2px solid var(--sanctuary-blue);
-          outline-offset: 1px;
+          border-color: #0A84FF;
         }
         .fx-search-clear {
           position: absolute;
-          right: 5px;
+          right: 6px;
           background: transparent;
           border: none;
-          color: var(--sanctuary-ink-tertiary);
+          color: rgba(255, 255, 255, 0.4);
           cursor: pointer;
-          padding: 2px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-        .fx-search-clear:hover {
-          color: var(--sanctuary-ink-primary);
+          padding: 2px 4px;
         }
         .fx-filter-chips {
           display: flex;
-          gap: 4px;
+          gap: 5px;
         }
         .fx-chip {
-          background: var(--sanctuary-canvas);
-          border: 1px solid var(--sanctuary-hairline);
-          color: var(--sanctuary-ink-secondary);
-          font-size: 10.5px;
-          font-weight: 500;
+          background: rgba(255, 255, 255, 0.06);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          color: rgba(255, 255, 255, 0.65);
+          font-size: 10px;
+          font-weight: 600;
           padding: 3px 8px;
-          border-radius: 12px;
+          border-radius: 6px;
           cursor: pointer;
           transition: all 0.12s;
         }
         .fx-chip:hover {
-          background: var(--sanctuary-surface-hover);
-          color: var(--sanctuary-ink-primary);
+          background: rgba(255, 255, 255, 0.1);
+          color: #FFFFFF;
         }
         .fx-chip.active {
-          background: var(--sanctuary-blue-bg);
-          border-color: var(--sanctuary-blue);
-          color: var(--sanctuary-blue);
-          font-weight: 600;
+          background: rgba(10, 132, 255, 0.22);
+          border-color: rgba(10, 132, 255, 0.4);
+          color: #0A84FF;
         }
         .fx-logs-scroll {
           flex: 1;
           overflow-y: auto;
-          padding: 10px;
+          padding: 10px 12px;
           display: flex;
           flex-direction: column;
-          gap: 8px;
+          gap: 7px;
         }
         .fx-console-row {
-          background: var(--sanctuary-surface);
-          border: 1px solid var(--sanctuary-hairline);
+          background: rgba(24, 24, 30, 0.7);
+          border: 1px solid rgba(255, 255, 255, 0.07);
           border-left-width: 3px;
-          border-radius: 6px;
-          padding: 8px 10px;
-          display: flex;
-          flex-direction: column;
-          gap: 5px;
-          box-shadow: var(--shadow-card);
+          border-radius: 8px;
+          padding: 7px 9px;
         }
         .fx-row-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
+          margin-bottom: 4px;
         }
         .fx-row-lead {
           display: flex;
           align-items: center;
           gap: 6px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
         .fx-badge-type {
           font-size: 8.5px;
           font-weight: 700;
-          background: var(--sanctuary-canvas);
-          border: 1px solid var(--sanctuary-hairline-subtle);
-          color: var(--sanctuary-ink-secondary);
-          padding: 1px 4px;
-          border-radius: 3px;
+          background: rgba(255, 255, 255, 0.09);
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          color: rgba(255, 255, 255, 0.75);
+          padding: 1px 5px;
+          border-radius: 4px;
+          letter-spacing: 0.03em;
         }
         .fx-row-key {
-          font-size: 11.5px;
+          font-size: 11px;
           font-weight: 600;
         }
         .fx-row-trail {
@@ -1529,65 +1558,63 @@ export class DebuggerOverlay {
           gap: 6px;
         }
         .fx-row-time {
-          font-family: 'JetBrains Mono', Consolas, monospace;
-          font-size: 10px;
-          color: var(--sanctuary-ink-tertiary);
+          font-family: var(--font-mono, monospace);
+          font-size: 9.5px;
+          color: rgba(255, 255, 255, 0.4);
         }
         .fx-copy-btn {
           background: transparent;
           border: none;
-          color: var(--sanctuary-ink-tertiary);
+          color: rgba(255, 255, 255, 0.4);
           cursor: pointer;
           padding: 2px 4px;
           font-size: 10px;
-          border-radius: 3px;
-          display: flex;
+          border-radius: 4px;
+          display: inline-flex;
           align-items: center;
-          justify-content: center;
           transition: all 0.12s;
         }
         .fx-copy-btn:hover {
-          color: var(--sanctuary-ink-primary);
-          background: var(--sanctuary-surface-hover);
+          color: #FFFFFF;
+          background: rgba(255, 255, 255, 0.1);
         }
         .fx-code-block {
-          background: #F7F7FA;
-          border: 1px solid var(--sanctuary-hairline-subtle);
-          border-radius: 4px;
-          padding: 7px 9px;
-          font-family: 'JetBrains Mono', Consolas, monospace;
-          font-size: 10.5px;
-          color: var(--sanctuary-ink-primary);
+          background: rgba(10, 10, 14, 0.85);
+          border: 1px solid rgba(255, 255, 255, 0.06);
+          border-radius: 6px;
+          padding: 6px 8px;
+          font-family: var(--font-mono, monospace);
+          font-size: 10px;
+          color: rgba(255, 255, 255, 0.9);
           margin: 0;
           white-space: pre-wrap;
           word-break: break-word;
-          line-height: 1.45;
-          max-height: 180px;
+          max-height: 140px;
           overflow-y: auto;
         }
         .fx-empty-console {
           padding: 50px 20px;
           text-align: center;
-          color: var(--sanctuary-ink-tertiary);
+          color: rgba(255, 255, 255, 0.4);
           display: flex;
           flex-direction: column;
           align-items: center;
           gap: 8px;
         }
 
-        /* AI Tab Styles */
+        /* 9. AI Inspection Details */
         .fx-ai-tab-scroll {
-          padding: 10px;
-          overflow-y: auto;
+          padding: 10px 12px;
           display: flex;
           flex-direction: column;
-          gap: 10px;
+          gap: 9px;
         }
         .fx-ai-session-card {
-          border-left: 3px solid var(--sanctuary-blue);
+          border-left: 3px solid #0A84FF;
+          background: rgba(24, 24, 30, 0.7);
         }
         .fx-ai-header {
-          margin-bottom: 10px;
+          margin-bottom: 9px;
         }
         .fx-ai-title-row {
           display: flex;
@@ -1596,7 +1623,7 @@ export class DebuggerOverlay {
           margin-bottom: 4px;
         }
         .fx-ai-verdict {
-          font-size: 12px;
+          font-size: 11.5px;
           font-weight: 600;
           line-height: 1.4;
           white-space: pre-wrap;
@@ -1604,17 +1631,17 @@ export class DebuggerOverlay {
         .fx-ai-sections {
           display: flex;
           flex-direction: column;
-          gap: 8px;
+          gap: 7px;
         }
         .fx-ai-block {
-          background: #F7F7FA;
-          border: 1px solid var(--sanctuary-hairline-subtle);
-          border-radius: 4px;
-          padding: 8px;
+          background: rgba(10, 10, 14, 0.85);
+          border: 1px solid rgba(255, 255, 255, 0.06);
+          border-radius: 6px;
+          padding: 7px 9px;
         }
         .fx-ai-block.raw-block {
-          border-color: var(--sanctuary-blue-bd);
-          background: var(--sanctuary-blue-bg);
+          border-color: rgba(10, 132, 255, 0.3);
+          background: rgba(10, 132, 255, 0.06);
         }
         .fx-ai-block-header {
           display: flex;
@@ -1622,8 +1649,8 @@ export class DebuggerOverlay {
           align-items: center;
           font-size: 9.5px;
           font-weight: 700;
-          color: var(--sanctuary-ink-secondary);
-          margin-bottom: 5px;
+          color: rgba(255, 255, 255, 0.6);
+          margin-bottom: 4px;
         }
         .fx-ai-block-title {
           display: inline-flex;
@@ -1631,21 +1658,27 @@ export class DebuggerOverlay {
           gap: 5px;
         }
         .fx-code-block.raw-code {
-          background: var(--sanctuary-surface);
-          border-color: var(--sanctuary-blue-bd);
-          color: #0040A8;
+          background: rgba(8, 8, 12, 0.95);
+          border-color: rgba(10, 132, 255, 0.25);
+          color: #70B4FF;
         }
       </style>
 
       <div class="fx-window">
-        <!-- Titlebar (Firefox Light Proton Header) -->
+        <!-- Titlebar (Sanctuary Core Telemetry Bar) -->
         <div class="fx-titlebar" id="drag-handle">
           <div class="fx-title-group">
-            <div class="fx-brand-icon">
-              ${ICONS.shield(14, '#FFFFFF')}
+            <div class="fx-brand-icon" title="Sanctuary Core">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="9" />
+                <circle cx="12" cy="12" r="5" stroke-dasharray="1.5 2" />
+                <circle cx="12" cy="12" r="1.8" fill="#FFFFFF" />
+              </svg>
             </div>
-            <span class="fx-app-name">Threat Shield</span>
-            <span class="fx-badge-edition">DevTools MV3</span>
+            <div class="fx-title-meta">
+              <span class="fx-app-name">Sanctuary Core</span>
+              <span class="fx-badge-edition">Telemetry XAI</span>
+            </div>
           </div>
           <div class="fx-win-controls">
             <div class="fx-segmented-mode">
@@ -1653,9 +1686,9 @@ export class DebuggerOverlay {
                 ${ICONS.info(11)}
                 <span>Інфо</span>
               </button>
-              <button type="button" class="fx-mode-btn ${userMode === 'dev' ? 'active' : ''}" id="btn-mode-dev" title="Повний інспектор для розробника">
+              <button type="button" class="fx-mode-btn ${userMode === 'dev' ? 'active' : ''}" id="btn-mode-dev" title="Повний інспектор XAI для захисту диплому">
                 ${ICONS.code(11)}
-                <span>Dev</span>
+                <span>Форензік</span>
               </button>
             </div>
             <button type="button" class="fx-tool-icon-btn" id="btn-export-json" title="Експортувати повний діагностичний звіт у JSON">
@@ -1664,21 +1697,21 @@ export class DebuggerOverlay {
             <button type="button" class="fx-tool-icon-btn" id="btn-clear-all" title="Очистити консоль">
               ${ICONS.trash(13)}
             </button>
-            <button type="button" class="fx-tool-icon-btn" id="btn-minimize" title="Згорнути у плаваючий віджет">
+            <button type="button" class="fx-tool-icon-btn" id="btn-minimize" title="Згорнути у Dynamic Island">
               ${ICONS.minimize(13)}
             </button>
-            <button type="button" class="fx-tool-icon-btn danger" id="btn-close-window" title="Закрити">
+            <button type="button" class="fx-tool-icon-btn danger" id="btn-close-window" title="Закрити вікно">
               ${ICONS.close(13)}
             </button>
           </div>
         </div>
 
-        <!-- DevTools Tabs Navigation (Proton 3-Tab Style) -->
+        <!-- DevTools Tabs Navigation (Cupertino Segmented Control) -->
         <nav class="fx-navbar">
           <button type="button" class="fx-tab-item ${activeTab === 'overview' ? 'active' : ''}" data-tab="overview">
             ${ICONS.activity(12)}
             <span>Огляд та XAI</span>
-            ${fpInfo.status === 'FP_CANDIDATE' ? '<span class="fx-tab-counter" style="background:#FFF4E5; color:#D76E00;">FP?</span>' : ''}
+            ${fpInfo.status === 'FP_CANDIDATE' ? '<span class="fx-tab-counter warning">FP?</span>' : ''}
           </button>
           <button type="button" class="fx-tab-item ${activeTab === 'events' ? 'active' : ''}" data-tab="events">
             ${ICONS.terminal(12)}
@@ -1687,7 +1720,7 @@ export class DebuggerOverlay {
           </button>
           <button type="button" class="fx-tab-item ${activeTab === 'ai' ? 'active' : ''}" data-tab="ai">
             ${ICONS.cpu(12)}
-            <span>ШІ-Арбітр</span>
+            <span>Gemini Nano</span>
             <span class="fx-tab-counter">${aiCount}</span>
           </button>
         </nav>
@@ -1702,17 +1735,17 @@ export class DebuggerOverlay {
     this.bindEvents();
   }
 
-  // Рендеринг компактного віджета (Minimized Pill у світлому стилі Firefox)
+  // Рендеринг компактного віджета (Minimized Dynamic Island Pill)
   private static renderMinimized() {
     if (!this.shadowRoot) return;
 
     const { severity, score, logs } = this.state;
     const riskColor =
       severity === 'CRITICAL' || severity === 'HIGH'
-        ? '#D70022'
+        ? '#FF453A'
         : severity === 'MEDIUM'
-        ? '#D76E00'
-        : '#008A52';
+        ? '#FF9F0A'
+        : '#30D158';
 
     this.shadowRoot.innerHTML = `
       <style>
@@ -1758,9 +1791,9 @@ export class DebuggerOverlay {
         .fx-pill-badge {
           font-size: 9.5px;
           font-weight: 700;
-          background: ${riskColor === '#008A52' ? 'rgba(52, 199, 89, 0.18)' : riskColor === '#D76E00' ? 'rgba(255, 149, 0, 0.22)' : 'rgba(255, 59, 48, 0.22)'};
-          color: ${riskColor === '#008A52' ? '#34C759' : riskColor === '#D76E00' ? '#FF9500' : '#FF3B30'};
-          border: 1px solid ${riskColor === '#008A52' ? 'rgba(52, 199, 89, 0.35)' : riskColor === '#D76E00' ? 'rgba(255, 149, 0, 0.35)' : 'rgba(255, 59, 48, 0.35)'};
+          background: ${riskColor === '#30D158' ? 'rgba(52, 199, 89, 0.18)' : riskColor === '#FF9F0A' ? 'rgba(255, 149, 0, 0.22)' : 'rgba(255, 59, 48, 0.22)'};
+          color: ${riskColor};
+          border: 1px solid ${riskColor === '#30D158' ? 'rgba(52, 199, 89, 0.35)' : riskColor === '#FF9F0A' ? 'rgba(255, 149, 0, 0.35)' : 'rgba(255, 59, 48, 0.35)'};
           padding: 1px 7px;
           border-radius: var(--radius-pill, 9999px);
           font-family: var(--font-mono, monospace);
@@ -1775,8 +1808,8 @@ export class DebuggerOverlay {
         }
       </style>
       <div class="fx-pill" id="btn-restore" title="Відкрити турбійон телеметрії XAI">
-        <span class="fx-pill-icon">${ICONS.shield(13, riskColor === '#008A52' ? '#34C759' : riskColor === '#D76E00' ? '#FF9500' : '#FF3B30')}</span>
-        <span class="fx-pill-text">Threat Shield Dev</span>
+        <span class="fx-pill-icon">${ICONS.shield(13, riskColor)}</span>
+        <span class="fx-pill-text">Sanctuary Telemetry</span>
         <span class="fx-pill-badge">${score}/100</span>
         <span class="fx-pill-count">
           <span>${logs.length} logs</span>
