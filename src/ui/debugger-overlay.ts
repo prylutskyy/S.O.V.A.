@@ -685,11 +685,12 @@ export class DebuggerOverlay {
           else if (log.stepKey.includes('DLP') || log.stepKey.includes('Vault')) badgeType = 'VAULT';
 
           logsHtml += `
-            <div class="sc-event-card" style="border-left-color: ${log.color};">
+            <div class="sc-event-card">
               <div class="sc-event-header">
                 <div class="sc-event-title-wrap">
-                  <span class="sc-event-badge">${badgeType}</span>
-                  <span class="sc-event-title" style="color: ${log.color}">${log.stepKey}</span>
+                  <span class="sc-status-dot" style="background: ${log.color};"></span>
+                  <span class="sc-event-badge sc-badge-${badgeType.toLowerCase()}">${badgeType}</span>
+                  <span class="sc-event-title">${log.stepKey}</span>
                 </div>
                 <div class="sc-event-right">
                   <span class="sc-event-time">${log.time}</span>
@@ -1278,35 +1279,66 @@ export class DebuggerOverlay {
         .sc-event-card {
           background: #FFFFFF;
           border: 1px solid rgba(0, 0, 0, 0.06);
-          border-left: 3px solid #34C759;
-          border-radius: 10px;
-          padding: 8px 10px;
-          margin-bottom: 7px;
-          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+          border-radius: 12px;
+          padding: 10px 12px;
+          margin-bottom: 8px;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+          transition: all 0.15s ease;
+        }
+        .sc-event-card:hover {
+          border-color: rgba(0, 0, 0, 0.11);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
         }
         .sc-event-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 4px;
+          margin-bottom: 6px;
         }
         .sc-event-title-wrap {
           display: flex;
           align-items: center;
-          gap: 6px;
+          gap: 7px;
+        }
+        .sc-status-dot {
+          width: 6.5px;
+          height: 6.5px;
+          border-radius: 9999px;
+          flex-shrink: 0;
         }
         .sc-event-badge {
-          font-size: 9px;
+          font-size: 9.5px;
           font-weight: 700;
-          padding: 1px 5px;
-          background: rgba(0, 0, 0, 0.05);
-          color: #6E6E73;
-          border-radius: 4px;
+          padding: 1.5px 6px;
+          border-radius: 5px;
           font-family: var(--font-mono, monospace);
+          letter-spacing: 0.02em;
+        }
+        .sc-badge-ai {
+          background: rgba(0, 113, 227, 0.08);
+          color: #0071E3;
+        }
+        .sc-badge-form {
+          background: rgba(52, 199, 89, 0.10);
+          color: #248A3D;
+        }
+        .sc-badge-ctx {
+          background: rgba(94, 92, 230, 0.08);
+          color: #5E5CE6;
+        }
+        .sc-badge-vault {
+          background: rgba(175, 82, 222, 0.08);
+          color: #AF52DE;
+        }
+        .sc-badge-log {
+          background: rgba(0, 0, 0, 0.04);
+          color: #6E6E73;
         }
         .sc-event-title {
-          font-size: 11px;
+          font-size: 11.5px;
           font-weight: 600;
+          color: #1D1D1F;
+          letter-spacing: -0.01em;
         }
         .sc-event-right {
           display: flex;
@@ -1314,7 +1346,7 @@ export class DebuggerOverlay {
           gap: 6px;
         }
         .sc-event-time {
-          font-size: 9.5px;
+          font-size: 10px;
           color: #86868B;
           font-family: var(--font-mono, monospace);
         }
