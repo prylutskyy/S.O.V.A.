@@ -67,8 +67,11 @@ describe('PersonalVaultManager', () => {
     PersonalVaultManager['cachedItems'] = [];
     PersonalVaultManager['masterKey'] = null;
     PersonalVaultManager['locked'] = true;
+    PersonalVaultManager['blindSalt'] = null;
+    PersonalVaultManager['blindSignatures'] = [];
     vi.clearAllMocks();
   });
+
 
   it('should be locked by default', () => {
     expect(PersonalVaultManager.isLocked()).toBe(true);
@@ -303,5 +306,171 @@ describe('PersonalVaultManager', () => {
     expect(reloadedItems.find((i) => i.category === 'MOTHER_MAIDEN_NAME')?.realValue).toBe('Шевченко');
     expect(reloadedItems.find((i) => i.category === 'TAX_ID')?.realValue).toBe('3123456789');
   });
+
+  describe('Zero-Knowledge Blind Indexing & Salted HMAC Protection (Variant 1)', () => {
+    it('should generate salted blind tokens and store blind signatures without realValue in local storage', async () => {
+      await PersonalVaultManager.setupMasterPassword('admin-password');
+      const motherItem = PersonalVaultManager.getItemsSync().find((i) => i.category === 'MOTHER_MAIDEN_NAME')!;
+
+      await PersonalVaultManager.saveItem({
+        id: motherItem.id,
+        category: motherItem.category,
+        label: motherItem.label,
+        realValue: 'Людмила',
+        decoyValue: 'Оксана',
+        keywords: motherItem.keywords,
+        enabled: true,
+      });
+
+      const blindSalt = mockStorage['threat_shield_vault_blind_salt'];
+      expect(blindSalt).toBeDefined();
+      expect(blindSalt.length).toBe(32); // 32-byte salt
+
+      const blindSignatures = mockStorage['threat_shield_vault_blind_signatures'];
+      expect(blindSignatures).toBeDefined();
+      expect(Array.isArray(blindSignatures)).toBe(true);
+
+      const motherSig = blindSignatures.find((s: any) => s.category === 'MOTHER_MAIDEN_NAME');
+      expect(motherSig).toBeDefined();
+      expect(motherSig.blindTokens.length).toBeGreaterThan(0);
+      expect((motherSig as any).realValue).toBeUndefined(); // Zero-knowledge: realValue NEVER stored in blind table!
+      expect(motherSig.decoyValue).toBe('Оксана');
+      expect(motherSig.enabled).toBe(true);
+    });
+
+    it('should perform Zero-Knowledge field and value detection when vault is locked', async () => {
+      await PersonalVaultManager.setupMasterPassword('admin-password');
+      const motherItem = PersonalVaultManager.getItemsSync().find((i) => i.category === 'MOTHER_MAIDEN_NAME')!;
+
+      await PersonalVaultManager.saveItem({
+        id: motherItem.id,
+        category: motherItem.category,
+        label: motherItem.label,
+        realValue: 'Людмила',
+        decoyValue: 'Оксана',
+        keywords: motherItem.keywords,
+        enabled: true,
+      });
+
+      // Тепер блокуємо сховище (Lock)
+      await PersonalVaultManager.lock();
+      expect(PersonalVaultManager.isLocked()).toBe(true);
+
+      // Перевіряємо, що у кеші пам'яті відкриті значення ВИДАЛЕНО (Zero-Knowledge)
+      const lockedItems = PersonalVaultManager.getItemsSync();
+      expect(lockedItems.length).toBeGreaterThan(0);
+      const lockedMother = lockedItems.find((i) => i.category === 'MOTHER_MAIDEN_NAME')!;
+      expect(lockedMother.realValue).toBe(''); // Відсутнє відкрите значення у пам'яті!
+      expect(lockedMother.blindTokens?.length).toBeGreaterThan(0);
+
+      // 1. Field Inspection працює у заблокованому сховищі
+      const fieldMatch = PersonalVaultManager.findMatchingVaultItemForField('вкажіть дівоче прізвище матері');
+      expect(fieldMatch).not.toBeNull();
+      expect(fieldMatch?.category).toBe('MOTHER_MAIDEN_NAME');
+      expect(fieldMatch?.decoyValue).toBe('Оксана');
+
+      // 2. Точне значення співпадає за сліпими HMAC токенами
+      const exactValueMatch = PersonalVaultManager.findMatchingVaultItemForValue('Людмила');
+      expect(exactValueMatch).not.toBeNull();
+      expect(exactValueMatch?.category).toBe('MOTHER_MAIDEN_NAME');
+      expect(exactValueMatch?.decoyValue).toBe('Оксана');
+
+      // 3. Співпадіння у вільному тексті / чаті за хешованими токенами
+      const sentenceMatch = PersonalVaultManager.findMatchingVaultItemForValue('Моє прізвище Людмила, передайте кошти');
+      expect(sentenceMatch).not.toBeNull();
+      expect(sentenceMatch?.category).toBe('MOTHER_MAIDEN_NAME');
+
+      // 4. Невідомі значення не дають хибних спрацьовувань
+      const noMatch = PersonalVaultManager.findMatchingVaultItemForValue('Іваненко Петро Олексійович');
+      expect(noMatch).toBeNull();
+    });
+
+    it('should seamlessly match financial phone and date of birth in locked state', async () => {
+      await PersonalVaultManager.setupMasterPassword('admin-password');
+      const phoneItem = PersonalVaultManager.getItemsSync().find((i) => i.category === 'FINANCIAL_PHONE')!;
+      const dobItem = PersonalVaultManager.getItemsSync().find((i) => i.category === 'DATE_OF_BIRTH')!;
+
+      await PersonalVaultManager.saveItem({
+        id: phoneItem.id,
+        category: phoneItem.category,
+        label: phoneItem.label,
+        realValue: '+380671234567',
+        decoyValue: '+380679876543',
+        keywords: phoneItem.keywords,
+        enabled: true,
+      });
+
+      await PersonalVaultManager.saveItem({
+        id: dobItem.id,
+        category: dobItem.category,
+        label: dobItem.label,
+        realValue: '15.08.1985',
+        decoyValue: '01.01.1990',
+        keywords: dobItem.keywords,
+        enabled: true,
+      });
+
+      await PersonalVaultManager.lock();
+      expect(PersonalVaultManager.isLocked()).toBe(true);
+
+      // Тест нормалізації телефону: останні 7 цифр
+      expect(PersonalVaultManager.findMatchingVaultItemForValue('1234567')).not.toBeNull();
+      // Тест нормалізації телефону: локальний формат 0671234567
+      expect(PersonalVaultManager.findMatchingVaultItemForValue('0671234567')).not.toBeNull();
+      // Тест нормалізації телефону у повідомленні чату
+      expect(PersonalVaultManager.findMatchingVaultItemForValue('надішліть на 0671234567 будь ласка')).not.toBeNull();
+
+      // Тест дати народження лише цифрами
+      expect(PersonalVaultManager.findMatchingVaultItemForValue('15081985')).not.toBeNull();
+      // Тест дати народження у тексті
+      expect(PersonalVaultManager.findMatchingVaultItemForValue('я народився 15.08.1985 року')).not.toBeNull();
+    });
+
+    it('should retain 24/7 background DLP protection after browser restart without master password', async () => {
+      // 1. Первинне налаштування та збереження
+      await PersonalVaultManager.setupMasterPassword('admin-password');
+      const taxItem = PersonalVaultManager.getItemsSync().find((i) => i.category === 'TAX_ID')!;
+      await PersonalVaultManager.saveItem({
+        id: taxItem.id,
+        category: taxItem.category,
+        label: taxItem.label,
+        realValue: '3124567890',
+        decoyValue: '2987654321',
+        keywords: taxItem.keywords,
+        enabled: true,
+      });
+
+      // 2. Симуляція перезапуску браузера (пам'ять і сесійне сховище стерто, local storage збережено)
+      for (const key in mockSessionStorage) delete mockSessionStorage[key];
+      PersonalVaultManager['isInitialized'] = false;
+      PersonalVaultManager['storageListenerAttached'] = false;
+      PersonalVaultManager['cachedItems'] = [];
+      PersonalVaultManager['masterKey'] = null;
+      PersonalVaultManager['locked'] = true;
+      PersonalVaultManager['blindSalt'] = null;
+      PersonalVaultManager['blindSignatures'] = [];
+
+      // 3. Ініціалізація розширення при відкритті нової вкладки
+      await PersonalVaultManager.init();
+
+      // Сховище ЗАБЛОКОВАНЕ: пароль ніхто не вводив!
+      expect(PersonalVaultManager.isLocked()).toBe(true);
+      expect(PersonalVaultManager.hasOperationalProtection()).toBe(true);
+      expect(PersonalVaultManager.getActiveSignaturesCount()).toBeGreaterThan(0);
+
+      // Захист ВЖЕ працює 24/7 у фоні!
+      const match = PersonalVaultManager.findMatchingVaultItemForValue('3124567890');
+      expect(match).not.toBeNull();
+      expect(match?.category).toBe('TAX_ID');
+      expect(match?.decoyValue).toBe('2987654321');
+      expect(match?.realValue).toBe(''); // Відкритий пароль або дані відсутні у пам'яті
+
+      // Ключові слова полів також перевіряються
+      const fieldMatch = PersonalVaultManager.findMatchingVaultItemForField('введіть свій рнокпп');
+      expect(fieldMatch).not.toBeNull();
+      expect(fieldMatch?.category).toBe('TAX_ID');
+    });
+  });
 });
+
 

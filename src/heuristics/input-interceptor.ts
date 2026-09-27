@@ -46,9 +46,9 @@ export class GlobalInputInterceptor {
     if (!text || text.trim().length < 2) return;
     if (target.dataset?.threatShieldApproved === 'true') return;
 
-    if (PersonalVaultManager.isLocked()) return;
     const items = PersonalVaultManager.getItemsSync();
     if (!items || items.length === 0) return;
+
 
     const matchedItem = PersonalVaultManager.findMatchingVaultItemForValue(text, items);
     if (!matchedItem) {
@@ -257,13 +257,14 @@ export class GlobalInputInterceptor {
 
         if (this.hardLockContext) {
           // ── СЕЛЕКТИВНИЙ АНАЛІЗ ВИХІДНОГО ТЕКСТУ (GUARDED MODE) ──────────────
-          // Отримуємо розблоковані елементи з Vault, якщо сховище розблоковано
-          const unlockedVaultItems = PersonalVaultManager.isLocked() ? [] : PersonalVaultManager.getItemsSync();
+          // Отримуємо оперативні елементи з Vault (Zero-Knowledge захист діє 24/7)
+          const operationalVaultItems = PersonalVaultManager.getItemsSync();
 
           const assessment = SensitiveAssetDetector.evaluateOutboundPayload({
             text: submissionText,
-            unlockedVaultItems,
+            unlockedVaultItems: operationalVaultItems,
           });
+
 
           // Якщо вихідне навантаження безпечне (звичайне повідомлення або ТІЛЬКИ номер картки):
           if (!assessment.shouldBlock) {

@@ -112,9 +112,11 @@ export class VaultTabController {
 
       const daemonStatusEl = document.getElementById('vaultLockedDaemonStatus');
       const daemonBannerEl = document.getElementById('vaultDaemonBanner');
+      const activeCount = PersonalVaultManager.getActiveSignaturesCount();
+      const countText = activeCount > 0 ? `${activeCount} рубежів` : '7 рубежів';
       if (daemonStatusEl) {
         daemonStatusEl.innerText = hasSession
-          ? 'Фоновий захист активний: 7 рубежів на варті'
+          ? `Фоновий захист активний: ${countText} на варті`
           : 'Базовий моніторинг форм активний';
       }
       if (daemonBannerEl) {
@@ -124,6 +126,7 @@ export class VaultTabController {
           daemonBannerEl.classList.add('paused');
         }
       }
+
       return;
     }
 

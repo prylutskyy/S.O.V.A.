@@ -70,5 +70,44 @@ describe('CryptoService', () => {
     const decryptedText = await CryptoService.decryptText(payload, restoredKey);
     expect(decryptedText).toBe(originalText);
   });
+
+  it('should generate 32-byte blind salt', () => {
+    const salt = CryptoService.generateBlindSalt();
+    expect(salt).toBeInstanceOf(Uint8Array);
+    expect(salt.length).toBe(32); // 256-bit salt
+  });
+
+  it('should compute HMAC-SHA256 matching RFC 4231 test vectors', async () => {
+    // RFC 4231 Test Case 2
+    // Key = "Jefe", Data = "what do ya want for nothing?"
+    const key = new TextEncoder().encode('Jefe');
+    const data = 'what do ya want for nothing?';
+    const expected = '5bdcc146bf60754e6a042426089575c75a003f089d2739839dec58b964ec3843';
+
+    const syncResult = CryptoService.computeHmacSync(data, key);
+    expect(syncResult).toBe(expected);
+
+    const asyncResult = await CryptoService.computeHmac(data, key);
+    expect(asyncResult).toBe(expected);
+  });
+
+  it('should produce identical results between sync and async HMAC with UTF-8 Ukrainian characters', async () => {
+    const salt = CryptoService.generateBlindSalt();
+    const texts = [
+      'Шевченко',
+      'Людмила',
+      '3124567890',
+      '+380671234567',
+      'Дніпро-1990',
+    ];
+
+    for (const text of texts) {
+      const syncResult = CryptoService.computeHmacSync(text, salt);
+      const asyncResult = await CryptoService.computeHmac(text, salt);
+      expect(syncResult).toBe(asyncResult);
+      expect(syncResult.length).toBe(64); // 256 bits in hex = 64 hex chars
+    }
+  });
 });
+
 

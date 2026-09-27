@@ -1,10 +1,13 @@
-import { VaultItem, VaultItemCategory, VaultSensitivityTier } from '../types/vault';
+import { VaultItem, VaultItemCategory, VaultSensitivityTier, VaultBlindSignature } from '../types/vault';
 import { CryptoService } from './crypto-service';
 
-const VAULT_STORAGE_KEY = 'threat_shield_personal_vault';
-const ENCRYPTED_VAULT_KEY = 'threat_shield_personal_vault_encrypted';
-const VAULT_SESSION_DECRYPTED_KEY = 'threat_shield_vault_decrypted';
-const VAULT_SESSION_KEY_JWK = 'threat_shield_vault_key_jwk';
+export const VAULT_STORAGE_KEY = 'threat_shield_personal_vault';
+export const ENCRYPTED_VAULT_KEY = 'threat_shield_personal_vault_encrypted';
+export const VAULT_SESSION_DECRYPTED_KEY = 'threat_shield_vault_decrypted';
+export const VAULT_SESSION_KEY_JWK = 'threat_shield_vault_key_jwk';
+export const VAULT_BLIND_SIGNATURES_KEY = 'threat_shield_vault_blind_signatures';
+export const VAULT_BLIND_SALT_KEY = 'threat_shield_vault_blind_salt';
+
 
 export const DEFAULT_VAULT_ITEMS: VaultItem[] = [
   {
@@ -130,6 +133,8 @@ export const DEFAULT_VAULT_ITEMS: VaultItem[] = [
 
 export class PersonalVaultManager {
   private static cachedItems: VaultItem[] = [];
+  private static blindSignatures: VaultBlindSignature[] = [];
+  private static blindSalt: Uint8Array | null = null;
   private static isInitialized = false;
   private static storageListenerAttached = false;
 
@@ -140,10 +145,54 @@ export class PersonalVaultManager {
     return this.locked;
   }
 
+  public static getBlindSalt(): Uint8Array | null {
+    return this.blindSalt;
+  }
+
+  public static setBlindSalt(salt: Uint8Array): void {
+    this.blindSalt = salt;
+  }
+
+  /**
+   * Створює оперативний набір елементів без чутливих відкритих даних (Zero-Knowledge)
+   * realValue встановлено в '', проте присутні blindTokens, keywords, decoyValue, enabled.
+   */
+  private static deriveOperationalItems(signatures: VaultBlindSignature[]): VaultItem[] {
+    return signatures.map((sig) => ({
+      id: sig.id,
+      category: sig.category,
+      label: sig.label,
+      realValue: '', // ZERO-KNOWLEDGE: no plaintext in memory while locked!
+      decoyValue: sig.decoyValue,
+      keywords: sig.keywords,
+      createdAt: 0,
+      enabled: sig.enabled,
+      blindTokens: sig.blindTokens,
+    }));
+  }
+
+  /**
+   * Чи є активний фоновий захист за сліпими сигнатурами (працює навіть при заблокованому сховищі)
+   */
+  public static hasOperationalProtection(): boolean {
+    return this.blindSignatures.some(
+      (s) => s.enabled !== false && s.blindTokens && s.blindTokens.length > 0
+    );
+  }
+
+  /**
+   * Кількість активованих рубежів захисту у сліпих сигнатурах
+   */
+  public static getActiveSignaturesCount(): number {
+    return this.blindSignatures.filter(
+      (s) => s.enabled !== false && s.blindTokens && s.blindTokens.length > 0
+    ).length;
+  }
+
   public static async lock(): Promise<void> {
     this.locked = true;
     this.masterKey = null;
-    this.cachedItems = [];
+    this.cachedItems = this.deriveOperationalItems(this.blindSignatures);
     if (typeof chrome !== 'undefined' && chrome.storage?.session) {
       await chrome.storage.session.remove([
         VAULT_SESSION_DECRYPTED_KEY,
@@ -156,6 +205,7 @@ export class PersonalVaultManager {
    * Чи є активна захисна сесія в пам'яті браузера (DLP Enclave daemon)
    */
   public static async hasActiveSession(): Promise<boolean> {
+    if (this.hasOperationalProtection()) return true;
     if (!this.locked && this.cachedItems.length > 0) return true;
     if (typeof chrome !== 'undefined' && chrome.storage?.session) {
       try {
@@ -175,44 +225,149 @@ export class PersonalVaultManager {
     return !!result[ENCRYPTED_VAULT_KEY];
   }
 
+  /**
+   * Генерація хешованих токенів (Salted HMAC-SHA256) для сліпого пошуку без розшифрування
+   */
+  public static generateBlindTokens(
+    realValue: string,
+    category: VaultItemCategory,
+    salt: Uint8Array
+  ): string[] {
+    const trimmed = realValue.trim();
+    if (!trimmed || trimmed.length < 2) return [];
+
+    const candidates = new Set<string>();
+    const lower = trimmed.toLowerCase();
+    candidates.add(lower);
+
+    const digits = trimmed.replace(/\D/g, '');
+
+    if (category === 'FINANCIAL_PHONE') {
+      if (digits.length >= 7) {
+        candidates.add(digits);
+        candidates.add(digits.slice(-7));
+        if (digits.length >= 9) candidates.add(digits.slice(-9));
+        if (digits.length >= 10) candidates.add(digits.slice(-10));
+      }
+    } else if (category === 'DATE_OF_BIRTH') {
+      if (digits.length >= 6) {
+        candidates.add(digits);
+      }
+    } else if (category === 'TAX_ID') {
+      if (digits.length >= 8) {
+        candidates.add(digits);
+      }
+    } else if (category === 'PASSPORT_ID') {
+      const noSpaces = lower.replace(/[\s-_]/g, '');
+      if (noSpaces.length >= 5) {
+        candidates.add(noSpaces);
+      }
+      if (digits.length >= 6) {
+        candidates.add(digits);
+      }
+    }
+
+    const tokens: string[] = [];
+    for (const c of candidates) {
+      if (c.length >= 2) {
+        tokens.push(CryptoService.computeHmacSync(c, salt));
+      }
+    }
+    return Array.from(new Set(tokens));
+  }
+
+  private static updateBlindSignatures(): void {
+    if (!this.blindSalt) {
+      this.blindSalt = CryptoService.generateBlindSalt();
+    }
+    this.blindSignatures = this.cachedItems.map((item) => {
+      const blindTokens =
+        item.blindTokens && item.blindTokens.length > 0
+          ? item.blindTokens
+          : (item.realValue
+              ? this.generateBlindTokens(item.realValue, item.category, this.blindSalt!)
+              : []);
+      item.blindTokens = blindTokens;
+
+      const isEnabled = item.enabled !== false && (blindTokens.length > 0 || Boolean(item.realValue));
+      return {
+        id: item.id,
+        category: item.category,
+        label: item.label,
+        blindTokens,
+        decoyValue: item.decoyValue || '',
+        keywords: item.keywords || [],
+        tier: this.getCategoryTier(item.category),
+        enabled: isEnabled,
+      };
+    });
+  }
+
   public static async setupMasterPassword(password: string): Promise<void> {
     const salt = CryptoService.generateSalt();
     const key = await CryptoService.deriveKey(password, salt);
-    
+
+    if (!this.blindSalt) {
+      this.blindSalt = CryptoService.generateBlindSalt();
+    }
+
     this.masterKey = key;
     this.locked = false;
     this.cachedItems = DEFAULT_VAULT_ITEMS.map((item) => ({ ...item, createdAt: Date.now() }));
-    
+    this.updateBlindSignatures();
+
     await this.persistEncrypted(salt);
   }
 
   public static async unlock(password: string): Promise<boolean> {
     try {
       if (!chrome?.storage?.local) return false;
-      const result = await chrome.storage.local.get(ENCRYPTED_VAULT_KEY);
+      const result = await chrome.storage.local.get([
+        ENCRYPTED_VAULT_KEY,
+        VAULT_BLIND_SIGNATURES_KEY,
+        VAULT_BLIND_SALT_KEY,
+      ]);
       const payload = result[ENCRYPTED_VAULT_KEY];
       if (!payload || !payload.salt) {
         return false;
       }
-      
+
+      if (result[VAULT_BLIND_SALT_KEY]) {
+        this.blindSalt = new Uint8Array(result[VAULT_BLIND_SALT_KEY]);
+      } else if (!this.blindSalt) {
+        this.blindSalt = CryptoService.generateBlindSalt();
+      }
+
       const salt = new Uint8Array(payload.salt);
       const key = await CryptoService.deriveKey(password, salt);
-      
+
       const decryptedJson = await CryptoService.decryptText(payload, key);
-      const parsedItems = JSON.parse(decryptedJson);
-      
+      const parsedItems: VaultItem[] = JSON.parse(decryptedJson);
+
       this.masterKey = key;
       this.locked = false;
       this.cachedItems = parsedItems;
-      
-      if (chrome?.storage?.session) {
+
+      let needsRePersist = false;
+      for (const item of this.cachedItems) {
+        if ((!item.blindTokens || item.blindTokens.length === 0) && item.realValue) {
+          item.blindTokens = this.generateBlindTokens(item.realValue, item.category, this.blindSalt!);
+          needsRePersist = true;
+        }
+      }
+
+      this.updateBlindSignatures();
+
+      if (needsRePersist || !result[VAULT_BLIND_SIGNATURES_KEY]) {
+        await this.persistEncrypted(salt);
+      } else if (chrome?.storage?.session) {
         const jwk = await CryptoService.exportKeyToJwk(key);
         await chrome.storage.session.set({
           [VAULT_SESSION_DECRYPTED_KEY]: parsedItems,
           [VAULT_SESSION_KEY_JWK]: jwk,
         });
       }
-      
+
       return true;
     } catch (e) {
       console.warn('[ThreatShield] Failed to unlock vault', e);
@@ -225,10 +380,10 @@ export class PersonalVaultManager {
       console.warn('[ThreatShield:Vault] Cannot persist: vault is locked or key is missing');
       return false;
     }
-    
+
     try {
       if (!chrome?.storage?.local) return false;
-      
+
       let currentSalt = salt;
       if (!currentSalt) {
         const result = await chrome.storage.local.get(ENCRYPTED_VAULT_KEY);
@@ -239,18 +394,27 @@ export class PersonalVaultManager {
           currentSalt = CryptoService.generateSalt();
         }
       }
-      
+
+      if (!this.blindSalt) {
+        this.blindSalt = CryptoService.generateBlindSalt();
+      }
+      this.updateBlindSignatures();
+
       const json = JSON.stringify(this.cachedItems);
       const encrypted = await CryptoService.encryptText(json, this.masterKey);
-      
+
       const storagePayload = {
         salt: Array.from(currentSalt),
         iv: encrypted.iv,
         ciphertext: encrypted.ciphertext
       };
-      
-      await chrome.storage.local.set({ [ENCRYPTED_VAULT_KEY]: storagePayload });
-      
+
+      await chrome.storage.local.set({
+        [ENCRYPTED_VAULT_KEY]: storagePayload,
+        [VAULT_BLIND_SIGNATURES_KEY]: this.blindSignatures,
+        [VAULT_BLIND_SALT_KEY]: Array.from(this.blindSalt),
+      });
+
       // Update session storage as well (both decrypted items and exported JWK key)
       if (chrome?.storage?.session) {
         const jwk = await CryptoService.exportKeyToJwk(this.masterKey);
@@ -283,6 +447,21 @@ export class PersonalVaultManager {
    */
   public static async init(): Promise<void> {
     try {
+      // 1. Спочатку завантажуємо сліпі підписи та сіль з local storage (завжди доступно)
+      if (typeof chrome !== 'undefined' && chrome.storage?.local) {
+        const localData = await chrome.storage.local.get([
+          VAULT_BLIND_SIGNATURES_KEY,
+          VAULT_BLIND_SALT_KEY,
+        ]);
+        if (localData[VAULT_BLIND_SALT_KEY]) {
+          this.blindSalt = new Uint8Array(localData[VAULT_BLIND_SALT_KEY]);
+        }
+        if (Array.isArray(localData[VAULT_BLIND_SIGNATURES_KEY])) {
+          this.blindSignatures = localData[VAULT_BLIND_SIGNATURES_KEY];
+        }
+      }
+
+      // 2. Перевіряємо наявність активної сесії у session storage (розблокований стан)
       if (typeof chrome !== 'undefined' && chrome.storage?.session) {
         const result = await chrome.storage.session.get([
           VAULT_SESSION_DECRYPTED_KEY,
@@ -299,12 +478,12 @@ export class PersonalVaultManager {
           } catch (keyErr) {
             console.warn('[ThreatShield:Vault] Could not import key from session:', keyErr);
             this.masterKey = null;
-            this.cachedItems = [];
+            this.cachedItems = this.deriveOperationalItems(this.blindSignatures);
             this.locked = true;
           }
         } else {
           this.masterKey = null;
-          this.cachedItems = [];
+          this.cachedItems = this.deriveOperationalItems(this.blindSignatures);
           this.locked = true;
         }
 
@@ -326,19 +505,39 @@ export class PersonalVaultManager {
                     this.locked = false;
                   } catch {
                     this.masterKey = null;
-                    this.cachedItems = [];
+                    this.cachedItems = this.deriveOperationalItems(this.blindSignatures);
                     this.locked = true;
                   }
                 } else {
                   this.masterKey = null;
-                  this.cachedItems = [];
+                  this.cachedItems = this.deriveOperationalItems(this.blindSignatures);
                   this.locked = true;
+                }
+              }
+            } else if (area === 'local') {
+              if (changes[VAULT_BLIND_SIGNATURES_KEY] || changes[VAULT_BLIND_SALT_KEY]) {
+                const localData = await chrome.storage.local.get([
+                  VAULT_BLIND_SIGNATURES_KEY,
+                  VAULT_BLIND_SALT_KEY,
+                ]);
+                if (localData[VAULT_BLIND_SALT_KEY]) {
+                  this.blindSalt = new Uint8Array(localData[VAULT_BLIND_SALT_KEY]);
+                }
+                if (Array.isArray(localData[VAULT_BLIND_SIGNATURES_KEY])) {
+                  this.blindSignatures = localData[VAULT_BLIND_SIGNATURES_KEY];
+                  if (this.locked) {
+                    this.cachedItems = this.deriveOperationalItems(this.blindSignatures);
+                  }
                 }
               }
             }
           });
           this.storageListenerAttached = true;
         }
+      } else {
+        this.masterKey = null;
+        this.cachedItems = this.deriveOperationalItems(this.blindSignatures);
+        this.locked = true;
       }
       this.isInitialized = true;
     } catch (e) {
@@ -348,9 +547,10 @@ export class PersonalVaultManager {
 
   /**
    * Синхронне миттєве отримання маркерів (для обробників click/submit/input)
+   * У заблокованому стані повертає оперативні сигнатури з blindTokens і порожнім realValue (Zero-Knowledge)
    */
   public static getItemsSync(): VaultItem[] {
-    return this.locked ? [] : this.cachedItems;
+    return this.cachedItems;
   }
 
   /**
@@ -376,9 +576,15 @@ export class PersonalVaultManager {
 
     const trimmedReal = (item.realValue || '').trim();
     const hasReal = trimmedReal.length > 0;
-    // Якщо значення заповнено: активуємо автоматично, якщо користувач явно не вимкнув (item.enabled === false)
-    // Якщо значення порожнє: деактивуємо (enabled: false)
     const isEnabled = hasReal ? item.enabled !== false : false;
+
+    if (!this.blindSalt) {
+      this.blindSalt = CryptoService.generateBlindSalt();
+    }
+
+    const blindTokens = hasReal
+      ? this.generateBlindTokens(trimmedReal, item.category, this.blindSalt)
+      : [];
 
     const savedItem: VaultItem = {
       id: item.id || `vault-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
@@ -389,6 +595,7 @@ export class PersonalVaultManager {
       keywords: (item.keywords || []).map((k) => k.trim().toLowerCase()).filter(Boolean),
       createdAt: Date.now(),
       enabled: isEnabled,
+      blindTokens,
     };
 
     if (existingIndex >= 0) {
@@ -398,6 +605,7 @@ export class PersonalVaultManager {
     }
 
     this.cachedItems = items;
+    this.updateBlindSignatures();
     const persisted = await this.persistEncrypted();
     if (!persisted) {
       return null;
@@ -415,6 +623,7 @@ export class PersonalVaultManager {
     const items = await this.getItems();
     const filtered = items.filter((i) => i.id !== id);
     this.cachedItems = filtered;
+    this.updateBlindSignatures();
     
     await this.persistEncrypted();
   }
@@ -426,6 +635,7 @@ export class PersonalVaultManager {
     if (this.locked || !this.masterKey) return;
     
     this.cachedItems = DEFAULT_VAULT_ITEMS.map((item) => ({ ...item, createdAt: Date.now() }));
+    this.updateBlindSignatures();
     await this.persistEncrypted();
   }
 
@@ -456,13 +666,16 @@ export class PersonalVaultManager {
 
   /**
    * Пошук збігів за ключовими словами поля введення (Field Inspection)
+   * Працює як у розблокованому, так і у заблокованому (Zero-Knowledge) стані
    */
   public static findMatchingVaultItemForField(
     descriptor: string,
     items: VaultItem[] = this.cachedItems
   ): VaultItem | null {
     const lower = descriptor.toLowerCase();
-    const activeItems = items.filter((i) => i.enabled !== false && Boolean(i.realValue));
+    const activeItems = items.filter(
+      (i) => i.enabled !== false && (Boolean(i.realValue) || (i.blindTokens && i.blindTokens.length > 0))
+    );
     for (const item of activeItems) {
       for (const kw of item.keywords) {
         if (kw && lower.includes(kw.toLowerCase())) {
@@ -474,8 +687,51 @@ export class PersonalVaultManager {
   }
 
   /**
-   * Перевірка введеного тексту на присутність справжнього значення з Vault (Value Inspection)
-   * Підтримує нормалізацію телефонів, дат та звичайного тексту
+   * Екстракція хешів кандидатів із вхідного значення для сліпого пошуку (HMAC-SHA256)
+   */
+  private static extractCandidateHashes(cleanVal: string, salt: Uint8Array): Set<string> {
+    const hashes = new Set<string>();
+    const candidates = new Set<string>();
+
+    candidates.add(cleanVal);
+
+    const digits = cleanVal.replace(/\D/g, '');
+    if (digits.length >= 6) {
+      candidates.add(digits);
+      if (digits.length >= 7) candidates.add(digits.slice(-7));
+      if (digits.length >= 9) candidates.add(digits.slice(-9));
+      if (digits.length >= 10) candidates.add(digits.slice(-10));
+    }
+
+    // Текстові слова (chat, free text)
+    const words = cleanVal.split(/[\s,.;:!?+/'"()\[\]{}]+/).filter((w) => w.length >= 2);
+    for (const w of words) {
+      candidates.add(w);
+    }
+
+    // Числові послідовності в тексті
+    const digitMatches = cleanVal.match(/\d{6,14}/g);
+    if (digitMatches) {
+      for (const d of digitMatches) {
+        candidates.add(d);
+        if (d.length >= 7) candidates.add(d.slice(-7));
+        if (d.length >= 9) candidates.add(d.slice(-9));
+        if (d.length >= 10) candidates.add(d.slice(-10));
+      }
+    }
+
+    for (const cand of candidates) {
+      if (cand.length >= 2) {
+        hashes.add(CryptoService.computeHmacSync(cand, salt));
+      }
+    }
+
+    return hashes;
+  }
+
+  /**
+   * Перевірка введеного тексту на присутність конфіденційного значення з Vault (Value Inspection)
+   * Підтримує пряме співставлення (у розблокованому стані) та Zero-Knowledge Salted HMAC (у заблокованому)
    */
   public static findMatchingVaultItemForValue(
     value: string,
@@ -485,17 +741,20 @@ export class PersonalVaultManager {
     if (!cleanVal || cleanVal.length < 2) return null;
 
     const digitsOnlyVal = cleanVal.replace(/\D/g, '');
-    const activeItems = items.filter((i) => i.enabled !== false && Boolean(i.realValue));
+    const activeItems = items.filter(
+      (i) => i.enabled !== false && (Boolean(i.realValue) || (i.blindTokens && i.blindTokens.length > 0))
+    );
+    if (activeItems.length === 0) return null;
 
+    // 1. Пряма перевірка (якщо сховище розблоковано та значення realValue наявні у пам'яті)
     for (const item of activeItems) {
-      const realClean = item.realValue.trim().toLowerCase();
+      const realClean = (item.realValue || '').trim().toLowerCase();
       if (!realClean) continue;
 
-      // 1. Спеціальна нормалізація для фінансового номера телефону
+      // 1a. Спеціальна нормалізація для фінансового номера телефону
       if (item.category === 'FINANCIAL_PHONE') {
         const digitsOnlyReal = realClean.replace(/\D/g, '');
         if (digitsOnlyVal.length >= 7 && digitsOnlyReal.length >= 7) {
-          // Порівнюємо останні 7-9 цифр для нівелювання різниці +380 / 0 / 38
           const last7Real = digitsOnlyReal.slice(-7);
           const last7Val = digitsOnlyVal.slice(-7);
           if (last7Real === last7Val) {
@@ -504,7 +763,7 @@ export class PersonalVaultManager {
         }
       }
 
-      // 2. Спеціальна перевірка дат (15.08.1985 чи 1985-08-15 чи 15081985)
+      // 1b. Спеціальна перевірка дат (15.08.1985 чи 1985-08-15 чи 15081985)
       if (item.category === 'DATE_OF_BIRTH') {
         const dateDigitsReal = realClean.replace(/\D/g, '');
         const dateDigitsVal = cleanVal.replace(/\D/g, '');
@@ -513,11 +772,28 @@ export class PersonalVaultManager {
         }
       }
 
-      // 3. Загальне текстове або точне цифрове співпадіння
+      // 1c. Загальне текстове або точне цифрове співпадіння
       if (cleanVal === realClean || (realClean.length >= 3 && cleanVal.includes(realClean))) {
         return item;
       }
     }
+
+    // 2. ZERO-KNOWLEDGE BLIND TOKEN MATCHING (HMAC-SHA256)
+    // Працює 24/7 у фоні навіть при заблокованому сховищі!
+    if (this.blindSalt) {
+      const candidateHashes = this.extractCandidateHashes(cleanVal, this.blindSalt);
+      if (candidateHashes.size > 0) {
+        for (const item of activeItems) {
+          if (!item.blindTokens || item.blindTokens.length === 0) continue;
+          for (const token of item.blindTokens) {
+            if (candidateHashes.has(token)) {
+              return item;
+            }
+          }
+        }
+      }
+    }
+
     return null;
   }
 }

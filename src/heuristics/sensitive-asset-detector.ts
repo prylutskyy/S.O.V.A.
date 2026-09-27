@@ -1,4 +1,6 @@
 import { VaultItem } from '../types/vault';
+import { PersonalVaultManager } from '../core/personal-vault';
+
 
 export interface OutboundAssetDetectionResult {
   hasCard: boolean;
@@ -143,7 +145,8 @@ export class SensitiveAssetDetector {
   }
 
   /**
-   * Пошук збігів із розблокованим сховищем (Private Vault)
+   * Пошук збігів із сховищем (Private Vault)
+   * Підтримує відкриті дані (unlocked) та Zero-Knowledge сліпі сигнатури (locked)
    */
   public static detectVaultMatches(text: string, unlockedItems?: VaultItem[]): VaultItem[] {
     if (!text || !unlockedItems || unlockedItems.length === 0) {
@@ -156,26 +159,36 @@ export class SensitiveAssetDetector {
     for (const item of unlockedItems) {
       if (!item.enabled && item.enabled !== undefined) continue;
       const realClean = (item.realValue || '').trim().toLowerCase();
-      if (!realClean || realClean.length < 3) continue;
 
-      // Нормалізація для номерів телефонів (якщо це фінансовий телефон)
-      if (item.category === 'FINANCIAL_PHONE') {
-        const digitsText = cleanText.replace(/\D/g, '');
-        const digitsReal = realClean.replace(/\D/g, '');
-        if (digitsReal.length >= 7 && digitsText.length >= 7 && digitsText.includes(digitsReal.slice(-7))) {
+      // 1. Пряма перевірка (якщо є відкрите значення realValue)
+      if (realClean && realClean.length >= 3) {
+        if (item.category === 'FINANCIAL_PHONE') {
+          const digitsText = cleanText.replace(/\D/g, '');
+          const digitsReal = realClean.replace(/\D/g, '');
+          if (digitsReal.length >= 7 && digitsText.length >= 7 && digitsText.includes(digitsReal.slice(-7))) {
+            matches.push(item);
+            continue;
+          }
+        }
+
+        if (cleanText.includes(realClean)) {
           matches.push(item);
           continue;
         }
       }
 
-      // Текстовий збіг для кодового слова, дівочого прізвища, ІПН, тощо
-      if (cleanText.includes(realClean)) {
-        matches.push(item);
+      // 2. Zero-Knowledge Blind Token Matching (для заблокованого сховища з blindTokens)
+      if (item.blindTokens && item.blindTokens.length > 0) {
+        const matched = PersonalVaultManager.findMatchingVaultItemForValue(text, [item]);
+        if (matched) {
+          matches.push(matched);
+        }
       }
     }
 
     return matches;
   }
+
 
   /**
    * Головний метод селективної оцінки вихідного навантаження (Outbound Payload)

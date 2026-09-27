@@ -19,7 +19,20 @@ export interface VaultItem {
   keywords: string[];
   createdAt: number;
   enabled?: boolean;
+  blindTokens?: string[];
 }
+
+export interface VaultBlindSignature {
+  id: string;
+  category: VaultItemCategory;
+  label: string;
+  blindTokens: string[];
+  decoyValue: string;
+  keywords: string[];
+  tier: VaultSensitivityTier;
+  enabled: boolean;
+}
+
 
 export interface VaultMatchResult {
   matchedItem: VaultItem;
