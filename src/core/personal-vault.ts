@@ -152,6 +152,23 @@ export class PersonalVaultManager {
     }
   }
 
+  /**
+   * Чи є активна захисна сесія в пам'яті браузера (DLP Enclave daemon)
+   */
+  public static async hasActiveSession(): Promise<boolean> {
+    if (!this.locked && this.cachedItems.length > 0) return true;
+    if (typeof chrome !== 'undefined' && chrome.storage?.session) {
+      try {
+        const res = await chrome.storage.session.get(VAULT_SESSION_DECRYPTED_KEY);
+        const items = res[VAULT_SESSION_DECRYPTED_KEY];
+        return Array.isArray(items) && items.length > 0;
+      } catch {
+        return false;
+      }
+    }
+    return false;
+  }
+
   public static async hasVaultSetup(): Promise<boolean> {
     if (!chrome?.storage?.local) return false;
     const result = await chrome.storage.local.get(ENCRYPTED_VAULT_KEY);

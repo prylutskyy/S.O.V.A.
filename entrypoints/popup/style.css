@@ -15,16 +15,17 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-body {
+html, body {
   width: 390px;
+  height: 590px;
+  min-height: 590px;
   max-height: 590px;
   background-color: var(--sanctuary-canvas);
   color: var(--sanctuary-ink-primary);
   font-size: 13px;
   line-height: 1.4;
   user-select: none;
-  overflow-x: hidden;
-  overflow-y: auto;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   letter-spacing: -0.01em;
@@ -54,6 +55,9 @@ body {
   top: 0;
   z-index: 50;
   height: 52px;
+  min-height: 52px;
+  flex-shrink: 0;
+  width: 100%;
   padding: 0 16px;
   background: var(--sanctuary-glass-bg);
   backdrop-filter: blur(20px);
@@ -157,6 +161,8 @@ body {
    ========================================================================== */
 .nav-container {
   padding: 10px 16px 4px;
+  flex-shrink: 0;
+  width: 100%;
 }
 
 .segmented-control {
@@ -213,6 +219,11 @@ body {
    3. SANCTUARY TABS & SECTIONS
    ========================================================================== */
 .sanctuary-tab {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-gutter: stable;
   padding: 12px 16px 20px;
   display: flex;
   flex-direction: column;
@@ -677,6 +688,26 @@ body {
   gap: 12px;
 }
 
+.vault-daemon-status-banner {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: var(--radius-pill);
+  background: var(--sanctuary-green-bg);
+  border: 1px solid var(--sanctuary-green-bd);
+  color: var(--sanctuary-green-ink);
+  font-size: 11px;
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.vault-daemon-status-banner.paused {
+  background: var(--sanctuary-amber-bg);
+  border-color: var(--sanctuary-amber-bd);
+  color: var(--sanctuary-amber-ink);
+}
+
 .vault-hero-emblem {
   width: 56px;
   height: 56px;
@@ -817,30 +848,6 @@ body {
   line-height: 1.25;
 }
 
-.vault-lock-btn {
-  align-self: flex-start;
-  margin-left: auto;
-  height: 26px;
-  padding: 0 9px;
-  font-size: 11px;
-  font-weight: 500;
-  border-radius: var(--radius-pill);
-  border: 1px solid var(--sanctuary-hairline);
-  background: var(--sanctuary-surface-subtle);
-  color: var(--sanctuary-ink-secondary);
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.vault-lock-btn:hover {
-  background: rgba(0, 0, 0, 0.05);
-  color: var(--sanctuary-ink-primary);
-  border-color: rgba(0, 0, 0, 0.12);
-}
-
 /* Vault Apple Inset Groups */
 .vault-groups-flow {
   display: flex;
@@ -851,16 +858,24 @@ body {
 .vault-group-wrap {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 }
 
 .vault-group-label {
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: var(--sanctuary-ink-secondary);
+  color: var(--sanctuary-ink-primary);
   padding: 0 12px;
+}
+
+.vault-group-desc {
+  font-size: 11px;
+  color: var(--sanctuary-ink-tertiary);
+  padding: 0 12px;
+  margin-bottom: 4px;
+  line-height: 1.35;
 }
 
 .vault-inset-group {
@@ -945,22 +960,11 @@ body {
   text-overflow: ellipsis;
 }
 
-.vault-row-status {
+.vault-row-meta {
   font-size: 11px;
-  line-height: 1.3;
-  margin-top: 1px;
-}
-
-.vault-status-empty {
   color: var(--sanctuary-ink-tertiary);
-}
-
-.vault-status-active {
-  color: var(--sanctuary-green-ink);
-  font-weight: 500;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
+  margin-top: 1px;
+  line-height: 1.25;
 }
 
 .vault-dot {
@@ -971,11 +975,6 @@ body {
   box-shadow: 0 0 4px rgba(52, 199, 89, 0.45);
 }
 
-.vault-status-paused {
-  color: var(--sanctuary-amber-ink);
-  font-weight: 500;
-}
-
 .vault-row-end {
   display: flex;
   align-items: center;
@@ -983,25 +982,33 @@ body {
   flex-shrink: 0;
 }
 
-.tier-pill {
-  font-size: 9.5px;
-  font-weight: 600;
-  padding: 2px 6px;
-  border-radius: 4px;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
+/* Tone-on-Tone Status Capsules */
+.vault-status-capsule {
+  font-size: 10.5px;
+  font-weight: 500;
+  padding: 2.5px 8px;
+  border-radius: var(--radius-pill);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
 }
 
-.tier-pill.tier-a {
-  background: rgba(0, 113, 227, 0.08);
-  color: var(--sanctuary-blue);
-  border: 1px solid rgba(0, 113, 227, 0.20);
+.vault-status-capsule.active {
+  color: var(--sanctuary-green-ink);
+  background: var(--sanctuary-green-bg);
+  border: 1px solid var(--sanctuary-green-bd);
 }
 
-.tier-pill.tier-b {
+.vault-status-capsule.empty {
+  color: var(--sanctuary-ink-tertiary);
   background: rgba(0, 0, 0, 0.04);
-  color: var(--sanctuary-ink-secondary);
   border: 1px solid var(--sanctuary-hairline);
+}
+
+.vault-status-capsule.paused {
+  color: var(--sanctuary-amber-ink);
+  background: var(--sanctuary-amber-bg);
+  border: 1px solid var(--sanctuary-amber-bd);
 }
 
 .vault-chevron {
@@ -1118,11 +1125,44 @@ body {
   padding: 0 14px;
 }
 
-/* Vault Footer Row */
-.vault-footer-row {
+/* Vault Footer Actions */
+.vault-footer-actions {
   display: flex;
-  justify-content: center;
-  padding: 6px 0 12px;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 0 16px;
+}
+
+.vault-privacy-lock-btn {
+  height: 32px;
+  padding: 0 14px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--sanctuary-hairline);
+  background: var(--sanctuary-surface);
+  color: var(--sanctuary-ink-primary);
+  font-size: 12px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.15s ease;
+}
+
+.vault-privacy-lock-btn:hover {
+  background: var(--sanctuary-surface-subtle);
+  border-color: rgba(0, 0, 0, 0.12);
+  transform: translateY(-0.5px);
+}
+
+.vault-privacy-hint {
+  font-size: 10.5px;
+  color: var(--sanctuary-ink-tertiary);
+  text-align: center;
+  max-width: 320px;
+  line-height: 1.35;
 }
 
 /* ==========================================================================

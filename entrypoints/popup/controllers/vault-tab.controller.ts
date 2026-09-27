@@ -21,6 +21,7 @@ export class VaultTabController {
   private btnResetVaultDefaults: HTMLButtonElement | null;
 
   private expandedItemId: string | null = null;
+  private isUiLocked: boolean = false;
   private showToast: (msg: string) => void;
   private onStatsChanged: () => void;
 
@@ -101,10 +102,28 @@ export class VaultTabController {
       return;
     }
 
-    if (PersonalVaultManager.isLocked()) {
+    const hasSession = await PersonalVaultManager.hasActiveSession();
+
+    // Якщо екран замкнено користувачем або сеанс ще не розблоковано в сховищі
+    if (this.isUiLocked || PersonalVaultManager.isLocked()) {
       this.vaultSetupState.style.display = 'none';
       this.vaultLockedState.style.display = 'flex';
       this.vaultUnlockedState.style.display = 'none';
+
+      const daemonStatusEl = document.getElementById('vaultLockedDaemonStatus');
+      const daemonBannerEl = document.getElementById('vaultDaemonBanner');
+      if (daemonStatusEl) {
+        daemonStatusEl.innerText = hasSession
+          ? 'Фоновий захист активний: 7 рубежів на варті'
+          : 'Базовий моніторинг форм активний';
+      }
+      if (daemonBannerEl) {
+        if (hasSession) {
+          daemonBannerEl.classList.remove('paused');
+        } else {
+          daemonBannerEl.classList.add('paused');
+        }
+      }
       return;
     }
 
@@ -141,30 +160,38 @@ export class VaultTabController {
       this.vaultRingProgress.style.stroke = ringColor;
     }
 
-    // 2. Розбиття на Apple Inset Groups
-    const tierAItems = items.filter(
+    // 2. Розбиття на Apple Inset Groups (без інженерного жаргону)
+    const bankingItems = items.filter(
       (i) => PersonalVaultManager.getCategoryTier(i.category) === 'TIER_A_ABSOLUTE'
     );
-    const tierBItems = items.filter(
+    const personalItems = items.filter(
       (i) => PersonalVaultManager.getCategoryTier(i.category) === 'TIER_B_CONDITIONAL'
     );
 
     this.vaultCategoriesContainer.innerHTML = '';
 
-    // Рендер Групи 1 (Tier A: Банківські дані)
-    if (tierAItems.length > 0) {
-      const groupEl = this.createInsetGroup('Контрольні банківські дані (Tier A)', tierAItems);
+    // Рендер Групи 1 (Банківські дані)
+    if (bankingItems.length > 0) {
+      const groupEl = this.createInsetGroup(
+        'Банківські та фінансові дані',
+        'Абсолютний захист: заборона неавторизованої передачі на сторонніх вебсайтах',
+        bankingItems
+      );
       this.vaultCategoriesContainer.appendChild(groupEl);
     }
 
-    // Рендер Групи 2 (Tier B: Ідентифікатори)
-    if (tierBItems.length > 0) {
-      const groupEl = this.createInsetGroup('Персональні ідентифікатори (Tier B)', tierBItems);
+    // Рендер Групи 2 (Особисті документи)
+    if (personalItems.length > 0) {
+      const groupEl = this.createInsetGroup(
+        'Особисті документи та маркери',
+        'Контекстний захист: аналіз форм на фішинг та автопідміна фантомом',
+        personalItems
+      );
       this.vaultCategoriesContainer.appendChild(groupEl);
     }
   }
 
-  private createInsetGroup(title: string, groupItems: VaultItem[]): HTMLElement {
+  private createInsetGroup(title: string, subtitle: string, groupItems: VaultItem[]): HTMLElement {
     const wrap = document.createElement('div');
     wrap.className = 'vault-group-wrap';
 
@@ -173,6 +200,11 @@ export class VaultTabController {
     label.innerText = title;
     wrap.appendChild(label);
 
+    const desc = document.createElement('div');
+    desc.className = 'vault-group-desc';
+    desc.innerText = subtitle;
+    wrap.appendChild(desc);
+
     const inset = document.createElement('div');
     inset.className = 'vault-inset-group';
 
@@ -180,7 +212,6 @@ export class VaultTabController {
       const isExpanded = this.expandedItemId === item.id;
       const isFilled = Boolean(item.realValue && item.realValue.trim().length > 0);
       const isEnabled = item.enabled === true && isFilled;
-      const tier = PersonalVaultManager.getCategoryTier(item.category);
 
       const itemCard = document.createElement('div');
       itemCard.className = `vault-accordion-item ${isExpanded ? 'expanded' : ''}`;
@@ -189,11 +220,11 @@ export class VaultTabController {
       const row = document.createElement('div');
       row.className = 'vault-item-row';
 
-      let statusHtml = '<span class="vault-status-empty">Порожньо</span>';
+      let statusCapsuleHtml = '<span class="vault-status-capsule empty">Не налаштовано</span>';
       if (isEnabled) {
-        statusHtml = '<span class="vault-status-active"><span class="vault-dot"></span>Захищено</span>';
+        statusCapsuleHtml = '<span class="vault-status-capsule active"><span class="vault-dot"></span>Захищено</span>';
       } else if (isFilled && !isEnabled) {
-        statusHtml = '<span class="vault-status-paused">Призупинено</span>';
+        statusCapsuleHtml = '<span class="vault-status-capsule paused">Призупинено</span>';
       }
 
       row.innerHTML = `
@@ -203,13 +234,11 @@ export class VaultTabController {
           </div>
           <div class="vault-row-info">
             <div class="vault-row-title">${item.label}</div>
-            <div class="vault-row-status">${statusHtml}</div>
+            <div class="vault-row-meta">${isFilled ? '••••••••' : 'Маркер не налаштовано'}</div>
           </div>
         </div>
         <div class="vault-row-end">
-          <span class="tier-pill ${tier === 'TIER_A_ABSOLUTE' ? 'tier-a' : 'tier-b'}">
-            ${tier === 'TIER_A_ABSOLUTE' ? 'Tier A' : 'Tier B'}
-          </span>
+          ${statusCapsuleHtml}
           <svg class="vault-chevron ${isExpanded ? 'rotated' : ''}" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
             <polyline points="6 9 12 15 18 9"/>
           </svg>
@@ -355,8 +384,9 @@ export class VaultTabController {
 
       const success = await PersonalVaultManager.unlock(pw);
       if (success) {
+        this.isUiLocked = false;
         this.vaultUnlockPassword.value = '';
-        this.showToast('Сховище розблоковано');
+        this.showToast('Консоль сховища розблоковано');
         await this.renderSplitView();
         this.onStatsChanged();
       } else {
@@ -370,11 +400,11 @@ export class VaultTabController {
       }
     });
 
-    // 3. Заблокувати сховище
+    // 3. Заблокувати екран сховища (Privacy Screen Lock)
     this.btnLockVault?.addEventListener('click', async () => {
-      await PersonalVaultManager.lock();
+      this.isUiLocked = true;
       this.expandedItemId = null;
-      this.showToast('Сховище замкнено');
+      this.showToast('Екран сховища заблоковано. Захист активний.');
       await this.renderSplitView();
       this.onStatsChanged();
     });
