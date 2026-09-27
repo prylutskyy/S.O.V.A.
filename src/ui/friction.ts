@@ -6,6 +6,8 @@ import { VaultScanner } from '../heuristics/vault-scanner';
 import { HiddenFieldScanResult, HiddenFieldInspector } from '../heuristics/hidden-field-inspector';
 import { AIArbiterService } from '../ai/ai-arbiter.service';
 import { DESIGN_TOKENS_CSS } from './design-tokens';
+import { PersonalVaultManager } from '../core/personal-vault';
+import { UserWhitelistManager } from '../core/user-whitelist';
 
 export class SecurityFriction {
   private static activeDisarmedForm: {
@@ -382,7 +384,7 @@ export class SecurityFriction {
 
   /**
    * Проактивне сповіщення про нейтралізацію пастки автозаповнення:
-   * The Floating Disarm Capsule (Jony Ive Apple HIG & Frosted Optical Glass)
+   * Sanctuary Focus Capsule (Jony Ive Apple HIG & Frosted Optical Glass)
    */
   public static showHiddenFieldTrapBanner(scan: HiddenFieldScanResult, form?: HTMLFormElement): void {
     const root = ShadowHost.getRoot();
@@ -390,7 +392,10 @@ export class SecurityFriction {
     if (existing) {
       ShadowHost.remove(existing as HTMLElement);
     }
-    // Також прибираємо загальний банер сесії, якщо він був відкритий, щоб уникнути накладання
+    // Також прибираємо старі X-Ray бейджі, якщо залишилися
+    root.querySelectorAll('.ts-xray-badge').forEach((b) => b.remove());
+
+    // Прибираємо загальний банер сесії, якщо він був відкритий
     const contextBanner = root.getElementById('threat-shield-context-banner');
     if (contextBanner) {
       ShadowHost.remove(contextBanner as HTMLElement);
@@ -410,32 +415,34 @@ export class SecurityFriction {
       form.style.boxShadow = '0 0 0 2px rgba(0, 113, 227, 0.35), 0 8px 24px rgba(0, 113, 227, 0.08)';
     }
 
-    const banner = document.createElement('div');
-    banner.id = 'threat-shield-hidden-field-banner';
-    banner.style.cssText = `
-      position: fixed !important;
-      top: 16px !important;
-      right: 20px !important;
-      width: 390px !important;
-      max-width: calc(100vw - 32px) !important;
-      background: rgba(255, 255, 255, 0.90) !important;
-      backdrop-filter: blur(24px) saturate(180%) !important;
-      -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-      border-radius: 16px !important;
-      border: 1px solid rgba(255, 255, 255, 0.85) !important;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.09), 0 2px 6px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(0, 0, 0, 0.04) !important;
-      padding: 16px !important;
-      z-index: 2147483647 !important;
-      display: flex !important;
-      flex-direction: column !important;
-      gap: 12px !important;
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
-      color: #1D1D1F !important;
-      transform-origin: calc(100% - 24px) 0px !important;
-      animation: capsuleEntrance 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
-      pointer-events: auto !important;
-      box-sizing: border-box !important;
-    `;
+    // Зв'язок із Personal Vault: шукаємо збіги реквізитів зі сховища
+    let vaultProvenanceLabels: string[] = [];
+    try {
+      if (form) {
+        const vaultRes = VaultScanner.scanFormSync(form);
+        if (vaultRes.matches.length > 0) {
+          vaultProvenanceLabels = Array.from(new Set(vaultRes.matches.map((m) => m.matchedItem.label)));
+        }
+      }
+      if (vaultProvenanceLabels.length === 0) {
+        const allVaultItems = PersonalVaultManager.getItemsSync();
+        for (const type of scan.flaggedTypes) {
+          if (type === 'CARD_NUMBER') {
+            const hasCard = allVaultItems.some((i) => i.category === 'CUSTOM' || i.label.toLowerCase().includes('картк'));
+            if (hasCard) vaultProvenanceLabels.push('Платіжна картка');
+          } else if (type === 'CVV') {
+            vaultProvenanceLabels.push('Код безпеки (CVV)');
+          } else if (type === 'PASSWORD' || type === 'PIN') {
+            const hasSecret = allVaultItems.some((i) => i.category === 'SECRET_WORD');
+            if (hasSecret) vaultProvenanceLabels.push('Секретний код');
+          }
+        }
+      }
+    } catch {}
+
+    const hasVaultProvenance = vaultProvenanceLabels.length > 0;
+    const count = scan.flaggedInputs.length;
+    const countLabel = count === 1 ? '1 поле' : count < 5 ? `${count} поля` : `${count} полів`;
 
     const sensitiveFieldLabelsUa: Record<string, string> = {
       CARD_NUMBER: 'Номер банківської картки',
@@ -448,32 +455,59 @@ export class SecurityFriction {
 
     const formatCloakingTechnique = (reason: string): string => {
       const r = (reason || '').toLowerCase();
-      if (r.includes('opacity')) return 'Нульова прозорість (CSS opacity: 0)';
-      if (r.includes('clip')) return 'Обрізано маскою (clip / clip-path)';
-      if (r.includes('1px') || r.includes('dimension') || r.includes('size')) return 'Мікро-розмір (1px × 1px)';
+      if (r.includes('opacity')) return 'Сховано сайтом (нульова прозорість)';
+      if (r.includes('clip')) return 'Обрізано маскою (clip-path)';
+      if (r.includes('1px') || r.includes('dimension') || r.includes('size')) return 'Мікроскопічний розмір (1×1 px)';
       if (r.includes('offscreen') || r.includes('left') || r.includes('top') || r.includes('position')) {
-        return 'Винесено за межі екрана (offscreen)';
+        return 'Винесено за межі екрана';
       }
-      if (r.includes('transform') || r.includes('scale')) return 'Масштабування до нуля (scale(0))';
-      if (r.includes('visibility') || r.includes('hidden')) return 'Сховано стилями (visibility: hidden)';
-      return reason || 'CSS-маскування від користувача';
+      if (r.includes('transform') || r.includes('scale')) return 'Масштабовано до нуля (scale 0)';
+      if (r.includes('visibility') || r.includes('hidden')) return 'Сховано у стилях сторінки';
+      return 'Приховано від користувача';
     };
-
-    const count = scan.flaggedInputs.length;
-    const countLabel = count === 1 ? '1 поле' : count < 5 ? `${count} поля` : `${count} полів`;
 
     const detectedTypesSummary = scan.flaggedTypes
       .map((t) => sensitiveFieldLabelsUa[t] || t)
       .join(', ');
 
+    const vaultSubtitle = hasVaultProvenance
+      ? `Захищено дані Сховища (${vaultProvenanceLabels.join(', ')}) · Sanctuary Autofill Guard`
+      : 'Sanctuary Autofill Guard';
+
+    const humanNarrative = hasVaultProvenance
+      ? `Сайт намагався потайки зчитати реквізити вашого Сховища (<strong style="color: var(--sanctuary-ink-primary, #1D1D1F); font-weight: 600;">${vaultProvenanceLabels.join(', ')}</strong>) через автозаповнення браузера. Приховані поля заблоковано, реальні дані не передано.`
+      : `Сайт намагався приховано зчитати ваші платіжні реквізити (<strong style="color: var(--sanctuary-ink-primary, #1D1D1F); font-weight: 600;">${detectedTypesSummary}</strong>) через браузерне автозаповнення. Невидимі поля заблоковано. Реальні дані не передано.`;
+
+    const banner = document.createElement('div');
+    banner.id = 'threat-shield-hidden-field-banner';
+    banner.style.cssText = `
+      position: fixed !important;
+      top: 16px !important;
+      right: 20px !important;
+      width: 400px !important;
+      max-width: calc(100vw - 32px) !important;
+      background: rgba(255, 255, 255, 0.92) !important;
+      backdrop-filter: blur(28px) saturate(190%) !important;
+      -webkit-backdrop-filter: blur(28px) saturate(190%) !important;
+      border-radius: 18px !important;
+      border: 1px solid rgba(255, 255, 255, 0.90) !important;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.03), 0 0 0 1px rgba(0, 0, 0, 0.05) !important;
+      padding: 16px 18px !important;
+      z-index: 2147483647 !important;
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 12px !important;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+      color: #1D1D1F !important;
+      transform-origin: calc(100% - 24px) 0px !important;
+      animation: capsuleEntrance 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+      pointer-events: auto !important;
+      box-sizing: border-box !important;
+    `;
+
     const fieldsDetailsHtml = scan.flaggedInputs
       .map((input, idx, arr) => {
         const label = sensitiveFieldLabelsUa[input.fieldType] || input.fieldType;
-        const attrDesc = input.name
-          ? `name="${input.name}"`
-          : input.element.id
-          ? `id="${input.element.id}"`
-          : `type="${input.type}"`;
         const technique = formatCloakingTechnique(input.cloakingReason);
         const isLast = idx === arr.length - 1;
 
@@ -484,31 +518,20 @@ export class SecurityFriction {
             justify-content: space-between;
             gap: 12px;
             padding: 9px 12px;
-            ${isLast ? '' : 'border-bottom: 0.5px solid rgba(0, 0, 0, 0.06);'}
+            ${isLast ? '' : 'border-bottom: 0.5px solid rgba(0, 0, 0, 0.05);'}
             transition: background 0.12s;
           ">
-            <!-- Left: DOM Identity -->
+            <!-- Left: Human Identifier & Technique -->
             <div style="display: flex; flex-direction: column; gap: 3px; min-width: 0; flex: 1;">
               <div style="font-size: 11.5px; font-weight: 600; color: #1D1D1F; letter-spacing: -0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                 ${label}
               </div>
-              <div style="display: flex; align-items: center; gap: 4px;">
-                <code style="
-                  font-family: var(--font-mono, 'SF Mono', Menlo, monospace);
-                  font-size: 10px;
-                  color: #0071E3;
-                  background: rgba(0, 113, 227, 0.08);
-                  padding: 1.5px 5px;
-                  border-radius: 4px;
-                  white-space: nowrap;
-                  overflow: hidden;
-                  text-overflow: ellipsis;
-                  max-width: 175px;
-                ">${attrDesc}</code>
+              <div style="font-size: 10.5px; color: #6E6E73; display: flex; align-items: center; gap: 4px;">
+                <span>${technique}</span>
               </div>
             </div>
 
-            <!-- Right: Status & Cloaking Signature -->
+            <!-- Right: Status Capsule -->
             <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 3px; flex-shrink: 0;">
               <div style="
                 display: inline-flex;
@@ -516,16 +539,14 @@ export class SecurityFriction {
                 gap: 4px;
                 font-size: 10px;
                 font-weight: 600;
-                color: #248A3D;
-                background: rgba(52, 199, 89, 0.10);
-                padding: 1.5px 6.5px;
+                color: #1E7E34;
+                background: rgba(52, 199, 89, 0.12);
+                border: 1px solid rgba(52, 199, 89, 0.25);
+                padding: 2px 7px;
                 border-radius: 9999px;
               ">
                 <span style="width: 4px; height: 4px; border-radius: 50%; background: #34C759; display: inline-block;"></span>
                 <span>Знешкоджено</span>
-              </div>
-              <div style="font-size: 10px; color: #B25900; display: flex; align-items: center; gap: 3px;">
-                <span style="font-weight: 500;">${technique}</span>
               </div>
             </div>
           </div>
@@ -591,7 +612,7 @@ export class SecurityFriction {
       <!-- Header Row -->
       <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%;">
         <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
-          <!-- Concentric Disarm Lens Icon -->
+          <!-- Swiss Loupe Brand Icon -->
           <div style="
             width: 32px; height: 32px; border-radius: 9px;
             background: var(--sanctuary-blue-bg, rgba(0, 113, 227, 0.08));
@@ -599,18 +620,22 @@ export class SecurityFriction {
             display: flex; align-items: center; justify-content: center;
             flex-shrink: 0;
           ">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="12" r="9" stroke="#0071E3" stroke-width="1.8" stroke-dasharray="3.5 2" opacity="0.85"/>
-              <circle cx="12" cy="12" r="5" stroke="#0071E3" stroke-width="2"/>
-              <circle cx="12" cy="12" r="2" fill="#0071E3"/>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0071E3" stroke-width="2.2">
+              <circle cx="12" cy="12" r="9"/>
+              <circle cx="12" cy="12" r="5" stroke-opacity="0.6"/>
+              <line x1="12" y1="2" x2="12" y2="4.5"/>
+              <line x1="12" y1="19.5" x2="12" y2="22"/>
+              <line x1="2" y1="12" x2="4.5" y2="12"/>
+              <line x1="19.5" y1="12" x2="22" y2="12"/>
+              <circle cx="12" cy="12" r="1.8" fill="#1E7E34"/>
             </svg>
           </div>
           <div style="display: flex; flex-direction: column; min-width: 0;">
             <div style="font-size: 13.5px; font-weight: 600; color: var(--sanctuary-ink-primary, #1D1D1F); letter-spacing: -0.015em; line-height: 1.2;">
               Форму знешкоджено
             </div>
-            <div style="font-size: 11px; color: var(--sanctuary-ink-secondary, #86868B); line-height: 1.2; margin-top: 2px;">
-              Sanctuary Autofill Guard
+            <div style="font-size: 11px; color: var(--sanctuary-ink-secondary, #6E6E73); line-height: 1.2; margin-top: 2px;">
+              ${vaultSubtitle}
             </div>
           </div>
         </div>
@@ -618,9 +643,9 @@ export class SecurityFriction {
         <div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
           <span style="
             font-size: 10.5px; font-weight: 600;
-            background: var(--sanctuary-green-bg, rgba(52, 199, 89, 0.10));
-            color: var(--sanctuary-green-ink, #248A3D);
-            border: 1px solid var(--sanctuary-green-bd, rgba(52, 199, 89, 0.24));
+            background: var(--sanctuary-green-bg, rgba(52, 199, 89, 0.12));
+            color: var(--sanctuary-green-ink, #1E7E34);
+            border: 1px solid var(--sanctuary-green-bd, rgba(52, 199, 89, 0.25));
             padding: 3px 8px; border-radius: 9999px;
             letter-spacing: -0.01em; display: inline-flex; align-items: center; gap: 4px;
           ">
@@ -630,7 +655,7 @@ export class SecurityFriction {
 
           <button id="threat-shield-close-trap-banner" type="button" title="Закрити" style="
             width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--sanctuary-hairline, rgba(0, 0, 0, 0.07));
-            background: var(--sanctuary-surface-subtle, #FAFAFC); color: var(--sanctuary-ink-tertiary, #A1A1A6); cursor: pointer;
+            background: var(--sanctuary-surface-subtle, #FAFAFC); color: var(--sanctuary-ink-tertiary, #8E8E93); cursor: pointer;
             display: flex; align-items: center; justify-content: center;
             padding: 0; flex-shrink: 0; transition: all 0.15s cubic-bezier(0.25, 1, 0.5, 1);
           ">
@@ -640,8 +665,8 @@ export class SecurityFriction {
       </div>
 
       <!-- Human Narrative -->
-      <p style="font-size: 12px; color: var(--sanctuary-ink-secondary, #86868B); margin: 0; line-height: 1.45;">
-        Сайт намагався приховано зчитати ваші платіжні реквізити (<strong style="color: var(--sanctuary-ink-primary, #1D1D1F); font-weight: 600;">${detectedTypesSummary}</strong>) через браузерне автозаповнення. Невидимі поля заблоковано. Реальні дані не передано.
+      <p style="font-size: 12px; color: var(--sanctuary-ink-secondary, #6E6E73); margin: 0; line-height: 1.45;">
+        ${humanNarrative}
       </p>
 
       <!-- Precision Cloaking Inspector (Inset Grouped Slab) -->
@@ -660,34 +685,35 @@ export class SecurityFriction {
         ">
           <span style="display: flex; align-items: center; gap: 7px;">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#0071E3" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10" stroke-opacity="0.25"/>
-              <line x1="12" y1="2" x2="12" y2="6"/>
-              <line x1="12" y1="18" x2="12" y2="22"/>
-              <line x1="2" y1="12" x2="6" y2="12"/>
-              <line x1="18" y1="12" x2="22" y2="12"/>
-              <circle cx="12" cy="12" r="3" fill="#0071E3"/>
+              <circle cx="12" cy="12" r="9"/>
+              <circle cx="12" cy="12" r="5" stroke-opacity="0.6"/>
+              <line x1="12" y1="2" x2="12" y2="4.5"/>
+              <line x1="12" y1="19.5" x2="12" y2="22"/>
+              <line x1="2" y1="12" x2="4.5" y2="12"/>
+              <line x1="19.5" y1="12" x2="22" y2="12"/>
+              <circle cx="12" cy="12" r="1.8" fill="#0071E3"/>
             </svg>
-            <span style="font-size: 12px; font-weight: 500; letter-spacing: -0.01em;">Технічний аналіз пастки (${count})</span>
+            <span style="font-size: 12px; font-weight: 600; letter-spacing: -0.01em;">Технічний аналіз пастки (${count})</span>
           </span>
           <div style="display: flex; align-items: center; gap: 6px;">
             <span style="
               font-family: var(--font-mono, 'SF Mono', Menlo, monospace);
               font-size: 9px;
               font-weight: 600;
-              color: #86868B;
+              color: #6E6E73;
               letter-spacing: 0.04em;
               background: rgba(0, 0, 0, 0.04);
               padding: 2px 6px;
               border-radius: 4px;
-            ">CSS CLOAKING</span>
-            <svg class="ts-chevron" width="7" height="10" viewBox="0 0 8 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color: #86868B; transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);">
+            ">Оптичний аудит</span>
+            <svg class="ts-chevron" width="7" height="10" viewBox="0 0 8 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color: #6E6E73; transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);">
               <path d="M1.5 1.5L6 6L1.5 10.5"/>
             </svg>
           </div>
         </summary>
         <div class="ts-telemetry-list" style="
-          border-top: 0.5px solid rgba(0, 0, 0, 0.07);
-          background: rgba(255, 255, 255, 0.65);
+          border-top: 0.5px solid rgba(0, 0, 0, 0.06);
+          background: rgba(255, 255, 255, 0.70);
           display: flex;
           flex-direction: column;
           max-height: 180px;
@@ -705,22 +731,22 @@ export class SecurityFriction {
           <button id="ts-highlight-form-btn" type="button" style="
             flex: 1; background: var(--sanctuary-surface-subtle, #FAFAFC);
             border: 1px solid var(--sanctuary-hairline, rgba(0, 0, 0, 0.08));
-            border-radius: 9px; padding: 8px 12px; font-size: 11.5px; font-weight: 500;
+            border-radius: 10px; padding: 8px 12px; font-size: 11.5px; font-weight: 500;
             color: var(--sanctuary-ink-primary, #1D1D1F); cursor: pointer;
             display: inline-flex; align-items: center; justify-content: center; gap: 6px;
             transition: all 0.15s cubic-bezier(0.25, 1, 0.5, 1);
           ">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
             </svg>
-            Показати поля
+            Підсвітити на формі
           </button>
         `
             : ''
         }
         <button id="ts-dismiss-trap-banner-btn" type="button" style="
           flex: 1; background: var(--sanctuary-blue, #0071E3);
-          color: #FFFFFF; border: none; border-radius: 9px;
+          color: #FFFFFF; border: none; border-radius: 10px;
           padding: 8px 14px; font-size: 11.5px; font-weight: 600; cursor: pointer;
           display: inline-flex; align-items: center; justify-content: center; gap: 6px;
           transition: all 0.15s cubic-bezier(0.25, 1, 0.5, 1);
@@ -729,7 +755,7 @@ export class SecurityFriction {
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="20 6 9 17 4 12"/>
           </svg>
-          Зрозуміло, захистити
+          Все гаразд · Захищено
         </button>
       </div>
       ${
@@ -737,12 +763,12 @@ export class SecurityFriction {
           ? `
         <div style="display: flex; justify-content: center; margin-top: 2px;">
           <button id="ts-unblock-trap-form-btn" type="button" style="
-            background: none; border: none; font-size: 11px; color: #86868B;
-            cursor: pointer; padding: 2px 6px; font-family: inherit;
+            background: none; border: none; font-size: 11px; color: #6E6E73;
+            cursor: pointer; padding: 3px 8px; font-family: inherit;
             display: inline-flex; align-items: center; gap: 4px;
             transition: color 0.15s;
           ">
-            <span>Розблокувати форму (якщо це помилка)</span>
+            <span>Довіряти цьому сайту (якщо це помилка)</span>
           </button>
         </div>
       `
@@ -754,6 +780,7 @@ export class SecurityFriction {
 
     const foldAndRemove = () => {
       SecurityFriction.restoreDisarmedFormStyle();
+      root.querySelectorAll('.ts-xray-badge').forEach((b) => b.remove());
       banner.style.animation = 'capsuleExit 0.22s cubic-bezier(0.25, 1, 0.5, 1) forwards';
       setTimeout(() => {
         ShadowHost.remove(banner);
@@ -772,123 +799,105 @@ export class SecurityFriction {
       highlightBtn.addEventListener('click', () => {
         const REVEAL_DURATION_MS = 4000;
 
-        type Snapshot = {
-          el: HTMLElement;
-          originalClassName: string;
-          originalStyleAttr: string | null;
-          originalType: string | null;
-          wasDisabled: boolean;
-          originalTabIndex: number;
-        };
-
-        const fieldSnapshots: Snapshot[]  = [];
-        const parentSnapshots: Snapshot[] = [];
-        const processedParents = new Set<HTMLElement>();
-        let firstEl: HTMLElement | null = null;
-
-        // — Знімаємо стилі з самої форми —
-        const formSnapshot: Snapshot = {
-          el:                form,
-          originalClassName: form.getAttribute('class') ?? '',
-          originalStyleAttr: form.getAttribute('style'),
-          originalType:      null,
-          wasDisabled:       false,
-          originalTabIndex:  -1,
-        };
-        form.removeAttribute('class');
-        form.removeAttribute('style');
-
-        // — Обробляємо кожне приховане поле —
-        for (const flaggedInput of scan.flaggedInputs) {
-          const el = flaggedInput.element as HTMLElement;
-
-          // Зберігаємо та чистимо безпосередній батьківський контейнер (div тощо)
-          const parentEl = el.parentElement;
-          if (parentEl && parentEl !== form && !processedParents.has(parentEl)) {
-            processedParents.add(parentEl);
-            parentSnapshots.push({
-              el:                parentEl,
-              originalClassName: parentEl.getAttribute('class') ?? '',
-              originalStyleAttr: parentEl.getAttribute('style'),
-              originalType:      null,
-              wasDisabled:       false,
-              originalTabIndex:  -1,
-            });
-            parentEl.removeAttribute('class');
-            parentEl.removeAttribute('style');
-          }
-
-          fieldSnapshots.push({
-            el,
-            originalClassName: el.getAttribute('class') ?? '',
-            originalStyleAttr: el.getAttribute('style'),
-            originalType:      el.getAttribute('type'),
-            wasDisabled:       (el as HTMLInputElement).disabled,
-            originalTabIndex:  el.tabIndex,
-          });
-
-          // type="hidden": браузер не рендерить — міняємо на text
-          if ((el as HTMLInputElement).type === 'hidden') {
-            el.setAttribute('type', 'text');
-          }
-
-          el.removeAttribute('class');
-          el.removeAttribute('style');
-          (el as HTMLInputElement).disabled = false;
-          el.tabIndex = 0;
-
-          if (!firstEl) firstEl = el;
+        // Плавний фокус на формі без руйнування стилів
+        if (typeof form.scrollIntoView === 'function') {
+          form.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
 
-        // Прокрутка до першого поля
-        if (firstEl) firstEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // Сапфіровий рентген-ореол навколо форми (БЕЗ здирання класів чи інлайн-стилів!)
+        const prevBoxShadow = form.style.boxShadow;
+        const prevTransition = form.style.transition;
+        form.style.transition = 'box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
+        form.style.boxShadow = '0 0 0 3px rgba(0, 113, 227, 0.65), 0 12px 36px rgba(0, 113, 227, 0.20)';
 
-        // Кнопка — заблокована на час показу з індикацією зворотного відліку
-        highlightBtn.textContent       = `👁 Відображення 4с — ховаємо...`;
-        highlightBtn.style.background  = 'var(--sanctuary-blue-bg, rgba(0, 113, 227, 0.08))';
-        highlightBtn.style.color       = 'var(--sanctuary-blue, #0071E3)';
+        // Створюємо оптичні неруйнівні X-Ray бейджі у Shadow DOM
+        const xrayBadges: HTMLElement[] = [];
+        let formRect = { top: 0, left: 0, width: 300, height: 100, bottom: 100 };
+        try {
+          if (typeof form.getBoundingClientRect === 'function') {
+            formRect = form.getBoundingClientRect();
+          }
+        } catch {}
+
+        scan.flaggedInputs.forEach((flaggedInput, idx) => {
+          const el = flaggedInput.element as HTMLElement;
+          let rect = { top: 0, left: 0, width: 0, height: 0, bottom: 0 };
+          try {
+            if (typeof el.getBoundingClientRect === 'function') {
+              rect = el.getBoundingClientRect();
+            }
+          } catch {}
+
+          const label = sensitiveFieldLabelsUa[flaggedInput.fieldType] || flaggedInput.fieldType;
+
+          const scrollY = typeof window !== 'undefined' ? window.scrollY || 0 : 0;
+          const scrollX = typeof window !== 'undefined' ? window.scrollX || 0 : 0;
+
+          let top = scrollY + rect.top - 28;
+          let left = scrollX + rect.left;
+
+          // Якщо поле винесене за межі екрана або має нульовий розмір, позиціонуємо біля форми
+          if (rect.left < 0 || rect.top < 0 || rect.width <= 2 || rect.height <= 2) {
+            top = scrollY + formRect.top + 8 + (idx * 32);
+            left = scrollX + formRect.left + 12;
+          }
+
+          const badge = document.createElement('div');
+          badge.className = 'ts-xray-badge';
+          badge.style.cssText = `
+            position: absolute !important;
+            top: ${top}px !important;
+            left: ${left}px !important;
+            z-index: 2147483646 !important;
+            background: rgba(0, 113, 227, 0.94) !important;
+            backdrop-filter: blur(12px) !important;
+            -webkit-backdrop-filter: blur(12px) !important;
+            color: #FFFFFF !important;
+            padding: 4px 10px !important;
+            border-radius: 8px !important;
+            font-size: 11px !important;
+            font-weight: 600 !important;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif !important;
+            box-shadow: 0 4px 14px rgba(0, 113, 227, 0.35) !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 6px !important;
+            pointer-events: none !important;
+          `;
+          badge.innerHTML = `
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+            <span>Прихована пастка: ${label} (заблоковано)</span>
+          `;
+          root.appendChild(badge);
+          xrayBadges.push(badge);
+        });
+
+        highlightBtn.textContent = '● Підсвічено на формі (4с)';
+        highlightBtn.style.background = 'var(--sanctuary-blue-bg, rgba(0, 113, 227, 0.08))';
+        highlightBtn.style.color = 'var(--sanctuary-blue, #0071E3)';
         highlightBtn.style.borderColor = 'var(--sanctuary-blue-bd, rgba(0, 113, 227, 0.20))';
         highlightBtn.disabled = true;
 
-        // — Через REVEAL_DURATION_MS — відновлюємо все і реактивуємо кнопку —
         setTimeout(() => {
-          // Відновлення форми
-          form.setAttribute('class', formSnapshot.originalClassName);
-          if (formSnapshot.originalStyleAttr !== null) form.setAttribute('style', formSnapshot.originalStyleAttr);
-          else                                         form.removeAttribute('style');
-
-          // Відновлення батьківських контейнерів
-          for (const snap of parentSnapshots) {
-            snap.el.setAttribute('class', snap.originalClassName);
-            if (snap.originalStyleAttr !== null) snap.el.setAttribute('style', snap.originalStyleAttr);
-            else                                 snap.el.removeAttribute('style');
+          if (SecurityFriction.activeDisarmedForm?.form === form) {
+            form.style.boxShadow = prevBoxShadow;
+            form.style.transition = prevTransition;
           }
 
-          // Відновлення полів
-          for (const snap of fieldSnapshots) {
-            if (snap.originalType !== null) snap.el.setAttribute('type', snap.originalType);
-            else                            snap.el.removeAttribute('type');
+          xrayBadges.forEach((b) => {
+            if (b.parentNode) b.parentNode.removeChild(b);
+          });
 
-            snap.el.setAttribute('class', snap.originalClassName);
-            if (snap.originalStyleAttr !== null) snap.el.setAttribute('style', snap.originalStyleAttr);
-            else                                 snap.el.removeAttribute('style');
-
-            (snap.el as HTMLInputElement).disabled = snap.wasDisabled;
-            snap.el.tabIndex = snap.originalTabIndex;
-          }
-
-          // Реактивуємо кнопку
-          highlightBtn.textContent       = 'Показати поля';
-          highlightBtn.style.background  = 'var(--sanctuary-surface-subtle, #FAFAFC)';
-          highlightBtn.style.color       = 'var(--sanctuary-ink-primary, #1D1D1F)';
+          highlightBtn.innerHTML = `
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            Підсвітити на формі
+          `;
+          highlightBtn.style.background = 'var(--sanctuary-surface-subtle, #FAFAFC)';
+          highlightBtn.style.color = 'var(--sanctuary-ink-primary, #1D1D1F)';
           highlightBtn.style.borderColor = 'var(--sanctuary-hairline, rgba(0, 0, 0, 0.08))';
           highlightBtn.disabled = false;
-
-          // Відновлюємо сапфірову ауру форми
-          if (SecurityFriction.activeDisarmedForm?.form === form) {
-            form.style.transition = 'box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
-            form.style.boxShadow = '0 0 0 2px rgba(0, 113, 227, 0.35), 0 8px 24px rgba(0, 113, 227, 0.08)';
-          }
         }, REVEAL_DURATION_MS);
       });
     }
@@ -902,7 +911,13 @@ export class SecurityFriction {
 
     const unblockBtn = banner.querySelector('#ts-unblock-trap-form-btn') as HTMLButtonElement | null;
     if (unblockBtn && form) {
-      unblockBtn.addEventListener('click', () => {
+      unblockBtn.addEventListener('click', async () => {
+        const host = typeof window !== 'undefined' ? window.location.hostname : '';
+        if (host) {
+          try {
+            await UserWhitelistManager.allowDomain(host);
+          } catch {}
+        }
         HiddenFieldInspector.restoreForm(form);
         foldAndRemove();
       });
@@ -912,6 +927,7 @@ export class SecurityFriction {
   public static removeHiddenFieldTrapBanner(): void {
     SecurityFriction.restoreDisarmedFormStyle();
     const root = ShadowHost.getRoot();
+    root.querySelectorAll('.ts-xray-badge').forEach((b) => b.remove());
     const existing = root.getElementById('threat-shield-hidden-field-banner');
     if (existing) {
       ShadowHost.remove(existing as HTMLElement);

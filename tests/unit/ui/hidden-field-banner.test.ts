@@ -130,4 +130,34 @@ describe('Floating Disarm Capsule (SecurityFriction.showHiddenFieldTrapBanner)',
     const root = ShadowHost.getRoot();
     expect(root.getElementById('threat-shield-hidden-field-banner')).toBeNull();
   });
+
+  it('should trigger non-destructive X-Ray highlighting without stripping form classes or styles', () => {
+    vi.useFakeTimers();
+    form.className = 'original-form-class';
+    form.style.background = 'rgb(240, 240, 240)';
+
+    SecurityFriction.showHiddenFieldTrapBanner(mockScan, form);
+
+    const root = ShadowHost.getRoot();
+    const banner = root.getElementById('threat-shield-hidden-field-banner');
+    const highlightBtn = banner?.querySelector('#ts-highlight-form-btn') as HTMLButtonElement;
+    expect(highlightBtn).not.toBeNull();
+
+    highlightBtn.click();
+
+    // Verify form class and styles were NOT stripped
+    expect(form.className).toBe('original-form-class');
+    expect(form.style.background).toBe('rgb(240, 240, 240)');
+
+    // Verify X-ray badges were injected into Shadow DOM
+    const xrayBadges = root.querySelectorAll('.ts-xray-badge');
+    expect(xrayBadges.length).toBe(2);
+    expect(xrayBadges[0].innerHTML).toContain('Прихована пастка');
+
+    // Fast forward 4 seconds
+    vi.advanceTimersByTime(4100);
+    expect(root.querySelectorAll('.ts-xray-badge').length).toBe(0);
+
+    vi.useRealTimers();
+  });
 });
