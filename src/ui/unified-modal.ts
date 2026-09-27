@@ -458,12 +458,12 @@ export class UnifiedFrictionModal {
       </style>
 
       <div id="ts-modal-card">
-        <!-- EMBLEM -->
+        <!-- EMBLEM: CONCENTRIC SANCTUARY LENS -->
         <div class="ts-emblem-box">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            ${isCritical
-              ? '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>'
-              : '<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>'}
+            <circle cx="12" cy="12" r="9"/>
+            <circle cx="12" cy="12" r="5" stroke-dasharray="1.5 2"/>
+            <circle cx="12" cy="12" r="2" fill="currentColor"/>
           </svg>
         </div>
 
@@ -495,14 +495,14 @@ export class UnifiedFrictionModal {
         <div class="ts-actions-stack">
           ${options.vaultMatches && options.vaultMatches.some((m) => m.isDecoyAvailable) ? `
             <button id="ts-decoy-btn" class="ts-btn-decoy">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="9 12 11 14 15 10"/></svg>
               <span>Підставити безпечні дані (Canary Decoy)</span>
             </button>
           ` : ''}
 
           <!-- PRIMARY ACTION: Return to Safety -->
           <button id="ts-primary-btn" class="ts-btn-primary">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="9 12 11 14 15 10"/></svg>
             <span>${primaryActionLabel}</span>
           </button>
 
