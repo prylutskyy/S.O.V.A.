@@ -27,7 +27,7 @@ export class CryptoService {
     return globalThis.crypto.subtle.deriveKey(
       {
         name: 'PBKDF2',
-        salt: salt,
+        salt: salt as any,
         iterations: 600000, // OWASP recommendation for PBKDF2-HMAC-SHA256
         hash: 'SHA-256',
       },

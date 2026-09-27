@@ -46,7 +46,7 @@ describe('AIArbiterService (Single-Flight & Cache)', () => {
           }, 10);
         }) as any,
       },
-    };
+    } as any;
 
     const firstResult = await AIArbiterService.verify({
       context: baseContext,
@@ -88,7 +88,7 @@ describe('AIArbiterService (Single-Flight & Cache)', () => {
           }, 30);
         }) as any,
       },
-    };
+    } as any;
 
     // Trigger two calls concurrently
     const p1 = AIArbiterService.verify({ context: baseContext, rawTextToScan: 'text' });
@@ -116,7 +116,7 @@ describe('AIArbiterService (Single-Flight & Cache)', () => {
           }, 50);
         }) as any,
       },
-    };
+    } as any;
 
     // First request
     const p1 = AIArbiterService.verify({ context: baseContext, rawTextToScan: 'initial text' });

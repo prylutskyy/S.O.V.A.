@@ -38,7 +38,8 @@ export class SecurityFriction {
         if (inp.type === 'hidden' || inp.type === 'submit' || inp.type === 'button' || inp.type === 'reset') continue;
         const val = inp.value?.trim();
         if (!val) continue;
-        const desc = `${inp.name || inp.id || inp.placeholder || inp.type}`.toLowerCase();
+        const placeholder = ('placeholder' in inp) ? (inp as HTMLInputElement).placeholder : '';
+        const desc = `${inp.name || inp.id || placeholder || inp.type}`.toLowerCase();
         const isCvv = /(cvv|cvc|csc|pin|код)/i.test(desc);
         const isCard = /(card|pan|номер карт|номер карты)/i.test(desc) || (val.replace(/\D/g, '').length >= 13);
         const isPass = inp.type === 'password' || /(pass|парол)/i.test(desc);
@@ -50,7 +51,7 @@ export class SecurityFriction {
           const clean = val.replace(/\D/g, '');
           displayVal = clean.length > 8 ? `${clean.substring(0, 6)}******${clean.substring(clean.length - 4)}` : '**** **** **** ****';
         }
-        formFieldsSummary.push(`${inp.name || inp.placeholder || inp.id || 'поле'}: "${displayVal}"`);
+        formFieldsSummary.push(`${inp.name || placeholder || inp.id || 'поле'}: "${displayVal}"`);
       }
     } catch {}
 
@@ -174,7 +175,7 @@ export class SecurityFriction {
   /**
    * Повідомлення про зшивання сесій (Firefox Doorhanger, розгортання з іконки розширення)
    */
-  public static showContextWarningBanner(context: ActiveThreatContext, customSubtitle?: string, rawTextToScan?: string, intentType?: string, onClose?: () => void, confidence?: number): void {
+  public static showContextWarningBanner(context: ActiveThreatContext, customSubtitle?: string, rawTextToScan?: string, intentType?: string, onClose?: () => void, confidence?: number, onClearThreat?: () => void): void {
     const root = ShadowHost.getRoot();
     const existing = root.getElementById('threat-shield-context-banner');
     if (existing) {

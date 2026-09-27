@@ -10,7 +10,7 @@ import { isWhitelisted } from '../core/whitelist';
 export class GlobalInputInterceptor {
   private static isSoftLocked = false;
   private static hardLockContext: ActiveThreatContext | null = null;
-  private static realtimeDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+  private static realtimeDebounceTimer: any = null;
 
   public static setSoftLock(locked: boolean) {
     this.isSoftLocked = locked;

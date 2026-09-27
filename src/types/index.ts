@@ -13,11 +13,14 @@ export interface ActiveThreatContext {
 }
 
 export interface HeuristicResult {
+  id?: string;
   name: string;
+  type?: string;
   triggered: boolean;
   severity: RiskLevel;
   scoreContribution: number;
   message: string;
+  confidence?: number;
   details?: Record<string, unknown>;
 }
 

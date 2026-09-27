@@ -4,10 +4,6 @@ import { UserWhitelistManager } from '../core/user-whitelist';
 import { XaiEngine } from '../xai/xai-engine';
 import { VaultScanner } from '../heuristics/vault-scanner';
 import { ShadowHost } from './shadow-host';
-import { AILureVerifier } from '../heuristics/ai-verifier';
-import { ScamIntentType } from '../heuristics/intent-classifier';
-import { DebuggerOverlay } from './debugger-overlay';
-import { ChatChannelMonitor } from '../heuristics/chat-channel';
 import { ToastNotifier } from './toast-notifier';
 
 export interface UnifiedModalOptions {
@@ -17,7 +13,7 @@ export interface UnifiedModalOptions {
   badgeLevel?: 'CRITICAL' | 'HIGH';
   contextLabel: string;
   contextValue: string;
-  triggers: Array<{ message: string; severity?: string }>;
+  triggers: Array<{ message: string; severity?: string; name?: string; details?: any }>;
   explanation?: string;
   allowRememberDomain?: boolean;
   domainToRemember?: string;
@@ -35,7 +31,7 @@ export interface UnifiedModalOptions {
   onCancel: () => void;
 }
 
-interface CarouselSlide {
+interface DiagnosticItem {
   badge: string;
   badgeType: 'critical' | 'warning' | 'info';
   title: string;
@@ -43,38 +39,58 @@ interface CarouselSlide {
   evidence?: string;
 }
 
-// Mozilla Firefox Proton & Acorn Design Tokens
+// Apple HIG / Jony Ive Design Tokens
 const C = {
-  text:        '#15141A',
-  textSec:     '#5B5B66',
-  textMuted:   '#8F8F9D',
-  surface:     '#FFFFFF',
-  canvas:      '#F0F0F4',
-  border:      '#CFCFD8',
-  borderStr:   '#B1B1BD',
-  red:         '#D70022',
-  redBg:       '#FDF2F5',
-  redBd:       '#F8B4C0',
-  amber:       '#D76E00',
-  amberBg:     '#FFF4E5',
-  amberBd:     '#FFD599',
-  green:       '#008A52',
-  greenBg:     '#EAF7F3',
-  greenBd:     '#A3E5D0',
-  blue:        '#0060DF',
-  blueBg:      '#E8F2FF',
-  blueBd:      '#B0D5FF',
-  font:        `system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`,
+  text:         '#111827',
+  textSec:      '#4B5563',
+  textMuted:    '#9CA3AF',
+  surface:      '#FFFFFF',
+  surfaceSub:   '#F9FAFB',
+  surfaceHover: '#F3F4F6',
+  border:       '#E5E7EB',
+  borderSubtle: '#F3F4F6',
+
+  // Subtle accents (calm, non-panicky)
+  red:          '#DC2626',
+  redSoft:      '#FEF2F2',
+  redBorder:    '#FECACA',
+
+  amber:        '#D97706',
+  amberSoft:    '#FFFBEB',
+  amberBorder:  '#FDE68A',
+
+  blue:         '#2563EB',
+  blueSoft:     '#EFF6FF',
+  blueBorder:   '#BFDBFE',
+
+  green:        '#059669',
+  greenSoft:    '#ECFDF5',
+  greenBorder:  '#A7F3D0',
+
+  darkAction:   '#111827',
+  darkHover:    '#1F2937',
+
+  font:         `-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, sans-serif`,
+  monoFont:     `ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace`,
 };
 
+/**
+ * UnifiedFrictionModal
+ * Центральний інтерфейс адаптивного тертя (Security Friction).
+ * Втілює філософію кришталевої ясності та спокою Джоні Айва:
+ * 1. Формула контрасту «Очікуваний намір проти Прихованої загрози» (XAI).
+ * 2. Сенсорний жест усвідомленої згоди «Hold to Unlock (2с)» замість пасивних таймерів покарання.
+ * 3. Ізольований швейцарський аналітичний зріз для експертів та дипломного захисту.
+ */
 export class UnifiedFrictionModal {
   private static activeModal: HTMLElement | null = null;
-  private static countdownInterval: number | null = null;
-  private static keydownListener: ((e: KeyboardEvent) => void) | null = null;
+  private static holdInterval: number | null = null;
+  private static holdListeners: Array<() => void> = [];
   private static previousBodyOverflow: string | null = null;
   private static previousHtmlOverflow: string | null = null;
 
   public static async show(options: UnifiedModalOptions): Promise<void> {
+    if (typeof document === 'undefined') return;
     this.close();
 
     if (this.previousBodyOverflow === null) {
@@ -91,7 +107,7 @@ export class UnifiedFrictionModal {
       score: options.badgeLevel === 'CRITICAL' ? 95 : 65,
       level: options.badgeLevel || 'CRITICAL',
       triggers: options.triggers.map((t) => ({
-        name: 'generic_trigger',
+        name: t.name || 'generic_trigger',
         triggered: true,
         severity: (t.severity as any) || 'CRITICAL',
         scoreContribution: 35,
@@ -102,6 +118,7 @@ export class UnifiedFrictionModal {
 
     const vaultItems = options.vaultItems || options.vaultMatches?.map((m) => m.matchedItem);
 
+    // Миттєвий XAI-синтез тріади контрасту (< 0.1 мс на будь-якому ПК)
     const xai = await XaiEngine.generateExplanation({
       type: options.type,
       targetHost: options.contextValue,
@@ -112,96 +129,302 @@ export class UnifiedFrictionModal {
       vaultItems,
     });
 
+    const isCritical = fallbackAssessment.level === 'CRITICAL';
     const primaryActionLabel = options.type === 'chat' ? 'Скасувати надсилання' : 'Повернутися до безпеки';
-    const slides = this.buildCarouselSlides(options, xai);
+    const diagnostics = this.buildDiagnosticFactors(options, xai);
 
-    const getBadgeStyle = (type: 'critical' | 'warning' | 'info') => {
-      if (type === 'critical') return `background:${C.redBg};color:${C.red};border:1px solid ${C.redBd};`;
-      if (type === 'warning')  return `background:${C.amberBg};color:${C.amber};border:1px solid ${C.amberBd};`;
-      return `background:${C.blueBg};color:${C.blue};border:1px solid ${C.blueBd};`;
-    };
+    const userIntent = xai.intentVsReality?.userIntent || 'Безпечна взаємодія з вебсервісом';
+    const hiddenReality = xai.intentVsReality?.hiddenReality || xai.humanCoreWarning;
+    const verdict = xai.intentVsReality?.verdict || xai.plainLanguageExplanation;
+    const threatTitle = xai.intentVsReality?.threatName || xai.humanTitle;
 
-    const slidesHtml = slides.map((slide) => `
-      <div class="ts-slide" style="flex:0 0 100%;width:100%;box-sizing:border-box;display:flex;flex-direction:column;padding:2px;">
-        <span style="display:inline-block;font-size:10.5px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;padding:2px 8px;border-radius:5px;margin-bottom:8px;${getBadgeStyle(slide.badgeType)}">${slide.badge}</span>
-        <div style="font-size:14px;font-weight:600;color:${C.text};line-height:1.35;margin-bottom:6px;">${slide.title}</div>
-        <div style="font-size:13px;line-height:1.5;color:${C.textSec};margin-bottom:${slide.evidence ? '8px' : '2px'};">${slide.description}</div>
-        ${slide.evidence ? `<div style="background:${C.canvas};border:1px solid ${C.border};border-radius:6px;padding:6px 10px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;color:${C.textSec};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${slide.evidence}</div>` : ''}
-      </div>
-    `).join('');
+    // Скляний Backdrop з м'яким матовим розмиттям
+    modalRoot.style.cssText = `
+      position: fixed !important;
+      inset: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      z-index: 2147483647 !important;
+      background: rgba(0, 0, 0, 0.42) !important;
+      backdrop-filter: blur(24px) saturate(180%) !important;
+      -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      padding: 16px !important;
+      box-sizing: border-box !important;
+      animation: tsBackdrop 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      pointer-events: auto !important;
+    `;
 
-    const dotsHtml = slides.map((_, idx) => `
-      <button type="button" class="ts-dot" data-index="${idx}" style="width:7px;height:7px;border-radius:50%;background:${idx === 0 ? C.text : C.borderStr};border:none;padding:0;cursor:pointer;transition:all 0.15s;${idx === 0 ? 'transform:scale(1.2);' : ''}"></button>
-    `).join('');
-
-    const rememberHtml = options.allowRememberDomain && options.domainToRemember ? `
-      <label style="display:flex;align-items:center;gap:9px;font-size:12.5px;color:${C.textSec};margin-top:14px;padding-top:12px;border-top:1px solid ${C.border};cursor:pointer;">
-        <input type="checkbox" id="ts-remember" style="accent-color:${C.text};cursor:pointer;width:15px;height:15px;">
-        <span>Довіряти домену <strong style="color:${C.text};">${options.domainToRemember}</strong></span>
+    const rememberCheckboxHtml = options.allowRememberDomain && options.domainToRemember ? `
+      <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: ${C.textSec}; margin-top: 14px; cursor: pointer; user-select: none;">
+        <input type="checkbox" id="ts-remember-domain" style="accent-color: ${C.darkAction}; width: 14px; height: 14px; cursor: pointer;">
+        <span>Довіряти домену <strong style="color: ${C.text}; font-family: ${C.monoFont}; font-size: 11px;">${options.domainToRemember}</strong></span>
       </label>
     ` : '';
 
-    // Backdrop
-    modalRoot.style.cssText = `
-      position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;
-      z-index:2147483647!important;background:rgba(0,0,0,0.35)!important;
-      display:flex!important;align-items:center!important;justify-content:center!important;
-      padding:16px!important;box-sizing:border-box!important;
-      animation:tsBackdrop 0.15s ease!important;pointer-events:auto!important;
-    `;
-
-    const isCritical = fallbackAssessment.level === 'CRITICAL';
+    const diagnosticsHtml = diagnostics.map((d) => `
+      <div style="display: flex; flex-direction: column; gap: 4px; padding: 9px 12px; background: ${C.surface}; border: 1px solid ${C.border}; border-radius: 10px; font-size: 11.5px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 6px;">
+          <strong style="color: ${C.text}; font-weight: 600;">${d.title}</strong>
+          <span style="font-size: 9.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; padding: 2px 6px; border-radius: 4px; ${
+            d.badgeType === 'critical'
+              ? `background: ${C.redSoft}; color: ${C.red}; border: 1px solid ${C.redBorder};`
+              : d.badgeType === 'warning'
+              ? `background: ${C.amberSoft}; color: ${C.amber}; border: 1px solid ${C.amberBorder};`
+              : `background: ${C.blueSoft}; color: ${C.blue}; border: 1px solid ${C.blueBorder};`
+          }">${d.badge}</span>
+        </div>
+        <div style="color: ${C.textSec}; line-height: 1.45;">${d.description}</div>
+        ${d.evidence ? `<div style="font-family: ${C.monoFont}; font-size: 10.5px; color: ${C.textMuted}; background: ${C.surfaceSub}; padding: 3px 6px; border-radius: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${d.evidence}</div>` : ''}
+      </div>
+    `).join('');
 
     modalRoot.innerHTML = `
       <style>
-        @keyframes tsBackdrop { from{opacity:0} to{opacity:1} }
-        @keyframes tsModal { from{opacity:0;transform:scale(0.97) translateY(6px)} to{opacity:1;transform:scale(1) translateY(0)} }
-        @keyframes tsSpin { 100% { transform: rotate(360deg); } }
-        .ts-spinner { animation: tsSpin 1s linear infinite; }
-        .ts-btn-primary { width:100%;height:38px;background:${C.blue};color:#fff;border:none;border-radius:4px;font-size:13.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.12s;font-family:${C.font}; }
-        .ts-btn-primary:hover { background:#003EAA; }
-        .ts-btn-override { background:transparent;border:none;color:${C.textMuted};font-size:13px;font-weight:400;cursor:not-allowed;padding:4px 0;transition:color 0.12s;font-family:${C.font}; }
-        .ts-btn-override.active { color:${C.red};cursor:pointer; }
-        .ts-btn-link { background:transparent;border:none;color:${C.blue};font-size:13px;cursor:pointer;padding:4px 0;transition:opacity 0.12s;font-family:${C.font}; }
-        .ts-btn-link:hover { opacity:0.7; }
-        .ts-btn-decoy { width:100%;height:38px;background:${C.greenBg};color:${C.green};border:1px solid ${C.greenBd};border-radius:4px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:background 0.12s;margin-bottom:10px;font-family:${C.font}; }
-        .ts-btn-decoy:hover { background:${C.greenBd}; }
-        .ts-carousel-nav { width:26px;height:26px;border-radius:4px;border:1px solid ${C.border};background:${C.surface};color:${C.text};display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.12s; }
-        .ts-carousel-nav:hover { background:${C.canvas}; }
+        @keyframes tsBackdrop {
+          from { opacity: 0; }
+          to   { opacity: 1; }
+        }
+        @keyframes tsCardEnter {
+          from { opacity: 0; transform: scale(0.96) translateY(10px); }
+          to   { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .ts-btn-primary {
+          width: 100%;
+          height: 42px;
+          background: ${C.darkAction};
+          color: #FFFFFF;
+          border: none;
+          border-radius: 12px;
+          font-size: 13.5px;
+          font-weight: 600;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+          transition: background 0.15s, transform 0.1s;
+          font-family: ${C.font};
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        .ts-btn-primary:hover {
+          background: ${C.darkHover};
+        }
+        .ts-btn-primary:active {
+          transform: scale(0.985);
+        }
+        .ts-btn-decoy {
+          width: 100%;
+          height: 40px;
+          background: ${C.greenSoft};
+          color: ${C.green};
+          border: 1px solid ${C.greenBorder};
+          border-radius: 12px;
+          font-size: 13px;
+          font-weight: 600;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 7px;
+          transition: background 0.15s, transform 0.1s;
+          margin-bottom: 10px;
+          font-family: ${C.font};
+        }
+        .ts-btn-decoy:hover {
+          background: #D1FAE5;
+        }
+        .ts-btn-decoy:active {
+          transform: scale(0.985);
+        }
+        .ts-hold-btn {
+          position: relative;
+          width: 100%;
+          height: 38px;
+          background: transparent;
+          border: 1px solid ${C.border};
+          border-radius: 12px;
+          overflow: hidden;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          user-select: none;
+          outline: none;
+          transition: border-color 0.2s;
+          font-family: ${C.font};
+        }
+        .ts-hold-btn:hover {
+          border-color: ${C.textMuted};
+        }
+        .ts-hold-fill {
+          position: absolute;
+          left: 0;
+          top: 0;
+          bottom: 0;
+          width: 0%;
+          background: ${isCritical ? 'rgba(220, 38, 38, 0.12)' : 'rgba(217, 119, 6, 0.12)'};
+          pointer-events: none;
+          transition: width 0.05s linear;
+        }
+        .ts-hold-label {
+          position: relative;
+          z-index: 1;
+          font-size: 12px;
+          font-weight: 500;
+          color: ${C.textSec};
+          pointer-events: none;
+          transition: color 0.15s;
+        }
+        .ts-hold-btn.holding .ts-hold-label {
+          color: ${isCritical ? C.red : C.amber};
+          font-weight: 600;
+        }
+        .ts-hold-btn.unlocked {
+          border-color: ${C.green};
+          background: ${C.greenSoft};
+        }
+        .ts-hold-btn.unlocked .ts-hold-label {
+          color: ${C.green};
+          font-weight: 600;
+        }
+        .ts-btn-inspect {
+          background: transparent;
+          border: none;
+          color: ${C.textMuted};
+          font-size: 12px;
+          font-weight: 500;
+          cursor: pointer;
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          padding: 4px 6px;
+          border-radius: 6px;
+          transition: color 0.15s;
+          font-family: ${C.font};
+        }
+        .ts-btn-inspect:hover {
+          color: ${C.text};
+        }
       </style>
 
       <div id="ts-modal-card" style="
-        background:${C.surface};width:100%;max-width:440px;border-radius:8px;
-        box-shadow:0 16px 40px -8px rgba(0,0,0,0.2),0 0 0 1px ${C.border};
-        overflow:hidden;font-family:${C.font};
-        animation:tsModal 0.2s cubic-bezier(0.16,1,0.3,1);
-        color:${C.text};display:flex;flex-direction:column;
-        padding:26px 24px 20px;box-sizing:border-box;
+        background: ${C.surface};
+        width: 100%;
+        max-width: 440px;
+        border-radius: 24px;
+        box-shadow: 0 32px 72px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.06);
+        overflow: hidden;
+        font-family: ${C.font};
+        animation: tsCardEnter 0.26s cubic-bezier(0.16, 1, 0.3, 1);
+        color: ${C.text};
+        display: flex;
+        flex-direction: column;
+        padding: 30px 26px 22px;
+        box-sizing: border-box;
       ">
         <!-- ICON -->
-        <div style="width:44px;height:44px;border-radius:11px;background:${isCritical ? C.redBg : C.amberBg};border:1px solid ${isCritical ? C.redBd : C.amberBd};display:flex;align-items:center;justify-content:center;margin:0 auto 16px auto;color:${isCritical ? C.red : C.amber};">
+        <div style="
+          width: 46px;
+          height: 46px;
+          border-radius: 14px;
+          background: ${isCritical ? C.redSoft : C.amberSoft};
+          border: 1px solid ${isCritical ? C.redBorder : C.amberBorder};
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin: 0 auto 16px auto;
+          color: ${isCritical ? C.red : C.amber};
+        ">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             ${isCritical
-              ? '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>'
+              ? '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>'
               : '<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>'}
           </svg>
         </div>
 
         <!-- TITLE -->
-        <div style="font-size:18px;font-weight:600;color:${C.text};text-align:center;letter-spacing:-0.015em;line-height:1.3;margin-bottom:8px;">${xai.humanTitle}</div>
+        <div style="
+          font-size: 19px;
+          font-weight: 600;
+          color: ${C.text};
+          text-align: center;
+          letter-spacing: -0.02em;
+          line-height: 1.3;
+          margin-bottom: 6px;
+        ">${threatTitle}</div>
 
-        <!-- SUBTITLE -->
-        <div style="font-size:13.5px;line-height:1.55;color:${C.textSec};text-align:center;margin-bottom:18px;">${xai.humanCoreWarning}</div>
-
-        <!-- CONTEXT ROW -->
-        <div style="background:${C.canvas};border:1px solid ${C.border};border-radius:8px;padding:9px 13px;margin-bottom:16px;font-size:12px;color:${C.textSec};display:flex;justify-content:space-between;align-items:center;">
-          <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:260px;">
-            ${options.contextLabel}: <strong style="color:${C.text};font-family:ui-monospace,monospace;font-size:11.5px;">${options.contextValue}</strong>
-          </span>
-          <span style="font-weight:600;color:${isCritical ? C.red : C.amber};white-space:nowrap;font-size:11.5px;">Ризик: ${fallbackAssessment.score}/100</span>
+        <!-- CONTEXT PILL -->
+        <div style="
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+          font-size: 11.5px;
+          color: ${C.textMuted};
+          margin-bottom: 18px;
+        ">
+          <span>${options.contextLabel}:</span>
+          <span style="
+            font-family: ${C.monoFont};
+            font-weight: 600;
+            color: ${C.textSec};
+            background: ${C.surfaceSub};
+            border: 1px solid ${C.border};
+            padding: 2px 7px;
+            border-radius: 6px;
+            max-width: 220px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          ">${options.contextValue}</span>
         </div>
 
-        <!-- DECOY BUTTON (if available) -->
+        <!-- CONTRAST CAPSULE (Intent vs Reality) -->
+        <div style="
+          background: ${C.surfaceSub};
+          border: 1px solid ${C.border};
+          border-radius: 16px;
+          padding: 13px 15px;
+          margin-bottom: 14px;
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        ">
+          <!-- User Intent -->
+          <div style="display: flex; flex-direction: column; gap: 2px;">
+            <span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.05em; color: ${C.textMuted}; text-transform: uppercase;">Ваш очікуваний намір</span>
+            <span style="font-size: 12.5px; font-weight: 500; color: ${C.text}; line-height: 1.4;">${userIntent}</span>
+          </div>
+
+          <!-- Divider -->
+          <div style="display: flex; align-items: center; gap: 8px; margin: 1px 0;">
+            <div style="flex: 1; height: 1px; background: ${C.border};"></div>
+            <div style="color: ${isCritical ? C.red : C.amber}; display: flex; align-items: center; font-size: 9.5px; font-weight: 700; letter-spacing: 0.04em;">
+              ПРИХОВАНА ЗАГРОЗА
+            </div>
+            <div style="flex: 1; height: 1px; background: ${C.border};"></div>
+          </div>
+
+          <!-- Hidden Reality -->
+          <div style="display: flex; flex-direction: column; gap: 2px;">
+            <span style="font-size: 12.5px; font-weight: 500; color: ${C.text}; line-height: 1.4;">${hiddenReality}</span>
+          </div>
+        </div>
+
+        <!-- REASSURING VERDICT -->
+        <div style="
+          font-size: 12.5px;
+          line-height: 1.5;
+          color: ${C.textSec};
+          text-align: center;
+          margin-bottom: 20px;
+          padding: 0 4px;
+        ">${verdict}</div>
+
+        <!-- DECOY BUTTON (If available) -->
         ${options.vaultMatches && options.vaultMatches.some((m) => m.isDecoyAvailable) ? `
           <button id="ts-decoy-btn" class="ts-btn-decoy">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
@@ -209,50 +432,54 @@ export class UnifiedFrictionModal {
           </button>
         ` : ''}
 
-        <!-- PRIMARY ACTION -->
-        <button id="ts-primary-btn" class="ts-btn-primary">${primaryActionLabel}</button>
-
-        <!-- AI ARBITER -->
-        <button id="ts-ai-arbiter-btn" style="width:100%;height:40px;background:#E0E7FF;color:#4338CA;border:1px solid #C7D2FE;border-radius:9px;font-size:13.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:opacity 0.12s;margin-top:10px;font-family:${C.font};">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg> Сумніваєтесь? Запитати ШІ
+        <!-- PRIMARY ACTION: Return to Safety -->
+        <button id="ts-primary-btn" class="ts-btn-primary">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+          ${primaryActionLabel}
         </button>
-        <div id="ts-ai-arbiter-result" style="display:none;font-size:12.5px;padding:10px;border-radius:8px;margin-top:10px;width:100%;box-sizing:border-box;font-family:${C.font};"></div>
 
-        <!-- SECONDARY ROW -->
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding:0 2px;">
-          <button id="ts-inspect-btn" class="ts-btn-link">Докладніше</button>
-          <button id="ts-override-btn" class="ts-btn-override" disabled>Продовжити (3с)...</button>
+        <!-- SENSORY HOLD TO UNLOCK -->
+        <div style="margin-top: 10px;">
+          <div id="ts-hold-btn" class="ts-hold-btn" title="Затисніть ліву кнопку миші на 2 секунди для переходу">
+            <div id="ts-hold-fill" class="ts-hold-fill"></div>
+            <span id="ts-hold-label" class="ts-hold-label">Утримуйте 2с для переходу на власний ризик</span>
+          </div>
         </div>
 
-        <!-- INSPECTOR PANEL -->
-        <div id="ts-inspector" style="display:none;background:${C.canvas};border:1px solid ${C.border};border-radius:12px;padding:14px 16px;margin-top:14px;">
-          <!-- CAROUSEL HEADER -->
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid ${C.border};">
-            <span style="font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:${C.textMuted};">Фактори оцінювання</span>
-            <span id="ts-counter" style="font-size:11.5px;font-weight:600;color:${C.text};">1 з ${slides.length}</span>
+        <!-- FOOTER: Inspector Toggle -->
+        <div style="display: flex; align-items: center; justify-content: center; margin-top: 14px;">
+          <button id="ts-inspect-btn" class="ts-btn-inspect">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            Аналітичний зріз
+          </button>
+        </div>
+
+        <!-- INSPECTOR PANEL (Swiss-Watch diagnostic sheet) -->
+        <div id="ts-inspector" style="
+          display: none;
+          background: ${C.surfaceSub};
+          border: 1px solid ${C.border};
+          border-radius: 14px;
+          padding: 13px 14px;
+          margin-top: 14px;
+          animation: tsCardEnter 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        ">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid ${C.border};">
+            <span style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: ${C.textMuted};">Формула оцінки загрози</span>
+            <span style="font-size: 11px; font-weight: 600; color: ${isCritical ? C.red : C.amber}; font-family: ${C.monoFont};">
+              RiskScore: ${fallbackAssessment.score}/100
+            </span>
           </div>
 
-          <!-- CAROUSEL -->
-          <div id="ts-viewport" style="position:relative;overflow:hidden;width:100%;">
-            <div id="ts-track" style="display:flex;transition:transform 0.25s cubic-bezier(0.16,1,0.3,1);width:100%;">
-              ${slidesHtml}
-            </div>
+          <div style="font-size: 10.5px; font-family: ${C.monoFont}; color: ${C.textSec}; background: ${C.surface}; border: 1px solid ${C.border}; border-radius: 6px; padding: 6px 8px; margin-bottom: 10px;">
+            ${xai.breakdown.formula}
           </div>
 
-          <!-- CAROUSEL NAV -->
-          ${slides.length > 1 ? `
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding-top:10px;border-top:1px solid ${C.border};">
-            <button id="ts-prev" class="ts-carousel-nav" aria-label="Назад">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-            </button>
-            <div id="ts-dots" style="display:flex;gap:6px;align-items:center;">${dotsHtml}</div>
-            <button id="ts-next" class="ts-carousel-nav" aria-label="Далі">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-            </button>
+          <div style="display: flex; flex-direction: column; gap: 6px; max-height: 180px; overflow-y: auto; padding-right: 2px;">
+            ${diagnosticsHtml}
           </div>
-          ` : ''}
 
-          ${rememberHtml}
+          ${rememberCheckboxHtml}
         </div>
       </div>
     `;
@@ -260,136 +487,28 @@ export class UnifiedFrictionModal {
     ShadowHost.append(modalRoot);
     this.activeModal = modalRoot;
 
-    const btnPrimary   = modalRoot.querySelector('#ts-primary-btn') as HTMLButtonElement;
-    const btnOverride  = modalRoot.querySelector('#ts-override-btn') as HTMLButtonElement;
-    const btnInspect   = modalRoot.querySelector('#ts-inspect-btn') as HTMLButtonElement;
-    const inspector    = modalRoot.querySelector('#ts-inspector') as HTMLElement;
-    const checkRemember= modalRoot.querySelector('#ts-remember') as HTMLInputElement;
-    const btnDecoy     = modalRoot.querySelector('#ts-decoy-btn');
+    // Element references
+    const btnPrimary    = modalRoot.querySelector('#ts-primary-btn') as HTMLButtonElement;
+    const btnDecoy      = modalRoot.querySelector('#ts-decoy-btn') as HTMLButtonElement | null;
+    const btnInspect    = modalRoot.querySelector('#ts-inspect-btn') as HTMLButtonElement;
+    const inspector     = modalRoot.querySelector('#ts-inspector') as HTMLElement;
+    const checkRemember = modalRoot.querySelector('#ts-remember-domain') as HTMLInputElement | null;
 
-    const btnAi = modalRoot.querySelector('#ts-ai-arbiter-btn') as HTMLButtonElement;
-    const aiResultDiv = modalRoot.querySelector('#ts-ai-arbiter-result') as HTMLElement;
+    const holdBtn       = modalRoot.querySelector('#ts-hold-btn') as HTMLElement;
+    const holdFill      = modalRoot.querySelector('#ts-hold-fill') as HTMLElement;
+    const holdLabel     = modalRoot.querySelector('#ts-hold-label') as HTMLElement;
 
-    if (btnAi && aiResultDiv) {
-      btnAi.addEventListener('click', () => {
-        btnAi.disabled = true;
-        btnAi.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="ts-spinner" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> ШІ аналізує... (до 30с)';
-        btnAi.style.opacity = '0.7';
-
-        try {
-          if (typeof chrome !== 'undefined' && chrome.runtime) {
-            const scanText = options.rawTextToScan || options.activeContext?.targetSuspiciousUrl || options.contextValue || '';
-            const intentLabel = (options.intentType && options.intentType !== 'UNKNOWN') ? options.intentType : (options.activeContext?.scenario || 'UNKNOWN');
-            const triggerWord = options.activeContext?.detectedKeywords?.[0];
-
-            const contextRules = AILureVerifier.intentContextRules[intentLabel as ScamIntentType] || 'Analyze for social engineering, phishing, and payment credential theft.';
-            const systemPrompt = `You are a cybersecurity expert specializing in detecting phishing, payment credential theft, and social engineering attacks on online marketplaces and chats.
-
-IMPORTANT RULES:
-1. Respond ONLY with a valid JSON object. Do NOT include markdown blocks or any conversational text.
-2. JSON keys MUST strictly be: "isScam", "confidence", "reasoning".
-3. Write "reasoning" in English: concise, direct explanation (1-2 sentences, max 30 words).
-
-Required JSON schema:
-{
-  "isScam": boolean,
-  "confidence": number (0-100),
-  "reasoning": string (concise explanation in English)
-}`;
-
-            const raisedFlags: string[] = [];
-            if (options.triggers && options.triggers.length > 0) {
-              for (const t of options.triggers) {
-                raisedFlags.push(`${t.severity || 'УВАГА'}: ${t.message}`);
-              }
-            }
-            if (options.activeContext) {
-              raisedFlags.push(`Зшита сесія: перехід після активності на ${options.activeContext.sourcePlatform}`);
-            }
-
-            const heuristicContext = {
-              intentType: intentLabel,
-              detectedKeywords: [
-                ...(options.activeContext?.detectedKeywords || []),
-                ...(options.triggers || []).map(t => t.message)
-              ],
-              suspiciousUrls: [
-                ...(options.activeContext?.targetSuspiciousUrl ? [options.activeContext.targetSuspiciousUrl] : []),
-                ...(options.domainToRemember ? [options.domainToRemember] : [])
-              ],
-              triggeredClusters: options.activeContext?.offPlatformLure ? ['off_platform'] : [],
-              nlpConfidence: options.assessment?.score || (options.badgeLevel === 'CRITICAL' ? 90 : 70),
-              raisedFlags,
-              formDetails: options.formDetails,
-              chatDialogue: options.chatDialogue || ChatChannelMonitor.getDialogueHistory(),
-              sourcePlatform: options.activeContext?.sourcePlatform || window.location.hostname,
-              targetHost: options.contextValue || window.location.hostname
-            };
-
-            const chatDialogue = heuristicContext.chatDialogue;
-
-            const aiLogId = DebuggerOverlay.logAI('ШІ Арбітр → Аналіз', 'Запит відправлено, очікую відповідь...', '#3B82F6', {
-              systemPrompt,
-              contextRules,
-              textSent: scanText,
-              chatDialogue,
-              raisedFlags,
-              formDetails: options.formDetails
-            });
-
-            chrome.runtime.sendMessage({
-              type: 'AI_VERIFY',
-              payload: {
-                text: scanText,
-                intentType: intentLabel,
-                triggerWord,
-                heuristicContext
-              }
-            }, (response) => {
-              const aiResult = response?.aiResult;
-              aiResultDiv.style.display = 'block';
-              
-              if (!aiResult) {
-                aiResultDiv.style.background = C.redBg;
-                aiResultDiv.style.color = C.red;
-                aiResultDiv.style.border = `1px solid ${C.redBd}`;
-                aiResultDiv.innerHTML = '<b>Помилка:</b> ШІ не відповів або недоступний.';
-                DebuggerOverlay.logAI('ШІ Арбітр → Аналіз', 'Gemini Nano не зміг обробити запит.', '#EF4444', undefined, aiLogId);
-              } else if (aiResult.isScam) {
-                aiResultDiv.style.background = C.redBg;
-                aiResultDiv.style.color = C.red;
-                aiResultDiv.style.border = `1px solid ${C.redBd}`;
-                aiResultDiv.innerHTML = '<b>ШІ Підтвердив Загрозу:</b> ' + aiResult.reasoning;
-                DebuggerOverlay.logAI('ШІ Арбітр → Аналіз', `СКАМ підтверджено (Впевненість: ${aiResult.confidence}%)\n\nВисновок: "${aiResult.reasoning}"`, '#EF4444', { rawResponse: aiResult.rawResponse }, aiLogId);
-              } else {
-                aiResultDiv.style.background = C.greenBg;
-                aiResultDiv.style.color = C.green;
-                aiResultDiv.style.border = `1px solid ${C.greenBd}`;
-                aiResultDiv.innerHTML = '<b>ШІ Спростував Загрозу:</b> ' + aiResult.reasoning;
-                DebuggerOverlay.logAI('ШІ Арбітр → Аналіз', `Загрозу спростовано (Впевненість: ${aiResult.confidence}%)\n\nВисновок: "${aiResult.reasoning}"`, '#22C55E', { rawResponse: aiResult.rawResponse }, aiLogId);
-                
-                if (this.countdownInterval) clearInterval(this.countdownInterval);
-                btnOverride.disabled = false;
-                btnOverride.innerText = 'Продовжити (Відправити Дані)';
-                btnOverride.classList.add('active');
-              }
-
-              btnAi.style.display = 'none';
-            });
-          }
-        } catch (e) {
-          console.error(e);
-        }
-      });
-    }
-
+    // Inspector toggle
     let isInspectorOpen = false;
-    btnInspect?.addEventListener('click', () => {
+    btnInspect.addEventListener('click', () => {
       isInspectorOpen = !isInspectorOpen;
       inspector.style.display = isInspectorOpen ? 'block' : 'none';
-      btnInspect.textContent = isInspectorOpen ? 'Сховати деталі' : 'Докладніше';
+      btnInspect.innerHTML = isInspectorOpen
+        ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Сховати аналітику'
+        : '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg> Аналітичний зріз';
     });
 
+    // Decoy button
     btnDecoy?.addEventListener('click', () => {
       if (options.vaultMatches && options.vaultMatches.length > 0) {
         const count = VaultScanner.applyDecoys(options.vaultMatches);
@@ -403,85 +522,119 @@ Required JSON schema:
       }
     });
 
-    // Carousel
-    let currentSlide = 0;
-    const totalSlides = slides.length;
-    const track   = modalRoot.querySelector('#ts-track') as HTMLElement;
-    const counter = modalRoot.querySelector('#ts-counter') as HTMLElement;
-    const dots    = modalRoot.querySelectorAll('.ts-dot');
-    const prevBtn = modalRoot.querySelector('#ts-prev') as HTMLElement;
-    const nextBtn = modalRoot.querySelector('#ts-next') as HTMLElement;
-
-    const goToSlide = (idx: number) => {
-      if (totalSlides <= 1 || !track) return;
-      currentSlide = (idx + totalSlides) % totalSlides;
-      track.style.transform = `translateX(-${currentSlide * 100}%)`;
-      if (counter) counter.textContent = `${currentSlide + 1} з ${totalSlides}`;
-      dots.forEach((dot, i) => {
-        const el = dot as HTMLElement;
-        el.style.background = i === currentSlide ? C.text : C.borderStr;
-        el.style.transform   = i === currentSlide ? 'scale(1.2)' : 'scale(1)';
-      });
+    // Primary action
+    const handleCancel = () => {
+      this.close();
+      options.onCancel();
     };
 
-    if (totalSlides > 1) {
-      prevBtn?.addEventListener('click', () => goToSlide(currentSlide - 1));
-      nextBtn?.addEventListener('click', () => goToSlide(currentSlide + 1));
-      dots.forEach((dot) => {
-        dot.addEventListener('click', (e) => {
-          const idx = Number((e.currentTarget as HTMLElement).dataset.index);
-          if (!isNaN(idx)) goToSlide(idx);
-        });
-      });
-      this.keydownListener = (e: KeyboardEvent) => {
-        if (!isInspectorOpen) return;
-        if (e.key === 'ArrowLeft') goToSlide(currentSlide - 1);
-        if (e.key === 'ArrowRight') goToSlide(currentSlide + 1);
-      };
-      window.addEventListener('keydown', this.keydownListener);
-    }
+    btnPrimary.addEventListener('click', handleCancel);
+    modalRoot.addEventListener('click', (e) => {
+      if (e.target === modalRoot) handleCancel();
+    });
 
-    const handleCancel = () => { this.close(); options.onCancel(); };
-    btnPrimary?.addEventListener('click', handleCancel);
-    modalRoot.addEventListener('click', (e) => { if (e.target === modalRoot) handleCancel(); });
-    modalRoot.addEventListener('wheel', (e) => { if (!(e.target as HTMLElement).closest('#ts-modal-card')) e.preventDefault(); }, { passive: false });
-    modalRoot.addEventListener('touchmove', (e) => { if (!(e.target as HTMLElement).closest('#ts-modal-card')) e.preventDefault(); }, { passive: false });
+    // Hold-to-Unlock sensory mechanics (2 seconds duration with spring rebound)
+    let holdProgress = 0;
+    const HOLD_DURATION_MS = 2000;
+    const HOLD_STEP_MS = 25;
 
-    // 3-second countdown
-    let timeLeft = 3;
-    this.countdownInterval = window.setInterval(() => {
-      timeLeft--;
-      if (timeLeft > 0) {
-        btnOverride.innerText = `Продовжити (${timeLeft}с)...`;
-      } else {
-        if (this.countdownInterval) clearInterval(this.countdownInterval);
-        btnOverride.disabled = false;
-        btnOverride.innerText = 'Продовжити на свій ризик';
-        btnOverride.classList.add('active');
+    const startHold = () => {
+      if (this.holdInterval) clearInterval(this.holdInterval);
+      const startTime = Date.now();
+      holdBtn.classList.add('holding');
+
+      this.holdInterval = window.setInterval(() => {
+        const elapsed = Date.now() - startTime;
+        holdProgress = Math.min(100, (elapsed / HOLD_DURATION_MS) * 100);
+        holdFill.style.width = `${holdProgress}%`;
+
+        const remainingSec = Math.max(0, (HOLD_DURATION_MS - elapsed) / 1000).toFixed(1);
+        holdLabel.textContent = `Утримуйте... (${remainingSec}с)`;
+
+        if (holdProgress >= 100) {
+          if (this.holdInterval) {
+            clearInterval(this.holdInterval);
+            this.holdInterval = null;
+          }
+          holdLabel.textContent = '✓ Доступ підтверджено';
+          holdBtn.classList.add('unlocked');
+
+          setTimeout(async () => {
+            const remember = checkRemember?.checked || false;
+            if (remember && options.domainToRemember) {
+              await UserWhitelistManager.allowDomain(options.domainToRemember);
+            }
+            UnifiedFrictionModal.close();
+            options.onProceed(remember);
+          }, 180);
+        }
+      }, HOLD_STEP_MS);
+    };
+
+    const cancelHold = () => {
+      if (this.holdInterval) {
+        clearInterval(this.holdInterval);
+        this.holdInterval = null;
       }
-    }, 1000);
-
-    btnOverride?.addEventListener('click', async () => {
-      if (btnOverride.disabled) return;
-      const remember = checkRemember?.checked || false;
-      if (remember && options.domainToRemember) {
-        await UserWhitelistManager.allowDomain(options.domainToRemember);
+      if (holdProgress < 100) {
+        holdProgress = 0;
+        holdFill.style.width = '0%';
+        holdLabel.textContent = 'Утримуйте 2с для переходу на власний ризик';
+        holdBtn.classList.remove('holding');
       }
-      this.close();
-      options.onProceed(remember);
+    };
+
+    holdBtn.addEventListener('mousedown', (e) => {
+      if (e.button === 0) startHold();
+    });
+    holdBtn.addEventListener('mouseleave', cancelHold);
+
+    const onMouseUp = () => cancelHold();
+    window.addEventListener('mouseup', onMouseUp);
+    this.holdListeners.push(() => window.removeEventListener('mouseup', onMouseUp));
+
+    holdBtn.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      startHold();
+    }, { passive: false });
+
+    const onTouchEnd = () => cancelHold();
+    window.addEventListener('touchend', onTouchEnd);
+    window.addEventListener('touchcancel', onTouchEnd);
+    this.holdListeners.push(() => {
+      window.removeEventListener('touchend', onTouchEnd);
+      window.removeEventListener('touchcancel', onTouchEnd);
     });
   }
 
   public static close(): void {
-    if (this.countdownInterval) { clearInterval(this.countdownInterval); this.countdownInterval = null; }
-    if (this.keydownListener) { window.removeEventListener('keydown', this.keydownListener); this.keydownListener = null; }
-    if (this.activeModal) { ShadowHost.remove(this.activeModal); this.activeModal = null; }
-    if (this.previousBodyOverflow !== null) { document.body.style.overflow = this.previousBodyOverflow; this.previousBodyOverflow = null; }
-    if (this.previousHtmlOverflow !== null) { document.documentElement.style.overflow = this.previousHtmlOverflow; this.previousHtmlOverflow = null; }
+    if (this.holdInterval) {
+      clearInterval(this.holdInterval);
+      this.holdInterval = null;
+    }
+    for (const remove of this.holdListeners) {
+      try { remove(); } catch {}
+    }
+    this.holdListeners = [];
+
+    if (this.activeModal) {
+      ShadowHost.remove(this.activeModal);
+      this.activeModal = null;
+    }
+    if (typeof document !== 'undefined') {
+      if (this.previousBodyOverflow !== null && document.body) {
+        document.body.style.overflow = this.previousBodyOverflow;
+        this.previousBodyOverflow = null;
+      }
+      if (this.previousHtmlOverflow !== null && document.documentElement) {
+        document.documentElement.style.overflow = this.previousHtmlOverflow;
+        this.previousHtmlOverflow = null;
+      }
+    }
   }
 
-  private static buildCarouselSlides(options: UnifiedModalOptions, xai: any): CarouselSlide[] {
-    const slides: CarouselSlide[] = [];
+  private static buildDiagnosticFactors(options: UnifiedModalOptions, xai: any): DiagnosticItem[] {
+    const list: DiagnosticItem[] = [];
 
     if (options.triggers && options.triggers.length > 0) {
       for (const t of options.triggers) {
@@ -494,84 +647,80 @@ Required JSON schema:
         let evidence: string | undefined;
 
         if (lower.includes('лун') || lower.includes('номер банківськ') || lower.includes('номер картки')) {
-          title = 'Номер банківської картки'; badge = 'Платіжні дані'; badgeType = 'critical';
-          description = 'У формі введено коректний номер картки за алгоритмом Луна. Недовірений сайт намагається отримати доступ до вашого рахунку.';
-          evidence = 'Luhn Validation: SUCCESS';
+          title = 'Номер банківської картки';
+          badge = 'Платіжні дані';
+          badgeType = 'critical';
+          description = 'У формі введено коректний номер картки за алгоритмом Луна на неакредитованій сторінці.';
+          evidence = 'Алгоритм Луна: успішно валідовано';
         } else if (lower.includes('прихован') || lower.includes('autofill') || lower.includes('автозаповнен')) {
-          title = 'Прихована пастка автозаповнення'; badge = 'DOM-пастка'; badgeType = 'critical';
-          description = 'Сторінка містить невидимі поля для тихого перехоплення реквізитів з пам\'яті браузера.';
-          evidence = 'autocomplete="cc-number" / "cc-csc"';
+          title = 'Прихована пастка автозаповнення';
+          badge = 'DOM-пастка';
+          badgeType = 'critical';
+          description = 'Сторінка містить приховані поля (CSS cloaking) для викрадення збережених карткових даних.';
+          evidence = 'CSS Cloaking / Autofill Trap';
         } else if (lower.includes('цільовий') || lower.includes('вузол') || lower.includes('хост') || lower.includes('невідповідн') || lower.includes('action')) {
-          title = 'Невідомий отримувач платежу'; badge = 'Недовірений сервер'; badgeType = 'critical';
-          description = `Дані форми відправляються на сервер ${options.contextValue}, який не є акредитованою платіжною системою.`;
+          title = 'Невідомий платіжний вузол';
+          badge = 'Недовірений сервер';
+          badgeType = 'critical';
+          description = `Дані форми відправляються на сторонній сервер ${options.contextValue}, який не є акредитованим шлюзом.`;
           evidence = `action: ${options.contextValue}`;
         } else if (lower.includes('cvv') || lower.includes('cvc')) {
-          title = 'CVV/CVC — секретний код картки'; badge = 'Критичний витік'; badgeType = 'critical';
-          description = 'Виявлено спробу передачі CVV/CVC коду. Жоден легітимний маркетплейс чи служба підтримки ніколи не запитує цей код у чатах.';
+          title = 'Секретний код картки (CVV/CVC)';
+          badge = 'Критичний витік';
+          badgeType = 'critical';
+          description = 'Виявлено спробу передачі CVV-коду. Офіційні служби ніколи не запитують його для зарахування грошей.';
           evidence = 'Card Verification Value';
         } else if (t.name === 'urgency_scarcity_manipulation' || lower.includes('термінов') || lower.includes('таймер') || lower.includes('dark pattern')) {
-          title = 'Штучний тиск терміновості'; badge = 'Психологічна маніпуляція'; badgeType = 'warning';
-          description = 'Сторінка використовує фіктивний таймер або погрози, щоб змусити вас діяти необдумано.';
+          title = 'Штучний тиск терміновості';
+          badge = 'Dark Pattern';
+          badgeType = 'warning';
+          description = 'Сторінка застосовує фіктивний зворотний відлік або психологічний тиск, провокуючи поспіх.';
           const timerText = (t.details as any)?.timerText;
-          evidence = timerText ? `Зворотний відлік: ${timerText}` : 'Urgency Scarcity Manipulation';
+          evidence = timerText ? `Зворотний відлік: ${timerText}` : 'Urgency Manipulation';
         } else {
-          title = 'Виявлений ризик'; badge = t.severity === 'CRITICAL' ? 'Критично' : 'Попередження';
+          title = 'Виявлений фактор ризику';
+          badge = t.severity === 'CRITICAL' ? 'Критично' : 'Попередження';
           badgeType = t.severity === 'CRITICAL' ? 'critical' : 'warning';
           description = rawMsg;
         }
-        slides.push({ badge, badgeType, title, description, evidence });
+        list.push({ badge, badgeType, title, description, evidence });
       }
     }
 
     if (options.activeContext) {
       const minutesAgo = Math.max(1, Math.round((Date.now() - options.activeContext.timestamp) / 60000));
       const kws = options.activeContext.detectedKeywords || [];
-      slides.push({
-        badge: 'Зшивання сесій', badgeType: 'warning',
-        title: 'Зв\'язок із попереднім чатом',
-        description: `Зафіксовано перехід з "${options.activeContext.sourcePlatform}" (${minutesAgo} хв тому). Шахрай заздалегідь підготував приманку перед перенаправленням.`,
-        evidence: kws.length > 0 ? `Фрази-приманки: "${kws.slice(0, 3).join('", "')}"` : `Джерело: ${options.activeContext.sourcePlatform}`,
+      list.push({
+        badge: 'Зшивання сесій',
+        badgeType: 'warning',
+        title: "Контекстний зв'язок із попереднім чатом",
+        description: `Зафіксовано перехід після повідомлення на платформі "${options.activeContext.sourcePlatform}" (${minutesAgo} хв тому).`,
+        evidence: kws.length > 0 ? `Ключові фрази: "${kws.slice(0, 3).join('", "')}"` : `Джерело: ${options.activeContext.sourcePlatform}`,
       });
     }
 
     const vaultItems = options.vaultItems || options.vaultMatches?.map((m) => m.matchedItem);
     if (vaultItems && vaultItems.length > 0) {
       const labels = Array.from(new Set(vaultItems.map((i) => i.label))).join(', ');
-      slides.push({
-        badge: 'Personal Data Vault', badgeType: 'critical',
+      list.push({
+        badge: 'Personal Vault',
+        badgeType: 'critical',
         title: 'Захист персональних маркерів',
-        description: `Форма випитує захищені дані (${labels}), що використовуються банками для верифікації. Відправка неперевіреному ресурсу загрожує вашим рахункам.`,
+        description: `Форма випитує захищені банківські маркери відновлення доступу (${labels}).`,
         evidence: `Маркери: ${labels}`,
       });
     }
 
-    if (xai?.attackScenario && xai?.diagnosis && !slides.some((s) => s.title.toLowerCase() === xai.attackScenario.toLowerCase())) {
-      slides.push({
-        badge: 'Сценарій атаки', badgeType: 'warning',
-        title: xai.attackScenario,
-        description: xai.diagnosis,
-        evidence: xai.engineType === 'chrome-builtin-ai' ? 'Gemini Nano (On-Device AI)' : 'Contextual XAI Engine',
-      });
-    }
-
-    if (xai?.educationalTip) {
-      slides.push({
-        badge: 'Порада безпеки', badgeType: 'info',
-        title: 'Як уникнути шахрайства',
-        description: xai.educationalTip,
-        evidence: 'Ніколи не підтверджуйте отримання коштів введенням CVV',
-      });
-    }
-
-    if (slides.length === 0) {
-      slides.push({
-        badge: 'Оцінка загрози', badgeType: 'critical',
+    if (list.length === 0) {
+      list.push({
+        badge: 'Оцінка загрози',
+        badgeType: 'critical',
         title: 'Виявлено ризик для безпеки',
-        description: xai?.humanCoreWarning || 'Ця сторінка вимагає підозрілих дій, що можуть загрожувати вашим даним.',
-        evidence: `Сайт: ${options.contextValue}`,
+        description: xai?.humanCoreWarning || 'Ця сторінка запитує чутливі дані, що загрожують безпеці ваших коштів.',
+        evidence: `Сервер: ${options.contextValue}`,
       });
     }
 
-    return slides;
+    return list;
   }
 }

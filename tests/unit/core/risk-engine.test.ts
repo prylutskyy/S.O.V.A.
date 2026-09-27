@@ -11,9 +11,9 @@ describe('RiskEngine', () => {
 
   it('should sum scores of active triggers correctly', () => {
     const triggers: HeuristicResult[] = [
-      { id: '1', name: 'T1', type: 'CONTENT', triggered: true, scoreContribution: 20, confidence: 100 },
-      { id: '2', name: 'T2', type: 'DOMAIN', triggered: true, scoreContribution: 10, confidence: 100 },
-      { id: '3', name: 'T3', type: 'FORM', triggered: false, scoreContribution: 50, confidence: 100 },
+      { id: '1', name: 'T1', type: 'CONTENT', triggered: true, scoreContribution: 20, confidence: 100, severity: 'HIGH', message: 'Triggered' },
+      { id: '2', name: 'T2', type: 'DOMAIN', triggered: true, scoreContribution: 10, confidence: 100, severity: 'HIGH', message: 'Triggered' },
+      { id: '3', name: 'T3', type: 'FORM', triggered: false, scoreContribution: 50, confidence: 100, severity: 'HIGH', message: 'Triggered' },
     ];
     
     // Default context is submit, but isEntirelyEmpty = false and hasFilledSensitive = false
@@ -25,7 +25,7 @@ describe('RiskEngine', () => {
 
   it('should apply context bonus', () => {
     const triggers: HeuristicResult[] = [
-      { id: '1', name: 'T1', type: 'CONTENT', triggered: true, scoreContribution: 20, confidence: 100 }
+      { id: '1', name: 'T1', type: 'CONTENT', triggered: true, scoreContribution: 20, confidence: 100, severity: 'HIGH', message: 'Triggered' }
     ];
     
     // Score = 20 + 30 (bonus) = 50. Math.min(50, 45) = 45.
@@ -37,7 +37,7 @@ describe('RiskEngine', () => {
   describe('User Context Handling', () => {
     it('should add 35 points if submitting sensitive data', () => {
       const triggers: HeuristicResult[] = [
-        { id: '1', name: 'T1', type: 'DOMAIN', triggered: true, scoreContribution: 30, confidence: 100 }
+        { id: '1', name: 'T1', type: 'DOMAIN', triggered: true, scoreContribution: 30, confidence: 100, severity: 'HIGH', message: 'Triggered' }
       ];
       
       const result = RiskEngine.evaluate(triggers, {
@@ -53,7 +53,7 @@ describe('RiskEngine', () => {
 
     it('should cap score at 30 if submitting an entirely empty form', () => {
       const triggers: HeuristicResult[] = [
-        { id: '1', name: 'T1', type: 'DOMAIN', triggered: true, scoreContribution: 80, confidence: 100 }
+        { id: '1', name: 'T1', type: 'DOMAIN', triggered: true, scoreContribution: 80, confidence: 100, severity: 'HIGH', message: 'Triggered' }
       ];
       
       const result = RiskEngine.evaluate(triggers, {
@@ -69,7 +69,7 @@ describe('RiskEngine', () => {
 
     it('should cap score at 45 if submitting non-sensitive data (to prevent false positive)', () => {
       const triggers: HeuristicResult[] = [
-        { id: '1', name: 'T1', type: 'DOMAIN', triggered: true, scoreContribution: 90, confidence: 100 }
+        { id: '1', name: 'T1', type: 'DOMAIN', triggered: true, scoreContribution: 90, confidence: 100, severity: 'HIGH', message: 'Triggered' }
       ];
       
       const result = RiskEngine.evaluate(triggers, {
@@ -85,7 +85,7 @@ describe('RiskEngine', () => {
 
     it('should add 20 points if pasting sensitive data', () => {
       const triggers: HeuristicResult[] = [
-        { id: '1', name: 'T1', type: 'DOMAIN', triggered: true, scoreContribution: 50, confidence: 100 }
+        { id: '1', name: 'T1', type: 'DOMAIN', triggered: true, scoreContribution: 50, confidence: 100, severity: 'HIGH', message: 'Triggered' }
       ];
       
       const result = RiskEngine.evaluate(triggers, {
@@ -102,7 +102,7 @@ describe('RiskEngine', () => {
 
   it('should cap final score between 0 and 100', () => {
     const triggers: HeuristicResult[] = [
-      { id: '1', name: 'T1', type: 'DOMAIN', triggered: true, scoreContribution: 200, confidence: 100 }
+      { id: '1', name: 'T1', type: 'DOMAIN', triggered: true, scoreContribution: 200, confidence: 100, severity: 'HIGH', message: 'Triggered' }
     ];
     
     const result = RiskEngine.evaluate(triggers, {

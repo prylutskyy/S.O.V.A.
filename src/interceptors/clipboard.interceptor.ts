@@ -63,7 +63,7 @@ export class ClipboardInterceptor {
             ? 'Виявлено спробу переходу в сторонній месенджер'
             : 'У скопійованому тексті виявлено підозріле посилання',
           selection,
-          scan.intentType,
+          scan.intentType || 'UNKNOWN',
           scan.confidence || 75
         );
       }
