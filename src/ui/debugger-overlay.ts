@@ -476,7 +476,7 @@ export class DebuggerOverlay {
   private static exportDiagnosticReport(): string {
     const fpAssessment = this.assessFalsePositive();
     const report = {
-      generator: 'Sanctuary Core · Swiss Loupe Telemetry (MV3 Light)',
+      generator: 'Sanctuary Prism · Swiss Loupe Telemetry (MV3 Light)',
       timestamp: new Date().toISOString(),
       url: typeof window !== 'undefined' ? window.location.href : '',
       hostname: typeof window !== 'undefined' ? window.location.hostname : '',
@@ -1454,15 +1454,19 @@ export class DebuggerOverlay {
         <!-- 1. Apple Precision Titlebar -->
         <div class="sc-titlebar" id="drag-handle">
           <div class="sc-brand-group">
-            <div class="sc-brand-icon" title="Sanctuary Core">
+            <div class="sc-brand-icon" title="Sanctuary Prism">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="9" />
-                <circle cx="12" cy="12" r="5" stroke-dasharray="1.5 2" />
+                <circle cx="12" cy="12" r="5" stroke-opacity="0.75" />
+                <line x1="12" y1="2" x2="12" y2="4.5" />
+                <line x1="12" y1="19.5" x2="12" y2="22" />
+                <line x1="2" y1="12" x2="4.5" y2="12" />
+                <line x1="19.5" y1="12" x2="22" y2="12" />
                 <circle cx="12" cy="12" r="1.8" fill="#FFFFFF" />
               </svg>
             </div>
             <div class="sc-brand-meta">
-              <span class="sc-brand-name">Sanctuary Core</span>
+              <span class="sc-brand-name">Sanctuary Prism</span>
               <span class="sc-brand-pill">Швейцарська Лупа</span>
             </div>
           </div>
