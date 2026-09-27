@@ -23,7 +23,6 @@ export interface LogItem {
 }
 
 export type NeuromonitorTab = 'overview' | 'events' | 'ai';
-export type NeuromonitorUserMode = 'user' | 'dev';
 export type NeuromonitorCategoryFilter = 'ALL' | 'AI' | 'FORM' | 'RISK';
 
 const ICONS = {
@@ -39,8 +38,6 @@ const ICONS = {
     `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`,
   info: (size = 14, color = 'currentColor') =>
     `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>`,
-  code: (size = 14, color = 'currentColor') =>
-    `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>`,
   copy: (size = 12, color = 'currentColor') =>
     `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`,
   download: (size = 13, color = 'currentColor') =>
@@ -69,6 +66,8 @@ const ICONS = {
     `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`,
   activity: (size = 13, color = 'currentColor') =>
     `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`,
+  loupe: (size = 13, color = 'currentColor') =>
+    `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>`,
 };
 
 export class DebuggerOverlay {
@@ -80,7 +79,6 @@ export class DebuggerOverlay {
     severity: 'LOW' as string,
     score: 0,
     activeTab: 'overview' as NeuromonitorTab,
-    userMode: 'dev' as NeuromonitorUserMode,
     filterCategory: 'ALL' as NeuromonitorCategoryFilter,
     filterSearch: '',
     isMinimized: false,
@@ -131,7 +129,7 @@ export class DebuggerOverlay {
       if (this.container.style.width && this.container.style.width !== 'auto') {
         this.savedDimensions = {
           width: this.container.style.width,
-          height: this.container.style.height || '640px',
+          height: this.container.style.height || '580px',
         };
       }
       Object.assign(this.container.style, {
@@ -154,27 +152,27 @@ export class DebuggerOverlay {
         this.savedDimensions?.width ||
         (this.container.style.width && this.container.style.width !== 'auto'
           ? this.container.style.width
-          : '480px');
+          : '460px');
       const currentHeight =
         this.savedDimensions?.height ||
         (this.container.style.height && this.container.style.height !== 'auto'
           ? this.container.style.height
-          : '640px');
+          : '580px');
 
       const baseStyles: Partial<CSSStyleDeclaration> = {
         position: 'fixed',
         width: currentWidth,
         height: currentHeight,
-        minWidth: '400px',
-        minHeight: '520px',
+        minWidth: '380px',
+        minHeight: '480px',
         maxWidth: '92vw',
         maxHeight: '92vh',
         zIndex: '2147483647',
         display: 'block',
         resize: 'both',
         overflow: 'hidden',
-        borderRadius: '20px',
-        boxShadow: '0 24px 64px -12px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.12)',
+        borderRadius: '22px',
+        boxShadow: '0 24px 64px -12px rgba(0, 0, 0, 0.16), 0 0 0 1px rgba(0, 0, 0, 0.06)',
       };
 
       if (this.customPos) {
@@ -266,7 +264,7 @@ export class DebuggerOverlay {
     }
 
     const time = new Date().toLocaleTimeString();
-    const color = customColor || '#30D158'; // Apple Emerald default
+    const color = customColor || '#34C759'; // Apple Emerald default
 
     const isStepAi =
       cleanStepKey.toLowerCase().includes('ai') ||
@@ -324,7 +322,7 @@ export class DebuggerOverlay {
     const cleanData = typeof data === 'string' ? this.stripEmoji(data) : data;
 
     const time = new Date().toLocaleTimeString();
-    const color = customColor || '#0A84FF'; // Apple Sapphire default
+    const color = customColor || '#0071E3'; // Apple Sapphire default
     const isPending =
       typeof cleanData === 'string' &&
       (cleanData.includes('очікую') || cleanData.includes('Аналізую') || cleanData.includes('відправлено'));
@@ -368,87 +366,68 @@ export class DebuggerOverlay {
         isForm: false,
         isPending,
         aiContext,
-        expanded: false,
       });
-    }
-
-    if (this.state.sessionId) {
-      try {
-        if (typeof chrome !== 'undefined' && chrome.runtime) {
-          const effectiveContext =
-            targetIndex >= 0 ? this.state.logs[targetIndex].aiContext : aiContext;
-          chrome.runtime.sendMessage({
-            type: 'BROADCAST_LOG',
-            payload: {
-              sessionId: this.state.sessionId,
-              stepKey: cleanStepKey,
-              data: cleanData,
-              customColor: color,
-              isAi: true,
-              aiContext: effectiveContext,
-              logId: currentId,
-            },
-          });
-        }
-      } catch {}
     }
 
     this.render();
     return currentId;
   }
 
-  // Аудит хибних спрацьовувань (False Positive Inspector)
+  // Оцінка консенсусу (Евристика vs Gemini Nano)
   private static assessFalsePositive() {
     const { score, severity, logs } = this.state;
+    const isHeuristicRisk = score >= 40 || severity === 'HIGH' || severity === 'CRITICAL';
 
-    // 1. Пошук тригерів
-    const triggersLog = logs.find((l) => l.stepKey.includes('Спрацьовані Тригери'));
-    let triggers: string[] = [];
-    if (triggersLog) {
-      if (Array.isArray(triggersLog.data)) triggers = triggersLog.data.map((t) => this.stripEmoji(String(t)));
-      else if (typeof triggersLog.data === 'string') triggers = [this.stripEmoji(triggersLog.data)];
-    }
+    const aiLogs = logs.filter((l) => l.isAi);
+    let lastAiVerdict: { isScam: boolean; confidence: number; explanation: string } | null = null;
 
-    // 2. Пошук останнього завершеного аналізу ШІ
-    let lastAiVerdict: { isScam: boolean; text: string; confidence?: number } | null = null;
-    for (let i = logs.length - 1; i >= 0; i--) {
-      const l = logs[i];
-      if (l.isAi && !l.isPending && typeof l.data === 'string') {
-        const textLower = l.data.toLowerCase();
-        if (textLower.includes('спростовано') || textLower.includes('безпечно') || textLower.includes('clean')) {
-          const confMatch = l.data.match(/Впевненість:\s*(\d+)%/);
-          lastAiVerdict = {
-            isScam: false,
-            text: l.data,
-            confidence: confMatch ? parseInt(confMatch[1], 10) : 90,
-          };
-          break;
-        } else if (textLower.includes('скам') || textLower.includes('scam') || textLower.includes('підтверджено')) {
-          const confMatch = l.data.match(/Впевненість:\s*(\d+)%/);
-          lastAiVerdict = {
-            isScam: true,
-            text: l.data,
-            confidence: confMatch ? parseInt(confMatch[1], 10) : 85,
-          };
-          break;
-        }
+    for (let i = aiLogs.length - 1; i >= 0; i--) {
+      const raw = aiLogs[i].aiContext?.rawResponse;
+      if (raw) {
+        try {
+          const parsed = JSON.parse(raw);
+          if (typeof parsed.isScam === 'boolean') {
+            lastAiVerdict = parsed;
+            break;
+          }
+        } catch {}
+      }
+      const dataStr = String(aiLogs[i].data);
+      if (dataStr.includes('СКАМ') || dataStr.includes('ШАХРАЙ')) {
+        lastAiVerdict = { isScam: true, confidence: 90, explanation: dataStr };
+        break;
+      }
+      if (dataStr.includes('Безпечно') || dataStr.includes('ЛЕГІТИМНО') || dataStr.includes('Норма')) {
+        lastAiVerdict = { isScam: false, confidence: 92, explanation: dataStr };
+        break;
       }
     }
 
-    // 3. Аналіз розбіжності (Discrepancy)
-    const isHeuristicRisk = score >= 50 || severity === 'HIGH' || severity === 'CRITICAL';
+    const triggers: string[] = [];
+    logs.forEach((l) => {
+      if (
+        l.color === '#FF3B30' ||
+        l.color === '#FF453A' ||
+        l.color === '#EF4444' ||
+        l.stepKey.includes('Ризик') ||
+        l.stepKey.includes('Trap') ||
+        l.stepKey.includes('СКАМ')
+      ) {
+        triggers.push(l.stepKey);
+      }
+    });
+
     const isAiDisproved = lastAiVerdict !== null && !lastAiVerdict.isScam;
     const isAiConfirmed = lastAiVerdict !== null && lastAiVerdict.isScam;
 
     if (isHeuristicRisk && isAiDisproved) {
       return {
         status: 'FP_CANDIDATE',
-        badgeIcon: ICONS.alertTriangle(12, '#FF9F0A'),
+        badgeIcon: ICONS.alertTriangle(12, '#B25900'),
         badgeText: 'РОЗБІЖНІСТЬ: ЙМОВІРНИЙ FALSE POSITIVE',
         badgeClass: 'sc-badge-amber',
-        explanation: `Евристичні тригери нарахували ${score}/100 балів, але локальний ШІ-Арбітр Gemini Nano спростував шахрайство (Впевненість: ${lastAiVerdict?.confidence}%). Можливе хибне блокування на легітимному сервісі.`,
-        recommendation:
-          'Рекомендується перевірити акредитацію цільового платіжного домену або додати сайт до списку довірених.',
+        explanation: `Евристика зафіксувала ${score}/100 балів, але локальний ШІ Gemini Nano підтвердив безпечність (${lastAiVerdict?.confidence}% впевненості). Рекомендується довірити або уточнити статус сторінки.`,
+        recommendation: 'Можливе надмірне спрацювання на легітимній формі.',
         heuristicVerdict: `Ризик ${score}/100 (${severity})`,
         aiVerdict: `Безпечно (${lastAiVerdict?.confidence}%)`,
         triggers,
@@ -456,11 +435,11 @@ export class DebuggerOverlay {
     } else if (isHeuristicRisk && isAiConfirmed) {
       return {
         status: 'CONFIRMED_THREAT',
-        badgeIcon: ICONS.alertCircle(12, '#FF453A'),
+        badgeIcon: ICONS.alertCircle(12, '#D70015'),
         badgeText: 'ПІДТВЕРДЖЕНА ЗАГРОЗА (TRUE POSITIVE)',
         badgeClass: 'sc-badge-red',
-        explanation: `Консенсус досягнуто: евристичний конвеєр (${score} балів) та Gemini Nano (${lastAiVerdict?.confidence}%) одностайно класифікували взаємодію як шкідливу.`,
-        recommendation: 'Захисне тертя та блокування відправки даних повністю виправдані.',
+        explanation: `Консенсус безпеки: евристика (${score} балів) та Gemini Nano (${lastAiVerdict?.confidence}%) підтвердили зловмисний намір або фішинг.`,
+        recommendation: 'Захисне блокування та переривання введення повністю виправдані.',
         heuristicVerdict: `Ризик ${score}/100 (${severity})`,
         aiVerdict: `СКАМ (${lastAiVerdict?.confidence}%)`,
         triggers,
@@ -468,24 +447,24 @@ export class DebuggerOverlay {
     } else if (isHeuristicRisk && !lastAiVerdict) {
       return {
         status: 'HEURISTIC_ONLY',
-        badgeIcon: ICONS.zap(12, '#FF9F0A'),
-        badgeText: 'ЕВРИСТИЧНЕ СПРАЦЮВАННЯ (ОЧІКУВАННЯ ШІ)',
+        badgeIcon: ICONS.zap(12, '#B25900'),
+        badgeText: 'ЕВРИСТИЧНЕ СПРАЦЮВАННЯ',
         badgeClass: 'sc-badge-amber',
-        explanation: `Спрацювали евристичні фільтри (${score} балів). ШІ-арбітраж ще не завершено або форма заблокована за жорстким правилом.`,
-        recommendation: 'Зверніть увагу на перелік активних тригерів нижче.',
+        explanation: `Спрацювали анатомічні фільтри форм (${score} балів). ШІ-арбітраж ще триває або форма заблокована жорстким правилом.`,
+        recommendation: 'Перевірте виявлені підозрілі поля у списку тригерів нижче.',
         heuristicVerdict: `Ризик ${score}/100 (${severity})`,
-        aiVerdict: 'Очікується / Не викликався',
+        aiVerdict: 'Очікується аналіз',
         triggers,
       };
     } else {
       return {
         status: 'CLEAN',
-        badgeIcon: ICONS.shieldCheck(12, '#30D158'),
+        badgeIcon: ICONS.shieldCheck(12, '#248A3D'),
         badgeText: 'НОРМА: АНОМАЛІЙ НЕ ВИЯВЛЕНО',
         badgeClass: 'sc-badge-green',
         explanation:
-          'Форми та комунікації на цій сторінці відповідають стандартам безпеки. Ознак фішингу, прихованих полів або крадіжки реквізитів немає.',
-        recommendation: 'Система працює у фоновому пасивному режимі.',
+          'Форми та комунікації на цій сторінці відповідають стандартам безпеки. Ознак фішингу, прихованих полів або викрадення балансу немає.',
+        recommendation: 'Система функціонує у фоновому пасивному режимі.',
         heuristicVerdict: `Безпечно (${score}/100)`,
         aiVerdict: lastAiVerdict ? 'Безпечно' : 'У нормі',
         triggers: triggers.length > 0 ? triggers : ['Тригери відсутні'],
@@ -493,26 +472,18 @@ export class DebuggerOverlay {
     }
   }
 
-  // Генерація діагностичного звіту для розробника
+  // Генерація діагностичного звіту у форматі JSON
   private static exportDiagnosticReport(): string {
     const fpAssessment = this.assessFalsePositive();
     const report = {
-      generator: 'Sanctuary Core · Telemetry Hub (MV3)',
+      generator: 'Sanctuary Core · Swiss Loupe Telemetry (MV3 Light)',
       timestamp: new Date().toISOString(),
       url: typeof window !== 'undefined' ? window.location.href : '',
       hostname: typeof window !== 'undefined' ? window.location.hostname : '',
       sessionId: this.state.sessionId,
       severity: this.state.severity,
       score: this.state.score,
-      falsePositiveAssessment: {
-        status: fpAssessment.status,
-        badgeText: fpAssessment.badgeText,
-        explanation: fpAssessment.explanation,
-        recommendation: fpAssessment.recommendation,
-        heuristicVerdict: fpAssessment.heuristicVerdict,
-        aiVerdict: fpAssessment.aiVerdict,
-        triggers: fpAssessment.triggers,
-      },
+      falsePositiveAssessment: fpAssessment,
       logsSummary: this.state.logs.map((l) => ({
         time: l.time,
         stepKey: l.stepKey,
@@ -529,7 +500,7 @@ export class DebuggerOverlay {
       navigator.clipboard.writeText(text).then(() => {
         if (btn) {
           const original = btn.innerHTML;
-          btn.innerHTML = `${ICONS.check(12)} <span>${successText}</span>`;
+          btn.innerHTML = `${ICONS.check(12, '#248A3D')} <span>${successText}</span>`;
           setTimeout(() => {
             btn.innerHTML = original;
           }, 1600);
@@ -549,31 +520,29 @@ export class DebuggerOverlay {
 
     this.applyContainerGeometry();
 
-    const { sessionId, severity, score, logs, activeTab, userMode, filterCategory, filterSearch } =
-      this.state;
+    const { sessionId, severity, score, logs, activeTab, filterCategory, filterSearch } = this.state;
 
-    // Apple Calibrated Sanctuary Palette
+    // Apple Light Theme Palette
     const riskColor =
       severity === 'CRITICAL' || severity === 'HIGH'
-        ? '#FF453A'
+        ? '#FF3B30'
         : severity === 'MEDIUM'
-        ? '#FF9F0A'
-        : '#30D158';
+        ? '#FF9500'
+        : '#34C759';
 
     const strokeDasharray = 226; // 2 * pi * r (r=36)
     const strokeDashoffset = strokeDasharray - (strokeDasharray * score) / 100;
 
     const fpInfo = this.assessFalsePositive();
 
-    // Підрахунок категорій для фільтрів
+    // Підрахунок категорій
     const aiCount = logs.filter((l) => l.isAi).length;
     const formCount = logs.filter((l) => l.isForm).length;
     const riskCount = logs.filter(
       (l) =>
+        l.color === '#FF3B30' ||
         l.color === '#FF453A' ||
         l.color === '#EF4444' ||
-        l.color === '#D70022' ||
-        l.color === '#FF4F5E' ||
         l.stepKey.includes('Ризик') ||
         l.stepKey.includes('Trap') ||
         l.stepKey.includes('СКАМ')
@@ -586,10 +555,9 @@ export class DebuggerOverlay {
       if (
         filterCategory === 'RISK' &&
         !(
+          log.color === '#FF3B30' ||
           log.color === '#FF453A' ||
           log.color === '#EF4444' ||
-          log.color === '#D70022' ||
-          log.color === '#FF4F5E' ||
           log.stepKey.includes('Ризик') ||
           log.stepKey.includes('Trap') ||
           log.stepKey.includes('СКАМ')
@@ -605,184 +573,144 @@ export class DebuggerOverlay {
       return true;
     });
 
-    // Генерація HTML для Tab 1 (Огляд & XAI)
+    const currentHost = typeof window !== 'undefined' ? window.location.hostname || 'Активна сторінка' : 'Сторінка';
+
+    // Вкладка 1: Швейцарська Лупа (Огляд)
     const renderOverviewTab = () => {
       return `
         <div class="sc-overview-view">
-          <!-- Hero Card: Швейцарський хронометр ризику -->
-          <div class="sc-card sc-hero-gauge-card">
+          <!-- 1. The Swiss Loupe Dial (Швейцарська Лупа) -->
+          <div class="sc-card sc-loupe-hero">
             <div class="sc-gauge-section">
               <div class="sc-gauge-container">
                 <svg class="sc-gauge-svg" viewBox="0 0 90 90">
                   <circle class="sc-gauge-bg" cx="45" cy="45" r="36"></circle>
-                  <circle class="sc-gauge-progress" cx="45" cy="45" r="36"></circle>
+                  <circle class="sc-gauge-progress" cx="45" cy="45" r="36" style="stroke-dasharray: ${strokeDasharray}; stroke-dashoffset: ${strokeDashoffset}; stroke: ${riskColor};"></circle>
                 </svg>
                 <div class="sc-gauge-text">
                   <span class="sc-gauge-value">${score}</span>
                   <span class="sc-gauge-label">Індекс R</span>
                 </div>
               </div>
-              <div class="sc-session-details">
-                <div class="sc-session-id" title="${sessionId || 'Немає активної сесії'}">
-                  ${sessionId ? sessionId.substring(0, 24) + '...' : 'Пасивний фоновий моніторинг'}
+              <div class="sc-hero-meta">
+                <div class="sc-site-name" title="${currentHost}">${currentHost}</div>
+                <div class="sc-badge ${fpInfo.badgeClass}">
+                  ${fpInfo.badgeIcon}
+                  <span>${fpInfo.badgeText}</span>
                 </div>
-                <div class="sc-badge ${severity === 'HIGH' || severity === 'CRITICAL' ? 'sc-badge-red' : severity === 'MEDIUM' ? 'sc-badge-amber' : 'sc-badge-green'}">
-                  ${score === 0 ? 'НОРМАЛЬНИЙ СТАН' : `${severity} РІВЕНЬ ЗАГРОЗИ`}
-                </div>
-                <div class="sc-subtext">Цільовий вузол: <strong>${typeof window !== 'undefined' ? window.location.hostname || 'local' : 'n/a'}</strong></div>
+                <div class="sc-subtext">${sessionId ? `Сесія: ${sessionId.substring(0, 16)}...` : 'Пасивний фоновий моніторинг'}</div>
+              </div>
+            </div>
+
+            <!-- 2. 4 Стовпи Телеметрії (Швейцарська Лупа) -->
+            <div class="sc-loupe-pillars">
+              <div class="sc-pillar-cell">
+                <span class="sc-pillar-label">Евристичний ризик</span>
+                <span class="sc-pillar-val" style="color: ${riskColor}">${score}/100</span>
+              </div>
+              <div class="sc-pillar-cell">
+                <span class="sc-pillar-label">Gemini Nano XAI</span>
+                <span class="sc-pillar-val sc-val-blue">${aiCount > 0 ? (logs.some((l) => l.isAi && l.isPending) ? 'Аналіз Nano...' : 'On-Device (~140ms)') : 'Вбудований ШІ'}</span>
+              </div>
+              <div class="sc-pillar-cell">
+                <span class="sc-pillar-label">DOM Cloaking AST</span>
+                <span class="sc-pillar-val ${formCount > 0 ? 'sc-val-amber' : 'sc-val-green'}">${formCount > 0 ? `${formCount} форм` : '0 пасток'}</span>
+              </div>
+              <div class="sc-pillar-cell">
+                <span class="sc-pillar-label">Шифрування DLP</span>
+                <span class="sc-pillar-val sc-val-indigo">AES-GCM 256</span>
               </div>
             </div>
           </div>
 
-          <!-- False Positive & XAI Inspector Card (Apple Inset Grouped Telemetry) -->
-          <div class="sc-card sc-matrix-card ${fpInfo.status === 'FP_CANDIDATE' ? 'sc-alert-warning' : fpInfo.status === 'CONFIRMED_THREAT' ? 'sc-alert-danger' : 'sc-alert-success'}">
-            <div class="sc-matrix-header">
-              <span class="sc-badge ${fpInfo.badgeClass}">
-                ${fpInfo.badgeIcon}
-                ${fpInfo.badgeText}
-              </span>
-              <button type="button" class="sc-btn-ghost" id="btn-copy-fp-report" title="Скопіювати структуровані дані для баг-репорту або Vitest-тесту">
-                ${ICONS.copy(11, '#0A84FF')}
+          <!-- 3. XAI Вердикт та пояснення -->
+          <div class="sc-card sc-verdict-card">
+            <div class="sc-verdict-header">
+              <span class="sc-card-title">Аналітичний висновок системи</span>
+              <button type="button" class="sc-btn-ghost" id="btn-copy-fp-report" title="Скопіювати структурований звіт">
+                ${ICONS.copy(11, '#0071E3')}
                 <span>Копіювати звіт</span>
               </button>
             </div>
-            <p class="sc-matrix-desc">${fpInfo.explanation}</p>
-
-            <div class="sc-compare-grid">
-              <div class="sc-compare-col">
-                <span class="sc-col-title">Евристичний конвеєр</span>
-                <span class="sc-col-val">${fpInfo.heuristicVerdict}</span>
-              </div>
-              <div class="sc-compare-col">
-                <span class="sc-col-title">ШІ-Арбітр (Gemini Nano)</span>
-                <span class="sc-col-val">${fpInfo.aiVerdict}</span>
-              </div>
-            </div>
+            <p class="sc-verdict-text">${fpInfo.explanation}</p>
 
             ${
-              userMode === 'dev'
+              fpInfo.triggers.length > 0 && fpInfo.triggers[0] !== 'Тригери відсутні'
                 ? `
-              <div class="sc-triggers-box">
-                <span class="sc-triggers-title">Спрацьовані фактори ризику:</span>
+              <div class="sc-triggers-wrap">
+                <div class="sc-triggers-label">Фактори ризику:</div>
                 <div class="sc-triggers-list">
-                  ${fpInfo.triggers.length > 0 && fpInfo.triggers[0] !== 'Тригери відсутні'
-                    ? fpInfo.triggers.map((t) => `<span class="sc-trigger-chip">${t}</span>`).join('')
-                    : '<span class="sc-trigger-chip" style="background:rgba(48,209,88,0.12);border-color:rgba(48,209,88,0.25);color:#30D158;">Аномальних тригерів не виявлено</span>'}
+                  ${fpInfo.triggers.map((t) => `<span class="sc-trigger-chip">${t}</span>`).join('')}
                 </div>
               </div>
             `
-                : `
-              <div class="sc-friendly-note">
-                ${ICONS.info(13, '#0A84FF')}
-                <span><strong>Рекомендація системи:</strong> ${fpInfo.recommendation}</span>
-              </div>
-            `
+                : ''
             }
 
-            <div class="sc-audit-actions">
-              <button type="button" class="sc-btn sc-btn-secondary" id="btn-quick-whitelist">
-                ${ICONS.shieldCheck(13)}
-                <span>Додати домен до Довірених</span>
+            <div class="sc-action-row">
+              <button type="button" class="sc-btn sc-btn-pill" id="btn-quick-whitelist">
+                ${ICONS.shieldCheck(12, '#248A3D')}
+                <span>Додати до Довірених</span>
               </button>
-              <button type="button" class="sc-btn sc-btn-secondary" id="btn-quick-reset-session">
-                ${ICONS.refresh(13)}
+              <button type="button" class="sc-btn sc-btn-pill" id="btn-quick-reset-session">
+                ${ICONS.refresh(12, '#515154')}
                 <span>Скинути стан тривоги</span>
               </button>
             </div>
           </div>
-
-          <!-- Developer vs User mode explanation -->
-          ${
-            userMode === 'user'
-              ? `
-            <div class="sc-card sc-info-callout">
-              <div class="sc-callout-title">
-                ${ICONS.shield(13, '#0A84FF')}
-                <span>Принципи захисту «Sanctuary Core»</span>
-              </div>
-              <div class="sc-callout-text">
-                Система функціонує за принципом нульового розголошення (Zero Knowledge): анатомічний аналізатор форм виявляє приховані поля-пастки (CSS Cloaking), контекстний модуль відстежує ланцюги переходів, а локальний нейромодуль Gemini Nano (On-Device) здійснює семантичний арбітраж без передачі ваших даних на сторонні сервери.
-              </div>
-            </div>
-          `
-              : `
-            <div class="sc-card">
-              <div class="sc-card-title">Декомпозиція конвеєра рішень (Pipeline Waterfall)</div>
-              <div class="sc-waterfall">
-                <div class="sc-waterfall-step">
-                  <span>1. DOM & Form Scanners (Traps)</span>
-                  <span class="sc-tag ${logs.some((l) => l.isForm) ? 'sc-tag-blue' : ''}">${logs.some((l) => l.isForm) ? 'Активно' : 'Очікування'}</span>
-                </div>
-                <div class="sc-waterfall-step">
-                  <span>2. NLP Intent & Chat Dialogue Monitor</span>
-                  <span class="sc-tag ${logs.some((l) => l.stepKey.includes('Чат')) ? 'sc-tag-blue' : ''}">${logs.some((l) => l.stepKey.includes('Чат')) ? 'Активно' : 'Очікування'}</span>
-                </div>
-                <div class="sc-waterfall-step">
-                  <span>3. Local LLM Arbiter (Gemini Nano MV3)</span>
-                  <span class="sc-tag ${logs.some((l) => l.isAi) ? 'sc-tag-blue' : ''}">${logs.some((l) => l.isAi) ? (logs.some((l) => l.isAi && l.isPending) ? 'Аналіз...' : 'Оброблено') : 'В очікуванні'}</span>
-                </div>
-                <div class="sc-waterfall-step">
-                  <span>4. Security Friction Engine</span>
-                  <span class="sc-tag ${score >= 50 ? 'sc-tag-red' : 'sc-tag-green'}">${score >= 50 ? 'Блокування' : 'Пропуск'}</span>
-                </div>
-              </div>
-            </div>
-          `
-          }
         </div>
       `;
     };
 
-    // Генерація HTML для Tab 2 (Консоль подій)
+    // Вкладка 2: Консоль подій
     const renderEventsTab = () => {
       let logsHtml = '';
-      filteredLogs.forEach((log) => {
-        const dataStr =
-          typeof log.data === 'object' ? JSON.stringify(log.data, null, 2) : String(log.data);
-
-        let iconColor = log.color || '#0A84FF';
-        let badgeType = 'LOG';
-        if (log.isAi) badgeType = 'AI';
-        else if (log.isForm) badgeType = 'FORM';
-        else if (log.stepKey.includes('Контекст') || log.stepKey.includes('Сесій')) badgeType = 'CTX';
-        else if (log.stepKey.includes('DLP') || log.stepKey.includes('Vault')) badgeType = 'VAULT';
-
-        logsHtml += `
-          <div class="sc-console-row" style="border-left-color: ${iconColor};">
-            <div class="sc-row-header">
-              <div class="sc-row-lead">
-                <span class="sc-badge-type">${badgeType}</span>
-                <span class="sc-row-key" style="color: ${iconColor}">${log.stepKey}</span>
-              </div>
-              <div class="sc-row-trail">
-                <span class="sc-row-time">${log.time}</span>
-                <button type="button" class="sc-copy-btn" data-copy="${encodeURIComponent(dataStr)}" title="Скопіювати дані події">
-                  ${ICONS.copy(11)}
-                </button>
-              </div>
-            </div>
-            <pre class="sc-code-block">${dataStr}</pre>
-          </div>
-        `;
-      });
-
       if (filteredLogs.length === 0) {
         logsHtml = `
-          <div class="sc-empty-console">
-            ${ICONS.info(24, 'rgba(255, 255, 255, 0.4)')}
-            <span>Подій за обраними фільтрами не знайдено</span>
+          <div class="sc-empty-state">
+            ${ICONS.terminal(28, '#86868B')}
+            <div class="sc-empty-title">Подій поки що немає</div>
+            <div class="sc-empty-sub">Евристичний сканер безперервно відстежує активність сторінки.</div>
           </div>
         `;
+      } else {
+        filteredLogs.forEach((log) => {
+          const dataStr =
+            typeof log.data === 'object' ? JSON.stringify(log.data, null, 2) : String(log.data);
+
+          let badgeType = 'LOG';
+          if (log.isAi) badgeType = 'AI';
+          else if (log.isForm) badgeType = 'FORM';
+          else if (log.stepKey.includes('Контекст') || log.stepKey.includes('Сесій')) badgeType = 'CTX';
+          else if (log.stepKey.includes('DLP') || log.stepKey.includes('Vault')) badgeType = 'VAULT';
+
+          logsHtml += `
+            <div class="sc-event-card" style="border-left-color: ${log.color};">
+              <div class="sc-event-header">
+                <div class="sc-event-title-wrap">
+                  <span class="sc-event-badge">${badgeType}</span>
+                  <span class="sc-event-title" style="color: ${log.color}">${log.stepKey}</span>
+                </div>
+                <div class="sc-event-right">
+                  <span class="sc-event-time">${log.time}</span>
+                  <button type="button" class="sc-copy-icon-btn" data-copy="${encodeURIComponent(dataStr)}" title="Скопіювати">
+                    ${ICONS.copy(11)}
+                  </button>
+                </div>
+              </div>
+              <pre class="sc-event-code">${dataStr}</pre>
+            </div>
+          `;
+        });
       }
 
       return `
         <div class="sc-events-view">
-          <!-- Filter toolbar: Обсидіановий фільтр-бар -->
-          <div class="sc-filter-bar">
+          <div class="sc-filter-toolbar">
             <div class="sc-search-box">
-              ${ICONS.search(12, 'rgba(255, 255, 255, 0.4)')}
-              <input type="text" id="sc-input-search" class="sc-search-input" placeholder="Пошук у логах..." value="${filterSearch}">
-              ${filterSearch ? `<button type="button" id="btn-clear-search" class="sc-search-clear">${ICONS.close(10, 'rgba(255, 255, 255, 0.4)')}</button>` : ''}
+              ${ICONS.search(12, '#86868B')}
+              <input type="text" id="sc-input-search" class="sc-search-input" placeholder="Пошук у подіях..." value="${filterSearch}">
+              ${filterSearch ? `<button type="button" id="btn-clear-search" class="sc-search-clear">${ICONS.close(10, '#86868B')}</button>` : ''}
             </div>
             <div class="sc-filter-chips">
               <button type="button" class="sc-chip ${filterCategory === 'ALL' ? 'active' : ''}" data-cat="ALL">Всі (${logs.length})</button>
@@ -791,24 +719,23 @@ export class DebuggerOverlay {
               <button type="button" class="sc-chip ${filterCategory === 'RISK' ? 'active' : ''}" data-cat="RISK">Ризики (${riskCount})</button>
             </div>
           </div>
-
-          <div class="sc-logs-scroll" id="sc-logs-scroll">
+          <div class="sc-events-scroll" id="sc-logs-scroll">
             ${logsHtml}
           </div>
         </div>
       `;
     };
 
-    // Генерація HTML для Tab 3 (ШІ-Арбітр)
+    // Вкладка 3: Gemini Nano
     const renderAiTab = () => {
       const aiLogs = logs.filter((l) => l.isAi);
       if (aiLogs.length === 0) {
         return `
-          <div class="sc-empty-console" style="padding: 40px 20px;">
-            ${ICONS.cpu(32, '#0A84FF')}
-            <div style="font-weight:600; color:#FFFFFF; margin-top:8px;">Запитів до Gemini Nano ще не було</div>
-            <div style="color:rgba(255, 255, 255, 0.6); font-size:11px; margin-top:4px; max-width:320px; line-height:1.4;">
-              Локальна нейромережа викликається селективно для перевірки шахрайських намірів у чатах та аналізу підозрілих посилань без надсилання даних на зовнішні сервери.
+          <div class="sc-empty-state" style="padding: 48px 24px;">
+            ${ICONS.cpu(36, '#0071E3')}
+            <div class="sc-empty-title">Запитів до Gemini Nano ще не було</div>
+            <div class="sc-empty-sub" style="max-width: 320px;">
+              Локальна нейромережа викликається селективно для перевірки шахрайських намірів у чатах та аналізу підозрілих форм без передачі даних у хмару.
             </div>
           </div>
         `;
@@ -818,22 +745,23 @@ export class DebuggerOverlay {
       aiLogs.slice().reverse().forEach((log) => {
         const ctx = log.aiContext || {};
         aiDetailsHtml += `
-          <div class="sc-card sc-ai-session-card">
+          <div class="sc-card sc-ai-card">
             <div class="sc-ai-header">
-              <div class="sc-ai-title-row">
-                <span class="sc-badge sc-badge-blue">${ICONS.cpu(11, '#0A84FF')} GEMINI NANO ON-DEVICE</span>
-                <span class="sc-row-time">${log.time}</span>
+              <div class="sc-badge sc-badge-blue">
+                ${ICONS.cpu(11, '#0071E3')}
+                <span>GEMINI NANO ON-DEVICE</span>
               </div>
-              <div class="sc-ai-verdict" style="color: ${log.color}">${log.isPending ? `<span class="sc-spin">${ICONS.refresh(12, log.color)}</span> ` : ''}${log.data}</div>
+              <span class="sc-event-time">${log.time}</span>
             </div>
+            <div class="sc-ai-verdict" style="color: ${log.color}">${log.isPending ? '<span class="sc-spin">⏳</span> ' : ''}${log.data}</div>
 
             <div class="sc-ai-sections">
               ${
                 ctx.systemPrompt
                   ? `
-                <div class="sc-ai-block">
-                  <div class="sc-ai-block-header">
-                    <span class="sc-ai-block-title">${ICONS.cpu(11, '#0A84FF')} СИСТЕМНИЙ ПРОМПТ (РОЛЬ ЕКСПЕРТА)</span>
+                <div class="sc-ai-box">
+                  <div class="sc-ai-box-title">
+                    <span>СИСТЕМНИЙ ПРОМПТ</span>
                     <button type="button" class="sc-btn-ghost" data-copy="${encodeURIComponent(ctx.systemPrompt)}">
                       ${ICONS.copy(10)} <span>Копіювати</span>
                     </button>
@@ -845,27 +773,11 @@ export class DebuggerOverlay {
               }
 
               ${
-                ctx.contextRules
-                  ? `
-                <div class="sc-ai-block">
-                  <div class="sc-ai-block-header">
-                    <span class="sc-ai-block-title">${ICONS.list(11, '#0A84FF')} ПРАВИЛА ВЕРИФІКАЦІЇ (CONTEXT RULES)</span>
-                    <button type="button" class="sc-btn-ghost" data-copy="${encodeURIComponent(ctx.contextRules)}">
-                      ${ICONS.copy(10)} <span>Копіювати</span>
-                    </button>
-                  </div>
-                  <pre class="sc-code-block">${ctx.contextRules}</pre>
-                </div>
-              `
-                  : ''
-              }
-
-              ${
                 ctx.textSent
                   ? `
-                <div class="sc-ai-block">
-                  <div class="sc-ai-block-header">
-                    <span class="sc-ai-block-title">${ICONS.message(11, '#0A84FF')} ТЕКСТ / ПОСИЛАННЯ ДЛЯ СКАНУВАННЯ</span>
+                <div class="sc-ai-box">
+                  <div class="sc-ai-box-title">
+                    <span>АНАЛІЗОВАНИЙ КОНТЕНТ</span>
                     <button type="button" class="sc-btn-ghost" data-copy="${encodeURIComponent(ctx.textSent)}">
                       ${ICONS.copy(10)} <span>Копіювати</span>
                     </button>
@@ -877,32 +789,16 @@ export class DebuggerOverlay {
               }
 
               ${
-                ctx.chatDialogue
-                  ? `
-                <div class="sc-ai-block">
-                  <div class="sc-ai-block-header">
-                    <span class="sc-ai-block-title">${ICONS.message(11, '#0A84FF')} ІСТОРІЯ ЧАТУ (P2P ДІАЛОГ)</span>
-                    <button type="button" class="sc-btn-ghost" data-copy="${encodeURIComponent(ctx.chatDialogue)}">
-                      ${ICONS.copy(10)} <span>Копіювати</span>
-                    </button>
-                  </div>
-                  <pre class="sc-code-block">${ctx.chatDialogue}</pre>
-                </div>
-              `
-                  : ''
-              }
-
-              ${
                 ctx.rawResponse
                   ? `
-                <div class="sc-ai-block raw-block">
-                  <div class="sc-ai-block-header">
-                    <span class="sc-ai-block-title" style="color:#0A84FF;">${ICONS.terminal(11, '#0A84FF')} СИРА ВІДПОВІДЬ LLM (RAW JSON RESPONSE)</span>
+                <div class="sc-ai-box">
+                  <div class="sc-ai-box-title">
+                    <span style="color:#0071E3;">ВІДПОВІДЬ МОДЕЛІ (RAW JSON)</span>
                     <button type="button" class="sc-btn-ghost" data-copy="${encodeURIComponent(ctx.rawResponse)}">
                       ${ICONS.copy(10)} <span>Копіювати</span>
                     </button>
                   </div>
-                  <pre class="sc-code-block raw-code">${ctx.rawResponse}</pre>
+                  <pre class="sc-code-block" style="color: #0071E3;">${ctx.rawResponse}</pre>
                 </div>
               `
                   : ''
@@ -912,7 +808,7 @@ export class DebuggerOverlay {
         `;
       });
 
-      return `<div class="sc-ai-tab-scroll">${aiDetailsHtml}</div>`;
+      return `<div class="sc-ai-scroll">${aiDetailsHtml}</div>`;
     };
 
     let tabBody = '';
@@ -926,8 +822,8 @@ export class DebuggerOverlay {
 
         :host {
           all: initial;
-          font-family: var(--font-sanctuary, -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, sans-serif);
-          color: var(--sc-ink-primary, #FFFFFF);
+          font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+          color: #1D1D1F;
           box-sizing: border-box;
           -webkit-font-smoothing: antialiased;
         }
@@ -936,28 +832,28 @@ export class DebuggerOverlay {
           box-sizing: border-box;
         }
 
-        /* 1. Monolithic Window Container: Translucent Obsidian Glass */
+        /* 1. Pure Crystalline Ceramic Glass Container */
         .sc-window {
           width: 100%;
           height: 100%;
-          background: var(--sc-obsidian-bg, rgba(16, 16, 20, 0.94));
-          backdrop-filter: var(--sc-obsidian-blur, blur(32px) saturate(190%));
-          -webkit-backdrop-filter: var(--sc-obsidian-blur, blur(32px) saturate(190%));
-          border: 1px solid var(--sc-obsidian-border, rgba(255, 255, 255, 0.12));
-          border-radius: var(--sc-squircle-window, 20px);
-          box-shadow: 0 24px 64px -12px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.06);
+          background: rgba(255, 255, 255, 0.90);
+          backdrop-filter: blur(32px) saturate(180%);
+          -webkit-backdrop-filter: blur(32px) saturate(180%);
+          border: 1px solid rgba(0, 0, 0, 0.08);
+          border-radius: 22px;
+          box-shadow: 0 24px 64px -12px rgba(0, 0, 0, 0.16), 0 2px 6px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(0, 0, 0, 0.03);
           display: flex;
           flex-direction: column;
           overflow: hidden;
-          font-size: 12px;
-          color: var(--sc-ink-primary, #FFFFFF);
+          font-size: 12.5px;
+          color: #1D1D1F;
         }
 
-        /* 2. Precision Titlebar */
+        /* 2. Apple Precision Titlebar */
         .sc-titlebar {
-          background: var(--sc-obsidian-header, rgba(24, 24, 30, 0.82));
-          padding: 12px 18px;
-          border-bottom: 1px solid var(--sc-obsidian-border-subtle, rgba(255, 255, 255, 0.08));
+          background: rgba(255, 255, 255, 0.95);
+          padding: 12px 16px;
+          border-bottom: 1px solid rgba(0, 0, 0, 0.06);
           display: flex;
           justify-content: space-between;
           align-items: center;
@@ -970,30 +866,548 @@ export class DebuggerOverlay {
         .sc-brand-group {
           display: flex;
           align-items: center;
-          gap: 10px;
+          gap: 9px;
         }
         .sc-brand-icon {
-          width: 26px;
-          height: 26px;
-          border-radius: var(--sc-squircle-control, 8px);
-          background: linear-gradient(135deg, #0A84FF 0%, #5E5CE6 100%);
+          width: 24px;
+          height: 24px;
+          border-radius: 7px;
+          background: linear-gradient(135deg, #0071E3 0%, #42A5F5 100%);
           display: flex;
           align-items: center;
           justify-content: center;
           color: #FFFFFF;
-          box-shadow: var(--sc-sapphire-glow, 0 0 14px rgba(10, 132, 255, 0.4));
-          animation: sc-lens-breathe 4s ease-in-out infinite;
+          box-shadow: 0 2px 6px rgba(0, 113, 227, 0.3);
         }
-        @keyframes sc-lens-breathe {
-          0%, 100% {
-            transform: scale(1);
-            box-shadow: 0 0 12px rgba(10, 132, 255, 0.35);
-          }
-          50% {
-            transform: scale(1.05);
-            box-shadow: 0 0 20px rgba(10, 132, 255, 0.65);
-          }
+        .sc-brand-meta {
+          display: flex;
+          align-items: center;
+          gap: 6px;
         }
+        .sc-brand-name {
+          font-size: 13px;
+          font-weight: 600;
+          color: #1D1D1F;
+          letter-spacing: -0.015em;
+        }
+        .sc-brand-pill {
+          font-size: 10px;
+          font-weight: 600;
+          padding: 2px 7px;
+          background: rgba(0, 0, 0, 0.05);
+          color: #515154;
+          border-radius: 9999px;
+          letter-spacing: 0.02em;
+        }
+
+        .sc-win-controls {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+        }
+        .sc-tool-btn {
+          width: 26px;
+          height: 26px;
+          border-radius: 6px;
+          border: 1px solid transparent;
+          background: transparent;
+          color: #6E6E73;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .sc-tool-btn:hover {
+          background: rgba(0, 0, 0, 0.05);
+          color: #1D1D1F;
+        }
+        .sc-tool-btn:active {
+          transform: scale(0.92);
+        }
+        .sc-tool-btn-close:hover {
+          background: rgba(255, 59, 48, 0.12);
+          color: #D70015;
+        }
+
+        /* 3. Cupertino Segmented Tab Bar */
+        .sc-tab-bar {
+          display: flex;
+          background: rgba(0, 0, 0, 0.04);
+          border-radius: 10px;
+          padding: 3px;
+          margin: 10px 16px 4px 16px;
+          gap: 3px;
+        }
+        .sc-tab-btn {
+          flex: 1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+          padding: 6px 10px;
+          border-radius: 8px;
+          border: none;
+          background: transparent;
+          color: #6E6E73;
+          font-size: 11.5px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .sc-tab-btn.active {
+          background: #FFFFFF;
+          color: #1D1D1F;
+          font-weight: 600;
+          box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+        }
+        .sc-tab-btn:hover:not(.active) {
+          color: #1D1D1F;
+        }
+
+        /* 4. Viewport Scroll Container */
+        .sc-viewport {
+          flex: 1;
+          overflow-y: auto;
+          padding: 12px 16px 16px 16px;
+        }
+        .sc-viewport::-webkit-scrollbar {
+          width: 5px;
+        }
+        .sc-viewport::-webkit-scrollbar-thumb {
+          background: rgba(0, 0, 0, 0.12);
+          border-radius: 9999px;
+        }
+
+        /* 5. Inset Cards */
+        .sc-card {
+          background: #FFFFFF;
+          border: 1px solid rgba(0, 0, 0, 0.06);
+          border-radius: 14px;
+          padding: 14px;
+          margin-bottom: 12px;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03), 0 4px 12px rgba(0, 0, 0, 0.02);
+        }
+
+        /* Hero: The Swiss Loupe Dial */
+        .sc-loupe-hero {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+        .sc-gauge-section {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+        }
+        .sc-gauge-container {
+          position: relative;
+          width: 78px;
+          height: 78px;
+          flex-shrink: 0;
+        }
+        .sc-gauge-svg {
+          width: 100%;
+          height: 100%;
+          transform: rotate(-90deg);
+        }
+        .sc-gauge-bg {
+          fill: none;
+          stroke: rgba(0, 0, 0, 0.06);
+          stroke-width: 6.5;
+        }
+        .sc-gauge-progress {
+          fill: none;
+          stroke-width: 6.5;
+          stroke-linecap: round;
+          transition: stroke-dashoffset 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .sc-gauge-text {
+          position: absolute;
+          inset: 0;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          line-height: 1.1;
+        }
+        .sc-gauge-value {
+          font-size: 21px;
+          font-weight: 700;
+          color: #1D1D1F;
+          letter-spacing: -0.03em;
+        }
+        .sc-gauge-label {
+          font-size: 8.5px;
+          font-weight: 600;
+          text-transform: uppercase;
+          color: #86868B;
+          letter-spacing: 0.04em;
+        }
+
+        .sc-hero-meta {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          gap: 5px;
+        }
+        .sc-site-name {
+          font-size: 15px;
+          font-weight: 600;
+          color: #1D1D1F;
+          letter-spacing: -0.015em;
+        }
+        .sc-subtext {
+          font-size: 10.5px;
+          color: #86868B;
+        }
+
+        /* 4 Swiss Loupe Pillars */
+        .sc-loupe-pillars {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 6px;
+          background: rgba(0, 0, 0, 0.025);
+          border: 1px solid rgba(0, 0, 0, 0.05);
+          border-radius: 10px;
+          padding: 8px;
+        }
+        .sc-pillar-cell {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+          padding: 4px 6px;
+        }
+        .sc-pillar-label {
+          font-size: 9.5px;
+          color: #86868B;
+          font-weight: 500;
+        }
+        .sc-pillar-val {
+          font-size: 11px;
+          font-weight: 600;
+          color: #1D1D1F;
+        }
+        .sc-val-green { color: #248A3D; }
+        .sc-val-blue { color: #0071E3; }
+        .sc-val-amber { color: #B25900; }
+        .sc-val-indigo { color: #5E5CE6; }
+
+        /* Badges */
+        .sc-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          padding: 3px 8px;
+          border-radius: 9999px;
+          font-size: 10px;
+          font-weight: 600;
+          letter-spacing: 0.01em;
+          width: fit-content;
+        }
+        .sc-badge-green {
+          background: rgba(52, 199, 89, 0.12);
+          border: 1px solid rgba(52, 199, 89, 0.25);
+          color: #248A3D;
+        }
+        .sc-badge-amber {
+          background: rgba(255, 149, 0, 0.12);
+          border: 1px solid rgba(255, 149, 0, 0.25);
+          color: #B25900;
+        }
+        .sc-badge-red {
+          background: rgba(255, 59, 48, 0.10);
+          border: 1px solid rgba(255, 59, 48, 0.22);
+          color: #D70015;
+        }
+        .sc-badge-blue {
+          background: rgba(0, 113, 227, 0.10);
+          border: 1px solid rgba(0, 113, 227, 0.20);
+          color: #0071E3;
+        }
+
+        /* Verdict Card */
+        .sc-verdict-card {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+        }
+        .sc-verdict-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+        .sc-card-title {
+          font-size: 12px;
+          font-weight: 600;
+          color: #1D1D1F;
+        }
+        .sc-verdict-text {
+          font-size: 11.5px;
+          color: #515154;
+          line-height: 1.45;
+          margin: 0;
+        }
+        .sc-triggers-wrap {
+          display: flex;
+          flex-direction: column;
+          gap: 5px;
+        }
+        .sc-triggers-label {
+          font-size: 10.5px;
+          font-weight: 600;
+          color: #6E6E73;
+        }
+        .sc-triggers-list {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 4px;
+        }
+        .sc-trigger-chip {
+          font-size: 10px;
+          padding: 2px 7px;
+          background: rgba(0, 0, 0, 0.04);
+          border: 1px solid rgba(0, 0, 0, 0.06);
+          border-radius: 5px;
+          color: #1D1D1F;
+        }
+
+        .sc-action-row {
+          display: flex;
+          gap: 8px;
+          margin-top: 4px;
+        }
+        .sc-btn {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+          padding: 6px 12px;
+          font-size: 11px;
+          font-weight: 500;
+          border-radius: 8px;
+          border: 1px solid rgba(0, 0, 0, 0.10);
+          background: #FFFFFF;
+          color: #1D1D1F;
+          cursor: pointer;
+          transition: all 0.15s ease;
+        }
+        .sc-btn:hover {
+          background: rgba(0, 0, 0, 0.03);
+          border-color: rgba(0, 0, 0, 0.16);
+        }
+        .sc-btn:active {
+          transform: scale(0.97);
+        }
+        .sc-btn-pill {
+          border-radius: 9999px;
+        }
+        .sc-btn-ghost {
+          background: transparent;
+          border: none;
+          color: #0071E3;
+          font-size: 10.5px;
+          font-weight: 500;
+          cursor: pointer;
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          padding: 2px 5px;
+          border-radius: 4px;
+        }
+        .sc-btn-ghost:hover {
+          background: rgba(0, 113, 227, 0.08);
+        }
+
+        /* Toolbar & Search */
+        .sc-filter-toolbar {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          margin-bottom: 10px;
+        }
+        .sc-search-box {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          background: #FFFFFF;
+          border: 1px solid rgba(0, 0, 0, 0.08);
+          border-radius: 9px;
+          padding: 6px 10px;
+        }
+        .sc-search-input {
+          flex: 1;
+          border: none;
+          background: transparent;
+          font-size: 11.5px;
+          color: #1D1D1F;
+          outline: none;
+        }
+        .sc-search-input::placeholder {
+          color: #86868B;
+        }
+        .sc-search-clear {
+          background: transparent;
+          border: none;
+          cursor: pointer;
+          padding: 0;
+          display: flex;
+        }
+        .sc-filter-chips {
+          display: flex;
+          gap: 4px;
+        }
+        .sc-chip {
+          padding: 3px 9px;
+          border-radius: 9999px;
+          border: 1px solid rgba(0, 0, 0, 0.06);
+          background: rgba(0, 0, 0, 0.03);
+          color: #6E6E73;
+          font-size: 10.5px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.15s ease;
+        }
+        .sc-chip.active {
+          background: #0071E3;
+          color: #FFFFFF;
+          border-color: #0071E3;
+        }
+
+        /* Events Timeline */
+        .sc-event-card {
+          background: #FFFFFF;
+          border: 1px solid rgba(0, 0, 0, 0.06);
+          border-left: 3px solid #34C759;
+          border-radius: 10px;
+          padding: 8px 10px;
+          margin-bottom: 7px;
+          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+        }
+        .sc-event-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 4px;
+        }
+        .sc-event-title-wrap {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+        .sc-event-badge {
+          font-size: 9px;
+          font-weight: 700;
+          padding: 1px 5px;
+          background: rgba(0, 0, 0, 0.05);
+          color: #6E6E73;
+          border-radius: 4px;
+          font-family: var(--font-mono, monospace);
+        }
+        .sc-event-title {
+          font-size: 11px;
+          font-weight: 600;
+        }
+        .sc-event-right {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+        .sc-event-time {
+          font-size: 9.5px;
+          color: #86868B;
+          font-family: var(--font-mono, monospace);
+        }
+        .sc-copy-icon-btn {
+          background: transparent;
+          border: none;
+          color: #86868B;
+          cursor: pointer;
+          padding: 1px 3px;
+          border-radius: 4px;
+        }
+        .sc-copy-icon-btn:hover {
+          color: #0071E3;
+          background: rgba(0, 113, 227, 0.08);
+        }
+        .sc-event-code {
+          margin: 0;
+          background: #F5F5F7;
+          border: 1px solid rgba(0, 0, 0, 0.04);
+          border-radius: 6px;
+          padding: 6px 8px;
+          font-size: 10px;
+          font-family: var(--font-mono, monospace);
+          color: #1D1D1F;
+          overflow-x: auto;
+          white-space: pre-wrap;
+          word-break: break-all;
+        }
+
+        /* AI Cards */
+        .sc-ai-card {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+        .sc-ai-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+        .sc-ai-verdict {
+          font-size: 12px;
+          font-weight: 600;
+        }
+        .sc-ai-sections {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+        }
+        .sc-ai-box {
+          background: #F5F5F7;
+          border: 1px solid rgba(0, 0, 0, 0.05);
+          border-radius: 7px;
+          padding: 6px 8px;
+        }
+        .sc-ai-box-title {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          font-size: 9.5px;
+          font-weight: 700;
+          color: #6E6E73;
+          margin-bottom: 3px;
+        }
+        .sc-code-block {
+          margin: 0;
+          font-size: 10px;
+          font-family: var(--font-mono, monospace);
+          color: #1D1D1F;
+          white-space: pre-wrap;
+          word-break: break-all;
+        }
+
+        /* Empty states */
+        .sc-empty-state {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
+          padding: 32px 16px;
+          gap: 6px;
+        }
+        .sc-empty-title {
+          font-size: 12.5px;
+          font-weight: 600;
+          color: #1D1D1F;
+        }
+        .sc-empty-sub {
+          font-size: 11px;
+          color: #86868B;
+          line-height: 1.4;
+        }
+
         @keyframes sc-spin {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
@@ -1001,777 +1415,15 @@ export class DebuggerOverlay {
         .sc-spin {
           display: inline-block;
           animation: sc-spin 1.2s linear infinite;
-          vertical-align: middle;
-        }
-        .sc-brand-meta {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-        }
-        .sc-brand-name {
-          font-size: 13.5px;
-          font-weight: 700;
-          color: var(--sc-ink-primary, #FFFFFF);
-          letter-spacing: -0.015em;
-        }
-        .sc-brand-badge {
-          font-size: 9.5px;
-          font-weight: 700;
-          background: rgba(255, 255, 255, 0.08);
-          border: 1px solid var(--sc-obsidian-border, rgba(255, 255, 255, 0.12));
-          color: var(--sc-ink-secondary, rgba(255, 255, 255, 0.75));
-          padding: 2px 7px;
-          border-radius: 5px;
-          text-transform: uppercase;
-          letter-spacing: 0.04em;
-        }
-
-        /* Window Controls */
-        .sc-win-controls {
-          display: flex;
-          align-items: center;
-          gap: 5px;
-        }
-        .sc-segmented-mode {
-          display: flex;
-          background: rgba(255, 255, 255, 0.06);
-          border: 1px solid var(--sc-obsidian-border-subtle, rgba(255, 255, 255, 0.08));
-          border-radius: var(--radius-pill, 9999px);
-          padding: 2px;
-          margin-right: 6px;
-        }
-        .sc-mode-btn {
-          background: transparent;
-          border: none;
-          color: var(--sc-ink-muted, rgba(255, 255, 255, 0.6));
-          font-size: 10.5px;
-          font-weight: 600;
-          padding: 4px 10px;
-          border-radius: var(--radius-pill, 9999px);
-          cursor: pointer;
-          display: inline-flex;
-          align-items: center;
-          gap: 4px;
-          transition: all 0.2s var(--ease-apple-spring, cubic-bezier(0.16, 1, 0.3, 1));
-        }
-        .sc-mode-btn.active {
-          background: var(--sc-obsidian-sheen, rgba(255, 255, 255, 0.18));
-          color: var(--sc-ink-primary, #FFFFFF);
-          box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
-        }
-        .sc-tool-btn {
-          width: 28px;
-          height: 28px;
-          background: rgba(255, 255, 255, 0.05);
-          border: 1px solid var(--sc-obsidian-border-subtle, rgba(255, 255, 255, 0.08));
-          color: var(--sc-ink-secondary, rgba(255, 255, 255, 0.75));
-          cursor: pointer;
-          border-radius: 7px;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          transition: all 0.15s ease;
-        }
-        .sc-tool-btn:hover {
-          background: rgba(255, 255, 255, 0.14);
-          color: #FFFFFF;
-          border-color: rgba(255, 255, 255, 0.2);
-        }
-        .sc-tool-btn:active {
-          transform: scale(0.94);
-        }
-        .sc-tool-btn.sc-tool-btn-close:hover {
-          background: var(--sc-crimson-bg, rgba(255, 69, 58, 0.22));
-          color: var(--sc-crimson, #FF453A);
-          border-color: var(--sc-crimson-border, rgba(255, 69, 58, 0.4));
-        }
-
-        /* 3. Cupertino Navigation Bar */
-        .sc-tab-bar {
-          background: var(--sc-obsidian-nav, rgba(14, 14, 18, 0.88));
-          border-bottom: 1px solid var(--sc-obsidian-border-subtle, rgba(255, 255, 255, 0.07));
-          display: flex;
-          padding: 6px 14px 10px 14px;
-          gap: 6px;
-        }
-        .sc-tab-btn {
-          flex: 1;
-          background: rgba(0, 0, 0, 0.25);
-          border: 1px solid rgba(255, 255, 255, 0.05);
-          color: var(--sc-ink-muted, rgba(255, 255, 255, 0.6));
-          font-size: 11.5px;
-          font-weight: 500;
-          padding: 6px 10px;
-          cursor: pointer;
-          border-radius: var(--sc-squircle-control, 8px);
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          gap: 6px;
-          transition: all 0.2s var(--ease-apple-spring, cubic-bezier(0.16, 1, 0.3, 1));
-        }
-        .sc-tab-btn:hover {
-          color: #FFFFFF;
-          background: rgba(255, 255, 255, 0.07);
-        }
-        .sc-tab-btn:active {
-          transform: scale(0.97);
-        }
-        .sc-tab-btn.active {
-          background: rgba(255, 255, 255, 0.14);
-          color: #FFFFFF;
-          font-weight: 600;
-          border-color: var(--sc-obsidian-sheen, rgba(255, 255, 255, 0.18));
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.28);
-        }
-        .sc-tab-badge {
-          font-size: 9.5px;
-          font-weight: 700;
-          background: rgba(255, 255, 255, 0.1);
-          color: rgba(255, 255, 255, 0.85);
-          padding: 1px 6px;
-          border-radius: 10px;
-        }
-        .sc-tab-badge.warning {
-          background: var(--sc-amber-bg, rgba(255, 159, 10, 0.25));
-          color: var(--sc-amber, #FF9F0A);
-          border: 1px solid var(--sc-amber-border, rgba(255, 159, 10, 0.32));
-        }
-
-        /* 4. Viewport & Scrollbar */
-        .sc-viewport {
-          flex: 1;
-          overflow-y: auto;
-          background: transparent;
-          display: flex;
-          flex-direction: column;
-        }
-        ::-webkit-scrollbar {
-          width: 5px;
-          height: 5px;
-        }
-        ::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        ::-webkit-scrollbar-thumb {
-          background: rgba(255, 255, 255, 0.15);
-          border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-          background: rgba(255, 255, 255, 0.30);
-        }
-
-        /* 5. Cards & Gauges */
-        .sc-card {
-          background: var(--sc-obsidian-card, rgba(26, 26, 32, 0.7));
-          border: 1px solid var(--sc-obsidian-border-subtle, rgba(255, 255, 255, 0.08));
-          border-radius: var(--sc-squircle-card, 14px);
-          padding: 14px;
-          margin-bottom: 10px;
-          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
-          transition: border-color 0.2s ease, box-shadow 0.2s ease;
-        }
-        .sc-overview-view {
-          padding: 14px;
-          display: flex;
-          flex-direction: column;
-        }
-        .sc-hero-gauge-card {
-          background: var(--sc-obsidian-card-elevated, linear-gradient(135deg, rgba(28, 28, 36, 0.85) 0%, rgba(18, 18, 24, 0.95) 100%));
-          border: 1px solid var(--sc-obsidian-border, rgba(255, 255, 255, 0.1));
-          padding: 16px;
-        }
-        .sc-gauge-section {
-          display: flex;
-          align-items: center;
-          gap: 18px;
-        }
-        .sc-gauge-container {
-          position: relative;
-          width: 84px;
-          height: 84px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          flex-shrink: 0;
-        }
-        .sc-gauge-svg {
-          transform: rotate(-90deg);
-          width: 84px;
-          height: 84px;
-          overflow: visible;
-        }
-        .sc-gauge-bg {
-          fill: none;
-          stroke: rgba(255, 255, 255, 0.08);
-          stroke-width: 7.5;
-        }
-        .sc-gauge-progress {
-          fill: none;
-          stroke: ${riskColor};
-          stroke-width: 7.5;
-          stroke-linecap: round;
-          stroke-dasharray: ${strokeDasharray};
-          stroke-dashoffset: ${strokeDashoffset};
-          transition: stroke-dashoffset 0.6s var(--ease-apple-spring, cubic-bezier(0.16, 1, 0.3, 1)), stroke 0.4s ease;
-          filter: drop-shadow(0 0 10px ${riskColor});
-        }
-        .sc-gauge-text {
-          position: absolute;
-          text-align: center;
-          display: flex;
-          flex-direction: column;
-        }
-        .sc-gauge-value {
-          font-size: 20px;
-          font-weight: 700;
-          color: var(--sc-ink-primary, #FFFFFF);
-          line-height: 1;
-          letter-spacing: -0.02em;
-          font-variant-numeric: tabular-nums;
-        }
-        .sc-gauge-label {
-          font-size: 8.5px;
-          color: var(--sc-ink-subtle, rgba(255, 255, 255, 0.45));
-          text-transform: uppercase;
-          letter-spacing: 0.06em;
-          margin-top: 3px;
-        }
-        .sc-session-details {
-          flex: 1;
-          min-width: 0;
-        }
-        .sc-session-id {
-          font-family: var(--font-mono, monospace);
-          font-size: 11px;
-          font-weight: 600;
-          color: var(--sc-ink-primary, #FFFFFF);
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          margin-bottom: 6px;
-        }
-        .sc-subtext {
-          font-size: 10.5px;
-          color: var(--sc-ink-muted, rgba(255, 255, 255, 0.6));
-          margin-top: 6px;
-        }
-        .sc-subtext strong {
-          color: var(--sc-ink-primary, #FFFFFF);
-        }
-
-        /* Badges */
-        .sc-badge {
-          display: inline-flex;
-          align-items: center;
-          gap: 5px;
-          font-size: 9.5px;
-          font-weight: 700;
-          padding: 3px 8px;
-          border-radius: var(--sc-squircle-chip, 6px);
-          text-transform: uppercase;
-          letter-spacing: 0.04em;
-        }
-        .sc-badge-red {
-          background: var(--sc-crimson-bg, rgba(255, 69, 58, 0.16));
-          color: var(--sc-crimson, #FF453A);
-          border: 1px solid var(--sc-crimson-border, rgba(255, 69, 58, 0.32));
-        }
-        .sc-badge-amber {
-          background: var(--sc-amber-bg, rgba(255, 159, 10, 0.16));
-          color: var(--sc-amber, #FF9F0A);
-          border: 1px solid var(--sc-amber-border, rgba(255, 159, 10, 0.32));
-        }
-        .sc-badge-green {
-          background: var(--sc-emerald-bg, rgba(48, 209, 88, 0.16));
-          color: var(--sc-emerald, #30D158);
-          border: 1px solid var(--sc-emerald-border, rgba(48, 209, 88, 0.32));
-        }
-        .sc-badge-blue {
-          background: var(--sc-sapphire-bg, rgba(10, 132, 255, 0.16));
-          color: var(--sc-sapphire, #0A84FF);
-          border: 1px solid var(--sc-sapphire-border, rgba(10, 132, 255, 0.32));
-        }
-
-        /* 6. False Positive & XAI Inspector */
-        .sc-matrix-card {
-          border-left: 3px solid transparent;
-        }
-        .sc-matrix-card.sc-alert-warning {
-          border-left-color: var(--sc-amber, #FF9F0A);
-          background: linear-gradient(135deg, rgba(38, 30, 20, 0.75) 0%, rgba(22, 20, 18, 0.85) 100%);
-          border-color: var(--sc-amber-border, rgba(255, 159, 10, 0.25));
-        }
-        .sc-matrix-card.sc-alert-danger {
-          border-left-color: var(--sc-crimson, #FF453A);
-          background: linear-gradient(135deg, rgba(42, 22, 24, 0.75) 0%, rgba(24, 18, 19, 0.85) 100%);
-          border-color: var(--sc-crimson-border, rgba(255, 69, 58, 0.25));
-        }
-        .sc-matrix-card.sc-alert-success {
-          border-left-color: var(--sc-emerald, #30D158);
-          background: linear-gradient(135deg, rgba(20, 36, 26, 0.75) 0%, rgba(18, 24, 20, 0.85) 100%);
-          border-color: var(--sc-emerald-border, rgba(48, 209, 88, 0.25));
-        }
-        .sc-matrix-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 8px;
-        }
-        .sc-btn-ghost {
-          background: transparent;
-          border: none;
-          color: var(--sc-sapphire, #0A84FF);
-          font-size: 10.5px;
-          font-weight: 600;
-          cursor: pointer;
-          padding: 3px 7px;
-          border-radius: 5px;
-          display: inline-flex;
-          align-items: center;
-          gap: 4px;
-          transition: all 0.15s ease;
-        }
-        .sc-btn-ghost:hover {
-          background: var(--sc-sapphire-bg, rgba(10, 132, 255, 0.14));
-        }
-        .sc-btn-ghost:active {
-          transform: scale(0.96);
-        }
-        .sc-matrix-desc {
-          font-size: 11.5px;
-          color: var(--sc-ink-secondary, rgba(255, 255, 255, 0.85));
-          line-height: 1.5;
-          margin-bottom: 10px;
-        }
-        .sc-compare-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 8px;
-          margin-bottom: 10px;
-        }
-        .sc-compare-col {
-          background: var(--sc-obsidian-well, rgba(12, 12, 16, 0.65));
-          border: 1px solid var(--sc-obsidian-border-subtle, rgba(255, 255, 255, 0.07));
-          border-radius: var(--sc-squircle-control, 8px);
-          padding: 8px 10px;
-        }
-        .sc-col-title {
-          display: block;
-          font-size: 9px;
-          text-transform: uppercase;
-          color: var(--sc-ink-subtle, rgba(255, 255, 255, 0.45));
-          font-weight: 700;
-          letter-spacing: 0.03em;
-          margin-bottom: 3px;
-        }
-        .sc-col-val {
-          font-size: 12px;
-          font-weight: 600;
-          color: var(--sc-ink-primary, #FFFFFF);
-        }
-        .sc-triggers-box {
-          background: var(--sc-obsidian-well, rgba(12, 12, 16, 0.65));
-          border: 1px solid var(--sc-obsidian-border-subtle, rgba(255, 255, 255, 0.07));
-          border-radius: var(--sc-squircle-control, 8px);
-          padding: 9px 10px;
-          margin-bottom: 10px;
-        }
-        .sc-triggers-title {
-          font-size: 9.5px;
-          font-weight: 700;
-          color: var(--sc-ink-muted, rgba(255, 255, 255, 0.6));
-          text-transform: uppercase;
-          letter-spacing: 0.03em;
-        }
-        .sc-triggers-list {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 6px;
-          margin-top: 6px;
-        }
-        .sc-trigger-chip {
-          background: var(--sc-amber-bg, rgba(255, 159, 10, 0.12));
-          border: 1px solid var(--sc-amber-border, rgba(255, 159, 10, 0.25));
-          color: #FFB340;
-          font-family: var(--font-mono, monospace);
-          font-size: 10px;
-          padding: 2px 8px;
-          border-radius: var(--sc-squircle-chip, 6px);
-          transition: all 0.18s ease;
-          user-select: all;
-        }
-        .sc-trigger-chip:hover {
-          background: rgba(255, 159, 10, 0.22);
-          border-color: rgba(255, 159, 10, 0.45);
-          box-shadow: 0 0 10px rgba(255, 159, 10, 0.25);
-        }
-        .sc-friendly-note {
-          background: var(--sc-sapphire-bg, rgba(10, 132, 255, 0.08));
-          border: 1px solid var(--sc-sapphire-border, rgba(10, 132, 255, 0.2));
-          border-radius: var(--sc-squircle-control, 8px);
-          padding: 8px 10px;
-          font-size: 11px;
-          color: var(--sc-ink-secondary, rgba(255, 255, 255, 0.85));
-          line-height: 1.4;
-          margin-bottom: 10px;
-          display: flex;
-          align-items: flex-start;
-          gap: 6px;
-        }
-        .sc-friendly-note strong {
-          color: var(--sc-ink-primary, #FFFFFF);
-        }
-        .sc-audit-actions {
-          display: flex;
-          gap: 8px;
-        }
-        .sc-btn {
-          flex: 1;
-          background: var(--sc-sapphire, #0A84FF);
-          color: #FFFFFF;
-          border: none;
-          padding: 7px 11px;
-          border-radius: var(--sc-squircle-control, 8px);
-          font-size: 11px;
-          font-weight: 600;
-          cursor: pointer;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          gap: 6px;
-          transition: all 0.18s var(--ease-apple-spring, cubic-bezier(0.16, 1, 0.3, 1));
-        }
-        .sc-btn:hover {
-          background: var(--sc-sapphire-hover, #0077ED);
-          box-shadow: 0 2px 8px rgba(10, 132, 255, 0.35);
-        }
-        .sc-btn:active {
-          transform: scale(0.97);
-        }
-        .sc-btn-secondary {
-          background: rgba(255, 255, 255, 0.08);
-          color: #FFFFFF;
-          border: 1px solid var(--sc-obsidian-border, rgba(255, 255, 255, 0.12));
-        }
-        .sc-btn-secondary:hover {
-          background: rgba(255, 255, 255, 0.15);
-          border-color: rgba(255, 255, 255, 0.22);
-        }
-
-        /* 7. Decomposition & Callouts */
-        .sc-card-title {
-          font-size: 11.5px;
-          font-weight: 700;
-          color: var(--sc-ink-primary, #FFFFFF);
-          margin-bottom: 8px;
-          letter-spacing: -0.01em;
-        }
-        .sc-waterfall {
-          display: flex;
-          flex-direction: column;
-          gap: 6px;
-        }
-        .sc-waterfall-step {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 6px 10px;
-          background: var(--sc-obsidian-well, rgba(12, 12, 16, 0.6));
-          border: 1px solid var(--sc-obsidian-border-subtle, rgba(255, 255, 255, 0.06));
-          border-radius: 7px;
-          font-size: 11px;
-          color: var(--sc-ink-secondary, rgba(255, 255, 255, 0.85));
-        }
-        .sc-tag {
-          font-size: 9px;
-          font-weight: 700;
-          padding: 2px 6px;
-          border-radius: 4px;
-          background: rgba(255, 255, 255, 0.08);
-          color: var(--sc-ink-subtle, rgba(255, 255, 255, 0.5));
-        }
-        .sc-tag-blue {
-          background: var(--sc-sapphire-bg, rgba(10, 132, 255, 0.2));
-          color: var(--sc-sapphire, #0A84FF);
-          border: 1px solid var(--sc-sapphire-border, rgba(10, 132, 255, 0.32));
-        }
-        .sc-tag-red {
-          background: var(--sc-crimson-bg, rgba(255, 69, 58, 0.2));
-          color: var(--sc-crimson, #FF453A);
-          border: 1px solid var(--sc-crimson-border, rgba(255, 69, 58, 0.32));
-        }
-        .sc-tag-green {
-          background: var(--sc-emerald-bg, rgba(48, 209, 88, 0.2));
-          color: var(--sc-emerald, #30D158);
-          border: 1px solid var(--sc-emerald-border, rgba(48, 209, 88, 0.32));
-        }
-        .sc-info-callout {
-          background: var(--sc-sapphire-bg, rgba(10, 132, 255, 0.08));
-          border-left: 3px solid var(--sc-sapphire, #0A84FF);
-          border-color: var(--sc-sapphire-border, rgba(10, 132, 255, 0.2));
-        }
-        .sc-callout-title {
-          font-weight: 700;
-          font-size: 11.5px;
-          color: var(--sc-ink-primary, #FFFFFF);
-          margin-bottom: 4px;
-          display: flex;
-          align-items: center;
-          gap: 6px;
-        }
-        .sc-callout-text {
-          font-size: 11px;
-          color: var(--sc-ink-secondary, rgba(255, 255, 255, 0.75));
-          line-height: 1.45;
-        }
-
-        /* 8. Forensic Event Console */
-        .sc-events-view {
-          display: flex;
-          flex-direction: column;
-          flex: 1;
-          min-height: 0;
-        }
-        .sc-filter-bar {
-          background: var(--sc-obsidian-header, rgba(20, 20, 26, 0.7));
-          padding: 8px 12px;
-          border-bottom: 1px solid var(--sc-obsidian-border-subtle, rgba(255, 255, 255, 0.07));
-          display: flex;
-          flex-direction: column;
-          gap: 6px;
-        }
-        .sc-search-box {
-          position: relative;
-          display: flex;
-          align-items: center;
-        }
-        .sc-search-box svg {
-          position: absolute;
-          left: 9px;
-          pointer-events: none;
-          color: var(--sc-ink-subtle, rgba(255, 255, 255, 0.4));
-        }
-        .sc-search-input {
-          width: 100%;
-          height: 28px;
-          background: var(--sc-obsidian-well, rgba(10, 10, 14, 0.8));
-          border: 1px solid var(--sc-obsidian-border, rgba(255, 255, 255, 0.1));
-          border-radius: 7px;
-          padding: 0 28px 0 28px;
-          color: var(--sc-ink-primary, #FFFFFF);
-          font-size: 11px;
-          outline: none;
-          transition: border-color 0.15s ease, box-shadow 0.15s ease;
-        }
-        .sc-search-input:focus {
-          border-color: var(--sc-sapphire, #0A84FF);
-          box-shadow: 0 0 8px rgba(10, 132, 255, 0.3);
-        }
-        .sc-search-clear {
-          position: absolute;
-          right: 6px;
-          background: transparent;
-          border: none;
-          color: var(--sc-ink-subtle, rgba(255, 255, 255, 0.4));
-          cursor: pointer;
-          padding: 2px 4px;
-        }
-        .sc-filter-chips {
-          display: flex;
-          gap: 5px;
-        }
-        .sc-chip {
-          background: rgba(255, 255, 255, 0.06);
-          border: 1px solid var(--sc-obsidian-border-subtle, rgba(255, 255, 255, 0.08));
-          color: var(--sc-ink-secondary, rgba(255, 255, 255, 0.65));
-          font-size: 10px;
-          font-weight: 600;
-          padding: 3px 8px;
-          border-radius: var(--sc-squircle-chip, 6px);
-          cursor: pointer;
-          transition: all 0.15s var(--ease-apple-spring, cubic-bezier(0.16, 1, 0.3, 1));
-        }
-        .sc-chip:hover {
-          background: rgba(255, 255, 255, 0.12);
-          color: #FFFFFF;
-        }
-        .sc-chip:active {
-          transform: scale(0.96);
-        }
-        .sc-chip.active {
-          background: var(--sc-sapphire-bg, rgba(10, 132, 255, 0.22));
-          border-color: var(--sc-sapphire-border, rgba(10, 132, 255, 0.4));
-          color: var(--sc-sapphire, #0A84FF);
-        }
-        .sc-logs-scroll {
-          flex: 1;
-          overflow-y: auto;
-          padding: 10px 12px;
-          display: flex;
-          flex-direction: column;
-          gap: 7px;
-        }
-        .sc-console-row {
-          background: var(--sc-obsidian-card, rgba(24, 24, 30, 0.7));
-          border: 1px solid var(--sc-obsidian-border-subtle, rgba(255, 255, 255, 0.07));
-          border-left-width: 3px;
-          border-radius: var(--sc-squircle-control, 8px);
-          padding: 7px 9px;
-          transition: background 0.15s ease;
-        }
-        .sc-console-row:hover {
-          background: rgba(30, 30, 38, 0.85);
-        }
-        .sc-row-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 4px;
-        }
-        .sc-row-lead {
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-        }
-        .sc-badge-type {
-          font-size: 8.5px;
-          font-weight: 700;
-          background: rgba(255, 255, 255, 0.09);
-          border: 1px solid var(--sc-obsidian-border, rgba(255, 255, 255, 0.12));
-          color: var(--sc-ink-secondary, rgba(255, 255, 255, 0.75));
-          padding: 1px 5px;
-          border-radius: 4px;
-          letter-spacing: 0.03em;
-        }
-        .sc-row-key {
-          font-size: 11px;
-          font-weight: 600;
-        }
-        .sc-row-trail {
-          display: flex;
-          align-items: center;
-          gap: 6px;
-        }
-        .sc-row-time {
-          font-family: var(--font-mono, monospace);
-          font-size: 9.5px;
-          color: var(--sc-ink-subtle, rgba(255, 255, 255, 0.4));
-        }
-        .sc-copy-btn {
-          background: transparent;
-          border: none;
-          color: var(--sc-ink-subtle, rgba(255, 255, 255, 0.4));
-          cursor: pointer;
-          padding: 2px 4px;
-          font-size: 10px;
-          border-radius: 4px;
-          display: inline-flex;
-          align-items: center;
-          transition: all 0.14s ease;
-        }
-        .sc-copy-btn:hover {
-          color: #FFFFFF;
-          background: rgba(255, 255, 255, 0.12);
-        }
-        .sc-copy-btn:active {
-          transform: scale(0.92);
-        }
-        .sc-code-block {
-          background: var(--sc-obsidian-well, rgba(10, 10, 14, 0.85));
-          border: 1px solid var(--sc-obsidian-border-subtle, rgba(255, 255, 255, 0.06));
-          border-radius: 6px;
-          padding: 6px 8px;
-          font-family: var(--font-mono, monospace);
-          font-size: 10px;
-          color: var(--sc-ink-primary, rgba(255, 255, 255, 0.9));
-          margin: 0;
-          white-space: pre-wrap;
-          word-break: break-word;
-          max-height: 140px;
-          overflow-y: auto;
-        }
-        .sc-empty-console {
-          padding: 50px 20px;
-          text-align: center;
-          color: var(--sc-ink-subtle, rgba(255, 255, 255, 0.4));
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 8px;
-        }
-
-        /* 9. AI Inspection Details */
-        .sc-ai-tab-scroll {
-          padding: 10px 12px;
-          display: flex;
-          flex-direction: column;
-          gap: 9px;
-        }
-        .sc-ai-session-card {
-          border-left: 3px solid var(--sc-sapphire, #0A84FF);
-          background: var(--sc-obsidian-card, rgba(24, 24, 30, 0.7));
-        }
-        .sc-ai-header {
-          margin-bottom: 9px;
-        }
-        .sc-ai-title-row {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 4px;
-        }
-        .sc-ai-verdict {
-          font-size: 11.5px;
-          font-weight: 600;
-          line-height: 1.4;
-          white-space: pre-wrap;
-        }
-        .sc-ai-sections {
-          display: flex;
-          flex-direction: column;
-          gap: 7px;
-        }
-        .sc-ai-block {
-          background: var(--sc-obsidian-well, rgba(10, 10, 14, 0.85));
-          border: 1px solid var(--sc-obsidian-border-subtle, rgba(255, 255, 255, 0.06));
-          border-radius: 6px;
-          padding: 7px 9px;
-        }
-        .sc-ai-block.raw-block {
-          border-color: var(--sc-sapphire-border, rgba(10, 132, 255, 0.3));
-          background: var(--sc-sapphire-bg, rgba(10, 132, 255, 0.06));
-        }
-        .sc-ai-block-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          font-size: 9.5px;
-          font-weight: 700;
-          color: var(--sc-ink-muted, rgba(255, 255, 255, 0.6));
-          margin-bottom: 4px;
-        }
-        .sc-ai-block-title {
-          display: inline-flex;
-          align-items: center;
-          gap: 5px;
-        }
-        .sc-code-block.raw-code {
-          background: var(--sc-obsidian-code, rgba(8, 8, 12, 0.95));
-          border-color: var(--sc-sapphire-border, rgba(10, 132, 255, 0.25));
-          color: #70B4FF;
         }
       </style>
 
       <div class="sc-window">
-        <!-- Titlebar: Sanctuary Core Telemetry Precision Header -->
+        <!-- 1. Apple Precision Titlebar -->
         <div class="sc-titlebar" id="drag-handle">
           <div class="sc-brand-group">
             <div class="sc-brand-icon" title="Sanctuary Core">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="9" />
                 <circle cx="12" cy="12" r="5" stroke-dasharray="1.5 2" />
                 <circle cx="12" cy="12" r="1.8" fill="#FFFFFF" />
@@ -1779,24 +1431,14 @@ export class DebuggerOverlay {
             </div>
             <div class="sc-brand-meta">
               <span class="sc-brand-name">Sanctuary Core</span>
-              <span class="sc-brand-badge">Telemetry XAI Hub</span>
+              <span class="sc-brand-pill">Швейцарська Лупа</span>
             </div>
           </div>
           <div class="sc-win-controls">
-            <div class="sc-segmented-mode">
-              <button type="button" class="sc-mode-btn ${userMode === 'user' ? 'active' : ''}" id="btn-mode-user" title="Спрощене пояснення для користувача">
-                ${ICONS.info(11)}
-                <span>Інфо</span>
-              </button>
-              <button type="button" class="sc-mode-btn ${userMode === 'dev' ? 'active' : ''}" id="btn-mode-dev" title="Повний інспектор XAI для захисту диплому">
-                ${ICONS.code(11)}
-                <span>Форензік</span>
-              </button>
-            </div>
-            <button type="button" class="sc-tool-btn" id="btn-export-json" title="Експортувати повний діагностичний звіт у JSON">
+            <button type="button" class="sc-tool-btn" id="btn-export-json" title="Експортувати звіт у JSON">
               ${ICONS.download(13)}
             </button>
-            <button type="button" class="sc-tool-btn" id="btn-clear-all" title="Очистити консоль">
+            <button type="button" class="sc-tool-btn" id="btn-clear-all" title="Очистити події">
               ${ICONS.trash(13)}
             </button>
             <button type="button" class="sc-tool-btn" id="btn-minimize" title="Згорнути у Dynamic Island">
@@ -1808,26 +1450,24 @@ export class DebuggerOverlay {
           </div>
         </div>
 
-        <!-- Cupertino Segmented Tab Navigation -->
+        <!-- 2. Cupertino Segmented Navigation -->
         <nav class="sc-tab-bar">
           <button type="button" class="sc-tab-btn ${activeTab === 'overview' ? 'active' : ''}" data-tab="overview">
-            ${ICONS.activity(12)}
-            <span>Огляд та XAI</span>
-            ${fpInfo.status === 'FP_CANDIDATE' ? '<span class="sc-tab-badge warning">FP?</span>' : ''}
+            ${ICONS.loupe(12)}
+            <span>Огляд (Лупа)</span>
+            ${fpInfo.status === 'FP_CANDIDATE' ? '<span class="sc-badge sc-badge-amber" style="padding:1px 5px; font-size:8.5px;">FP?</span>' : ''}
           </button>
           <button type="button" class="sc-tab-btn ${activeTab === 'events' ? 'active' : ''}" data-tab="events">
             ${ICONS.terminal(12)}
-            <span>Консоль подій</span>
-            <span class="sc-tab-badge">${logs.length}</span>
+            <span>Події (${logs.length})</span>
           </button>
           <button type="button" class="sc-tab-btn ${activeTab === 'ai' ? 'active' : ''}" data-tab="ai">
             ${ICONS.cpu(12)}
-            <span>Gemini Nano</span>
-            <span class="sc-tab-badge">${aiCount}</span>
+            <span>Gemini Nano (${aiCount})</span>
           </button>
         </nav>
 
-        <!-- Viewport content -->
+        <!-- 3. Viewport Content -->
         <div class="sc-viewport">
           ${tabBody}
         </div>
@@ -1837,17 +1477,17 @@ export class DebuggerOverlay {
     this.bindEvents();
   }
 
-  // Рендеринг компактного віджета (Dynamic Island Pill)
+  // Рендеринг компактного віджета (Dynamic Island Pill у світлій темі)
   private static renderMinimized() {
     if (!this.shadowRoot) return;
 
     const { severity, score, logs } = this.state;
     const riskColor =
       severity === 'CRITICAL' || severity === 'HIGH'
-        ? '#FF453A'
+        ? '#FF3B30'
         : severity === 'MEDIUM'
-        ? '#FF9F0A'
-        : '#30D158';
+        ? '#FF9500'
+        : '#34C759';
 
     this.shadowRoot.innerHTML = `
       <style>
@@ -1855,29 +1495,28 @@ export class DebuggerOverlay {
 
         :host {
           all: initial;
-          font-family: var(--font-sanctuary, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif);
+          font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
         }
         .sc-pill {
-          height: 32px;
-          background: var(--sc-obsidian-bg, rgba(20, 20, 24, 0.92));
-          backdrop-filter: blur(24px) saturate(190%);
-          -webkit-backdrop-filter: blur(24px) saturate(190%);
-          border: 1px solid var(--sc-obsidian-border, rgba(255, 255, 255, 0.16));
-          border-radius: var(--radius-pill, 9999px);
+          height: 34px;
+          background: rgba(255, 255, 255, 0.94);
+          backdrop-filter: blur(24px) saturate(180%);
+          -webkit-backdrop-filter: blur(24px) saturate(180%);
+          border: 1px solid rgba(0, 0, 0, 0.10);
+          border-radius: 9999px;
           padding: 0 12px;
           display: flex;
           align-items: center;
           gap: 8px;
-          color: var(--sc-ink-primary, #FFFFFF);
+          color: #1D1D1F;
           cursor: pointer;
-          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
-          transition: transform 0.2s var(--ease-apple-spring), background 0.18s ease, box-shadow 0.18s ease;
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.10);
+          transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.18s ease;
           user-select: none;
         }
         .sc-pill:hover {
           transform: scale(1.03);
-          background: rgba(14, 14, 18, 0.98);
-          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
         }
         .sc-pill:active {
           transform: scale(0.97);
@@ -1888,37 +1527,37 @@ export class DebuggerOverlay {
           justify-content: center;
         }
         .sc-pill-text {
-          font-size: 11px;
+          font-size: 11.5px;
           font-weight: 600;
-          color: #FFFFFF;
+          color: #1D1D1F;
           letter-spacing: -0.01em;
         }
         .sc-pill-badge {
-          font-size: 9.5px;
+          font-size: 10px;
           font-weight: 700;
-          background: ${riskColor === '#30D158' ? 'rgba(52, 199, 89, 0.18)' : riskColor === '#FF9F0A' ? 'rgba(255, 149, 0, 0.22)' : 'rgba(255, 59, 48, 0.22)'};
+          background: ${riskColor === '#34C759' ? 'rgba(52, 199, 89, 0.14)' : riskColor === '#FF9500' ? 'rgba(255, 149, 0, 0.14)' : 'rgba(255, 59, 48, 0.14)'};
           color: ${riskColor};
-          border: 1px solid ${riskColor === '#30D158' ? 'rgba(52, 199, 89, 0.35)' : riskColor === '#FF9F0A' ? 'rgba(255, 149, 0, 0.35)' : 'rgba(255, 59, 48, 0.35)'};
+          border: 1px solid ${riskColor === '#34C759' ? 'rgba(52, 199, 89, 0.28)' : riskColor === '#FF9500' ? 'rgba(255, 149, 0, 0.28)' : 'rgba(255, 59, 48, 0.28)'};
           padding: 1px 7px;
-          border-radius: var(--radius-pill, 9999px);
+          border-radius: 9999px;
           font-family: var(--font-mono, monospace);
         }
         .sc-pill-count {
-          font-size: 10px;
-          color: rgba(255, 255, 255, 0.65);
+          font-size: 10.5px;
+          color: #86868B;
           font-family: var(--font-mono, monospace);
           display: flex;
           align-items: center;
           gap: 4px;
         }
       </style>
-      <div class="sc-pill" id="btn-restore" title="Відкрити турбійон телеметрії XAI">
-        <span class="sc-pill-icon">${ICONS.shield(13, riskColor)}</span>
-        <span class="sc-pill-text">Sanctuary Telemetry</span>
+      <div class="sc-pill" id="btn-restore" title="Відкрити Швейцарську Лупу">
+        <span class="sc-pill-icon">${ICONS.loupe(13, riskColor)}</span>
+        <span class="sc-pill-text">Швейцарська Лупа</span>
         <span class="sc-pill-badge">${score}/100</span>
         <span class="sc-pill-count">
-          <span>${logs.length} logs</span>
-          ${ICONS.expand(11, 'rgba(255, 255, 255, 0.65)')}
+          <span>${logs.length}</span>
+          ${ICONS.expand(11, '#86868B')}
         </span>
       </div>
     `;
@@ -1971,16 +1610,6 @@ export class DebuggerOverlay {
       this.copyToClipboard(json, e.currentTarget as HTMLElement, 'Звіт скопійовано!');
     });
 
-    // Mode toggles (Інфо vs Форензік)
-    this.shadowRoot.getElementById('btn-mode-user')?.addEventListener('click', () => {
-      this.state.userMode = 'user';
-      this.render();
-    });
-    this.shadowRoot.getElementById('btn-mode-dev')?.addEventListener('click', () => {
-      this.state.userMode = 'dev';
-      this.render();
-    });
-
     // Tabs switching
     this.shadowRoot.querySelectorAll('.sc-tab-btn').forEach((tabBtn) => {
       tabBtn.addEventListener('click', () => {
@@ -1992,7 +1621,7 @@ export class DebuggerOverlay {
       });
     });
 
-    // Quick False Positive Actions
+    // Quick Actions
     this.shadowRoot.getElementById('btn-copy-fp-report')?.addEventListener('click', (e) => {
       const json = this.exportDiagnosticReport();
       this.copyToClipboard(json, e.currentTarget as HTMLElement, 'Скопійовано!');
@@ -2004,22 +1633,22 @@ export class DebuggerOverlay {
         const btn = e.currentTarget as HTMLElement;
         try {
           await UserWhitelistManager.allowDomain(host);
-          this.log('Білий список', `Домен ${host} додано до довірених через оверлей`, '#30D158');
-          if (btn) btn.innerHTML = `${ICONS.check(12, '#30D158')} <span>Додано!</span>`;
+          this.log('Білий список', `Домен ${host} додано до довірених через оверлей`, '#34C759');
+          if (btn) btn.innerHTML = `${ICONS.check(12, '#248A3D')} <span>Додано!</span>`;
         } catch {
           window.postMessage({ type: 'THREAT_SHIELD_ADD_WHITELIST', host }, '*');
-          if (btn) btn.innerHTML = `${ICONS.check(12, '#30D158')} <span>Додано!</span>`;
+          if (btn) btn.innerHTML = `${ICONS.check(12, '#248A3D')} <span>Додано!</span>`;
         }
       }
     });
 
     this.shadowRoot.getElementById('btn-quick-reset-session')?.addEventListener('click', (e) => {
       window.postMessage({ type: 'THREAT_SHIELD_CLEAR_CONTEXT' }, '*');
-      this.log('Система', 'Користувач примусово скинув стан тривоги', '#30D158');
+      this.log('Система', 'Користувач примусово скинув стан тривоги', '#34C759');
       const btn = e.currentTarget as HTMLElement;
       if (btn) {
         const orig = btn.innerHTML;
-        btn.innerHTML = `${ICONS.check(12, '#30D158')} <span>Скинуто!</span>`;
+        btn.innerHTML = `${ICONS.check(12, '#248A3D')} <span>Скинуто!</span>`;
         setTimeout(() => {
           btn.innerHTML = orig;
         }, 1400);
