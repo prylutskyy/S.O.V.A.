@@ -102,6 +102,41 @@ body {
   line-height: 1.2;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header-loupe-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--sanctuary-hairline);
+  background: var(--sanctuary-surface);
+  color: var(--sanctuary-ink-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s var(--ease-apple-spring);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.header-loupe-btn:hover {
+  color: var(--sanctuary-blue);
+  border-color: var(--sanctuary-blue-bd);
+  background: var(--sanctuary-blue-bg);
+  transform: scale(1.05);
+}
+
+.header-loupe-btn.active {
+  background: var(--sanctuary-blue);
+  color: #FFFFFF;
+  border-color: var(--sanctuary-blue);
+  box-shadow: 0 2px 8px rgba(0, 113, 227, 0.35);
+}
+
 /* Status Pill */
 .status-pill {
   display: inline-flex;
@@ -252,11 +287,12 @@ body {
   transition: all 0.2s var(--ease-apple-spring);
 }
 
-/* Site Hero Card */
+/* Site Hero Card: Living Sanctuary Orb */
 .site-hero-card {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 14px 16px;
 }
 
 .site-hero-card.whitelisted {
@@ -267,29 +303,68 @@ body {
 .site-hero-content {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   min-width: 0;
 }
 
-.site-hero-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
+/* Living Sanctuary Orb */
+.living-orb-box {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transition: all 0.2s var(--ease-apple-spring);
 }
 
-.site-hero-icon.active {
-  background: var(--sanctuary-green-bg);
-  color: var(--sanctuary-green);
+.living-orb-glow {
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  opacity: 0.5;
+  filter: blur(6px);
+  transition: all 0.4s var(--ease-apple-spring);
+  animation: harmonicOrb 2.6s ease-in-out infinite alternate;
 }
 
-.site-hero-icon.paused {
-  background: var(--sanctuary-amber-bg);
-  color: var(--sanctuary-amber);
+.living-orb-box.active .living-orb-glow {
+  background: radial-gradient(circle, rgba(52, 199, 89, 0.5) 0%, rgba(52, 199, 89, 0) 70%);
+}
+
+.living-orb-box.paused .living-orb-glow {
+  background: radial-gradient(circle, rgba(255, 149, 0, 0.5) 0%, rgba(255, 149, 0) 70%);
+}
+
+.living-orb-core {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), 0 0 0 1px var(--sanctuary-hairline);
+  transition: all 0.3s var(--ease-apple-spring);
+}
+
+.living-orb-box.active .living-orb-core {
+  color: var(--sanctuary-green-ink);
+  border: 1.5px solid var(--sanctuary-green-bd);
+  background: linear-gradient(135deg, #FFFFFF 0%, #F4FBF6 100%);
+}
+
+.living-orb-box.paused .living-orb-core {
+  color: var(--sanctuary-amber-ink);
+  border: 1.5px solid var(--sanctuary-amber-bd);
+  background: linear-gradient(135deg, #FFFFFF 0%, #FFFDF7 100%);
+}
+
+@keyframes harmonicOrb {
+  0%   { transform: scale(0.92); opacity: 0.35; }
+  100% { transform: scale(1.08); opacity: 0.65; }
 }
 
 .site-hero-details {
@@ -312,6 +387,8 @@ body {
   font-size: 11.5px;
   font-weight: 500;
   margin-top: 1px;
+  display: flex;
+  align-items: center;
 }
 
 .site-status.green {
@@ -322,8 +399,140 @@ body {
   color: var(--sanctuary-amber-ink);
 }
 
+.status-pulse-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 5px;
+}
+
+.status-pulse-dot.active {
+  background: var(--sanctuary-green);
+  box-shadow: 0 0 0 2px rgba(52, 199, 89, 0.25);
+}
+
+.status-pulse-dot.paused {
+  background: var(--sanctuary-amber);
+  box-shadow: 0 0 0 2px rgba(255, 149, 0, 0.25);
+}
+
 /* ==========================================================================
-   5. TAINTED CONTEXT ELEVATED BANNER
+   4.1. FORENSIC LOUPE TELEMETRY PANEL (SWISS LOUPE)
+   ========================================================================== */
+.forensic-loupe-panel {
+  background: linear-gradient(145deg, rgba(29, 29, 31, 0.95) 0%, rgba(18, 18, 20, 0.98) 100%);
+  color: #F5F5F7;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28), 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+  border-radius: var(--radius-card);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: loupeEnter 0.25s var(--ease-apple-spring);
+}
+
+@keyframes loupeEnter {
+  from { opacity: 0; transform: translateY(-8px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.loupe-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.loupe-title-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.loupe-icon-badge {
+  width: 20px;
+  height: 20px;
+  border-radius: 5px;
+  background: rgba(0, 113, 227, 0.25);
+  color: #2997FF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loupe-title {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #A1A1A6;
+  font-family: var(--font-mono);
+}
+
+.btn-subtle-close {
+  background: transparent;
+  border: none;
+  color: #86868B;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: color 0.15s;
+}
+
+.btn-subtle-close:hover {
+  color: #FFFFFF;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.loupe-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.loupe-cell {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 6px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.loupe-cell-label {
+  font-size: 9.5px;
+  color: #86868B;
+  font-weight: 500;
+}
+
+.loupe-cell-val {
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--font-mono);
+  color: #F5F5F7;
+}
+
+.loupe-cell-val.green { color: #30D158; }
+.loupe-cell-val.blue  { color: #2997FF; }
+.loupe-cell-val.amber { color: #FF9F0A; }
+
+.loupe-console-line {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: #86868B;
+  line-height: 1.35;
+  padding: 6px 8px;
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 6px;
+  border-left: 2px solid #2997FF;
+}
+
+/* ==========================================================================
+   5. TAINTED CONTEXT ELEVATED BANNER: VISUAL CONTEXT BRIDGE
    ========================================================================== */
 .tainted-banner {
   background: var(--sanctuary-amber-bg);
@@ -366,10 +575,46 @@ body {
   color: var(--sanctuary-amber-ink);
 }
 
+/* Visual 2-Node Transition Chain */
+.context-chain-flow {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 3px;
+}
+
+.chain-node {
+  font-size: 9.5px;
+  font-weight: 600;
+  padding: 1.5px 6px;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 149, 0, 0.14);
+  color: var(--sanctuary-amber-ink);
+  font-family: var(--font-mono);
+}
+
+.chain-node.alert {
+  background: var(--sanctuary-surface);
+  border: 1px solid var(--sanctuary-amber-bd);
+}
+
+.chain-arrow {
+  color: var(--sanctuary-amber-ink);
+  opacity: 0.7;
+}
+
 .tainted-body {
   font-size: 11.5px;
   color: var(--sanctuary-ink-primary);
   line-height: 1.35;
+}
+
+.form-caption {
+  font-size: 10.5px;
+  color: var(--sanctuary-ink-secondary);
+  line-height: 1.35;
+  margin-top: 4px;
+  display: block;
 }
 
 .btn-tainted-reset {

@@ -24,9 +24,19 @@
         <p class="brand-subtitle">Threat Shield · Digital Dignity</p>
       </div>
     </div>
-    <div class="status-pill active" id="globalStatusPill" aria-live="polite">
-      <span class="pulse-dot"></span>
-      <span id="globalStatusText">Захищено</span>
+    <div class="header-actions">
+      <button type="button" class="header-loupe-btn" id="btnToggleForensicLoupe" title="Швейцарська Лупа: Телеметрія дипломного захисту" aria-label="Телеметрія дипломного захисту">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          <line x1="11" y1="8" x2="11" y2="14"/>
+          <line x1="8" y1="11" x2="14" y2="11"/>
+        </svg>
+      </button>
+      <div class="status-pill active" id="globalStatusPill" aria-live="polite">
+        <span class="pulse-dot"></span>
+        <span id="globalStatusText">Захищено</span>
+      </div>
     </div>
   </header>
 
@@ -64,19 +74,23 @@
        3. TAB 1: SITE PROTECTION (SANCTUARY HOME)
        ========================================================================= -->
   <main class="sanctuary-tab" id="tabContentShield" role="tabpanel" aria-labelledby="tabBtnShield">
-    <!-- Current Site Hero Card -->
+    <!-- Current Site Hero Card: Living Sanctuary Orb -->
     <section class="sanctuary-card site-hero-card" id="currentSiteCard">
       <div class="site-hero-content">
-        <div class="site-hero-icon active" id="siteIconBox">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"/>
-            <line x1="2" y1="12" x2="22" y2="12"/>
-            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-          </svg>
+        <div class="living-orb-box active" id="siteIconBox">
+          <div class="living-orb-glow"></div>
+          <div class="living-orb-core">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="9"/>
+              <circle cx="12" cy="12" r="4.5" stroke-dasharray="2 1.5"/>
+              <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
+            </svg>
+          </div>
         </div>
         <div class="site-hero-details">
           <div class="site-domain" id="currentSiteDomain">Визначення домену...</div>
           <div class="site-status green" id="currentSiteStatus">
+            <span class="status-pulse-dot"></span>
             <span>Захист увімкнено для цього сайту</span>
           </div>
         </div>
@@ -87,11 +101,45 @@
       </label>
     </section>
 
-    <!-- Elevated Tainted Context Banner -->
+    <!-- Forensic Loupe Telemetry Panel (Thesis Defense Telemetry) -->
+    <section class="sanctuary-card forensic-loupe-panel" id="forensicLoupePanel" hidden style="display: none;">
+      <div class="loupe-header">
+        <div class="loupe-title-group">
+          <div class="loupe-icon-badge">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </div>
+          <span class="loupe-title">ШВЕЙЦАРСЬКА ЛУПА · ТЕЛЕМЕТРІЯ ДИПЛОМА</span>
+        </div>
+        <button type="button" class="btn-subtle-close" id="btnCloseLoupe" title="Згорнути телеметрію">✕</button>
+      </div>
+      <div class="loupe-grid">
+        <div class="loupe-cell">
+          <span class="loupe-cell-label">Евристичний ризик</span>
+          <span class="loupe-cell-val" id="loupeScoreVal">Score = 0/100</span>
+        </div>
+        <div class="loupe-cell">
+          <span class="loupe-cell-label">Gemini Nano XAI</span>
+          <span class="loupe-cell-val green" id="loupeAiStatus">Вбудований ШІ</span>
+        </div>
+        <div class="loupe-cell">
+          <span class="loupe-cell-label">DOM Cloaking AST</span>
+          <span class="loupe-cell-val blue" id="loupeDomStatus">0 пасток</span>
+        </div>
+        <div class="loupe-cell">
+          <span class="loupe-cell-label">Шифрування DLP</span>
+          <span class="loupe-cell-val" id="loupeCryptoStatus">AES-GCM 256</span>
+        </div>
+      </div>
+      <div class="loupe-console-line" id="loupeConsoleLine">
+        Евристичний конвеєр активний. Зшивання контексту під контролем ContextManager.
+      </div>
+    </section>
+
+    <!-- Elevated Tainted Context Banner: Visual Context Bridge -->
     <div class="tainted-banner" id="taintedBanner" style="display: none;">
       <div class="tainted-lead">
         <div class="tainted-icon-box">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
             <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
             <line x1="12" y1="9" x2="12" y2="13"/>
             <line x1="12" y1="17" x2="12.01" y2="17"/>
@@ -99,20 +147,25 @@
         </div>
         <div class="tainted-text-col">
           <div class="tainted-headline">Підвищений рівень пильності</div>
-          <div class="tainted-body" id="taintedDescText">Зафіксовано перехід із чату оголошень. Скринінг форм максимально посилено.</div>
+          <div class="context-chain-flow">
+            <span class="chain-node" id="chainSourceNode">Чат оголошень</span>
+            <svg class="chain-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+            <span class="chain-node alert" id="chainTargetNode">Цільова сторінка</span>
+          </div>
         </div>
       </div>
+      <div class="tainted-body" id="taintedDescText">Зафіксовано перехід із чату оголошень. Скринінг форм максимально посилено.</div>
       <button type="button" class="btn-tainted-reset" id="btnResetContextHome">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
         <span>Скинути стан тривоги</span>
       </button>
     </div>
 
-    <!-- Active Defensive Systems: Inset Grouped Card -->
+    <!-- Active Guarantees Group: Inset Grouped Card -->
     <div class="section-group">
-      <div class="section-label">АКТИВНІ ЗАСОБИ ОБОРОНИ</div>
+      <div class="section-label">ГАРАНТІЇ ЦИФРОВОГО СВЯТИЛИЩА</div>
       <div class="inset-group">
-        <!-- Module 1: Payment Protection -->
+        <!-- Guarantee 1: Payment Protection -->
         <div class="inset-row">
           <div class="inset-lead">
             <div class="inset-icon-box blue">
@@ -122,13 +175,13 @@
             </div>
             <div class="inset-info">
               <div class="inset-title">Захист карток та CVV</div>
-              <div class="inset-desc">Блокування інверсії полів та списання балансу</div>
+              <div class="inset-desc">Фінансова недоторканність: блокування викрадення балансу</div>
             </div>
           </div>
           <span class="module-pill green">Активно</span>
         </div>
 
-        <!-- Module 2: Hidden Forms Scanner -->
+        <!-- Guarantee 2: Hidden Forms Scanner -->
         <div class="inset-row">
           <div class="inset-lead">
             <div class="inset-icon-box amber">
@@ -138,7 +191,7 @@
             </div>
             <div class="inset-info">
               <div class="inset-title">Аудит прихованих форм</div>
-              <div class="inset-desc">Нейтралізація невидимих полів введення</div>
+              <div class="inset-desc">Оптична прозорість DOM: нейтралізація CSS-маскування</div>
             </div>
           </div>
           <span class="module-pill green">Активно</span>
@@ -288,8 +341,9 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="detailDecoyInput">Безпечна підміна (Decoy / Honeytoken)</label>
+            <label class="form-label" for="detailDecoyInput">Безпечна підміна (Honeytoken Decoy)</label>
             <input type="text" class="sanctuary-input mono" id="detailDecoyInput" placeholder="Автоматичний декой">
+            <span class="form-caption">Цю штучну приманку буде підставлено шахраям для захисту реальних коштів</span>
           </div>
 
           <div class="detail-help-box" id="detailHelpBox">
