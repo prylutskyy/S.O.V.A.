@@ -891,7 +891,7 @@ export class DebuggerOverlay {
         :host {
           all: initial;
           font-family: var(--font-sanctuary, -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, sans-serif);
-          color: #FFFFFF;
+          color: var(--sc-ink-primary, #FFFFFF);
           box-sizing: border-box;
           -webkit-font-smoothing: antialiased;
         }
@@ -904,24 +904,24 @@ export class DebuggerOverlay {
         .sc-window {
           width: 100%;
           height: 100%;
-          background: rgba(16, 16, 20, 0.94);
-          backdrop-filter: blur(32px) saturate(190%);
-          -webkit-backdrop-filter: blur(32px) saturate(190%);
-          border: 1px solid rgba(255, 255, 255, 0.12);
-          border-radius: 20px;
+          background: var(--sc-obsidian-bg, rgba(16, 16, 20, 0.94));
+          backdrop-filter: var(--sc-obsidian-blur, blur(32px) saturate(190%));
+          -webkit-backdrop-filter: var(--sc-obsidian-blur, blur(32px) saturate(190%));
+          border: 1px solid var(--sc-obsidian-border, rgba(255, 255, 255, 0.12));
+          border-radius: var(--sc-squircle-window, 20px);
           box-shadow: 0 24px 64px -12px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.06);
           display: flex;
           flex-direction: column;
           overflow: hidden;
           font-size: 12px;
-          color: #FFFFFF;
+          color: var(--sc-ink-primary, #FFFFFF);
         }
 
         /* 2. Precision Titlebar */
         .sc-titlebar {
-          background: rgba(24, 24, 30, 0.8);
+          background: var(--sc-obsidian-header, rgba(24, 24, 30, 0.82));
           padding: 12px 18px;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+          border-bottom: 1px solid var(--sc-obsidian-border-subtle, rgba(255, 255, 255, 0.08));
           display: flex;
           justify-content: space-between;
           align-items: center;
@@ -939,13 +939,24 @@ export class DebuggerOverlay {
         .sc-brand-icon {
           width: 26px;
           height: 26px;
-          border-radius: 8px;
+          border-radius: var(--sc-squircle-control, 8px);
           background: linear-gradient(135deg, #0A84FF 0%, #5E5CE6 100%);
           display: flex;
           align-items: center;
           justify-content: center;
           color: #FFFFFF;
-          box-shadow: 0 0 14px rgba(10, 132, 255, 0.4);
+          box-shadow: var(--sc-sapphire-glow, 0 0 14px rgba(10, 132, 255, 0.4));
+          animation: sc-lens-breathe 4s ease-in-out infinite;
+        }
+        @keyframes sc-lens-breathe {
+          0%, 100% {
+            transform: scale(1);
+            box-shadow: 0 0 12px rgba(10, 132, 255, 0.35);
+          }
+          50% {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(10, 132, 255, 0.65);
+          }
         }
         .sc-brand-meta {
           display: flex;
@@ -955,15 +966,15 @@ export class DebuggerOverlay {
         .sc-brand-name {
           font-size: 13.5px;
           font-weight: 700;
-          color: #FFFFFF;
+          color: var(--sc-ink-primary, #FFFFFF);
           letter-spacing: -0.015em;
         }
         .sc-brand-badge {
           font-size: 9.5px;
           font-weight: 700;
           background: rgba(255, 255, 255, 0.08);
-          border: 1px solid rgba(255, 255, 255, 0.12);
-          color: rgba(255, 255, 255, 0.75);
+          border: 1px solid var(--sc-obsidian-border, rgba(255, 255, 255, 0.12));
+          color: var(--sc-ink-secondary, rgba(255, 255, 255, 0.75));
           padding: 2px 7px;
           border-radius: 5px;
           text-transform: uppercase;
@@ -979,58 +990,61 @@ export class DebuggerOverlay {
         .sc-segmented-mode {
           display: flex;
           background: rgba(255, 255, 255, 0.06);
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          border-radius: 9999px;
+          border: 1px solid var(--sc-obsidian-border-subtle, rgba(255, 255, 255, 0.08));
+          border-radius: var(--radius-pill, 9999px);
           padding: 2px;
           margin-right: 6px;
         }
         .sc-mode-btn {
           background: transparent;
           border: none;
-          color: rgba(255, 255, 255, 0.6);
+          color: var(--sc-ink-muted, rgba(255, 255, 255, 0.6));
           font-size: 10.5px;
           font-weight: 600;
           padding: 4px 10px;
-          border-radius: 9999px;
+          border-radius: var(--radius-pill, 9999px);
           cursor: pointer;
           display: inline-flex;
           align-items: center;
           gap: 4px;
-          transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+          transition: all 0.2s var(--ease-apple-spring, cubic-bezier(0.16, 1, 0.3, 1));
         }
         .sc-mode-btn.active {
-          background: rgba(255, 255, 255, 0.18);
-          color: #FFFFFF;
+          background: var(--sc-obsidian-sheen, rgba(255, 255, 255, 0.18));
+          color: var(--sc-ink-primary, #FFFFFF);
           box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
         }
         .sc-tool-btn {
           width: 28px;
           height: 28px;
           background: rgba(255, 255, 255, 0.05);
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          color: rgba(255, 255, 255, 0.75);
+          border: 1px solid var(--sc-obsidian-border-subtle, rgba(255, 255, 255, 0.08));
+          color: var(--sc-ink-secondary, rgba(255, 255, 255, 0.75));
           cursor: pointer;
           border-radius: 7px;
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          transition: all 0.14s ease;
+          transition: all 0.15s ease;
         }
         .sc-tool-btn:hover {
           background: rgba(255, 255, 255, 0.14);
           color: #FFFFFF;
           border-color: rgba(255, 255, 255, 0.2);
         }
+        .sc-tool-btn:active {
+          transform: scale(0.94);
+        }
         .sc-tool-btn.sc-tool-btn-close:hover {
-          background: rgba(255, 69, 58, 0.22);
-          color: #FF453A;
-          border-color: rgba(255, 69, 58, 0.4);
+          background: var(--sc-crimson-bg, rgba(255, 69, 58, 0.22));
+          color: var(--sc-crimson, #FF453A);
+          border-color: var(--sc-crimson-border, rgba(255, 69, 58, 0.4));
         }
 
         /* 3. Cupertino Navigation Bar */
         .sc-tab-bar {
-          background: rgba(14, 14, 18, 0.85);
-          border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+          background: var(--sc-obsidian-nav, rgba(14, 14, 18, 0.88));
+          border-bottom: 1px solid var(--sc-obsidian-border-subtle, rgba(255, 255, 255, 0.07));
           display: flex;
           padding: 6px 14px 10px 14px;
           gap: 6px;
@@ -1039,40 +1053,44 @@ export class DebuggerOverlay {
           flex: 1;
           background: rgba(0, 0, 0, 0.25);
           border: 1px solid rgba(255, 255, 255, 0.05);
-          color: rgba(255, 255, 255, 0.6);
+          color: var(--sc-ink-muted, rgba(255, 255, 255, 0.6));
           font-size: 11.5px;
           font-weight: 500;
           padding: 6px 10px;
           cursor: pointer;
-          border-radius: 8px;
+          border-radius: var(--sc-squircle-control, 8px);
           display: inline-flex;
           align-items: center;
           justify-content: center;
           gap: 6px;
-          transition: all 0.16s ease;
+          transition: all 0.2s var(--ease-apple-spring, cubic-bezier(0.16, 1, 0.3, 1));
         }
         .sc-tab-btn:hover {
           color: #FFFFFF;
-          background: rgba(255, 255, 255, 0.06);
+          background: rgba(255, 255, 255, 0.07);
+        }
+        .sc-tab-btn:active {
+          transform: scale(0.97);
         }
         .sc-tab-btn.active {
           background: rgba(255, 255, 255, 0.14);
           color: #FFFFFF;
           font-weight: 600;
-          border-color: rgba(255, 255, 255, 0.18);
+          border-color: var(--sc-obsidian-sheen, rgba(255, 255, 255, 0.18));
           box-shadow: 0 2px 8px rgba(0, 0, 0, 0.28);
         }
         .sc-tab-badge {
           font-size: 9.5px;
           font-weight: 700;
           background: rgba(255, 255, 255, 0.1);
-          color: rgba(255, 255, 255, 0.8);
+          color: rgba(255, 255, 255, 0.85);
           padding: 1px 6px;
           border-radius: 10px;
         }
         .sc-tab-badge.warning {
-          background: rgba(255, 159, 10, 0.25);
-          color: #FF9F0A;
+          background: var(--sc-amber-bg, rgba(255, 159, 10, 0.25));
+          color: var(--sc-amber, #FF9F0A);
+          border: 1px solid var(--sc-amber-border, rgba(255, 159, 10, 0.32));
         }
 
         /* 4. Viewport & Scrollbar */
@@ -1095,17 +1113,18 @@ export class DebuggerOverlay {
           border-radius: 4px;
         }
         ::-webkit-scrollbar-thumb:hover {
-          background: rgba(255, 255, 255, 0.28);
+          background: rgba(255, 255, 255, 0.30);
         }
 
         /* 5. Cards & Gauges */
         .sc-card {
-          background: rgba(26, 26, 32, 0.7);
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          border-radius: 14px;
+          background: var(--sc-obsidian-card, rgba(26, 26, 32, 0.7));
+          border: 1px solid var(--sc-obsidian-border-subtle, rgba(255, 255, 255, 0.08));
+          border-radius: var(--sc-squircle-card, 14px);
           padding: 14px;
           margin-bottom: 10px;
           box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+          transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
         .sc-overview-view {
           padding: 14px;
@@ -1113,8 +1132,8 @@ export class DebuggerOverlay {
           flex-direction: column;
         }
         .sc-hero-gauge-card {
-          background: linear-gradient(135deg, rgba(28, 28, 36, 0.85) 0%, rgba(18, 18, 24, 0.95) 100%);
-          border: 1px solid rgba(255, 255, 255, 0.1);
+          background: var(--sc-obsidian-card-elevated, linear-gradient(135deg, rgba(28, 28, 36, 0.85) 0%, rgba(18, 18, 24, 0.95) 100%));
+          border: 1px solid var(--sc-obsidian-border, rgba(255, 255, 255, 0.1));
           padding: 16px;
         }
         .sc-gauge-section {
@@ -1149,8 +1168,8 @@ export class DebuggerOverlay {
           stroke-linecap: round;
           stroke-dasharray: ${strokeDasharray};
           stroke-dashoffset: ${strokeDashoffset};
-          transition: stroke-dashoffset 0.5s ease-out, stroke 0.5s ease;
-          filter: drop-shadow(0 0 8px ${riskColor});
+          transition: stroke-dashoffset 0.6s var(--ease-apple-spring, cubic-bezier(0.16, 1, 0.3, 1)), stroke 0.4s ease;
+          filter: drop-shadow(0 0 10px ${riskColor});
         }
         .sc-gauge-text {
           position: absolute;
@@ -1161,13 +1180,14 @@ export class DebuggerOverlay {
         .sc-gauge-value {
           font-size: 20px;
           font-weight: 700;
-          color: #FFFFFF;
+          color: var(--sc-ink-primary, #FFFFFF);
           line-height: 1;
           letter-spacing: -0.02em;
+          font-variant-numeric: tabular-nums;
         }
         .sc-gauge-label {
           font-size: 8.5px;
-          color: rgba(255, 255, 255, 0.45);
+          color: var(--sc-ink-subtle, rgba(255, 255, 255, 0.45));
           text-transform: uppercase;
           letter-spacing: 0.06em;
           margin-top: 3px;
@@ -1180,7 +1200,7 @@ export class DebuggerOverlay {
           font-family: var(--font-mono, monospace);
           font-size: 11px;
           font-weight: 600;
-          color: #FFFFFF;
+          color: var(--sc-ink-primary, #FFFFFF);
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -1188,11 +1208,11 @@ export class DebuggerOverlay {
         }
         .sc-subtext {
           font-size: 10.5px;
-          color: rgba(255, 255, 255, 0.6);
+          color: var(--sc-ink-muted, rgba(255, 255, 255, 0.6));
           margin-top: 6px;
         }
         .sc-subtext strong {
-          color: #FFFFFF;
+          color: var(--sc-ink-primary, #FFFFFF);
         }
 
         /* Badges */
@@ -1203,29 +1223,29 @@ export class DebuggerOverlay {
           font-size: 9.5px;
           font-weight: 700;
           padding: 3px 8px;
-          border-radius: 6px;
+          border-radius: var(--sc-squircle-chip, 6px);
           text-transform: uppercase;
           letter-spacing: 0.04em;
         }
         .sc-badge-red {
-          background: rgba(255, 69, 58, 0.16);
-          color: #FF453A;
-          border: 1px solid rgba(255, 69, 58, 0.32);
+          background: var(--sc-crimson-bg, rgba(255, 69, 58, 0.16));
+          color: var(--sc-crimson, #FF453A);
+          border: 1px solid var(--sc-crimson-border, rgba(255, 69, 58, 0.32));
         }
         .sc-badge-amber {
-          background: rgba(255, 159, 10, 0.16);
-          color: #FF9F0A;
-          border: 1px solid rgba(255, 159, 10, 0.32);
+          background: var(--sc-amber-bg, rgba(255, 159, 10, 0.16));
+          color: var(--sc-amber, #FF9F0A);
+          border: 1px solid var(--sc-amber-border, rgba(255, 159, 10, 0.32));
         }
         .sc-badge-green {
-          background: rgba(48, 209, 88, 0.16);
-          color: #30D158;
-          border: 1px solid rgba(48, 209, 88, 0.32);
+          background: var(--sc-emerald-bg, rgba(48, 209, 88, 0.16));
+          color: var(--sc-emerald, #30D158);
+          border: 1px solid var(--sc-emerald-border, rgba(48, 209, 88, 0.32));
         }
         .sc-badge-blue {
-          background: rgba(10, 132, 255, 0.16);
-          color: #0A84FF;
-          border: 1px solid rgba(10, 132, 255, 0.32);
+          background: var(--sc-sapphire-bg, rgba(10, 132, 255, 0.16));
+          color: var(--sc-sapphire, #0A84FF);
+          border: 1px solid var(--sc-sapphire-border, rgba(10, 132, 255, 0.32));
         }
 
         /* 6. False Positive & XAI Inspector */
@@ -1233,19 +1253,19 @@ export class DebuggerOverlay {
           border-left: 3px solid transparent;
         }
         .sc-matrix-card.sc-alert-warning {
-          border-left-color: #FF9F0A;
+          border-left-color: var(--sc-amber, #FF9F0A);
           background: linear-gradient(135deg, rgba(38, 30, 20, 0.75) 0%, rgba(22, 20, 18, 0.85) 100%);
-          border-color: rgba(255, 159, 10, 0.25);
+          border-color: var(--sc-amber-border, rgba(255, 159, 10, 0.25));
         }
         .sc-matrix-card.sc-alert-danger {
-          border-left-color: #FF453A;
+          border-left-color: var(--sc-crimson, #FF453A);
           background: linear-gradient(135deg, rgba(42, 22, 24, 0.75) 0%, rgba(24, 18, 19, 0.85) 100%);
-          border-color: rgba(255, 69, 58, 0.25);
+          border-color: var(--sc-crimson-border, rgba(255, 69, 58, 0.25));
         }
         .sc-matrix-card.sc-alert-success {
-          border-left-color: #30D158;
+          border-left-color: var(--sc-emerald, #30D158);
           background: linear-gradient(135deg, rgba(20, 36, 26, 0.75) 0%, rgba(18, 24, 20, 0.85) 100%);
-          border-color: rgba(48, 209, 88, 0.25);
+          border-color: var(--sc-emerald-border, rgba(48, 209, 88, 0.25));
         }
         .sc-matrix-header {
           display: flex;
@@ -1256,7 +1276,7 @@ export class DebuggerOverlay {
         .sc-btn-ghost {
           background: transparent;
           border: none;
-          color: #0A84FF;
+          color: var(--sc-sapphire, #0A84FF);
           font-size: 10.5px;
           font-weight: 600;
           cursor: pointer;
@@ -1265,14 +1285,17 @@ export class DebuggerOverlay {
           display: inline-flex;
           align-items: center;
           gap: 4px;
-          transition: all 0.14s ease;
+          transition: all 0.15s ease;
         }
         .sc-btn-ghost:hover {
-          background: rgba(10, 132, 255, 0.14);
+          background: var(--sc-sapphire-bg, rgba(10, 132, 255, 0.14));
+        }
+        .sc-btn-ghost:active {
+          transform: scale(0.96);
         }
         .sc-matrix-desc {
           font-size: 11.5px;
-          color: rgba(255, 255, 255, 0.85);
+          color: var(--sc-ink-secondary, rgba(255, 255, 255, 0.85));
           line-height: 1.5;
           margin-bottom: 10px;
         }
@@ -1283,16 +1306,16 @@ export class DebuggerOverlay {
           margin-bottom: 10px;
         }
         .sc-compare-col {
-          background: rgba(12, 12, 16, 0.65);
-          border: 1px solid rgba(255, 255, 255, 0.07);
-          border-radius: 8px;
+          background: var(--sc-obsidian-well, rgba(12, 12, 16, 0.65));
+          border: 1px solid var(--sc-obsidian-border-subtle, rgba(255, 255, 255, 0.07));
+          border-radius: var(--sc-squircle-control, 8px);
           padding: 8px 10px;
         }
         .sc-col-title {
-          display: block,
+          display: block;
           font-size: 9px;
           text-transform: uppercase;
-          color: rgba(255, 255, 255, 0.45);
+          color: var(--sc-ink-subtle, rgba(255, 255, 255, 0.45));
           font-weight: 700;
           letter-spacing: 0.03em;
           margin-bottom: 3px;
@@ -1300,19 +1323,19 @@ export class DebuggerOverlay {
         .sc-col-val {
           font-size: 12px;
           font-weight: 600;
-          color: #FFFFFF;
+          color: var(--sc-ink-primary, #FFFFFF);
         }
         .sc-triggers-box {
-          background: rgba(12, 12, 16, 0.65);
-          border: 1px solid rgba(255, 255, 255, 0.07);
-          border-radius: 8px;
+          background: var(--sc-obsidian-well, rgba(12, 12, 16, 0.65));
+          border: 1px solid var(--sc-obsidian-border-subtle, rgba(255, 255, 255, 0.07));
+          border-radius: var(--sc-squircle-control, 8px);
           padding: 9px 10px;
           margin-bottom: 10px;
         }
         .sc-triggers-title {
           font-size: 9.5px;
           font-weight: 700;
-          color: rgba(255, 255, 255, 0.6);
+          color: var(--sc-ink-muted, rgba(255, 255, 255, 0.6));
           text-transform: uppercase;
           letter-spacing: 0.03em;
         }
@@ -1323,21 +1346,28 @@ export class DebuggerOverlay {
           margin-top: 6px;
         }
         .sc-trigger-chip {
-          background: rgba(255, 159, 10, 0.12);
-          border: 1px solid rgba(255, 159, 10, 0.25);
+          background: var(--sc-amber-bg, rgba(255, 159, 10, 0.12));
+          border: 1px solid var(--sc-amber-border, rgba(255, 159, 10, 0.25));
           color: #FFB340;
           font-family: var(--font-mono, monospace);
           font-size: 10px;
           padding: 2px 8px;
-          border-radius: 6px;
+          border-radius: var(--sc-squircle-chip, 6px);
+          transition: all 0.18s ease;
+          user-select: all;
+        }
+        .sc-trigger-chip:hover {
+          background: rgba(255, 159, 10, 0.22);
+          border-color: rgba(255, 159, 10, 0.45);
+          box-shadow: 0 0 10px rgba(255, 159, 10, 0.25);
         }
         .sc-friendly-note {
-          background: rgba(10, 132, 255, 0.08);
-          border: 1px solid rgba(10, 132, 255, 0.2);
-          border-radius: 8px;
+          background: var(--sc-sapphire-bg, rgba(10, 132, 255, 0.08));
+          border: 1px solid var(--sc-sapphire-border, rgba(10, 132, 255, 0.2));
+          border-radius: var(--sc-squircle-control, 8px);
           padding: 8px 10px;
           font-size: 11px;
-          color: rgba(255, 255, 255, 0.85);
+          color: var(--sc-ink-secondary, rgba(255, 255, 255, 0.85));
           line-height: 1.4;
           margin-bottom: 10px;
           display: flex;
@@ -1345,7 +1375,7 @@ export class DebuggerOverlay {
           gap: 6px;
         }
         .sc-friendly-note strong {
-          color: #FFFFFF;
+          color: var(--sc-ink-primary, #FFFFFF);
         }
         .sc-audit-actions {
           display: flex;
@@ -1353,11 +1383,11 @@ export class DebuggerOverlay {
         }
         .sc-btn {
           flex: 1;
-          background: #0A84FF;
+          background: var(--sc-sapphire, #0A84FF);
           color: #FFFFFF;
           border: none;
           padding: 7px 11px;
-          border-radius: 8px;
+          border-radius: var(--sc-squircle-control, 8px);
           font-size: 11px;
           font-weight: 600;
           cursor: pointer;
@@ -1365,16 +1395,19 @@ export class DebuggerOverlay {
           align-items: center;
           justify-content: center;
           gap: 6px;
-          transition: all 0.15s ease;
+          transition: all 0.18s var(--ease-apple-spring, cubic-bezier(0.16, 1, 0.3, 1));
         }
         .sc-btn:hover {
-          background: #0077ED;
+          background: var(--sc-sapphire-hover, #0077ED);
           box-shadow: 0 2px 8px rgba(10, 132, 255, 0.35);
+        }
+        .sc-btn:active {
+          transform: scale(0.97);
         }
         .sc-btn-secondary {
           background: rgba(255, 255, 255, 0.08);
           color: #FFFFFF;
-          border: 1px solid rgba(255, 255, 255, 0.12);
+          border: 1px solid var(--sc-obsidian-border, rgba(255, 255, 255, 0.12));
         }
         .sc-btn-secondary:hover {
           background: rgba(255, 255, 255, 0.15);
@@ -1385,7 +1418,7 @@ export class DebuggerOverlay {
         .sc-card-title {
           font-size: 11.5px;
           font-weight: 700;
-          color: #FFFFFF;
+          color: var(--sc-ink-primary, #FFFFFF);
           margin-bottom: 8px;
           letter-spacing: -0.01em;
         }
@@ -1399,11 +1432,11 @@ export class DebuggerOverlay {
           justify-content: space-between;
           align-items: center;
           padding: 6px 10px;
-          background: rgba(12, 12, 16, 0.6);
-          border: 1px solid rgba(255, 255, 255, 0.06);
+          background: var(--sc-obsidian-well, rgba(12, 12, 16, 0.6));
+          border: 1px solid var(--sc-obsidian-border-subtle, rgba(255, 255, 255, 0.06));
           border-radius: 7px;
           font-size: 11px;
-          color: rgba(255, 255, 255, 0.85);
+          color: var(--sc-ink-secondary, rgba(255, 255, 255, 0.85));
         }
         .sc-tag {
           font-size: 9px;
@@ -1411,29 +1444,32 @@ export class DebuggerOverlay {
           padding: 2px 6px;
           border-radius: 4px;
           background: rgba(255, 255, 255, 0.08);
-          color: rgba(255, 255, 255, 0.5);
+          color: var(--sc-ink-subtle, rgba(255, 255, 255, 0.5));
         }
         .sc-tag-blue {
-          background: rgba(10, 132, 255, 0.2);
-          color: #0A84FF;
+          background: var(--sc-sapphire-bg, rgba(10, 132, 255, 0.2));
+          color: var(--sc-sapphire, #0A84FF);
+          border: 1px solid var(--sc-sapphire-border, rgba(10, 132, 255, 0.32));
         }
         .sc-tag-red {
-          background: rgba(255, 69, 58, 0.2);
-          color: #FF453A;
+          background: var(--sc-crimson-bg, rgba(255, 69, 58, 0.2));
+          color: var(--sc-crimson, #FF453A);
+          border: 1px solid var(--sc-crimson-border, rgba(255, 69, 58, 0.32));
         }
         .sc-tag-green {
-          background: rgba(48, 209, 88, 0.2);
-          color: #30D158;
+          background: var(--sc-emerald-bg, rgba(48, 209, 88, 0.2));
+          color: var(--sc-emerald, #30D158);
+          border: 1px solid var(--sc-emerald-border, rgba(48, 209, 88, 0.32));
         }
         .sc-info-callout {
-          background: rgba(10, 132, 255, 0.08);
-          border-left: 3px solid #0A84FF;
-          border-color: rgba(10, 132, 255, 0.2);
+          background: var(--sc-sapphire-bg, rgba(10, 132, 255, 0.08));
+          border-left: 3px solid var(--sc-sapphire, #0A84FF);
+          border-color: var(--sc-sapphire-border, rgba(10, 132, 255, 0.2));
         }
         .sc-callout-title {
           font-weight: 700;
           font-size: 11.5px;
-          color: #FFFFFF;
+          color: var(--sc-ink-primary, #FFFFFF);
           margin-bottom: 4px;
           display: flex;
           align-items: center;
@@ -1441,7 +1477,7 @@ export class DebuggerOverlay {
         }
         .sc-callout-text {
           font-size: 11px;
-          color: rgba(255, 255, 255, 0.75);
+          color: var(--sc-ink-secondary, rgba(255, 255, 255, 0.75));
           line-height: 1.45;
         }
 
@@ -1453,9 +1489,9 @@ export class DebuggerOverlay {
           min-height: 0;
         }
         .sc-filter-bar {
-          background: rgba(20, 20, 26, 0.7);
+          background: var(--sc-obsidian-header, rgba(20, 20, 26, 0.7));
           padding: 8px 12px;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+          border-bottom: 1px solid var(--sc-obsidian-border-subtle, rgba(255, 255, 255, 0.07));
           display: flex;
           flex-direction: column;
           gap: 6px;
@@ -1469,29 +1505,30 @@ export class DebuggerOverlay {
           position: absolute;
           left: 9px;
           pointer-events: none;
-          color: rgba(255, 255, 255, 0.4);
+          color: var(--sc-ink-subtle, rgba(255, 255, 255, 0.4));
         }
         .sc-search-input {
           width: 100%;
           height: 28px;
-          background: rgba(10, 10, 14, 0.8);
-          border: 1px solid rgba(255, 255, 255, 0.1);
+          background: var(--sc-obsidian-well, rgba(10, 10, 14, 0.8));
+          border: 1px solid var(--sc-obsidian-border, rgba(255, 255, 255, 0.1));
           border-radius: 7px;
           padding: 0 28px 0 28px;
-          color: #FFFFFF;
+          color: var(--sc-ink-primary, #FFFFFF);
           font-size: 11px;
           outline: none;
-          transition: border-color 0.14s;
+          transition: border-color 0.15s ease, box-shadow 0.15s ease;
         }
         .sc-search-input:focus {
-          border-color: #0A84FF;
+          border-color: var(--sc-sapphire, #0A84FF);
+          box-shadow: 0 0 8px rgba(10, 132, 255, 0.3);
         }
         .sc-search-clear {
           position: absolute;
           right: 6px;
           background: transparent;
           border: none;
-          color: rgba(255, 255, 255, 0.4);
+          color: var(--sc-ink-subtle, rgba(255, 255, 255, 0.4));
           cursor: pointer;
           padding: 2px 4px;
         }
@@ -1501,23 +1538,26 @@ export class DebuggerOverlay {
         }
         .sc-chip {
           background: rgba(255, 255, 255, 0.06);
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          color: rgba(255, 255, 255, 0.65);
+          border: 1px solid var(--sc-obsidian-border-subtle, rgba(255, 255, 255, 0.08));
+          color: var(--sc-ink-secondary, rgba(255, 255, 255, 0.65));
           font-size: 10px;
           font-weight: 600;
           padding: 3px 8px;
-          border-radius: 6px;
+          border-radius: var(--sc-squircle-chip, 6px);
           cursor: pointer;
-          transition: all 0.12s;
+          transition: all 0.15s var(--ease-apple-spring, cubic-bezier(0.16, 1, 0.3, 1));
         }
         .sc-chip:hover {
-          background: rgba(255, 255, 255, 0.1);
+          background: rgba(255, 255, 255, 0.12);
           color: #FFFFFF;
         }
+        .sc-chip:active {
+          transform: scale(0.96);
+        }
         .sc-chip.active {
-          background: rgba(10, 132, 255, 0.22);
-          border-color: rgba(10, 132, 255, 0.4);
-          color: #0A84FF;
+          background: var(--sc-sapphire-bg, rgba(10, 132, 255, 0.22));
+          border-color: var(--sc-sapphire-border, rgba(10, 132, 255, 0.4));
+          color: var(--sc-sapphire, #0A84FF);
         }
         .sc-logs-scroll {
           flex: 1;
@@ -1528,11 +1568,15 @@ export class DebuggerOverlay {
           gap: 7px;
         }
         .sc-console-row {
-          background: rgba(24, 24, 30, 0.7);
-          border: 1px solid rgba(255, 255, 255, 0.07);
+          background: var(--sc-obsidian-card, rgba(24, 24, 30, 0.7));
+          border: 1px solid var(--sc-obsidian-border-subtle, rgba(255, 255, 255, 0.07));
           border-left-width: 3px;
-          border-radius: 8px;
+          border-radius: var(--sc-squircle-control, 8px);
           padding: 7px 9px;
+          transition: background 0.15s ease;
+        }
+        .sc-console-row:hover {
+          background: rgba(30, 30, 38, 0.85);
         }
         .sc-row-header {
           display: flex;
@@ -1552,8 +1596,8 @@ export class DebuggerOverlay {
           font-size: 8.5px;
           font-weight: 700;
           background: rgba(255, 255, 255, 0.09);
-          border: 1px solid rgba(255, 255, 255, 0.12);
-          color: rgba(255, 255, 255, 0.75);
+          border: 1px solid var(--sc-obsidian-border, rgba(255, 255, 255, 0.12));
+          color: var(--sc-ink-secondary, rgba(255, 255, 255, 0.75));
           padding: 1px 5px;
           border-radius: 4px;
           letter-spacing: 0.03em;
@@ -1570,32 +1614,35 @@ export class DebuggerOverlay {
         .sc-row-time {
           font-family: var(--font-mono, monospace);
           font-size: 9.5px;
-          color: rgba(255, 255, 255, 0.4);
+          color: var(--sc-ink-subtle, rgba(255, 255, 255, 0.4));
         }
         .sc-copy-btn {
           background: transparent;
           border: none;
-          color: rgba(255, 255, 255, 0.4);
+          color: var(--sc-ink-subtle, rgba(255, 255, 255, 0.4));
           cursor: pointer;
           padding: 2px 4px;
           font-size: 10px;
           border-radius: 4px;
           display: inline-flex;
           align-items: center;
-          transition: all 0.12s;
+          transition: all 0.14s ease;
         }
         .sc-copy-btn:hover {
           color: #FFFFFF;
-          background: rgba(255, 255, 255, 0.1);
+          background: rgba(255, 255, 255, 0.12);
+        }
+        .sc-copy-btn:active {
+          transform: scale(0.92);
         }
         .sc-code-block {
-          background: rgba(10, 10, 14, 0.85);
-          border: 1px solid rgba(255, 255, 255, 0.06);
+          background: var(--sc-obsidian-well, rgba(10, 10, 14, 0.85));
+          border: 1px solid var(--sc-obsidian-border-subtle, rgba(255, 255, 255, 0.06));
           border-radius: 6px;
           padding: 6px 8px;
           font-family: var(--font-mono, monospace);
           font-size: 10px;
-          color: rgba(255, 255, 255, 0.9);
+          color: var(--sc-ink-primary, rgba(255, 255, 255, 0.9));
           margin: 0;
           white-space: pre-wrap;
           word-break: break-word;
@@ -1605,7 +1652,7 @@ export class DebuggerOverlay {
         .sc-empty-console {
           padding: 50px 20px;
           text-align: center;
-          color: rgba(255, 255, 255, 0.4);
+          color: var(--sc-ink-subtle, rgba(255, 255, 255, 0.4));
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -1620,8 +1667,8 @@ export class DebuggerOverlay {
           gap: 9px;
         }
         .sc-ai-session-card {
-          border-left: 3px solid #0A84FF;
-          background: rgba(24, 24, 30, 0.7);
+          border-left: 3px solid var(--sc-sapphire, #0A84FF);
+          background: var(--sc-obsidian-card, rgba(24, 24, 30, 0.7));
         }
         .sc-ai-header {
           margin-bottom: 9px;
@@ -1644,14 +1691,14 @@ export class DebuggerOverlay {
           gap: 7px;
         }
         .sc-ai-block {
-          background: rgba(10, 10, 14, 0.85);
-          border: 1px solid rgba(255, 255, 255, 0.06);
+          background: var(--sc-obsidian-well, rgba(10, 10, 14, 0.85));
+          border: 1px solid var(--sc-obsidian-border-subtle, rgba(255, 255, 255, 0.06));
           border-radius: 6px;
           padding: 7px 9px;
         }
         .sc-ai-block.raw-block {
-          border-color: rgba(10, 132, 255, 0.3);
-          background: rgba(10, 132, 255, 0.06);
+          border-color: var(--sc-sapphire-border, rgba(10, 132, 255, 0.3));
+          background: var(--sc-sapphire-bg, rgba(10, 132, 255, 0.06));
         }
         .sc-ai-block-header {
           display: flex;
@@ -1659,7 +1706,7 @@ export class DebuggerOverlay {
           align-items: center;
           font-size: 9.5px;
           font-weight: 700;
-          color: rgba(255, 255, 255, 0.6);
+          color: var(--sc-ink-muted, rgba(255, 255, 255, 0.6));
           margin-bottom: 4px;
         }
         .sc-ai-block-title {
@@ -1668,8 +1715,8 @@ export class DebuggerOverlay {
           gap: 5px;
         }
         .sc-code-block.raw-code {
-          background: rgba(8, 8, 12, 0.95);
-          border-color: rgba(10, 132, 255, 0.25);
+          background: var(--sc-obsidian-code, rgba(8, 8, 12, 0.95));
+          border-color: var(--sc-sapphire-border, rgba(10, 132, 255, 0.25));
           color: #70B4FF;
         }
       </style>
@@ -1767,25 +1814,28 @@ export class DebuggerOverlay {
         }
         .sc-pill {
           height: 32px;
-          background: rgba(20, 20, 24, 0.92);
-          backdrop-filter: blur(20px);
-          -webkit-backdrop-filter: blur(20px);
-          border: 1px solid rgba(255, 255, 255, 0.16);
+          background: var(--sc-obsidian-bg, rgba(20, 20, 24, 0.92));
+          backdrop-filter: blur(24px) saturate(190%);
+          -webkit-backdrop-filter: blur(24px) saturate(190%);
+          border: 1px solid var(--sc-obsidian-border, rgba(255, 255, 255, 0.16));
           border-radius: var(--radius-pill, 9999px);
           padding: 0 12px;
           display: flex;
           align-items: center;
           gap: 8px;
-          color: #FFFFFF;
+          color: var(--sc-ink-primary, #FFFFFF);
           cursor: pointer;
-          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
-          transition: transform 0.18s var(--ease-apple-spring), background 0.18s ease, box-shadow 0.18s ease;
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+          transition: transform 0.2s var(--ease-apple-spring), background 0.18s ease, box-shadow 0.18s ease;
           user-select: none;
         }
         .sc-pill:hover {
-          transform: scale(1.02);
-          background: rgba(16, 16, 20, 0.98);
-          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+          transform: scale(1.03);
+          background: rgba(14, 14, 18, 0.98);
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+        }
+        .sc-pill:active {
+          transform: scale(0.97);
         }
         .sc-pill-icon {
           display: flex;
