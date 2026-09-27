@@ -585,7 +585,7 @@ export class DebuggerOverlay {
                 </svg>
                 <div class="sc-gauge-text">
                   <span class="sc-gauge-value">${score}</span>
-                  <span class="sc-gauge-label">Ризик</span>
+                  <span class="sc-gauge-label">Індекс R</span>
                 </div>
               </div>
               <div class="sc-session-details">
@@ -631,7 +631,9 @@ export class DebuggerOverlay {
               <div class="sc-triggers-box">
                 <span class="sc-triggers-title">Спрацьовані фактори ризику:</span>
                 <div class="sc-triggers-list">
-                  ${fpInfo.triggers.map((t) => `<span class="sc-trigger-chip">${t}</span>`).join('')}
+                  ${fpInfo.triggers.length > 0 && fpInfo.triggers[0] !== 'Тригери відсутні'
+                    ? fpInfo.triggers.map((t) => `<span class="sc-trigger-chip">${t}</span>`).join('')
+                    : '<span class="sc-trigger-chip" style="background:rgba(48,209,88,0.12);border-color:rgba(48,209,88,0.25);color:#30D158;">Аномальних тригерів не виявлено</span>'}
                 </div>
               </div>
             `
@@ -785,7 +787,7 @@ export class DebuggerOverlay {
           <div class="sc-card sc-ai-session-card">
             <div class="sc-ai-header">
               <div class="sc-ai-title-row">
-                <span class="sc-badge sc-badge-blue">GEMINI NANO ON-DEVICE</span>
+                <span class="sc-badge sc-badge-blue">${ICONS.cpu(11, '#0A84FF')} GEMINI NANO ON-DEVICE</span>
                 <span class="sc-row-time">${log.time}</span>
               </div>
               <div class="sc-ai-verdict" style="color: ${log.color}">${log.data}</div>
@@ -1734,7 +1736,7 @@ export class DebuggerOverlay {
             </div>
             <div class="sc-brand-meta">
               <span class="sc-brand-name">Sanctuary Core</span>
-              <span class="sc-brand-badge">Telemetry XAI</span>
+              <span class="sc-brand-badge">Telemetry XAI Hub</span>
             </div>
           </div>
           <div class="sc-win-controls">
