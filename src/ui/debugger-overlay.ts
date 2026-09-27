@@ -590,10 +590,10 @@ export class DebuggerOverlay {
               </div>
               <div class="sc-session-details">
                 <div class="sc-session-id" title="${sessionId || 'Немає активної сесії'}">
-                  ${sessionId ? sessionId.substring(0, 24) + '...' : 'Пасивний монітор сторінки'}
+                  ${sessionId ? sessionId.substring(0, 24) + '...' : 'Пасивний фоновий моніторинг'}
                 </div>
                 <div class="sc-badge ${severity === 'HIGH' || severity === 'CRITICAL' ? 'sc-badge-red' : severity === 'MEDIUM' ? 'sc-badge-amber' : 'sc-badge-green'}">
-                  ${severity} РІВЕНЬ ЗАГРОЗИ
+                  ${score === 0 ? 'НОРМАЛЬНИЙ СТАН' : `${severity} РІВЕНЬ ЗАГРОЗИ`}
                 </div>
                 <div class="sc-subtext">Цільовий вузол: <strong>${typeof window !== 'undefined' ? window.location.hostname || 'local' : 'n/a'}</strong></div>
               </div>
@@ -685,7 +685,7 @@ export class DebuggerOverlay {
                 </div>
                 <div class="sc-waterfall-step">
                   <span>3. Local LLM Arbiter (Gemini Nano MV3)</span>
-                  <span class="sc-tag ${logs.some((l) => l.isAi) ? 'sc-tag-blue' : ''}">${logs.some((l) => l.isAi) ? 'Оброблено' : 'В очікуванні'}</span>
+                  <span class="sc-tag ${logs.some((l) => l.isAi) ? 'sc-tag-blue' : ''}">${logs.some((l) => l.isAi) ? (logs.some((l) => l.isAi && l.isPending) ? 'Аналіз...' : 'Оброблено') : 'В очікуванні'}</span>
                 </div>
                 <div class="sc-waterfall-step">
                   <span>4. Security Friction Engine</span>
@@ -790,7 +790,7 @@ export class DebuggerOverlay {
                 <span class="sc-badge sc-badge-blue">${ICONS.cpu(11, '#0A84FF')} GEMINI NANO ON-DEVICE</span>
                 <span class="sc-row-time">${log.time}</span>
               </div>
-              <div class="sc-ai-verdict" style="color: ${log.color}">${log.data}</div>
+              <div class="sc-ai-verdict" style="color: ${log.color}">${log.isPending ? `<span class="sc-spin">${ICONS.refresh(12, log.color)}</span> ` : ''}${log.data}</div>
             </div>
 
             <div class="sc-ai-sections">
@@ -959,6 +959,15 @@ export class DebuggerOverlay {
             transform: scale(1.05);
             box-shadow: 0 0 20px rgba(10, 132, 255, 0.65);
           }
+        }
+        @keyframes sc-spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        .sc-spin {
+          display: inline-block;
+          animation: sc-spin 1.2s linear infinite;
+          vertical-align: middle;
         }
         .sc-brand-meta {
           display: flex;
