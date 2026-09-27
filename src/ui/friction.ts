@@ -7,8 +7,23 @@ import { DebuggerOverlay } from './debugger-overlay';
 import { ChatChannelMonitor } from '../heuristics/chat-channel';
 import { HiddenFieldScanResult } from '../heuristics/hidden-field-inspector';
 import { AIArbiterService } from '../ai/ai-arbiter.service';
+import { DESIGN_TOKENS_CSS } from './design-tokens';
 
 export class SecurityFriction {
+  private static activeDisarmedForm: {
+    form: HTMLFormElement;
+    originalBoxShadow: string;
+    originalTransition: string;
+  } | null = null;
+
+  private static restoreDisarmedFormStyle(): void {
+    if (this.activeDisarmedForm) {
+      const { form, originalBoxShadow, originalTransition } = this.activeDisarmedForm;
+      form.style.boxShadow = originalBoxShadow;
+      form.style.transition = originalTransition;
+      this.activeDisarmedForm = null;
+    }
+  }
   /**
    * Застосування адаптивного тертя (Security Friction) через центроване універсальне модальне вікно
    */
@@ -368,7 +383,8 @@ export class SecurityFriction {
   }
 
   /**
-   * Проактивне сповіщення про виявлення пастки автозаповнення (Firefox Doorhanger, розгортання з іконки розширення)
+   * Проактивне сповіщення про нейтралізацію пастки автозаповнення:
+   * The Floating Disarm Capsule (Jony Ive Apple HIG & Frosted Optical Glass)
    */
   public static showHiddenFieldTrapBanner(scan: HiddenFieldScanResult, form?: HTMLFormElement): void {
     const root = ShadowHost.getRoot();
@@ -382,31 +398,43 @@ export class SecurityFriction {
       ShadowHost.remove(contextBanner as HTMLElement);
     }
 
+    // Знімаємо попередню ауру форми, якщо була активна
+    SecurityFriction.restoreDisarmedFormStyle();
+
+    // Шляхетна сапфірово-смарагдова аура спокою на нейтралізовану форму замість агресивного червоного пунктиру
     if (form) {
-      form.style.outline = '2px dashed #D70022';
-      form.style.outlineOffset = '4px';
+      SecurityFriction.activeDisarmedForm = {
+        form,
+        originalBoxShadow: form.style.boxShadow,
+        originalTransition: form.style.transition,
+      };
+      form.style.transition = 'box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
+      form.style.boxShadow = '0 0 0 2px rgba(0, 113, 227, 0.35), 0 8px 24px rgba(0, 113, 227, 0.08)';
     }
 
     const banner = document.createElement('div');
     banner.id = 'threat-shield-hidden-field-banner';
     banner.style.cssText = `
       position: fixed !important;
-      top: 12px !important;
-      right: 18px !important;
-      width: 385px !important;
+      top: 16px !important;
+      right: 20px !important;
+      width: 390px !important;
       max-width: calc(100vw - 32px) !important;
-      background: #FFFFFF !important;
-      border: 1px solid #D70022 !important;
-      box-shadow: 0 10px 28px rgba(215, 0, 34, 0.2), 0 0 0 1px rgba(215, 0, 34, 0.12) !important;
-      border-radius: 8px !important;
-      padding: 14px 16px !important;
+      background: rgba(255, 255, 255, 0.90) !important;
+      backdrop-filter: blur(24px) saturate(180%) !important;
+      -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+      border-radius: 16px !important;
+      border: 1px solid rgba(255, 255, 255, 0.85) !important;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.09), 0 2px 6px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(0, 0, 0, 0.04) !important;
+      padding: 16px !important;
       z-index: 2147483647 !important;
       display: flex !important;
       flex-direction: column !important;
-      gap: 10px !important;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+      gap: 12px !important;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+      color: #1D1D1F !important;
       transform-origin: calc(100% - 24px) 0px !important;
-      animation: fxDoorhangerUnfold 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      animation: capsuleEntrance 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
       pointer-events: auto !important;
       box-sizing: border-box !important;
     `;
@@ -433,6 +461,9 @@ export class SecurityFriction {
       return reason || 'CSS-маскування від користувача';
     };
 
+    const count = scan.flaggedInputs.length;
+    const countLabel = count === 1 ? '1 поле' : count < 5 ? `${count} поля` : `${count} полів`;
+
     const detectedTypesSummary = scan.flaggedTypes
       .map((t) => sensitiveFieldLabelsUa[t] || t)
       .join(', ');
@@ -448,15 +479,15 @@ export class SecurityFriction {
         const technique = formatCloakingTechnique(input.cloakingReason);
 
         return `
-          <div style="display:flex; flex-direction:column; gap:3px; padding:6px 8px; background:#FFFFFF; border:1px solid #E0E0E6; border-radius:4px; font-size:11px;">
+          <div style="display:flex; flex-direction:column; gap:3px; padding:7px 9px; background:var(--sanctuary-surface-subtle, #FAFAFC); border:1px solid var(--sanctuary-hairline-subtle, rgba(0, 0, 0, 0.04)); border-radius:6px; font-size:11px;">
             <div style="display:flex; align-items:center; justify-content:space-between; gap:6px;">
-              <strong style="color:#15141A; font-weight:600;">${label}</strong>
-              <span style="font-size:9.5px; font-weight:600; color:#008A52; background:#EAF7F3; border:1px solid #A3E5D0; padding:1px 5px; border-radius:3px;">🔒 Знешкоджено</span>
+              <strong style="color:var(--sanctuary-ink-primary, #1D1D1F); font-weight:600;">${label}</strong>
+              <span style="font-size:9.5px; font-weight:600; color:var(--sanctuary-green-ink, #248A3D); background:var(--sanctuary-green-bg, rgba(52, 199, 89, 0.10)); border:1px solid var(--sanctuary-green-bd, rgba(52, 199, 89, 0.24)); padding:1px 6px; border-radius:9999px;">🔒 Знешкоджено</span>
             </div>
-            <div style="font-size:10px; color:#5B5B66; display:flex; align-items:center; gap:4px; font-family:ui-monospace,SFMono-Regular,monospace;">
-              <span>Поле:</span> <code style="color:#0060DF;">${attrDesc}</code>
+            <div style="font-size:10.5px; color:var(--sanctuary-ink-secondary, #86868B); display:flex; align-items:center; gap:4px; font-family:var(--font-mono, monospace);">
+              <span style="color:var(--sanctuary-ink-tertiary, #A1A1A6);">Поле:</span> <code style="color:var(--sanctuary-blue, #0071E3); background:var(--sanctuary-blue-bg, rgba(0, 113, 227, 0.08)); padding:1px 4px; border-radius:3px;">${attrDesc}</code>
             </div>
-            <div style="font-size:10px; color:#D76E00; display:flex; align-items:center; gap:4px;">
+            <div style="font-size:10px; color:var(--sanctuary-amber-ink, #B25900); display:flex; align-items:center; gap:4px;">
               <span>Маскування:</span> <span>${technique}</span>
             </div>
           </div>
@@ -466,118 +497,157 @@ export class SecurityFriction {
 
     banner.innerHTML = `
       <style>
-        @keyframes fxDoorhangerUnfold {
-          0%   { opacity: 0; transform: scale(0.15) translateY(-14px); }
-          75%  { opacity: 1; transform: scale(1.02) translateY(0); }
-          100% { opacity: 1; transform: scale(1) translateY(0); }
+        ${DESIGN_TOKENS_CSS}
+
+        @keyframes capsuleEntrance {
+          0%   { opacity: 0; transform: translateY(-16px) scale(0.96); }
+          100% { opacity: 1; transform: translateY(0) scale(1); }
         }
-        @keyframes fxDoorhangerFold {
-          0%   { opacity: 1; transform: scale(1) translateY(0); }
-          100% { opacity: 0; transform: scale(0.15) translateY(-14px); }
+        @keyframes capsuleExit {
+          0%   { opacity: 1; transform: translateY(0) scale(1); }
+          100% { opacity: 0; transform: translateY(-12px) scale(0.96); }
         }
-        details.fx-trap-accordion summary::-webkit-details-marker { display: none; }
+        details.ts-disarm-accordion summary::-webkit-details-marker { display: none; }
+        details.ts-disarm-accordion summary { list-style: none; }
+        #threat-shield-close-trap-banner:hover {
+          color: var(--sanctuary-ink-primary, #1D1D1F) !important;
+          background: var(--sanctuary-surface-hover, rgba(0, 0, 0, 0.05)) !important;
+        }
+        #threat-shield-close-trap-banner:active {
+          transform: scale(0.92) !important;
+        }
+        #ts-highlight-form-btn:hover {
+          background: var(--sanctuary-surface-hover, rgba(0, 0, 0, 0.04)) !important;
+        }
+        #ts-highlight-form-btn:active {
+          transform: scale(0.98) !important;
+        }
+        #ts-dismiss-trap-banner-btn:hover {
+          background: var(--sanctuary-blue-hover, #0077ED) !important;
+        }
+        #ts-dismiss-trap-banner-btn:active {
+          transform: scale(0.98) !important;
+        }
       </style>
 
-      <!-- Firefox Doorhanger Anchor Caret -->
-      <div style="
-        position: absolute;
-        top: -6px;
-        right: 22px;
-        width: 10px;
-        height: 10px;
-        background: #FFFFFF;
-        border-left: 1px solid #D70022;
-        border-top: 1px solid #D70022;
-        transform: rotate(45deg);
-        z-index: 1;
-      "></div>
-
       <!-- Header Row -->
-      <div style="display: flex; align-items: flex-start; gap: 10px; width: 100%;">
-        <div style="
-          width: 32px; height: 32px; border-radius: 6px;
-          background: #FDF2F5; border: 1px solid #F8B4C0;
-          display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px;
-        ">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#D70022" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-            <line x1="12" y1="8" x2="12" y2="12"/>
-            <line x1="12" y1="16" x2="12.01" y2="16"/>
-          </svg>
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%;">
+        <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+          <!-- Concentric Disarm Lens Icon -->
+          <div style="
+            width: 32px; height: 32px; border-radius: 9px;
+            background: var(--sanctuary-blue-bg, rgba(0, 113, 227, 0.08));
+            border: 1px solid var(--sanctuary-blue-bd, rgba(0, 113, 227, 0.20));
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+          ">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="9" stroke="#0071E3" stroke-width="1.8" stroke-dasharray="3.5 2" opacity="0.85"/>
+              <circle cx="12" cy="12" r="5" stroke="#0071E3" stroke-width="2"/>
+              <circle cx="12" cy="12" r="2" fill="#0071E3"/>
+            </svg>
+          </div>
+          <div style="display: flex; flex-direction: column; min-width: 0;">
+            <div style="font-size: 13.5px; font-weight: 600; color: var(--sanctuary-ink-primary, #1D1D1F); letter-spacing: -0.015em; line-height: 1.2;">
+              Форму знешкоджено
+            </div>
+            <div style="font-size: 11px; color: var(--sanctuary-ink-secondary, #86868B); line-height: 1.2; margin-top: 2px;">
+              Sanctuary Autofill Guard
+            </div>
+          </div>
         </div>
 
-        <div style="flex: 1; display: flex; flex-direction: column; gap: 2px;">
-          <div style="display: flex; align-items: center; gap: 6px;">
-            <strong style="font-size: 13px; font-weight: 700; color: #15141A;">Захист від автозаповнення</strong>
-            <span style="font-size: 10px; font-weight: 600; background: #E8F2FF; color: #0060DF; border: 1px solid #B0D5FF; padding: 1px 5px; border-radius: 3px;">Active Shield</span>
-          </div>
-          <div style="font-size: 12px; font-weight: 600; color: #D70022;">
-            Виявлено приховані поля у формі!
-          </div>
-        </div>
+        <div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
+          <span style="
+            font-size: 10.5px; font-weight: 600;
+            background: var(--sanctuary-green-bg, rgba(52, 199, 89, 0.10));
+            color: var(--sanctuary-green-ink, #248A3D);
+            border: 1px solid var(--sanctuary-green-bd, rgba(52, 199, 89, 0.24));
+            padding: 3px 8px; border-radius: 9999px;
+            letter-spacing: -0.01em; display: inline-flex; align-items: center; gap: 4px;
+          ">
+            <span style="width: 5px; height: 5px; border-radius: 50%; background: #34C759; display: inline-block;"></span>
+            Захищено · ${countLabel}
+          </span>
 
-        <button id="threat-shield-close-trap-banner" type="button" title="Закрити" style="
-          width: 22px; height: 22px; border-radius: 4px; border: none;
-          background: #F0F0F4; color: #5B5B66; cursor: pointer;
-          display: flex; align-items: center; justify-content: center;
-          padding: 0; flex-shrink: 0; transition: background 0.15s;
-        ">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
+          <button id="threat-shield-close-trap-banner" type="button" title="Закрити" style="
+            width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--sanctuary-hairline, rgba(0, 0, 0, 0.07));
+            background: var(--sanctuary-surface-subtle, #FAFAFC); color: var(--sanctuary-ink-tertiary, #A1A1A6); cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            padding: 0; flex-shrink: 0; transition: all 0.15s cubic-bezier(0.25, 1, 0.5, 1);
+          ">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
       </div>
 
-      <!-- Description -->
-      <p style="font-size: 12px; color: #5B5B66; margin: 0; line-height: 1.45;">
-        Форма намагається непомітно зчитати ваші платіжні чи конфіденційні реквізити (<strong style="color: #15141A;">${detectedTypesSummary}</strong>) через функцію браузерного автозаповнення.
+      <!-- Human Narrative -->
+      <p style="font-size: 12px; color: var(--sanctuary-ink-secondary, #86868B); margin: 0; line-height: 1.45;">
+        Сайт намагався приховано зчитати ваші платіжні реквізити (<strong style="color: var(--sanctuary-ink-primary, #1D1D1F); font-weight: 600;">${detectedTypesSummary}</strong>) через браузерне автозаповнення. Невидимі поля заблоковано. Реальні дані не передано.
       </p>
 
-      <!-- Protection Status Pill -->
-      <div style="display: flex; align-items: center; gap: 6px; background: #EAF7F3; border: 1px solid #A3E5D0; border-radius: 4px; padding: 6px 9px; font-size: 11.5px; color: #008A52; font-weight: 600;">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#008A52" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-          <polyline points="9 12 11 14 15 10"/>
-        </svg>
-        <span>Знешкоджено: ${scan.flaggedInputs.length} прихованих полів заблоковано</span>
-      </div>
-
-      <!-- Expandable Accordion with Technical Details -->
-      <details class="fx-trap-accordion" style="background: #F0F0F4; border: 1px solid #CFCFD8; border-radius: 4px; overflow: hidden; font-size: 11.5px;">
-        <summary style="padding: 7px 10px; font-weight: 600; color: #15141A; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; user-select: none;">
-          <span style="display: flex; align-items: center; gap: 5px;">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-            Технічні подробиці аналізу (${scan.flaggedInputs.length})
+      <!-- Expandable Accordion with Swiss-Watch Technical Details -->
+      <details class="ts-disarm-accordion" style="
+        background: var(--sanctuary-surface-subtle, #FAFAFC);
+        border: 1px solid var(--sanctuary-hairline, rgba(0, 0, 0, 0.07));
+        border-radius: 10px;
+        overflow: hidden;
+        font-size: 11.5px;
+      ">
+        <summary style="
+          padding: 8px 12px; font-weight: 500; color: var(--sanctuary-blue, #0071E3);
+          cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none;
+          transition: background 0.15s;
+        ">
+          <span style="display: flex; align-items: center; gap: 6px;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+            Технічний аналіз пастки (${count})
           </span>
-          <span style="font-size: 10px; color: #5B5B66;">▼ Розгорнути</span>
+          <span style="font-size: 10px; color: var(--sanctuary-ink-tertiary, #A1A1A6); font-family: var(--font-mono, monospace);">CSS CLOAKING</span>
         </summary>
-        <div style="padding: 8px; border-top: 1px solid #CFCFD8; background: #F8F8FA; display: flex; flex-direction: column; gap: 6px; max-height: 160px; overflow-y: auto;">
+        <div style="
+          padding: 8px; border-top: 1px solid var(--sanctuary-divider, rgba(0, 0, 0, 0.05));
+          background: var(--sanctuary-surface, #FFFFFF); display: flex; flex-direction: column; gap: 6px;
+          max-height: 160px; overflow-y: auto;
+        ">
           ${fieldsDetailsHtml}
         </div>
       </details>
 
       <!-- Action Buttons Row -->
-      <div style="display: flex; gap: 6px; margin-top: 2px;">
+      <div style="display: flex; gap: 8px; margin-top: 2px;">
         ${
           form
             ? `
           <button id="ts-highlight-form-btn" type="button" style="
-            flex: 1; background: #F0F0F4; border: 1px solid #CFCFD8; border-radius: 4px;
-            padding: 7px 10px; font-size: 11.5px; font-weight: 600; color: #15141A;
-            cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 5px;
-            transition: all 0.12s;
+            flex: 1; background: var(--sanctuary-surface-subtle, #FAFAFC);
+            border: 1px solid var(--sanctuary-hairline, rgba(0, 0, 0, 0.08));
+            border-radius: 9px; padding: 8px 12px; font-size: 11.5px; font-weight: 500;
+            color: var(--sanctuary-ink-primary, #1D1D1F); cursor: pointer;
+            display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+            transition: all 0.15s cubic-bezier(0.25, 1, 0.5, 1);
           ">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+            </svg>
             Показати поля
           </button>
         `
             : ''
         }
         <button id="ts-dismiss-trap-banner-btn" type="button" style="
-          flex: 1; background: #0060DF; color: #FFFFFF; border: none; border-radius: 4px;
-          padding: 7px 12px; font-size: 11.5px; font-weight: 600; cursor: pointer;
-          display: inline-flex; align-items: center; justify-content: center; gap: 5px;
-          transition: background 0.12s;
+          flex: 1; background: var(--sanctuary-blue, #0071E3);
+          color: #FFFFFF; border: none; border-radius: 9px;
+          padding: 8px 14px; font-size: 11.5px; font-weight: 600; cursor: pointer;
+          display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+          transition: all 0.15s cubic-bezier(0.25, 1, 0.5, 1);
+          box-shadow: 0 1px 2px rgba(0, 113, 227, 0.25);
         ">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><polyline points="20 6 9 17 4 12"/></svg>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
           Зрозуміло, захистити
         </button>
       </div>
@@ -586,13 +656,14 @@ export class SecurityFriction {
     ShadowHost.append(banner);
 
     const foldAndRemove = () => {
-      banner.style.animation = 'fxDoorhangerFold 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards';
+      SecurityFriction.restoreDisarmedFormStyle();
+      banner.style.animation = 'capsuleExit 0.22s cubic-bezier(0.25, 1, 0.5, 1) forwards';
       setTimeout(() => {
         ShadowHost.remove(banner);
-      }, 170);
+      }, 210);
     };
 
-    const closeBtn = banner.querySelector('#threat-shield-close-trap-banner') as HTMLButtonElement;
+    const closeBtn = banner.querySelector('#threat-shield-close-trap-banner') as HTMLButtonElement | null;
     if (closeBtn) {
       closeBtn.addEventListener('click', () => {
         foldAndRemove();
@@ -675,11 +746,11 @@ export class SecurityFriction {
         // Прокрутка до першого поля
         if (firstEl) firstEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-        // Кнопка — заблокована на час показу
-        highlightBtn.textContent       = `👁 Показано ${scan.flaggedInputs.length}с — ховаємо...`;
-        highlightBtn.style.background  = '#EAF7F3';
-        highlightBtn.style.color       = '#008A52';
-        highlightBtn.style.borderColor = '#A3E5D0';
+        // Кнопка — заблокована на час показу з індикацією зворотного відліку
+        highlightBtn.textContent       = `👁 Відображення 4с — ховаємо...`;
+        highlightBtn.style.background  = 'var(--sanctuary-blue-bg, rgba(0, 113, 227, 0.08))';
+        highlightBtn.style.color       = 'var(--sanctuary-blue, #0071E3)';
+        highlightBtn.style.borderColor = 'var(--sanctuary-blue-bd, rgba(0, 113, 227, 0.20))';
         highlightBtn.disabled = true;
 
         // — Через REVEAL_DURATION_MS — відновлюємо все і реактивуємо кнопку —
@@ -711,10 +782,16 @@ export class SecurityFriction {
 
           // Реактивуємо кнопку
           highlightBtn.textContent       = 'Показати поля';
-          highlightBtn.style.background  = '#F0F0F4';
-          highlightBtn.style.color       = '#15141A';
-          highlightBtn.style.borderColor = '#CFCFD8';
+          highlightBtn.style.background  = 'var(--sanctuary-surface-subtle, #FAFAFC)';
+          highlightBtn.style.color       = 'var(--sanctuary-ink-primary, #1D1D1F)';
+          highlightBtn.style.borderColor = 'var(--sanctuary-hairline, rgba(0, 0, 0, 0.08))';
           highlightBtn.disabled = false;
+
+          // Відновлюємо сапфірову ауру форми
+          if (SecurityFriction.activeDisarmedForm?.form === form) {
+            form.style.transition = 'box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
+            form.style.boxShadow = '0 0 0 2px rgba(0, 113, 227, 0.35), 0 8px 24px rgba(0, 113, 227, 0.08)';
+          }
         }, REVEAL_DURATION_MS);
       });
     }
@@ -728,6 +805,7 @@ export class SecurityFriction {
   }
 
   public static removeHiddenFieldTrapBanner(): void {
+    SecurityFriction.restoreDisarmedFormStyle();
     const root = ShadowHost.getRoot();
     const existing = root.getElementById('threat-shield-hidden-field-banner');
     if (existing) {
