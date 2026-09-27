@@ -196,18 +196,19 @@ export class ShieldTabController {
   }
 
   private async updateVaultStatus(): Promise<void> {
-    const isLocked = PersonalVaultManager.isLocked();
+    const isOperational = PersonalVaultManager.hasOperationalProtection();
 
-    if (isLocked) {
-      this.vaultProtectionDesc.innerText = 'Сховище заблоковано (введіть пароль)';
-      this.vaultStatusPill.innerText = 'Заблоковано';
-      this.vaultStatusPill.className = 'module-pill amber';
-    } else {
-      this.vaultProtectionDesc.innerText = 'Захист конфіденційних маркерів та даних у чатах';
+    this.vaultProtectionDesc.innerText = 'Захист конфіденційних маркерів та даних у чатах';
+
+    if (isOperational) {
       this.vaultStatusPill.innerText = 'Активно';
       this.vaultStatusPill.className = 'module-pill green';
+    } else {
+      this.vaultStatusPill.innerText = 'Зупинено';
+      this.vaultStatusPill.className = 'module-pill amber';
     }
   }
+
 
   private checkAiStatus(): void {
     if (this.homeAiPill) {

@@ -389,8 +389,9 @@ export class VaultTabController {
       if (success) {
         this.isUiLocked = false;
         this.vaultUnlockPassword.value = '';
-        this.showToast('Консоль сховища розблоковано');
+        this.showToast('Сховище розблоковано');
         await this.renderSplitView();
+
         this.onStatsChanged();
       } else {
         alert('Невірний пароль!');
