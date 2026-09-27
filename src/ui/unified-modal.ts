@@ -136,14 +136,14 @@ export class UnifiedFrictionModal {
           <strong style="color: var(--sanctuary-ink-primary); font-weight: 600;">${d.title}</strong>
           <span style="font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; padding: 2px 7px; border-radius: 4px; ${
             d.badgeType === 'critical'
-              ? `background: var(--sanctuary-red-bg); color: var(--sanctuary-red); border: 1px solid var(--sanctuary-red-bd);`
+              ? `background: var(--sanctuary-red-bg); color: var(--sanctuary-red-ink); border: 1px solid var(--sanctuary-red-bd);`
               : d.badgeType === 'warning'
-              ? `background: var(--sanctuary-amber-bg); color: var(--sanctuary-amber); border: 1px solid var(--sanctuary-amber-bd);`
+              ? `background: var(--sanctuary-amber-bg); color: var(--sanctuary-amber-ink); border: 1px solid var(--sanctuary-amber-bd);`
               : `background: var(--sanctuary-blue-bg); color: var(--sanctuary-blue); border: 1px solid var(--sanctuary-blue-bd);`
           }">${d.badge}</span>
         </div>
         <div style="color: var(--sanctuary-ink-secondary); line-height: 1.45;">${d.description}</div>
-        ${d.evidence ? `<div style="font-family: var(--font-mono); font-size: 10.5px; color: var(--sanctuary-ink-tertiary); background: var(--sanctuary-surface-subtle); padding: 4px 7px; border-radius: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${d.evidence}</div>` : ''}
+        ${d.evidence ? `<div style="font-family: var(--font-mono); font-size: 10.5px; color: var(--sanctuary-ink-secondary); background: var(--sanctuary-surface-subtle); padding: 4px 7px; border-radius: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${d.evidence}</div>` : ''}
       </div>
     `).join('');
 

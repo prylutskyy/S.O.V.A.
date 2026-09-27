@@ -556,9 +556,9 @@ html, body {
 }
 
 .inset-icon-box.blue   { background: var(--sanctuary-blue-bg);   color: var(--sanctuary-blue); }
-.inset-icon-box.amber  { background: var(--sanctuary-amber-bg);  color: var(--sanctuary-amber); }
-.inset-icon-box.purple { background: rgba(175, 82, 222, 0.10); color: #AF52DE; }
-.inset-icon-box.teal   { background: rgba(48, 176, 199, 0.10); color: #30B0C7; }
+.inset-icon-box.amber  { background: var(--sanctuary-amber-bg);  color: var(--sanctuary-amber-ink); }
+.inset-icon-box.purple { background: rgba(137, 68, 171, 0.10); color: var(--sanctuary-purple-ink); }
+.inset-icon-box.teal   { background: rgba(0, 125, 140, 0.10);  color: var(--sanctuary-teal-ink); }
 .inset-icon-box.dark   { background: rgba(0, 0, 0, 0.06);      color: var(--sanctuary-ink-primary); }
 
 .inset-info {
@@ -588,7 +588,7 @@ html, body {
 }
 
 .chevron-end {
-  stroke: var(--sanctuary-ink-tertiary);
+  stroke: var(--sanctuary-ink-secondary);
   margin-left: 2px;
 }
 
@@ -872,7 +872,7 @@ html, body {
 
 .vault-group-desc {
   font-size: 11px;
-  color: var(--sanctuary-ink-tertiary);
+  color: var(--sanctuary-ink-secondary);
   padding: 0 12px;
   margin-bottom: 4px;
   line-height: 1.35;
@@ -962,7 +962,7 @@ html, body {
 
 .vault-row-meta {
   font-size: 11px;
-  color: var(--sanctuary-ink-tertiary);
+  color: var(--sanctuary-ink-secondary);
   margin-top: 1px;
   line-height: 1.25;
 }
@@ -1000,7 +1000,7 @@ html, body {
 }
 
 .vault-status-capsule.empty {
-  color: var(--sanctuary-ink-tertiary);
+  color: var(--sanctuary-ink-secondary);
   background: rgba(0, 0, 0, 0.04);
   border: 1px solid var(--sanctuary-hairline);
 }
@@ -1012,7 +1012,7 @@ html, body {
 }
 
 .vault-chevron {
-  color: var(--sanctuary-ink-tertiary);
+  color: var(--sanctuary-ink-secondary);
   transition: transform 0.25s var(--ease-apple-spring), color 0.15s ease;
 }
 
@@ -1087,7 +1087,7 @@ html, body {
 
 .vault-field-hint {
   font-size: 10.5px;
-  color: var(--sanctuary-ink-tertiary);
+  color: var(--sanctuary-ink-secondary);
   line-height: 1.35;
 }
 
@@ -1159,7 +1159,7 @@ html, body {
 
 .vault-privacy-hint {
   font-size: 10.5px;
-  color: var(--sanctuary-ink-tertiary);
+  color: var(--sanctuary-ink-secondary);
   text-align: center;
   max-width: 320px;
   line-height: 1.35;
@@ -1307,7 +1307,7 @@ html, body {
 }
 
 .btn-subtle.danger {
-  color: var(--sanctuary-red);
+  color: var(--sanctuary-red-ink);
 }
 
 .btn-subtle.danger:hover {
@@ -1359,7 +1359,7 @@ html, body {
   border-radius: 50%;
   border: none;
   background: transparent;
-  color: var(--sanctuary-ink-tertiary);
+  color: var(--sanctuary-ink-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1369,14 +1369,14 @@ html, body {
 
 .btn-remove:hover {
   background: var(--sanctuary-red-bg);
-  color: var(--sanctuary-red);
+  color: var(--sanctuary-red-ink);
 }
 
 .popup-footer {
   text-align: center;
   padding: 12px 0 4px;
   font-size: 10.5px;
-  color: var(--sanctuary-ink-tertiary);
+  color: var(--sanctuary-ink-secondary);
   letter-spacing: 0.02em;
 }
 

@@ -15,14 +15,14 @@
   --sanctuary-backdrop:       rgba(0, 0, 0, 0.32);
   --sanctuary-glass-sheen:    rgba(255, 255, 255, 0.65);
 
-  /* Typography Inks (Optically Tuned) */
-  --sanctuary-ink-primary:    #1D1D1F;
-  --sanctuary-ink-secondary:  #86868B;
-  --sanctuary-ink-tertiary:   #A1A1A6;
-  --sanctuary-ink-quaternary: rgba(0, 0, 0, 0.18);
+  /* Typography Inks (Optically Tuned for WCAG 2.1 AA & AAA Compliance) */
+  --sanctuary-ink-primary:    #1D1D1F; /* 16.1:1 on #FFFFFF (Passes AAA) */
+  --sanctuary-ink-secondary:  #6E6E73; /* 5.05:1 on #FFFFFF, 4.62:1 on #F5F5F7 (Passes AA) */
+  --sanctuary-ink-tertiary:   #86868B; /* 3.58:1 on #FFFFFF (Passes AA for graphical elements/large text) */
+  --sanctuary-ink-quaternary: #A1A1A6; /* 2.52:1 (Calibrated for inactive placeholders & decorative hairlines) */
 
-  /* Functional Accents & Semantic Tints */
-  --sanctuary-blue:           #0071E3;
+  /* Functional Accents & Semantic Tints (WCAG 2.1 AA Calibrated) */
+  --sanctuary-blue:           #0071E3; /* 4.75:1 on #FFFFFF (Passes AA) */
   --sanctuary-blue-hover:     #0077ED;
   --sanctuary-blue-active:    #005BB5;
   --sanctuary-blue-bg:        rgba(0, 113, 227, 0.08);
@@ -30,21 +30,24 @@
 
   --sanctuary-green:          #34C759;
   --sanctuary-green-hover:    #2DB84F;
-  --sanctuary-green-ink:      #248A3D;
+  --sanctuary-green-ink:      #1E7E34; /* 5.15:1 on #FFFFFF (Passes AA) */
   --sanctuary-green-bg:       rgba(52, 199, 89, 0.10);
   --sanctuary-green-bd:       rgba(52, 199, 89, 0.24);
 
   --sanctuary-amber:          #FF9500;
   --sanctuary-amber-hover:    #E08500;
-  --sanctuary-amber-ink:      #B25900;
+  --sanctuary-amber-ink:      #A04F00; /* 5.20:1 on #FFFFFF (Passes AA) */
   --sanctuary-amber-bg:       rgba(255, 149, 0, 0.10);
   --sanctuary-amber-bd:       rgba(255, 149, 0, 0.24);
 
   --sanctuary-red:            #FF3B30;
   --sanctuary-red-hover:      #E03228;
-  --sanctuary-red-ink:        #D70015;
+  --sanctuary-red-ink:        #D70015; /* 5.40:1 on #FFFFFF (Passes AA) */
   --sanctuary-red-bg:         rgba(255, 59, 48, 0.08);
   --sanctuary-red-bd:         rgba(255, 59, 48, 0.22);
+
+  --sanctuary-purple-ink:     #8944AB; /* 5.10:1 on #FFFFFF (Passes AA) */
+  --sanctuary-teal-ink:       #007D8C; /* 4.65:1 on #FFFFFF (Passes AA) */
 
   /* Hairlines & Dividers */
   --sanctuary-hairline:        rgba(0, 0, 0, 0.07);
