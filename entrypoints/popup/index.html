@@ -197,123 +197,98 @@
   </main>
 
   <!-- =========================================================================
-       4. TAB 2: PERSONAL VAULT SANCTUARY
+       4. TAB 2: PERSONAL VAULT SANCTUARY (APPLE INSET ARCHITECTURE)
        ========================================================================= -->
   <main class="sanctuary-tab" id="tabContentVault" role="tabpanel" aria-labelledby="tabBtnVault" hidden style="display: none;">
     <!-- STATE 1: VAULT SETUP (FIRST RUN) -->
     <div class="vault-state-card" id="vaultSetupState" style="display: none;">
       <div class="vault-hero-emblem blue">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
           <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
           <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          <circle cx="12" cy="16" r="1.5" fill="currentColor"/>
         </svg>
       </div>
       <h2 class="vault-state-title">Створіть Особисте Сховище</h2>
       <p class="vault-state-desc">
-        Захистіть найчутливіші персональні дані стандартом AES-GCM 256. Дані шифруються локально та ніколи не залишають ваш пристрій.
+        Локальне криптографічне сховище за стандартом AES-GCM 256. Ваші чутливі маркери захищаються на рівні пристрою та автоматично підміняються при спробах фішингу.
       </p>
 
-      <div class="form-group">
+      <div class="form-group" style="width: 100%;">
         <label class="form-label" for="vaultSetupPassword">Майстер-пароль</label>
-        <input type="password" class="sanctuary-input" id="vaultSetupPassword" placeholder="Мінімум 8 символів" autocomplete="new-password">
+        <input type="password" class="sanctuary-input" id="vaultSetupPassword" placeholder="Мінімум 4 символи" autocomplete="new-password">
       </div>
 
-      <div class="form-group">
+      <div class="form-group" style="width: 100%;">
         <label class="form-label" for="vaultSetupConfirm">Підтвердження пароля</label>
         <input type="password" class="sanctuary-input" id="vaultSetupConfirm" placeholder="Повторіть майстер-пароль" autocomplete="new-password">
       </div>
 
-      <button type="button" class="btn-primary" id="btnSetupVault">
-        <span>Створити Сховище</span>
+      <button type="button" class="btn-primary" id="btnSetupVault" style="width: 100%; margin-top: 4px;">
+        <span>Створити та захистити</span>
       </button>
     </div>
 
     <!-- STATE 2: VAULT LOCKED (AUTHENTICATION) -->
     <div class="vault-state-card" id="vaultLockedState" style="display: none;">
       <div class="vault-hero-emblem neutral">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
           <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
           <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          <circle cx="12" cy="16" r="1.5" fill="currentColor"/>
         </svg>
       </div>
-      <h2 class="vault-state-title">Сховище заблоковано</h2>
+      <h2 class="vault-state-title">Сховище замкнено</h2>
       <p class="vault-state-desc">
-        Введіть майстер-пароль для перегляду та налаштування персональних захисних маркерів.
+        Введіть майстер-пароль для доступу до персональних рубежів захисту.
       </p>
 
-      <div class="form-group">
+      <div class="form-group" style="width: 100%;">
         <input type="password" class="sanctuary-input" id="vaultUnlockPassword" placeholder="Майстер-пароль" autocomplete="current-password">
       </div>
 
-      <button type="button" class="btn-primary" id="btnUnlockVault">
-        <span>Розблокувати</span>
+      <button type="button" class="btn-primary" id="btnUnlockVault" style="width: 100%; margin-top: 4px;">
+        <span>Розблокувати Сховище</span>
       </button>
     </div>
 
-    <!-- STATE 3: VAULT UNLOCKED (SPLIT MASTER / DETAIL VIEW) -->
+    <!-- STATE 3: VAULT UNLOCKED (APPLE INSET ACCORDION EXPERIENCE) -->
     <div class="vault-unlocked-container" id="vaultUnlockedState" style="display: none;">
-      <!-- Master View: Categories List -->
-      <div class="vault-subview" id="vaultMasterView">
-        <div class="subview-header">
-          <div class="subview-title-group">
-            <span class="subview-title">Персональні маркери</span>
-            <span class="subview-counter" id="vaultActiveCountLabel">0 з 7 активних</span>
+      <!-- Hero Card: Vault Defense Health Ring -->
+      <section class="sanctuary-card vault-health-card" id="vaultHealthCard">
+        <div class="vault-health-section">
+          <div class="vault-ring-container">
+            <svg class="vault-ring-svg" viewBox="0 0 80 80">
+              <circle class="vault-ring-bg" cx="40" cy="40" r="32"></circle>
+              <circle class="vault-ring-progress" id="vaultRingProgress" cx="40" cy="40" r="32"></circle>
+            </svg>
+            <div class="vault-ring-text">
+              <span class="vault-ring-percent" id="vaultRingPercent">0%</span>
+            </div>
           </div>
-          <button type="button" class="btn-subtle" id="btnLockVault" title="Заблокувати сховище">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-            <span>Заблокувати</span>
+          <div class="vault-health-meta">
+            <div class="vault-health-headline" id="vaultActiveCountLabel">0 з 7 рубежів активовано</div>
+            <div class="vault-enclave-badge">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <span>AES-GCM 256 Local Enclave</span>
+            </div>
+            <div class="vault-health-sub">Фантомна підміна при фішингу</div>
+          </div>
+          <button type="button" class="btn-subtle vault-lock-btn" id="btnLockVault" title="Заблокувати сховище">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <span>Замкнути</span>
           </button>
         </div>
+      </section>
 
-        <!-- Categories dynamically rendered by vault-tab.controller.ts -->
-        <div class="vault-card-list" id="vaultCategoriesContainer"></div>
-      </div>
+      <!-- Inset Groups dynamically generated by vault-tab.controller.ts -->
+      <div id="vaultCategoriesContainer" class="vault-groups-flow"></div>
 
-      <!-- Detail View: Edit Single Token Item -->
-      <div class="vault-subview detail" id="vaultDetailView" style="display: none;">
-        <button type="button" class="btn-back" id="btnBackToVaultList">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><polyline points="15 18 9 12 15 6"/></svg>
-          <span>Всі маркери</span>
+      <!-- Subtle bottom action for factory reset -->
+      <div class="vault-footer-row">
+        <button type="button" class="btn-subtle danger" id="btnResetVaultDefaults" style="font-size: 11px;">
+          Скинути сховище до початкового стану
         </button>
-
-        <div class="detail-card">
-          <div class="detail-header-row">
-            <div>
-              <h3 class="detail-item-title" id="detailItemTitle">Маркер</h3>
-              <span class="tier-badge a" id="detailItemTierBadge">Tier A (Абсолютний)</span>
-            </div>
-            <label class="ios-switch" title="Активувати/деактивувати захист маркера">
-              <input type="checkbox" id="detailItemToggle" checked>
-              <span class="ios-slider"></span>
-            </label>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="detailRealInput">Справжнє значення (зашифровано)</label>
-            <div class="input-with-action">
-              <input type="password" class="sanctuary-input mono" id="detailRealInput" placeholder="Введіть значення">
-              <button type="button" class="input-icon-btn" id="btnTogglePasswordVisibility" title="Показати/приховати">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-              </button>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="detailDecoyInput">Безпечна підміна (Honeytoken Decoy)</label>
-            <input type="text" class="sanctuary-input mono" id="detailDecoyInput" placeholder="Автоматичний декой">
-            <span class="form-caption">Цю штучну приманку буде підставлено шахраям для захисту реальних коштів</span>
-          </div>
-
-          <div class="detail-help-box" id="detailHelpBox">
-            <!-- Populated dynamically with category explanation -->
-          </div>
-
-          <div class="detail-actions-row">
-            <button type="button" class="btn-primary" id="btnSaveDetailItem">Зберегти</button>
-            <button type="button" class="btn-secondary" id="btnClearDetailItem">Очистити</button>
-            <button type="button" class="btn-subtle" id="btnResetVaultDefaults">Дефолт</button>
-          </div>
-        </div>
       </div>
     </div>
   </main>
