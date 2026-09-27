@@ -78,7 +78,7 @@ export class GlobalInputInterceptor {
       ToastNotifier.show(
         `Зафіксовано введення конфіденційного маркера: «${matchedItem.label}». Сховище рекомендує не передавати його стороннім вебсайтам.`,
         'error',
-        5000
+        15000
       );
     } else {
       // Персональний ідентифікатор особи
@@ -87,7 +87,7 @@ export class GlobalInputInterceptor {
       ToastNotifier.show(
         `Ви вводите персональний ідентифікатор: «${matchedItem.label}». Переконайтеся в надійності ресурсу перед надсиланням.`,
         'warning',
-        4000
+        8000
       );
     }
   }

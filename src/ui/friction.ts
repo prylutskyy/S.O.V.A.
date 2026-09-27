@@ -8,6 +8,7 @@ import { AIArbiterService } from '../ai/ai-arbiter.service';
 import { DESIGN_TOKENS_CSS } from './design-tokens';
 import { PersonalVaultManager } from '../core/personal-vault';
 import { UserWhitelistManager } from '../core/user-whitelist';
+import { ToastNotifier } from './toast-notifier';
 
 export class SecurityFriction {
   private static activeDisarmedForm: {
@@ -188,191 +189,32 @@ export class SecurityFriction {
   }
 
   /**
-   * Повідомлення про зшивання сесій (Firefox Doorhanger, розгортання з іконки розширення)
+   * Сповіщення про зшивання сесій та підозрілий контекст (Sanctuary Dynamic Capsule)
+   * Повністю ліквідовано старий Firefox Doorhanger "Active Shield" на користь невагомої капсули.
    */
-  public static showContextWarningBanner(context: ActiveThreatContext, customSubtitle?: string, rawTextToScan?: string, intentType?: string, onClose?: () => void, confidence?: number, onClearThreat?: () => void): void {
+  public static showContextWarningBanner(
+    context: ActiveThreatContext,
+    customSubtitle?: string,
+    rawTextToScan?: string,
+    intentType?: string,
+    onClose?: () => void,
+    confidence?: number,
+    onClearThreat?: () => void
+  ): void {
     const root = ShadowHost.getRoot();
     const existing = root.getElementById('threat-shield-context-banner');
     if (existing) {
       ShadowHost.remove(existing as HTMLElement);
     }
 
-    const banner = document.createElement('div');
-    banner.id = 'threat-shield-context-banner';
-    banner.style.cssText = `
-      position: fixed !important;
-      top: 12px !important;
-      right: 18px !important;
-      width: 370px !important;
-      max-width: calc(100vw - 32px) !important;
-      background: #FFFFFF !important;
-      border: 1px solid #CFCFD8 !important;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16), 0 0 0 1px rgba(0, 0, 0, 0.06) !important;
-      border-radius: 8px !important;
-      padding: 13px 15px !important;
-      z-index: 2147483646 !important;
-      display: flex !important;
-      flex-direction: column !important;
-      align-items: stretch !important;
-      gap: 10px !important;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
-      transform-origin: calc(100% - 24px) 0px !important;
-      animation: fxDoorhangerUnfold 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
-      pointer-events: auto !important;
-    `;
-
     const subtitle = customSubtitle || 'Посилений моніторинг форм';
-    const isHardLock = (confidence !== undefined && confidence >= 50) || context.threatLevel === 'HIGH';
+    const message = `Сайт «${context.sourcePlatform}»: ${subtitle}. Форми перебувають під посиленим наглядом.`;
 
-    banner.innerHTML = `
-      <style>
-        @keyframes fxDoorhangerUnfold {
-          0%   { opacity: 0; transform: scale(0.15) translateY(-14px); }
-          75%  { opacity: 1; transform: scale(1.02) translateY(0); }
-          100% { opacity: 1; transform: scale(1) translateY(0); }
-        }
-        @keyframes fxDoorhangerFold {
-          0%   { opacity: 1; transform: scale(1) translateY(0); }
-          100% { opacity: 0; transform: scale(0.15) translateY(-14px); }
-        }
-        @keyframes tsSpin { 100% { transform: rotate(360deg); } }
-        .ts-spinner { animation: tsSpin 1s linear infinite; }
-      </style>
-
-      <!-- Firefox Doorhanger Anchor Caret -->
-      <div style="
-        position: absolute;
-        top: -6px;
-        right: 22px;
-        width: 10px;
-        height: 10px;
-        background: #FFFFFF;
-        border-left: 1px solid #CFCFD8;
-        border-top: 1px solid #CFCFD8;
-        transform: rotate(45deg);
-        z-index: 1;
-      "></div>
-
-      <div style="display: flex; align-items: flex-start; gap: 10px; width: 100%;">
-        <div style="
-          width: 28px; height: 28px; border-radius: 6px;
-          background: #FFF4E5; border: 1px solid #FFD599;
-          display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px;
-        ">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#D76E00" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-            <line x1="12" y1="9" x2="12" y2="13"/>
-            <line x1="12" y1="17" x2="12.01" y2="17"/>
-          </svg>
-        </div>
-
-        <div style="font-size: 12.5px; color: #15141A; display: flex; flex-direction: column; gap: 2px; flex: 1;">
-          <div style="display: flex; align-items: center; gap: 6px;">
-            <strong style="font-weight: 600; color: #15141A; font-size: 13px;">${context.sourcePlatform}</strong>
-            <span style="font-size: 10px; font-weight: 600; background: #E8F2FF; color: #0060DF; padding: 1px 5px; border-radius: 3px;">Active Shield</span>
-          </div>
-          <span style="color: #D76E00; font-weight: 500; font-size: 12px; line-height: 1.3;">${subtitle}</span>
-          ${isHardLock ? '<span style="color:#D70022; font-size: 11px; font-weight: 600;">(Блокування вводу чутливих реквізитів)</span>' : ''}
-        </div>
-
-        <button id="threat-shield-close-banner" type="button" title="Закрити" ${isHardLock ? 'disabled' : ''} style="
-          width: 22px; height: 22px; border-radius: 4px; border: none;
-          background: #F0F0F4; color: #5B5B66; cursor: pointer;
-          display: flex; align-items: center; justify-content: center;
-          font-size: ${isHardLock ? '11px' : '10px'}; line-height: 1; padding: 0; margin-left: auto;
-          transition: background 0.15s, opacity 0.2s;
-          ${isHardLock ? 'opacity: 0.5; cursor: not-allowed;' : ''}
-        ">
-          ${isHardLock ? '10s' : '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'}
-        </button>
-      </div>
-
-      <button id="ts-ask-ai-banner-btn" style="background:#0060DF;color:#FFFFFF;border:none;border-radius:4px;padding:7px 12px;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:background 0.15s;width:100%;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg> Сумніваєтесь? Запитати ШІ
-      </button>
-      <div id="ts-ai-banner-result" style="display:none;font-size:12px;padding:8px 10px;border-radius:4px;width:100%;box-sizing:border-box;border:1px solid transparent;"></div>
-    `;
-
-    ShadowHost.append(banner);
-
-    const btnAi = banner.querySelector('#ts-ask-ai-banner-btn') as HTMLButtonElement;
-    const resultDiv = banner.querySelector('#ts-ai-banner-result') as HTMLElement;
-    const closeBtn = banner.querySelector('#threat-shield-close-banner') as HTMLButtonElement;
-
-    const foldAndRemove = () => {
-      banner.style.animation = 'fxDoorhangerFold 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards';
-      setTimeout(() => {
-        ShadowHost.remove(banner);
-      }, 170);
-    };
-
-    if (isHardLock) {
-      let timeLeft = 10;
-      const interval = setInterval(() => {
-        timeLeft--;
-        if (timeLeft > 0) {
-          closeBtn.innerText = `${timeLeft}s`;
-        } else {
-          clearInterval(interval);
-          closeBtn.disabled = false;
-          closeBtn.style.opacity = '1';
-          closeBtn.style.cursor = 'pointer';
-          closeBtn.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
-        }
-      }, 1000);
-    }
-
-    closeBtn.addEventListener('click', () => {
-      foldAndRemove();
-    });
-
-    btnAi.addEventListener('click', async () => {
-      btnAi.disabled = true;
-      btnAi.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="ts-spinner"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> ШІ аналізує... (до 30с)';
-      btnAi.style.opacity = '0.7';
-
-      const aiResult = await AIArbiterService.verify({
-        context,
-        rawTextToScan,
-        intentType,
-        confidence,
-      });
-
-      resultDiv.style.display = 'block';
-
-      if (!aiResult) {
-        resultDiv.style.background = '#FEF2F2';
-        resultDiv.style.color = '#DC2626';
-        resultDiv.innerHTML = `<b>Помилка:</b> Gemini Nano недоступний`;
-      } else if (aiResult.isScam) {
-        resultDiv.style.background = '#FEF2F2';
-        resultDiv.style.color = '#DC2626';
-        resultDiv.innerHTML = `<b>ШІ підтверджує загрозу:</b> ${aiResult.reasoning}`;
-      } else {
-        resultDiv.style.background = '#F0FDF4';
-        resultDiv.style.color = '#166534';
-        resultDiv.innerHTML = `<b>ШІ спростував загрозу:</b> ${aiResult.reasoning}`;
-        setTimeout(() => {
-          foldAndRemove();
-          if (onClearThreat) onClearThreat();
-        }, 3000);
-      }
-
-      btnAi.style.display = 'none';
-    });
-
-    // Don't auto-close if it's a Hard Lock. The user must manually close it.
-    if (!isHardLock) {
-      setTimeout(() => {
-        if (root.contains(banner) && btnAi.style.display !== 'none' && !btnAi.disabled) {
-          foldAndRemove();
-        }
-      }, 10000);
-    }
+    ToastNotifier.show(message, 'warning', 8500);
   }
 
   /**
-   * Примусове видалення банера контексту з Shadow DOM (наприклад, при скиданні Tainted Context)
+   * Очищення банера контексту
    */
   public static removeContextWarningBanner(): void {
     const root = ShadowHost.getRoot();
