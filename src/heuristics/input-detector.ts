@@ -128,21 +128,23 @@ export function getFormFilledState(form: HTMLFormElement): FormSensitiveState {
       const descriptor = `${input.name} ${input.id} ${input.placeholder} ${input.autocomplete}`.toLowerCase();
       const digitsOnly = val.replace(/\D/g, '');
 
+      const sensitivity = HiddenFieldInspector.isFieldSensitive(input);
+
       // 1. Поля паролів
-      if (input.type === 'password' || /(pass|pwd|secret|auth)/i.test(descriptor)) {
+      if (input.type === 'password' || sensitivity.fieldType === 'PASSWORD') {
         hasFilledPassword = true;
       }
 
       // 2. Поля CVV / CVC / Pin / Код безпеки
       const hasCvvInText = CVV_IN_TEXT_REGEX.test(val);
-      const isCvvDescriptor = /(cvv|cvc|csc|pin|безпек)/i.test(descriptor);
+      const isCvvDescriptor = sensitivity.fieldType === 'CVV';
       if ((isCvvDescriptor && (digitsOnly.length === 3 || digitsOnly.length === 4 || val.length >= 2)) || hasCvvInText) {
         hasFilledCvv = true;
       }
 
       // 3. Поля банківської картки (валідація за Луна, виявлення картки в тексті АБО картковий дескриптор)
       const hasCardInText = extractCardNumbersFromText(val).length > 0;
-      const isCardDescriptor = /(card|карт|pan|cc-number|cc-num)/i.test(descriptor);
+      const isCardDescriptor = sensitivity.fieldType === 'CARD_NUMBER';
       if (hasCardInText || passesLuhnCheck(val) || (isCardDescriptor && digitsOnly.length >= 12)) {
         hasFilledCard = true;
       }

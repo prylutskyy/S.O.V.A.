@@ -343,4 +343,132 @@ describe('HiddenFieldInspector (TDD Suite for Autofill Phishing Detection)', () 
       ProactiveFormScanner.stop();
     });
   });
+
+  describe('6. Запобігання хибним спрацьовуванням (False Positive Prevention - Djinni.co & Web Menus)', () => {
+    it('НЕ вважає поле "company_type" (меню пошуку з djinni.co) номером банківської картки чи чутливим полем', () => {
+      const inp = document.createElement('input');
+      inp.name = 'company_type';
+      inp.placeholder = 'Тип компанії';
+
+      const res = HiddenFieldInspector.isFieldSensitive(inp);
+      expect(res.isSensitive).toBe(false);
+      expect(res.fieldType).toBeUndefined();
+    });
+
+    it('НЕ класифікує типові фільтри djinni.co як чутливі поля (primary_keyword, experience, expected_salary, location)', () => {
+      const fields = ['primary_keyword', 'experience', 'expected_salary', 'company', 'location', 'english_level'];
+      for (const name of fields) {
+        const inp = document.createElement('input');
+        inp.name = name;
+        const res = HiddenFieldInspector.isFieldSensitive(inp);
+        expect(res.isSensitive).toBe(false);
+      }
+    });
+
+    it('НЕ реагує на збіги підрядків у звичайних словах (shipping_method, opinion, passport, passenger, admin_panel, timespan)', () => {
+      // pin in shipping/opinion, pass in passport/passenger, pan in panel/timespan
+      const testCases = [
+        { name: 'shipping_method', desc: 'shipping method' },
+        { name: 'opinion_id', desc: 'user opinion' },
+        { name: 'passport_number', desc: 'passport' },
+        { name: 'passenger_name', desc: 'passenger' },
+        { name: 'admin_panel', desc: 'panel' },
+        { name: 'timespan', desc: 'span' },
+        { name: 'bypass_cache', desc: 'bypass' },
+      ];
+
+      for (const tc of testCases) {
+        const inp = document.createElement('input');
+        inp.name = tc.name;
+        const res = HiddenFieldInspector.isFieldSensitive(inp);
+        expect(res.isSensitive, `Field ${tc.name} should not be sensitive`).toBe(false);
+      }
+    });
+
+    it('відсікає не-текстові типи контролів (checkbox, radio, search, select)', () => {
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.name = 'company_type';
+      checkbox.value = 'product';
+
+      const radio = document.createElement('input');
+      radio.type = 'radio';
+      radio.name = 'company_type';
+      radio.value = 'outsourcing';
+
+      const select = document.createElement('select');
+      select.name = 'company_type';
+
+      const search = document.createElement('input');
+      search.type = 'search';
+      search.name = 'company_query';
+
+      expect(HiddenFieldInspector.isFieldSensitive(checkbox).isSensitive).toBe(false);
+      expect(HiddenFieldInspector.isFieldSensitive(radio).isSensitive).toBe(false);
+      expect(HiddenFieldInspector.isFieldSensitive(select).isSensitive).toBe(false);
+      expect(HiddenFieldInspector.isFieldSensitive(search).isSensitive).toBe(false);
+    });
+
+    it('не піднімає тривогу для повноцінної пошукової форми djinni.co із прихованими фільтрами', () => {
+      const form = document.createElement('form');
+      form.action = 'https://djinni.co/jobs/';
+      form.method = 'GET';
+
+      // Видиме поле пошуку
+      const searchInput = document.createElement('input');
+      searchInput.type = 'text';
+      searchInput.name = 'primary_keyword';
+      searchInput.placeholder = 'Пошук за посадою чи навичками';
+      form.appendChild(searchInput);
+
+      // Приховане меню фільтрів (collapsed dropdown)
+      const dropdownMenu = document.createElement('div');
+      dropdownMenu.className = 'dropdown-menu';
+      dropdownMenu.style.display = 'none';
+
+      const companyTypeInput = document.createElement('input');
+      companyTypeInput.type = 'hidden';
+      companyTypeInput.name = 'company_type';
+      companyTypeInput.value = 'product';
+      dropdownMenu.appendChild(companyTypeInput);
+
+      const expInput = document.createElement('input');
+      expInput.type = 'checkbox';
+      expInput.name = 'experience';
+      expInput.value = '2';
+      dropdownMenu.appendChild(expInput);
+
+      form.appendChild(dropdownMenu);
+      document.body.appendChild(form);
+
+      const scanResult = HiddenFieldInspector.scanForm(form);
+      expect(scanResult.hasTrap).toBe(false);
+      expect(scanResult.flaggedInputs.length).toBe(0);
+    });
+
+    it('правильно відновлює знешкоджену форму через restoreForm()', () => {
+      const form = document.createElement('form');
+      const trapDiv = document.createElement('div');
+      trapDiv.style.display = 'none';
+
+      const cardInput = document.createElement('input');
+      cardInput.name = 'card_number';
+      cardInput.autocomplete = 'cc-number';
+      trapDiv.appendChild(cardInput);
+      form.appendChild(trapDiv);
+      document.body.appendChild(form);
+
+      // Знешкодження
+      HiddenFieldInspector.disarmForm(form);
+      expect(cardInput.disabled).toBe(true);
+      expect(cardInput.getAttribute('autocomplete')).toBe('off');
+
+      // Відновлення
+      const restoredCount = HiddenFieldInspector.restoreForm(form);
+      expect(restoredCount).toBe(1);
+      expect(cardInput.disabled).toBe(false);
+      expect(cardInput.getAttribute('autocomplete')).toBe('cc-number');
+      expect(cardInput.dataset.threatShieldDisarmed).toBeUndefined();
+    });
+  });
 });

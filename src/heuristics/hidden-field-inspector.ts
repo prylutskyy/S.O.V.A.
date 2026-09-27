@@ -34,25 +34,168 @@ export interface HiddenFieldScanResult {
 }
 
 export class HiddenFieldInspector {
-  // Regex for safe CSRF and anti-forgery tokens (to avoid false alarms on hidden tokens)
+  // Regex for safe CSRF, technical tokens, search filters, and anti-forgery fields
   private static readonly SAFE_TOKEN_REGEX =
-    /^(csrf|token|_token|authenticity_token|recaptcha|cf-turnstile|timestamp|form_id|form_build_id|__viewstate|__requestverificationtoken)$/i;
+    /(?:^|[_\-.])(csrf|xsrf|_token|authenticity_token|csrfmiddlewaretoken|recaptcha|cf[-_]?turnstile|turnstile|timestamp|form_id|form_build_id|__viewstate|__requestverificationtoken)(?:$|[_\-.])/i;
 
-  // Regex for card numbers
-  private static readonly CARD_NUMBER_REGEX =
-    /(cc-number|card[-_]?num|pan|iban|номер.*карт|номер.*карты)/i;
+  // Words that contain 'pass' or 'pin' or 'pan' or 'exp' but are definitely NOT payment/auth credentials
+  private static readonly NON_SENSITIVE_WORDS = new Set([
+    'company',
+    'companies',
+    'panel',
+    'panels',
+    'span',
+    'spans',
+    'japan',
+    'japanese',
+    'expand',
+    'expanded',
+    'expansion',
+    'panic',
+    'companion',
+    'companions',
+    'pancake',
+    'panorama',
+    'participant',
+    'participants',
+    'pantry',
+    'trepan',
+    'shipping',
+    'opinion',
+    'opinions',
+    'pinned',
+    'pinning',
+    'pine',
+    'pineapple',
+    'pink',
+    'alpine',
+    'spinning',
+    'spine',
+    'passport',
+    'passports',
+    'passenger',
+    'passengers',
+    'compass',
+    'compasses',
+    'bypass',
+    'bypasses',
+    'passage',
+    'passages',
+    'passive',
+    'passing',
+    'trespass',
+    'experience',
+    'experiences',
+    'expert',
+    'experts',
+    'expense',
+    'expenses',
+    'export',
+    'exports',
+    'explain',
+    'explanation',
+    'expression',
+    'expressions',
+    'expected',
+    'expectations',
+  ]);
 
-  // Regex for CVV / CVC
-  private static readonly CVV_REGEX =
-    /(cc-csc|cvv|cvc|security[-_]?code|код.*безпек|пин|pin)/i;
+  /**
+   * Розбиває рядок дескриптора на окремі нормалізовані токени.
+   * Підтримує camelCase, snake_case, kebab-case, кирилицю та латиницю.
+   */
+  public static tokenizeDescriptor(descriptor: string): string[] {
+    if (!descriptor) return [];
+    const splitCamel = descriptor.replace(/([a-z\d])([A-Z])/g, '$1 $2');
+    const normalized = splitCamel.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ');
+    return normalized.split(/\s+/).filter(Boolean);
+  }
 
-  // Regex for Expiration
-  private static readonly EXPIRY_REGEX =
-    /(cc-exp|exp[-_]?month|exp[-_]?year|термін.*дії|срок.*действ)/i;
+  private static isCardNumberField(tokens: string[], rawDescriptor: string, autocomplete: string): boolean {
+    if (autocomplete === 'cc-number') return true;
+    if (/(?:номер|nomer)[-_\s]*(?:карт|kart)/i.test(rawDescriptor)) return true;
 
-  // Regex for Password
-  private static readonly PASSWORD_REGEX =
-    /(password|pass|pwd|парол)/i;
+    const hasPanToken = tokens.includes('pan');
+    if (hasPanToken) {
+      const isStandalonePan = tokens.length === 1;
+      const isCardPan = tokens.some((t) => ['card', 'cc', 'primary', 'account', 'number', 'num', 'no'].includes(t));
+      if (isStandalonePan || isCardPan) return true;
+    }
+
+    if (tokens.includes('iban') || tokens.some((t) => t.endsWith('iban'))) {
+      return true;
+    }
+
+    const hasCard = tokens.includes('card') || tokens.includes('cc');
+    const hasNum = tokens.some((t) => ['number', 'num', 'no', 'nbr', 'digits'].includes(t));
+    if (hasCard && hasNum) return true;
+
+    if (/(?:^|[^a-z0-9])(?:card[-_]?num(?:ber)?|cc[-_]?num(?:ber)?|credit[-_]?card|debit[-_]?card)(?:$|[^a-z0-9])/i.test(rawDescriptor)) {
+      return true;
+    }
+
+    return false;
+  }
+
+  private static isCvvField(tokens: string[], rawDescriptor: string, autocomplete: string): boolean {
+    if (['cc-csc', 'cc-cvv', 'cc-cvc'].includes(autocomplete)) return true;
+    if (/(?:код|kod)[-_\s]*(?:безпек|карт|bezpek)/i.test(rawDescriptor)) return true;
+
+    const hasCvvToken = tokens.some((t) => ['cvv', 'cvc', 'csc', 'cvv2', 'cvc2', 'cid'].includes(t));
+    if (hasCvvToken) return true;
+
+    if (tokens.includes('security') && tokens.some((t) => ['code', 'num', 'number'].includes(t))) return true;
+
+    const hasPinToken = tokens.includes('pin') || tokens.includes('пин') || tokens.includes('пін');
+    if (hasPinToken) {
+      const isStandalonePin = tokens.length === 1;
+      const isCardOrCodePin = tokens.some((t) => ['card', 'code', 'atm', 'security', 'код'].includes(t));
+      if (isStandalonePin || isCardOrCodePin) return true;
+    }
+
+    if (/(?:^|[^a-z0-9])(?:cc[-_]?csc|cvv2?|cvc2?|security[-_]?code)(?:$|[^a-z0-9])/i.test(rawDescriptor)) {
+      return true;
+    }
+
+    return false;
+  }
+
+  private static isExpiryField(tokens: string[], rawDescriptor: string, autocomplete: string): boolean {
+    if (['cc-exp', 'cc-exp-month', 'cc-exp-year'].includes(autocomplete)) return true;
+    if (/(?:термін|срок)[-_\s]*(?:дії|действ)/i.test(rawDescriptor)) return true;
+
+    if (tokens.includes('expiry') || tokens.includes('expiration')) return true;
+
+    const hasExpToken = tokens.includes('exp');
+    if (hasExpToken) {
+      const isExpDate = tokens.some((t) => ['month', 'year', 'date', 'card', 'cc'].includes(t));
+      if (isExpDate || tokens.length === 1) return true;
+    }
+
+    if (/(?:cc[-_]?exp|card[-_]?exp(?:ir(?:y|ation))?|exp[-_]?(?:month|year|date))(?:$|[^a-z0-9])/i.test(rawDescriptor)) {
+      return true;
+    }
+
+    return false;
+  }
+
+  private static isPasswordField(tokens: string[], rawDescriptor: string, autocomplete: string, inputType: string): boolean {
+    if (inputType === 'password') return true;
+    if (['current-password', 'new-password'].includes(autocomplete)) return true;
+    if (/(?:парол|parol)/i.test(rawDescriptor)) return true;
+
+    if (tokens.includes('password') || tokens.includes('passwd') || tokens.includes('pwd') || tokens.includes('passcode')) {
+      return true;
+    }
+
+    const hasPassToken = tokens.includes('pass');
+    if (hasPassToken) {
+      const isPasswordContext = tokens.length === 1 || tokens.some((t) => ['user', 'confirm', 'confirmation', 'new', 'current', 'auth', 'login'].includes(t));
+      if (isPasswordContext) return true;
+    }
+
+    return false;
+  }
 
   /**
    * Перевірка, чи замасковано або приховано елемент від зору користувача
@@ -203,36 +346,80 @@ export class HiddenFieldInspector {
       return { isSensitive: false };
     }
 
+    const type = (input.getAttribute('type') || (input instanceof HTMLSelectElement ? 'select' : 'text')).toLowerCase();
+
+    // 1. Відсікаємо не-текстові типи полів, які браузер ніколи не автозаповнює платіжними або обліковими даними
+    const nonSensitiveInputTypes = [
+      'checkbox',
+      'radio',
+      'button',
+      'submit',
+      'reset',
+      'file',
+      'image',
+      'range',
+      'color',
+      'search',
+    ];
+    if (nonSensitiveInputTypes.includes(type)) {
+      return { isSensitive: false };
+    }
+
     const name = (input.getAttribute('name') || '').toLowerCase();
     const id = (input.getAttribute('id') || '').toLowerCase();
     const autocomplete = (input.getAttribute('autocomplete') || '').toLowerCase();
     const placeholder = (input.getAttribute('placeholder') || '').toLowerCase();
-    const type = (input.getAttribute('type') || '').toLowerCase();
+    const ariaLabel = (input.getAttribute('aria-label') || '').toLowerCase();
 
-    // 1. Фільтрація безпечних CSRF / технічних токенів
+    // 2. Фільтрація безпечних CSRF / технічних токенів
     if (this.SAFE_TOKEN_REGEX.test(name) || this.SAFE_TOKEN_REGEX.test(id)) {
       return { isSensitive: false };
     }
 
-    const descriptor = `${name} ${id} ${autocomplete} ${placeholder}`;
+    const rawDescriptor = `${name} ${id} ${autocomplete} ${placeholder} ${ariaLabel}`;
+    const tokens = this.tokenizeDescriptor(rawDescriptor);
 
-    // 2. Номер банківської картки
-    if (this.CARD_NUMBER_REGEX.test(descriptor)) {
+    // Перевіряємо, чи всі токени є звичайними не-чутливими словами (наприклад, "company", "type")
+    const hasOnlyNonSensitiveTokens =
+      tokens.length > 0 &&
+      tokens.every(
+        (t) =>
+          this.NON_SENSITIVE_WORDS.has(t) ||
+          ['type', 'name', 'id', 'title', 'query', 'filter', 'val', 'value', 'sort', 'category', 'status'].includes(t)
+      );
+    if (
+      hasOnlyNonSensitiveTokens &&
+      type !== 'password' &&
+      !['cc-number', 'cc-csc', 'cc-exp', 'current-password', 'new-password'].includes(autocomplete)
+    ) {
+      return { isSensitive: false };
+    }
+
+    // 3. HTMLSelectElement може бути ТІЛЬКИ терміном дії картки (місяць / рік)
+    if (input instanceof HTMLSelectElement) {
+      if (this.isExpiryField(tokens, rawDescriptor, autocomplete)) {
+        return { isSensitive: true, fieldType: 'CARD_EXPIRY' };
+      }
+      return { isSensitive: false };
+    }
+
+    // 4. Номер банківської картки
+    if (this.isCardNumberField(tokens, rawDescriptor, autocomplete)) {
       return { isSensitive: true, fieldType: 'CARD_NUMBER' };
     }
 
-    // 3. CVV / CVC код
-    if (this.CVV_REGEX.test(descriptor)) {
+    // 5. CVV / CVC код
+    if (this.isCvvField(tokens, rawDescriptor, autocomplete)) {
       return { isSensitive: true, fieldType: 'CVV' };
     }
 
-    // 4. Термін дії картки
-    if (this.EXPIRY_REGEX.test(descriptor)) {
+    // 6. Термін дії картки
+    if (this.isExpiryField(tokens, rawDescriptor, autocomplete)) {
       return { isSensitive: true, fieldType: 'CARD_EXPIRY' };
     }
 
-    // 5. Пароль
-    if (type === 'password' || this.PASSWORD_REGEX.test(descriptor)) {
+    // 7. Пароль
+    if (this.isPasswordField(tokens, rawDescriptor, autocomplete, type)) {
       return { isSensitive: true, fieldType: 'PASSWORD' };
     }
 
@@ -305,17 +492,54 @@ export class HiddenFieldInspector {
 
   /**
    * Превентивне знешкодження пастки автозаповнення (Autofill Disarm)
-   * Вимикає автозаповнення на прихованих полях, захищаючи користувача
+   * Вимикає автозаповнення на прихованих полях, зберігаючи оригінальні атрибути для безпечного відновлення
    */
   public static disarmForm(form: HTMLFormElement): number {
     const scan = this.scanForm(form);
     let count = 0;
     for (const item of scan.flaggedInputs) {
       const el = item.element as HTMLInputElement;
-      el.setAttribute('autocomplete', 'off');
-      el.disabled = true;
-      el.tabIndex = -1;
-      el.dataset.threatShieldDisarmed = 'true';
+      if (!el.dataset.threatShieldDisarmed) {
+        el.dataset.threatShieldDisarmed = 'true';
+        el.dataset.tsOriginalAutocomplete = el.getAttribute('autocomplete') ?? '';
+        el.dataset.tsOriginalDisabled = String(el.disabled);
+        el.dataset.tsOriginalTabindex = el.getAttribute('tabindex') ?? '';
+
+        el.setAttribute('autocomplete', 'off');
+        el.disabled = true;
+        el.tabIndex = -1;
+        count++;
+      } else {
+        count++;
+      }
+    }
+    return count;
+  }
+
+  /**
+   * Відновлення знешкоджених полів форми (Un-disarm / Restore)
+   */
+  public static restoreForm(form: HTMLFormElement): number {
+    const disarmedInputs = form.querySelectorAll<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>(
+      '[data-threat-shield-disarmed="true"]'
+    );
+    let count = 0;
+    for (const el of Array.from(disarmedInputs)) {
+      if (el.dataset.tsOriginalAutocomplete !== undefined && el.dataset.tsOriginalAutocomplete !== '') {
+        el.setAttribute('autocomplete', el.dataset.tsOriginalAutocomplete);
+      } else {
+        el.removeAttribute('autocomplete');
+      }
+      el.disabled = el.dataset.tsOriginalDisabled === 'true';
+      if (el.dataset.tsOriginalTabindex !== undefined && el.dataset.tsOriginalTabindex !== '') {
+        el.setAttribute('tabindex', el.dataset.tsOriginalTabindex);
+      } else {
+        el.removeAttribute('tabindex');
+      }
+      delete el.dataset.threatShieldDisarmed;
+      delete el.dataset.tsOriginalAutocomplete;
+      delete el.dataset.tsOriginalDisabled;
+      delete el.dataset.tsOriginalTabindex;
       count++;
     }
     return count;

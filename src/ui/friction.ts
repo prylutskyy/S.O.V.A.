@@ -3,9 +3,7 @@ import { UnifiedFrictionModal } from './unified-modal';
 import { ShadowHost } from './shadow-host';
 import { XaiEngine } from '../xai/xai-engine';
 import { VaultScanner } from '../heuristics/vault-scanner';
-import { DebuggerOverlay } from './debugger-overlay';
-import { ChatChannelMonitor } from '../heuristics/chat-channel';
-import { HiddenFieldScanResult } from '../heuristics/hidden-field-inspector';
+import { HiddenFieldScanResult, HiddenFieldInspector } from '../heuristics/hidden-field-inspector';
 import { AIArbiterService } from '../ai/ai-arbiter.service';
 import { DESIGN_TOKENS_CSS } from './design-tokens';
 
@@ -734,6 +732,22 @@ export class SecurityFriction {
           Зрозуміло, захистити
         </button>
       </div>
+      ${
+        form
+          ? `
+        <div style="display: flex; justify-content: center; margin-top: 2px;">
+          <button id="ts-unblock-trap-form-btn" type="button" style="
+            background: none; border: none; font-size: 11px; color: #86868B;
+            cursor: pointer; padding: 2px 6px; font-family: inherit;
+            display: inline-flex; align-items: center; gap: 4px;
+            transition: color 0.15s;
+          ">
+            <span>Розблокувати форму (якщо це помилка)</span>
+          </button>
+        </div>
+      `
+          : ''
+      }
     `;
 
     ShadowHost.append(banner);
@@ -882,6 +896,14 @@ export class SecurityFriction {
     const dismissBtn = banner.querySelector('#ts-dismiss-trap-banner-btn') as HTMLButtonElement | null;
     if (dismissBtn) {
       dismissBtn.addEventListener('click', () => {
+        foldAndRemove();
+      });
+    }
+
+    const unblockBtn = banner.querySelector('#ts-unblock-trap-form-btn') as HTMLButtonElement | null;
+    if (unblockBtn && form) {
+      unblockBtn.addEventListener('click', () => {
+        HiddenFieldInspector.restoreForm(form);
         foldAndRemove();
       });
     }

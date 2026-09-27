@@ -4,6 +4,8 @@ import { VaultScanner } from '../heuristics/vault-scanner';
 import { SecurityFriction } from '../ui/friction';
 import { ToastNotifier } from '../ui/toast-notifier';
 
+import { HiddenFieldInspector } from '../heuristics/hidden-field-inspector';
+
 export interface ChatSubmitInterceptorOptions {
   getActiveContext: () => ActiveThreatContext | null;
 }
@@ -22,10 +24,9 @@ export class ChatSubmitInterceptor {
   }
 
   public static isFieldCvv(input: HTMLInputElement | HTMLTextAreaElement): boolean {
-    const descriptor = `${input.name} ${input.id} ${input.placeholder} ${input.autocomplete} ${input.getAttribute('aria-label') || ''}`.toLowerCase();
     const val = input.value?.trim() || '';
     const digitsOnly = val.replace(/\D/g, '');
-    const isCvvDescriptor = /(cvv|cvc|csc|pin|безпек)/i.test(descriptor);
+    const isCvvDescriptor = HiddenFieldInspector.isFieldSensitive(input).fieldType === 'CVV';
     const isLengthMatch = (digitsOnly.length === 3 || digitsOnly.length === 4) || (val.length >= 3 && val.length <= 4);
     return isCvvDescriptor && isLengthMatch;
   }
