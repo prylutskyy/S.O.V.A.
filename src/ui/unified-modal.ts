@@ -40,47 +40,13 @@ interface DiagnosticItem {
   evidence?: string;
 }
 
-// Canonical Apple Design Tokens with fallback values
-const C = {
-  text:         'var(--sanctuary-ink-primary, #1D1D1F)',
-  textSec:      'var(--sanctuary-ink-secondary, #86868B)',
-  textMuted:    'var(--sanctuary-ink-tertiary, #A1A1A6)',
-  surface:      'var(--sanctuary-surface, #FFFFFF)',
-  surfaceSub:   'var(--sanctuary-surface-subtle, #FAFAFC)',
-  surfaceHover: 'var(--sanctuary-surface-hover, rgba(0, 0, 0, 0.03))',
-  border:       'var(--sanctuary-hairline, rgba(0, 0, 0, 0.07))',
-  borderSubtle: 'var(--sanctuary-hairline-subtle, rgba(0, 0, 0, 0.04))',
-
-  red:          'var(--sanctuary-red, #FF3B30)',
-  redSoft:      'var(--sanctuary-red-bg, rgba(255, 59, 48, 0.08))',
-  redBorder:    'var(--sanctuary-red-bd, rgba(255, 59, 48, 0.22))',
-
-  amber:        'var(--sanctuary-amber, #FF9500)',
-  amberSoft:    'var(--sanctuary-amber-bg, rgba(255, 149, 0, 0.10))',
-  amberBorder:  'var(--sanctuary-amber-bd, rgba(255, 149, 0, 0.24))',
-
-  blue:         'var(--sanctuary-blue, #0071E3)',
-  blueSoft:     'var(--sanctuary-blue-bg, rgba(0, 113, 227, 0.08))',
-  blueBorder:   'var(--sanctuary-blue-bd, rgba(0, 113, 227, 0.20))',
-
-  green:        'var(--sanctuary-green-ink, #248A3D)',
-  greenSoft:    'var(--sanctuary-green-bg, rgba(52, 199, 89, 0.10))',
-  greenBorder:  'var(--sanctuary-green-bd, rgba(52, 199, 89, 0.24))',
-
-  darkAction:   'var(--sanctuary-ink-primary, #1D1D1F)',
-  darkHover:    '#000000',
-
-  font:         'var(--font-sanctuary, -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, sans-serif)',
-  monoFont:     'var(--font-mono, "SF Mono", Menlo, Consolas, Monaco, monospace)',
-};
-
 /**
- * UnifiedFrictionModal
- * Центральний інтерфейс адаптивного тертя (Security Friction).
- * Втілює філософію кришталевої ясності та спокою Джоні Айва:
- * 1. Формула контрасту «Очікуваний намір проти Прихованої загрози» (XAI).
- * 2. Сенсорний жест усвідомленої згоди «Hold to Unlock (2с)» замість пасивних таймерів покарання.
- * 3. Ізольований швейцарський аналітичний зріз для експертів та дипломного захисту.
+ * UnifiedFrictionModal: Jony Ive Design Carte Blanche
+ * Втілення філософії керованого захисного тертя (Security Friction):
+ * 1. Оптичний скляний купол (Frosted Optical Float Glass) з м'якою дифракцією фону.
+ * 2. Двоколонкова матриця смислового контрасту «Намір vs Прихована загроза» (250мс сприйняття).
+ * 3. Сенсорний жест усвідомленої згоди «Hold to Unlock (2000 ms)» з пружинним поверненням.
+ * 4. Ізольований швейцарський турбійон діагностики для дипломного захисту.
  */
 export class UnifiedFrictionModal {
   private static activeModal: HTMLElement | null = null;
@@ -136,16 +102,16 @@ export class UnifiedFrictionModal {
     const userIntent = xai.intentVsReality?.userIntent || 'Безпечна взаємодія з вебсервісом';
     const hiddenReality = xai.intentVsReality?.hiddenReality || xai.humanCoreWarning;
     const verdict = xai.intentVsReality?.verdict || xai.plainLanguageExplanation;
-    const threatTitle = xai.intentVsReality?.threatName || xai.humanTitle;
+    const threatTitle = options.title || xai.intentVsReality?.threatName || xai.humanTitle;
 
-    // Скляний Backdrop з м'яким матовим розмиттям
+    // Скляний Backdrop з м'яким матовим розмиттям (Apple Frosted Glass)
     modalRoot.style.cssText = `
       position: fixed !important;
       inset: 0 !important;
       width: 100vw !important;
       height: 100vh !important;
       z-index: 2147483647 !important;
-      background: rgba(0, 0, 0, 0.42) !important;
+      background: rgba(0, 0, 0, 0.32) !important;
       backdrop-filter: blur(24px) saturate(180%) !important;
       -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
       display: flex !important;
@@ -153,31 +119,31 @@ export class UnifiedFrictionModal {
       justify-content: center !important;
       padding: 16px !important;
       box-sizing: border-box !important;
-      animation: tsBackdrop 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      animation: tsBackdrop 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
       pointer-events: auto !important;
     `;
 
     const rememberCheckboxHtml = options.allowRememberDomain && options.domainToRemember ? `
-      <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: ${C.textSec}; margin-top: 14px; cursor: pointer; user-select: none;">
-        <input type="checkbox" id="ts-remember-domain" style="accent-color: ${C.darkAction}; width: 14px; height: 14px; cursor: pointer;">
-        <span>Довіряти домену <strong style="color: ${C.text}; font-family: ${C.monoFont}; font-size: 11px;">${options.domainToRemember}</strong></span>
+      <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--sanctuary-ink-secondary); margin-top: 14px; cursor: pointer; user-select: none;">
+        <input type="checkbox" id="ts-remember-domain" style="accent-color: var(--sanctuary-blue); width: 15px; height: 15px; cursor: pointer;">
+        <span>Довіряти домену <strong style="color: var(--sanctuary-ink-primary); font-family: var(--font-mono); font-size: 11px;">${options.domainToRemember}</strong></span>
       </label>
     ` : '';
 
     const diagnosticsHtml = diagnostics.map((d) => `
-      <div style="display: flex; flex-direction: column; gap: 4px; padding: 9px 12px; background: ${C.surface}; border: 1px solid ${C.border}; border-radius: 10px; font-size: 11.5px;">
+      <div style="display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; background: var(--sanctuary-surface); border: 1px solid var(--sanctuary-hairline); border-radius: 10px; font-size: 11.5px;">
         <div style="display: flex; align-items: center; justify-content: space-between; gap: 6px;">
-          <strong style="color: ${C.text}; font-weight: 600;">${d.title}</strong>
-          <span style="font-size: 9.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; padding: 2px 6px; border-radius: 4px; ${
+          <strong style="color: var(--sanctuary-ink-primary); font-weight: 600;">${d.title}</strong>
+          <span style="font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; padding: 2px 7px; border-radius: 4px; ${
             d.badgeType === 'critical'
-              ? `background: ${C.redSoft}; color: ${C.red}; border: 1px solid ${C.redBorder};`
+              ? `background: var(--sanctuary-red-bg); color: var(--sanctuary-red); border: 1px solid var(--sanctuary-red-bd);`
               : d.badgeType === 'warning'
-              ? `background: ${C.amberSoft}; color: ${C.amber}; border: 1px solid ${C.amberBorder};`
-              : `background: ${C.blueSoft}; color: ${C.blue}; border: 1px solid ${C.blueBorder};`
+              ? `background: var(--sanctuary-amber-bg); color: var(--sanctuary-amber); border: 1px solid var(--sanctuary-amber-bd);`
+              : `background: var(--sanctuary-blue-bg); color: var(--sanctuary-blue); border: 1px solid var(--sanctuary-blue-bd);`
           }">${d.badge}</span>
         </div>
-        <div style="color: ${C.textSec}; line-height: 1.45;">${d.description}</div>
-        ${d.evidence ? `<div style="font-family: ${C.monoFont}; font-size: 10.5px; color: ${C.textMuted}; background: ${C.surfaceSub}; padding: 3px 6px; border-radius: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${d.evidence}</div>` : ''}
+        <div style="color: var(--sanctuary-ink-secondary); line-height: 1.45;">${d.description}</div>
+        ${d.evidence ? `<div style="font-family: var(--font-mono); font-size: 10.5px; color: var(--sanctuary-ink-tertiary); background: var(--sanctuary-surface-subtle); padding: 4px 7px; border-radius: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${d.evidence}</div>` : ''}
       </div>
     `).join('');
 
@@ -190,13 +156,158 @@ export class UnifiedFrictionModal {
           to   { opacity: 1; }
         }
         @keyframes tsCardEnter {
-          from { opacity: 0; transform: scale(0.96) translateY(12px); }
+          from { opacity: 0; transform: scale(0.94) translateY(12px); }
           to   { opacity: 1; transform: scale(1) translateY(0); }
         }
+
+        #ts-modal-card {
+          width: 480px;
+          max-width: 92vw;
+          background: rgba(255, 255, 255, 0.90);
+          backdrop-filter: blur(28px);
+          -webkit-backdrop-filter: blur(28px);
+          border-radius: var(--radius-modal, 22px);
+          border: 1px solid rgba(255, 255, 255, 0.65);
+          box-shadow: 0 24px 64px rgba(0, 0, 0, 0.16), 0 4px 16px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(255, 255, 255, 0.8) inset;
+          overflow: hidden;
+          font-family: var(--font-sanctuary);
+          animation: tsCardEnter 0.38s var(--ease-apple-spring);
+          color: var(--sanctuary-ink-primary);
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
+          padding: 30px 26px 22px;
+          box-sizing: border-box;
+          user-select: none;
+        }
+
+        .ts-emblem-box {
+          width: 50px;
+          height: 50px;
+          border-radius: 14px;
+          background: ${isCritical ? 'var(--sanctuary-red-bg)' : 'var(--sanctuary-amber-bg)'};
+          border: 1px solid ${isCritical ? 'var(--sanctuary-red-bd)' : 'var(--sanctuary-amber-bd)'};
+          color: ${isCritical ? 'var(--sanctuary-red)' : 'var(--sanctuary-amber)'};
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-bottom: 14px;
+          box-shadow: 0 4px 12px ${isCritical ? 'rgba(255, 59, 48, 0.16)' : 'rgba(255, 149, 0, 0.16)'};
+        }
+
+        .ts-title {
+          font-size: 19px;
+          font-weight: 600;
+          color: var(--sanctuary-ink-primary);
+          letter-spacing: -0.02em;
+          line-height: 1.25;
+          margin-bottom: 6px;
+        }
+
+        .ts-context-pill {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 11.5px;
+          color: var(--sanctuary-ink-secondary);
+          margin-bottom: 18px;
+        }
+
+        .ts-context-tag {
+          font-family: var(--font-mono);
+          font-weight: 600;
+          color: var(--sanctuary-ink-primary);
+          background: var(--sanctuary-surface-subtle);
+          border: 1px solid var(--sanctuary-hairline);
+          padding: 2px 8px;
+          border-radius: 6px;
+          max-width: 240px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        /* Two-Column Contrast Grid (Intent vs Reality) */
+        .ts-contrast-grid {
+          width: 100%;
+          margin-bottom: 16px;
+          background: var(--sanctuary-surface);
+          border-radius: var(--radius-card, 14px);
+          border: 1px solid var(--sanctuary-hairline);
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          overflow: hidden;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+          text-align: left;
+        }
+
+        .ts-contrast-col-left {
+          padding: 14px 16px;
+          background: rgba(0, 113, 227, 0.035);
+          border-right: 1px solid var(--sanctuary-divider);
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+
+        .ts-contrast-col-right {
+          padding: 14px 16px;
+          background: rgba(255, 59, 48, 0.04);
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+
+        .ts-contrast-header-left {
+          font-size: 10px;
+          font-weight: 700;
+          color: var(--sanctuary-blue);
+          letter-spacing: 0.04em;
+          text-transform: uppercase;
+        }
+
+        .ts-contrast-header-right {
+          font-size: 10px;
+          font-weight: 700;
+          color: var(--sanctuary-red);
+          letter-spacing: 0.04em;
+          text-transform: uppercase;
+        }
+
+        .ts-contrast-val-left {
+          font-size: 12.5px;
+          font-weight: 500;
+          color: var(--sanctuary-ink-primary);
+          line-height: 1.4;
+        }
+
+        .ts-contrast-val-right {
+          font-size: 12.5px;
+          font-weight: 600;
+          color: var(--sanctuary-red-ink);
+          line-height: 1.4;
+        }
+
+        .ts-verdict {
+          font-size: 12px;
+          line-height: 1.5;
+          color: var(--sanctuary-ink-secondary);
+          margin-bottom: 20px;
+          padding: 0 6px;
+        }
+
+        .ts-actions-stack {
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+        }
+
         .ts-btn-primary {
           width: 100%;
-          height: 42px;
-          background: ${C.darkAction};
+          height: 44px;
+          background: var(--sanctuary-ink-primary);
           color: #FFFFFF;
           border: none;
           border-radius: var(--radius-control, 10px);
@@ -206,47 +317,53 @@ export class UnifiedFrictionModal {
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 6px;
-          transition: background 0.15s, transform 0.1s;
-          font-family: ${C.font};
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+          gap: 7px;
+          transition: background 0.15s, transform 0.1s var(--ease-apple-press);
+          font-family: var(--font-sanctuary);
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
         }
+
         .ts-btn-primary:hover {
-          background: ${C.darkHover};
+          background: #000000;
         }
+
         .ts-btn-primary:active {
           transform: scale(0.985);
         }
+
         .ts-btn-decoy {
           width: 100%;
           height: 40px;
-          background: ${C.greenSoft};
-          color: ${C.green};
-          border: 1px solid ${C.greenBorder};
+          background: var(--sanctuary-green-bg);
+          color: var(--sanctuary-green-ink);
+          border: 1px solid var(--sanctuary-green-bd);
           border-radius: var(--radius-control, 10px);
-          font-size: 13px;
+          font-size: 12.5px;
           font-weight: 600;
           cursor: pointer;
           display: flex;
           align-items: center;
           justify-content: center;
           gap: 7px;
-          transition: background 0.15s, transform 0.1s;
-          margin-bottom: 10px;
-          font-family: ${C.font};
+          transition: all 0.15s;
+          font-family: var(--font-sanctuary);
         }
+
         .ts-btn-decoy:hover {
-          background: #D1FAE5;
+          background: rgba(52, 199, 89, 0.18);
         }
+
         .ts-btn-decoy:active {
           transform: scale(0.985);
         }
+
+        /* 2000 ms Sensory Hold-to-Unlock Slider */
         .ts-hold-btn {
           position: relative;
           width: 100%;
-          height: 40px;
-          background: rgba(118, 118, 128, 0.08);
-          border: 1px solid ${C.border};
+          height: 48px;
+          background: rgba(118, 118, 128, 0.10);
+          border: 1px solid var(--sanctuary-hairline);
           border-radius: var(--radius-pill, 9999px);
           overflow: hidden;
           display: flex;
@@ -255,226 +372,163 @@ export class UnifiedFrictionModal {
           cursor: pointer;
           user-select: none;
           outline: none;
-          transition: border-color 0.2s var(--ease-apple-spring);
-          font-family: ${C.font};
+          transition: border-color 0.2s, background 0.2s;
+          font-family: var(--font-sanctuary);
         }
+
         .ts-hold-btn:hover {
-          border-color: ${C.textMuted};
+          border-color: var(--sanctuary-ink-tertiary);
+          background: rgba(118, 118, 128, 0.14);
         }
+
         .ts-hold-fill {
           position: absolute;
           left: 0;
           top: 0;
           bottom: 0;
           width: 0%;
-          background: ${isCritical ? 'linear-gradient(90deg, rgba(255, 59, 48, 0.2) 0%, rgba(255, 59, 48, 0.4) 100%)' : 'linear-gradient(90deg, rgba(255, 149, 0, 0.2) 0%, rgba(255, 149, 0, 0.4) 100%)'};
+          background: linear-gradient(90deg, #0071E3 0%, #34C759 100%);
           pointer-events: none;
           transition: width 0.05s linear;
         }
+
+        .ts-hold-btn.rebound .ts-hold-fill {
+          transition: width 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+        }
+
         .ts-hold-label {
           position: relative;
-          z-index: 1;
-          font-size: 12px;
-          font-weight: 500;
-          color: ${C.textSec};
+          z-index: 2;
+          font-size: 12.5px;
+          font-weight: 600;
+          color: var(--sanctuary-ink-secondary);
           pointer-events: none;
           transition: color 0.15s;
         }
+
         .ts-hold-btn.holding .ts-hold-label {
-          color: ${isCritical ? C.red : C.amber};
-          font-weight: 600;
+          color: #FFFFFF;
+          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
         }
+
         .ts-hold-btn.unlocked {
-          border-color: ${C.green};
-          background: ${C.greenSoft};
+          border-color: var(--sanctuary-green);
+          background: var(--sanctuary-green-bg);
+          filter: brightness(1.08);
         }
+
         .ts-hold-btn.unlocked .ts-hold-label {
-          color: ${C.green};
-          font-weight: 600;
+          color: var(--sanctuary-green-ink);
+          font-weight: 700;
         }
+
         .ts-btn-inspect {
           background: transparent;
           border: none;
-          color: ${C.textMuted};
+          color: var(--sanctuary-ink-secondary);
           font-size: 12px;
           font-weight: 500;
           cursor: pointer;
           display: inline-flex;
           align-items: center;
-          gap: 4px;
-          padding: 4px 6px;
-          border-radius: 6px;
-          transition: color 0.15s;
-          font-family: ${C.font};
+          gap: 5px;
+          padding: 6px 10px;
+          border-radius: var(--radius-nested);
+          transition: all 0.15s;
+          font-family: var(--font-sanctuary);
+          margin-top: 10px;
         }
+
         .ts-btn-inspect:hover {
-          color: ${C.text};
+          color: var(--sanctuary-ink-primary);
+          background: var(--sanctuary-surface-hover);
+        }
+
+        .ts-inspector-sheet {
+          display: none;
+          width: 100%;
+          background: var(--sanctuary-surface-subtle);
+          border: 1px solid var(--sanctuary-hairline);
+          border-radius: var(--radius-card, 14px);
+          padding: 14px;
+          margin-top: 12px;
+          animation: tsCardEnter 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+          text-align: left;
         }
       </style>
 
-      <div id="ts-modal-card" style="
-        background: var(--sanctuary-surface, #FFFFFF);
-        width: 100%;
-        max-width: 440px;
-        border-radius: var(--radius-modal, 22px);
-        box-shadow: var(--shadow-modal, 0 24px 64px rgba(0, 0, 0, 0.16));
-        border: 1px solid rgba(255, 255, 255, 0.7);
-        overflow: hidden;
-        font-family: ${C.font};
-        animation: tsCardEnter 0.26s var(--ease-apple-spring);
-        color: ${C.text};
-        display: flex;
-        flex-direction: column;
-        padding: 28px 24px 20px;
-        box-sizing: border-box;
-      ">
-        <!-- ICON -->
-        <div style="
-          width: 46px;
-          height: 46px;
-          border-radius: 14px;
-          background: ${isCritical ? C.redSoft : C.amberSoft};
-          border: 1px solid ${isCritical ? C.redBorder : C.amberBorder};
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          margin: 0 auto 16px auto;
-          color: ${isCritical ? C.red : C.amber};
-        ">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <div id="ts-modal-card">
+        <!-- EMBLEM -->
+        <div class="ts-emblem-box">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             ${isCritical
-              ? '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>'
+              ? '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>'
               : '<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>'}
           </svg>
         </div>
 
-        <!-- TITLE -->
-        <div style="
-          font-size: 19px;
-          font-weight: 600;
-          color: ${C.text};
-          text-align: center;
-          letter-spacing: -0.02em;
-          line-height: 1.3;
-          margin-bottom: 6px;
-        ">${threatTitle}</div>
+        <!-- HEADLINE -->
+        <h2 class="ts-title">${threatTitle}</h2>
 
         <!-- CONTEXT PILL -->
-        <div style="
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 6px;
-          font-size: 11.5px;
-          color: ${C.textMuted};
-          margin-bottom: 18px;
-        ">
+        <div class="ts-context-pill">
           <span>${options.contextLabel}:</span>
-          <span style="
-            font-family: ${C.monoFont};
-            font-weight: 600;
-            color: ${C.textSec};
-            background: ${C.surfaceSub};
-            border: 1px solid ${C.border};
-            padding: 2px 7px;
-            border-radius: 6px;
-            max-width: 220px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-          ">${options.contextValue}</span>
+          <span class="ts-context-tag">${options.contextValue}</span>
         </div>
 
-        <!-- CONTRAST CAPSULE (Intent vs Reality) -->
-        <div style="
-          background: ${C.surfaceSub};
-          border: 1px solid ${C.border};
-          border-radius: 16px;
-          padding: 13px 15px;
-          margin-bottom: 14px;
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-        ">
-          <!-- User Intent -->
-          <div style="display: flex; flex-direction: column; gap: 2px;">
-            <span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.05em; color: ${C.textMuted}; text-transform: uppercase;">Ваш очікуваний намір</span>
-            <span style="font-size: 12.5px; font-weight: 500; color: ${C.text}; line-height: 1.4;">${userIntent}</span>
+        <!-- TWO-COLUMN INTENT VS REALITY CONTRAST MATRIX -->
+        <div class="ts-contrast-grid">
+          <div class="ts-contrast-col-left">
+            <span class="ts-contrast-header-left">Ваш очікуваний намір</span>
+            <span class="ts-contrast-val-left">${userIntent}</span>
           </div>
-
-          <!-- Divider -->
-          <div style="display: flex; align-items: center; gap: 8px; margin: 1px 0;">
-            <div style="flex: 1; height: 1px; background: ${C.border};"></div>
-            <div style="color: ${isCritical ? C.red : C.amber}; display: flex; align-items: center; font-size: 9.5px; font-weight: 700; letter-spacing: 0.04em;">
-              ПРИХОВАНА ЗАГРОЗА
-            </div>
-            <div style="flex: 1; height: 1px; background: ${C.border};"></div>
-          </div>
-
-          <!-- Hidden Reality -->
-          <div style="display: flex; flex-direction: column; gap: 2px;">
-            <span style="font-size: 12.5px; font-weight: 500; color: ${C.text}; line-height: 1.4;">${hiddenReality}</span>
+          <div class="ts-contrast-col-right">
+            <span class="ts-contrast-header-right">ПРИХОВАНА ЗАГРОЗА</span>
+            <span class="ts-contrast-val-right">${hiddenReality}</span>
           </div>
         </div>
 
-        <!-- REASSURING VERDICT -->
-        <div style="
-          font-size: 12.5px;
-          line-height: 1.5;
-          color: ${C.textSec};
-          text-align: center;
-          margin-bottom: 20px;
-          padding: 0 4px;
-        ">${verdict}</div>
+        <!-- PLAIN LANGUAGE VERDICT -->
+        <p class="ts-verdict">${verdict}</p>
 
-        <!-- DECOY BUTTON (If available) -->
-        ${options.vaultMatches && options.vaultMatches.some((m) => m.isDecoyAvailable) ? `
-          <button id="ts-decoy-btn" class="ts-btn-decoy">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
-            Підставити безпечні дані (Canary Decoy)
+        <!-- ACTION STACK -->
+        <div class="ts-actions-stack">
+          ${options.vaultMatches && options.vaultMatches.some((m) => m.isDecoyAvailable) ? `
+            <button id="ts-decoy-btn" class="ts-btn-decoy">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+              <span>Підставити безпечні дані (Canary Decoy)</span>
+            </button>
+          ` : ''}
+
+          <!-- PRIMARY ACTION: Return to Safety -->
+          <button id="ts-primary-btn" class="ts-btn-primary">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+            <span>${primaryActionLabel}</span>
           </button>
-        ` : ''}
 
-        <!-- PRIMARY ACTION: Return to Safety -->
-        <button id="ts-primary-btn" class="ts-btn-primary">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
-          ${primaryActionLabel}
-        </button>
-
-        <!-- SENSORY HOLD TO UNLOCK -->
-        <div style="margin-top: 10px;">
-          <div id="ts-hold-btn" class="ts-hold-btn" title="Затисніть ліву кнопку миші на 2 секунди для переходу">
+          <!-- SENSORY 2-SECOND HOLD-TO-UNLOCK -->
+          <div id="ts-hold-btn" class="ts-hold-btn" role="button" tabindex="0" title="Затисніть ліву кнопку миші на 2 секунди для переходу">
             <div id="ts-hold-fill" class="ts-hold-fill"></div>
             <span id="ts-hold-label" class="ts-hold-label">Утримуйте 2с для переходу на власний ризик</span>
           </div>
         </div>
 
         <!-- FOOTER: Inspector Toggle -->
-        <div style="display: flex; align-items: center; justify-content: center; margin-top: 14px;">
-          <button id="ts-inspect-btn" class="ts-btn-inspect">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-            Аналітичний зріз
-          </button>
-        </div>
+        <button id="ts-inspect-btn" class="ts-btn-inspect">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          <span>▾ Діагностичний звіт швейцарського механізму (XAI)</span>
+        </button>
 
-        <!-- INSPECTOR PANEL (Swiss-Watch diagnostic sheet) -->
-        <div id="ts-inspector" style="
-          display: none;
-          background: ${C.surfaceSub};
-          border: 1px solid ${C.border};
-          border-radius: 14px;
-          padding: 13px 14px;
-          margin-top: 14px;
-          animation: tsCardEnter 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-        ">
-          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid ${C.border};">
-            <span style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: ${C.textMuted};">Формула оцінки загрози</span>
-            <span style="font-size: 11px; font-weight: 600; color: ${isCritical ? C.red : C.amber}; font-family: ${C.monoFont};">
+        <!-- SWISS-WATCH DIAGNOSTIC SHEET -->
+        <div id="ts-inspector" class="ts-inspector-sheet">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid var(--sanctuary-hairline);">
+            <span style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--sanctuary-ink-secondary);">Формула оцінки загрози</span>
+            <span style="font-size: 11px; font-weight: 600; color: ${isCritical ? 'var(--sanctuary-red)' : 'var(--sanctuary-amber)'}; font-family: var(--font-mono);">
               RiskScore: ${fallbackAssessment.score}/100
             </span>
           </div>
 
-          <div style="font-size: 10.5px; font-family: ${C.monoFont}; color: ${C.textSec}; background: ${C.surface}; border: 1px solid ${C.border}; border-radius: 6px; padding: 6px 8px; margin-bottom: 10px;">
+          <div style="font-size: 10.5px; font-family: var(--font-mono); color: var(--sanctuary-ink-secondary); background: var(--sanctuary-surface); border: 1px solid var(--sanctuary-hairline); border-radius: 6px; padding: 6px 8px; margin-bottom: 10px;">
             ${xai.breakdown.formula}
           </div>
 
@@ -490,7 +544,7 @@ export class UnifiedFrictionModal {
     ShadowHost.append(modalRoot);
     this.activeModal = modalRoot;
 
-    // Element references
+    // References
     const btnPrimary    = modalRoot.querySelector('#ts-primary-btn') as HTMLButtonElement;
     const btnDecoy      = modalRoot.querySelector('#ts-decoy-btn') as HTMLButtonElement | null;
     const btnInspect    = modalRoot.querySelector('#ts-inspect-btn') as HTMLButtonElement;
@@ -507,8 +561,8 @@ export class UnifiedFrictionModal {
       isInspectorOpen = !isInspectorOpen;
       inspector.style.display = isInspectorOpen ? 'block' : 'none';
       btnInspect.innerHTML = isInspectorOpen
-        ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Сховати аналітику'
-        : '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg> Аналітичний зріз';
+        ? '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> <span>▴ Приховати діагностику</span>'
+        : '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg> <span>▾ Діагностичний звіт швейцарського механізму (XAI)</span>';
     });
 
     // Decoy button
@@ -525,7 +579,7 @@ export class UnifiedFrictionModal {
       }
     });
 
-    // Primary action
+    // Primary action: Return to Safety
     const handleCancel = () => {
       this.close();
       options.onCancel();
@@ -536,15 +590,16 @@ export class UnifiedFrictionModal {
       if (e.target === modalRoot) handleCancel();
     });
 
-    // Hold-to-Unlock sensory mechanics (2 seconds duration with spring rebound)
+    // 2000 ms Sensory Hold-to-Unlock Mechanics with Apple Spring Rebound
     let holdProgress = 0;
     const HOLD_DURATION_MS = 2000;
     const HOLD_STEP_MS = 25;
 
     const startHold = () => {
       if (this.holdInterval) clearInterval(this.holdInterval);
-      const startTime = Date.now();
+      holdBtn.classList.remove('rebound');
       holdBtn.classList.add('holding');
+      const startTime = Date.now();
 
       this.holdInterval = window.setInterval(() => {
         const elapsed = Date.now() - startTime;
@@ -560,6 +615,7 @@ export class UnifiedFrictionModal {
             this.holdInterval = null;
           }
           holdLabel.textContent = '✓ Доступ підтверджено';
+          holdBtn.classList.remove('holding');
           holdBtn.classList.add('unlocked');
 
           setTimeout(async () => {
@@ -581,9 +637,10 @@ export class UnifiedFrictionModal {
       }
       if (holdProgress < 100) {
         holdProgress = 0;
+        holdBtn.classList.add('rebound');
+        holdBtn.classList.remove('holding');
         holdFill.style.width = '0%';
         holdLabel.textContent = 'Утримуйте 2с для переходу на власний ризик';
-        holdBtn.classList.remove('holding');
       }
     };
 
