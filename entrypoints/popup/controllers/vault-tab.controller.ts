@@ -176,7 +176,7 @@ export class VaultTabController {
           <span class="tier-badge ${tier === 'TIER_A_ABSOLUTE' ? 'a' : 'b'}">
             ${tier === 'TIER_A_ABSOLUTE' ? 'Tier A' : 'Tier B'}
           </span>
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--fx-text-muted)" stroke-width="2.3"><polyline points="9 18 15 12 9 6"/></svg>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--sanctuary-ink-tertiary)" stroke-width="2.3"><polyline points="9 18 15 12 9 6"/></svg>
         </div>
       `;
 

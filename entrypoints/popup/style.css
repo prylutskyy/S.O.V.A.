@@ -1,11 +1,12 @@
 @import '../../src/ui/design-tokens.css';
 
 /* ==========================================================================
-   THREAT SHIELD POPUP: APPLE HIG CRAFTSMANSHIP
-   Clean semantic styling adhering to DESIGN_SYSTEM_CARTE_BLANCHE.md
+   THREAT SHIELD POPUP: APPLE HIG CRAFTSMANSHIP (TABULA RASA)
+   Complies with DESIGN_SYSTEM_CARTE_BLANCHE.md
    ========================================================================== */
 
-* {
+/* Universal Reset & Typography */
+*, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -17,10 +18,12 @@
 body {
   width: 390px;
   max-height: 590px;
-  background: var(--sanctuary-canvas);
+  background-color: var(--sanctuary-canvas);
   color: var(--sanctuary-ink-primary);
   font-size: 13px;
+  line-height: 1.4;
   user-select: none;
+  overflow-x: hidden;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -28,26 +31,38 @@ body {
 }
 
 /* Apple Smooth Scrollbar */
-::-webkit-scrollbar { width: 5px; height: 5px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.16); border-radius: 10px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(0, 0, 0, 0.28); }
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.16);
+  border-radius: var(--radius-pill);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.28);
+}
 
 /* ==========================================================================
-   APP HEADER (FROSTED OPTICAL GLASS)
+   1. APP HEADER: OPTICAL FLOAT GLASS
    ========================================================================== */
 .app-header {
   position: sticky;
   top: 0;
   z-index: 50;
+  height: 52px;
+  padding: 0 16px;
   background: var(--sanctuary-glass-bg);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--sanctuary-hairline);
+  box-shadow: 0 1px 0 var(--sanctuary-glass-sheen) inset;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
 }
 
 .brand-group {
@@ -60,7 +75,7 @@ body {
   width: 30px;
   height: 30px;
   border-radius: 8px;
-  background: linear-gradient(135deg, var(--sanctuary-blue) 0%, #43BFEA 100%);
+  background: linear-gradient(135deg, var(--sanctuary-blue) 0%, #42A5F5 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -68,7 +83,12 @@ body {
   box-shadow: 0 2px 6px rgba(0, 113, 227, 0.28);
 }
 
-.brand-name {
+.brand-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-title {
   font-size: 13.5px;
   font-weight: 600;
   color: var(--sanctuary-ink-primary);
@@ -76,19 +96,20 @@ body {
   letter-spacing: -0.02em;
 }
 
-.brand-tagline {
+.brand-subtitle {
   font-size: 10.5px;
   color: var(--sanctuary-ink-secondary);
-  margin-top: 1px;
+  line-height: 1.2;
 }
 
+/* Status Pill */
 .status-pill {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   font-size: 11px;
   font-weight: 600;
-  padding: 4px 9px;
+  padding: 4px 10px;
   border-radius: var(--radius-pill);
   transition: all 0.2s var(--ease-apple-spring);
 }
@@ -109,151 +130,148 @@ body {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: currentColor;
+  background: var(--sanctuary-green);
+  box-shadow: 0 0 0 0 rgba(52, 199, 89, 0.4);
+  animation: pulse 2.4s infinite;
 }
 
-.status-pill.active .pulse-dot {
-  animation: applePulse 2.4s infinite cubic-bezier(0.4, 0, 0.6, 1);
+.status-pill.paused .pulse-dot {
+  background: var(--sanctuary-amber);
+  box-shadow: 0 0 0 0 rgba(255, 149, 0, 0.4);
 }
 
-@keyframes applePulse {
-  0%   { box-shadow: 0 0 0 0 rgba(52, 199, 89, 0.5); }
-  70%  { box-shadow: 0 0 0 5px rgba(52, 199, 89, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(52, 199, 89, 0); }
+@keyframes pulse {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(52, 199, 89, 0.4); }
+  70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(52, 199, 89, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(52, 199, 89, 0); }
 }
 
 /* ==========================================================================
-   SEGMENTED CONTROL (APPLE CAPSULE NAV)
+   2. CUPERTINO SEGMENTED CONTROL
    ========================================================================== */
 .nav-container {
   padding: 10px 16px 4px;
-  background: var(--sanctuary-canvas);
 }
 
-.tab-nav {
-  background: rgba(118, 118, 128, 0.10);
-  border-radius: 12px;
+.segmented-control {
   padding: 3px;
+  background: rgba(118, 118, 128, 0.09);
+  border-radius: 12px;
   display: flex;
   gap: 2px;
 }
 
-.tab-btn {
+.segment-btn {
   flex: 1;
+  height: 30px;
+  border: none;
+  background: transparent;
+  border-radius: 9px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--sanctuary-ink-secondary);
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 6px 8px;
-  background: transparent;
-  border: none;
-  border-radius: 9px;
-  cursor: pointer;
-  color: var(--sanctuary-ink-secondary);
-  font-size: 12px;
-  font-weight: 500;
   transition: all 0.2s var(--ease-apple-spring);
-  white-space: nowrap;
+  outline: none;
 }
 
-.tab-btn svg {
-  width: 14px;
-  height: 14px;
-  stroke: currentColor;
-  fill: none;
-  flex-shrink: 0;
-  transition: stroke 0.2s ease;
-}
-
-.tab-btn:hover {
+.segment-btn:hover {
   color: var(--sanctuary-ink-primary);
 }
 
-.tab-btn.active {
+.segment-btn.active {
   background: var(--sanctuary-surface);
   color: var(--sanctuary-ink-primary);
   font-weight: 600;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08), 0 0.5px 1.5px rgba(0, 0, 0, 0.04);
 }
 
-.tab-btn.active svg {
+.segment-btn.active svg {
   stroke: var(--sanctuary-blue);
 }
 
+/* Focus Ring Accessibility */
+.segment-btn:focus-visible,
+.sanctuary-input:focus-visible,
+.btn-primary:focus-visible,
+.btn-secondary:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.35);
+}
+
 /* ==========================================================================
-   TAB CONTENT AREA
+   3. SANCTUARY TABS & SECTIONS
    ========================================================================== */
-.tab-content {
-  padding: 12px 16px 16px;
+.sanctuary-tab {
+  padding: 12px 16px 20px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
-/* ==========================================================================
-   SQUIRCLE CARDS
-   ========================================================================== */
-.card {
-  background: var(--sanctuary-surface);
-  border: 1px solid var(--sanctuary-hairline);
-  border-radius: var(--radius-card);
-  padding: 14px;
-  box-shadow: var(--shadow-card);
+/* Pure Deterministic Visibility Control */
+.sanctuary-tab[hidden] {
+  display: none !important;
 }
 
-.card-header {
+.section-group {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 10px;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.card-title {
-  font-size: 11.5px;
+.section-label {
+  font-size: 11px;
   font-weight: 600;
-  color: var(--sanctuary-ink-secondary);
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  color: var(--sanctuary-ink-secondary);
+  padding: 0 4px;
 }
 
-.card-title svg {
-  width: 13px;
-  height: 13px;
-  stroke: var(--sanctuary-ink-secondary);
-}
-
-/* ==========================================================================
-   SITE HERO CARD
-   ========================================================================== */
-.site-card {
-  background: var(--sanctuary-surface);
-  border: 1px solid var(--sanctuary-hairline);
-  border-radius: var(--radius-card);
-  padding: 14px 16px;
+.section-header-flex {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  padding: 0 4px;
+}
+
+/* ==========================================================================
+   4. CARDS & HERO SURFACES
+   ========================================================================== */
+.sanctuary-card {
+  background: var(--sanctuary-surface);
+  border-radius: var(--radius-card);
+  border: 1px solid var(--sanctuary-hairline);
   box-shadow: var(--shadow-card);
+  padding: 14px 16px;
   transition: all 0.2s var(--ease-apple-spring);
 }
 
-.site-card.whitelisted {
-  border-color: var(--sanctuary-amber-bd);
-  background: linear-gradient(180deg, #FFFFFF 0%, #FFFDF9 100%);
+/* Site Hero Card */
+.site-hero-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
-.site-info {
+.site-hero-card.whitelisted {
+  background: linear-gradient(135deg, #FFFFFF 0%, #FFFDF7 100%);
+  border-color: var(--sanctuary-amber-bd);
+}
+
+.site-hero-content {
   display: flex;
   align-items: center;
   gap: 12px;
   min-width: 0;
 }
 
-.site-icon-box {
+.site-hero-icon {
   width: 36px;
   height: 36px;
   border-radius: 10px;
@@ -264,48 +282,235 @@ body {
   transition: all 0.2s var(--ease-apple-spring);
 }
 
-.site-icon-box.active {
+.site-hero-icon.active {
   background: var(--sanctuary-green-bg);
-  border: 1px solid var(--sanctuary-green-bd);
   color: var(--sanctuary-green);
 }
 
-.site-icon-box.paused {
+.site-hero-icon.paused {
   background: var(--sanctuary-amber-bg);
-  border: 1px solid var(--sanctuary-amber-bd);
   color: var(--sanctuary-amber);
 }
 
-.site-text-col {
+.site-hero-details {
+  display: flex;
+  flex-direction: column;
   min-width: 0;
 }
 
-.site-domain-text {
-  font-size: 13.5px;
+.site-domain {
+  font-size: 14px;
   font-weight: 600;
   color: var(--sanctuary-ink-primary);
+  letter-spacing: -0.015em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  letter-spacing: -0.015em;
 }
 
-.site-status-text {
+.site-status {
   font-size: 11.5px;
-  color: var(--sanctuary-ink-secondary);
-  margin-top: 2px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
+  font-weight: 500;
+  margin-top: 1px;
 }
 
-.site-status-text.green { color: var(--sanctuary-green-ink); font-weight: 500; }
-.site-status-text.amber { color: var(--sanctuary-amber-ink); font-weight: 500; }
+.site-status.green {
+  color: var(--sanctuary-green-ink);
+}
+
+.site-status.amber {
+  color: var(--sanctuary-amber-ink);
+}
 
 /* ==========================================================================
-   APPLE iOS TOGGLE SWITCH
+   5. TAINTED CONTEXT ELEVATED BANNER
    ========================================================================== */
-.fx-switch {
+.tainted-banner {
+  background: var(--sanctuary-amber-bg);
+  border: 1px solid var(--sanctuary-amber-bd);
+  border-radius: var(--radius-card);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 2px 8px rgba(255, 149, 0, 0.08);
+}
+
+.tainted-lead {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.tainted-icon-box {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: rgba(255, 149, 0, 0.16);
+  color: var(--sanctuary-amber-ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.tainted-text-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tainted-headline {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--sanctuary-amber-ink);
+}
+
+.tainted-body {
+  font-size: 11.5px;
+  color: var(--sanctuary-ink-primary);
+  line-height: 1.35;
+}
+
+.btn-tainted-reset {
+  align-self: flex-start;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--sanctuary-amber-bd);
+  background: var(--sanctuary-surface);
+  color: var(--sanctuary-amber-ink);
+  font-size: 11px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  transition: all 0.15s var(--ease-apple-spring);
+}
+
+.btn-tainted-reset:hover {
+  background: var(--sanctuary-amber-bg);
+}
+
+/* ==========================================================================
+   6. APPLE INSET GROUPED LIST
+   ========================================================================== */
+.inset-group {
+  background: var(--sanctuary-surface);
+  border-radius: var(--radius-card);
+  border: 1px solid var(--sanctuary-hairline);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+
+.inset-row {
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--sanctuary-divider);
+  transition: background 0.15s var(--ease-apple-spring);
+}
+
+.inset-row:last-child {
+  border-bottom: none;
+}
+
+.inset-row.interactive {
+  cursor: pointer;
+}
+
+.inset-row.interactive:hover {
+  background: var(--sanctuary-surface-hover);
+}
+
+.inset-lead {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.inset-icon-box {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.inset-icon-box.blue   { background: var(--sanctuary-blue-bg);   color: var(--sanctuary-blue); }
+.inset-icon-box.amber  { background: var(--sanctuary-amber-bg);  color: var(--sanctuary-amber); }
+.inset-icon-box.purple { background: rgba(175, 82, 222, 0.10); color: #AF52DE; }
+.inset-icon-box.teal   { background: rgba(48, 176, 199, 0.10); color: #30B0C7; }
+.inset-icon-box.dark   { background: rgba(0, 0, 0, 0.06);      color: var(--sanctuary-ink-primary); }
+
+.inset-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.inset-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--sanctuary-ink-primary);
+}
+
+.inset-desc {
+  font-size: 11px;
+  color: var(--sanctuary-ink-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.inset-end {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.chevron-end {
+  stroke: var(--sanctuary-ink-tertiary);
+  margin-left: 2px;
+}
+
+/* Module Badges */
+.module-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: var(--radius-pill);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.module-pill.green {
+  background: var(--sanctuary-green-bg);
+  color: var(--sanctuary-green-ink);
+  border: 1px solid var(--sanctuary-green-bd);
+}
+
+.module-pill.blue {
+  background: var(--sanctuary-blue-bg);
+  color: var(--sanctuary-blue);
+  border: 1px solid var(--sanctuary-blue-bd);
+}
+
+.module-pill.amber {
+  background: var(--sanctuary-amber-bg);
+  color: var(--sanctuary-amber-ink);
+  border: 1px solid var(--sanctuary-amber-bd);
+}
+
+/* ==========================================================================
+   7. APPLE IOS SWITCH (TOGGLE)
+   ========================================================================== */
+.ios-switch {
   position: relative;
   display: inline-block;
   width: 44px;
@@ -313,403 +518,169 @@ body {
   flex-shrink: 0;
 }
 
-.fx-switch input {
+.ios-switch input {
   opacity: 0;
   width: 0;
   height: 0;
 }
 
-.fx-slider {
+.ios-slider {
   position: absolute;
   cursor: pointer;
   inset: 0;
-  background: #E5E5EA;
-  transition: 0.25s var(--ease-apple-spring);
+  background-color: #E5E5EA;
   border-radius: 26px;
+  transition: background-color 0.25s var(--ease-apple-spring);
 }
 
-.fx-slider:before {
+.ios-slider::before {
   position: absolute;
   content: "";
   height: 22px;
   width: 22px;
   left: 2px;
   bottom: 2px;
-  background: #FFFFFF;
-  transition: 0.25s var(--ease-apple-spring);
+  background-color: #FFFFFF;
   border-radius: 50%;
   box-shadow: var(--shadow-knob);
+  transition: transform 0.25s var(--ease-apple-spring);
 }
 
-input:checked + .fx-slider {
-  background: var(--sanctuary-green);
+.ios-switch input:checked + .ios-slider {
+  background-color: var(--sanctuary-green);
 }
 
-input:checked + .fx-slider:before {
+.ios-switch input:checked + .ios-slider::before {
   transform: translateX(18px);
 }
 
+.ios-switch input:disabled + .ios-slider {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* ==========================================================================
-   TAINTED CONTEXT BANNER (QUIET DIGNITY)
+   8. VAULT SANCTUARY COMPONENTS
    ========================================================================== */
-.tainted-banner {
-  background: #FFFBF4;
-  border: 1px solid var(--sanctuary-amber-bd);
-  border-left: 3px solid var(--sanctuary-amber);
+.vault-state-card {
+  background: var(--sanctuary-surface);
   border-radius: var(--radius-card);
-  padding: 12px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  box-shadow: var(--shadow-sm);
-  animation: appleSlideDown 0.25s var(--ease-apple-spring);
-}
-
-@keyframes appleSlideDown {
-  from { opacity: 0; transform: translateY(-4px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-.tainted-header {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-}
-
-.tainted-icon {
-  color: var(--sanctuary-amber);
-  flex-shrink: 0;
-  margin-top: 1px;
-}
-
-.tainted-content {
-  flex: 1;
-}
-
-.tainted-title {
-  font-size: 12px;
-  font-weight: 600;
-  color: #92400E;
-}
-
-.tainted-desc {
-  font-size: 11px;
-  color: #B45309;
-  margin-top: 2px;
-  line-height: 1.4;
-}
-
-.btn-reset-tainted {
-  background: var(--sanctuary-surface);
-  border: 1px solid var(--sanctuary-amber-bd);
-  color: #92400E;
-  font-size: 11.5px;
-  font-weight: 600;
-  padding: 6px 12px;
-  border-radius: var(--radius-control);
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  transition: all 0.15s ease;
-  width: 100%;
-}
-
-.btn-reset-tainted:hover {
-  background: #FFF8EE;
-  border-color: var(--sanctuary-amber);
-}
-
-/* ==========================================================================
-   INSET GROUPED DEFENSE MODULES LIST
-   ========================================================================== */
-.modules-list {
-  display: flex;
-  flex-direction: column;
-  background: var(--sanctuary-canvas);
-  border-radius: 10px;
-  overflow: hidden;
-  border: 1px solid var(--sanctuary-hairline-subtle);
-}
-
-.module-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 9px 12px;
-  background: var(--sanctuary-surface);
-  border-bottom: 1px solid var(--sanctuary-divider);
-  transition: background 0.12s ease;
-}
-
-.module-item:last-child {
-  border-bottom: none;
-}
-
-.module-item:hover {
-  background: var(--sanctuary-surface-hover);
-}
-
-.module-item.clickable {
-  cursor: pointer;
-}
-
-.module-lead {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-}
-
-.module-icon {
-  width: 26px;
-  height: 26px;
-  border-radius: 7px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.module-icon.blue  { background: var(--sanctuary-blue-bg);  color: var(--sanctuary-blue); }
-.module-icon.green { background: var(--sanctuary-green-bg); color: var(--sanctuary-green); }
-.module-icon.amber { background: var(--sanctuary-amber-bg); color: var(--sanctuary-amber); }
-.module-icon.red   { background: var(--sanctuary-red-bg);   color: var(--sanctuary-red); }
-
-.module-texts {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-
-.module-title {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--sanctuary-ink-primary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.module-desc {
-  font-size: 10.5px;
-  color: var(--sanctuary-ink-secondary);
-  margin-top: 1px;
-}
-
-.module-pill {
-  font-size: 10.5px;
-  font-weight: 600;
-  padding: 3px 8px;
-  border-radius: var(--radius-pill);
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.module-pill.green { background: var(--sanctuary-green-bg); color: var(--sanctuary-green-ink); border: 1px solid var(--sanctuary-green-bd); }
-.module-pill.blue  { background: var(--sanctuary-blue-bg);  color: var(--sanctuary-blue);       border: 1px solid var(--sanctuary-blue-bd); }
-.module-pill.amber { background: var(--sanctuary-amber-bg); color: var(--sanctuary-amber-ink); border: 1px solid var(--sanctuary-amber-bd); }
-
-/* ==========================================================================
-   BUTTONS
-   ========================================================================== */
-.btn-row {
-  display: flex;
-  gap: 8px;
-}
-
-.btn-primary {
-  background: var(--sanctuary-blue);
-  color: #FFFFFF;
-  border: none;
-  border-radius: var(--radius-control);
-  padding: 8px 14px;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  transition: all 0.15s ease;
-  letter-spacing: -0.01em;
-}
-
-.btn-primary:hover { background: var(--sanctuary-blue-hover); }
-.btn-primary:active { transform: scale(0.98); background: var(--sanctuary-blue-active); }
-
-.btn-secondary {
-  background: rgba(0, 0, 0, 0.04);
   border: 1px solid var(--sanctuary-hairline);
-  border-radius: var(--radius-control);
-  padding: 7px 12px;
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--sanctuary-ink-primary);
-  cursor: pointer;
-  display: inline-flex;
+  box-shadow: var(--shadow-card);
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 6px;
-  transition: all 0.15s ease;
+  text-align: center;
+  gap: 12px;
 }
 
-.btn-secondary:hover {
-  background: rgba(0, 0, 0, 0.07);
-  border-color: rgba(0, 0, 0, 0.14);
-}
-
-.btn-secondary:active { transform: scale(0.98); }
-
-.btn-danger {
-  background: var(--sanctuary-red-bg);
-  color: var(--sanctuary-red);
-  border: 1px solid var(--sanctuary-red-bd);
-  border-radius: var(--radius-control);
-  padding: 7px 12px;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  display: inline-flex;
+.vault-hero-emblem {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  display: flex;
   align-items: center;
-  gap: 6px;
-  transition: all 0.15s ease;
-}
-
-.btn-danger:hover { background: rgba(255, 59, 48, 0.14); }
-.btn-danger:active { transform: scale(0.98); }
-
-.btn-full {
-  width: 100%;
   justify-content: center;
-}
-
-/* ==========================================================================
-   FORM INPUTS
-   ========================================================================== */
-.form-group {
-  margin-bottom: 10px;
-}
-
-.form-label {
-  display: block;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--sanctuary-ink-secondary);
   margin-bottom: 4px;
 }
 
-.input-field {
-  width: 100%;
-  height: 34px;
-  background: var(--sanctuary-surface);
-  border: 1px solid var(--sanctuary-hairline);
-  border-radius: var(--radius-control);
-  padding: 0 10px;
-  font-size: 12.5px;
-  color: var(--sanctuary-ink-primary);
-  outline: none;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-}
-
-.input-field:focus {
-  border-color: var(--sanctuary-blue);
-  box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.15);
-}
-
-.input-hint {
-  font-size: 10.5px;
-  color: var(--sanctuary-ink-tertiary);
-  margin-top: 4px;
-  line-height: 1.35;
-}
-
-/* ==========================================================================
-   PERSONAL VAULT SANCTUARY
-   ========================================================================== */
-.vault-hero-icon {
-  margin: 0 auto 12px;
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.vault-hero-icon.blue {
+.vault-hero-emblem.blue {
   background: var(--sanctuary-blue-bg);
   color: var(--sanctuary-blue);
   border: 1px solid var(--sanctuary-blue-bd);
 }
 
-.vault-hero-icon.amber {
-  background: var(--sanctuary-amber-bg);
-  color: var(--sanctuary-amber);
-  border: 1px solid var(--sanctuary-amber-bd);
+.vault-hero-emblem.neutral {
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--sanctuary-ink-secondary);
+  border: 1px solid var(--sanctuary-hairline);
 }
 
 .vault-state-title {
-  text-align: center;
-  margin-bottom: 4px;
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 16px;
+  font-weight: 600;
   color: var(--sanctuary-ink-primary);
+  letter-spacing: -0.02em;
 }
 
 .vault-state-desc {
-  text-align: center;
+  font-size: 12px;
   color: var(--sanctuary-ink-secondary);
-  margin-bottom: 14px;
-  font-size: 11.5px;
   line-height: 1.45;
+  margin-bottom: 6px;
 }
 
+/* Vault Master/Detail Subviews */
 .vault-unlocked-container {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.vault-count-badge {
-  font-size: 11px;
-  color: var(--sanctuary-ink-secondary);
-  font-weight: 500;
-}
-
-.vault-categories-list {
+.vault-subview {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  max-height: 410px;
-  overflow-y: auto;
-  padding-right: 2px;
+  gap: 10px;
 }
 
-.vault-cat-card {
-  background: var(--sanctuary-surface);
-  border: 1px solid var(--sanctuary-hairline);
-  border-radius: var(--radius-card);
-  padding: 10px 14px;
+.subview-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  padding: 0 4px;
+}
+
+.subview-title-group {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.subview-title {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--sanctuary-ink-secondary);
+}
+
+.subview-counter {
+  font-size: 11.5px;
+  color: var(--sanctuary-ink-tertiary);
+}
+
+.vault-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Dynamic Vault Category Card (Generated by Controller) */
+.vault-cat-card {
+  height: 52px;
+  padding: 0 14px;
+  background: var(--sanctuary-surface);
+  border-radius: 12px;
+  border: 1px solid var(--sanctuary-hairline);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   cursor: pointer;
   transition: all 0.15s var(--ease-apple-spring);
-  box-shadow: var(--shadow-sm);
 }
 
 .vault-cat-card:hover {
-  border-color: var(--sanctuary-blue-bd);
-  background: #FAFBFC;
   transform: translateY(-1px);
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+  border-color: var(--sanctuary-blue-bd);
+  box-shadow: var(--shadow-card-hover);
 }
 
 .vault-cat-lead {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   min-width: 0;
 }
 
@@ -717,28 +688,27 @@ input:checked + .fx-slider:before {
   width: 28px;
   height: 28px;
   border-radius: 8px;
-  background: var(--sanctuary-canvas);
+  background: var(--sanctuary-surface-subtle);
   border: 1px solid var(--sanctuary-hairline-subtle);
+  color: var(--sanctuary-blue);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  color: var(--sanctuary-ink-secondary);
 }
 
 .vault-cat-title {
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--sanctuary-ink-primary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: 1.2;
 }
 
 .vault-cat-val {
-  font-size: 10.5px;
+  font-size: 11px;
   color: var(--sanctuary-ink-tertiary);
-  margin-top: 1px;
+  line-height: 1.2;
+  margin-top: 2px;
 }
 
 .vault-cat-val.filled {
@@ -747,222 +717,341 @@ input:checked + .fx-slider:before {
 }
 
 .vault-cat-val.disabled {
-  color: var(--sanctuary-amber-ink);
-  font-weight: 500;
+  color: var(--sanctuary-ink-tertiary);
 }
 
 .vault-cat-end {
   display: flex;
   align-items: center;
   gap: 8px;
-  flex-shrink: 0;
 }
 
+/* Tier Badges */
 .tier-badge {
-  font-size: 9.5px;
-  font-weight: 600;
-  padding: 2px 6px;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 7px;
   border-radius: var(--radius-micro);
-  letter-spacing: 0.02em;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
 }
 
-.tier-badge.a { background: var(--sanctuary-red-bg);  color: var(--sanctuary-red);  border: 1px solid var(--sanctuary-red-bd); }
-.tier-badge.b { background: var(--sanctuary-blue-bg); color: var(--sanctuary-blue); border: 1px solid var(--sanctuary-blue-bd); }
+.tier-badge.a {
+  background: var(--sanctuary-red-bg);
+  color: var(--sanctuary-red);
+  border: 1px solid var(--sanctuary-red-bd);
+}
 
-/* Vault Detail Editor */
-.vault-editor {
+.tier-badge.b {
+  background: var(--sanctuary-blue-bg);
+  color: var(--sanctuary-blue);
+  border: 1px solid var(--sanctuary-blue-bd);
+}
+
+/* Vault Detail Card */
+.btn-back {
+  align-self: flex-start;
+  height: 28px;
+  padding: 0 8px;
+  border-radius: var(--radius-nested);
+  border: none;
+  background: transparent;
+  color: var(--sanctuary-blue);
+  font-size: 12px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.btn-back:hover {
+  opacity: 0.75;
+}
+
+.detail-card {
+  background: var(--sanctuary-surface);
+  border-radius: var(--radius-card);
+  border: 1px solid var(--sanctuary-hairline);
+  box-shadow: var(--shadow-card);
+  padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  animation: appleFadeIn 0.2s var(--ease-apple-spring);
+  gap: 14px;
 }
 
-@keyframes appleFadeIn {
-  from { opacity: 0; transform: translateY(3px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-.editor-topbar {
+.detail-header-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  padding-bottom: 6px;
-  border-bottom: 1px solid var(--sanctuary-hairline-subtle);
 }
 
-.btn-back {
-  background: transparent;
-  border: none;
-  color: var(--sanctuary-blue);
+.detail-item-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--sanctuary-ink-primary);
+  margin-bottom: 2px;
+}
+
+.detail-help-box {
+  background: var(--sanctuary-surface-subtle);
+  border-radius: var(--radius-nested);
+  border: 1px solid var(--sanctuary-hairline);
+  padding: 10px 12px;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--sanctuary-ink-secondary);
+}
+
+.detail-help-box strong {
+  color: var(--sanctuary-ink-primary);
+}
+
+.detail-actions-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+/* ==========================================================================
+   9. FORMS, INPUTS & BUTTONS
+   ========================================================================== */
+.form-group {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-label {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--sanctuary-ink-secondary);
+}
+
+.sanctuary-input {
+  width: 100%;
+  height: 36px;
+  padding: 0 12px;
+  border-radius: var(--radius-control);
+  border: 1px solid var(--sanctuary-hairline);
+  background: var(--sanctuary-surface-subtle);
+  color: var(--sanctuary-ink-primary);
+  font-size: 13px;
+  transition: all 0.15s var(--ease-apple-spring);
+}
+
+.sanctuary-input:focus {
+  background: var(--sanctuary-surface);
+  border-color: var(--sanctuary-blue);
+  box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.18);
+  outline: none;
+}
+
+.sanctuary-input.mono {
+  font-family: var(--font-mono);
   font-size: 12px;
+}
+
+.input-with-action {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-with-action input {
+  padding-right: 36px;
+}
+
+.input-icon-btn {
+  position: absolute;
+  right: 6px;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--sanctuary-ink-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.input-icon-btn:hover {
+  color: var(--sanctuary-ink-primary);
+}
+
+/* Buttons */
+.btn-primary {
+  height: 34px;
+  padding: 0 14px;
+  border-radius: var(--radius-control);
+  border: none;
+  background: var(--sanctuary-blue);
+  color: #FFFFFF;
+  font-size: 12.5px;
   font-weight: 600;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 6px;
-  border-radius: 6px;
-  transition: background 0.12s;
-}
-
-.btn-back:hover {
-  background: var(--sanctuary-blue-bg);
-}
-
-.editor-title {
-  font-size: 13.5px;
-  font-weight: 700;
-  color: var(--sanctuary-ink-primary);
-  margin-bottom: 12px;
-}
-
-.input-with-action {
-  display: flex;
+  justify-content: center;
   gap: 6px;
-  position: relative;
+  transition: all 0.15s var(--ease-apple-spring);
 }
 
-.input-action-btn {
-  position: absolute;
-  right: 8px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: transparent;
-  border: none;
-  color: var(--sanctuary-ink-secondary);
+.btn-primary:hover {
+  background: var(--sanctuary-blue-hover);
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+.btn-primary.compact {
+  height: 36px;
+  flex-shrink: 0;
+}
+
+.btn-secondary {
+  height: 34px;
+  padding: 0 14px;
+  border-radius: var(--radius-control);
+  border: 1px solid var(--sanctuary-hairline);
+  background: var(--sanctuary-surface-subtle);
+  color: var(--sanctuary-ink-primary);
+  font-size: 12.5px;
+  font-weight: 500;
   cursor: pointer;
-  padding: 4px;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 4px;
-  transition: color 0.12s;
+  transition: all 0.15s var(--ease-apple-spring);
 }
 
-.input-action-btn:hover {
-  color: var(--sanctuary-ink-primary);
+.btn-secondary:hover {
+  background: var(--sanctuary-surface-hover);
 }
 
-.help-box {
-  background: rgba(0, 113, 227, 0.04);
-  border: 1px solid var(--sanctuary-blue-bd);
-  border-radius: var(--radius-card);
-  padding: 10px 12px;
-  font-size: 11px;
-  color: var(--sanctuary-ink-secondary);
-  line-height: 1.45;
-}
-
-.help-box strong {
-  color: var(--sanctuary-ink-primary);
-}
-
-.vault-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-top: 6px;
-}
-
-.vault-cipher-label {
-  font-size: 10.5px;
-  color: var(--sanctuary-ink-secondary);
-  font-weight: 500;
-}
-
-/* ==========================================================================
-   OPTIONS TAB (WHITELIST & DIAGNOSTICS)
-   ========================================================================== */
-.scroll-list {
-  max-height: 160px;
-  overflow-y: auto;
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.list-entry {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 12px;
-  background: var(--sanctuary-canvas);
-  border: 1px solid var(--sanctuary-hairline-subtle);
-  border-radius: var(--radius-nested);
-  font-size: 12px;
-  color: var(--sanctuary-ink-primary);
-  transition: background 0.12s;
-}
-
-.list-entry:hover {
-  background: #EEEEF2;
-}
-
-.btn-remove {
-  background: transparent;
+.btn-subtle {
+  height: 26px;
+  padding: 0 8px;
+  border-radius: 6px;
   border: none;
-  color: var(--sanctuary-ink-tertiary);
+  background: transparent;
+  color: var(--sanctuary-ink-secondary);
+  font-size: 11.5px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   cursor: pointer;
-  padding: 3px;
-  border-radius: 4px;
-  display: flex;
-  transition: color 0.15s;
+  transition: all 0.15s;
 }
 
-.btn-remove:hover {
+.btn-subtle:hover {
+  color: var(--sanctuary-ink-primary);
+  background: var(--sanctuary-surface-hover);
+}
+
+.btn-subtle.danger {
   color: var(--sanctuary-red);
 }
 
-.privacy-callout {
-  font-size: 11px;
-  color: var(--sanctuary-ink-secondary);
-  line-height: 1.4;
-  padding: 8px 10px;
-  background: var(--sanctuary-canvas);
-  border-radius: var(--radius-nested);
-  border: 1px solid var(--sanctuary-hairline-subtle);
-}
-
-.diagnostics-label {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-}
-
-.diagnostics-checkbox {
-  width: 16px;
-  height: 16px;
-  accent-color: var(--sanctuary-blue);
-  cursor: pointer;
+.btn-subtle.danger:hover {
+  background: var(--sanctuary-red-bg);
 }
 
 /* ==========================================================================
-   TOAST (APPLE FLOATING CAPSULE)
+   10. WHITELIST & SETTINGS TAB
    ========================================================================== */
-.toast {
-  position: fixed;
-  bottom: 16px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(29, 29, 31, 0.94);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  color: #FFFFFF;
-  font-size: 12px;
-  font-weight: 500;
-  padding: 8px 16px;
-  border-radius: var(--radius-pill);
-  display: none;
-  white-space: nowrap;
-  box-shadow: var(--shadow-elevated);
-  animation: appleToastIn 0.22s var(--ease-apple-spring);
-  z-index: 1000;
+.card-caption {
+  font-size: 11.5px;
+  color: var(--sanctuary-ink-secondary);
+  line-height: 1.45;
+  margin-bottom: 12px;
 }
 
-@keyframes appleToastIn {
-  from { opacity: 0; transform: translate(-50%, 8px); }
-  to   { opacity: 1; transform: translate(-50%, 0); }
+.manual-add-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.whitelist-ul {
+  list-style: none;
+  border-radius: var(--radius-nested);
+  border: 1px solid var(--sanctuary-hairline-subtle);
+  background: var(--sanctuary-surface-subtle);
+  overflow: hidden;
+  max-height: 160px;
+  overflow-y: auto;
+}
+
+.list-entry {
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--sanctuary-divider);
+  font-size: 12px;
+}
+
+.list-entry:last-child {
+  border-bottom: none;
+}
+
+.btn-remove {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--sanctuary-ink-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-remove:hover {
+  background: var(--sanctuary-red-bg);
+  color: var(--sanctuary-red);
+}
+
+.popup-footer {
+  text-align: center;
+  padding: 12px 0 4px;
+  font-size: 10.5px;
+  color: var(--sanctuary-ink-tertiary);
+  letter-spacing: 0.02em;
+}
+
+/* ==========================================================================
+   11. TRANSIENT SENSORY TOAST
+   ========================================================================== */
+.sanctuary-toast {
+  position: fixed;
+  bottom: 16px;
+  left: 16px;
+  right: 16px;
+  z-index: 100;
+  background: rgba(29, 29, 31, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  color: #FFFFFF;
+  border-radius: var(--radius-pill);
+  padding: 9px 16px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 500;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  animation: toastEntrance 0.25s var(--ease-apple-spring);
+}
+
+@keyframes toastEntrance {
+  from { opacity: 0; transform: translateY(12px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }

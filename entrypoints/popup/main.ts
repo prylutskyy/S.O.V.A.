@@ -28,6 +28,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     for (const [key, tab] of Object.entries(tabs)) {
       const isActive = key === name;
       tab.btn.classList.toggle('active', isActive);
+      tab.btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      tab.content.hidden = !isActive;
       tab.content.style.display = isActive ? 'flex' : 'none';
     }
     await tabs[name].onOpen();

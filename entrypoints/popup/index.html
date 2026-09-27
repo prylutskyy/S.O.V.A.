@@ -7,42 +7,48 @@
   <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-  <!-- Apple Frosted Glass Header -->
+  <!-- =========================================================================
+       1. APP HEADER: OPTICAL FLOAT GLASS
+       ========================================================================= -->
   <header class="app-header">
     <div class="brand-group">
-      <div class="brand-icon">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+      <div class="brand-icon" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
           <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
           <path d="m9 12 2 2 4-4"/>
         </svg>
       </div>
-      <div>
-        <div class="brand-name">Threat Shield</div>
-        <div class="brand-tagline">Sanctuary of Digital Dignity</div>
+      <div class="brand-text">
+        <h1 class="brand-title">Threat Shield</h1>
+        <p class="brand-subtitle">Sanctuary of Digital Dignity</p>
       </div>
     </div>
-    <div class="status-pill active" id="globalStatusPill">
-      <span class="pulse-dot"></span><span id="globalStatusText">Захищено</span>
+    <div class="status-pill active" id="globalStatusPill" aria-live="polite">
+      <span class="pulse-dot"></span>
+      <span id="globalStatusText">Захищено</span>
     </div>
   </header>
 
-  <!-- Cupertino Segmented Control Navigation -->
+  <!-- =========================================================================
+       2. CUPERTINO SEGMENTED CONTROL NAVIGATION
+       ========================================================================= -->
   <div class="nav-container">
-    <nav class="tab-nav">
-      <button type="button" class="tab-btn active" id="tabBtnShield">
-        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <nav class="segmented-control" role="tablist" aria-label="Розділи розширення">
+      <button type="button" class="segment-btn active" id="tabBtnShield" role="tab" aria-selected="true" aria-controls="tabContentShield">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
         </svg>
         <span>Захист</span>
       </button>
-      <button type="button" class="tab-btn" id="tabBtnVault">
-        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+      <button type="button" class="segment-btn" id="tabBtnVault" role="tab" aria-selected="false" aria-controls="tabContentVault">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
         </svg>
         <span>Сховище</span>
       </button>
-      <button type="button" class="tab-btn" id="tabBtnSettings">
-        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <button type="button" class="segment-btn" id="tabBtnSettings" role="tab" aria-selected="false" aria-controls="tabContentSettings">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="3"/>
           <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
         </svg>
@@ -51,97 +57,121 @@
     </nav>
   </div>
 
-  <!-- TAB 1: ЗАХИСТ САЙТУ (ГОЛОВНА) -->
-  <main class="tab-content" id="tabContentShield">
-    <!-- Current Site Protection Hero Card -->
-    <div class="site-card" id="currentSiteCard">
-      <div class="site-info">
-        <div class="site-icon-box active" id="siteIconBox">
+  <!-- =========================================================================
+       3. TAB 1: SITE PROTECTION (SANCTUARY HOME)
+       ========================================================================= -->
+  <main class="sanctuary-tab" id="tabContentShield" role="tabpanel" aria-labelledby="tabBtnShield">
+    <!-- Current Site Hero Card -->
+    <section class="sanctuary-card site-hero-card" id="currentSiteCard">
+      <div class="site-hero-content">
+        <div class="site-hero-icon active" id="siteIconBox">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="2" y1="12" x2="22" y2="12"/>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
           </svg>
         </div>
-        <div class="site-text-col">
-          <div class="site-domain-text" id="currentSiteDomain">Визначення домену...</div>
-          <div class="site-status-text green" id="currentSiteStatus">
+        <div class="site-hero-details">
+          <div class="site-domain" id="currentSiteDomain">Визначення домену...</div>
+          <div class="site-status green" id="currentSiteStatus">
             <span>Захист увімкнено для цього сайту</span>
           </div>
         </div>
       </div>
-      <label class="fx-switch" title="Увімкнути/вимкнути захист для цього сайту">
+      <label class="ios-switch" title="Увімкнути/вимкнути захист для цього сайту">
         <input type="checkbox" id="currentSiteToggle" checked>
-        <span class="fx-slider"></span>
+        <span class="ios-slider"></span>
       </label>
-    </div>
+    </section>
 
-    <!-- Tainted Context Warning Banner (Appears ONLY during elevated alert) -->
-    <div class="tainted-banner" id="taintedBanner" style="display:none;">
-      <div class="tainted-header">
-        <div class="tainted-icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Elevated Tainted Context Banner -->
+    <div class="tainted-banner" id="taintedBanner" style="display: none;">
+      <div class="tainted-lead">
+        <div class="tainted-icon-box">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
             <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-            <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+            <line x1="12" y1="9" x2="12" y2="13"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
           </svg>
         </div>
-        <div class="tainted-content">
-          <div class="tainted-title">Підвищений рівень пильності</div>
-          <div class="tainted-desc" id="taintedDescText">Зафіксовано спробу виведення на сторонній ресурс із чату оголошень. Скринінг полів максимально посилено.</div>
+        <div class="tainted-text-col">
+          <div class="tainted-headline">Підвищений рівень пильності</div>
+          <div class="tainted-body" id="taintedDescText">Зафіксовано перехід із чату оголошень. Скринінг форм максимально посилено.</div>
         </div>
       </div>
-      <button type="button" class="btn-reset-tainted" id="btnResetContextHome">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-        Скинути стан тривоги
+      <button type="button" class="btn-tainted-reset" id="btnResetContextHome">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+        <span>Скинути стан тривоги</span>
       </button>
     </div>
 
-    <!-- Active Protection Modules -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-title">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          Активні засоби оборони
-        </div>
-      </div>
-      <div class="modules-list">
-        <div class="module-item">
-          <div class="module-lead">
-            <div class="module-icon green"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>
-            <div class="module-texts">
-              <span class="module-title">Захист карток та CVV</span>
-              <span class="module-desc">Блокування передачі платіжних реквізитів у чатах</span>
+    <!-- Active Defensive Systems: Inset Grouped Card -->
+    <div class="section-group">
+      <div class="section-label">АКТИВНІ ЗАСОБИ ОБОРОНИ</div>
+      <div class="inset-group">
+        <!-- Module 1: Payment Protection -->
+        <div class="inset-row">
+          <div class="inset-lead">
+            <div class="inset-icon-box blue">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>
+              </svg>
+            </div>
+            <div class="inset-info">
+              <div class="inset-title">Захист карток та CVV</div>
+              <div class="inset-desc">Блокування інверсії полів та списання балансу</div>
             </div>
           </div>
           <span class="module-pill green">Активно</span>
         </div>
 
-        <div class="module-item">
-          <div class="module-lead">
-            <div class="module-icon amber"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/><line x1="1" y1="12" x2="23" y2="23"/></svg></div>
-            <div class="module-texts">
-              <span class="module-title">Аудит автозаповнення</span>
-              <span class="module-desc">Виявлення невидимих та прихованих CSS-полів</span>
+        <!-- Module 2: Hidden Forms Scanner -->
+        <div class="inset-row">
+          <div class="inset-lead">
+            <div class="inset-icon-box amber">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 12h20M12 2v20"/><circle cx="12" cy="12" r="7"/>
+              </svg>
+            </div>
+            <div class="inset-info">
+              <div class="inset-title">Аудит прихованих форм</div>
+              <div class="inset-desc">Нейтралізація невидимих полів введення</div>
             </div>
           </div>
           <span class="module-pill green">Активно</span>
         </div>
 
-        <div class="module-item clickable" id="moduleVaultItem" title="Натисніть для переходу до Сховища">
-          <div class="module-lead">
-            <div class="module-icon blue"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
-            <div class="module-texts">
-              <span class="module-title">Personal Vault DLP</span>
-              <span class="module-desc" id="vaultProtectionDesc">7 захисних маркерів налаштовано</span>
+        <!-- Module 3: Personal Vault DLP (Navigates to Vault) -->
+        <div class="inset-row interactive" id="moduleVaultItem">
+          <div class="inset-lead">
+            <div class="inset-icon-box purple">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+            </div>
+            <div class="inset-info">
+              <div class="inset-title">Personal Vault DLP</div>
+              <div class="inset-desc" id="vaultProtectionDesc">Захист конфіденційних маркерів</div>
             </div>
           </div>
-          <span class="module-pill blue" id="vaultStatusPill">Захищено</span>
+          <div class="inset-end">
+            <span class="module-pill green" id="vaultStatusPill">Захищено</span>
+            <svg class="chevron-end" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
         </div>
 
-        <div class="module-item">
-          <div class="module-lead">
-            <div class="module-icon blue"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg></div>
-            <div class="module-texts">
-              <span class="module-title">ШІ-арбітр (Gemini Nano)</span>
-              <span class="module-desc" id="homeAiSubtext">Локальний семантичний аналіз намірів</span>
+        <!-- Module 4: Local AI Arbiter -->
+        <div class="inset-row">
+          <div class="inset-lead">
+            <div class="inset-icon-box teal">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-5.04z"/>
+                <path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-5.04z"/>
+              </svg>
+            </div>
+            <div class="inset-info">
+              <div class="inset-title">ШІ-арбітр (Gemini Nano)</div>
+              <div class="inset-desc" id="homeAiSubtext">Вбудована модель готова до роботи</div>
             </div>
           </div>
           <span class="module-pill green" id="homeAiPill">Готово</span>
@@ -150,180 +180,201 @@
     </div>
   </main>
 
-  <!-- TAB 2: PERSONAL VAULT (DIGITAL SANCTUARY) -->
-  <section class="tab-content" id="tabContentVault" style="display:none;">
-    <!-- Setup state -->
-    <div id="vaultSetupState" class="card" style="display:none;">
-      <div class="vault-hero-icon blue">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+  <!-- =========================================================================
+       4. TAB 2: PERSONAL VAULT SANCTUARY
+       ========================================================================= -->
+  <main class="sanctuary-tab" id="tabContentVault" role="tabpanel" aria-labelledby="tabBtnVault" hidden style="display: none;">
+    <!-- STATE 1: VAULT SETUP (FIRST RUN) -->
+    <div class="vault-state-card" id="vaultSetupState" style="display: none;">
+      <div class="vault-hero-emblem blue">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
       </div>
-      <h3 class="vault-state-title">Створіть свій Vault</h3>
-      <p class="vault-state-desc">Особистий простір цифрової гідності. Дані шифруються локально ключем AES-GCM 256 та ніколи не залишають ваш пристрій.</p>
+      <h2 class="vault-state-title">Створіть Особисте Сховище</h2>
+      <p class="vault-state-desc">
+        Захистіть найчутливіші персональні дані стандартом AES-GCM 256. Дані шифруються локально та ніколи не залишають ваш пристрій.
+      </p>
+
       <div class="form-group">
-        <input type="password" id="vaultSetupPassword" class="input-field" placeholder="Придумайте надійний майстер-пароль">
+        <label class="form-label" for="vaultSetupPassword">Майстер-пароль</label>
+        <input type="password" class="sanctuary-input" id="vaultSetupPassword" placeholder="Мінімум 8 символів" autocomplete="new-password">
       </div>
+
       <div class="form-group">
-        <input type="password" id="vaultSetupConfirm" class="input-field" placeholder="Підтвердіть пароль">
+        <label class="form-label" for="vaultSetupConfirm">Підтвердження пароля</label>
+        <input type="password" class="sanctuary-input" id="vaultSetupConfirm" placeholder="Повторіть майстер-пароль" autocomplete="new-password">
       </div>
-      <button type="button" class="btn-primary btn-full" id="btnSetupVault">Створити сховище</button>
+
+      <button type="button" class="btn-primary" id="btnSetupVault">
+        <span>Створити Сховище</span>
+      </button>
     </div>
 
-    <!-- Locked state -->
-    <div id="vaultLockedState" class="card" style="display:none;">
-      <div class="vault-hero-icon amber">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    <!-- STATE 2: VAULT LOCKED (AUTHENTICATION) -->
+    <div class="vault-state-card" id="vaultLockedState" style="display: none;">
+      <div class="vault-hero-emblem neutral">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
       </div>
-      <h3 class="vault-state-title">Сховище заблоковано</h3>
-      <p class="vault-state-desc">Введіть пароль для доступу до маркерів та активного DLP-скринінгу реквізитів.</p>
+      <h2 class="vault-state-title">Сховище заблоковано</h2>
+      <p class="vault-state-desc">
+        Введіть майстер-пароль для перегляду та налаштування персональних захисних маркерів.
+      </p>
+
       <div class="form-group">
-        <input type="password" id="vaultUnlockPassword" class="input-field" placeholder="Ваш майстер-пароль">
+        <input type="password" class="sanctuary-input" id="vaultUnlockPassword" placeholder="Майстер-пароль" autocomplete="current-password">
       </div>
-      <button type="button" class="btn-primary btn-full" id="btnUnlockVault">Розблокувати</button>
+
+      <button type="button" class="btn-primary" id="btnUnlockVault">
+        <span>Розблокувати</span>
+      </button>
     </div>
 
-    <!-- Unlocked state -->
-    <div id="vaultUnlockedState" class="vault-unlocked-container" style="display:none;">
-      <!-- Master View: List of categories -->
-      <div id="vaultMasterView">
-        <div class="card-header">
-          <div class="card-title">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-            Об'єкти захисту DLP
+    <!-- STATE 3: VAULT UNLOCKED (SPLIT MASTER / DETAIL VIEW) -->
+    <div class="vault-unlocked-container" id="vaultUnlockedState" style="display: none;">
+      <!-- Master View: Categories List -->
+      <div class="vault-subview" id="vaultMasterView">
+        <div class="subview-header">
+          <div class="subview-title-group">
+            <span class="subview-title">Персональні маркери</span>
+            <span class="subview-counter" id="vaultActiveCountLabel">0 з 7 активних</span>
           </div>
-          <span class="vault-count-badge" id="vaultActiveCountLabel">0 активних</span>
+          <button type="button" class="btn-subtle" id="btnLockVault" title="Заблокувати сховище">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <span>Заблокувати</span>
+          </button>
         </div>
-        <div class="vault-categories-list" id="vaultCategoriesContainer">
-          <!-- Populated dynamically by vault-tab.controller.ts -->
-        </div>
+
+        <!-- Categories dynamically rendered by vault-tab.controller.ts -->
+        <div class="vault-card-list" id="vaultCategoriesContainer"></div>
       </div>
 
-      <!-- Detail View: Editor for single item -->
-      <div id="vaultDetailView" class="vault-editor" style="display:none;">
-        <div class="editor-topbar">
-          <button type="button" class="btn-back" id="btnBackToVaultList">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="15 18 9 12 15 6"/></svg>
-            Усі маркери
-          </button>
-          <div class="vault-cat-end">
-            <span class="tier-badge a" id="detailItemTierBadge">Tier A</span>
-            <label class="fx-switch" title="Активувати/вимкнути захист цього маркера">
+      <!-- Detail View: Edit Single Token Item -->
+      <div class="vault-subview detail" id="vaultDetailView" style="display: none;">
+        <button type="button" class="btn-back" id="btnBackToVaultList">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><polyline points="15 18 9 12 15 6"/></svg>
+          <span>Всі маркери</span>
+        </button>
+
+        <div class="detail-card">
+          <div class="detail-header-row">
+            <div>
+              <h3 class="detail-item-title" id="detailItemTitle">Маркер</h3>
+              <span class="tier-badge a" id="detailItemTierBadge">Tier A (Абсолютний)</span>
+            </div>
+            <label class="ios-switch" title="Активувати/деактивувати захист маркера">
               <input type="checkbox" id="detailItemToggle" checked>
-              <span class="fx-slider"></span>
+              <span class="ios-slider"></span>
             </label>
           </div>
-        </div>
 
-        <div class="card">
-          <h3 id="detailItemTitle" class="editor-title">Дівоче прізвище матері</h3>
-          
           <div class="form-group">
-            <label class="form-label" for="detailRealInput">Справжнє конфіденційне значення</label>
+            <label class="form-label" for="detailRealInput">Справжнє значення (зашифровано)</label>
             <div class="input-with-action">
-              <input type="password" id="detailRealInput" class="input-field" placeholder="Введіть значення">
-              <button type="button" class="input-action-btn" id="btnTogglePasswordVisibility" title="Показати/приховати">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              <input type="password" class="sanctuary-input mono" id="detailRealInput" placeholder="Введіть значення">
+              <button type="button" class="input-icon-btn" id="btnTogglePasswordVisibility" title="Показати/приховати">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
               </button>
             </div>
-            <div class="input-hint">Якщо сайт спробує зчитати це значення — спрацює блокування.</div>
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="detailDecoyInput">Безпечна підстановка (декой)</label>
-            <input type="text" id="detailDecoyInput" class="input-field" placeholder="Фальшиве значення">
-            <div class="input-hint">Підставляється автоматично замість справжніх даних.</div>
+            <label class="form-label" for="detailDecoyInput">Безпечна підміна (Decoy / Honeytoken)</label>
+            <input type="text" class="sanctuary-input mono" id="detailDecoyInput" placeholder="Автоматичний декой">
           </div>
 
-          <div class="btn-row">
-            <button type="button" class="btn-primary btn-full" id="btnSaveDetailItem">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><polyline points="20 6 9 17 4 12"/></svg>
-              Зберегти зміни
-            </button>
+          <div class="detail-help-box" id="detailHelpBox">
+            <!-- Populated dynamically with category explanation -->
+          </div>
+
+          <div class="detail-actions-row">
+            <button type="button" class="btn-primary" id="btnSaveDetailItem">Зберегти</button>
             <button type="button" class="btn-secondary" id="btnClearDetailItem">Очистити</button>
+            <button type="button" class="btn-subtle" id="btnResetVaultDefaults">Дефолт</button>
           </div>
         </div>
-
-        <div class="help-box" id="detailHelpBox">
-          <!-- Dynamic explanation -->
-        </div>
-      </div>
-
-      <!-- Vault Global Footer -->
-      <div class="vault-footer">
-        <button type="button" class="btn-secondary" id="btnResetVaultDefaults">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-          Скинути
-        </button>
-        <div class="vault-cat-end">
-          <span class="vault-cipher-label">AES-GCM 256</span>
-          <button type="button" class="btn-secondary" id="btnLockVault">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-            Заблокувати
-          </button>
-        </div>
       </div>
     </div>
-  </section>
+  </main>
 
-  <!-- TAB 3: ОПЦІЇ ТА НАЛАШТУВАННЯ -->
-  <section class="tab-content" id="tabContentSettings" style="display:none;">
-    <!-- Whitelist Management -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-title">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-          <span id="whitelistTitle">Довірені сайти (0)</span>
+  <!-- =========================================================================
+       5. TAB 3: SETTINGS & TRUSTED SITES
+       ========================================================================= -->
+  <main class="sanctuary-tab" id="tabContentSettings" role="tabpanel" aria-labelledby="tabBtnSettings" hidden style="display: none;">
+    <!-- Whitelist Section -->
+    <div class="section-group">
+      <div class="section-header-flex">
+        <span class="section-label" id="whitelistTitle">Довірені сайти (0)</span>
+        <button type="button" class="btn-subtle danger" id="btnClearAllWhitelist">Очистити всі</button>
+      </div>
+
+      <div class="sanctuary-card">
+        <p class="card-caption">
+          Сайти, для яких аналіз форм та захист від перехоплення тимчасово вимкнено за вашим рішенням.
+        </p>
+
+        <div class="manual-add-row">
+          <input type="text" class="sanctuary-input" id="manualHostInput" placeholder="наприклад: bank.gov.ua">
+          <button type="button" class="btn-primary compact" id="btnAddManual">Додати</button>
         </div>
-      </div>
-      <div class="btn-row" style="margin-bottom: 10px;">
-        <input type="text" class="input-field" id="manualHostInput" placeholder="myshop.ua або bank.ua">
-        <button type="button" class="btn-primary" id="btnAddManual">Додати</button>
-      </div>
-      <ul class="scroll-list" id="whitelistUl">
-        <li class="list-entry" style="justify-content: center; color: var(--sanctuary-ink-tertiary);">Немає доданих сайтів</li>
-      </ul>
-      <div style="margin-top: 10px;">
-        <button type="button" class="btn-danger btn-full" id="btnClearAllWhitelist">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-          Очистити всі довірені сайти
-        </button>
+
+        <ul class="whitelist-ul" id="whitelistUl"></ul>
       </div>
     </div>
 
-    <!-- AI & Privacy -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-title">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-          Локальний ШІ
+    <!-- Swiss Watch Diagnostics & Thesis Defense Settings -->
+    <div class="section-group">
+      <div class="section-label">ШВЕЙЦАРСЬКИЙ МЕХАНІЗМ (ДІАГНОСТИКА ДИПЛОМА)</div>
+      <div class="inset-group">
+        <div class="inset-row">
+          <div class="inset-lead">
+            <div class="inset-icon-box dark">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/>
+              </svg>
+            </div>
+            <div class="inset-info">
+              <div class="inset-title">Діагностичний оверлей</div>
+              <div class="inset-desc">Плаваючий турбійон телеметрії на вебсторінках</div>
+            </div>
+          </div>
+          <label class="ios-switch" title="Увімкнути/вимкнути дебагер-оверлей">
+            <input type="checkbox" id="toggleDebugMode">
+            <span class="ios-slider"></span>
+          </label>
         </div>
-      </div>
-      <p style="font-size: 12px; color: var(--sanctuary-ink-secondary); line-height: 1.45; margin-bottom: 10px;">
-        Статус Gemini Nano: <strong id="aiStatusText">Перевірка...</strong>
-      </p>
-      <div class="privacy-callout">
-        🔒 <strong>Повна приватність:</strong> Обробка намірів здійснюється виключно на вашому пристрої. Жоден символ чи пароль не залишає браузер.
+
+        <div class="inset-row">
+          <div class="inset-lead">
+            <div class="inset-icon-box teal">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+              </svg>
+            </div>
+            <div class="inset-info">
+              <div class="inset-title">Локальний нейромодуль</div>
+              <div class="inset-desc" id="aiStatusText">Перевірка стану...</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- Diagnostics / Developer -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-title">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-          Діагностика
-        </div>
-      </div>
-      <label class="diagnostics-label">
-        <input type="checkbox" id="toggleDebugMode" class="diagnostics-checkbox">
-        <div>
-          <div style="font-size: 12px; font-weight: 600; color: var(--sanctuary-ink-primary);">Дебагер-оверлей (Швейцарський механізм)</div>
-          <div style="font-size: 10.5px; color: var(--sanctuary-ink-secondary); margin-top: 2px;">Показує термінал перевірки форм та ШІ в реальному часі на сторінці</div>
-        </div>
-      </label>
-    </div>
-  </section>
+    <!-- Footer Copyright -->
+    <footer class="popup-footer">
+      <span>Threat Shield · Дипломний проєкт · Jony Ive Edition</span>
+    </footer>
+  </main>
 
-  <div id="toastMessage" class="toast">Налаштування оновлено</div>
+  <!-- =========================================================================
+       6. TRANSIENT TACTILE TOAST NOTIFIER
+       ========================================================================= -->
+  <div class="sanctuary-toast" id="toastMessage" role="status" aria-live="polite" style="display: none;"></div>
+
   <script type="module" src="./main.ts"></script>
 </body>
 </html>

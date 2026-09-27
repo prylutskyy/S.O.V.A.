@@ -53,7 +53,7 @@ export class SettingsTabController {
 
     if (domains.length === 0) {
       this.whitelistUl.innerHTML =
-        '<li class="list-entry" style="justify-content:center; color:var(--fx-text-muted);">Немає доданих сайтів</li>';
+        '<li class="list-entry" style="justify-content:center; color:var(--sanctuary-ink-tertiary);">Немає доданих сайтів</li>';
       return;
     }
 
@@ -61,7 +61,7 @@ export class SettingsTabController {
       const li = document.createElement('li');
       li.className = 'list-entry';
       li.innerHTML = `
-        <span style="font-weight:500; color:var(--fx-text);">${domain}</span>
+        <span style="font-weight:500; color:var(--sanctuary-ink-primary);">${domain}</span>
         <button type="button" class="btn-remove" title="Видалити зі списку">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
         </button>
@@ -112,20 +112,20 @@ export class SettingsTabController {
             caps?.available === 'no'
               ? 'Підтримується, але модель ще завантажується'
               : 'Активно (Локальна модель готова)';
-          this.aiStatusText.style.color = caps?.available === 'no' ? 'var(--fx-amber)' : 'var(--fx-green)';
+          this.aiStatusText.style.color = caps?.available === 'no' ? 'var(--sanctuary-amber-ink)' : 'var(--sanctuary-green-ink)';
         } else if (typeof provider.create === 'function') {
           this.aiStatusText.textContent = 'Активно (Локальна модель готова)';
-          this.aiStatusText.style.color = 'var(--fx-green)';
+          this.aiStatusText.style.color = 'var(--sanctuary-green-ink)';
         } else {
           throw new Error('No create method');
         }
       } catch {
         this.aiStatusText.textContent = 'Доступно для Prompt API';
-        this.aiStatusText.style.color = 'var(--fx-green)';
+        this.aiStatusText.style.color = 'var(--sanctuary-green-ink)';
       }
     } else {
       this.aiStatusText.textContent = 'Евристичний режим (Вбудований ШІ не знайдено)';
-      this.aiStatusText.style.color = 'var(--fx-amber)';
+      this.aiStatusText.style.color = 'var(--sanctuary-amber-ink)';
     }
   }
 
