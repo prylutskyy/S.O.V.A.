@@ -1,4 +1,5 @@
 import { UserWhitelistManager } from '../core/user-whitelist';
+import { DESIGN_TOKENS_CSS } from './design-tokens';
 
 export interface LogItem {
   id: string;
@@ -880,42 +881,12 @@ export class DebuggerOverlay {
 
     this.shadowRoot.innerHTML = `
       <style>
+        ${DESIGN_TOKENS_CSS}
+
         :host {
           all: initial;
-          /* Mozilla Firefox Proton Light Tokens */
-          --fx-canvas:         #F0F0F4;
-          --fx-surface:        #FFFFFF;
-          --fx-surface-hover:  #E8E8EE;
-          --fx-surface-active: #DFDFE6;
-          --fx-border:         #CFCFD8;
-          --fx-border-subtle:  #E5E5EB;
-          --fx-text:           #15141A;
-          --fx-text-secondary: #5B5B66;
-          --fx-text-muted:     #8F8F9D;
-
-          --fx-blue:           #0060DF;
-          --fx-blue-hover:     #003EAA;
-          --fx-blue-bg:        #E8F2FF;
-          --fx-blue-bd:        #B0D5FF;
-
-          --fx-green:          #008A52;
-          --fx-green-bg:       #EAF7F3;
-          --fx-green-bd:       #A3E5D0;
-
-          --fx-amber:          #D76E00;
-          --fx-amber-bg:       #FFF4E5;
-          --fx-amber-bd:       #FFD599;
-
-          --fx-red:            #D70022;
-          --fx-red-hover:      #A4001A;
-          --fx-red-bg:         #FDF2F5;
-          --fx-red-bd:         #F8B4C0;
-
-          --shadow-panel: 0 8px 32px rgba(0, 0, 0, 0.18), 0 2px 8px rgba(0, 0, 0, 0.1);
-          --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.05);
-
-          font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
-          color: var(--fx-text);
+          font-family: var(--font-sanctuary, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
+          color: var(--sanctuary-ink-primary, #1D1D1F);
           box-sizing: border-box;
           -webkit-font-smoothing: antialiased;
         }
@@ -927,17 +898,17 @@ export class DebuggerOverlay {
         .fx-window {
           width: 100%;
           height: 100%;
-          background: var(--fx-canvas);
-          border: 1px solid var(--fx-border);
-          border-radius: 8px;
-          box-shadow: var(--shadow-panel);
+          background: var(--sanctuary-canvas, #F5F5F7);
+          border: 1px solid var(--sanctuary-hairline, rgba(0, 0, 0, 0.08));
+          border-radius: var(--radius-card, 14px);
+          box-shadow: var(--shadow-modal, 0 16px 48px rgba(0, 0, 0, 0.2));
           display: flex;
           flex-direction: column;
           overflow: hidden;
           font-size: 12px;
         }
 
-        /* Header (Firefox Proton Light Header) */
+        /* Header (Swiss-Watch Neuromonitor Glass Header) */
         .fx-titlebar {
           background: var(--fx-surface);
           padding: 9px 12px;
@@ -1745,29 +1716,33 @@ export class DebuggerOverlay {
 
     this.shadowRoot.innerHTML = `
       <style>
+        ${DESIGN_TOKENS_CSS}
+
         :host {
           all: initial;
-          font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+          font-family: var(--font-sanctuary, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
         }
         .fx-pill {
-          background: #FFFFFF;
-          border: 1px solid #CFCFD8;
-          border-left: 4px solid ${riskColor};
-          border-radius: 20px;
-          padding: 6px 12px;
+          background: rgba(255, 255, 255, 0.92);
+          backdrop-filter: blur(16px);
+          -webkit-backdrop-filter: blur(16px);
+          border: 1px solid var(--sanctuary-hairline, rgba(0, 0, 0, 0.08));
+          border-left: 3px solid ${riskColor};
+          border-radius: var(--radius-pill, 9999px);
+          padding: 6px 14px;
           display: flex;
           align-items: center;
           gap: 8px;
-          color: #15141A;
+          color: var(--sanctuary-ink-primary, #1D1D1F);
           cursor: pointer;
-          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.08);
-          transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+          box-shadow: var(--shadow-elevated, 0 4px 16px rgba(0, 0, 0, 0.12));
+          transition: transform 0.15s var(--ease-apple-spring), background 0.15s ease, box-shadow 0.15s ease;
           user-select: none;
         }
         .fx-pill:hover {
           transform: translateY(-2px);
-          background: #F7F7FA;
-          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.16);
+          background: #FFFFFF;
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
         }
         .fx-pill-icon {
           display: flex;
@@ -1776,22 +1751,22 @@ export class DebuggerOverlay {
         }
         .fx-pill-text {
           font-size: 11.5px;
-          font-weight: 700;
-          color: #15141A;
+          font-weight: 600;
+          color: var(--sanctuary-ink-primary, #1D1D1F);
         }
         .fx-pill-badge {
           font-size: 9.5px;
-          font-weight: 700;
-          background: ${riskColor === '#008A52' ? '#EAF7F3' : riskColor === '#D76E00' ? '#FFF4E5' : '#FDF2F5'};
+          font-weight: 600;
+          background: ${riskColor === '#008A52' ? 'var(--sanctuary-green-bg, #EAF7F3)' : riskColor === '#D76E00' ? 'var(--sanctuary-amber-bg, #FFF4E5)' : 'var(--sanctuary-red-bg, #FDF2F5)'};
           color: ${riskColor};
-          border: 1px solid ${riskColor === '#008A52' ? '#A3E5D0' : riskColor === '#D76E00' ? '#FFD599' : '#F8B4C0'};
+          border: 1px solid ${riskColor === '#008A52' ? 'var(--sanctuary-green-bd, #A3E5D0)' : riskColor === '#D76E00' ? 'var(--sanctuary-amber-bd, #FFD599)' : 'var(--sanctuary-red-bd, #F8B4C0)'};
           padding: 1px 6px;
-          border-radius: 3px;
+          border-radius: var(--radius-micro, 4px);
         }
         .fx-pill-count {
           font-size: 10px;
-          color: #8F8F9D;
-          font-family: monospace;
+          color: var(--sanctuary-ink-tertiary, #8F8F9D);
+          font-family: var(--font-mono, monospace);
           display: flex;
           align-items: center;
           gap: 4px;

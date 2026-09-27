@@ -5,6 +5,7 @@ import { XaiEngine } from '../xai/xai-engine';
 import { VaultScanner } from '../heuristics/vault-scanner';
 import { ShadowHost } from './shadow-host';
 import { ToastNotifier } from './toast-notifier';
+import { DESIGN_TOKENS_CSS } from './design-tokens';
 
 export interface UnifiedModalOptions {
   type: 'form' | 'chat';
@@ -39,39 +40,38 @@ interface DiagnosticItem {
   evidence?: string;
 }
 
-// Apple HIG / Jony Ive Design Tokens
+// Canonical Apple Design Tokens with fallback values
 const C = {
-  text:         '#111827',
-  textSec:      '#4B5563',
-  textMuted:    '#9CA3AF',
-  surface:      '#FFFFFF',
-  surfaceSub:   '#F9FAFB',
-  surfaceHover: '#F3F4F6',
-  border:       '#E5E7EB',
-  borderSubtle: '#F3F4F6',
+  text:         'var(--sanctuary-ink-primary, #1D1D1F)',
+  textSec:      'var(--sanctuary-ink-secondary, #86868B)',
+  textMuted:    'var(--sanctuary-ink-tertiary, #A1A1A6)',
+  surface:      'var(--sanctuary-surface, #FFFFFF)',
+  surfaceSub:   'var(--sanctuary-surface-subtle, #FAFAFC)',
+  surfaceHover: 'var(--sanctuary-surface-hover, rgba(0, 0, 0, 0.03))',
+  border:       'var(--sanctuary-hairline, rgba(0, 0, 0, 0.07))',
+  borderSubtle: 'var(--sanctuary-hairline-subtle, rgba(0, 0, 0, 0.04))',
 
-  // Subtle accents (calm, non-panicky)
-  red:          '#DC2626',
-  redSoft:      '#FEF2F2',
-  redBorder:    '#FECACA',
+  red:          'var(--sanctuary-red, #FF3B30)',
+  redSoft:      'var(--sanctuary-red-bg, rgba(255, 59, 48, 0.08))',
+  redBorder:    'var(--sanctuary-red-bd, rgba(255, 59, 48, 0.22))',
 
-  amber:        '#D97706',
-  amberSoft:    '#FFFBEB',
-  amberBorder:  '#FDE68A',
+  amber:        'var(--sanctuary-amber, #FF9500)',
+  amberSoft:    'var(--sanctuary-amber-bg, rgba(255, 149, 0, 0.10))',
+  amberBorder:  'var(--sanctuary-amber-bd, rgba(255, 149, 0, 0.24))',
 
-  blue:         '#2563EB',
-  blueSoft:     '#EFF6FF',
-  blueBorder:   '#BFDBFE',
+  blue:         'var(--sanctuary-blue, #0071E3)',
+  blueSoft:     'var(--sanctuary-blue-bg, rgba(0, 113, 227, 0.08))',
+  blueBorder:   'var(--sanctuary-blue-bd, rgba(0, 113, 227, 0.20))',
 
-  green:        '#059669',
-  greenSoft:    '#ECFDF5',
-  greenBorder:  '#A7F3D0',
+  green:        'var(--sanctuary-green-ink, #248A3D)',
+  greenSoft:    'var(--sanctuary-green-bg, rgba(52, 199, 89, 0.10))',
+  greenBorder:  'var(--sanctuary-green-bd, rgba(52, 199, 89, 0.24))',
 
-  darkAction:   '#111827',
-  darkHover:    '#1F2937',
+  darkAction:   'var(--sanctuary-ink-primary, #1D1D1F)',
+  darkHover:    '#000000',
 
-  font:         `-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, sans-serif`,
-  monoFont:     `ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace`,
+  font:         'var(--font-sanctuary, -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, sans-serif)',
+  monoFont:     'var(--font-mono, "SF Mono", Menlo, Consolas, Monaco, monospace)',
 };
 
 /**
@@ -183,12 +183,14 @@ export class UnifiedFrictionModal {
 
     modalRoot.innerHTML = `
       <style>
+        ${DESIGN_TOKENS_CSS}
+
         @keyframes tsBackdrop {
           from { opacity: 0; }
           to   { opacity: 1; }
         }
         @keyframes tsCardEnter {
-          from { opacity: 0; transform: scale(0.96) translateY(10px); }
+          from { opacity: 0; transform: scale(0.96) translateY(12px); }
           to   { opacity: 1; transform: scale(1) translateY(0); }
         }
         .ts-btn-primary {
@@ -197,8 +199,8 @@ export class UnifiedFrictionModal {
           background: ${C.darkAction};
           color: #FFFFFF;
           border: none;
-          border-radius: 12px;
-          font-size: 13.5px;
+          border-radius: var(--radius-control, 10px);
+          font-size: 13px;
           font-weight: 600;
           cursor: pointer;
           display: flex;
@@ -221,7 +223,7 @@ export class UnifiedFrictionModal {
           background: ${C.greenSoft};
           color: ${C.green};
           border: 1px solid ${C.greenBorder};
-          border-radius: 12px;
+          border-radius: var(--radius-control, 10px);
           font-size: 13px;
           font-weight: 600;
           cursor: pointer;
@@ -242,10 +244,10 @@ export class UnifiedFrictionModal {
         .ts-hold-btn {
           position: relative;
           width: 100%;
-          height: 38px;
-          background: transparent;
+          height: 40px;
+          background: rgba(118, 118, 128, 0.08);
           border: 1px solid ${C.border};
-          border-radius: 12px;
+          border-radius: var(--radius-pill, 9999px);
           overflow: hidden;
           display: flex;
           align-items: center;
@@ -253,7 +255,7 @@ export class UnifiedFrictionModal {
           cursor: pointer;
           user-select: none;
           outline: none;
-          transition: border-color 0.2s;
+          transition: border-color 0.2s var(--ease-apple-spring);
           font-family: ${C.font};
         }
         .ts-hold-btn:hover {
@@ -265,7 +267,7 @@ export class UnifiedFrictionModal {
           top: 0;
           bottom: 0;
           width: 0%;
-          background: ${isCritical ? 'rgba(220, 38, 38, 0.12)' : 'rgba(217, 119, 6, 0.12)'};
+          background: ${isCritical ? 'linear-gradient(90deg, rgba(255, 59, 48, 0.2) 0%, rgba(255, 59, 48, 0.4) 100%)' : 'linear-gradient(90deg, rgba(255, 149, 0, 0.2) 0%, rgba(255, 149, 0, 0.4) 100%)'};
           pointer-events: none;
           transition: width 0.05s linear;
         }
@@ -311,18 +313,19 @@ export class UnifiedFrictionModal {
       </style>
 
       <div id="ts-modal-card" style="
-        background: ${C.surface};
+        background: var(--sanctuary-surface, #FFFFFF);
         width: 100%;
         max-width: 440px;
-        border-radius: 24px;
-        box-shadow: 0 32px 72px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.06);
+        border-radius: var(--radius-modal, 22px);
+        box-shadow: var(--shadow-modal, 0 24px 64px rgba(0, 0, 0, 0.16));
+        border: 1px solid rgba(255, 255, 255, 0.7);
         overflow: hidden;
         font-family: ${C.font};
-        animation: tsCardEnter 0.26s cubic-bezier(0.16, 1, 0.3, 1);
+        animation: tsCardEnter 0.26s var(--ease-apple-spring);
         color: ${C.text};
         display: flex;
         flex-direction: column;
-        padding: 30px 26px 22px;
+        padding: 28px 24px 20px;
         box-sizing: border-box;
       ">
         <!-- ICON -->

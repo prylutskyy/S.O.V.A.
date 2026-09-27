@@ -4,826 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Threat Shield — Digital Sanctuary</title>
-  <style>
-    :root {
-      /* Apple Cupertino & Human Interface Guidelines Tokens */
-      --apple-canvas:        #F5F5F7;
-      --apple-surface:       #FFFFFF;
-      --apple-surface-hover: rgba(0, 0, 0, 0.03);
-      --apple-surface-active:rgba(0, 0, 0, 0.06);
-      --apple-border:        rgba(0, 0, 0, 0.07);
-      --apple-border-subtle: rgba(0, 0, 0, 0.04);
-      --apple-divider:       rgba(0, 0, 0, 0.06);
-
-      --apple-text:          #1D1D1F;
-      --apple-text-secondary:#86868B;
-      --apple-text-muted:    #A1A1A6;
-
-      --apple-blue:          #0071E3;
-      --apple-blue-hover:    #0077ED;
-      --apple-blue-active:   #005BB5;
-      --apple-blue-bg:       rgba(0, 113, 227, 0.08);
-      --apple-blue-bd:       rgba(0, 113, 227, 0.18);
-
-      --apple-green:         #34C759;
-      --apple-green-hover:   #2DB84F;
-      --apple-green-bg:      rgba(52, 199, 89, 0.10);
-      --apple-green-bd:      rgba(52, 199, 89, 0.22);
-
-      --apple-amber:         #FF9500;
-      --apple-amber-bg:      rgba(255, 149, 0, 0.10);
-      --apple-amber-bd:      rgba(255, 149, 0, 0.22);
-
-      --apple-red:           #FF3B30;
-      --apple-red-hover:     #E03228;
-      --apple-red-bg:        rgba(255, 59, 48, 0.08);
-      --apple-red-bd:        rgba(255, 59, 48, 0.20);
-
-      /* Backward compatibility aliases for existing JS controllers */
-      --fx-canvas:         var(--apple-canvas);
-      --fx-surface:        var(--apple-surface);
-      --fx-surface-hover:  var(--apple-surface-hover);
-      --fx-surface-active: var(--apple-surface-active);
-      --fx-border:         var(--apple-border);
-      --fx-border-subtle:  var(--apple-border-subtle);
-      --fx-text:           var(--apple-text);
-      --fx-text-secondary: var(--apple-text-secondary);
-      --fx-text-muted:     var(--apple-text-muted);
-
-      --fx-blue:           var(--apple-blue);
-      --fx-blue-hover:     var(--apple-blue-hover);
-      --fx-blue-active:    var(--apple-blue-active);
-      --fx-blue-bg:        var(--apple-blue-bg);
-      --fx-blue-bd:        var(--apple-blue-bd);
-
-      --fx-green:          var(--apple-green);
-      --fx-green-hover:    var(--apple-green-hover);
-      --fx-green-bg:       var(--apple-green-bg);
-      --fx-green-bd:       var(--apple-green-bd);
-
-      --fx-amber:          var(--apple-amber);
-      --fx-amber-bg:       var(--apple-amber-bg);
-      --fx-amber-bd:       var(--apple-amber-bd);
-
-      --fx-red:            var(--apple-red);
-      --fx-red-hover:      var(--apple-red-hover);
-      --fx-red-bg:         var(--apple-red-bg);
-      --fx-red-bd:         var(--apple-red-bd);
-
-      --radius-panel: 18px;
-      --radius-card: 14px;
-      --radius-btn: 10px;
-      --radius-pill: 9999px;
-      --radius-input: 10px;
-
-      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
-      --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
-      --shadow-elevated: 0 8px 24px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04);
-      --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, sans-serif;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: var(--font);
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
-
-    body {
-      width: 395px;
-      max-height: 600px;
-      background: var(--apple-canvas);
-      color: var(--apple-text);
-      font-size: 13px;
-      user-select: none;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      letter-spacing: -0.01em;
-    }
-
-    /* Sleek Apple Scrollbars */
-    ::-webkit-scrollbar { width: 5px; height: 5px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.16); border-radius: 10px; }
-    ::-webkit-scrollbar-thumb:hover { background: rgba(0, 0, 0, 0.28); }
-
-    /* Frosted Apple Header */
-    .app-header {
-      position: sticky;
-      top: 0;
-      z-index: 20;
-      background: rgba(255, 255, 255, 0.88);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-bottom: 1px solid var(--apple-border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 16px;
-    }
-    .brand-group {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .brand-icon {
-      width: 30px;
-      height: 30px;
-      border-radius: 8px;
-      background: linear-gradient(135deg, #0071E3 0%, #43BFEA 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      box-shadow: 0 2px 6px rgba(0, 113, 227, 0.28);
-    }
-    .brand-name {
-      font-size: 13.5px;
-      font-weight: 600;
-      color: var(--apple-text);
-      line-height: 1.2;
-      letter-spacing: -0.02em;
-    }
-    .brand-tagline {
-      font-size: 10.5px;
-      color: var(--apple-text-secondary);
-      margin-top: 1px;
-    }
-    .status-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 11px;
-      font-weight: 600;
-      padding: 4px 9px;
-      border-radius: var(--radius-pill);
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .status-pill.active {
-      color: #248A3D;
-      background: var(--apple-green-bg);
-      border: 1px solid var(--apple-green-bd);
-    }
-    .status-pill.paused {
-      color: #B25900;
-      background: var(--apple-amber-bg);
-      border: 1px solid var(--apple-amber-bd);
-    }
-    .pulse-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: currentColor;
-    }
-    .status-pill.active .pulse-dot {
-      animation: applePulse 2.4s infinite cubic-bezier(0.4, 0, 0.6, 1);
-    }
-    @keyframes applePulse {
-      0%   { box-shadow: 0 0 0 0 rgba(52, 199, 89, 0.5); }
-      70%  { box-shadow: 0 0 0 5px rgba(52, 199, 89, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(52, 199, 89, 0); }
-    }
-
-    /* Apple Segmented Pill Navigation */
-    .nav-container {
-      padding: 10px 14px 4px;
-      background: var(--apple-canvas);
-    }
-    .tab-nav {
-      background: rgba(118, 118, 128, 0.10);
-      border-radius: 12px;
-      padding: 3px;
-      display: flex;
-      gap: 2px;
-      position: relative;
-    }
-    .tab-btn {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      padding: 6px 8px;
-      background: transparent;
-      border: none;
-      border-radius: 9px;
-      cursor: pointer;
-      color: var(--apple-text-secondary);
-      font-size: 12px;
-      font-weight: 500;
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-      white-space: nowrap;
-    }
-    .tab-btn svg {
-      width: 14px;
-      height: 14px;
-      stroke: currentColor;
-      fill: none;
-      flex-shrink: 0;
-      transition: stroke 0.2s ease;
-    }
-    .tab-btn:hover {
-      color: var(--apple-text);
-    }
-    .tab-btn.active {
-      background: var(--apple-surface);
-      color: var(--apple-text);
-      font-weight: 600;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08), 0 0.5px 1.5px rgba(0, 0, 0, 0.04);
-    }
-    .tab-btn.active svg {
-      stroke: var(--apple-blue);
-    }
-
-    /* Content Area */
-    .tab-content {
-      padding: 12px 14px 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    /* Cupertino Cards */
-    .card {
-      background: var(--apple-surface);
-      border: 1px solid var(--apple-border);
-      border-radius: var(--radius-card);
-      padding: 14px;
-      box-shadow: var(--shadow-card);
-    }
-    .card-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 10px;
-    }
-    .card-title {
-      font-size: 11.5px;
-      font-weight: 600;
-      color: var(--apple-text-secondary);
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .card-title svg {
-      width: 13px;
-      height: 13px;
-      stroke: var(--apple-text-secondary);
-    }
-
-    /* Apple Site Hero Card */
-    .site-card {
-      background: var(--apple-surface);
-      border: 1px solid var(--apple-border);
-      border-radius: var(--radius-card);
-      padding: 14px 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      box-shadow: var(--shadow-card);
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .site-card.whitelisted {
-      border-color: var(--apple-amber-bd);
-      background: linear-gradient(180deg, #FFFFFF 0%, #FFFDF9 100%);
-    }
-    .site-info {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      min-width: 0;
-    }
-    .site-icon-box {
-      width: 36px;
-      height: 36px;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .site-icon-box.active {
-      background: var(--apple-green-bg);
-      border: 1px solid var(--apple-green-bd);
-      color: var(--apple-green);
-    }
-    .site-icon-box.paused {
-      background: var(--apple-amber-bg);
-      border: 1px solid var(--apple-amber-bd);
-      color: var(--apple-amber);
-    }
-    .site-domain-text {
-      font-size: 13.5px;
-      font-weight: 600;
-      color: var(--apple-text);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      letter-spacing: -0.015em;
-    }
-    .site-status-text {
-      font-size: 11.5px;
-      color: var(--apple-text-secondary);
-      margin-top: 2px;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-    .site-status-text.green { color: #248A3D; font-weight: 500; }
-    .site-status-text.amber { color: #B25900; font-weight: 500; }
-
-    /* Apple iOS Smooth Toggle Switch */
-    .fx-switch {
-      position: relative;
-      display: inline-block;
-      width: 44px;
-      height: 26px;
-      flex-shrink: 0;
-    }
-    .fx-switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-    .fx-slider {
-      position: absolute;
-      cursor: pointer;
-      inset: 0;
-      background: #E5E5EA;
-      transition: 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-      border-radius: 26px;
-    }
-    .fx-slider:before {
-      position: absolute;
-      content: "";
-      height: 22px;
-      width: 22px;
-      left: 2px;
-      bottom: 2px;
-      background: white;
-      transition: 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-      border-radius: 50%;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.18), 0 0.5px 1px rgba(0, 0, 0, 0.08);
-    }
-    input:checked + .fx-slider {
-      background: #34C759;
-    }
-    input:checked + .fx-slider:before {
-      transform: translateX(18px);
-    }
-
-    /* Elevated Context Warning Banner (Quiet Dignity, Non-Alarmist) */
-    .tainted-banner {
-      background: #FFFBF4;
-      border: 1px solid var(--apple-amber-bd);
-      border-left: 3px solid var(--apple-amber);
-      border-radius: var(--radius-card);
-      padding: 12px 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      box-shadow: var(--shadow-sm);
-      animation: appleSlideDown 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    @keyframes appleSlideDown {
-      from { opacity: 0; transform: translateY(-4px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    .tainted-header {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-    }
-    .tainted-icon {
-      color: var(--apple-amber);
-      flex-shrink: 0;
-      margin-top: 1px;
-    }
-    .tainted-content {
-      flex: 1;
-    }
-    .tainted-title {
-      font-size: 12px;
-      font-weight: 600;
-      color: #92400E;
-    }
-    .tainted-desc {
-      font-size: 11px;
-      color: #B45309;
-      margin-top: 2px;
-      line-height: 1.4;
-    }
-    .btn-reset-tainted {
-      background: #FFFFFF;
-      border: 1px solid var(--apple-amber-bd);
-      color: #92400E;
-      font-size: 11.5px;
-      font-weight: 600;
-      padding: 6px 12px;
-      border-radius: var(--radius-btn);
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      transition: all 0.15s ease;
-      width: 100%;
-    }
-    .btn-reset-tainted:hover {
-      background: #FFF8EE;
-      border-color: var(--apple-amber);
-    }
-
-    /* iOS Inset Group Style Defense List */
-    .modules-list {
-      display: flex;
-      flex-direction: column;
-      background: var(--apple-canvas);
-      border-radius: 10px;
-      overflow: hidden;
-      border: 1px solid var(--apple-border-subtle);
-    }
-    .module-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 9px 12px;
-      background: var(--apple-surface);
-      border-bottom: 1px solid var(--apple-divider);
-      transition: background 0.12s ease;
-    }
-    .module-item:last-child {
-      border-bottom: none;
-    }
-    .module-item:hover {
-      background: rgba(0, 0, 0, 0.015);
-    }
-    .module-lead {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      min-width: 0;
-    }
-    .module-icon {
-      width: 26px;
-      height: 26px;
-      border-radius: 7px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    .module-icon.blue  { background: var(--apple-blue-bg);  color: var(--apple-blue); }
-    .module-icon.green { background: var(--apple-green-bg); color: var(--apple-green); }
-    .module-icon.amber { background: var(--apple-amber-bg); color: var(--apple-amber); }
-    .module-icon.red   { background: var(--apple-red-bg);   color: var(--apple-red); }
-
-    .module-texts {
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-    }
-    .module-title {
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--apple-text);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .module-desc {
-      font-size: 10.5px;
-      color: var(--apple-text-secondary);
-      margin-top: 1px;
-    }
-    .module-pill {
-      font-size: 10.5px;
-      font-weight: 600;
-      padding: 3px 8px;
-      border-radius: var(--radius-pill);
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-    .module-pill.green { background: var(--apple-green-bg); color: #248A3D; border: 1px solid var(--apple-green-bd); }
-    .module-pill.blue  { background: var(--apple-blue-bg);  color: var(--apple-blue);  border: 1px solid var(--apple-blue-bd); }
-    .module-pill.amber { background: var(--apple-amber-bg); color: #B25900; border: 1px solid var(--apple-amber-bd); }
-
-    /* Apple Buttons */
-    .btn-row {
-      display: flex;
-      gap: 8px;
-    }
-    .btn-primary {
-      background: var(--apple-blue);
-      color: #FFFFFF;
-      border: none;
-      border-radius: var(--radius-btn);
-      padding: 8px 14px;
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: all 0.15s ease;
-      letter-spacing: -0.01em;
-    }
-    .btn-primary:hover { background: var(--apple-blue-hover); }
-    .btn-primary:active { transform: scale(0.98); background: var(--apple-blue-active); }
-
-    .btn-secondary {
-      background: rgba(0, 0, 0, 0.04);
-      border: 1px solid var(--apple-border);
-      border-radius: var(--radius-btn);
-      padding: 7px 12px;
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--apple-text);
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: all 0.15s ease;
-    }
-    .btn-secondary:hover {
-      background: rgba(0, 0, 0, 0.07);
-      border-color: rgba(0, 0, 0, 0.14);
-    }
-    .btn-secondary:active { transform: scale(0.98); }
-
-    .btn-danger {
-      background: var(--apple-red-bg);
-      color: var(--apple-red);
-      border: 1px solid var(--apple-red-bd);
-      border-radius: var(--radius-btn);
-      padding: 7px 12px;
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: all 0.15s ease;
-    }
-    .btn-danger:hover { background: rgba(255, 59, 48, 0.14); }
-    .btn-danger:active { transform: scale(0.98); }
-
-    /* Apple Form Inputs */
-    .form-group {
-      margin-bottom: 10px;
-    }
-    .form-label {
-      display: block;
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--apple-text-secondary);
-      margin-bottom: 4px;
-    }
-    .input-field {
-      width: 100%;
-      height: 34px;
-      background: var(--apple-surface);
-      border: 1px solid var(--apple-border);
-      border-radius: var(--radius-input);
-      padding: 0 10px;
-      font-size: 12.5px;
-      color: var(--apple-text);
-      outline: none;
-      transition: border-color 0.15s ease, box-shadow 0.15s ease;
-    }
-    .input-field:focus {
-      border-color: var(--apple-blue);
-      box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.15);
-    }
-    .input-hint {
-      font-size: 10.5px;
-      color: var(--apple-text-muted);
-      margin-top: 4px;
-      line-height: 1.35;
-    }
-
-    /* Vault Categories List (Apple Inset Group) */
-    .vault-categories-list {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      max-height: 410px;
-      overflow-y: auto;
-      padding-right: 2px;
-    }
-    .vault-cat-card {
-      background: var(--apple-surface);
-      border: 1px solid var(--apple-border);
-      border-radius: var(--radius-card);
-      padding: 10px 14px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      cursor: pointer;
-      transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
-      box-shadow: var(--shadow-sm);
-    }
-    .vault-cat-card:hover {
-      border-color: var(--apple-blue-bd);
-      background: #FAFBFC;
-      transform: translateY(-1px);
-      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
-    }
-    .vault-cat-lead {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      min-width: 0;
-    }
-    .vault-cat-icon {
-      width: 28px;
-      height: 28px;
-      border-radius: 8px;
-      background: var(--apple-canvas);
-      border: 1px solid var(--apple-border-subtle);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      color: var(--apple-text-secondary);
-    }
-    .vault-cat-title {
-      font-size: 12.5px;
-      font-weight: 600;
-      color: var(--apple-text);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .vault-cat-val {
-      font-size: 10.5px;
-      color: var(--apple-text-muted);
-      margin-top: 1px;
-    }
-    .vault-cat-val.filled {
-      color: #248A3D;
-      font-weight: 500;
-    }
-    .vault-cat-val.disabled {
-      color: #B25900;
-      font-weight: 500;
-    }
-    .vault-cat-end {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-shrink: 0;
-    }
-    .tier-badge {
-      font-size: 9.5px;
-      font-weight: 600;
-      padding: 2px 6px;
-      border-radius: 4px;
-      letter-spacing: 0.02em;
-    }
-    .tier-badge.a { background: var(--apple-red-bg); color: var(--apple-red); border: 1px solid var(--apple-red-bd); }
-    .tier-badge.b { background: var(--apple-blue-bg); color: var(--apple-blue); border: 1px solid var(--apple-blue-bd); }
-
-    /* Vault Detail Editor */
-    .vault-editor {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      animation: appleFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    @keyframes appleFadeIn {
-      from { opacity: 0; transform: translateY(3px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    .editor-topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      padding-bottom: 6px;
-      border-bottom: 1px solid var(--apple-border-subtle);
-    }
-    .btn-back {
-      background: transparent;
-      border: none;
-      color: var(--apple-blue);
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      padding: 4px 6px;
-      border-radius: 6px;
-      transition: background 0.12s;
-    }
-    .btn-back:hover {
-      background: var(--apple-blue-bg);
-    }
-    .input-with-action {
-      display: flex;
-      gap: 6px;
-      position: relative;
-    }
-    .input-action-btn {
-      position: absolute;
-      right: 8px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: transparent;
-      border: none;
-      color: var(--apple-text-secondary);
-      cursor: pointer;
-      padding: 4px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 4px;
-      transition: color 0.12s;
-    }
-    .input-action-btn:hover {
-      color: var(--apple-text);
-    }
-    .help-box {
-      background: rgba(0, 113, 227, 0.04);
-      border: 1px solid var(--apple-blue-bd);
-      border-radius: var(--radius-card);
-      padding: 10px 12px;
-      font-size: 11px;
-      color: var(--apple-text-secondary);
-      line-height: 1.45;
-    }
-    .help-box strong { color: var(--apple-text); }
-
-    /* Whitelist List */
-    .scroll-list {
-      max-height: 160px;
-      overflow-y: auto;
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-    }
-    .list-entry {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 8px 12px;
-      background: var(--apple-canvas);
-      border: 1px solid var(--apple-border-subtle);
-      border-radius: 8px;
-      font-size: 12px;
-      color: var(--apple-text);
-      transition: background 0.12s;
-    }
-    .list-entry:hover {
-      background: #EEEEF2;
-    }
-    .btn-remove {
-      background: transparent;
-      border: none;
-      color: var(--apple-text-muted);
-      cursor: pointer;
-      padding: 3px;
-      border-radius: 4px;
-      display: flex;
-      transition: color 0.15s;
-    }
-    .btn-remove:hover { color: var(--apple-red); }
-
-    /* Toast (Apple Capsule Notification) */
-    .toast {
-      position: fixed;
-      bottom: 16px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(29, 29, 31, 0.94);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      color: #FFFFFF;
-      font-size: 12px;
-      font-weight: 500;
-      padding: 8px 16px;
-      border-radius: var(--radius-pill);
-      display: none;
-      white-space: nowrap;
-      box-shadow: var(--shadow-elevated);
-      animation: appleToastIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-      z-index: 1000;
-    }
-    @keyframes appleToastIn {
-      from { opacity: 0; transform: translate(-50%, 8px); }
-      to   { opacity: 1; transform: translate(-50%, 0); }
-    }
-  </style>
+  <link rel="stylesheet" href="./style.css">
 </head>
 <body>
   <!-- Apple Frosted Glass Header -->
@@ -831,7 +12,8 @@
     <div class="brand-group">
       <div class="brand-icon">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          <path d="m9 12 2 2 4-4"/>
         </svg>
       </div>
       <div>
@@ -879,7 +61,7 @@
             <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
           </svg>
         </div>
-        <div style="min-width:0;">
+        <div class="site-text-col">
           <div class="site-domain-text" id="currentSiteDomain">Визначення домену...</div>
           <div class="site-status-text green" id="currentSiteStatus">
             <span>Захист увімкнено для цього сайту</span>
@@ -893,7 +75,7 @@
     </div>
 
     <!-- Tainted Context Warning Banner (Appears ONLY during elevated alert) -->
-    <div class="tainted-banner" id="taintedBanner" style="display:none;">
+    <div class="tainted-banner hidden" id="taintedBanner">
       <div class="tainted-header">
         <div class="tainted-icon">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
@@ -943,7 +125,7 @@
           <span class="module-pill green">Активно</span>
         </div>
 
-        <div class="module-item" id="moduleVaultItem" style="cursor:pointer;" title="Натисніть для переходу до Сховища">
+        <div class="module-item clickable" id="moduleVaultItem" title="Натисніть для переходу до Сховища">
           <div class="module-lead">
             <div class="module-icon blue"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
             <div class="module-texts">
@@ -969,60 +151,60 @@
   </main>
 
   <!-- TAB 2: PERSONAL VAULT (DIGITAL SANCTUARY) -->
-  <section class="tab-content" id="tabContentVault" style="display:none;">
+  <section class="tab-content hidden" id="tabContentVault">
     <!-- Setup state -->
-    <div id="vaultSetupState" style="display:none;" class="card">
-      <div style="margin:0 auto 12px; width:44px; height:44px; border-radius:12px; background:var(--apple-blue-bg); color:var(--apple-blue); border:1px solid var(--apple-blue-bd); display:flex; align-items:center; justify-content:center;">
+    <div id="vaultSetupState" class="card hidden">
+      <div class="vault-hero-icon blue">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
       </div>
-      <h3 style="text-align:center; margin-bottom: 4px; font-size:14px; font-weight:700; color:var(--apple-text);">Створіть свій Vault</h3>
-      <p style="text-align:center; color:var(--apple-text-secondary); margin-bottom:14px; font-size:11.5px; line-height:1.45;">Особистий простір цифрової гідності. Дані шифруються локально ключем AES-GCM 256 та ніколи не залишають ваш пристрій.</p>
+      <h3 class="vault-state-title">Створіть свій Vault</h3>
+      <p class="vault-state-desc">Особистий простір цифрової гідності. Дані шифруються локально ключем AES-GCM 256 та ніколи не залишають ваш пристрій.</p>
       <div class="form-group">
         <input type="password" id="vaultSetupPassword" class="input-field" placeholder="Придумайте надійний майстер-пароль">
       </div>
       <div class="form-group">
         <input type="password" id="vaultSetupConfirm" class="input-field" placeholder="Підтвердіть пароль">
       </div>
-      <button type="button" class="btn-primary" id="btnSetupVault" style="width:100%; justify-content:center; margin-top:6px;">Створити сховище</button>
+      <button type="button" class="btn-primary btn-full" id="btnSetupVault">Створити сховище</button>
     </div>
 
     <!-- Locked state -->
-    <div id="vaultLockedState" style="display:none;" class="card">
-      <div style="margin:0 auto 12px; width:44px; height:44px; border-radius:12px; background:var(--apple-amber-bg); color:var(--apple-amber); border:1px solid var(--apple-amber-bd); display:flex; align-items:center; justify-content:center;">
+    <div id="vaultLockedState" class="card hidden">
+      <div class="vault-hero-icon amber">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
       </div>
-      <h3 style="text-align:center; margin-bottom: 4px; font-size:14px; font-weight:700; color:var(--apple-text);">Сховище заблоковано</h3>
-      <p style="text-align:center; color:var(--apple-text-secondary); margin-bottom:14px; font-size:11.5px; line-height:1.45;">Введіть пароль для доступу до маркерів та активного DLP-скринінгу реквізитів.</p>
+      <h3 class="vault-state-title">Сховище заблоковано</h3>
+      <p class="vault-state-desc">Введіть пароль для доступу до маркерів та активного DLP-скринінгу реквізитів.</p>
       <div class="form-group">
         <input type="password" id="vaultUnlockPassword" class="input-field" placeholder="Ваш майстер-пароль">
       </div>
-      <button type="button" class="btn-primary" id="btnUnlockVault" style="width:100%; justify-content:center; margin-top:6px;">Розблокувати</button>
+      <button type="button" class="btn-primary btn-full" id="btnUnlockVault">Розблокувати</button>
     </div>
 
     <!-- Unlocked state -->
-    <div id="vaultUnlockedState" style="display:none; flex-direction:column; gap:10px;">
+    <div id="vaultUnlockedState" class="vault-unlocked-container hidden">
       <!-- Master View: List of categories -->
       <div id="vaultMasterView">
-        <div class="card-header" style="margin-bottom:8px;">
+        <div class="card-header">
           <div class="card-title">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
             Об'єкти захисту DLP
           </div>
-          <span style="font-size:11px; color:var(--apple-text-secondary); font-weight:500;" id="vaultActiveCountLabel">0 активних</span>
+          <span class="vault-count-badge" id="vaultActiveCountLabel">0 активних</span>
         </div>
         <div class="vault-categories-list" id="vaultCategoriesContainer">
-          <!-- Populated dynamically -->
+          <!-- Populated dynamically by vault-tab.controller.ts -->
         </div>
       </div>
 
       <!-- Detail View: Editor for single item -->
-      <div id="vaultDetailView" style="display:none;" class="vault-editor">
+      <div id="vaultDetailView" class="vault-editor hidden">
         <div class="editor-topbar">
           <button type="button" class="btn-back" id="btnBackToVaultList">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="15 18 9 12 15 6"/></svg>
             Усі маркери
           </button>
-          <div style="display:flex; align-items:center; gap:8px;">
+          <div class="vault-cat-end">
             <span class="tier-badge a" id="detailItemTierBadge">Tier A</span>
             <label class="fx-switch" title="Активувати/вимкнути захист цього маркера">
               <input type="checkbox" id="detailItemToggle" checked>
@@ -1032,7 +214,7 @@
         </div>
 
         <div class="card">
-          <h3 id="detailItemTitle" style="font-size:13.5px; font-weight:700; color:var(--apple-text); margin-bottom:12px;">Дівоче прізвище матері</h3>
+          <h3 id="detailItemTitle" class="editor-title">Дівоче прізвище матері</h3>
           
           <div class="form-group">
             <label class="form-label" for="detailRealInput">Справжнє конфіденційне значення</label>
@@ -1051,8 +233,8 @@
             <div class="input-hint">Підставляється автоматично замість справжніх даних.</div>
           </div>
 
-          <div class="btn-row" style="margin-top:12px;">
-            <button type="button" class="btn-primary" id="btnSaveDetailItem" style="flex:1; justify-content:center;">
+          <div class="btn-row">
+            <button type="button" class="btn-primary btn-full" id="btnSaveDetailItem">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><polyline points="20 6 9 17 4 12"/></svg>
               Зберегти зміни
             </button>
@@ -1066,14 +248,14 @@
       </div>
 
       <!-- Vault Global Footer -->
-      <div style="display:flex; justify-content:space-between; align-items:center; padding-top:6px;">
-        <button type="button" class="btn-secondary" id="btnResetVaultDefaults" style="font-size:11px; padding:5px 10px;">
+      <div class="vault-footer">
+        <button type="button" class="btn-secondary" id="btnResetVaultDefaults">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
           Скинути
         </button>
-        <div style="display:flex; align-items:center; gap:8px;">
-          <span style="font-size:10.5px; color:var(--apple-text-secondary); font-weight:500;">AES-GCM 256</span>
-          <button type="button" class="btn-secondary" id="btnLockVault" style="padding:5px 10px; font-size:11px;">
+        <div class="vault-cat-end">
+          <span class="vault-cipher-label">AES-GCM 256</span>
+          <button type="button" class="btn-secondary" id="btnLockVault">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
             Заблокувати
           </button>
@@ -1083,7 +265,7 @@
   </section>
 
   <!-- TAB 3: ОПЦІЇ ТА НАЛАШТУВАННЯ -->
-  <section class="tab-content" id="tabContentSettings" style="display:none;">
+  <section class="tab-content hidden" id="tabContentSettings">
     <!-- Whitelist Management -->
     <div class="card">
       <div class="card-header">
@@ -1092,15 +274,15 @@
           <span id="whitelistTitle">Довірені сайти (0)</span>
         </div>
       </div>
-      <div class="btn-row" style="margin-bottom:10px;">
+      <div class="btn-row" style="margin-bottom: 10px;">
         <input type="text" class="input-field" id="manualHostInput" placeholder="myshop.ua або bank.ua">
         <button type="button" class="btn-primary" id="btnAddManual">Додати</button>
       </div>
       <ul class="scroll-list" id="whitelistUl">
-        <li class="list-entry" style="justify-content:center; color:var(--apple-text-muted);">Немає доданих сайтів</li>
+        <li class="list-entry" style="justify-content: center; color: var(--sanctuary-ink-tertiary);">Немає доданих сайтів</li>
       </ul>
-      <div style="margin-top:10px;">
-        <button type="button" class="btn-danger" id="btnClearAllWhitelist" style="width:100%; justify-content:center; font-size:11.5px; padding:7px;">
+      <div style="margin-top: 10px;">
+        <button type="button" class="btn-danger btn-full" id="btnClearAllWhitelist">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
           Очистити всі довірені сайти
         </button>
@@ -1115,10 +297,10 @@
           Локальний ШІ
         </div>
       </div>
-      <p style="font-size:12px; color:var(--apple-text-secondary); line-height:1.45; margin-bottom:10px;">
+      <p style="font-size: 12px; color: var(--sanctuary-ink-secondary); line-height: 1.45; margin-bottom: 10px;">
         Статус Gemini Nano: <strong id="aiStatusText">Перевірка...</strong>
       </p>
-      <div style="font-size:11px; color:var(--apple-text-secondary); line-height:1.4; padding:8px 10px; background:var(--apple-canvas); border-radius:8px; border:1px solid var(--apple-border-subtle);">
+      <div class="privacy-callout">
         🔒 <strong>Повна приватність:</strong> Обробка намірів здійснюється виключно на вашому пристрої. Жоден символ чи пароль не залишає браузер.
       </div>
     </div>
@@ -1131,11 +313,11 @@
           Діагностика
         </div>
       </div>
-      <label style="display:flex; align-items:center; gap:10px; cursor:pointer;">
-        <input type="checkbox" id="toggleDebugMode" style="width:16px; height:16px; accent-color:var(--apple-blue); cursor:pointer;">
+      <label class="diagnostics-label">
+        <input type="checkbox" id="toggleDebugMode" class="diagnostics-checkbox">
         <div>
-          <div style="font-size:12px; font-weight:600; color:var(--apple-text);">Дебагер-оверлей (Швейцарський механізм)</div>
-          <div style="font-size:10.5px; color:var(--apple-text-secondary); margin-top:2px;">Показує термінал перевірки форм та ШІ в реальному часі на сторінці</div>
+          <div style="font-size: 12px; font-weight: 600; color: var(--sanctuary-ink-primary);">Дебагер-оверлей (Швейцарський механізм)</div>
+          <div style="font-size: 10.5px; color: var(--sanctuary-ink-secondary); margin-top: 2px;">Показує термінал перевірки форм та ШІ в реальному часі на сторінці</div>
         </div>
       </label>
     </div>
