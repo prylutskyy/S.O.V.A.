@@ -91,7 +91,7 @@ export class DebuggerOverlay {
   private static offsetX = 0;
   private static offsetY = 0;
 
-  // Утиліта для очищення емодзі
+  // Очищення емодзі для чистоти інженерного виводу
   private static stripEmoji(text: string): string {
     if (!text) return '';
     return text
@@ -112,6 +112,7 @@ export class DebuggerOverlay {
 
     this.container = document.createElement('div');
     this.container.id = 'threatshield-neuro-monitor';
+    this.container.className = 'sanctuary-core-root';
     this.applyContainerGeometry();
 
     this.shadowRoot = this.container.attachShadow({ mode: 'open' });
@@ -142,16 +143,18 @@ export class DebuggerOverlay {
         position: 'fixed',
         top: '20px',
         right: '20px',
-        width: '460px',
-        height: '620px',
-        minWidth: '380px',
-        minHeight: '480px',
+        width: '480px',
+        height: '640px',
+        minWidth: '400px',
+        minHeight: '520px',
         maxWidth: '92vw',
         maxHeight: '92vh',
         zIndex: '2147483647',
         display: 'block',
         resize: 'both',
         overflow: 'hidden',
+        borderRadius: '20px',
+        boxShadow: '0 24px 64px -12px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.12)',
       });
     }
   }
@@ -229,7 +232,7 @@ export class DebuggerOverlay {
     }
 
     const time = new Date().toLocaleTimeString();
-    const color = customColor || '#008A52';
+    const color = customColor || '#30D158'; // Apple Emerald default
 
     const isStepAi =
       cleanStepKey.toLowerCase().includes('ai') ||
@@ -287,7 +290,7 @@ export class DebuggerOverlay {
     const cleanData = typeof data === 'string' ? this.stripEmoji(data) : data;
 
     const time = new Date().toLocaleTimeString();
-    const color = customColor || '#0060DF';
+    const color = customColor || '#0A84FF'; // Apple Sapphire default
     const isPending =
       typeof cleanData === 'string' &&
       (cleanData.includes('очікую') || cleanData.includes('Аналізую') || cleanData.includes('відправлено'));
@@ -406,10 +409,10 @@ export class DebuggerOverlay {
     if (isHeuristicRisk && isAiDisproved) {
       return {
         status: 'FP_CANDIDATE',
-        badgeIcon: ICONS.alertTriangle(12, '#D76E00'),
+        badgeIcon: ICONS.alertTriangle(12, '#FF9F0A'),
         badgeText: 'РОЗБІЖНІСТЬ: ЙМОВІРНИЙ FALSE POSITIVE',
-        badgeClass: 'badge-amber',
-        explanation: `Евристичні тригери нарахували ${score}/100 балів, але локальний ШІ-Арбітр спростував шахрайство (Впевненість: ${lastAiVerdict?.confidence}%). Можливе хибне блокування на легітимному сервісі.`,
+        badgeClass: 'sc-badge-amber',
+        explanation: `Евристичні тригери нарахували ${score}/100 балів, але локальний ШІ-Арбітр Gemini Nano спростував шахрайство (Впевненість: ${lastAiVerdict?.confidence}%). Можливе хибне блокування на легітимному сервісі.`,
         recommendation:
           'Рекомендується перевірити акредитацію цільового платіжного домену або додати сайт до списку довірених.',
         heuristicVerdict: `Ризик ${score}/100 (${severity})`,
@@ -419,9 +422,9 @@ export class DebuggerOverlay {
     } else if (isHeuristicRisk && isAiConfirmed) {
       return {
         status: 'CONFIRMED_THREAT',
-        badgeIcon: ICONS.alertCircle(12, '#D70022'),
+        badgeIcon: ICONS.alertCircle(12, '#FF453A'),
         badgeText: 'ПІДТВЕРДЖЕНА ЗАГРОЗА (TRUE POSITIVE)',
-        badgeClass: 'badge-red',
+        badgeClass: 'sc-badge-red',
         explanation: `Консенсус досягнуто: евристичний конвеєр (${score} балів) та Gemini Nano (${lastAiVerdict?.confidence}%) одностайно класифікували взаємодію як шкідливу.`,
         recommendation: 'Захисне тертя та блокування відправки даних повністю виправдані.',
         heuristicVerdict: `Ризик ${score}/100 (${severity})`,
@@ -431,9 +434,9 @@ export class DebuggerOverlay {
     } else if (isHeuristicRisk && !lastAiVerdict) {
       return {
         status: 'HEURISTIC_ONLY',
-        badgeIcon: ICONS.zap(12, '#D76E00'),
+        badgeIcon: ICONS.zap(12, '#FF9F0A'),
         badgeText: 'ЕВРИСТИЧНЕ СПРАЦЮВАННЯ (ОЧІКУВАННЯ ШІ)',
-        badgeClass: 'badge-amber',
+        badgeClass: 'sc-badge-amber',
         explanation: `Спрацювали евристичні фільтри (${score} балів). ШІ-арбітраж ще не завершено або форма заблокована за жорстким правилом.`,
         recommendation: 'Зверніть увагу на перелік активних тригерів нижче.',
         heuristicVerdict: `Ризик ${score}/100 (${severity})`,
@@ -443,9 +446,9 @@ export class DebuggerOverlay {
     } else {
       return {
         status: 'CLEAN',
-        badgeIcon: ICONS.shieldCheck(12, '#008A52'),
+        badgeIcon: ICONS.shieldCheck(12, '#30D158'),
         badgeText: 'НОРМА: АНОМАЛІЙ НЕ ВИЯВЛЕНО',
-        badgeClass: 'badge-green',
+        badgeClass: 'sc-badge-green',
         explanation:
           'Форми та комунікації на цій сторінці відповідають стандартам безпеки. Ознак фішингу, прихованих полів або крадіжки реквізитів немає.',
         recommendation: 'Система працює у фоновому пасивному режимі.',
@@ -515,7 +518,7 @@ export class DebuggerOverlay {
     const { sessionId, severity, score, logs, activeTab, userMode, filterCategory, filterSearch } =
       this.state;
 
-    // Apple Calibrated Colors (Sanctuary Palette)
+    // Apple Calibrated Sanctuary Palette
     const riskColor =
       severity === 'CRITICAL' || severity === 'HIGH'
         ? '#FF453A'
@@ -533,6 +536,7 @@ export class DebuggerOverlay {
     const formCount = logs.filter((l) => l.isForm).length;
     const riskCount = logs.filter(
       (l) =>
+        l.color === '#FF453A' ||
         l.color === '#EF4444' ||
         l.color === '#D70022' ||
         l.color === '#FF4F5E' ||
@@ -548,6 +552,7 @@ export class DebuggerOverlay {
       if (
         filterCategory === 'RISK' &&
         !(
+          log.color === '#FF453A' ||
           log.color === '#EF4444' ||
           log.color === '#D70022' ||
           log.color === '#FF4F5E' ||
@@ -569,81 +574,81 @@ export class DebuggerOverlay {
     // Генерація HTML для Tab 1 (Огляд & XAI)
     const renderOverviewTab = () => {
       return `
-        <div class="fx-overview-layout">
-          <!-- Hero Card: Score & Status (Firefox Proton Style) -->
-          <div class="fx-card fx-hero-card">
-            <div class="fx-gauge-section">
-              <div class="gauge-container">
-                <svg class="gauge-svg" viewBox="0 0 90 90">
-                  <circle class="gauge-bg" cx="45" cy="45" r="36"></circle>
-                  <circle class="gauge-progress" cx="45" cy="45" r="36"></circle>
+        <div class="sc-overview-view">
+          <!-- Hero Card: Швейцарський хронометр ризику -->
+          <div class="sc-card sc-hero-gauge-card">
+            <div class="sc-gauge-section">
+              <div class="sc-gauge-container">
+                <svg class="sc-gauge-svg" viewBox="0 0 90 90">
+                  <circle class="sc-gauge-bg" cx="45" cy="45" r="36"></circle>
+                  <circle class="sc-gauge-progress" cx="45" cy="45" r="36"></circle>
                 </svg>
-                <div class="gauge-text">
-                  <span class="gauge-value">${score}</span>
-                  <span class="gauge-label">Ризик</span>
+                <div class="sc-gauge-text">
+                  <span class="sc-gauge-value">${score}</span>
+                  <span class="sc-gauge-label">Ризик</span>
                 </div>
               </div>
-              <div class="fx-session-details">
-                <div class="fx-session-id" title="${sessionId || 'Немає активної сесії'}">
+              <div class="sc-session-details">
+                <div class="sc-session-id" title="${sessionId || 'Немає активної сесії'}">
                   ${sessionId ? sessionId.substring(0, 24) + '...' : 'Пасивний монітор сторінки'}
                 </div>
-                <div class="fx-badge ${severity === 'HIGH' || severity === 'CRITICAL' ? 'badge-red' : severity === 'MEDIUM' ? 'badge-amber' : 'badge-green'}">
+                <div class="sc-badge ${severity === 'HIGH' || severity === 'CRITICAL' ? 'sc-badge-red' : severity === 'MEDIUM' ? 'sc-badge-amber' : 'sc-badge-green'}">
                   ${severity} РІВЕНЬ ЗАГРОЗИ
                 </div>
-                <div class="fx-subtext">Домен сторінки: <strong>${typeof window !== 'undefined' ? window.location.hostname || 'local' : 'n/a'}</strong></div>
+                <div class="sc-subtext">Цільовий вузол: <strong>${typeof window !== 'undefined' ? window.location.hostname || 'local' : 'n/a'}</strong></div>
               </div>
             </div>
           </div>
 
           <!-- False Positive & XAI Inspector Card (Apple Inset Grouped Telemetry) -->
-          <div class="fx-card fx-audit-box ${fpInfo.status === 'FP_CANDIDATE' ? 'alert-warning' : fpInfo.status === 'CONFIRMED_THREAT' ? 'alert-danger' : 'alert-success'}">
-            <div class="fx-audit-header">
-              <span class="fx-badge ${fpInfo.badgeClass}">
+          <div class="sc-card sc-matrix-card ${fpInfo.status === 'FP_CANDIDATE' ? 'sc-alert-warning' : fpInfo.status === 'CONFIRMED_THREAT' ? 'sc-alert-danger' : 'sc-alert-success'}">
+            <div class="sc-matrix-header">
+              <span class="sc-badge ${fpInfo.badgeClass}">
                 ${fpInfo.badgeIcon}
                 ${fpInfo.badgeText}
               </span>
-              <button type="button" class="fx-btn-text" id="btn-copy-fp-report" title="Скопіювати структуровані дані для баг-репорту або Vitest-тесту">
+              <button type="button" class="sc-btn-ghost" id="btn-copy-fp-report" title="Скопіювати структуровані дані для баг-репорту або Vitest-тесту">
                 ${ICONS.copy(11, '#0A84FF')}
                 <span>Копіювати звіт</span>
               </button>
             </div>
-            <p class="fx-audit-desc">${fpInfo.explanation}</p>
+            <p class="sc-matrix-desc">${fpInfo.explanation}</p>
 
-            <div class="fx-compare-grid">
-              <div class="fx-compare-col">
-                <span class="fx-col-title">Евристичний конвеєр</span>
-                <span class="fx-col-val">${fpInfo.heuristicVerdict}</span>
+            <div class="sc-compare-grid">
+              <div class="sc-compare-col">
+                <span class="sc-col-title">Евристичний конвеєр</span>
+                <span class="sc-col-val">${fpInfo.heuristicVerdict}</span>
               </div>
-              <div class="fx-compare-col">
-                <span class="fx-col-title">ШІ-Арбітр (Gemini Nano)</span>
-                <span class="fx-col-val">${fpInfo.aiVerdict}</span>
+              <div class="sc-compare-col">
+                <span class="sc-col-title">ШІ-Арбітр (Gemini Nano)</span>
+                <span class="sc-col-val">${fpInfo.aiVerdict}</span>
               </div>
             </div>
 
             ${
               userMode === 'dev'
                 ? `
-              <div class="fx-triggers-box">
-                <span class="fx-triggers-title">Спрацьовані фактори ризику:</span>
-                <ul class="fx-triggers-list">
-                  ${fpInfo.triggers.map((t) => `<li>${t}</li>`).join('')}
-                </ul>
+              <div class="sc-triggers-box">
+                <span class="sc-triggers-title">Спрацьовані фактори ризику:</span>
+                <div class="sc-triggers-list">
+                  ${fpInfo.triggers.map((t) => `<span class="sc-trigger-chip">${t}</span>`).join('')}
+                </div>
               </div>
             `
                 : `
-              <div class="fx-friendly-note">
+              <div class="sc-friendly-note">
                 ${ICONS.info(13, '#0A84FF')}
                 <span><strong>Рекомендація системи:</strong> ${fpInfo.recommendation}</span>
               </div>
             `
             }
 
-            <div class="fx-audit-actions">
-              <button type="button" class="fx-btn fx-btn-secondary" id="btn-quick-whitelist">
+            <div class="sc-audit-actions">
+              <button type="button" class="sc-btn sc-btn-secondary" id="btn-quick-whitelist">
                 ${ICONS.shieldCheck(13)}
                 <span>Додати домен до Довірених</span>
               </button>
-              <button type="button" class="fx-btn fx-btn-secondary" id="btn-quick-reset-session">
+              <button type="button" class="sc-btn sc-btn-secondary" id="btn-quick-reset-session">
                 ${ICONS.refresh(13)}
                 <span>Скинути стан тривоги</span>
               </button>
@@ -654,35 +659,35 @@ export class DebuggerOverlay {
           ${
             userMode === 'user'
               ? `
-            <div class="fx-card fx-info-callout">
-              <div class="fx-callout-title">
+            <div class="sc-card sc-info-callout">
+              <div class="sc-callout-title">
                 ${ICONS.shield(13, '#0A84FF')}
-                <span>Принципи захисту «Цифрового Святилища»</span>
+                <span>Принципи захисту «Sanctuary Core»</span>
               </div>
-              <div class="fx-callout-text">
-                Система функціонує за принципом нульового розголошення (Zero Knowledge): анатомічний аналізатор форм виявляє приховані поля-пастки (CSS Cloaking), контекстний модуль відстежує підозрілі ланцюги переходів, а локальний нейромодуль Gemini Nano (On-Device) здійснює семантичний арбітраж без передачі ваших даних на сторонні сервери.
+              <div class="sc-callout-text">
+                Система функціонує за принципом нульового розголошення (Zero Knowledge): анатомічний аналізатор форм виявляє приховані поля-пастки (CSS Cloaking), контекстний модуль відстежує ланцюги переходів, а локальний нейромодуль Gemini Nano (On-Device) здійснює семантичний арбітраж без передачі ваших даних на сторонні сервери.
               </div>
             </div>
           `
               : `
-            <div class="fx-card">
-              <div class="fx-card-title">Декомпозиція конвеєра рішень</div>
-              <div class="fx-waterfall">
-                <div class="fx-waterfall-step">
-                  <span>1. DOM & Form Scanners</span>
-                  <span class="fx-tag">${logs.some((l) => l.isForm) ? 'Активно' : 'Очікування'}</span>
+            <div class="sc-card">
+              <div class="sc-card-title">Декомпозиція конвеєра рішень (Pipeline Waterfall)</div>
+              <div class="sc-waterfall">
+                <div class="sc-waterfall-step">
+                  <span>1. DOM & Form Scanners (Traps)</span>
+                  <span class="sc-tag ${logs.some((l) => l.isForm) ? 'sc-tag-blue' : ''}">${logs.some((l) => l.isForm) ? 'Активно' : 'Очікування'}</span>
                 </div>
-                <div class="fx-waterfall-step">
-                  <span>2. NLP Intent & Chat Monitor</span>
-                  <span class="fx-tag">${logs.some((l) => l.stepKey.includes('Чат')) ? 'Активно' : 'Очікування'}</span>
+                <div class="sc-waterfall-step">
+                  <span>2. NLP Intent & Chat Dialogue Monitor</span>
+                  <span class="sc-tag ${logs.some((l) => l.stepKey.includes('Чат')) ? 'sc-tag-blue' : ''}">${logs.some((l) => l.stepKey.includes('Чат')) ? 'Активно' : 'Очікування'}</span>
                 </div>
-                <div class="fx-waterfall-step">
-                  <span>3. Local LLM Arbiter (MV3)</span>
-                  <span class="fx-tag ${logs.some((l) => l.isAi) ? 'fx-tag-blue' : ''}">${logs.some((l) => l.isAi) ? 'Оброблено' : 'В очікуванні'}</span>
+                <div class="sc-waterfall-step">
+                  <span>3. Local LLM Arbiter (Gemini Nano MV3)</span>
+                  <span class="sc-tag ${logs.some((l) => l.isAi) ? 'sc-tag-blue' : ''}">${logs.some((l) => l.isAi) ? 'Оброблено' : 'В очікуванні'}</span>
                 </div>
-                <div class="fx-waterfall-step">
+                <div class="sc-waterfall-step">
                   <span>4. Security Friction Engine</span>
-                  <span class="fx-tag ${score >= 50 ? 'fx-tag-red' : ''}">${score >= 50 ? 'Блокування' : 'Пропуск'}</span>
+                  <span class="sc-tag ${score >= 50 ? 'sc-tag-red' : 'sc-tag-green'}">${score >= 50 ? 'Блокування' : 'Пропуск'}</span>
                 </div>
               </div>
             </div>
@@ -699,7 +704,7 @@ export class DebuggerOverlay {
         const dataStr =
           typeof log.data === 'object' ? JSON.stringify(log.data, null, 2) : String(log.data);
 
-        let iconColor = log.color || '#0060DF';
+        let iconColor = log.color || '#0A84FF';
         let badgeType = 'LOG';
         if (log.isAi) badgeType = 'AI';
         else if (log.isForm) badgeType = 'FORM';
@@ -707,51 +712,51 @@ export class DebuggerOverlay {
         else if (log.stepKey.includes('DLP') || log.stepKey.includes('Vault')) badgeType = 'VAULT';
 
         logsHtml += `
-          <div class="fx-console-row" style="border-left-color: ${iconColor};">
-            <div class="fx-row-header">
-              <div class="fx-row-lead">
-                <span class="fx-badge-type">${badgeType}</span>
-                <span class="fx-row-key" style="color: ${iconColor}">${log.stepKey}</span>
+          <div class="sc-console-row" style="border-left-color: ${iconColor};">
+            <div class="sc-row-header">
+              <div class="sc-row-lead">
+                <span class="sc-badge-type">${badgeType}</span>
+                <span class="sc-row-key" style="color: ${iconColor}">${log.stepKey}</span>
               </div>
-              <div class="fx-row-trail">
-                <span class="fx-row-time">${log.time}</span>
-                <button type="button" class="fx-copy-btn" data-copy="${encodeURIComponent(dataStr)}" title="Скопіювати дані події">
+              <div class="sc-row-trail">
+                <span class="sc-row-time">${log.time}</span>
+                <button type="button" class="sc-copy-btn" data-copy="${encodeURIComponent(dataStr)}" title="Скопіювати дані події">
                   ${ICONS.copy(11)}
                 </button>
               </div>
             </div>
-            <pre class="fx-code-block">${dataStr}</pre>
+            <pre class="sc-code-block">${dataStr}</pre>
           </div>
         `;
       });
 
       if (filteredLogs.length === 0) {
         logsHtml = `
-          <div class="fx-empty-console">
-            ${ICONS.info(24, '#8F8F9D')}
+          <div class="sc-empty-console">
+            ${ICONS.info(24, 'rgba(255, 255, 255, 0.4)')}
             <span>Подій за обраними фільтрами не знайдено</span>
           </div>
         `;
       }
 
       return `
-        <div class="fx-events-wrapper">
-          <!-- Filter toolbar (Firefox Proton Style) -->
-          <div class="fx-filter-bar">
-            <div class="fx-search-box">
-              ${ICONS.search(12, '#8F8F9D')}
-              <input type="text" id="fx-input-search" class="fx-search-input" placeholder="Пошук у логах..." value="${filterSearch}">
-              ${filterSearch ? `<button type="button" id="btn-clear-search" class="fx-search-clear">${ICONS.close(10, '#8F8F9D')}</button>` : ''}
+        <div class="sc-events-view">
+          <!-- Filter toolbar: Обсидіановий фільтр-бар -->
+          <div class="sc-filter-bar">
+            <div class="sc-search-box">
+              ${ICONS.search(12, 'rgba(255, 255, 255, 0.4)')}
+              <input type="text" id="sc-input-search" class="sc-search-input" placeholder="Пошук у логах..." value="${filterSearch}">
+              ${filterSearch ? `<button type="button" id="btn-clear-search" class="sc-search-clear">${ICONS.close(10, 'rgba(255, 255, 255, 0.4)')}</button>` : ''}
             </div>
-            <div class="fx-filter-chips">
-              <button type="button" class="fx-chip ${filterCategory === 'ALL' ? 'active' : ''}" data-cat="ALL">Всі (${logs.length})</button>
-              <button type="button" class="fx-chip ${filterCategory === 'AI' ? 'active' : ''}" data-cat="AI">ШІ (${aiCount})</button>
-              <button type="button" class="fx-chip ${filterCategory === 'FORM' ? 'active' : ''}" data-cat="FORM">Форми (${formCount})</button>
-              <button type="button" class="fx-chip ${filterCategory === 'RISK' ? 'active' : ''}" data-cat="RISK">Ризики (${riskCount})</button>
+            <div class="sc-filter-chips">
+              <button type="button" class="sc-chip ${filterCategory === 'ALL' ? 'active' : ''}" data-cat="ALL">Всі (${logs.length})</button>
+              <button type="button" class="sc-chip ${filterCategory === 'AI' ? 'active' : ''}" data-cat="AI">ШІ (${aiCount})</button>
+              <button type="button" class="sc-chip ${filterCategory === 'FORM' ? 'active' : ''}" data-cat="FORM">Форми (${formCount})</button>
+              <button type="button" class="sc-chip ${filterCategory === 'RISK' ? 'active' : ''}" data-cat="RISK">Ризики (${riskCount})</button>
             </div>
           </div>
 
-          <div class="fx-logs-scroll" id="fx-logs-scroll">
+          <div class="sc-logs-scroll" id="sc-logs-scroll">
             ${logsHtml}
           </div>
         </div>
@@ -763,7 +768,7 @@ export class DebuggerOverlay {
       const aiLogs = logs.filter((l) => l.isAi);
       if (aiLogs.length === 0) {
         return `
-          <div class="fx-empty-console" style="padding: 40px 20px;">
+          <div class="sc-empty-console" style="padding: 40px 20px;">
             ${ICONS.cpu(32, '#0A84FF')}
             <div style="font-weight:600; color:#FFFFFF; margin-top:8px;">Запитів до Gemini Nano ще не було</div>
             <div style="color:rgba(255, 255, 255, 0.6); font-size:11px; margin-top:4px; max-width:320px; line-height:1.4;">
@@ -777,27 +782,27 @@ export class DebuggerOverlay {
       aiLogs.slice().reverse().forEach((log) => {
         const ctx = log.aiContext || {};
         aiDetailsHtml += `
-          <div class="fx-card fx-ai-session-card">
-            <div class="fx-ai-header">
-              <div class="fx-ai-title-row">
-                <span class="fx-badge badge-blue">GEMINI NANO ON-DEVICE</span>
-                <span class="fx-row-time">${log.time}</span>
+          <div class="sc-card sc-ai-session-card">
+            <div class="sc-ai-header">
+              <div class="sc-ai-title-row">
+                <span class="sc-badge sc-badge-blue">GEMINI NANO ON-DEVICE</span>
+                <span class="sc-row-time">${log.time}</span>
               </div>
-              <div class="fx-ai-verdict" style="color: ${log.color}">${log.data}</div>
+              <div class="sc-ai-verdict" style="color: ${log.color}">${log.data}</div>
             </div>
 
-            <div class="fx-ai-sections">
+            <div class="sc-ai-sections">
               ${
                 ctx.systemPrompt
                   ? `
-                <div class="fx-ai-block">
-                  <div class="fx-ai-block-header">
-                    <span class="fx-ai-block-title">${ICONS.cpu(11, '#0A84FF')} СИСТЕМНИЙ ПРОМПТ (РОЛЬ ЕКСПЕРТА)</span>
-                    <button type="button" class="fx-btn-text" data-copy="${encodeURIComponent(ctx.systemPrompt)}">
+                <div class="sc-ai-block">
+                  <div class="sc-ai-block-header">
+                    <span class="sc-ai-block-title">${ICONS.cpu(11, '#0A84FF')} СИСТЕМНИЙ ПРОМПТ (РОЛЬ ЕКСПЕРТА)</span>
+                    <button type="button" class="sc-btn-ghost" data-copy="${encodeURIComponent(ctx.systemPrompt)}">
                       ${ICONS.copy(10)} <span>Копіювати</span>
                     </button>
                   </div>
-                  <pre class="fx-code-block">${ctx.systemPrompt}</pre>
+                  <pre class="sc-code-block">${ctx.systemPrompt}</pre>
                 </div>
               `
                   : ''
@@ -806,14 +811,14 @@ export class DebuggerOverlay {
               ${
                 ctx.contextRules
                   ? `
-                <div class="fx-ai-block">
-                  <div class="fx-ai-block-header">
-                    <span class="fx-ai-block-title">${ICONS.list(11, '#0A84FF')} ПРАВИЛА ВЕРИФІКАЦІЇ (CONTEXT RULES)</span>
-                    <button type="button" class="fx-btn-text" data-copy="${encodeURIComponent(ctx.contextRules)}">
+                <div class="sc-ai-block">
+                  <div class="sc-ai-block-header">
+                    <span class="sc-ai-block-title">${ICONS.list(11, '#0A84FF')} ПРАВИЛА ВЕРИФІКАЦІЇ (CONTEXT RULES)</span>
+                    <button type="button" class="sc-btn-ghost" data-copy="${encodeURIComponent(ctx.contextRules)}">
                       ${ICONS.copy(10)} <span>Копіювати</span>
                     </button>
                   </div>
-                  <pre class="fx-code-block">${ctx.contextRules}</pre>
+                  <pre class="sc-code-block">${ctx.contextRules}</pre>
                 </div>
               `
                   : ''
@@ -822,14 +827,14 @@ export class DebuggerOverlay {
               ${
                 ctx.textSent
                   ? `
-                <div class="fx-ai-block">
-                  <div class="fx-ai-block-header">
-                    <span class="fx-ai-block-title">${ICONS.message(11, '#0A84FF')} ТЕКСТ / ПОСИЛАННЯ ДЛЯ СКАНУВАННЯ</span>
-                    <button type="button" class="fx-btn-text" data-copy="${encodeURIComponent(ctx.textSent)}">
+                <div class="sc-ai-block">
+                  <div class="sc-ai-block-header">
+                    <span class="sc-ai-block-title">${ICONS.message(11, '#0A84FF')} ТЕКСТ / ПОСИЛАННЯ ДЛЯ СКАНУВАННЯ</span>
+                    <button type="button" class="sc-btn-ghost" data-copy="${encodeURIComponent(ctx.textSent)}">
                       ${ICONS.copy(10)} <span>Копіювати</span>
                     </button>
                   </div>
-                  <pre class="fx-code-block">${ctx.textSent}</pre>
+                  <pre class="sc-code-block">${ctx.textSent}</pre>
                 </div>
               `
                   : ''
@@ -838,14 +843,14 @@ export class DebuggerOverlay {
               ${
                 ctx.chatDialogue
                   ? `
-                <div class="fx-ai-block">
-                  <div class="fx-ai-block-header">
-                    <span class="fx-ai-block-title">${ICONS.message(11, '#0A84FF')} ІСТОРІЯ ЧАТУ (P2P ДІАЛОГ)</span>
-                    <button type="button" class="fx-btn-text" data-copy="${encodeURIComponent(ctx.chatDialogue)}">
+                <div class="sc-ai-block">
+                  <div class="sc-ai-block-header">
+                    <span class="sc-ai-block-title">${ICONS.message(11, '#0A84FF')} ІСТОРІЯ ЧАТУ (P2P ДІАЛОГ)</span>
+                    <button type="button" class="sc-btn-ghost" data-copy="${encodeURIComponent(ctx.chatDialogue)}">
                       ${ICONS.copy(10)} <span>Копіювати</span>
                     </button>
                   </div>
-                  <pre class="fx-code-block">${ctx.chatDialogue}</pre>
+                  <pre class="sc-code-block">${ctx.chatDialogue}</pre>
                 </div>
               `
                   : ''
@@ -854,14 +859,14 @@ export class DebuggerOverlay {
               ${
                 ctx.rawResponse
                   ? `
-                <div class="fx-ai-block raw-block">
-                  <div class="fx-ai-block-header">
-                    <span class="fx-ai-block-title" style="color:#0A84FF;">${ICONS.terminal(11, '#0A84FF')} СИРА ВІДПОВІДЬ LLM (RAW JSON RESPONSE)</span>
-                    <button type="button" class="fx-btn-text" data-copy="${encodeURIComponent(ctx.rawResponse)}">
+                <div class="sc-ai-block raw-block">
+                  <div class="sc-ai-block-header">
+                    <span class="sc-ai-block-title" style="color:#0A84FF;">${ICONS.terminal(11, '#0A84FF')} СИРА ВІДПОВІДЬ LLM (RAW JSON RESPONSE)</span>
+                    <button type="button" class="sc-btn-ghost" data-copy="${encodeURIComponent(ctx.rawResponse)}">
                       ${ICONS.copy(10)} <span>Копіювати</span>
                     </button>
                   </div>
-                  <pre class="fx-code-block raw-code">${ctx.rawResponse}</pre>
+                  <pre class="sc-code-block raw-code">${ctx.rawResponse}</pre>
                 </div>
               `
                   : ''
@@ -871,7 +876,7 @@ export class DebuggerOverlay {
         `;
       });
 
-      return `<div class="fx-ai-tab-scroll">${aiDetailsHtml}</div>`;
+      return `<div class="sc-ai-tab-scroll">${aiDetailsHtml}</div>`;
     };
 
     let tabBody = '';
@@ -896,15 +901,15 @@ export class DebuggerOverlay {
         }
 
         /* 1. Monolithic Window Container: Translucent Obsidian Glass */
-        .fx-window {
+        .sc-window {
           width: 100%;
           height: 100%;
-          background: rgba(18, 18, 22, 0.94);
-          backdrop-filter: blur(28px) saturate(190%);
-          -webkit-backdrop-filter: blur(28px) saturate(190%);
+          background: rgba(16, 16, 20, 0.94);
+          backdrop-filter: blur(32px) saturate(190%);
+          -webkit-backdrop-filter: blur(32px) saturate(190%);
           border: 1px solid rgba(255, 255, 255, 0.12);
-          border-radius: 18px;
-          box-shadow: 0 24px 72px -12px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.08);
+          border-radius: 20px;
+          box-shadow: 0 24px 64px -12px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.06);
           display: flex;
           flex-direction: column;
           overflow: hidden;
@@ -912,125 +917,128 @@ export class DebuggerOverlay {
           color: #FFFFFF;
         }
 
-        /* 2. macOS-Style Header / Precision Titlebar */
-        .fx-titlebar {
-          background: rgba(28, 28, 34, 0.75);
-          padding: 10px 14px;
+        /* 2. Precision Titlebar */
+        .sc-titlebar {
+          background: rgba(24, 24, 30, 0.8);
+          padding: 12px 18px;
           border-bottom: 1px solid rgba(255, 255, 255, 0.08);
           display: flex;
           justify-content: space-between;
           align-items: center;
-          cursor: move;
+          cursor: grab;
           user-select: none;
         }
-        .fx-title-group {
+        .sc-titlebar:active {
+          cursor: grabbing;
+        }
+        .sc-brand-group {
           display: flex;
           align-items: center;
           gap: 10px;
         }
-        .fx-brand-icon {
-          width: 24px;
-          height: 24px;
-          border-radius: 7px;
+        .sc-brand-icon {
+          width: 26px;
+          height: 26px;
+          border-radius: 8px;
           background: linear-gradient(135deg, #0A84FF 0%, #5E5CE6 100%);
           display: flex;
           align-items: center;
           justify-content: center;
           color: #FFFFFF;
-          box-shadow: 0 0 12px rgba(10, 132, 255, 0.35);
+          box-shadow: 0 0 14px rgba(10, 132, 255, 0.4);
         }
-        .fx-title-meta {
+        .sc-brand-meta {
           display: flex;
           align-items: center;
           gap: 8px;
         }
-        .fx-app-name {
-          font-size: 13px;
+        .sc-brand-name {
+          font-size: 13.5px;
           font-weight: 700;
           color: #FFFFFF;
           letter-spacing: -0.015em;
         }
-        .fx-badge-edition {
-          font-size: 9px;
+        .sc-brand-badge {
+          font-size: 9.5px;
           font-weight: 700;
           background: rgba(255, 255, 255, 0.08);
           border: 1px solid rgba(255, 255, 255, 0.12);
-          color: rgba(255, 255, 255, 0.7);
-          padding: 2px 6px;
-          border-radius: 4px;
+          color: rgba(255, 255, 255, 0.75);
+          padding: 2px 7px;
+          border-radius: 5px;
           text-transform: uppercase;
           letter-spacing: 0.04em;
         }
 
         /* Window Controls */
-        .fx-win-controls {
+        .sc-win-controls {
           display: flex;
           align-items: center;
           gap: 5px;
         }
-        .fx-segmented-mode {
+        .sc-segmented-mode {
           display: flex;
           background: rgba(255, 255, 255, 0.06);
           border: 1px solid rgba(255, 255, 255, 0.08);
-          border-radius: 8px;
+          border-radius: 9999px;
           padding: 2px;
           margin-right: 6px;
         }
-        .fx-mode-btn {
+        .sc-mode-btn {
           background: transparent;
           border: none;
           color: rgba(255, 255, 255, 0.6);
           font-size: 10.5px;
           font-weight: 600;
-          padding: 3px 8px;
-          border-radius: 6px;
+          padding: 4px 10px;
+          border-radius: 9999px;
           cursor: pointer;
           display: inline-flex;
           align-items: center;
           gap: 4px;
-          transition: all 0.15s ease;
+          transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .fx-mode-btn.active {
+        .sc-mode-btn.active {
           background: rgba(255, 255, 255, 0.18);
           color: #FFFFFF;
           box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
         }
-        .fx-tool-icon-btn {
+        .sc-tool-btn {
+          width: 28px;
+          height: 28px;
           background: rgba(255, 255, 255, 0.05);
           border: 1px solid rgba(255, 255, 255, 0.08);
           color: rgba(255, 255, 255, 0.75);
           cursor: pointer;
-          padding: 5px 7px;
           border-radius: 7px;
-          font-size: 11px;
           display: inline-flex;
           align-items: center;
           justify-content: center;
           transition: all 0.14s ease;
         }
-        .fx-tool-icon-btn:hover {
+        .sc-tool-btn:hover {
           background: rgba(255, 255, 255, 0.14);
           color: #FFFFFF;
           border-color: rgba(255, 255, 255, 0.2);
         }
-        .fx-tool-icon-btn.danger:hover {
+        .sc-tool-btn.sc-tool-btn-close:hover {
           background: rgba(255, 69, 58, 0.22);
           color: #FF453A;
           border-color: rgba(255, 69, 58, 0.4);
         }
 
         /* 3. Cupertino Navigation Bar */
-        .fx-navbar {
+        .sc-tab-bar {
           background: rgba(14, 14, 18, 0.85);
           border-bottom: 1px solid rgba(255, 255, 255, 0.07);
           display: flex;
-          padding: 6px 12px;
+          padding: 6px 14px 10px 14px;
           gap: 6px;
         }
-        .fx-tab-item {
+        .sc-tab-btn {
           flex: 1;
-          background: transparent;
-          border: 1px solid transparent;
+          background: rgba(0, 0, 0, 0.25);
+          border: 1px solid rgba(255, 255, 255, 0.05);
           color: rgba(255, 255, 255, 0.6);
           font-size: 11.5px;
           font-weight: 500;
@@ -1041,20 +1049,20 @@ export class DebuggerOverlay {
           align-items: center;
           justify-content: center;
           gap: 6px;
-          transition: all 0.15s ease;
+          transition: all 0.16s ease;
         }
-        .fx-tab-item:hover {
+        .sc-tab-btn:hover {
           color: #FFFFFF;
           background: rgba(255, 255, 255, 0.06);
         }
-        .fx-tab-item.active {
-          background: rgba(255, 255, 255, 0.12);
+        .sc-tab-btn.active {
+          background: rgba(255, 255, 255, 0.14);
           color: #FFFFFF;
           font-weight: 600;
-          border-color: rgba(255, 255, 255, 0.15);
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+          border-color: rgba(255, 255, 255, 0.18);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.28);
         }
-        .fx-tab-counter {
+        .sc-tab-badge {
           font-size: 9.5px;
           font-weight: 700;
           background: rgba(255, 255, 255, 0.1);
@@ -1062,13 +1070,13 @@ export class DebuggerOverlay {
           padding: 1px 6px;
           border-radius: 10px;
         }
-        .fx-tab-counter.warning {
-          background: rgba(255, 149, 0, 0.25);
+        .sc-tab-badge.warning {
+          background: rgba(255, 159, 10, 0.25);
           color: #FF9F0A;
         }
 
         /* 4. Viewport & Scrollbar */
-        .fx-viewport {
+        .sc-viewport {
           flex: 1;
           overflow-y: auto;
           background: transparent;
@@ -1091,84 +1099,84 @@ export class DebuggerOverlay {
         }
 
         /* 5. Cards & Gauges */
-        .fx-card {
-          background: rgba(28, 28, 34, 0.65);
+        .sc-card {
+          background: rgba(26, 26, 32, 0.7);
           border: 1px solid rgba(255, 255, 255, 0.08);
-          border-radius: 12px;
-          padding: 13px;
+          border-radius: 14px;
+          padding: 14px;
           margin-bottom: 10px;
           box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
         }
-        .fx-overview-layout {
-          padding: 12px;
+        .sc-overview-view {
+          padding: 14px;
           display: flex;
           flex-direction: column;
         }
-        .fx-hero-card {
+        .sc-hero-gauge-card {
           background: linear-gradient(135deg, rgba(28, 28, 36, 0.85) 0%, rgba(18, 18, 24, 0.95) 100%);
           border: 1px solid rgba(255, 255, 255, 0.1);
-          padding: 14px;
+          padding: 16px;
         }
-        .fx-gauge-section {
+        .sc-gauge-section {
           display: flex;
           align-items: center;
-          gap: 16px;
+          gap: 18px;
         }
-        .gauge-container {
+        .sc-gauge-container {
           position: relative;
-          width: 80px;
-          height: 80px;
+          width: 84px;
+          height: 84px;
           display: flex;
           align-items: center;
           justify-content: center;
           flex-shrink: 0;
         }
-        .gauge-svg {
+        .sc-gauge-svg {
           transform: rotate(-90deg);
-          width: 80px;
-          height: 80px;
+          width: 84px;
+          height: 84px;
           overflow: visible;
         }
-        .gauge-bg {
+        .sc-gauge-bg {
           fill: none;
           stroke: rgba(255, 255, 255, 0.08);
-          stroke-width: 7;
+          stroke-width: 7.5;
         }
-        .gauge-progress {
+        .sc-gauge-progress {
           fill: none;
           stroke: ${riskColor};
-          stroke-width: 7;
+          stroke-width: 7.5;
           stroke-linecap: round;
           stroke-dasharray: ${strokeDasharray};
           stroke-dashoffset: ${strokeDashoffset};
           transition: stroke-dashoffset 0.5s ease-out, stroke 0.5s ease;
-          filter: drop-shadow(0 0 6px ${riskColor});
+          filter: drop-shadow(0 0 8px ${riskColor});
         }
-        .gauge-text {
+        .sc-gauge-text {
           position: absolute;
           text-align: center;
           display: flex;
           flex-direction: column;
         }
-        .gauge-value {
-          font-size: 19px;
+        .sc-gauge-value {
+          font-size: 20px;
           font-weight: 700;
           color: #FFFFFF;
           line-height: 1;
           letter-spacing: -0.02em;
         }
-        .gauge-label {
+        .sc-gauge-label {
           font-size: 8.5px;
           color: rgba(255, 255, 255, 0.45);
           text-transform: uppercase;
-          letter-spacing: 0.05em;
-          margin-top: 2px;
+          letter-spacing: 0.06em;
+          margin-top: 3px;
         }
-        .fx-session-details {
+        .sc-session-details {
           flex: 1;
           min-width: 0;
         }
-        .fx-session-id {
+        .sc-session-id {
           font-family: var(--font-mono, monospace);
           font-size: 11px;
           font-weight: 600;
@@ -1176,19 +1184,19 @@ export class DebuggerOverlay {
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
-          margin-bottom: 5px;
+          margin-bottom: 6px;
         }
-        .fx-subtext {
+        .sc-subtext {
           font-size: 10.5px;
           color: rgba(255, 255, 255, 0.6);
-          margin-top: 5px;
+          margin-top: 6px;
         }
-        .fx-subtext strong {
+        .sc-subtext strong {
           color: #FFFFFF;
         }
 
         /* Badges */
-        .fx-badge {
+        .sc-badge {
           display: inline-flex;
           align-items: center;
           gap: 5px;
@@ -1199,89 +1207,89 @@ export class DebuggerOverlay {
           text-transform: uppercase;
           letter-spacing: 0.04em;
         }
-        .badge-red {
+        .sc-badge-red {
           background: rgba(255, 69, 58, 0.16);
           color: #FF453A;
           border: 1px solid rgba(255, 69, 58, 0.32);
         }
-        .badge-amber {
+        .sc-badge-amber {
           background: rgba(255, 159, 10, 0.16);
           color: #FF9F0A;
           border: 1px solid rgba(255, 159, 10, 0.32);
         }
-        .badge-green {
+        .sc-badge-green {
           background: rgba(48, 209, 88, 0.16);
           color: #30D158;
           border: 1px solid rgba(48, 209, 88, 0.32);
         }
-        .badge-blue {
+        .sc-badge-blue {
           background: rgba(10, 132, 255, 0.16);
           color: #0A84FF;
           border: 1px solid rgba(10, 132, 255, 0.32);
         }
 
         /* 6. False Positive & XAI Inspector */
-        .fx-audit-box {
+        .sc-matrix-card {
           border-left: 3px solid transparent;
         }
-        .fx-audit-box.alert-warning {
+        .sc-matrix-card.sc-alert-warning {
           border-left-color: #FF9F0A;
           background: linear-gradient(135deg, rgba(38, 30, 20, 0.75) 0%, rgba(22, 20, 18, 0.85) 100%);
           border-color: rgba(255, 159, 10, 0.25);
         }
-        .fx-audit-box.alert-danger {
+        .sc-matrix-card.sc-alert-danger {
           border-left-color: #FF453A;
           background: linear-gradient(135deg, rgba(42, 22, 24, 0.75) 0%, rgba(24, 18, 19, 0.85) 100%);
           border-color: rgba(255, 69, 58, 0.25);
         }
-        .fx-audit-box.alert-success {
+        .sc-matrix-card.sc-alert-success {
           border-left-color: #30D158;
           background: linear-gradient(135deg, rgba(20, 36, 26, 0.75) 0%, rgba(18, 24, 20, 0.85) 100%);
           border-color: rgba(48, 209, 88, 0.25);
         }
-        .fx-audit-header {
+        .sc-matrix-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
           margin-bottom: 8px;
         }
-        .fx-btn-text {
+        .sc-btn-ghost {
           background: transparent;
           border: none;
           color: #0A84FF;
           font-size: 10.5px;
           font-weight: 600;
           cursor: pointer;
-          padding: 2px 6px;
-          border-radius: 4px;
+          padding: 3px 7px;
+          border-radius: 5px;
           display: inline-flex;
           align-items: center;
           gap: 4px;
-          transition: all 0.12s;
+          transition: all 0.14s ease;
         }
-        .fx-btn-text:hover {
+        .sc-btn-ghost:hover {
           background: rgba(10, 132, 255, 0.14);
         }
-        .fx-audit-desc {
+        .sc-matrix-desc {
           font-size: 11.5px;
           color: rgba(255, 255, 255, 0.85);
           line-height: 1.5;
           margin-bottom: 10px;
         }
-        .fx-compare-grid {
+        .sc-compare-grid {
           display: grid;
           grid-template-columns: 1fr 1fr;
           gap: 8px;
           margin-bottom: 10px;
         }
-        .fx-compare-col {
+        .sc-compare-col {
           background: rgba(12, 12, 16, 0.65);
           border: 1px solid rgba(255, 255, 255, 0.07);
           border-radius: 8px;
           padding: 8px 10px;
         }
-        .fx-col-title {
-          display: block;
+        .sc-col-title {
+          display: block,
           font-size: 9px;
           text-transform: uppercase;
           color: rgba(255, 255, 255, 0.45);
@@ -1289,43 +1297,41 @@ export class DebuggerOverlay {
           letter-spacing: 0.03em;
           margin-bottom: 3px;
         }
-        .fx-col-val {
+        .sc-col-val {
           font-size: 12px;
           font-weight: 600;
           color: #FFFFFF;
         }
-        .fx-triggers-box {
+        .sc-triggers-box {
           background: rgba(12, 12, 16, 0.65);
           border: 1px solid rgba(255, 255, 255, 0.07);
           border-radius: 8px;
           padding: 9px 10px;
           margin-bottom: 10px;
         }
-        .fx-triggers-title {
+        .sc-triggers-title {
           font-size: 9.5px;
           font-weight: 700;
           color: rgba(255, 255, 255, 0.6);
           text-transform: uppercase;
           letter-spacing: 0.03em;
         }
-        .fx-triggers-list {
-          list-style: none;
-          padding: 0;
-          margin: 6px 0 0;
+        .sc-triggers-list {
           display: flex;
           flex-wrap: wrap;
-          gap: 5px;
+          gap: 6px;
+          margin-top: 6px;
         }
-        .fx-triggers-list li {
+        .sc-trigger-chip {
           background: rgba(255, 159, 10, 0.12);
           border: 1px solid rgba(255, 159, 10, 0.25);
           color: #FFB340;
           font-family: var(--font-mono, monospace);
           font-size: 10px;
-          padding: 2px 7px;
-          border-radius: 5px;
+          padding: 2px 8px;
+          border-radius: 6px;
         }
-        .fx-friendly-note {
+        .sc-friendly-note {
           background: rgba(10, 132, 255, 0.08);
           border: 1px solid rgba(10, 132, 255, 0.2);
           border-radius: 8px;
@@ -1338,14 +1344,14 @@ export class DebuggerOverlay {
           align-items: flex-start;
           gap: 6px;
         }
-        .fx-friendly-note strong {
+        .sc-friendly-note strong {
           color: #FFFFFF;
         }
-        .fx-audit-actions {
+        .sc-audit-actions {
           display: flex;
           gap: 8px;
         }
-        .fx-btn {
+        .sc-btn {
           flex: 1;
           background: #0A84FF;
           color: #FFFFFF;
@@ -1361,34 +1367,34 @@ export class DebuggerOverlay {
           gap: 6px;
           transition: all 0.15s ease;
         }
-        .fx-btn:hover {
+        .sc-btn:hover {
           background: #0077ED;
           box-shadow: 0 2px 8px rgba(10, 132, 255, 0.35);
         }
-        .fx-btn-secondary {
+        .sc-btn-secondary {
           background: rgba(255, 255, 255, 0.08);
           color: #FFFFFF;
           border: 1px solid rgba(255, 255, 255, 0.12);
         }
-        .fx-btn-secondary:hover {
+        .sc-btn-secondary:hover {
           background: rgba(255, 255, 255, 0.15);
           border-color: rgba(255, 255, 255, 0.22);
         }
 
         /* 7. Decomposition & Callouts */
-        .fx-card-title {
+        .sc-card-title {
           font-size: 11.5px;
           font-weight: 700;
           color: #FFFFFF;
           margin-bottom: 8px;
           letter-spacing: -0.01em;
         }
-        .fx-waterfall {
+        .sc-waterfall {
           display: flex;
           flex-direction: column;
           gap: 6px;
         }
-        .fx-waterfall-step {
+        .sc-waterfall-step {
           display: flex;
           justify-content: space-between;
           align-items: center;
@@ -1399,7 +1405,7 @@ export class DebuggerOverlay {
           font-size: 11px;
           color: rgba(255, 255, 255, 0.85);
         }
-        .fx-tag {
+        .sc-tag {
           font-size: 9px;
           font-weight: 700;
           padding: 2px 6px;
@@ -1407,20 +1413,24 @@ export class DebuggerOverlay {
           background: rgba(255, 255, 255, 0.08);
           color: rgba(255, 255, 255, 0.5);
         }
-        .fx-tag-blue {
+        .sc-tag-blue {
           background: rgba(10, 132, 255, 0.2);
           color: #0A84FF;
         }
-        .fx-tag-red {
+        .sc-tag-red {
           background: rgba(255, 69, 58, 0.2);
           color: #FF453A;
         }
-        .fx-info-callout {
+        .sc-tag-green {
+          background: rgba(48, 209, 88, 0.2);
+          color: #30D158;
+        }
+        .sc-info-callout {
           background: rgba(10, 132, 255, 0.08);
           border-left: 3px solid #0A84FF;
           border-color: rgba(10, 132, 255, 0.2);
         }
-        .fx-callout-title {
+        .sc-callout-title {
           font-weight: 700;
           font-size: 11.5px;
           color: #FFFFFF;
@@ -1429,20 +1439,20 @@ export class DebuggerOverlay {
           align-items: center;
           gap: 6px;
         }
-        .fx-callout-text {
+        .sc-callout-text {
           font-size: 11px;
           color: rgba(255, 255, 255, 0.75);
           line-height: 1.45;
         }
 
         /* 8. Forensic Event Console */
-        .fx-events-wrapper {
+        .sc-events-view {
           display: flex;
           flex-direction: column;
           flex: 1;
           min-height: 0;
         }
-        .fx-filter-bar {
+        .sc-filter-bar {
           background: rgba(20, 20, 26, 0.7);
           padding: 8px 12px;
           border-bottom: 1px solid rgba(255, 255, 255, 0.07);
@@ -1450,18 +1460,18 @@ export class DebuggerOverlay {
           flex-direction: column;
           gap: 6px;
         }
-        .fx-search-box {
+        .sc-search-box {
           position: relative;
           display: flex;
           align-items: center;
         }
-        .fx-search-box svg {
+        .sc-search-box svg {
           position: absolute;
           left: 9px;
           pointer-events: none;
           color: rgba(255, 255, 255, 0.4);
         }
-        .fx-search-input {
+        .sc-search-input {
           width: 100%;
           height: 28px;
           background: rgba(10, 10, 14, 0.8);
@@ -1473,10 +1483,10 @@ export class DebuggerOverlay {
           outline: none;
           transition: border-color 0.14s;
         }
-        .fx-search-input:focus {
+        .sc-search-input:focus {
           border-color: #0A84FF;
         }
-        .fx-search-clear {
+        .sc-search-clear {
           position: absolute;
           right: 6px;
           background: transparent;
@@ -1485,11 +1495,11 @@ export class DebuggerOverlay {
           cursor: pointer;
           padding: 2px 4px;
         }
-        .fx-filter-chips {
+        .sc-filter-chips {
           display: flex;
           gap: 5px;
         }
-        .fx-chip {
+        .sc-chip {
           background: rgba(255, 255, 255, 0.06);
           border: 1px solid rgba(255, 255, 255, 0.08);
           color: rgba(255, 255, 255, 0.65);
@@ -1500,16 +1510,16 @@ export class DebuggerOverlay {
           cursor: pointer;
           transition: all 0.12s;
         }
-        .fx-chip:hover {
+        .sc-chip:hover {
           background: rgba(255, 255, 255, 0.1);
           color: #FFFFFF;
         }
-        .fx-chip.active {
+        .sc-chip.active {
           background: rgba(10, 132, 255, 0.22);
           border-color: rgba(10, 132, 255, 0.4);
           color: #0A84FF;
         }
-        .fx-logs-scroll {
+        .sc-logs-scroll {
           flex: 1;
           overflow-y: auto;
           padding: 10px 12px;
@@ -1517,20 +1527,20 @@ export class DebuggerOverlay {
           flex-direction: column;
           gap: 7px;
         }
-        .fx-console-row {
+        .sc-console-row {
           background: rgba(24, 24, 30, 0.7);
           border: 1px solid rgba(255, 255, 255, 0.07);
           border-left-width: 3px;
           border-radius: 8px;
           padding: 7px 9px;
         }
-        .fx-row-header {
+        .sc-row-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
           margin-bottom: 4px;
         }
-        .fx-row-lead {
+        .sc-row-lead {
           display: flex;
           align-items: center;
           gap: 6px;
@@ -1538,7 +1548,7 @@ export class DebuggerOverlay {
           text-overflow: ellipsis;
           white-space: nowrap;
         }
-        .fx-badge-type {
+        .sc-badge-type {
           font-size: 8.5px;
           font-weight: 700;
           background: rgba(255, 255, 255, 0.09);
@@ -1548,21 +1558,21 @@ export class DebuggerOverlay {
           border-radius: 4px;
           letter-spacing: 0.03em;
         }
-        .fx-row-key {
+        .sc-row-key {
           font-size: 11px;
           font-weight: 600;
         }
-        .fx-row-trail {
+        .sc-row-trail {
           display: flex;
           align-items: center;
           gap: 6px;
         }
-        .fx-row-time {
+        .sc-row-time {
           font-family: var(--font-mono, monospace);
           font-size: 9.5px;
           color: rgba(255, 255, 255, 0.4);
         }
-        .fx-copy-btn {
+        .sc-copy-btn {
           background: transparent;
           border: none;
           color: rgba(255, 255, 255, 0.4);
@@ -1574,11 +1584,11 @@ export class DebuggerOverlay {
           align-items: center;
           transition: all 0.12s;
         }
-        .fx-copy-btn:hover {
+        .sc-copy-btn:hover {
           color: #FFFFFF;
           background: rgba(255, 255, 255, 0.1);
         }
-        .fx-code-block {
+        .sc-code-block {
           background: rgba(10, 10, 14, 0.85);
           border: 1px solid rgba(255, 255, 255, 0.06);
           border-radius: 6px;
@@ -1592,7 +1602,7 @@ export class DebuggerOverlay {
           max-height: 140px;
           overflow-y: auto;
         }
-        .fx-empty-console {
+        .sc-empty-console {
           padding: 50px 20px;
           text-align: center;
           color: rgba(255, 255, 255, 0.4);
@@ -1603,47 +1613,47 @@ export class DebuggerOverlay {
         }
 
         /* 9. AI Inspection Details */
-        .fx-ai-tab-scroll {
+        .sc-ai-tab-scroll {
           padding: 10px 12px;
           display: flex;
           flex-direction: column;
           gap: 9px;
         }
-        .fx-ai-session-card {
+        .sc-ai-session-card {
           border-left: 3px solid #0A84FF;
           background: rgba(24, 24, 30, 0.7);
         }
-        .fx-ai-header {
+        .sc-ai-header {
           margin-bottom: 9px;
         }
-        .fx-ai-title-row {
+        .sc-ai-title-row {
           display: flex;
           justify-content: space-between;
           align-items: center;
           margin-bottom: 4px;
         }
-        .fx-ai-verdict {
+        .sc-ai-verdict {
           font-size: 11.5px;
           font-weight: 600;
           line-height: 1.4;
           white-space: pre-wrap;
         }
-        .fx-ai-sections {
+        .sc-ai-sections {
           display: flex;
           flex-direction: column;
           gap: 7px;
         }
-        .fx-ai-block {
+        .sc-ai-block {
           background: rgba(10, 10, 14, 0.85);
           border: 1px solid rgba(255, 255, 255, 0.06);
           border-radius: 6px;
           padding: 7px 9px;
         }
-        .fx-ai-block.raw-block {
+        .sc-ai-block.raw-block {
           border-color: rgba(10, 132, 255, 0.3);
           background: rgba(10, 132, 255, 0.06);
         }
-        .fx-ai-block-header {
+        .sc-ai-block-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
@@ -1652,81 +1662,81 @@ export class DebuggerOverlay {
           color: rgba(255, 255, 255, 0.6);
           margin-bottom: 4px;
         }
-        .fx-ai-block-title {
+        .sc-ai-block-title {
           display: inline-flex;
           align-items: center;
           gap: 5px;
         }
-        .fx-code-block.raw-code {
+        .sc-code-block.raw-code {
           background: rgba(8, 8, 12, 0.95);
           border-color: rgba(10, 132, 255, 0.25);
           color: #70B4FF;
         }
       </style>
 
-      <div class="fx-window">
-        <!-- Titlebar (Sanctuary Core Telemetry Bar) -->
-        <div class="fx-titlebar" id="drag-handle">
-          <div class="fx-title-group">
-            <div class="fx-brand-icon" title="Sanctuary Core">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <div class="sc-window">
+        <!-- Titlebar: Sanctuary Core Telemetry Precision Header -->
+        <div class="sc-titlebar" id="drag-handle">
+          <div class="sc-brand-group">
+            <div class="sc-brand-icon" title="Sanctuary Core">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="9" />
                 <circle cx="12" cy="12" r="5" stroke-dasharray="1.5 2" />
                 <circle cx="12" cy="12" r="1.8" fill="#FFFFFF" />
               </svg>
             </div>
-            <div class="fx-title-meta">
-              <span class="fx-app-name">Sanctuary Core</span>
-              <span class="fx-badge-edition">Telemetry XAI</span>
+            <div class="sc-brand-meta">
+              <span class="sc-brand-name">Sanctuary Core</span>
+              <span class="sc-brand-badge">Telemetry XAI</span>
             </div>
           </div>
-          <div class="fx-win-controls">
-            <div class="fx-segmented-mode">
-              <button type="button" class="fx-mode-btn ${userMode === 'user' ? 'active' : ''}" id="btn-mode-user" title="Спрощене пояснення для користувача">
+          <div class="sc-win-controls">
+            <div class="sc-segmented-mode">
+              <button type="button" class="sc-mode-btn ${userMode === 'user' ? 'active' : ''}" id="btn-mode-user" title="Спрощене пояснення для користувача">
                 ${ICONS.info(11)}
                 <span>Інфо</span>
               </button>
-              <button type="button" class="fx-mode-btn ${userMode === 'dev' ? 'active' : ''}" id="btn-mode-dev" title="Повний інспектор XAI для захисту диплому">
+              <button type="button" class="sc-mode-btn ${userMode === 'dev' ? 'active' : ''}" id="btn-mode-dev" title="Повний інспектор XAI для захисту диплому">
                 ${ICONS.code(11)}
                 <span>Форензік</span>
               </button>
             </div>
-            <button type="button" class="fx-tool-icon-btn" id="btn-export-json" title="Експортувати повний діагностичний звіт у JSON">
+            <button type="button" class="sc-tool-btn" id="btn-export-json" title="Експортувати повний діагностичний звіт у JSON">
               ${ICONS.download(13)}
             </button>
-            <button type="button" class="fx-tool-icon-btn" id="btn-clear-all" title="Очистити консоль">
+            <button type="button" class="sc-tool-btn" id="btn-clear-all" title="Очистити консоль">
               ${ICONS.trash(13)}
             </button>
-            <button type="button" class="fx-tool-icon-btn" id="btn-minimize" title="Згорнути у Dynamic Island">
+            <button type="button" class="sc-tool-btn" id="btn-minimize" title="Згорнути у Dynamic Island">
               ${ICONS.minimize(13)}
             </button>
-            <button type="button" class="fx-tool-icon-btn danger" id="btn-close-window" title="Закрити вікно">
+            <button type="button" class="sc-tool-btn sc-tool-btn-close" id="btn-close-window" title="Закрити вікно">
               ${ICONS.close(13)}
             </button>
           </div>
         </div>
 
-        <!-- DevTools Tabs Navigation (Cupertino Segmented Control) -->
-        <nav class="fx-navbar">
-          <button type="button" class="fx-tab-item ${activeTab === 'overview' ? 'active' : ''}" data-tab="overview">
+        <!-- Cupertino Segmented Tab Navigation -->
+        <nav class="sc-tab-bar">
+          <button type="button" class="sc-tab-btn ${activeTab === 'overview' ? 'active' : ''}" data-tab="overview">
             ${ICONS.activity(12)}
             <span>Огляд та XAI</span>
-            ${fpInfo.status === 'FP_CANDIDATE' ? '<span class="fx-tab-counter warning">FP?</span>' : ''}
+            ${fpInfo.status === 'FP_CANDIDATE' ? '<span class="sc-tab-badge warning">FP?</span>' : ''}
           </button>
-          <button type="button" class="fx-tab-item ${activeTab === 'events' ? 'active' : ''}" data-tab="events">
+          <button type="button" class="sc-tab-btn ${activeTab === 'events' ? 'active' : ''}" data-tab="events">
             ${ICONS.terminal(12)}
             <span>Консоль подій</span>
-            <span class="fx-tab-counter">${logs.length}</span>
+            <span class="sc-tab-badge">${logs.length}</span>
           </button>
-          <button type="button" class="fx-tab-item ${activeTab === 'ai' ? 'active' : ''}" data-tab="ai">
+          <button type="button" class="sc-tab-btn ${activeTab === 'ai' ? 'active' : ''}" data-tab="ai">
             ${ICONS.cpu(12)}
             <span>Gemini Nano</span>
-            <span class="fx-tab-counter">${aiCount}</span>
+            <span class="sc-tab-badge">${aiCount}</span>
           </button>
         </nav>
 
         <!-- Viewport content -->
-        <div class="fx-viewport">
+        <div class="sc-viewport">
           ${tabBody}
         </div>
       </div>
@@ -1735,7 +1745,7 @@ export class DebuggerOverlay {
     this.bindEvents();
   }
 
-  // Рендеринг компактного віджета (Minimized Dynamic Island Pill)
+  // Рендеринг компактного віджета (Dynamic Island Pill)
   private static renderMinimized() {
     if (!this.shadowRoot) return;
 
@@ -1753,13 +1763,13 @@ export class DebuggerOverlay {
 
         :host {
           all: initial;
-          font-family: var(--font-sanctuary, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
+          font-family: var(--font-sanctuary, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif);
         }
-        .fx-pill {
+        .sc-pill {
           height: 32px;
-          background: rgba(29, 29, 31, 0.92);
-          backdrop-filter: blur(16px);
-          -webkit-backdrop-filter: blur(16px);
+          background: rgba(20, 20, 24, 0.92);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
           border: 1px solid rgba(255, 255, 255, 0.16);
           border-radius: var(--radius-pill, 9999px);
           padding: 0 12px;
@@ -1772,23 +1782,23 @@ export class DebuggerOverlay {
           transition: transform 0.18s var(--ease-apple-spring), background 0.18s ease, box-shadow 0.18s ease;
           user-select: none;
         }
-        .fx-pill:hover {
+        .sc-pill:hover {
           transform: scale(1.02);
-          background: rgba(18, 18, 20, 0.98);
+          background: rgba(16, 16, 20, 0.98);
           box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
         }
-        .fx-pill-icon {
+        .sc-pill-icon {
           display: flex;
           align-items: center;
           justify-content: center;
         }
-        .fx-pill-text {
+        .sc-pill-text {
           font-size: 11px;
           font-weight: 600;
           color: #FFFFFF;
           letter-spacing: -0.01em;
         }
-        .fx-pill-badge {
+        .sc-pill-badge {
           font-size: 9.5px;
           font-weight: 700;
           background: ${riskColor === '#30D158' ? 'rgba(52, 199, 89, 0.18)' : riskColor === '#FF9F0A' ? 'rgba(255, 149, 0, 0.22)' : 'rgba(255, 59, 48, 0.22)'};
@@ -1798,7 +1808,7 @@ export class DebuggerOverlay {
           border-radius: var(--radius-pill, 9999px);
           font-family: var(--font-mono, monospace);
         }
-        .fx-pill-count {
+        .sc-pill-count {
           font-size: 10px;
           color: rgba(255, 255, 255, 0.65);
           font-family: var(--font-mono, monospace);
@@ -1807,11 +1817,11 @@ export class DebuggerOverlay {
           gap: 4px;
         }
       </style>
-      <div class="fx-pill" id="btn-restore" title="Відкрити турбійон телеметрії XAI">
-        <span class="fx-pill-icon">${ICONS.shield(13, riskColor)}</span>
-        <span class="fx-pill-text">Sanctuary Telemetry</span>
-        <span class="fx-pill-badge">${score}/100</span>
-        <span class="fx-pill-count">
+      <div class="sc-pill" id="btn-restore" title="Відкрити турбійон телеметрії XAI">
+        <span class="sc-pill-icon">${ICONS.shield(13, riskColor)}</span>
+        <span class="sc-pill-text">Sanctuary Telemetry</span>
+        <span class="sc-pill-badge">${score}/100</span>
+        <span class="sc-pill-count">
           <span>${logs.length} logs</span>
           ${ICONS.expand(11, 'rgba(255, 255, 255, 0.65)')}
         </span>
@@ -1827,7 +1837,7 @@ export class DebuggerOverlay {
   private static bindEvents() {
     if (!this.shadowRoot) return;
 
-    // Window controls
+    // Window dragging handle
     const handle = this.shadowRoot.getElementById('drag-handle');
     handle?.addEventListener('mousedown', (e) => {
       this.isDragging = true;
@@ -1837,6 +1847,7 @@ export class DebuggerOverlay {
       }
     });
 
+    // Window controls
     this.shadowRoot.getElementById('btn-close-window')?.addEventListener('click', () => {
       this.hide();
     });
@@ -1855,7 +1866,7 @@ export class DebuggerOverlay {
       this.copyToClipboard(json, e.currentTarget as HTMLElement, 'Звіт скопійовано!');
     });
 
-    // Mode toggles
+    // Mode toggles (Інфо vs Форензік)
     this.shadowRoot.getElementById('btn-mode-user')?.addEventListener('click', () => {
       this.state.userMode = 'user';
       this.render();
@@ -1866,7 +1877,7 @@ export class DebuggerOverlay {
     });
 
     // Tabs switching
-    this.shadowRoot.querySelectorAll('.fx-tab-item').forEach((tabBtn) => {
+    this.shadowRoot.querySelectorAll('.sc-tab-btn').forEach((tabBtn) => {
       tabBtn.addEventListener('click', () => {
         const tab = (tabBtn as HTMLElement).dataset.tab as NeuromonitorTab;
         if (tab) {
@@ -1876,7 +1887,7 @@ export class DebuggerOverlay {
       });
     });
 
-    // Quick FP actions
+    // Quick False Positive Actions
     this.shadowRoot.getElementById('btn-copy-fp-report')?.addEventListener('click', (e) => {
       const json = this.exportDiagnosticReport();
       this.copyToClipboard(json, e.currentTarget as HTMLElement, 'Скопійовано!');
@@ -1887,7 +1898,7 @@ export class DebuggerOverlay {
       if (host) {
         try {
           await UserWhitelistManager.allowDomain(host);
-          this.log('Білий список', `Домен ${host} додано до довірених через оверлей`, '#008A52');
+          this.log('Білий список', `Домен ${host} додано до довірених через оверлей`, '#30D158');
           const btn = e.currentTarget as HTMLElement;
           if (btn) btn.innerHTML = `${ICONS.check(12)} <span>Додано!</span>`;
         } catch {
@@ -1898,11 +1909,11 @@ export class DebuggerOverlay {
 
     this.shadowRoot.getElementById('btn-quick-reset-session')?.addEventListener('click', () => {
       window.postMessage({ type: 'THREAT_SHIELD_CLEAR_CONTEXT' }, '*');
-      this.log('Система', 'Користувач примусово скинув стан тривоги', '#008A52');
+      this.log('Система', 'Користувач примусово скинув стан тривоги', '#30D158');
     });
 
-    // Event Console Filter events
-    const searchInput = this.shadowRoot.getElementById('fx-input-search') as HTMLInputElement | null;
+    // Event Console Filters
+    const searchInput = this.shadowRoot.getElementById('sc-input-search') as HTMLInputElement | null;
     searchInput?.addEventListener('input', (e) => {
       this.state.filterSearch = (e.target as HTMLInputElement).value;
       this.render();
@@ -1913,7 +1924,7 @@ export class DebuggerOverlay {
       this.render();
     });
 
-    this.shadowRoot.querySelectorAll('.fx-chip').forEach((chip) => {
+    this.shadowRoot.querySelectorAll('.sc-chip').forEach((chip) => {
       chip.addEventListener('click', () => {
         const cat = (chip as HTMLElement).dataset.cat as NeuromonitorCategoryFilter;
         if (cat) {
@@ -1923,7 +1934,7 @@ export class DebuggerOverlay {
       });
     });
 
-    // Generic Copy buttons
+    // Copy buttons
     this.shadowRoot.querySelectorAll('[data-copy]').forEach((btn) => {
       btn.addEventListener('click', () => {
         const raw = (btn as HTMLElement).dataset.copy;
@@ -1934,9 +1945,9 @@ export class DebuggerOverlay {
       });
     });
 
-    // Auto-scroll on logs tab
+    // Auto-scroll in logs tab
     if (this.state.activeTab === 'events') {
-      const logsContainer = this.shadowRoot.getElementById('fx-logs-scroll');
+      const logsContainer = this.shadowRoot.getElementById('sc-logs-scroll');
       if (logsContainer && !this.state.filterSearch) {
         logsContainer.scrollTop = logsContainer.scrollHeight;
       }
