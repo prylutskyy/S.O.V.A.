@@ -33,11 +33,6 @@ body {
 ::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.16); border-radius: 10px; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(0, 0, 0, 0.28); }
 
-/* Visibility helper */
-.hidden {
-  display: none !important;
-}
-
 /* ==========================================================================
    APP HEADER (FROSTED OPTICAL GLASS)
    ========================================================================== */

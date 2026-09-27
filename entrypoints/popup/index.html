@@ -75,7 +75,7 @@
     </div>
 
     <!-- Tainted Context Warning Banner (Appears ONLY during elevated alert) -->
-    <div class="tainted-banner hidden" id="taintedBanner">
+    <div class="tainted-banner" id="taintedBanner" style="display:none;">
       <div class="tainted-header">
         <div class="tainted-icon">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
@@ -151,9 +151,9 @@
   </main>
 
   <!-- TAB 2: PERSONAL VAULT (DIGITAL SANCTUARY) -->
-  <section class="tab-content hidden" id="tabContentVault">
+  <section class="tab-content" id="tabContentVault" style="display:none;">
     <!-- Setup state -->
-    <div id="vaultSetupState" class="card hidden">
+    <div id="vaultSetupState" class="card" style="display:none;">
       <div class="vault-hero-icon blue">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
       </div>
@@ -169,7 +169,7 @@
     </div>
 
     <!-- Locked state -->
-    <div id="vaultLockedState" class="card hidden">
+    <div id="vaultLockedState" class="card" style="display:none;">
       <div class="vault-hero-icon amber">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
       </div>
@@ -182,7 +182,7 @@
     </div>
 
     <!-- Unlocked state -->
-    <div id="vaultUnlockedState" class="vault-unlocked-container hidden">
+    <div id="vaultUnlockedState" class="vault-unlocked-container" style="display:none;">
       <!-- Master View: List of categories -->
       <div id="vaultMasterView">
         <div class="card-header">
@@ -198,7 +198,7 @@
       </div>
 
       <!-- Detail View: Editor for single item -->
-      <div id="vaultDetailView" class="vault-editor hidden">
+      <div id="vaultDetailView" class="vault-editor" style="display:none;">
         <div class="editor-topbar">
           <button type="button" class="btn-back" id="btnBackToVaultList">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="15 18 9 12 15 6"/></svg>
@@ -265,7 +265,7 @@
   </section>
 
   <!-- TAB 3: ОПЦІЇ ТА НАЛАШТУВАННЯ -->
-  <section class="tab-content hidden" id="tabContentSettings">
+  <section class="tab-content" id="tabContentSettings" style="display:none;">
     <!-- Whitelist Management -->
     <div class="card">
       <div class="card-header">
