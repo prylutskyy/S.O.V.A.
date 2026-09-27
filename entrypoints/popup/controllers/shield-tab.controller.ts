@@ -21,13 +21,6 @@ export class ShieldTabController {
   private homeAiPill: HTMLElement;
   private homeAiSubtext: HTMLElement;
 
-  private btnToggleForensicLoupe: HTMLButtonElement | null;
-  private forensicLoupePanel: HTMLElement | null;
-  private btnCloseLoupe: HTMLButtonElement | null;
-  private loupeScoreVal: HTMLElement | null;
-  private loupeAiStatus: HTMLElement | null;
-  private loupeDomStatus: HTMLElement | null;
-  private loupeConsoleLine: HTMLElement | null;
   private chainSourceNode: HTMLElement | null;
   private chainTargetNode: HTMLElement | null;
 
@@ -48,13 +41,6 @@ export class ShieldTabController {
     this.globalStatusPill = document.getElementById('globalStatusPill') as HTMLElement;
     this.globalStatusText = document.getElementById('globalStatusText') as HTMLElement;
 
-    this.btnToggleForensicLoupe = document.getElementById('btnToggleForensicLoupe') as HTMLButtonElement | null;
-    this.forensicLoupePanel = document.getElementById('forensicLoupePanel');
-    this.btnCloseLoupe = document.getElementById('btnCloseLoupe') as HTMLButtonElement | null;
-    this.loupeScoreVal = document.getElementById('loupeScoreVal');
-    this.loupeAiStatus = document.getElementById('loupeAiStatus');
-    this.loupeDomStatus = document.getElementById('loupeDomStatus');
-    this.loupeConsoleLine = document.getElementById('loupeConsoleLine');
     this.chainSourceNode = document.getElementById('chainSourceNode');
     this.chainTargetNode = document.getElementById('chainTargetNode');
 
@@ -170,24 +156,10 @@ export class ShieldTabController {
         if (this.chainSourceNode) {
           this.chainSourceNode.innerText = `Чат ${source}`;
         }
-        if (this.loupeScoreVal) {
-          this.loupeScoreVal.innerText = `Score = ${res.context.threatLevel === 'HIGH' ? '75' : '45'}/100`;
-          this.loupeScoreVal.className = 'loupe-cell-val amber';
-        }
-        if (this.loupeConsoleLine) {
-          this.loupeConsoleLine.innerText = `[Tainted Context] Виявлено сесійне зміщення з ${source} ➔ ${this.currentTabHost}. Детекція форм у режимі High Friction.`;
-        }
       } else {
         this.taintedBanner.style.display = 'none';
         if (this.chainSourceNode) {
           this.chainSourceNode.innerText = 'Легітимне джерело';
-        }
-        if (this.loupeScoreVal) {
-          this.loupeScoreVal.innerText = 'Score = 0/100';
-          this.loupeScoreVal.className = 'loupe-cell-val green';
-        }
-        if (this.loupeConsoleLine) {
-          this.loupeConsoleLine.innerText = 'Евристичний конвеєр активний. Зшивання контексту під контролем ContextManager.';
         }
       }
     } catch {
@@ -221,46 +193,14 @@ export class ShieldTabController {
       this.homeAiPill.innerText = 'Готово';
       this.homeAiPill.className = 'module-pill green';
       this.homeAiSubtext.innerText = 'Вбудована модель готова до роботи';
-      if (this.loupeAiStatus) {
-        this.loupeAiStatus.innerText = 'Nano (~140ms)';
-        this.loupeAiStatus.className = 'loupe-cell-val green';
-      }
     } else {
       this.homeAiPill.innerText = 'Евристика';
       this.homeAiPill.className = 'module-pill blue';
       this.homeAiSubtext.innerText = 'Евристичний та семантичний NLP аналіз';
-      if (this.loupeAiStatus) {
-        this.loupeAiStatus.innerText = 'Евристика NLP';
-        this.loupeAiStatus.className = 'loupe-cell-val blue';
-      }
     }
   }
 
   private bindEvents(): void {
-    // Перемикач Швейцарської Лупи (режим телеметрії дипломного захисту)
-    if (this.btnToggleForensicLoupe && this.forensicLoupePanel) {
-      this.btnToggleForensicLoupe.addEventListener('click', () => {
-        const isCurrentlyHidden = this.forensicLoupePanel?.style.display === 'none';
-        if (this.forensicLoupePanel) {
-          this.forensicLoupePanel.style.display = isCurrentlyHidden ? 'flex' : 'none';
-          this.forensicLoupePanel.hidden = !isCurrentlyHidden;
-        }
-        this.btnToggleForensicLoupe?.classList.toggle('active', isCurrentlyHidden);
-        if (isCurrentlyHidden) {
-          this.showToast('Швейцарська Лупа: Телеметрія активна');
-        }
-      });
-    }
-
-    if (this.btnCloseLoupe && this.forensicLoupePanel) {
-      this.btnCloseLoupe.addEventListener('click', () => {
-        if (this.forensicLoupePanel) {
-          this.forensicLoupePanel.style.display = 'none';
-          this.forensicLoupePanel.hidden = true;
-        }
-        this.btnToggleForensicLoupe?.classList.remove('active');
-      });
-    }
 
     // Перемикач захисту поточного домену (Firefox Protections Style)
     this.currentSiteToggle.addEventListener('change', async () => {
