@@ -469,7 +469,7 @@ export class SecurityFriction {
       .join(', ');
 
     const fieldsDetailsHtml = scan.flaggedInputs
-      .map((input) => {
+      .map((input, idx, arr) => {
         const label = sensitiveFieldLabelsUa[input.fieldType] || input.fieldType;
         const attrDesc = input.name
           ? `name="${input.name}"`
@@ -477,18 +477,58 @@ export class SecurityFriction {
           ? `id="${input.element.id}"`
           : `type="${input.type}"`;
         const technique = formatCloakingTechnique(input.cloakingReason);
+        const isLast = idx === arr.length - 1;
 
         return `
-          <div style="display:flex; flex-direction:column; gap:3px; padding:7px 9px; background:var(--sanctuary-surface-subtle, #FAFAFC); border:1px solid var(--sanctuary-hairline-subtle, rgba(0, 0, 0, 0.04)); border-radius:6px; font-size:11px;">
-            <div style="display:flex; align-items:center; justify-content:space-between; gap:6px;">
-              <strong style="color:var(--sanctuary-ink-primary, #1D1D1F); font-weight:600;">${label}</strong>
-              <span style="font-size:9.5px; font-weight:600; color:var(--sanctuary-green-ink, #248A3D); background:var(--sanctuary-green-bg, rgba(52, 199, 89, 0.10)); border:1px solid var(--sanctuary-green-bd, rgba(52, 199, 89, 0.24)); padding:1px 6px; border-radius:9999px;">🔒 Знешкоджено</span>
+          <div class="ts-telemetry-row" style="
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 9px 12px;
+            ${isLast ? '' : 'border-bottom: 0.5px solid rgba(0, 0, 0, 0.06);'}
+            transition: background 0.12s;
+          ">
+            <!-- Left: DOM Identity -->
+            <div style="display: flex; flex-direction: column; gap: 3px; min-width: 0; flex: 1;">
+              <div style="font-size: 11.5px; font-weight: 600; color: #1D1D1F; letter-spacing: -0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                ${label}
+              </div>
+              <div style="display: flex; align-items: center; gap: 4px;">
+                <code style="
+                  font-family: var(--font-mono, 'SF Mono', Menlo, monospace);
+                  font-size: 10px;
+                  color: #0071E3;
+                  background: rgba(0, 113, 227, 0.08);
+                  padding: 1.5px 5px;
+                  border-radius: 4px;
+                  white-space: nowrap;
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                  max-width: 175px;
+                ">${attrDesc}</code>
+              </div>
             </div>
-            <div style="font-size:10.5px; color:var(--sanctuary-ink-secondary, #86868B); display:flex; align-items:center; gap:4px; font-family:var(--font-mono, monospace);">
-              <span style="color:var(--sanctuary-ink-tertiary, #A1A1A6);">Поле:</span> <code style="color:var(--sanctuary-blue, #0071E3); background:var(--sanctuary-blue-bg, rgba(0, 113, 227, 0.08)); padding:1px 4px; border-radius:3px;">${attrDesc}</code>
-            </div>
-            <div style="font-size:10px; color:var(--sanctuary-amber-ink, #B25900); display:flex; align-items:center; gap:4px;">
-              <span>Маскування:</span> <span>${technique}</span>
+
+            <!-- Right: Status & Cloaking Signature -->
+            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 3px; flex-shrink: 0;">
+              <div style="
+                display: inline-flex;
+                align-items: center;
+                gap: 4px;
+                font-size: 10px;
+                font-weight: 600;
+                color: #248A3D;
+                background: rgba(52, 199, 89, 0.10);
+                padding: 1.5px 6.5px;
+                border-radius: 9999px;
+              ">
+                <span style="width: 4px; height: 4px; border-radius: 50%; background: #34C759; display: inline-block;"></span>
+                <span>Знешкоджено</span>
+              </div>
+              <div style="font-size: 10px; color: #B25900; display: flex; align-items: center; gap: 3px;">
+                <span style="font-weight: 500;">${technique}</span>
+              </div>
             </div>
           </div>
         `;
@@ -509,6 +549,26 @@ export class SecurityFriction {
         }
         details.ts-disarm-accordion summary::-webkit-details-marker { display: none; }
         details.ts-disarm-accordion summary { list-style: none; }
+        details.ts-disarm-accordion summary:hover {
+          background: rgba(0, 0, 0, 0.025);
+        }
+        details.ts-disarm-accordion[open] .ts-chevron {
+          transform: rotate(90deg);
+          color: #0071E3 !important;
+        }
+        .ts-telemetry-row:hover {
+          background: rgba(0, 0, 0, 0.015);
+        }
+        .ts-telemetry-list::-webkit-scrollbar {
+          width: 4px;
+        }
+        .ts-telemetry-list::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .ts-telemetry-list::-webkit-scrollbar-thumb {
+          background: rgba(0, 0, 0, 0.14);
+          border-radius: 9999px;
+        }
         #threat-shield-close-trap-banner:hover {
           color: var(--sanctuary-ink-primary, #1D1D1F) !important;
           background: var(--sanctuary-surface-hover, rgba(0, 0, 0, 0.05)) !important;
@@ -586,31 +646,54 @@ export class SecurityFriction {
         Сайт намагався приховано зчитати ваші платіжні реквізити (<strong style="color: var(--sanctuary-ink-primary, #1D1D1F); font-weight: 600;">${detectedTypesSummary}</strong>) через браузерне автозаповнення. Невидимі поля заблоковано. Реальні дані не передано.
       </p>
 
-      <!-- Expandable Accordion with Swiss-Watch Technical Details -->
+      <!-- Precision Cloaking Inspector (Inset Grouped Slab) -->
       <details class="ts-disarm-accordion" style="
-        background: var(--sanctuary-surface-subtle, #FAFAFC);
-        border: 1px solid var(--sanctuary-hairline, rgba(0, 0, 0, 0.07));
-        border-radius: 10px;
+        background: rgba(0, 0, 0, 0.025);
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        border-radius: 12px;
         overflow: hidden;
         font-size: 11.5px;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
       ">
         <summary style="
-          padding: 8px 12px; font-weight: 500; color: var(--sanctuary-blue, #0071E3);
+          padding: 9px 12px; font-weight: 500; color: #1D1D1F;
           cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none;
-          transition: background 0.15s;
+          transition: background 0.15s cubic-bezier(0.25, 1, 0.5, 1);
         ">
-          <span style="display: flex; align-items: center; gap: 6px;">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+          <span style="display: flex; align-items: center; gap: 7px;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#0071E3" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10" stroke-opacity="0.25"/>
+              <line x1="12" y1="2" x2="12" y2="6"/>
+              <line x1="12" y1="18" x2="12" y2="22"/>
+              <line x1="2" y1="12" x2="6" y2="12"/>
+              <line x1="18" y1="12" x2="22" y2="12"/>
+              <circle cx="12" cy="12" r="3" fill="#0071E3"/>
             </svg>
-            Технічний аналіз пастки (${count})
+            <span style="font-size: 12px; font-weight: 500; letter-spacing: -0.01em;">Технічний аналіз пастки (${count})</span>
           </span>
-          <span style="font-size: 10px; color: var(--sanctuary-ink-tertiary, #A1A1A6); font-family: var(--font-mono, monospace);">CSS CLOAKING</span>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span style="
+              font-family: var(--font-mono, 'SF Mono', Menlo, monospace);
+              font-size: 9px;
+              font-weight: 600;
+              color: #86868B;
+              letter-spacing: 0.04em;
+              background: rgba(0, 0, 0, 0.04);
+              padding: 2px 6px;
+              border-radius: 4px;
+            ">CSS CLOAKING</span>
+            <svg class="ts-chevron" width="7" height="10" viewBox="0 0 8 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color: #86868B; transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);">
+              <path d="M1.5 1.5L6 6L1.5 10.5"/>
+            </svg>
+          </div>
         </summary>
-        <div style="
-          padding: 8px; border-top: 1px solid var(--sanctuary-divider, rgba(0, 0, 0, 0.05));
-          background: var(--sanctuary-surface, #FFFFFF); display: flex; flex-direction: column; gap: 6px;
-          max-height: 160px; overflow-y: auto;
+        <div class="ts-telemetry-list" style="
+          border-top: 0.5px solid rgba(0, 0, 0, 0.07);
+          background: rgba(255, 255, 255, 0.65);
+          display: flex;
+          flex-direction: column;
+          max-height: 180px;
+          overflow-y: auto;
         ">
           ${fieldsDetailsHtml}
         </div>

@@ -10,10 +10,17 @@ describe('Floating Disarm Capsule (SecurityFriction.showHiddenFieldTrapBanner)',
   let hiddenInput2: HTMLInputElement;
 
   const mockScan: HiddenFieldScanResult = {
-    hasHiddenSensitiveFields: true,
-    totalHiddenInputs: 2,
+    hasTrap: true,
+    trapType: 'AUTOFILL_CARD_TRAP',
     flaggedTypes: ['CVV', 'CARD_NUMBER'],
     flaggedInputs: [],
+    heuristicResult: {
+      name: 'HIDDEN_FIELD_TRAP',
+      triggered: true,
+      severity: 'HIGH',
+      scoreContribution: 85,
+      message: 'Виявлено приховані чутливі поля',
+    },
   };
 
   beforeEach(() => {
@@ -72,6 +79,13 @@ describe('Floating Disarm Capsule (SecurityFriction.showHiddenFieldTrapBanner)',
 
     // Verify sapphire aura applied to form
     expect(form.style.boxShadow).toContain('rgba(0, 113, 227');
+
+    // Verify Inset Grouped Telemetry structure (Apple HIG without nested boxes)
+    const telemetryRows = banner?.querySelectorAll('.ts-telemetry-row');
+    expect(telemetryRows?.length).toBe(2);
+    expect(banner?.querySelector('.ts-chevron')).not.toBeNull();
+    expect(banner?.innerHTML).toContain('Знешкоджено');
+    expect(banner?.innerHTML).not.toContain('🔒'); // No emoji clutter
 
     // Verify action buttons
     const highlightBtn = banner?.querySelector('#ts-highlight-form-btn') as HTMLButtonElement;
