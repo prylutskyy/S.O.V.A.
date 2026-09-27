@@ -584,7 +584,7 @@ export class UnifiedFrictionModal {
         ToastNotifier.show(
           `Підставлено ${pluralValues}. Справжні дані вашого Сховища надійно захищено.`,
           'info',
-          5000
+          7500
         );
       }
     });

@@ -91,7 +91,50 @@ describe('ToastNotifier (Sanctuary Dynamic Capsule)', () => {
       expect(toast.parentElement).toBeNull();
     });
 
-    it('should automatically dismiss after specified duration', () => {
+    it('should render the optical Light Filament countdown track', () => {
+      const toast = ToastNotifier.show('Повідомлення з оптичною ниткою часу', 'info', 3000);
+      const filamentTrack = toast.querySelector('.ts-toast-filament-track');
+      const filamentBar = toast.querySelector('.ts-toast-filament-bar');
+
+      expect(filamentTrack).not.toBeNull();
+      expect(filamentBar).not.toBeNull();
+    });
+
+    it('should freeze auto-dismiss on mouseenter and resume on mouseleave (Hover Freeze)', () => {
+      const toast = ToastNotifier.show('Важливе спостереження', 'warning', 4000);
+      expect(toast.parentElement).not.toBeNull();
+
+      // Advance halfway
+      vi.advanceTimersByTime(2000);
+
+      // User moves mouse over toast -> hover freeze activates
+      toast.dispatchEvent(new Event('mouseenter'));
+
+      // Even if 5 seconds pass, toast must remain alive because it is paused
+      vi.advanceTimersByTime(5000);
+      expect(toast.parentElement).not.toBeNull();
+
+      // User moves mouse away -> timer resumes with remaining time
+      toast.dispatchEvent(new Event('mouseleave'));
+
+      // Advance remaining time + transition
+      vi.advanceTimersByTime(2100);
+      vi.advanceTimersByTime(300);
+      expect(toast.parentElement).toBeNull();
+    });
+
+    it('should automatically calibrate reading duration when durationMs is not provided', () => {
+      const errorToast = ToastNotifier.show('Критична загроза виявлена', 'error');
+      // For error type baseline is 8500ms
+      vi.advanceTimersByTime(7000);
+      expect(errorToast.parentElement).not.toBeNull();
+
+      vi.advanceTimersByTime(1600);
+      vi.advanceTimersByTime(300);
+      expect(errorToast.parentElement).toBeNull();
+    });
+
+    it('should automatically dismiss after specified duration when no hover occurred', () => {
       const toast = ToastNotifier.show('Тимчасове повідомлення', 'info', 2000);
       expect(toast.parentElement).not.toBeNull();
 
