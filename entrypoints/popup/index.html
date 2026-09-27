@@ -3,48 +3,83 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Threat Shield — Захист Firefox</title>
+  <title>Threat Shield — Digital Sanctuary</title>
   <style>
     :root {
-      /* Mozilla Firefox Proton & Acorn Design Tokens */
-      --fx-canvas:         #F0F0F4;
-      --fx-surface:        #FFFFFF;
-      --fx-surface-hover:  #E8E8EE;
-      --fx-surface-active: #DFDFE6;
-      --fx-border:         #CFCFD8;
-      --fx-border-subtle:  #E5E5EB;
-      --fx-text:           #15141A;
-      --fx-text-secondary: #5B5B66;
-      --fx-text-muted:     #8F8F9D;
+      /* Apple Cupertino & Human Interface Guidelines Tokens */
+      --apple-canvas:        #F5F5F7;
+      --apple-surface:       #FFFFFF;
+      --apple-surface-hover: rgba(0, 0, 0, 0.03);
+      --apple-surface-active:rgba(0, 0, 0, 0.06);
+      --apple-border:        rgba(0, 0, 0, 0.07);
+      --apple-border-subtle: rgba(0, 0, 0, 0.04);
+      --apple-divider:       rgba(0, 0, 0, 0.06);
 
-      --fx-blue:           #0060DF;
-      --fx-blue-hover:     #003EAA;
-      --fx-blue-active:    #002275;
-      --fx-blue-bg:        #E8F2FF;
-      --fx-blue-bd:        #B0D5FF;
+      --apple-text:          #1D1D1F;
+      --apple-text-secondary:#86868B;
+      --apple-text-muted:    #A1A1A6;
 
-      --fx-green:          #008A52;
-      --fx-green-hover:    #007143;
-      --fx-green-bg:       #EAF7F3;
-      --fx-green-bd:       #A3E5D0;
+      --apple-blue:          #0071E3;
+      --apple-blue-hover:    #0077ED;
+      --apple-blue-active:   #005BB5;
+      --apple-blue-bg:       rgba(0, 113, 227, 0.08);
+      --apple-blue-bd:       rgba(0, 113, 227, 0.18);
 
-      --fx-amber:          #D76E00;
-      --fx-amber-bg:       #FFF4E5;
-      --fx-amber-bd:       #FFD599;
+      --apple-green:         #34C759;
+      --apple-green-hover:   #2DB84F;
+      --apple-green-bg:      rgba(52, 199, 89, 0.10);
+      --apple-green-bd:      rgba(52, 199, 89, 0.22);
 
-      --fx-red:            #D70022;
-      --fx-red-hover:      #A4001A;
-      --fx-red-bg:         #FDF2F5;
-      --fx-red-bd:         #F8B4C0;
+      --apple-amber:         #FF9500;
+      --apple-amber-bg:      rgba(255, 149, 0, 0.10);
+      --apple-amber-bd:      rgba(255, 149, 0, 0.22);
 
-      --radius-panel: 8px;
-      --radius-card: 6px;
-      --radius-btn: 4px;
-      --radius-tag: 4px;
-      --radius-input: 4px;
+      --apple-red:           #FF3B30;
+      --apple-red-hover:     #E03228;
+      --apple-red-bg:        rgba(255, 59, 48, 0.08);
+      --apple-red-bd:        rgba(255, 59, 48, 0.20);
 
-      --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06);
-      --font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      /* Backward compatibility aliases for existing JS controllers */
+      --fx-canvas:         var(--apple-canvas);
+      --fx-surface:        var(--apple-surface);
+      --fx-surface-hover:  var(--apple-surface-hover);
+      --fx-surface-active: var(--apple-surface-active);
+      --fx-border:         var(--apple-border);
+      --fx-border-subtle:  var(--apple-border-subtle);
+      --fx-text:           var(--apple-text);
+      --fx-text-secondary: var(--apple-text-secondary);
+      --fx-text-muted:     var(--apple-text-muted);
+
+      --fx-blue:           var(--apple-blue);
+      --fx-blue-hover:     var(--apple-blue-hover);
+      --fx-blue-active:    var(--apple-blue-active);
+      --fx-blue-bg:        var(--apple-blue-bg);
+      --fx-blue-bd:        var(--apple-blue-bd);
+
+      --fx-green:          var(--apple-green);
+      --fx-green-hover:    var(--apple-green-hover);
+      --fx-green-bg:       var(--apple-green-bg);
+      --fx-green-bd:       var(--apple-green-bd);
+
+      --fx-amber:          var(--apple-amber);
+      --fx-amber-bg:       var(--apple-amber-bg);
+      --fx-amber-bd:       var(--apple-amber-bd);
+
+      --fx-red:            var(--apple-red);
+      --fx-red-hover:      var(--apple-red-hover);
+      --fx-red-bg:         var(--apple-red-bg);
+      --fx-red-bd:         var(--apple-red-bd);
+
+      --radius-panel: 18px;
+      --radius-card: 14px;
+      --radius-btn: 10px;
+      --radius-pill: 9999px;
+      --radius-input: 10px;
+
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+      --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+      --shadow-elevated: 0 8px 24px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04);
+      --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, sans-serif;
     }
 
     * {
@@ -53,84 +88,89 @@
       padding: 0;
       font-family: var(--font);
       -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
 
     body {
       width: 395px;
-      max-height: 590px;
-      background: var(--fx-canvas);
-      color: var(--fx-text);
-      font-size: 12.5px;
+      max-height: 600px;
+      background: var(--apple-canvas);
+      color: var(--apple-text);
+      font-size: 13px;
       user-select: none;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
+      letter-spacing: -0.01em;
     }
 
-    /* Firefox Subtle Scrollbars */
+    /* Sleek Apple Scrollbars */
     ::-webkit-scrollbar { width: 5px; height: 5px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--fx-border); border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: var(--fx-text-muted); }
+    ::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.16); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(0, 0, 0, 0.28); }
 
-    /* Firefox Proton Header */
+    /* Frosted Apple Header */
     .app-header {
       position: sticky;
       top: 0;
       z-index: 20;
-      background: var(--fx-surface);
-      border-bottom: 1px solid var(--fx-border);
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--apple-border);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 10px 14px;
+      padding: 12px 16px;
     }
     .brand-group {
       display: flex;
       align-items: center;
-      gap: 9px;
+      gap: 10px;
     }
     .brand-icon {
-      width: 28px;
-      height: 28px;
-      border-radius: 6px;
-      background: linear-gradient(135deg, #0060DF 0%, #7542E5 100%);
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #0071E3 0%, #43BFEA 100%);
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      box-shadow: 0 2px 5px rgba(0, 96, 223, 0.25);
+      box-shadow: 0 2px 6px rgba(0, 113, 227, 0.28);
     }
     .brand-name {
       font-size: 13.5px;
-      font-weight: 700;
-      color: var(--fx-text);
+      font-weight: 600;
+      color: var(--apple-text);
       line-height: 1.2;
+      letter-spacing: -0.02em;
     }
     .brand-tagline {
-      font-size: 10px;
-      color: var(--fx-text-muted);
+      font-size: 10.5px;
+      color: var(--apple-text-secondary);
       margin-top: 1px;
     }
     .status-pill {
       display: inline-flex;
       align-items: center;
-      gap: 5px;
+      gap: 6px;
       font-size: 11px;
       font-weight: 600;
-      padding: 3px 8px;
-      border-radius: 4px;
-      transition: all 0.15s ease;
+      padding: 4px 9px;
+      border-radius: var(--radius-pill);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .status-pill.active {
-      color: var(--fx-green);
-      background: var(--fx-green-bg);
-      border: 1px solid var(--fx-green-bd);
+      color: #248A3D;
+      background: var(--apple-green-bg);
+      border: 1px solid var(--apple-green-bd);
     }
     .status-pill.paused {
-      color: var(--fx-amber);
-      background: var(--fx-amber-bg);
-      border: 1px solid var(--fx-amber-bd);
+      color: #B25900;
+      background: var(--apple-amber-bg);
+      border: 1px solid var(--apple-amber-bd);
     }
     .pulse-dot {
       width: 6px;
@@ -139,21 +179,26 @@
       background: currentColor;
     }
     .status-pill.active .pulse-dot {
-      animation: fxPulse 2s infinite;
+      animation: applePulse 2.4s infinite cubic-bezier(0.4, 0, 0.6, 1);
     }
-    @keyframes fxPulse {
-      0%   { box-shadow: 0 0 0 0 rgba(0, 138, 82, 0.5); }
-      70%  { box-shadow: 0 0 0 4px rgba(0, 138, 82, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(0, 138, 82, 0); }
+    @keyframes applePulse {
+      0%   { box-shadow: 0 0 0 0 rgba(52, 199, 89, 0.5); }
+      70%  { box-shadow: 0 0 0 5px rgba(52, 199, 89, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(52, 199, 89, 0); }
     }
 
-    /* Firefox 3-Tab Navigation */
+    /* Apple Segmented Pill Navigation */
+    .nav-container {
+      padding: 10px 14px 4px;
+      background: var(--apple-canvas);
+    }
     .tab-nav {
-      background: var(--fx-canvas);
-      border-bottom: 1px solid var(--fx-border);
+      background: rgba(118, 118, 128, 0.10);
+      border-radius: 12px;
+      padding: 3px;
       display: flex;
-      padding: 6px 10px 0;
-      gap: 4px;
+      gap: 2px;
+      position: relative;
     }
     .tab-btn {
       flex: 1;
@@ -161,16 +206,15 @@
       align-items: center;
       justify-content: center;
       gap: 6px;
-      padding: 8px 6px;
+      padding: 6px 8px;
       background: transparent;
       border: none;
-      border-radius: 4px 4px 0 0;
-      border-bottom: 2px solid transparent;
+      border-radius: 9px;
       cursor: pointer;
-      color: var(--fx-text-secondary);
+      color: var(--apple-text-secondary);
       font-size: 12px;
       font-weight: 500;
-      transition: all 0.12s ease;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
       white-space: nowrap;
     }
     .tab-btn svg {
@@ -179,124 +223,128 @@
       stroke: currentColor;
       fill: none;
       flex-shrink: 0;
+      transition: stroke 0.2s ease;
     }
     .tab-btn:hover {
-      background: var(--fx-surface-hover);
-      color: var(--fx-text);
+      color: var(--apple-text);
     }
     .tab-btn.active {
-      background: var(--fx-surface);
-      color: var(--fx-blue);
-      border-bottom-color: var(--fx-blue);
+      background: var(--apple-surface);
+      color: var(--apple-text);
       font-weight: 600;
-      box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.04);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08), 0 0.5px 1.5px rgba(0, 0, 0, 0.04);
+    }
+    .tab-btn.active svg {
+      stroke: var(--apple-blue);
     }
 
     /* Content Area */
     .tab-content {
-      padding: 12px;
+      padding: 12px 14px 16px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 12px;
     }
 
-    /* Firefox Proton Cards */
+    /* Cupertino Cards */
     .card {
-      background: var(--fx-surface);
-      border: 1px solid var(--fx-border);
+      background: var(--apple-surface);
+      border: 1px solid var(--apple-border);
       border-radius: var(--radius-card);
-      padding: 12px;
+      padding: 14px;
       box-shadow: var(--shadow-card);
     }
     .card-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
     }
     .card-title {
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--fx-text-muted);
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--apple-text-secondary);
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.04em;
       display: flex;
       align-items: center;
-      gap: 5px;
+      gap: 6px;
     }
     .card-title svg {
       width: 13px;
       height: 13px;
+      stroke: var(--apple-text-secondary);
     }
 
-    /* Firefox Site Protections Hero Card */
+    /* Apple Site Hero Card */
     .site-card {
-      background: var(--fx-surface);
-      border: 1px solid var(--fx-border);
+      background: var(--apple-surface);
+      border: 1px solid var(--apple-border);
       border-radius: var(--radius-card);
-      padding: 12px 14px;
+      padding: 14px 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
+      gap: 12px;
       box-shadow: var(--shadow-card);
-      transition: border-color 0.15s ease;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .site-card.whitelisted {
-      border-color: var(--fx-amber-bd);
+      border-color: var(--apple-amber-bd);
       background: linear-gradient(180deg, #FFFFFF 0%, #FFFDF9 100%);
     }
     .site-info {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
       min-width: 0;
     }
     .site-icon-box {
-      width: 34px;
-      height: 34px;
-      border-radius: 6px;
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      transition: all 0.15s ease;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .site-icon-box.active {
-      background: var(--fx-blue-bg);
-      border: 1px solid var(--fx-blue-bd);
-      color: var(--fx-blue);
+      background: var(--apple-green-bg);
+      border: 1px solid var(--apple-green-bd);
+      color: var(--apple-green);
     }
     .site-icon-box.paused {
-      background: var(--fx-amber-bg);
-      border: 1px solid var(--fx-amber-bd);
-      color: var(--fx-amber);
+      background: var(--apple-amber-bg);
+      border: 1px solid var(--apple-amber-bd);
+      color: var(--apple-amber);
     }
     .site-domain-text {
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--fx-text);
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--apple-text);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      letter-spacing: -0.015em;
     }
     .site-status-text {
-      font-size: 11px;
-      color: var(--fx-text-secondary);
+      font-size: 11.5px;
+      color: var(--apple-text-secondary);
       margin-top: 2px;
       display: flex;
       align-items: center;
       gap: 4px;
     }
-    .site-status-text.green { color: var(--fx-green); font-weight: 500; }
-    .site-status-text.amber { color: var(--fx-amber); font-weight: 500; }
+    .site-status-text.green { color: #248A3D; font-weight: 500; }
+    .site-status-text.amber { color: #B25900; font-weight: 500; }
 
-    /* Firefox Proton Big Switch */
+    /* Apple iOS Smooth Toggle Switch */
     .fx-switch {
       position: relative;
       display: inline-block;
-      width: 42px;
-      height: 22px;
+      width: 44px;
+      height: 26px;
       flex-shrink: 0;
     }
     .fx-switch input {
@@ -308,52 +356,53 @@
       position: absolute;
       cursor: pointer;
       inset: 0;
-      background: #8F8F9D;
-      transition: 0.15s ease;
-      border-radius: 22px;
+      background: #E5E5EA;
+      transition: 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      border-radius: 26px;
     }
     .fx-slider:before {
       position: absolute;
       content: "";
-      height: 16px;
-      width: 16px;
-      left: 3px;
-      bottom: 3px;
+      height: 22px;
+      width: 22px;
+      left: 2px;
+      bottom: 2px;
       background: white;
-      transition: 0.15s ease;
+      transition: 0.25s cubic-bezier(0.16, 1, 0.3, 1);
       border-radius: 50%;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.18), 0 0.5px 1px rgba(0, 0, 0, 0.08);
     }
     input:checked + .fx-slider {
-      background: var(--fx-blue);
+      background: #34C759;
     }
     input:checked + .fx-slider:before {
-      transform: translateX(20px);
+      transform: translateX(18px);
     }
 
-    /* Tainted Context Warning Banner */
+    /* Elevated Context Warning Banner (Quiet Dignity, Non-Alarmist) */
     .tainted-banner {
-      background: var(--fx-amber-bg);
-      border: 1px solid var(--fx-amber-bd);
-      border-left: 3px solid var(--fx-amber);
+      background: #FFFBF4;
+      border: 1px solid var(--apple-amber-bd);
+      border-left: 3px solid var(--apple-amber);
       border-radius: var(--radius-card);
-      padding: 10px 12px;
+      padding: 12px 14px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      animation: fxSlideDown 0.2s ease;
+      gap: 10px;
+      box-shadow: var(--shadow-sm);
+      animation: appleSlideDown 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    @keyframes fxSlideDown {
+    @keyframes appleSlideDown {
       from { opacity: 0; transform: translateY(-4px); }
       to   { opacity: 1; transform: translateY(0); }
     }
     .tainted-header {
       display: flex;
       align-items: flex-start;
-      gap: 8px;
+      gap: 10px;
     }
     .tainted-icon {
-      color: var(--fx-amber);
+      color: var(--apple-amber);
       flex-shrink: 0;
       margin-top: 1px;
     }
@@ -361,75 +410,80 @@
       flex: 1;
     }
     .tainted-title {
-      font-size: 11.5px;
-      font-weight: 700;
-      color: #783C00;
+      font-size: 12px;
+      font-weight: 600;
+      color: #92400E;
     }
     .tainted-desc {
-      font-size: 10.5px;
-      color: #944D00;
+      font-size: 11px;
+      color: #B45309;
       margin-top: 2px;
-      line-height: 1.35;
+      line-height: 1.4;
     }
     .btn-reset-tainted {
-      background: var(--fx-surface);
-      border: 1px solid var(--fx-amber-bd);
-      color: #783C00;
-      font-size: 11px;
+      background: #FFFFFF;
+      border: 1px solid var(--apple-amber-bd);
+      color: #92400E;
+      font-size: 11.5px;
       font-weight: 600;
-      padding: 5px 10px;
+      padding: 6px 12px;
       border-radius: var(--radius-btn);
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 5px;
-      transition: all 0.12s ease;
+      gap: 6px;
+      transition: all 0.15s ease;
       width: 100%;
     }
     .btn-reset-tainted:hover {
-      background: #FFF9F2;
-      border-color: var(--fx-amber);
+      background: #FFF8EE;
+      border-color: var(--apple-amber);
     }
 
-    /* Protection Modules Checklist */
+    /* iOS Inset Group Style Defense List */
     .modules-list {
       display: flex;
       flex-direction: column;
-      gap: 5px;
+      background: var(--apple-canvas);
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--apple-border-subtle);
     }
     .module-item {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 7px 9px;
-      background: var(--fx-canvas);
-      border: 1px solid var(--fx-border-subtle);
-      border-radius: 4px;
-      transition: background 0.12s;
+      padding: 9px 12px;
+      background: var(--apple-surface);
+      border-bottom: 1px solid var(--apple-divider);
+      transition: background 0.12s ease;
+    }
+    .module-item:last-child {
+      border-bottom: none;
     }
     .module-item:hover {
-      background: var(--fx-surface-hover);
+      background: rgba(0, 0, 0, 0.015);
     }
     .module-lead {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
       min-width: 0;
     }
     .module-icon {
-      width: 22px;
-      height: 22px;
-      border-radius: 4px;
+      width: 26px;
+      height: 26px;
+      border-radius: 7px;
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
     }
-    .module-icon.blue  { background: var(--fx-blue-bg);  color: var(--fx-blue); }
-    .module-icon.green { background: var(--fx-green-bg); color: var(--fx-green); }
-    .module-icon.amber { background: var(--fx-amber-bg); color: var(--fx-amber); }
-    .module-icon.red   { background: var(--fx-red-bg);   color: var(--fx-red); }
+    .module-icon.blue  { background: var(--apple-blue-bg);  color: var(--apple-blue); }
+    .module-icon.green { background: var(--apple-green-bg); color: var(--apple-green); }
+    .module-icon.amber { background: var(--apple-amber-bg); color: var(--apple-amber); }
+    .module-icon.red   { background: var(--apple-red-bg);   color: var(--apple-red); }
 
     .module-texts {
       display: flex;
@@ -437,122 +491,125 @@
       min-width: 0;
     }
     .module-title {
-      font-size: 11.5px;
+      font-size: 12px;
       font-weight: 600;
-      color: var(--fx-text);
+      color: var(--apple-text);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
     .module-desc {
-      font-size: 10px;
-      color: var(--fx-text-muted);
+      font-size: 10.5px;
+      color: var(--apple-text-secondary);
+      margin-top: 1px;
     }
     .module-pill {
-      font-size: 9.5px;
+      font-size: 10.5px;
       font-weight: 600;
-      padding: 2px 6px;
-      border-radius: 3px;
+      padding: 3px 8px;
+      border-radius: var(--radius-pill);
       white-space: nowrap;
       flex-shrink: 0;
     }
-    .module-pill.green { background: var(--fx-green-bg); color: var(--fx-green); border: 1px solid var(--fx-green-bd); }
-    .module-pill.blue  { background: var(--fx-blue-bg);  color: var(--fx-blue);  border: 1px solid var(--fx-blue-bd); }
-    .module-pill.amber { background: var(--fx-amber-bg); color: var(--fx-amber); border: 1px solid var(--fx-amber-bd); }
+    .module-pill.green { background: var(--apple-green-bg); color: #248A3D; border: 1px solid var(--apple-green-bd); }
+    .module-pill.blue  { background: var(--apple-blue-bg);  color: var(--apple-blue);  border: 1px solid var(--apple-blue-bd); }
+    .module-pill.amber { background: var(--apple-amber-bg); color: #B25900; border: 1px solid var(--apple-amber-bd); }
 
-    /* Firefox Buttons */
+    /* Apple Buttons */
     .btn-row {
       display: flex;
-      gap: 6px;
+      gap: 8px;
     }
     .btn-primary {
-      background: var(--fx-blue);
+      background: var(--apple-blue);
       color: #FFFFFF;
       border: none;
       border-radius: var(--radius-btn);
-      padding: 6px 12px;
-      font-size: 11.5px;
+      padding: 8px 14px;
+      font-size: 12px;
       font-weight: 600;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 5px;
-      transition: background 0.12s;
+      gap: 6px;
+      transition: all 0.15s ease;
+      letter-spacing: -0.01em;
     }
-    .btn-primary:hover { background: var(--fx-blue-hover); }
-    .btn-primary:active { background: var(--fx-blue-active); }
+    .btn-primary:hover { background: var(--apple-blue-hover); }
+    .btn-primary:active { transform: scale(0.98); background: var(--apple-blue-active); }
 
     .btn-secondary {
-      background: var(--fx-canvas);
-      border: 1px solid var(--fx-border);
+      background: rgba(0, 0, 0, 0.04);
+      border: 1px solid var(--apple-border);
       border-radius: var(--radius-btn);
-      padding: 6px 10px;
-      font-size: 11.5px;
+      padding: 7px 12px;
+      font-size: 12px;
       font-weight: 500;
-      color: var(--fx-text);
+      color: var(--apple-text);
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 5px;
-      transition: all 0.12s;
+      gap: 6px;
+      transition: all 0.15s ease;
     }
     .btn-secondary:hover {
-      background: var(--fx-surface-hover);
-      border-color: var(--fx-text-muted);
+      background: rgba(0, 0, 0, 0.07);
+      border-color: rgba(0, 0, 0, 0.14);
     }
+    .btn-secondary:active { transform: scale(0.98); }
 
     .btn-danger {
-      background: var(--fx-red-bg);
-      color: var(--fx-red);
-      border: 1px solid var(--fx-red-bd);
+      background: var(--apple-red-bg);
+      color: var(--apple-red);
+      border: 1px solid var(--apple-red-bd);
       border-radius: var(--radius-btn);
-      padding: 6px 10px;
-      font-size: 11.5px;
+      padding: 7px 12px;
+      font-size: 12px;
       font-weight: 600;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 5px;
-      transition: background 0.12s;
+      gap: 6px;
+      transition: all 0.15s ease;
     }
-    .btn-danger:hover { background: #FCE8EC; }
+    .btn-danger:hover { background: rgba(255, 59, 48, 0.14); }
+    .btn-danger:active { transform: scale(0.98); }
 
-    /* Firefox Form Inputs */
+    /* Apple Form Inputs */
     .form-group {
-      margin-bottom: 8px;
+      margin-bottom: 10px;
     }
     .form-label {
       display: block;
-      font-size: 10.5px;
+      font-size: 11px;
       font-weight: 600;
-      color: var(--fx-text-secondary);
-      margin-bottom: 3px;
+      color: var(--apple-text-secondary);
+      margin-bottom: 4px;
     }
     .input-field {
       width: 100%;
-      height: 31px;
-      background: var(--fx-surface);
-      border: 1px solid var(--fx-border);
+      height: 34px;
+      background: var(--apple-surface);
+      border: 1px solid var(--apple-border);
       border-radius: var(--radius-input);
-      padding: 0 9px;
-      font-size: 11.5px;
-      color: var(--fx-text);
+      padding: 0 10px;
+      font-size: 12.5px;
+      color: var(--apple-text);
       outline: none;
-      transition: border-color 0.12s, box-shadow 0.12s;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
     }
     .input-field:focus {
-      border-color: var(--fx-blue);
-      outline: 2px solid var(--fx-blue);
-      outline-offset: 1px;
+      border-color: var(--apple-blue);
+      box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.15);
     }
     .input-hint {
-      font-size: 9.5px;
-      color: var(--fx-text-muted);
-      margin-top: 2px;
-      line-height: 1.3;
+      font-size: 10.5px;
+      color: var(--apple-text-muted);
+      margin-top: 4px;
+      line-height: 1.35;
     }
 
-    /* Vault Master-Detail (Lockwise Style) */
+    /* Vault Categories List (Apple Inset Group) */
     .vault-categories-list {
       display: flex;
       flex-direction: column;
@@ -562,215 +619,224 @@
       padding-right: 2px;
     }
     .vault-cat-card {
-      background: var(--fx-surface);
-      border: 1px solid var(--fx-border-subtle);
+      background: var(--apple-surface);
+      border: 1px solid var(--apple-border);
       border-radius: var(--radius-card);
-      padding: 9px 12px;
+      padding: 10px 14px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 8px;
+      gap: 10px;
       cursor: pointer;
-      transition: all 0.12s ease;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+      transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: var(--shadow-sm);
     }
     .vault-cat-card:hover {
-      border-color: var(--fx-blue-bd);
-      background: var(--fx-surface-hover);
+      border-color: var(--apple-blue-bd);
+      background: #FAFBFC;
       transform: translateY(-1px);
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
     }
     .vault-cat-lead {
       display: flex;
       align-items: center;
-      gap: 9px;
+      gap: 10px;
       min-width: 0;
     }
     .vault-cat-icon {
-      width: 26px;
-      height: 26px;
-      border-radius: 4px;
-      background: var(--fx-canvas);
-      border: 1px solid var(--fx-border-subtle);
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: var(--apple-canvas);
+      border: 1px solid var(--apple-border-subtle);
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      color: var(--fx-text-secondary);
+      color: var(--apple-text-secondary);
     }
     .vault-cat-title {
-      font-size: 12px;
+      font-size: 12.5px;
       font-weight: 600;
-      color: var(--fx-text);
+      color: var(--apple-text);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
     .vault-cat-val {
-      font-size: 10px;
-      color: var(--fx-text-muted);
+      font-size: 10.5px;
+      color: var(--apple-text-muted);
       margin-top: 1px;
     }
     .vault-cat-val.filled {
-      color: var(--fx-green);
+      color: #248A3D;
       font-weight: 500;
     }
     .vault-cat-val.disabled {
-      color: var(--fx-amber);
+      color: #B25900;
       font-weight: 500;
     }
     .vault-cat-end {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
       flex-shrink: 0;
     }
     .tier-badge {
-      font-size: 9px;
+      font-size: 9.5px;
       font-weight: 600;
-      padding: 1px 5px;
-      border-radius: 3px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      letter-spacing: 0.02em;
     }
-    .tier-badge.a { background: var(--fx-red-bg); color: var(--fx-red); border: 1px solid var(--fx-red-bd); }
-    .tier-badge.b { background: var(--fx-blue-bg); color: var(--fx-blue); border: 1px solid var(--fx-blue-bd); }
+    .tier-badge.a { background: var(--apple-red-bg); color: var(--apple-red); border: 1px solid var(--apple-red-bd); }
+    .tier-badge.b { background: var(--apple-blue-bg); color: var(--apple-blue); border: 1px solid var(--apple-blue-bd); }
 
-    /* Vault Detail Editor (Full width) */
+    /* Vault Detail Editor */
     .vault-editor {
       display: flex;
       flex-direction: column;
       gap: 10px;
-      animation: fxFadeIn 0.15s ease;
+      animation: appleFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    @keyframes fxFadeIn {
-      from { opacity: 0; }
-      to   { opacity: 1; }
+    @keyframes appleFadeIn {
+      from { opacity: 0; transform: translateY(3px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
     .editor-topbar {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 8px;
-      padding-bottom: 4px;
-      border-bottom: 1px solid var(--fx-border-subtle);
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--apple-border-subtle);
     }
     .btn-back {
       background: transparent;
       border: none;
-      color: var(--fx-blue);
-      font-size: 11.5px;
+      color: var(--apple-blue);
+      font-size: 12px;
       font-weight: 600;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      padding: 2px 4px;
-      border-radius: 3px;
+      padding: 4px 6px;
+      border-radius: 6px;
+      transition: background 0.12s;
     }
     .btn-back:hover {
-      background: var(--fx-blue-bg);
+      background: var(--apple-blue-bg);
     }
     .input-with-action {
       display: flex;
-      gap: 5px;
+      gap: 6px;
       position: relative;
     }
     .input-action-btn {
       position: absolute;
-      right: 6px;
+      right: 8px;
       top: 50%;
       transform: translateY(-50%);
       background: transparent;
       border: none;
-      color: var(--fx-text-muted);
+      color: var(--apple-text-secondary);
       cursor: pointer;
-      padding: 3px;
+      padding: 4px;
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 3px;
+      border-radius: 4px;
+      transition: color 0.12s;
     }
     .input-action-btn:hover {
-      color: var(--fx-text);
-      background: var(--fx-canvas);
+      color: var(--apple-text);
     }
     .help-box {
-      background: var(--fx-canvas);
-      border: 1px solid var(--fx-border-subtle);
-      border-radius: 4px;
-      padding: 8px 10px;
-      font-size: 10.5px;
-      color: var(--fx-text-secondary);
-      line-height: 1.35;
+      background: rgba(0, 113, 227, 0.04);
+      border: 1px solid var(--apple-blue-bd);
+      border-radius: var(--radius-card);
+      padding: 10px 12px;
+      font-size: 11px;
+      color: var(--apple-text-secondary);
+      line-height: 1.45;
     }
-    .help-box strong { color: var(--fx-text); }
+    .help-box strong { color: var(--apple-text); }
 
-    /* Whitelist Scroll List */
+    /* Whitelist List */
     .scroll-list {
-      max-height: 150px;
+      max-height: 160px;
       overflow-y: auto;
       list-style: none;
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 5px;
     }
     .list-entry {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 6px 9px;
-      background: var(--fx-canvas);
-      border: 1px solid var(--fx-border-subtle);
-      border-radius: 4px;
-      font-size: 11.5px;
-      color: var(--fx-text);
+      padding: 8px 12px;
+      background: var(--apple-canvas);
+      border: 1px solid var(--apple-border-subtle);
+      border-radius: 8px;
+      font-size: 12px;
+      color: var(--apple-text);
+      transition: background 0.12s;
+    }
+    .list-entry:hover {
+      background: #EEEEF2;
     }
     .btn-remove {
       background: transparent;
       border: none;
-      color: var(--fx-text-muted);
+      color: var(--apple-text-muted);
       cursor: pointer;
-      padding: 2px;
-      border-radius: 3px;
+      padding: 3px;
+      border-radius: 4px;
       display: flex;
-      transition: color 0.12s;
+      transition: color 0.15s;
     }
-    .btn-remove:hover { color: var(--fx-red); }
+    .btn-remove:hover { color: var(--apple-red); }
 
-    /* Toast */
+    /* Toast (Apple Capsule Notification) */
     .toast {
       position: fixed;
-      bottom: 14px;
+      bottom: 16px;
       left: 50%;
       transform: translateX(-50%);
-      background: var(--fx-text);
+      background: rgba(29, 29, 31, 0.94);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       color: #FFFFFF;
-      font-size: 11.5px;
+      font-size: 12px;
       font-weight: 500;
-      padding: 6px 12px;
-      border-radius: 4px;
+      padding: 8px 16px;
+      border-radius: var(--radius-pill);
       display: none;
       white-space: nowrap;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-      animation: fxToastIn 0.18s ease;
+      box-shadow: var(--shadow-elevated);
+      animation: appleToastIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
       z-index: 1000;
     }
-    @keyframes fxToastIn {
-      from { opacity: 0; transform: translate(-50%, 6px); }
+    @keyframes appleToastIn {
+      from { opacity: 0; transform: translate(-50%, 8px); }
       to   { opacity: 1; transform: translate(-50%, 0); }
     }
   </style>
 </head>
 <body>
-  <!-- Firefox Proton Header -->
+  <!-- Apple Frosted Glass Header -->
   <header class="app-header">
     <div class="brand-group">
       <div class="brand-icon">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
           <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>
         </svg>
       </div>
       <div>
         <div class="brand-name">Threat Shield</div>
-        <div class="brand-tagline">Firefox Phishing & Lure Shield</div>
+        <div class="brand-tagline">Sanctuary of Digital Dignity</div>
       </div>
     </div>
     <div class="status-pill active" id="globalStatusPill">
@@ -778,36 +844,38 @@
     </div>
   </header>
 
-  <!-- Firefox 3-Tab Navigation -->
-  <nav class="tab-nav">
-    <button type="button" class="tab-btn active" id="tabBtnShield">
-      <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-      </svg>
-      <span>Захист</span>
-    </button>
-    <button type="button" class="tab-btn" id="tabBtnVault">
-      <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-      </svg>
-      <span>Сховище</span>
-    </button>
-    <button type="button" class="tab-btn" id="tabBtnSettings">
-      <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="3"/>
-        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-      </svg>
-      <span>Опції</span>
-    </button>
-  </nav>
+  <!-- Cupertino Segmented Control Navigation -->
+  <div class="nav-container">
+    <nav class="tab-nav">
+      <button type="button" class="tab-btn active" id="tabBtnShield">
+        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        <span>Захист</span>
+      </button>
+      <button type="button" class="tab-btn" id="tabBtnVault">
+        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+        <span>Сховище</span>
+      </button>
+      <button type="button" class="tab-btn" id="tabBtnSettings">
+        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+        <span>Опції</span>
+      </button>
+    </nav>
+  </div>
 
   <!-- TAB 1: ЗАХИСТ САЙТУ (ГОЛОВНА) -->
   <main class="tab-content" id="tabContentShield">
-    <!-- Current Site Protection Card (Firefox Protections Style) -->
+    <!-- Current Site Protection Hero Card -->
     <div class="site-card" id="currentSiteCard">
       <div class="site-info">
         <div class="site-icon-box active" id="siteIconBox">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
           </svg>
         </div>
@@ -828,7 +896,7 @@
     <div class="tainted-banner" id="taintedBanner" style="display:none;">
       <div class="tainted-header">
         <div class="tainted-icon">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
             <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
             <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
           </svg>
@@ -839,7 +907,7 @@
         </div>
       </div>
       <button type="button" class="btn-reset-tainted" id="btnResetContextHome">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
         Скинути стан тривоги
       </button>
     </div>
@@ -855,7 +923,7 @@
       <div class="modules-list">
         <div class="module-item">
           <div class="module-lead">
-            <div class="module-icon green"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>
+            <div class="module-icon green"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>
             <div class="module-texts">
               <span class="module-title">Захист карток та CVV</span>
               <span class="module-desc">Блокування передачі платіжних реквізитів у чатах</span>
@@ -866,7 +934,7 @@
 
         <div class="module-item">
           <div class="module-lead">
-            <div class="module-icon amber"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/><line x1="1" y1="1" x2="23" y2="23"/></svg></div>
+            <div class="module-icon amber"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/><line x1="1" y1="12" x2="23" y2="23"/></svg></div>
             <div class="module-texts">
               <span class="module-title">Аудит автозаповнення</span>
               <span class="module-desc">Виявлення невидимих та прихованих CSS-полів</span>
@@ -877,7 +945,7 @@
 
         <div class="module-item" id="moduleVaultItem" style="cursor:pointer;" title="Натисніть для переходу до Сховища">
           <div class="module-lead">
-            <div class="module-icon blue"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+            <div class="module-icon blue"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
             <div class="module-texts">
               <span class="module-title">Personal Vault DLP</span>
               <span class="module-desc" id="vaultProtectionDesc">7 захисних маркерів налаштовано</span>
@@ -888,7 +956,7 @@
 
         <div class="module-item">
           <div class="module-lead">
-            <div class="module-icon blue"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg></div>
+            <div class="module-icon blue"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg></div>
             <div class="module-texts">
               <span class="module-title">ШІ-арбітр (Gemini Nano)</span>
               <span class="module-desc" id="homeAiSubtext">Локальний семантичний аналіз намірів</span>
@@ -900,58 +968,58 @@
     </div>
   </main>
 
-  <!-- TAB 2: PERSONAL VAULT (FIREFOX LOCKWISE STYLE) -->
+  <!-- TAB 2: PERSONAL VAULT (DIGITAL SANCTUARY) -->
   <section class="tab-content" id="tabContentVault" style="display:none;">
     <!-- Setup state -->
     <div id="vaultSetupState" style="display:none;" class="card">
-      <div class="hero-icon" style="margin:0 auto 10px; width:36px; height:36px; border-radius:6px; background:var(--fx-blue-bg); color:var(--fx-blue); border:1px solid var(--fx-blue-bd); display:flex; align-items:center; justify-content:center;">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      <div style="margin:0 auto 12px; width:44px; height:44px; border-radius:12px; background:var(--apple-blue-bg); color:var(--apple-blue); border:1px solid var(--apple-blue-bd); display:flex; align-items:center; justify-content:center;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
       </div>
-      <h3 style="text-align:center; margin-bottom: 4px; font-size:13.5px; font-weight:700;">Створіть свій Vault</h3>
-      <p style="text-align:center; color:var(--fx-text-secondary); margin-bottom:12px; font-size:11px; line-height:1.4;">Захистіть дівоче прізвище матері, ІПН та секретні слова від витоку. Дані шифруються локально за стандартом AES-GCM 256.</p>
+      <h3 style="text-align:center; margin-bottom: 4px; font-size:14px; font-weight:700; color:var(--apple-text);">Створіть свій Vault</h3>
+      <p style="text-align:center; color:var(--apple-text-secondary); margin-bottom:14px; font-size:11.5px; line-height:1.45;">Особистий простір цифрової гідності. Дані шифруються локально ключем AES-GCM 256 та ніколи не залишають ваш пристрій.</p>
       <div class="form-group">
         <input type="password" id="vaultSetupPassword" class="input-field" placeholder="Придумайте надійний майстер-пароль">
       </div>
       <div class="form-group">
         <input type="password" id="vaultSetupConfirm" class="input-field" placeholder="Підтвердіть пароль">
       </div>
-      <button type="button" class="btn-primary" id="btnSetupVault" style="width:100%; justify-content:center; margin-top:4px;">Створити сховище</button>
+      <button type="button" class="btn-primary" id="btnSetupVault" style="width:100%; justify-content:center; margin-top:6px;">Створити сховище</button>
     </div>
 
     <!-- Locked state -->
     <div id="vaultLockedState" style="display:none;" class="card">
-      <div class="hero-icon" style="margin:0 auto 10px; width:36px; height:36px; border-radius:6px; background:var(--fx-amber-bg); color:var(--fx-amber); border:1px solid var(--fx-amber-bd); display:flex; align-items:center; justify-content:center;">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      <div style="margin:0 auto 12px; width:44px; height:44px; border-radius:12px; background:var(--apple-amber-bg); color:var(--apple-amber); border:1px solid var(--apple-amber-bd); display:flex; align-items:center; justify-content:center;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
       </div>
-      <h3 style="text-align:center; margin-bottom: 4px; font-size:13.5px; font-weight:700;">Сховище заблоковано</h3>
-      <p style="text-align:center; color:var(--fx-text-secondary); margin-bottom:12px; font-size:11px; line-height:1.4;">Введіть ваш пароль для редагування та активного DLP-захисту реквізитів.</p>
+      <h3 style="text-align:center; margin-bottom: 4px; font-size:14px; font-weight:700; color:var(--apple-text);">Сховище заблоковано</h3>
+      <p style="text-align:center; color:var(--apple-text-secondary); margin-bottom:14px; font-size:11.5px; line-height:1.45;">Введіть пароль для доступу до маркерів та активного DLP-скринінгу реквізитів.</p>
       <div class="form-group">
         <input type="password" id="vaultUnlockPassword" class="input-field" placeholder="Ваш майстер-пароль">
       </div>
-      <button type="button" class="btn-primary" id="btnUnlockVault" style="width:100%; justify-content:center; margin-top:4px;">Розблокувати</button>
+      <button type="button" class="btn-primary" id="btnUnlockVault" style="width:100%; justify-content:center; margin-top:6px;">Розблокувати</button>
     </div>
 
     <!-- Unlocked state -->
-    <div id="vaultUnlockedState" style="display:none; flex-direction:column; gap:8px;">
+    <div id="vaultUnlockedState" style="display:none; flex-direction:column; gap:10px;">
       <!-- Master View: List of categories -->
       <div id="vaultMasterView">
-        <div class="card-header" style="margin-bottom:6px;">
+        <div class="card-header" style="margin-bottom:8px;">
           <div class="card-title">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
             Об'єкти захисту DLP
           </div>
-          <span style="font-size:10.5px; color:var(--fx-text-muted);" id="vaultActiveCountLabel">0 активних</span>
+          <span style="font-size:11px; color:var(--apple-text-secondary); font-weight:500;" id="vaultActiveCountLabel">0 активних</span>
         </div>
         <div class="vault-categories-list" id="vaultCategoriesContainer">
           <!-- Populated dynamically -->
         </div>
       </div>
 
-      <!-- Detail View: Editor for single item (Full width) -->
+      <!-- Detail View: Editor for single item -->
       <div id="vaultDetailView" style="display:none;" class="vault-editor">
         <div class="editor-topbar">
           <button type="button" class="btn-back" id="btnBackToVaultList">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><polyline points="15 18 9 12 15 6"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="15 18 9 12 15 6"/></svg>
             Усі маркери
           </button>
           <div style="display:flex; align-items:center; gap:8px;">
@@ -964,14 +1032,14 @@
         </div>
 
         <div class="card">
-          <h3 id="detailItemTitle" style="font-size:13px; font-weight:700; color:var(--fx-text); margin-bottom:10px;">Дівоче прізвище матері</h3>
+          <h3 id="detailItemTitle" style="font-size:13.5px; font-weight:700; color:var(--apple-text); margin-bottom:12px;">Дівоче прізвище матері</h3>
           
           <div class="form-group">
             <label class="form-label" for="detailRealInput">Справжнє конфіденційне значення</label>
             <div class="input-with-action">
               <input type="password" id="detailRealInput" class="input-field" placeholder="Введіть значення">
               <button type="button" class="input-action-btn" id="btnTogglePasswordVisibility" title="Показати/приховати">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
               </button>
             </div>
             <div class="input-hint">Якщо сайт спробує зчитати це значення — спрацює блокування.</div>
@@ -983,9 +1051,9 @@
             <div class="input-hint">Підставляється автоматично замість справжніх даних.</div>
           </div>
 
-          <div class="btn-row" style="margin-top:10px;">
+          <div class="btn-row" style="margin-top:12px;">
             <button type="button" class="btn-primary" id="btnSaveDetailItem" style="flex:1; justify-content:center;">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><polyline points="20 6 9 17 4 12"/></svg>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><polyline points="20 6 9 17 4 12"/></svg>
               Зберегти зміни
             </button>
             <button type="button" class="btn-secondary" id="btnClearDetailItem">Очистити</button>
@@ -998,15 +1066,15 @@
       </div>
 
       <!-- Vault Global Footer -->
-      <div style="display:flex; justify-content:space-between; align-items:center; padding-top:4px;">
-        <button type="button" class="btn-secondary" id="btnResetVaultDefaults" style="font-size:11px; padding:4px 8px;">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+      <div style="display:flex; justify-content:space-between; align-items:center; padding-top:6px;">
+        <button type="button" class="btn-secondary" id="btnResetVaultDefaults" style="font-size:11px; padding:5px 10px;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
           Скинути
         </button>
-        <div style="display:flex; align-items:center; gap:6px;">
-          <span style="font-size:10px; color:var(--fx-text-muted);">AES-GCM 256</span>
-          <button type="button" class="btn-secondary" id="btnLockVault" style="padding:4px 8px; font-size:11px;">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size:10.5px; color:var(--apple-text-secondary); font-weight:500;">AES-GCM 256</span>
+          <button type="button" class="btn-secondary" id="btnLockVault" style="padding:5px 10px; font-size:11px;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
             Заблокувати
           </button>
         </div>
@@ -1024,16 +1092,16 @@
           <span id="whitelistTitle">Довірені сайти (0)</span>
         </div>
       </div>
-      <div class="btn-row" style="margin-bottom:8px;">
+      <div class="btn-row" style="margin-bottom:10px;">
         <input type="text" class="input-field" id="manualHostInput" placeholder="myshop.ua або bank.ua">
         <button type="button" class="btn-primary" id="btnAddManual">Додати</button>
       </div>
       <ul class="scroll-list" id="whitelistUl">
-        <li class="list-entry" style="justify-content:center; color:var(--fx-text-muted);">Немає доданих сайтів</li>
+        <li class="list-entry" style="justify-content:center; color:var(--apple-text-muted);">Немає доданих сайтів</li>
       </ul>
-      <div style="margin-top:8px;">
-        <button type="button" class="btn-danger" id="btnClearAllWhitelist" style="width:100%; justify-content:center; font-size:11px; padding:5px;">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+      <div style="margin-top:10px;">
+        <button type="button" class="btn-danger" id="btnClearAllWhitelist" style="width:100%; justify-content:center; font-size:11.5px; padding:7px;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
           Очистити всі довірені сайти
         </button>
       </div>
@@ -1047,11 +1115,11 @@
           Локальний ШІ
         </div>
       </div>
-      <p style="font-size:11.5px; color:var(--fx-text-secondary); line-height:1.4; margin-bottom:8px;">
+      <p style="font-size:12px; color:var(--apple-text-secondary); line-height:1.45; margin-bottom:10px;">
         Статус Gemini Nano: <strong id="aiStatusText">Перевірка...</strong>
       </p>
-      <div style="font-size:10.5px; color:var(--fx-text-muted); line-height:1.35; padding:6px 8px; background:var(--fx-canvas); border-radius:4px;">
-        🔒 Обробка здійснюється повністю всередині браузера. Жоден символ не надсилається на зовнішні сервери.
+      <div style="font-size:11px; color:var(--apple-text-secondary); line-height:1.4; padding:8px 10px; background:var(--apple-canvas); border-radius:8px; border:1px solid var(--apple-border-subtle);">
+        🔒 <strong>Повна приватність:</strong> Обробка намірів здійснюється виключно на вашому пристрої. Жоден символ чи пароль не залишає браузер.
       </div>
     </div>
 
@@ -1063,11 +1131,11 @@
           Діагностика
         </div>
       </div>
-      <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
-        <input type="checkbox" id="toggleDebugMode" style="width:15px; height:15px; accent-color:var(--fx-blue); cursor:pointer;">
+      <label style="display:flex; align-items:center; gap:10px; cursor:pointer;">
+        <input type="checkbox" id="toggleDebugMode" style="width:16px; height:16px; accent-color:var(--apple-blue); cursor:pointer;">
         <div>
-          <div style="font-size:11.5px; font-weight:600; color:var(--fx-text);">Візуалізація (Дебагер-оверлей)</div>
-          <div style="font-size:10px; color:var(--fx-text-muted);">Показує термінал перевірки форм та ШІ в реальному часі на сторінці</div>
+          <div style="font-size:12px; font-weight:600; color:var(--apple-text);">Дебагер-оверлей (Швейцарський механізм)</div>
+          <div style="font-size:10.5px; color:var(--apple-text-secondary); margin-top:2px;">Показує термінал перевірки форм та ШІ в реальному часі на сторінці</div>
         </div>
       </label>
     </div>
