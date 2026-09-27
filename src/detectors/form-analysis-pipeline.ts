@@ -3,6 +3,7 @@ import { FormSensitiveState, getFormFilledState } from '../heuristics/input-dete
 import { VaultScanner } from '../heuristics/vault-scanner';
 import { RiskEngine } from '../core/risk-engine';
 import { isWhitelisted } from '../core/whitelist';
+import { UserWhitelistManager } from '../core/user-whitelist';
 import { IFormDetector, FormDetectorContext } from './contracts/form-detector.interface';
 import { ActionMismatchDetector } from './action-mismatch.detector';
 import { HiddenFieldDetector } from './hidden-field.detector';
@@ -74,7 +75,7 @@ export class FormAnalysisPipeline {
 
     // Зшивання сесій (Tainted Context Window)
     let contextBonus = 0;
-    if (activeContext && !isWhitelisted(currentHost)) {
+    if (activeContext && !isWhitelisted(currentHost) && !UserWhitelistManager.isDomainAllowedSync(currentHost)) {
       contextBonus = 35;
       heuristics.push({
         name: 'tainted_context_window_active',

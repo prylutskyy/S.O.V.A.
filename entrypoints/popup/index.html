@@ -28,12 +28,6 @@
         <p class="brand-subtitle">Оптична призма · Цифрова гідність</p>
       </div>
     </div>
-    <div class="header-actions">
-      <div class="status-pill active" id="globalStatusPill" aria-live="polite">
-        <span class="pulse-dot"></span>
-        <span id="globalStatusText">Захищено</span>
-      </div>
-    </div>
   </header>
 
   <!-- =========================================================================
@@ -137,10 +131,10 @@
             </div>
             <div class="inset-info">
               <div class="inset-title">Захист карток та CVV</div>
-              <div class="inset-desc">Фінансова недоторканність: блокування викрадення балансу</div>
+              <div class="inset-desc" id="cardProtectionDesc">Фінансова недоторканність: блокування викрадення балансу</div>
             </div>
           </div>
-          <span class="module-pill green">Активно</span>
+          <span class="module-pill green" id="cardProtectionPill">Активно</span>
         </div>
 
         <!-- Guarantee 2: Hidden Forms Scanner -->
@@ -153,10 +147,10 @@
             </div>
             <div class="inset-info">
               <div class="inset-title">Аудит прихованих форм</div>
-              <div class="inset-desc">Оптична прозорість DOM: нейтралізація CSS-маскування</div>
+              <div class="inset-desc" id="hiddenFormsDesc">Оптична прозорість DOM: нейтралізація CSS-маскування</div>
             </div>
           </div>
-          <span class="module-pill green">Активно</span>
+          <span class="module-pill green" id="hiddenFormsPill">Активно</span>
         </div>
 
         <!-- Module 3: Personal Vault DLP (Navigates to Vault) -->
@@ -171,11 +165,11 @@
             </div>
             <div class="inset-info">
               <div class="inset-title">Personal Vault DLP</div>
-              <div class="inset-desc" id="vaultProtectionDesc">Захист конфіденційних маркерів</div>
+              <div class="inset-desc" id="vaultProtectionDesc">Захист конфіденційних маркерів та даних у чатах</div>
             </div>
           </div>
           <div class="inset-end">
-            <span class="module-pill green" id="vaultStatusPill">Захищено</span>
+            <span class="module-pill green" id="vaultStatusPill">Активно</span>
             <svg class="chevron-end" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><polyline points="9 18 15 12 9 6"/></svg>
           </div>
         </div>
@@ -191,10 +185,10 @@
             </div>
             <div class="inset-info">
               <div class="inset-title">ШІ-арбітр (Gemini Nano)</div>
-              <div class="inset-desc" id="homeAiSubtext">Вбудована модель готова до роботи</div>
+              <div class="inset-desc" id="homeAiSubtext">Локальний аналіз фішингових сценаріїв та діалогів</div>
             </div>
           </div>
-          <span class="module-pill green" id="homeAiPill">Готово</span>
+          <span class="module-pill green" id="homeAiPill">Активно</span>
         </div>
       </div>
     </div>
@@ -321,7 +315,7 @@
 
       <div class="sanctuary-card">
         <p class="card-caption">
-          Сайти, для яких аналіз форм та захист від перехоплення тимчасово вимкнено за вашим рішенням.
+          Сайти, для яких аналіз форм та аудит прихованих полів вимкнено за вашим рішенням. Захист від витоку реквізитів у чатах (DLP та ШІ) залишається активним.
         </p>
 
         <div class="manual-add-row">

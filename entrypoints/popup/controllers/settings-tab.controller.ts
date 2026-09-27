@@ -31,15 +31,7 @@ export class SettingsTabController {
   }
 
   private cleanDomain(raw: string): string {
-    let d = raw.trim().toLowerCase();
-    try {
-      if (d.includes('://')) {
-        d = new URL(d).hostname;
-      } else if (d.includes('/')) {
-        d = d.split('/')[0];
-      }
-    } catch {}
-    return d.replace(/^www\./, '');
+    return UserWhitelistManager.normalizeDomain(raw);
   }
 
   public async renderWhitelist(): Promise<void> {

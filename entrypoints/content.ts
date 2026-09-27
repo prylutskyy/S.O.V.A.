@@ -7,7 +7,7 @@ import { DebuggerOverlay } from '../src/ui/debugger-overlay';
 import { ActiveThreatContext } from '../src/types';
 import { GlobalInputInterceptor } from '../src/heuristics/input-interceptor';
 import { ChatChannelMonitor } from '../src/heuristics/chat-channel';
-import { ProactiveFormScanner } from '../src/heuristics/hidden-field-inspector';
+import { ProactiveFormScanner, HiddenFieldInspector } from '../src/heuristics/hidden-field-inspector';
 import { FormAnalysisPipeline } from '../src/detectors/form-analysis-pipeline';
 import { FormSubmitInterceptor } from '../src/interceptors/form-submit.interceptor';
 import { ChatSubmitInterceptor } from '../src/interceptors/chat-submit.interceptor';
@@ -36,6 +36,13 @@ export default defineContentScript({
       if (debugMode) DebuggerOverlay.show();
     } catch (e) {}
 
+    // Базові менеджери користувацького стану: обов'язковий await,
+    // щоб кеш білого списку був заповнений ДО першого сканування форм!
+    await Promise.all([
+      UserWhitelistManager.init(),
+      PersonalVaultManager.init()
+    ]).catch((e) => console.error('[ThreatShield] UserWhitelist/PersonalVault init error:', e));
+
     chrome.storage.onChanged.addListener((changes) => {
       if (changes.debugModeEnabled) {
         debugMode = changes.debugModeEnabled.newValue;
@@ -49,13 +56,32 @@ export default defineContentScript({
           DebuggerOverlay.hide();
         }
       }
+
+      if (changes.threat_shield_user_whitelist) {
+        const newList: string[] = changes.threat_shield_user_whitelist.newValue || [];
+        const cleanHost = UserWhitelistManager.normalizeDomain(currentHost);
+        const isAllowedNow =
+          newList.some((d) => {
+            const norm = UserWhitelistManager.normalizeDomain(d);
+            return cleanHost === norm || cleanHost.endsWith(`.${norm}`);
+          }) || isWhitelisted(currentHost);
+
+        if (isAllowedNow) {
+          console.log('[ThreatShield:Content] Сайт додано до білого списку. Знімаємо банери та відновлюємо форми.');
+          SecurityFriction.removeHiddenFieldTrapBanner();
+          SecurityFriction.removeContextWarningBanner();
+          document.querySelectorAll('form').forEach((form) => {
+            HiddenFieldInspector.restoreForm(form);
+          });
+        } else {
+          console.log('[ThreatShield:Content] Сайт видалено з білого списку. Запускаємо повторний аудит форм.');
+          ProactiveFormScanner.resetScannedForms();
+          ProactiveFormScanner.scanCurrentDocument();
+        }
+      }
     });
 
     console.log('[ThreatShield:Content] Ініціалізація на сайті:', currentHost || 'local file');
-
-    // Базові менеджери користувацького стану
-    UserWhitelistManager.init().catch((e) => console.error('[ThreatShield] UserWhitelist init error:', e));
-    PersonalVaultManager.init().catch((e) => console.error('[ThreatShield] PersonalVault init error:', e));
 
     const shouldDisplayContextBanner = (ctx: ActiveThreatContext): boolean => {
       if (UserWhitelistManager.isDomainAllowedSync(currentHost) || isWhitelisted(currentHost)) {

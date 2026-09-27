@@ -566,6 +566,10 @@ export class ProactiveFormScanner {
     this.setupObserver();
   }
 
+  public static resetScannedForms(): void {
+    this.scannedForms = new WeakSet<HTMLFormElement>();
+  }
+
   public static scanCurrentDocument(): HiddenFieldScanResult[] {
     if (!this.callbacks) return [];
     if (this.currentHost && this.callbacks.isDomainAllowed && this.callbacks.isDomainAllowed(this.currentHost)) {

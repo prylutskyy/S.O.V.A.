@@ -2,6 +2,7 @@ import { FormAnalysisPipeline, FormAnalysisResult } from '../detectors/form-anal
 import { ActiveThreatContext, ThreatAssessment } from '../types';
 import { FormSensitiveState } from '../heuristics/input-detector';
 import { isAccreditedPaymentGateway } from '../core/payment-gateways';
+import { isWhitelisted } from '../core/whitelist';
 import { UserWhitelistManager } from '../core/user-whitelist';
 import { SecurityFriction } from '../ui/friction';
 import { DebuggerOverlay } from '../ui/debugger-overlay';
@@ -35,13 +36,24 @@ export class FormSubmitInterceptor {
     } catch {}
     return (
       isAccreditedPaymentGateway(targetHost) ||
-      UserWhitelistManager.isDomainAllowedSync(targetHost)
+      UserWhitelistManager.isDomainAllowedSync(targetHost) ||
+      UserWhitelistManager.isDomainAllowedSync(currentHost) ||
+      isWhitelisted(targetHost) ||
+      isWhitelisted(currentHost)
     );
   }
 
-  public static shouldBlock(assessment: ThreatAssessment, formState: FormSensitiveState, targetHost: string): boolean {
+  public static shouldBlock(
+    assessment: ThreatAssessment,
+    formState: FormSensitiveState,
+    targetHost: string,
+    currentHost?: string
+  ): boolean {
     if (UserWhitelistManager.isDomainAllowedSync(targetHost)) return false;
+    if (currentHost && UserWhitelistManager.isDomainAllowedSync(currentHost)) return false;
     if (isAccreditedPaymentGateway(targetHost)) return false;
+    if (isWhitelisted(targetHost)) return false;
+    if (currentHost && isWhitelisted(currentHost)) return false;
 
     // Блокуємо якщо CRITICAL або HIGH при заповнених чутливих даних
     return assessment.level === 'CRITICAL' || (assessment.level === 'HIGH' && formState.hasFilledAnySensitive);
@@ -93,7 +105,7 @@ export class FormSubmitInterceptor {
           if (form.dataset.threatShieldApproved === 'true') return;
 
           const { assessment, formState, targetHost } = this.handleFormAnalysis(form);
-          if (this.shouldBlock(assessment, formState, targetHost)) {
+          if (this.shouldBlock(assessment, formState, targetHost, currentHost)) {
             event.preventDefault();
             event.stopPropagation();
             event.stopImmediatePropagation();
@@ -117,7 +129,7 @@ export class FormSubmitInterceptor {
             if (form.dataset.threatShieldApproved === 'true') return;
 
             const { assessment, formState, targetHost } = this.handleFormAnalysis(form);
-            if (this.shouldBlock(assessment, formState, targetHost)) {
+            if (this.shouldBlock(assessment, formState, targetHost, currentHost)) {
               event.preventDefault();
               event.stopPropagation();
               event.stopImmediatePropagation();
@@ -138,7 +150,7 @@ export class FormSubmitInterceptor {
       if (form.dataset.threatShieldApproved === 'true') return;
 
       const { assessment, formState, targetHost } = this.handleFormAnalysis(form);
-      if (this.shouldBlock(assessment, formState, targetHost)) {
+      if (this.shouldBlock(assessment, formState, targetHost, currentHost)) {
         event.preventDefault();
         event.stopPropagation();
         event.stopImmediatePropagation();

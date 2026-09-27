@@ -10,6 +10,23 @@ export class UserWhitelistManager {
   private static isInitialized: boolean = false;
 
   /**
+   * Нормалізує домен (прибирає протоколи, порти, www, пробіли)
+   */
+  public static normalizeDomain(hostname: string): string {
+    if (!hostname) return '';
+    let host = hostname.toLowerCase().trim();
+    if (host.includes('://')) {
+      try {
+        host = new URL(host).hostname;
+      } catch {}
+    }
+    // Прибираємо порт, якщо вказаний (localhost:3000 -> localhost)
+    host = host.split(':')[0].trim();
+    // Прибираємо www.
+    return host.replace(/^www\./, '');
+  }
+
+  /**
    * Ініціалізація кешу при завантаженні контентного скрипта
    */
   public static async init(): Promise<void> {
@@ -17,7 +34,7 @@ export class UserWhitelistManager {
       if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
         const res = await chrome.storage.local.get(USER_WHITELIST_KEY);
         const list: string[] = res[USER_WHITELIST_KEY] || [];
-        this.cachedDomains = new Set(list.map((d) => d.toLowerCase().trim()));
+        this.cachedDomains = new Set(list.map((d) => this.normalizeDomain(d)).filter(Boolean));
         this.isInitialized = true;
       }
     } catch (e) {
@@ -30,11 +47,13 @@ export class UserWhitelistManager {
    */
   public static isDomainAllowedSync(hostname: string): boolean {
     if (!hostname) return false;
-    const cleanHost = hostname.toLowerCase().trim();
+    const cleanHost = this.normalizeDomain(hostname);
+    if (!cleanHost) return false;
+
     if (this.cachedDomains.has(cleanHost)) return true;
 
     for (const domain of this.cachedDomains) {
-      if (cleanHost.endsWith(`.${domain}`)) {
+      if (cleanHost === domain || cleanHost.endsWith(`.${domain}`)) {
         return true;
       }
     }
@@ -50,7 +69,8 @@ export class UserWhitelistManager {
 
   public static async allowDomain(hostname: string): Promise<void> {
     if (!hostname) return;
-    const cleanHost = hostname.toLowerCase().trim();
+    const cleanHost = this.normalizeDomain(hostname);
+    if (!cleanHost) return;
     this.cachedDomains.add(cleanHost);
 
     if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
@@ -76,7 +96,7 @@ export class UserWhitelistManager {
   }
 
   public static async removeDomain(hostname: string): Promise<void> {
-    const cleanHost = hostname.toLowerCase().trim();
+    const cleanHost = this.normalizeDomain(hostname);
     this.cachedDomains.delete(cleanHost);
 
     if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
@@ -90,7 +110,9 @@ if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.onChanged)
   chrome.storage.onChanged.addListener((changes, areaName) => {
     if (areaName === 'local' && changes['threat_shield_user_whitelist']) {
       const list: string[] = changes['threat_shield_user_whitelist'].newValue || [];
-      UserWhitelistManager['cachedDomains'] = new Set(list.map((d) => d.toLowerCase().trim()));
+      UserWhitelistManager['cachedDomains'] = new Set(
+        list.map((d) => UserWhitelistManager.normalizeDomain(d)).filter(Boolean)
+      );
     }
   });
 }

@@ -7,8 +7,6 @@ export class ShieldTabController {
   private currentSiteToggle: HTMLInputElement;
   private siteIconBox: HTMLElement;
   private currentSiteCard: HTMLElement;
-  private globalStatusPill: HTMLElement;
-  private globalStatusText: HTMLElement;
 
   private taintedBanner: HTMLElement;
   private taintedDescText: HTMLElement;
@@ -20,6 +18,11 @@ export class ShieldTabController {
 
   private homeAiPill: HTMLElement;
   private homeAiSubtext: HTMLElement;
+
+  private cardProtectionPill: HTMLElement | null;
+  private cardProtectionDesc: HTMLElement | null;
+  private hiddenFormsPill: HTMLElement | null;
+  private hiddenFormsDesc: HTMLElement | null;
 
   private chainSourceNode: HTMLElement | null;
   private chainTargetNode: HTMLElement | null;
@@ -38,8 +41,11 @@ export class ShieldTabController {
     this.currentSiteToggle = document.getElementById('currentSiteToggle') as HTMLInputElement;
     this.siteIconBox = document.getElementById('siteIconBox') as HTMLElement;
     this.currentSiteCard = document.getElementById('currentSiteCard') as HTMLElement;
-    this.globalStatusPill = document.getElementById('globalStatusPill') as HTMLElement;
-    this.globalStatusText = document.getElementById('globalStatusText') as HTMLElement;
+
+    this.cardProtectionPill = document.getElementById('cardProtectionPill');
+    this.cardProtectionDesc = document.getElementById('cardProtectionDesc');
+    this.hiddenFormsPill = document.getElementById('hiddenFormsPill');
+    this.hiddenFormsDesc = document.getElementById('hiddenFormsDesc');
 
     this.chainSourceNode = document.getElementById('chainSourceNode');
     this.chainTargetNode = document.getElementById('chainTargetNode');
@@ -69,7 +75,7 @@ export class ShieldTabController {
             try {
               const url = new URL(tab.url);
               if (url.protocol.startsWith('http')) {
-                this.currentTabHost = url.hostname.toLowerCase().replace(/^www\./, '');
+                this.currentTabHost = UserWhitelistManager.normalizeDomain(url.hostname);
               } else if (url.protocol === 'file:') {
                 this.currentTabHost = 'local-file (демо-сторінка)';
               } else {
@@ -112,26 +118,48 @@ export class ShieldTabController {
       this.chainTargetNode.innerText = this.currentTabHost || 'Цільовий сайт';
     }
 
+    // Описи типів захисту однакові і для активного, і для вимкненого захисту
+    if (this.cardProtectionDesc) {
+      this.cardProtectionDesc.innerText = 'Фінансова недоторканність: блокування викрадення балансу';
+    }
+    if (this.hiddenFormsDesc) {
+      this.hiddenFormsDesc.innerText = 'Оптична прозорість DOM: нейтралізація CSS-маскування';
+    }
+
     if (isWhitelisted) {
-      // Захист вимкнено користувачем (сайт у довірених)
+      // Захист форм вимкнено користувачем: "Зупинено", інші активні: "Активно"
       this.currentSiteToggle.checked = false;
       this.currentSiteCard.classList.add('whitelisted');
       this.siteIconBox.className = 'living-orb-box paused';
-      this.currentSiteStatus.innerHTML = `<span class="status-pulse-dot paused"></span><span>Довірений сайт · Захист призупинено</span>`;
+      this.currentSiteStatus.innerHTML = `<span class="status-pulse-dot paused"></span><span>Захист призупинено для цього сайту</span>`;
       this.currentSiteStatus.className = 'site-status amber';
 
-      this.globalStatusPill.className = 'status-pill paused';
-      this.globalStatusText.innerText = 'Призупинено';
+      if (this.cardProtectionPill) {
+        this.cardProtectionPill.innerText = 'Зупинено';
+        this.cardProtectionPill.className = 'module-pill amber';
+      }
+
+      if (this.hiddenFormsPill) {
+        this.hiddenFormsPill.innerText = 'Зупинено';
+        this.hiddenFormsPill.className = 'module-pill amber';
+      }
     } else {
-      // Захист активно діє
+      // Повний захист активно діє: всі типи "Активно"
       this.currentSiteToggle.checked = true;
       this.currentSiteCard.classList.remove('whitelisted');
       this.siteIconBox.className = 'living-orb-box active';
       this.currentSiteStatus.innerHTML = `<span class="status-pulse-dot active"></span><span>Захист увімкнено для цього сайту</span>`;
       this.currentSiteStatus.className = 'site-status green';
 
-      this.globalStatusPill.className = 'status-pill active';
-      this.globalStatusText.innerText = 'Захищено';
+      if (this.cardProtectionPill) {
+        this.cardProtectionPill.innerText = 'Активно';
+        this.cardProtectionPill.className = 'module-pill green';
+      }
+
+      if (this.hiddenFormsPill) {
+        this.hiddenFormsPill.innerText = 'Активно';
+        this.hiddenFormsPill.className = 'module-pill green';
+      }
     }
   }
 
@@ -169,34 +197,25 @@ export class ShieldTabController {
 
   private async updateVaultStatus(): Promise<void> {
     const isLocked = PersonalVaultManager.isLocked();
-    const items = await PersonalVaultManager.getItems();
-    const activeCount = items.filter((i) => i.enabled !== false && Boolean(i.realValue)).length;
 
     if (isLocked) {
       this.vaultProtectionDesc.innerText = 'Сховище заблоковано (введіть пароль)';
       this.vaultStatusPill.innerText = 'Заблоковано';
       this.vaultStatusPill.className = 'module-pill amber';
     } else {
-      this.vaultProtectionDesc.innerText = `${activeCount} активних маркерів налаштовано`;
-      this.vaultStatusPill.innerText = activeCount > 0 ? 'Захищено' : '0 маркерів';
-      this.vaultStatusPill.className = activeCount > 0 ? 'module-pill green' : 'module-pill blue';
+      this.vaultProtectionDesc.innerText = 'Захист конфіденційних маркерів та даних у чатах';
+      this.vaultStatusPill.innerText = 'Активно';
+      this.vaultStatusPill.className = 'module-pill green';
     }
   }
 
   private checkAiStatus(): void {
-    const globalObj = typeof globalThis !== 'undefined' ? globalThis : window;
-    const hasAI =
-      typeof (globalObj as any).LanguageModel !== 'undefined' ||
-      (typeof (globalObj as any).ai !== 'undefined' && (globalObj as any).ai.languageModel);
-
-    if (hasAI) {
-      this.homeAiPill.innerText = 'Готово';
+    if (this.homeAiPill) {
+      this.homeAiPill.innerText = 'Активно';
       this.homeAiPill.className = 'module-pill green';
-      this.homeAiSubtext.innerText = 'Вбудована модель готова до роботи';
-    } else {
-      this.homeAiPill.innerText = 'Евристика';
-      this.homeAiPill.className = 'module-pill blue';
-      this.homeAiSubtext.innerText = 'Евристичний та семантичний NLP аналіз';
+    }
+    if (this.homeAiSubtext) {
+      this.homeAiSubtext.innerText = 'Локальний аналіз фішингових сценаріїв та діалогів';
     }
   }
 
@@ -211,13 +230,15 @@ export class ShieldTabController {
       const shouldProtect = this.currentSiteToggle.checked;
       if (shouldProtect) {
         await UserWhitelistManager.removeDomain(this.currentTabHost);
-        this.showToast(`Захист активовано для: ${this.currentTabHost}`);
+        this.showToast(`Захист увімкнено для: ${this.currentTabHost}`);
       } else {
         await UserWhitelistManager.allowDomain(this.currentTabHost);
-        this.showToast(`Сайт додано до довірених: ${this.currentTabHost}`);
+        this.showToast(`Сайт додано до винятків: ${this.currentTabHost}`);
       }
 
       this.updateSiteCard();
+      await this.updateVaultStatus();
+      this.checkAiStatus();
     });
 
     // Скидання стану тривоги прямо на головній
