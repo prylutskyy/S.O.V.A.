@@ -910,9 +910,9 @@ export class DebuggerOverlay {
 
         /* Header (Swiss-Watch Neuromonitor Glass Header) */
         .fx-titlebar {
-          background: var(--fx-surface);
+          background: var(--sanctuary-surface);
           padding: 9px 12px;
-          border-bottom: 1px solid var(--fx-border);
+          border-bottom: 1px solid var(--sanctuary-hairline);
           display: flex;
           justify-content: space-between;
           align-items: center;
@@ -938,15 +938,15 @@ export class DebuggerOverlay {
         .fx-app-name {
           font-size: 13px;
           font-weight: 700;
-          color: var(--fx-text);
+          color: var(--sanctuary-ink-primary);
           letter-spacing: 0.01em;
         }
         .fx-badge-edition {
           font-size: 9px;
           font-weight: 700;
-          background: var(--fx-canvas);
-          border: 1px solid var(--fx-border-subtle);
-          color: var(--fx-text-secondary);
+          background: var(--sanctuary-canvas);
+          border: 1px solid var(--sanctuary-hairline-subtle);
+          color: var(--sanctuary-ink-secondary);
           padding: 2px 6px;
           border-radius: 4px;
           text-transform: uppercase;
@@ -960,8 +960,8 @@ export class DebuggerOverlay {
         }
         .fx-segmented-mode {
           display: flex;
-          background: var(--fx-canvas);
-          border: 1px solid var(--fx-border);
+          background: var(--sanctuary-canvas);
+          border: 1px solid var(--sanctuary-hairline);
           border-radius: 4px;
           padding: 1px;
           margin-right: 4px;
@@ -969,7 +969,7 @@ export class DebuggerOverlay {
         .fx-mode-btn {
           background: transparent;
           border: none;
-          color: var(--fx-text-secondary);
+          color: var(--sanctuary-ink-secondary);
           font-size: 10px;
           font-weight: 600;
           padding: 3px 7px;
@@ -981,13 +981,13 @@ export class DebuggerOverlay {
           transition: all 0.12s;
         }
         .fx-mode-btn.active {
-          background: var(--fx-blue);
+          background: var(--sanctuary-blue);
           color: #FFFFFF;
         }
         .fx-tool-icon-btn {
           background: transparent;
           border: 1px solid transparent;
-          color: var(--fx-text-secondary);
+          color: var(--sanctuary-ink-secondary);
           cursor: pointer;
           padding: 4px 6px;
           border-radius: 4px;
@@ -998,19 +998,19 @@ export class DebuggerOverlay {
           transition: all 0.12s;
         }
         .fx-tool-icon-btn:hover {
-          background: var(--fx-surface-hover);
-          color: var(--fx-text);
+          background: var(--sanctuary-surface-hover);
+          color: var(--sanctuary-ink-primary);
         }
         .fx-tool-icon-btn.danger:hover {
-          background: var(--fx-red-bg);
-          color: var(--fx-red);
-          border-color: var(--fx-red-bd);
+          background: var(--sanctuary-red-bg);
+          color: var(--sanctuary-red);
+          border-color: var(--sanctuary-red-bd);
         }
 
         /* Tab Navigation (Firefox Proton 3-Tab Bar) */
         .fx-navbar {
-          background: var(--fx-canvas);
-          border-bottom: 1px solid var(--fx-border);
+          background: var(--sanctuary-canvas);
+          border-bottom: 1px solid var(--sanctuary-hairline);
           display: flex;
           padding: 5px 10px 0;
           gap: 4px;
@@ -1018,7 +1018,7 @@ export class DebuggerOverlay {
         .fx-tab-item {
           background: transparent;
           border: none;
-          color: var(--fx-text-secondary);
+          color: var(--sanctuary-ink-secondary);
           font-size: 11.5px;
           font-weight: 500;
           padding: 7px 11px;
@@ -1031,34 +1031,34 @@ export class DebuggerOverlay {
           transition: all 0.12s;
         }
         .fx-tab-item:hover {
-          color: var(--fx-text);
-          background: var(--fx-surface-hover);
+          color: var(--sanctuary-ink-primary);
+          background: var(--sanctuary-surface-hover);
         }
         .fx-tab-item.active {
-          background: var(--fx-surface);
-          color: var(--fx-blue);
-          border-bottom-color: var(--fx-blue);
+          background: var(--sanctuary-surface);
+          color: var(--sanctuary-blue);
+          border-bottom-color: var(--sanctuary-blue);
           font-weight: 600;
           box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.04);
         }
         .fx-tab-counter {
           font-size: 9.5px;
           font-weight: 700;
-          background: var(--fx-border-subtle);
-          color: var(--fx-text-secondary);
+          background: var(--sanctuary-hairline-subtle);
+          color: var(--sanctuary-ink-secondary);
           padding: 1px 5px;
           border-radius: 10px;
         }
         .fx-tab-item.active .fx-tab-counter {
-          background: var(--fx-blue-bg);
-          color: var(--fx-blue);
+          background: var(--sanctuary-blue-bg);
+          color: var(--sanctuary-blue);
         }
 
         /* Viewport */
         .fx-viewport {
           flex: 1;
           overflow-y: auto;
-          background: var(--fx-canvas);
+          background: var(--sanctuary-canvas);
           display: flex;
           flex-direction: column;
         }
@@ -1072,17 +1072,17 @@ export class DebuggerOverlay {
           background: transparent;
         }
         ::-webkit-scrollbar-thumb {
-          background: var(--fx-border);
+          background: var(--sanctuary-hairline);
           border-radius: 4px;
         }
         ::-webkit-scrollbar-thumb:hover {
-          background: var(--fx-text-muted);
+          background: var(--sanctuary-ink-tertiary);
         }
 
         /* Cards & Components */
         .fx-card {
-          background: var(--fx-surface);
-          border: 1px solid var(--fx-border);
+          background: var(--sanctuary-surface);
+          border: 1px solid var(--sanctuary-hairline);
           border-radius: 6px;
           padding: 12px;
           margin-bottom: 10px;
@@ -1118,7 +1118,7 @@ export class DebuggerOverlay {
         }
         .gauge-bg {
           fill: none;
-          stroke: var(--fx-border-subtle);
+          stroke: var(--sanctuary-hairline-subtle);
           stroke-width: 8;
         }
         .gauge-progress {
@@ -1144,7 +1144,7 @@ export class DebuggerOverlay {
         }
         .gauge-label {
           font-size: 8.5px;
-          color: var(--fx-text-muted);
+          color: var(--sanctuary-ink-tertiary);
           text-transform: uppercase;
           margin-top: 2px;
         }
@@ -1156,7 +1156,7 @@ export class DebuggerOverlay {
           font-family: 'JetBrains Mono', Consolas, monospace;
           font-size: 11px;
           font-weight: 600;
-          color: var(--fx-text);
+          color: var(--sanctuary-ink-primary);
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -1164,11 +1164,11 @@ export class DebuggerOverlay {
         }
         .fx-subtext {
           font-size: 10.5px;
-          color: var(--fx-text-secondary);
+          color: var(--sanctuary-ink-secondary);
           margin-top: 4px;
         }
         .fx-subtext strong {
-          color: var(--fx-text);
+          color: var(--sanctuary-ink-primary);
         }
 
         /* Badges (Firefox Proton Tags) */
@@ -1183,29 +1183,29 @@ export class DebuggerOverlay {
           text-transform: uppercase;
           letter-spacing: 0.03em;
         }
-        .badge-red { background: var(--fx-red-bg); color: var(--fx-red); border: 1px solid var(--fx-red-bd); }
-        .badge-amber { background: var(--fx-amber-bg); color: var(--fx-amber); border: 1px solid var(--fx-amber-bd); }
-        .badge-green { background: var(--fx-green-bg); color: var(--fx-green); border: 1px solid var(--fx-green-bd); }
-        .badge-blue { background: var(--fx-blue-bg); color: var(--fx-blue); border: 1px solid var(--fx-blue-bd); }
+        .badge-red { background: var(--sanctuary-red-bg); color: var(--sanctuary-red); border: 1px solid var(--sanctuary-red-bd); }
+        .badge-amber { background: var(--sanctuary-amber-bg); color: var(--sanctuary-amber); border: 1px solid var(--sanctuary-amber-bd); }
+        .badge-green { background: var(--sanctuary-green-bg); color: var(--sanctuary-green); border: 1px solid var(--sanctuary-green-bd); }
+        .badge-blue { background: var(--sanctuary-blue-bg); color: var(--sanctuary-blue); border: 1px solid var(--sanctuary-blue-bd); }
 
         /* Audit Box (Firefox Proton Warning / Protection Hero Style) */
         .fx-audit-box {
           border-left-width: 4px;
         }
         .fx-audit-box.alert-warning {
-          border-left-color: var(--fx-amber);
+          border-left-color: var(--sanctuary-amber);
           background: linear-gradient(180deg, #FFFFFF 0%, #FFFDF9 100%);
-          border-color: var(--fx-amber-bd);
+          border-color: var(--sanctuary-amber-bd);
         }
         .fx-audit-box.alert-danger {
-          border-left-color: var(--fx-red);
+          border-left-color: var(--sanctuary-red);
           background: linear-gradient(180deg, #FFFFFF 0%, #FFF9F9 100%);
-          border-color: var(--fx-red-bd);
+          border-color: var(--sanctuary-red-bd);
         }
         .fx-audit-box.alert-success {
-          border-left-color: var(--fx-green);
+          border-left-color: var(--sanctuary-green);
           background: linear-gradient(180deg, #FFFFFF 0%, #FDFEFE 100%);
-          border-color: var(--fx-green-bd);
+          border-color: var(--sanctuary-green-bd);
         }
         .fx-audit-header {
           display: flex;
@@ -1216,7 +1216,7 @@ export class DebuggerOverlay {
         .fx-btn-text {
           background: transparent;
           border: none;
-          color: var(--fx-blue);
+          color: var(--sanctuary-blue);
           font-size: 10.5px;
           font-weight: 600;
           cursor: pointer;
@@ -1228,11 +1228,11 @@ export class DebuggerOverlay {
           transition: background 0.12s;
         }
         .fx-btn-text:hover {
-          background: var(--fx-blue-bg);
+          background: var(--sanctuary-blue-bg);
         }
         .fx-audit-desc {
           font-size: 11.5px;
-          color: var(--fx-text);
+          color: var(--sanctuary-ink-primary);
           line-height: 1.45;
           margin-bottom: 10px;
         }
@@ -1244,7 +1244,7 @@ export class DebuggerOverlay {
         }
         .fx-compare-col {
           background: #F7F7FA;
-          border: 1px solid var(--fx-border-subtle);
+          border: 1px solid var(--sanctuary-hairline-subtle);
           border-radius: 4px;
           padding: 7px 9px;
         }
@@ -1252,19 +1252,19 @@ export class DebuggerOverlay {
           display: block;
           font-size: 9px;
           text-transform: uppercase;
-          color: var(--fx-text-muted);
+          color: var(--sanctuary-ink-tertiary);
           font-weight: 700;
           margin-bottom: 3px;
         }
         .fx-col-val {
           font-size: 11.5px;
           font-weight: 600;
-          color: var(--fx-text);
+          color: var(--sanctuary-ink-primary);
         }
 
         .fx-triggers-box {
           background: #F7F7FA;
-          border: 1px solid var(--fx-border-subtle);
+          border: 1px solid var(--sanctuary-hairline-subtle);
           border-radius: 4px;
           padding: 8px;
           margin-bottom: 10px;
@@ -1272,25 +1272,25 @@ export class DebuggerOverlay {
         .fx-triggers-title {
           font-size: 9.5px;
           font-weight: 700;
-          color: var(--fx-text-secondary);
+          color: var(--sanctuary-ink-secondary);
           text-transform: uppercase;
         }
         .fx-triggers-list {
           list-style: square inside;
           font-family: 'JetBrains Mono', Consolas, monospace;
           font-size: 10.5px;
-          color: var(--fx-amber);
+          color: var(--sanctuary-amber);
           margin-top: 4px;
           line-height: 1.4;
         }
 
         .fx-friendly-note {
           background: #F0F0F4;
-          border: 1px solid var(--fx-border-subtle);
+          border: 1px solid var(--sanctuary-hairline-subtle);
           border-radius: 4px;
           padding: 8px 10px;
           font-size: 11px;
-          color: var(--fx-text-secondary);
+          color: var(--sanctuary-ink-secondary);
           line-height: 1.35;
           margin-bottom: 10px;
           display: flex;
@@ -1298,7 +1298,7 @@ export class DebuggerOverlay {
           gap: 6px;
         }
         .fx-friendly-note strong {
-          color: var(--fx-text);
+          color: var(--sanctuary-ink-primary);
         }
 
         .fx-audit-actions {
@@ -1307,7 +1307,7 @@ export class DebuggerOverlay {
         }
         .fx-btn {
           flex: 1;
-          background: var(--fx-blue);
+          background: var(--sanctuary-blue);
           color: #FFFFFF;
           border: none;
           padding: 6px 10px;
@@ -1322,27 +1322,27 @@ export class DebuggerOverlay {
           transition: background 0.12s;
         }
         .fx-btn:hover {
-          background: var(--fx-blue-hover);
+          background: var(--sanctuary-blue-hover);
         }
         .fx-btn-secondary {
-          background: var(--fx-canvas);
-          color: var(--fx-text);
-          border: 1px solid var(--fx-border);
+          background: var(--sanctuary-canvas);
+          color: var(--sanctuary-ink-primary);
+          border: 1px solid var(--sanctuary-hairline);
         }
         .fx-btn-secondary:hover {
-          background: var(--fx-surface-hover);
-          border-color: var(--fx-text-muted);
+          background: var(--sanctuary-surface-hover);
+          border-color: var(--sanctuary-ink-tertiary);
         }
 
         /* Callout */
         .fx-info-callout {
-          background: var(--fx-surface);
-          border-left: 3px solid var(--fx-blue);
+          background: var(--sanctuary-surface);
+          border-left: 3px solid var(--sanctuary-blue);
         }
         .fx-callout-title {
           font-weight: 700;
           font-size: 11.5px;
-          color: var(--fx-text);
+          color: var(--sanctuary-ink-primary);
           margin-bottom: 4px;
           display: flex;
           align-items: center;
@@ -1350,7 +1350,7 @@ export class DebuggerOverlay {
         }
         .fx-callout-text {
           font-size: 11px;
-          color: var(--fx-text-secondary);
+          color: var(--sanctuary-ink-secondary);
           line-height: 1.45;
         }
 
@@ -1358,7 +1358,7 @@ export class DebuggerOverlay {
         .fx-card-title {
           font-size: 10.5px;
           font-weight: 700;
-          color: var(--fx-text-muted);
+          color: var(--sanctuary-ink-tertiary);
           text-transform: uppercase;
           letter-spacing: 0.05em;
           margin-bottom: 8px;
@@ -1370,32 +1370,32 @@ export class DebuggerOverlay {
         }
         .fx-waterfall-step {
           background: #F7F7FA;
-          border: 1px solid var(--fx-border-subtle);
+          border: 1px solid var(--sanctuary-hairline-subtle);
           border-radius: 4px;
           padding: 6px 9px;
           display: flex;
           align-items: center;
           justify-content: space-between;
           font-size: 11px;
-          color: var(--fx-text);
+          color: var(--sanctuary-ink-primary);
         }
         .fx-tag {
           font-size: 9.5px;
           font-weight: 600;
           padding: 1px 5px;
           border-radius: 3px;
-          background: var(--fx-border-subtle);
-          color: var(--fx-text-secondary);
+          background: var(--sanctuary-hairline-subtle);
+          color: var(--sanctuary-ink-secondary);
         }
         .fx-tag-blue {
-          background: var(--fx-blue-bg);
-          color: var(--fx-blue);
-          border: 1px solid var(--fx-blue-bd);
+          background: var(--sanctuary-blue-bg);
+          color: var(--sanctuary-blue);
+          border: 1px solid var(--sanctuary-blue-bd);
         }
         .fx-tag-red {
-          background: var(--fx-red-bg);
-          color: var(--fx-red);
-          border: 1px solid var(--fx-red-bd);
+          background: var(--sanctuary-red-bg);
+          color: var(--sanctuary-red);
+          border: 1px solid var(--sanctuary-red-bd);
         }
 
         /* Events Tab Styles */
@@ -1405,9 +1405,9 @@ export class DebuggerOverlay {
           height: 100%;
         }
         .fx-filter-bar {
-          background: var(--fx-surface);
+          background: var(--sanctuary-surface);
           padding: 8px 10px;
-          border-bottom: 1px solid var(--fx-border);
+          border-bottom: 1px solid var(--sanctuary-hairline);
           display: flex;
           flex-wrap: wrap;
           gap: 8px;
@@ -1427,18 +1427,18 @@ export class DebuggerOverlay {
         }
         .fx-search-input {
           width: 100%;
-          background: var(--fx-surface);
-          border: 1px solid var(--fx-border);
+          background: var(--sanctuary-surface);
+          border: 1px solid var(--sanctuary-hairline);
           border-radius: 4px;
           padding: 4px 22px 4px 26px;
-          color: var(--fx-text);
+          color: var(--sanctuary-ink-primary);
           font-size: 11.5px;
           outline: none;
           transition: border-color 0.12s, box-shadow 0.12s;
         }
         .fx-search-input:focus {
-          border-color: var(--fx-blue);
-          outline: 2px solid var(--fx-blue);
+          border-color: var(--sanctuary-blue);
+          outline: 2px solid var(--sanctuary-blue);
           outline-offset: 1px;
         }
         .fx-search-clear {
@@ -1446,7 +1446,7 @@ export class DebuggerOverlay {
           right: 5px;
           background: transparent;
           border: none;
-          color: var(--fx-text-muted);
+          color: var(--sanctuary-ink-tertiary);
           cursor: pointer;
           padding: 2px;
           display: flex;
@@ -1454,16 +1454,16 @@ export class DebuggerOverlay {
           justify-content: center;
         }
         .fx-search-clear:hover {
-          color: var(--fx-text);
+          color: var(--sanctuary-ink-primary);
         }
         .fx-filter-chips {
           display: flex;
           gap: 4px;
         }
         .fx-chip {
-          background: var(--fx-canvas);
-          border: 1px solid var(--fx-border);
-          color: var(--fx-text-secondary);
+          background: var(--sanctuary-canvas);
+          border: 1px solid var(--sanctuary-hairline);
+          color: var(--sanctuary-ink-secondary);
           font-size: 10.5px;
           font-weight: 500;
           padding: 3px 8px;
@@ -1472,13 +1472,13 @@ export class DebuggerOverlay {
           transition: all 0.12s;
         }
         .fx-chip:hover {
-          background: var(--fx-surface-hover);
-          color: var(--fx-text);
+          background: var(--sanctuary-surface-hover);
+          color: var(--sanctuary-ink-primary);
         }
         .fx-chip.active {
-          background: var(--fx-blue-bg);
-          border-color: var(--fx-blue);
-          color: var(--fx-blue);
+          background: var(--sanctuary-blue-bg);
+          border-color: var(--sanctuary-blue);
+          color: var(--sanctuary-blue);
           font-weight: 600;
         }
         .fx-logs-scroll {
@@ -1490,8 +1490,8 @@ export class DebuggerOverlay {
           gap: 8px;
         }
         .fx-console-row {
-          background: var(--fx-surface);
-          border: 1px solid var(--fx-border);
+          background: var(--sanctuary-surface);
+          border: 1px solid var(--sanctuary-hairline);
           border-left-width: 3px;
           border-radius: 6px;
           padding: 8px 10px;
@@ -1513,9 +1513,9 @@ export class DebuggerOverlay {
         .fx-badge-type {
           font-size: 8.5px;
           font-weight: 700;
-          background: var(--fx-canvas);
-          border: 1px solid var(--fx-border-subtle);
-          color: var(--fx-text-secondary);
+          background: var(--sanctuary-canvas);
+          border: 1px solid var(--sanctuary-hairline-subtle);
+          color: var(--sanctuary-ink-secondary);
           padding: 1px 4px;
           border-radius: 3px;
         }
@@ -1531,12 +1531,12 @@ export class DebuggerOverlay {
         .fx-row-time {
           font-family: 'JetBrains Mono', Consolas, monospace;
           font-size: 10px;
-          color: var(--fx-text-muted);
+          color: var(--sanctuary-ink-tertiary);
         }
         .fx-copy-btn {
           background: transparent;
           border: none;
-          color: var(--fx-text-muted);
+          color: var(--sanctuary-ink-tertiary);
           cursor: pointer;
           padding: 2px 4px;
           font-size: 10px;
@@ -1547,17 +1547,17 @@ export class DebuggerOverlay {
           transition: all 0.12s;
         }
         .fx-copy-btn:hover {
-          color: var(--fx-text);
-          background: var(--fx-surface-hover);
+          color: var(--sanctuary-ink-primary);
+          background: var(--sanctuary-surface-hover);
         }
         .fx-code-block {
           background: #F7F7FA;
-          border: 1px solid var(--fx-border-subtle);
+          border: 1px solid var(--sanctuary-hairline-subtle);
           border-radius: 4px;
           padding: 7px 9px;
           font-family: 'JetBrains Mono', Consolas, monospace;
           font-size: 10.5px;
-          color: var(--fx-text);
+          color: var(--sanctuary-ink-primary);
           margin: 0;
           white-space: pre-wrap;
           word-break: break-word;
@@ -1568,7 +1568,7 @@ export class DebuggerOverlay {
         .fx-empty-console {
           padding: 50px 20px;
           text-align: center;
-          color: var(--fx-text-muted);
+          color: var(--sanctuary-ink-tertiary);
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -1584,7 +1584,7 @@ export class DebuggerOverlay {
           gap: 10px;
         }
         .fx-ai-session-card {
-          border-left: 3px solid var(--fx-blue);
+          border-left: 3px solid var(--sanctuary-blue);
         }
         .fx-ai-header {
           margin-bottom: 10px;
@@ -1608,13 +1608,13 @@ export class DebuggerOverlay {
         }
         .fx-ai-block {
           background: #F7F7FA;
-          border: 1px solid var(--fx-border-subtle);
+          border: 1px solid var(--sanctuary-hairline-subtle);
           border-radius: 4px;
           padding: 8px;
         }
         .fx-ai-block.raw-block {
-          border-color: var(--fx-blue-bd);
-          background: var(--fx-blue-bg);
+          border-color: var(--sanctuary-blue-bd);
+          background: var(--sanctuary-blue-bg);
         }
         .fx-ai-block-header {
           display: flex;
@@ -1622,7 +1622,7 @@ export class DebuggerOverlay {
           align-items: center;
           font-size: 9.5px;
           font-weight: 700;
-          color: var(--fx-text-secondary);
+          color: var(--sanctuary-ink-secondary);
           margin-bottom: 5px;
         }
         .fx-ai-block-title {
@@ -1631,8 +1631,8 @@ export class DebuggerOverlay {
           gap: 5px;
         }
         .fx-code-block.raw-code {
-          background: var(--fx-surface);
-          border-color: var(--fx-blue-bd);
+          background: var(--sanctuary-surface);
+          border-color: var(--sanctuary-blue-bd);
           color: #0040A8;
         }
       </style>
@@ -1723,26 +1723,26 @@ export class DebuggerOverlay {
           font-family: var(--font-sanctuary, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
         }
         .fx-pill {
-          background: rgba(255, 255, 255, 0.92);
+          height: 32px;
+          background: rgba(29, 29, 31, 0.92);
           backdrop-filter: blur(16px);
           -webkit-backdrop-filter: blur(16px);
-          border: 1px solid var(--sanctuary-hairline, rgba(0, 0, 0, 0.08));
-          border-left: 3px solid ${riskColor};
+          border: 1px solid rgba(255, 255, 255, 0.16);
           border-radius: var(--radius-pill, 9999px);
-          padding: 6px 14px;
+          padding: 0 12px;
           display: flex;
           align-items: center;
           gap: 8px;
-          color: var(--sanctuary-ink-primary, #1D1D1F);
+          color: #FFFFFF;
           cursor: pointer;
-          box-shadow: var(--shadow-elevated, 0 4px 16px rgba(0, 0, 0, 0.12));
-          transition: transform 0.15s var(--ease-apple-spring), background 0.15s ease, box-shadow 0.15s ease;
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+          transition: transform 0.18s var(--ease-apple-spring), background 0.18s ease, box-shadow 0.18s ease;
           user-select: none;
         }
         .fx-pill:hover {
-          transform: translateY(-2px);
-          background: #FFFFFF;
-          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
+          transform: scale(1.02);
+          background: rgba(18, 18, 20, 0.98);
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
         }
         .fx-pill-icon {
           display: flex;
@@ -1750,35 +1750,37 @@ export class DebuggerOverlay {
           justify-content: center;
         }
         .fx-pill-text {
-          font-size: 11.5px;
+          font-size: 11px;
           font-weight: 600;
-          color: var(--sanctuary-ink-primary, #1D1D1F);
+          color: #FFFFFF;
+          letter-spacing: -0.01em;
         }
         .fx-pill-badge {
           font-size: 9.5px;
-          font-weight: 600;
-          background: ${riskColor === '#008A52' ? 'var(--sanctuary-green-bg, #EAF7F3)' : riskColor === '#D76E00' ? 'var(--sanctuary-amber-bg, #FFF4E5)' : 'var(--sanctuary-red-bg, #FDF2F5)'};
-          color: ${riskColor};
-          border: 1px solid ${riskColor === '#008A52' ? 'var(--sanctuary-green-bd, #A3E5D0)' : riskColor === '#D76E00' ? 'var(--sanctuary-amber-bd, #FFD599)' : 'var(--sanctuary-red-bd, #F8B4C0)'};
-          padding: 1px 6px;
-          border-radius: var(--radius-micro, 4px);
+          font-weight: 700;
+          background: ${riskColor === '#008A52' ? 'rgba(52, 199, 89, 0.18)' : riskColor === '#D76E00' ? 'rgba(255, 149, 0, 0.22)' : 'rgba(255, 59, 48, 0.22)'};
+          color: ${riskColor === '#008A52' ? '#34C759' : riskColor === '#D76E00' ? '#FF9500' : '#FF3B30'};
+          border: 1px solid ${riskColor === '#008A52' ? 'rgba(52, 199, 89, 0.35)' : riskColor === '#D76E00' ? 'rgba(255, 149, 0, 0.35)' : 'rgba(255, 59, 48, 0.35)'};
+          padding: 1px 7px;
+          border-radius: var(--radius-pill, 9999px);
+          font-family: var(--font-mono, monospace);
         }
         .fx-pill-count {
           font-size: 10px;
-          color: var(--sanctuary-ink-tertiary, #8F8F9D);
+          color: rgba(255, 255, 255, 0.65);
           font-family: var(--font-mono, monospace);
           display: flex;
           align-items: center;
           gap: 4px;
         }
       </style>
-      <div class="fx-pill" id="btn-restore">
-        <span class="fx-pill-icon">${ICONS.shield(14, riskColor)}</span>
+      <div class="fx-pill" id="btn-restore" title="Відкрити турбійон телеметрії XAI">
+        <span class="fx-pill-icon">${ICONS.shield(13, riskColor === '#008A52' ? '#34C759' : riskColor === '#D76E00' ? '#FF9500' : '#FF3B30')}</span>
         <span class="fx-pill-text">Threat Shield Dev</span>
         <span class="fx-pill-badge">${score}/100</span>
         <span class="fx-pill-count">
           <span>${logs.length} logs</span>
-          ${ICONS.expand(11, '#8F8F9D')}
+          ${ICONS.expand(11, 'rgba(255, 255, 255, 0.65)')}
         </span>
       </div>
     `;
