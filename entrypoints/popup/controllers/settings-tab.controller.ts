@@ -21,8 +21,12 @@ export class SettingsTabController {
   private btnSaveCloudAiKey: HTMLButtonElement | null;
   private btnTestCloudAiKey: HTMLButtonElement | null;
   private btnDeleteCloudAiKey: HTMLButtonElement | null;
+  private btnRefreshModels: HTMLButtonElement | null;
+  private customModelInputWrapper: HTMLElement | null;
+  private cloudAiCustomModelInput: HTMLInputElement | null;
   private cloudAiKeyHint: HTMLElement | null;
   private cloudAiStatusFeedback: HTMLElement | null;
+  private cachedDynamicModels: Record<string, Array<{ id: string; label: string }>> = {};
 
   constructor(showToast: (msg: string) => void, onWhitelistChanged: () => void) {
     this.showToast = showToast;
@@ -40,6 +44,9 @@ export class SettingsTabController {
     this.toggleCloudAi = document.getElementById('toggleCloudAi') as HTMLInputElement | null;
     this.cloudAiProviderSelect = document.getElementById('cloudAiProviderSelect') as HTMLSelectElement | null;
     this.cloudAiModelSelect = document.getElementById('cloudAiModelSelect') as HTMLSelectElement | null;
+    this.btnRefreshModels = document.getElementById('btnRefreshModels') as HTMLButtonElement | null;
+    this.customModelInputWrapper = document.getElementById('customModelInputWrapper') as HTMLElement | null;
+    this.cloudAiCustomModelInput = document.getElementById('cloudAiCustomModelInput') as HTMLInputElement | null;
     this.cloudAiKeyInput = document.getElementById('cloudAiKeyInput') as HTMLInputElement | null;
     this.btnSaveCloudAiKey = document.getElementById('btnSaveCloudAiKey') as HTMLButtonElement | null;
     this.btnTestCloudAiKey = document.getElementById('btnTestCloudAiKey') as HTMLButtonElement | null;
@@ -159,11 +166,19 @@ export class SettingsTabController {
     await this.updateKeyHint();
   }
 
+  private getSelectedModel(): string {
+    const val = this.cloudAiModelSelect?.value;
+    if (val === '__custom__') {
+      return this.cloudAiCustomModelInput?.value?.trim() || 'gemini-3.8-flash';
+    }
+    return val || 'gemini-3.8-flash';
+  }
+
   private populateModelsForProvider(provider: LLMProviderType, selectedModel?: string): void {
     if (!this.cloudAiModelSelect) return;
     this.cloudAiModelSelect.innerHTML = '';
 
-    const modelOptions: Record<LLMProviderType, Array<{ id: string; label: string }>> = {
+    const defaultOptions: Record<LLMProviderType, Array<{ id: string; label: string }>> = {
       gemini: [
         { id: 'gemini-3.8-flash', label: 'gemini-3.8-flash (Актуальна / Рекомендовано)' },
         { id: 'gemini-3.5-flash-lite', label: 'gemini-3.5-flash-lite (Ультрашвидка)' },
@@ -186,16 +201,68 @@ export class SettingsTabController {
       ],
     };
 
-    const options = modelOptions[provider] || modelOptions.gemini;
+    const options = this.cachedDynamicModels[provider] || defaultOptions[provider] || defaultOptions.gemini;
+    let matchFound = false;
+
     options.forEach((opt) => {
       const optEl = document.createElement('option');
       optEl.value = opt.id;
       optEl.textContent = opt.label;
       if (selectedModel && opt.id === selectedModel) {
         optEl.selected = true;
+        matchFound = true;
       }
       this.cloudAiModelSelect!.appendChild(optEl);
     });
+
+    // Опція для ручного введення користувацької моделі
+    const customOpt = document.createElement('option');
+    customOpt.value = '__custom__';
+    customOpt.textContent = '✍️ Вказати власну модель...';
+    this.cloudAiModelSelect.appendChild(customOpt);
+
+    if (selectedModel && !matchFound) {
+      customOpt.selected = true;
+      if (this.customModelInputWrapper) this.customModelInputWrapper.style.display = 'block';
+      if (this.cloudAiCustomModelInput) this.cloudAiCustomModelInput.value = selectedModel;
+    } else {
+      if (this.customModelInputWrapper) this.customModelInputWrapper.style.display = 'none';
+      if (this.cloudAiCustomModelInput && !matchFound) this.cloudAiCustomModelInput.value = '';
+    }
+  }
+
+  private async refreshModelsFromApi(): Promise<void> {
+    const provider = (this.cloudAiProviderSelect?.value as LLMProviderType) || 'gemini';
+    const apiKey = (this.cloudAiKeyInput?.value?.trim()) || (await SecureKeyStore.getApiKey(provider));
+
+    if (!apiKey) {
+      this.showFeedback('⚠️ Введіть або збережіть API ключ перед оновленням списку моделей', false);
+      return;
+    }
+
+    if (this.btnRefreshModels) this.btnRefreshModels.disabled = true;
+    this.showFeedback(`⏳ Запит актуальних моделей від ${provider.toUpperCase()} API...`, true);
+
+    try {
+      const resp = await chrome.runtime.sendMessage({
+        type: 'FETCH_CLOUD_MODELS',
+        payload: { provider, apiKey },
+      });
+
+      if (resp && resp.success && Array.isArray(resp.models) && resp.models.length > 0) {
+        this.cachedDynamicModels[provider] = resp.models;
+        const currentModel = this.getSelectedModel();
+        this.populateModelsForProvider(provider, currentModel);
+        this.showFeedback(`✅ Отримано ${resp.models.length} актуальних моделей від ${provider.toUpperCase()}`, true);
+        this.showToast(`Оновлено каталог: ${resp.models.length} моделей`);
+      } else {
+        this.showFeedback(`❌ Помилка оновлення каталогу: ${resp?.error || 'Не вдалося отримати список'}`, false);
+      }
+    } catch (err: any) {
+      this.showFeedback(`❌ Помилка запиту моделей: ${err?.message || err}`, false);
+    } finally {
+      if (this.btnRefreshModels) this.btnRefreshModels.disabled = false;
+    }
   }
 
   private async updateKeyHint(): Promise<void> {
@@ -224,7 +291,7 @@ export class SettingsTabController {
 
   private async testConnection(keyOverride?: string): Promise<void> {
     const provider = (this.cloudAiProviderSelect?.value as LLMProviderType) || 'gemini';
-    const model = this.cloudAiModelSelect?.value || 'gemini-3.8-flash';
+    const model = this.getSelectedModel();
     const apiKey = keyOverride || (this.cloudAiKeyInput?.value?.trim()) || (await SecureKeyStore.getApiKey(provider));
 
     if (!apiKey) {
@@ -254,11 +321,16 @@ export class SettingsTabController {
   }
 
   private bindEvents(): void {
+    // Refresh Models from Provider API
+    this.btnRefreshModels?.addEventListener('click', async () => {
+      await this.refreshModelsFromApi();
+    });
+
     // Cloud AI Switch
     this.toggleCloudAi?.addEventListener('change', async (e) => {
       const isEnabled = (e.target as HTMLInputElement).checked;
       const provider = (this.cloudAiProviderSelect?.value as LLMProviderType) || 'gemini';
-      const model = this.cloudAiModelSelect?.value || 'gemini-3.8-flash';
+      const model = this.getSelectedModel();
 
       await SecureKeyStore.saveConfig({ enabled: isEnabled, provider, model });
       this.showToast(isEnabled ? 'Хмарний ШІ арбітр активовано' : 'Хмарний ШІ вимкнено');
@@ -268,7 +340,7 @@ export class SettingsTabController {
     this.cloudAiProviderSelect?.addEventListener('change', async (e) => {
       const provider = (e.target as HTMLSelectElement).value as LLMProviderType;
       this.populateModelsForProvider(provider);
-      const model = this.cloudAiModelSelect?.value || 'gemini-3.8-flash';
+      const model = this.getSelectedModel();
 
       await SecureKeyStore.saveConfig({ provider, model });
       await this.updateKeyHint();
@@ -279,10 +351,30 @@ export class SettingsTabController {
 
     // Cloud AI Model Change
     this.cloudAiModelSelect?.addEventListener('change', async (e) => {
-      const model = (e.target as HTMLSelectElement).value;
+      const val = (e.target as HTMLSelectElement).value;
       const provider = (this.cloudAiProviderSelect?.value as LLMProviderType) || 'gemini';
-      await SecureKeyStore.saveConfig({ provider, model });
-      this.showToast(`Обрано модель: ${model}`);
+
+      if (val === '__custom__') {
+        if (this.customModelInputWrapper) this.customModelInputWrapper.style.display = 'block';
+        this.cloudAiCustomModelInput?.focus();
+        const customModel = this.cloudAiCustomModelInput?.value?.trim() || '';
+        if (customModel) {
+          await SecureKeyStore.saveConfig({ provider, model: customModel });
+        }
+      } else {
+        if (this.customModelInputWrapper) this.customModelInputWrapper.style.display = 'none';
+        await SecureKeyStore.saveConfig({ provider, model: val });
+        this.showToast(`Обрано модель: ${val}`);
+      }
+    });
+
+    // Custom Model Input Change
+    this.cloudAiCustomModelInput?.addEventListener('input', async () => {
+      const customModel = this.cloudAiCustomModelInput?.value?.trim();
+      if (customModel && this.cloudAiModelSelect?.value === '__custom__') {
+        const provider = (this.cloudAiProviderSelect?.value as LLMProviderType) || 'gemini';
+        await SecureKeyStore.saveConfig({ provider, model: customModel });
+      }
     });
 
     // Save Cloud AI Key & Verify
@@ -294,7 +386,7 @@ export class SettingsTabController {
       }
 
       const provider = (this.cloudAiProviderSelect?.value as LLMProviderType) || 'gemini';
-      const model = this.cloudAiModelSelect?.value || 'gemini-3.8-flash';
+      const model = this.getSelectedModel();
 
       try {
         await SecureKeyStore.saveApiKey(provider, val, 'device_encrypted');

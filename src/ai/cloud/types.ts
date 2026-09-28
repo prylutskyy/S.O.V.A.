@@ -40,7 +40,14 @@ export interface CloudTextGenerationResponse {
   modelUsed: string;
 }
 
+export interface ModelInfo {
+  id: string;
+  label: string;
+  description?: string;
+}
+
 export interface ICloudLLMDriver {
   verifyThreat(request: CloudVerificationRequest): Promise<CloudVerificationResponse>;
   generateText?(request: CloudTextGenerationRequest): Promise<CloudTextGenerationResponse>;
+  listModels?(apiKey: string, customBaseUrl?: string): Promise<ModelInfo[]>;
 }

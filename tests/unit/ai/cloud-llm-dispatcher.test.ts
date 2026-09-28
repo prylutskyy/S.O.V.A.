@@ -256,5 +256,51 @@ describe('CloudLLMDispatcher & Drivers (TDD Suite)', () => {
       expect(res.modelUsed).toBe('gemini-3.8-flash');
       expect(callCount).toBeGreaterThanOrEqual(2);
     });
+
+    it('should fetch live models for gemini via CloudLLMDispatcher.fetchModels', async () => {
+      // @ts-ignore
+      globalThis.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          models: [
+            {
+              name: 'models/gemini-3.8-flash',
+              displayName: 'Gemini 3.8 Flash',
+              supportedGenerationMethods: ['generateContent'],
+            },
+            {
+              name: 'models/embedding-001',
+              displayName: 'Embedding',
+              supportedGenerationMethods: ['embedContent'],
+            },
+          ],
+        }),
+      });
+
+      const res = await CloudLLMDispatcher.fetchModels('gemini', 'test_key');
+      expect(res.success).toBe(true);
+      expect(res.models).toBeDefined();
+      expect(res.models?.length).toBe(1);
+      expect(res.models?.[0].id).toBe('gemini-3.8-flash');
+    });
+
+    it('should fetch live models for groq via CloudLLMDispatcher.fetchModels', async () => {
+      // @ts-ignore
+      globalThis.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          data: [
+            { id: 'llama-3.3-70b-versatile', active: true, context_window: 128000 },
+            { id: 'whisper-large-v3', active: true },
+          ],
+        }),
+      });
+
+      const res = await CloudLLMDispatcher.fetchModels('groq', 'gsk_key');
+      expect(res.success).toBe(true);
+      expect(res.models).toBeDefined();
+      expect(res.models?.length).toBe(1);
+      expect(res.models?.[0].id).toBe('llama-3.3-70b-versatile');
+    });
   });
 });

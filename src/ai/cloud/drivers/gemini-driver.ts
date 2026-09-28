@@ -4,6 +4,7 @@ import {
   CloudVerificationResponse,
   CloudTextGenerationRequest,
   CloudTextGenerationResponse,
+  ModelInfo,
 } from '../types';
 
 export class GeminiDriver implements ICloudLLMDriver {
@@ -202,5 +203,40 @@ export class GeminiDriver implements ICloudLLMDriver {
     }
 
     return { success: false, error: 'Жодна з тестових моделей Gemini не відповіла (404 Not Found)' };
+  }
+
+  /**
+   * Запит списку доступних моделей через офіційний Google AI Studio API
+   */
+  public async listModels(apiKey: string, baseUrl: string = 'https://generativelanguage.googleapis.com/v1beta'): Promise<ModelInfo[]> {
+    return GeminiDriver.listModels(apiKey, baseUrl);
+  }
+
+  public static async listModels(apiKey: string, baseUrl: string = 'https://generativelanguage.googleapis.com/v1beta'): Promise<ModelInfo[]> {
+    const endpoint = `${baseUrl}/models?key=${encodeURIComponent(apiKey)}`;
+    const res = await fetch(endpoint);
+    if (!res.ok) {
+      const err = await res.json().catch(() => null);
+      throw new Error(err?.error?.message || `Google API error (${res.status})`);
+    }
+    const data = await res.json();
+    const models: any[] = data?.models || [];
+    return models
+      .filter((m) => m.supportedGenerationMethods?.includes('generateContent'))
+      .map((m) => {
+        const id = m.name?.replace(/^models\//, '') || m.name;
+        return {
+          id,
+          label: `${id} (${m.displayName || 'Gemini'})`,
+          description: m.description,
+        };
+      })
+      .sort((a, b) => {
+        const isAFlash = a.id.includes('flash');
+        const isBFlash = b.id.includes('flash');
+        if (isAFlash && !isBFlash) return -1;
+        if (!isAFlash && isBFlash) return 1;
+        return a.id.localeCompare(b.id);
+      });
   }
 }

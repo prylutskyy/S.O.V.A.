@@ -1,5 +1,5 @@
 import { LLMProviderType, SecureKeyStore, LLMConfig } from '../../core/secure-key-store';
-import { ICloudLLMDriver, CloudVerificationRequest, CloudVerificationResponse } from './types';
+import { ICloudLLMDriver, CloudVerificationRequest, CloudVerificationResponse, ModelInfo } from './types';
 import { GeminiDriver } from './drivers/gemini-driver';
 import { OpenAIDriver } from './drivers/openai-driver';
 import { GroqDriver } from './drivers/groq-driver';
@@ -183,6 +183,35 @@ export class CloudLLMDispatcher {
         timeoutMs: 5000,
       });
       return { success: true, modelUsed: res.modelUsed, latencyMs: res.latencyMs };
+    } catch (err: any) {
+      return { success: false, error: err?.message || String(err) };
+    }
+  }
+
+  /**
+   * Динамічне отримання актуального каталогу моделей від провайдера через його API
+   */
+  public static async fetchModels(
+    provider: LLMProviderType,
+    customApiKey?: string
+  ): Promise<{ success: boolean; models?: ModelInfo[]; error?: string }> {
+    const key = customApiKey || (await SecureKeyStore.getApiKey(provider));
+    if (!key) {
+      return { success: false, error: 'API-ключ не знайдено або не вказано' };
+    }
+
+    try {
+      let models: ModelInfo[] = [];
+      if (provider === 'gemini') {
+        models = await GeminiDriver.listModels(key);
+      } else if (provider === 'groq') {
+        models = await GroqDriver.listModels(key);
+      } else if (provider === 'openai' || provider === 'custom_openai') {
+        models = await OpenAIDriver.listModels(key);
+      } else {
+        return { success: false, error: `Провайдер ${provider} не підтримує динамічний каталог` };
+      }
+      return { success: true, models };
     } catch (err: any) {
       return { success: false, error: err?.message || String(err) };
     }

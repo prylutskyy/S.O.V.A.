@@ -4,6 +4,7 @@ import {
   CloudVerificationResponse,
   CloudTextGenerationRequest,
   CloudTextGenerationResponse,
+  ModelInfo,
 } from '../types';
 
 export class GroqDriver implements ICloudLLMDriver {
@@ -122,5 +123,41 @@ export class GroqDriver implements ICloudLLMDriver {
       provider: 'groq',
       modelUsed: model,
     };
+  }
+
+  /**
+   * Запит списку доступних моделей через офіційний Groq API
+   */
+  public async listModels(apiKey: string): Promise<ModelInfo[]> {
+    return GroqDriver.listModels(apiKey);
+  }
+
+  public static async listModels(apiKey: string): Promise<ModelInfo[]> {
+    const endpoint = 'https://api.groq.com/openai/v1/models';
+    const res = await fetch(endpoint, {
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+      },
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => null);
+      throw new Error(err?.error?.message || `Groq API error (${res.status})`);
+    }
+    const data = await res.json();
+    const models: any[] = data?.data || [];
+    return models
+      .filter((m) => m.active !== false && !m.id.includes('whisper'))
+      .map((m) => ({
+        id: m.id,
+        label: `${m.id}${m.owned_by ? ` [${m.owned_by}]` : ''}`,
+        description: `Контекст: ${m.context_window || 'N/A'}`,
+      }))
+      .sort((a, b) => {
+        const aLlama = a.id.includes('llama-3');
+        const bLlama = b.id.includes('llama-3');
+        if (aLlama && !bLlama) return -1;
+        if (!aLlama && bLlama) return 1;
+        return a.id.localeCompare(b.id);
+      });
   }
 }

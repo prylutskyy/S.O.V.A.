@@ -4,6 +4,7 @@ import {
   CloudVerificationResponse,
   CloudTextGenerationRequest,
   CloudTextGenerationResponse,
+  ModelInfo,
 } from '../types';
 
 export class OpenAIDriver implements ICloudLLMDriver {
@@ -122,5 +123,35 @@ export class OpenAIDriver implements ICloudLLMDriver {
       provider: request.provider,
       modelUsed: model,
     };
+  }
+
+  /**
+   * Запит списку доступних моделей через офіційний OpenAI API
+   */
+  public async listModels(apiKey: string, customBaseUrl?: string): Promise<ModelInfo[]> {
+    return OpenAIDriver.listModels(apiKey, customBaseUrl);
+  }
+
+  public static async listModels(apiKey: string, customBaseUrl?: string): Promise<ModelInfo[]> {
+    const baseUrl = (customBaseUrl || 'https://api.openai.com/v1').replace(/\/+$/, '');
+    const endpoint = `${baseUrl}/models`;
+    const res = await fetch(endpoint, {
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+      },
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => null);
+      throw new Error(err?.error?.message || `OpenAI API error (${res.status})`);
+    }
+    const data = await res.json();
+    const models: any[] = data?.data || [];
+    return models
+      .filter((m) => m.id.startsWith('gpt-') || m.id.startsWith('o1') || m.id.startsWith('o3'))
+      .map((m) => ({
+        id: m.id,
+        label: m.id,
+      }))
+      .sort((a, b) => a.id.localeCompare(b.id));
   }
 }

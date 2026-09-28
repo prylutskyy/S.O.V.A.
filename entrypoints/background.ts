@@ -293,6 +293,19 @@ export default defineBackground(() => {
       return true;
     }
 
+    if (message.type === 'FETCH_CLOUD_MODELS') {
+      (async () => {
+        try {
+          const { provider, apiKey } = message.payload || {};
+          const result = await CloudLLMDispatcher.fetchModels(provider, apiKey);
+          sendResponse(result);
+        } catch (err: any) {
+          sendResponse({ success: false, error: err?.message || String(err) });
+        }
+      })();
+      return true;
+    }
+
     return false;
   });
 
