@@ -93,6 +93,7 @@ export class UnifiedFrictionModal {
       chatLeakage: options.chatLeakage,
       detectedAmount: options.detectedAmount,
       vaultItems,
+      vaultMatches: options.vaultMatches,
     });
 
     const isCritical = fallbackAssessment.level === 'CRITICAL';
@@ -747,6 +748,16 @@ export class UnifiedFrictionModal {
           description = 'Сторінка застосовує фіктивний зворотний відлік або психологічний тиск, провокуючи поспіх.';
           const timerText = (t.details as any)?.timerText;
           evidence = timerText ? `Зворотний відлік: ${timerText}` : 'Urgency Manipulation';
+        } else if (t.name === 'vault_sensitive_data_exposure' || lower.includes('private vault') || lower.includes('маркерів відновлення') || lower.includes('випитує абсолютні банківські маркери')) {
+          const hasValueLeak = (t.details as any)?.hasValueLeak;
+          title = hasValueLeak ? 'Витік банківського маркера безпеки' : 'Запит персональних банківських маркерів';
+          badge = hasValueLeak ? 'Критичний витік' : 'Запит маркерів';
+          badgeType = hasValueLeak ? 'critical' : 'warning';
+          description = hasValueLeak
+            ? 'У формі введено дійсне значення конфіденційного маркера безпеки з Private Vault.'
+            : 'Форма запитує конфіденційні маркери банківської ідентифікації.';
+          const labels = (t.details as any)?.labels;
+          evidence = labels && Array.isArray(labels) ? labels.join(', ') : 'Private Vault DLP';
         } else {
           title = 'Виявлений фактор ризику';
           badge = t.severity === 'CRITICAL' ? 'Критично' : 'Попередження';

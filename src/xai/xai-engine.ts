@@ -1,6 +1,6 @@
 import { ActiveThreatContext, ThreatAssessment } from '../types';
 import { AttackChainStep, IntentVsRealityContrast, XaiExplanation, XaiRiskBreakdown, XaiRiskFactor } from '../types/xai';
-import { VaultItem } from '../types/vault';
+import { VaultItem, VaultMatchResult } from '../types/vault';
 
 export interface XaiEvaluationOptions {
   type: 'form' | 'chat';
@@ -10,6 +10,7 @@ export interface XaiEvaluationOptions {
   chatLeakage?: { hasCard: boolean; hasCvv: boolean };
   detectedAmount?: string;
   vaultItems?: VaultItem[];
+  vaultMatches?: VaultMatchResult[];
 }
 
 export interface ScenarioDetails {
@@ -165,20 +166,40 @@ export class XaiEngine {
     const hasVaultItems = options.vaultItems && options.vaultItems.length > 0;
     const vaultItemLabels = hasVaultItems ? options.vaultItems!.map((i) => i.label) : [];
 
+    // Відокремлюємо маркери, значення яких реально введено у форму (VALUE_MATCH),
+    // від тих, які сайт лише випитує у розмітці (FIELD_LABEL_MATCH)
+    const valueMatchLabels = options.vaultMatches
+      ? options.vaultMatches.filter((m) => m.matchType === 'VALUE_MATCH').map((m) => m.matchedItem.label)
+      : (options.type === 'chat' ? vaultItemLabels : []);
+    const hasRealValueLeak = valueMatchLabels.length > 0;
+
     // 0. Запит захищених персональних маркерів (дівоче прізвище, ІПН) без картки
     if (hasVaultItems && options.type !== 'chat') {
       const isCardPresent = triggersText.includes('лун') || triggersText.includes('номер банківськ') || triggersText.includes('картк');
       if (!isCardPresent) {
-        return {
-          attackCategory: 'IDENTITY_HARVESTING',
-          attackScenario: 'Збір персональних банківських маркерів',
-          diagnosis: `Спроба випитування відповідей на контрольні запитання банків (${vaultItemLabels.join(', ')})`,
-          userIntendedAction: 'Ви заповнюєте анкету або підтверджуєте особу',
-          threatReality: `цей сайт випитує захищені маркери відновлення доступу (${vaultItemLabels.join(', ')}), які банки використовують для авторизації клієнтів`,
-          financialRisk: 'всі банківські рахунки та облікові записи',
-          exposedAssets: vaultItemLabels,
-          shortAttackName: 'викрадення маркерів особи (Identity Theft)',
-        };
+        if (hasRealValueLeak) {
+          return {
+            attackCategory: 'IDENTITY_HARVESTING',
+            attackScenario: 'Витік персональних банківських маркерів',
+            diagnosis: `Прямий витік відповідей на контрольні запитання банку (${valueMatchLabels.join(', ')})`,
+            userIntendedAction: 'Ви ввели конфіденційні контрольні маркери банку',
+            threatReality: `ви передаєте дійсні маркери безпеки (${valueMatchLabels.join(', ')}), які банки використовують виключно для авторизації та відновлення доступу`,
+            financialRisk: 'всі банківські рахунки та облікові записи',
+            exposedAssets: valueMatchLabels,
+            shortAttackName: 'викрадення маркерів особи (Identity Theft)',
+          };
+        } else {
+          return {
+            attackCategory: 'IDENTITY_HARVESTING',
+            attackScenario: 'Збір персональних банківських маркерів',
+            diagnosis: `Форма випитує контрольні маркери банку (${vaultItemLabels.join(', ')}), проте ваші справжні секрети не передаються`,
+            userIntendedAction: 'Ви заповнюєте анкету або опитування',
+            threatReality: `цей сайт випитує захищені маркери відновлення доступу (${vaultItemLabels.join(', ')}), які ніколи не запитуються сторонніми сервісами`,
+            financialRisk: 'безпека облікових записів',
+            exposedAssets: [],
+            shortAttackName: 'випитування персональних даних (Identity Probing)',
+          };
+        }
       }
     }
 
@@ -191,7 +212,7 @@ export class XaiEngine {
     );
 
     if (isAutofill) {
-      const exposedAssets = ['номер банківської картки', 'секретний CVV-код', 'термін дії картки', ...vaultItemLabels];
+      const exposedAssets = ['номер банківської картки', 'секретний CVV-код', 'термін дії картки', ...valueMatchLabels];
       return {
         attackCategory: 'AUTOFILL_TRAP',
         attackScenario: 'Прихована DOM-пастка автозаповнення (Autofill Trap)',
@@ -214,7 +235,7 @@ export class XaiEngine {
 
     if (isDelivery) {
       const platform = options.activeContext?.sourcePlatform || 'маркетплейсу';
-      const exposedAssets = ['номер банківської картки', 'секретний код безпеки CVV', ...vaultItemLabels];
+      const exposedAssets = ['номер банківської картки', 'секретний код безпеки CVV', ...valueMatchLabels];
       return {
         attackCategory: 'DELIVERY_SCAM',
         attackScenario: `Шахрайство під виглядом безпечної угоди (${platform})`,
@@ -249,7 +270,7 @@ export class XaiEngine {
     }
 
     // 4. Недовірений платіжний вузол (Untrusted Gateway / Action Mismatch)
-    const exposedAssets = ['номер банківської картки', 'секретний код CVV', ...vaultItemLabels];
+    const exposedAssets = ['номер банківської картки', 'секретний код CVV', ...valueMatchLabels];
     return {
       attackCategory: 'UNTRUSTED_GATEWAY',
       attackScenario: 'Неліцензований платіжний вузол',

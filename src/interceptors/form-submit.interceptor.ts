@@ -49,6 +49,9 @@ export class FormSubmitInterceptor {
     targetHost: string,
     currentHost?: string
   ): boolean {
+    // 1. Повністю порожня форма не містить жодних даних для витоку — блокування скасовується
+    if (formState.isEntirelyEmpty) return false;
+
     if (UserWhitelistManager.isDomainAllowedSync(targetHost)) return false;
     if (currentHost && UserWhitelistManager.isDomainAllowedSync(currentHost)) return false;
     if (isAccreditedPaymentGateway(targetHost)) return false;
@@ -66,6 +69,7 @@ export class FormSubmitInterceptor {
     const result = pipeline.analyze(form, currentHost, activeContext);
 
     if (getDebugMode()) {
+      DebuggerOverlay.setAssessment(result.assessment.score, result.assessment.level);
       DebuggerOverlay.log(
         'Форма: Оцінка Ризику',
         `${result.assessment.score} балів (Рівень: ${result.assessment.level})`,

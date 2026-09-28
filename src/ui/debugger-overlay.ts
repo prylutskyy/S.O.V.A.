@@ -215,6 +215,12 @@ export class DebuggerOverlay {
     this.render();
   }
 
+  public static setAssessment(score: number, severity: string = 'LOW') {
+    this.state.score = Math.max(0, Math.min(100, Math.round(score)));
+    this.state.severity = severity;
+    this.render();
+  }
+
   public static log(
     stepKey: string,
     data: any,

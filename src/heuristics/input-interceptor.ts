@@ -131,22 +131,27 @@ export class GlobalInputInterceptor {
       return { shouldBlock: false };
     }
 
-    // Скануємо на Vault маркери
+    const inputs = Array.from(form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('input, textarea'));
+    const filledInputs = inputs.filter((inp) => inp.value?.trim());
+    // Якщо форма порожня — ніякого витоку немає, не блокуємо
+    if (filledInputs.length === 0) {
+      return { shouldBlock: false };
+    }
+
+    // Скануємо на Vault маркери: блокуємо ТІЛЬКИ при реальному витоку значення (VALUE_MATCH)
     const vaultScan = VaultScanner.scanFormSync(form, targetHost);
-    if (vaultScan.matches.length > 0) {
-      const labels = Array.from(new Set(vaultScan.matches.map(m => m.matchedItem.label))).join(', ');
+    const valueMatches = vaultScan.matches.filter((m) => m.matchType === 'VALUE_MATCH');
+    if (valueMatches.length > 0) {
+      const labels = Array.from(new Set(valueMatches.map(m => m.matchedItem.label))).join(', ');
       return {
         shouldBlock: true,
-        reason: `Форма запитує або містить персональні конфіденційні маркери з Private Vault: ${labels}!`,
+        reason: `У формі введено дійсний конфіденційний маркер безпеки з Private Vault: ${labels}!`,
       };
     }
 
-    // Скануємо поля форми на CVV / Expiry / Passwords
-    const inputs = Array.from(form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('input, textarea'));
-    for (const input of inputs) {
-      const val = input.value?.trim() || '';
-      if (!val) continue;
-
+    // Скануємо поля форми на CVV / Expiry
+    for (const input of filledInputs) {
+      const val = input.value.trim();
       const descriptor = `${input.name} ${input.id} ${input.placeholder} ${input.autocomplete} ${input.getAttribute('aria-label') || ''}`.toLowerCase();
       const isCvvField = /(cvv|cvc|csc|код\s*безпеки|код\s*картки)/i.test(descriptor);
       const digitsOnly = val.replace(/\D/g, '');
@@ -210,21 +215,12 @@ export class GlobalInputInterceptor {
           target.getAttribute('role') === 'button' ||
           (closestA && closestA.getAttribute('role') === 'button')
         ) {
-          isSubmission = true;
-          // Спробуємо знайти пов'язане поле введення поруч (наприклад, у чаті або у формі)
+          // Якщо клік відбувається у формі — делегуємо FormSubmitInterceptor
           if (closestForm) {
-            // Перевіряємо форму
-            const formCheck = this.evaluateFormSensitiveAssets(closestForm);
-            if (formCheck.shouldBlock) {
-              e.preventDefault();
-              e.stopImmediatePropagation();
-              this.showBlockModal(closestForm, formCheck.reason);
-              return;
-            } else {
-              // Форма безпечна — ДОЗВОЛЯЄМО
-              return;
-            }
+            return;
           }
+
+          isSubmission = true;
 
           // Пошук інпуту чату поруч з кнопкою
           const container = target.closest('[data-testid="conversation-layout"], .chat, .messenger, .chat-box, body');
@@ -247,19 +243,14 @@ export class GlobalInputInterceptor {
             target.isContentEditable || 
             target.getAttribute('role') === 'textbox'
           ) {
+            if (closestForm) {
+              // Відправку форми по Enter обробляє FormSubmitInterceptor
+              return;
+            }
+
             isSubmission = true;
             targetInputElement = target;
             submissionText = this.extractInputText(target);
-
-            if (closestForm) {
-              const formCheck = this.evaluateFormSensitiveAssets(closestForm);
-              if (formCheck.shouldBlock) {
-                e.preventDefault();
-                e.stopImmediatePropagation();
-                this.showBlockModal(target, formCheck.reason);
-                return;
-              }
-            }
           }
         }
       }
@@ -281,7 +272,6 @@ export class GlobalInputInterceptor {
             text: submissionText,
             unlockedVaultItems: operationalVaultItems,
           });
-
 
           // Якщо вихідне навантаження безпечне (звичайне повідомлення або ТІЛЬКИ номер картки):
           if (!assessment.shouldBlock) {
@@ -311,14 +301,7 @@ export class GlobalInputInterceptor {
         e.stopImmediatePropagation();
         return;
       }
-      if (this.hardLockContext && form) {
-        const formCheck = this.evaluateFormSensitiveAssets(form);
-        if (formCheck.shouldBlock) {
-          e.preventDefault();
-          e.stopImmediatePropagation();
-          this.showBlockModal(form, formCheck.reason);
-        }
-      }
+      // Відправка форм централізовано обробляється FormSubmitInterceptor
     }, true);
 
     // Безперервний фоновий моніторинг введення (Background Zero-Trust Input Sentinel)

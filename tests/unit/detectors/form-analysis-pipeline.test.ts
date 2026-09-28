@@ -61,4 +61,46 @@ describe('FormAnalysisPipeline', () => {
     expect(result.assessment.triggers.some((t) => t.name === 'tainted_context_window_active')).toBe(true);
     expect(result.assessment.contextActive).toBe(true);
   });
+
+  it('should not treat an entirely empty form as hasFilledAnySensitive even if inputs match Vault labels', () => {
+    const form = document.createElement('form');
+    form.action = 'https://untrusted-site.com/submit';
+
+    const inputName = document.createElement('input');
+    inputName.name = 'fullName';
+    inputName.value = '';
+
+    const inputMaiden = document.createElement('input');
+    inputMaiden.name = 'secretWord';
+    inputMaiden.placeholder = 'Дівоче прізвище матері';
+    inputMaiden.value = '';
+
+    form.appendChild(inputName);
+    form.appendChild(inputMaiden);
+    document.body.appendChild(form);
+
+    const result = pipeline.analyze(form, 'untrusted-site.com', null);
+    expect(result.formState.isEntirelyEmpty).toBe(true);
+    expect(result.formState.hasFilledAnySensitive).toBe(false);
+    expect(result.assessment.score).toBeLessThanOrEqual(30);
+  });
+
+  it('should not treat a form with fake/untrue data as leaking Vault secrets', () => {
+    const form = document.createElement('form');
+    form.action = 'https://untrusted-site.com/submit';
+
+    const inputMaiden = document.createElement('input');
+    inputMaiden.name = 'secretWord';
+    inputMaiden.placeholder = 'Дівоче прізвище матері';
+    inputMaiden.value = 'Не_скажу_вам_123'; // Decoy / fake data
+
+    form.appendChild(inputMaiden);
+    document.body.appendChild(form);
+
+    const result = pipeline.analyze(form, 'untrusted-site.com', null);
+    expect(result.formState.isEntirelyEmpty).toBe(false);
+    expect(result.formState.hasFilledAnySensitive).toBe(false);
+    expect(result.assessment.score).toBeLessThanOrEqual(45);
+    expect(result.assessment.level).toBe('MEDIUM');
+  });
 });

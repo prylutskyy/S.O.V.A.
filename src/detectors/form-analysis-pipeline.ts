@@ -67,9 +67,10 @@ export class FormAnalysisPipeline {
       }
     }
 
-    // Перевірка стану Vault (чутливі маркери)
+    // Перевірка стану Vault (чутливі маркери): ТІЛЬКИ реальний витік значення активує прапорець
     const vaultScan = VaultScanner.scanFormSync(form, currentHost);
-    if (vaultScan.triggers.length > 0) {
+    const hasRealVaultValueMatch = vaultScan.matches.some((m) => m.matchType === 'VALUE_MATCH');
+    if (hasRealVaultValueMatch) {
       formState.hasFilledAnySensitive = true;
     }
 
@@ -91,9 +92,10 @@ export class FormAnalysisPipeline {
       {
         action: 'submit',
         hasFilledSensitive:
-          formState.hasFilledCvv ||
-          formState.hasFilledPassword ||
-          (vaultScan && vaultScan.matches.length > 0),
+          !formState.isEntirelyEmpty &&
+          (formState.hasFilledCvv ||
+            formState.hasFilledPassword ||
+            hasRealVaultValueMatch),
         isEntirelyEmpty: formState.isEntirelyEmpty,
       },
       contextBonus
