@@ -98,7 +98,11 @@ export class ProactiveFieldProtector {
     const newlySealedLabels: string[] = [];
 
     for (const input of inputs) {
-      if (input.dataset?.threatShieldApproved === 'true' || input.dataset?.sanctuaryApproved === 'true') {
+      if (
+        input.dataset?.threatShieldApproved === 'true' ||
+        input.dataset?.sanctuaryApproved === 'true' ||
+        input.dataset?.sanctuaryUnsealed === 'true'
+      ) {
         continue;
       }
       if (input.dataset?.sanctuarySealed === 'true') {
@@ -266,8 +270,7 @@ export class ProactiveFieldProtector {
     delete input.dataset.tsOriginalTransition;
 
     if (userInitiated) {
-      input.dataset.threatShieldApproved = 'true';
-      input.dataset.sanctuaryApproved = 'true';
+      input.dataset.sanctuaryUnsealed = 'true';
     }
 
     // Видалення бейджа та тултіпа з Shadow DOM
@@ -290,6 +293,7 @@ export class ProactiveFieldProtector {
   public static unsealAll(): void {
     for (const input of Array.from(this.sealedFields.keys())) {
       this.unsealField(input, false);
+      delete input.dataset.sanctuaryUnsealed;
     }
     this.sealedFields.clear();
     this.closeActiveTooltip();
@@ -389,6 +393,105 @@ export class ProactiveFieldProtector {
     return badge;
   }
 
+  private static ensureStylesInjected(root: ShadowRoot): void {
+    if (root.getElementById('ts-sanctuary-loupe-styles')) return;
+
+    const style = document.createElement('style');
+    style.id = 'ts-sanctuary-loupe-styles';
+    style.textContent = `
+      @keyframes tsLoupeIn {
+        0% {
+          opacity: 0;
+          transform: translateY(8px) scale(0.96);
+        }
+        100% {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+
+      @keyframes tsLoupeOut {
+        0% {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+        100% {
+          opacity: 0;
+          transform: translateY(4px) scale(0.97);
+        }
+      }
+
+      .ts-sanctuary-loupe-tooltip {
+        animation: tsLoupeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+        transform-origin: top center !important;
+      }
+
+      .ts-sanctuary-loupe-tooltip.ts-closing {
+        animation: tsLoupeOut 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+        pointer-events: none !important;
+      }
+
+      .ts-loupe-unlock-btn {
+        all: unset !important;
+        appearance: none !important;
+        -webkit-appearance: none !important;
+        box-sizing: border-box !important;
+        background-color: #1D1D1F !important;
+        color: #FFFFFF !important;
+        font-size: 11px !important;
+        font-weight: 500 !important;
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif !important;
+        padding: 6px 14px !important;
+        border-radius: 6px !important;
+        cursor: pointer !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        line-height: 1.2 !important;
+        border: 1px solid rgba(0, 0, 0, 0.1) !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15) !important;
+        transition: background-color 0.18s cubic-bezier(0.16, 1, 0.3, 1), transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      }
+
+      .ts-loupe-unlock-btn:hover {
+        background-color: #000000 !important;
+        color: #FFFFFF !important;
+        transform: translateY(-1px) scale(1.02) !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important;
+      }
+
+      .ts-loupe-unlock-btn:active {
+        background-color: #2C2C2E !important;
+        color: #FFFFFF !important;
+        transform: translateY(0) scale(0.98) !important;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+      }
+
+      .ts-loupe-unlock-btn svg {
+        stroke: #FFFFFF !important;
+        color: #FFFFFF !important;
+      }
+
+      .ts-loupe-close-btn {
+        all: unset !important;
+        cursor: pointer !important;
+        color: #86868B !important;
+        padding: 4px !important;
+        border-radius: 4px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        transition: color 0.15s ease, background-color 0.15s ease !important;
+      }
+
+      .ts-loupe-close-btn:hover {
+        color: #1D1D1F !important;
+        background-color: rgba(0, 0, 0, 0.05) !important;
+      }
+    `;
+    root.appendChild(style);
+  }
+
   /**
    * Відображення плаваючої швейцарської лупи (Swiss Loupe Tooltip)
    */
@@ -401,6 +504,8 @@ export class ProactiveFieldProtector {
     this.closeActiveTooltip();
 
     const root = ShadowHost.getRoot();
+    this.ensureStylesInjected(root);
+
     const tooltip = document.createElement('div');
     tooltip.className = 'ts-sanctuary-loupe-tooltip';
 
@@ -420,39 +525,32 @@ export class ProactiveFieldProtector {
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif !important;
       color: #1D1D1F !important;
       box-sizing: border-box !important;
-      animation: tsFadeIn 0.16s cubic-bezier(0.16, 1, 0.3, 1) !important;
     `;
 
     tooltip.innerHTML = `
-      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
-        <div style="width: 20px; height: 20px; border-radius: 50%; background: ${isTierA ? '#FEE2E2' : '#FEF3C7'}; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="${isTierA ? '#DC2626' : '#D97706'}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-          </svg>
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <div style="width: 20px; height: 20px; border-radius: 50%; background: ${isTierA ? '#FEE2E2' : '#FEF3C7'}; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="${isTierA ? '#DC2626' : '#D97706'}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+          </div>
+          <span style="font-size: 13px; font-weight: 600; color: #1D1D1F; letter-spacing: -0.01em;">Поле убезпечено Sanctuary</span>
         </div>
-        <span style="font-size: 13px; font-weight: 600; color: #1D1D1F; letter-spacing: -0.01em;">Поле убезпечено Sanctuary</span>
+        <button id="ts-loupe-close" class="ts-loupe-close-btn" aria-label="Закрити" title="Закрити підказку">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
       </div>
       <p style="font-size: 12px; line-height: 1.45; color: #6E6E73; margin: 0 0 12px 0;">
         Сторонній ресурс запитує конфіденційні дані: <strong style="color: #1D1D1F; font-weight: 600;">«${label}»</strong>.
         Введення деактивовано для запобігання перехопленню кейлогерами.
       </p>
       <div style="display: flex; align-items: center; justify-content: flex-end; gap: 8px;">
-        <button id="ts-unlock-btn" style="
-          all: unset !important;
-          background: #1D1D1F !important;
-          color: #FFFFFF !important;
-          font-size: 11px !important;
-          font-weight: 500 !important;
-          padding: 6px 12px !important;
-          border-radius: 6px !important;
-          cursor: pointer !important;
-          display: inline-flex !important;
-          align-items: center !important;
-          gap: 5px !important;
-          transition: background 0.15s ease, transform 0.15s ease !important;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
-        ">
+        <button id="ts-unlock-btn" class="ts-loupe-unlock-btn">
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
             <path d="M7 11V7a5 5 0 0 1 9.9-1"/>
@@ -468,14 +566,14 @@ export class ProactiveFieldProtector {
     const scrollX = typeof window !== 'undefined' ? (window.scrollX || window.pageXOffset || 0) : 0;
     const scrollY = typeof window !== 'undefined' ? (window.scrollY || window.pageYOffset || 0) : 0;
 
-    let top = scrollY + rect.top - 128;
+    let top = scrollY + rect.top - 132;
     let left = scrollX + rect.left;
 
     if (top < scrollY + 10) {
       top = scrollY + rect.bottom + 8;
     }
-    if (left + 290 > window.innerWidth) {
-      left = Math.max(10, window.innerWidth - 300);
+    if (left + 290 > (typeof window !== 'undefined' ? window.innerWidth : 1000)) {
+      left = Math.max(10, (typeof window !== 'undefined' ? window.innerWidth : 1000) - 300);
     }
 
     tooltip.style.top = `${top}px`;
@@ -487,13 +585,13 @@ export class ProactiveFieldProtector {
         e.stopPropagation();
         this.unsealField(input, true);
       });
-      unlockBtn.addEventListener('mouseenter', () => {
-        unlockBtn.style.background = '#000000';
-        unlockBtn.style.transform = 'translateY(-1px)';
-      });
-      unlockBtn.addEventListener('mouseleave', () => {
-        unlockBtn.style.background = '#1D1D1F';
-        unlockBtn.style.transform = 'translateY(0)';
+    }
+
+    const closeBtn = tooltip.querySelector('#ts-loupe-close') as HTMLButtonElement | null;
+    if (closeBtn) {
+      closeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.closeActiveTooltip();
       });
     }
 
@@ -510,6 +608,19 @@ export class ProactiveFieldProtector {
     }
   }
 
+  public static closeActiveTooltip(): void {
+    if (this.activeTooltip && this.activeTooltip.parentNode) {
+      const el = this.activeTooltip;
+      this.activeTooltip = null;
+      el.classList.add('ts-closing');
+      setTimeout(() => {
+        if (el.parentNode) {
+          el.parentNode.removeChild(el);
+        }
+      }, 150);
+    }
+  }
+
   public static showTooltipForElement(input: HTMLInputElement | HTMLTextAreaElement): void {
     const meta = this.sealedFields.get(input);
     if (!meta) {
@@ -519,13 +630,6 @@ export class ProactiveFieldProtector {
       return;
     }
     this.showTooltip(input, meta.categoryLabel, meta.isTierA, meta.badgeElement);
-  }
-
-  public static closeActiveTooltip(): void {
-    if (this.activeTooltip && this.activeTooltip.parentNode) {
-      this.activeTooltip.parentNode.removeChild(this.activeTooltip);
-      this.activeTooltip = null;
-    }
   }
 
   private static setupObserver(): void {

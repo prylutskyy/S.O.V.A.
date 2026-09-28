@@ -93,14 +93,16 @@ describe('ProactiveFieldProtector (Sanctuary Sealed Apertures)', () => {
 
     expect(input.dataset.sanctuarySealed).toBeUndefined();
     expect(input.readOnly).toBe(false);
-    expect(input.dataset.threatShieldApproved).toBe('true');
+    expect(input.dataset.sanctuaryUnsealed).toBe('true');
+    // Crucial: threatShieldApproved must NOT be set, so real-time vault warning remains active!
+    expect(input.dataset.threatShieldApproved).toBeUndefined();
     expect(input.style.outline).toBe('');
 
     const shadowRoot = ShadowHost.getRoot();
     expect(shadowRoot.querySelector('.ts-sanctuary-seal-badge')).toBeNull();
   });
 
-  it('renders and closes Loupe Tooltip on demand', () => {
+  it('renders and closes Loupe Tooltip on demand with smooth exit animation', async () => {
     const form = document.createElement('form');
     const input = document.createElement('input');
     input.name = 'secretWord';
@@ -123,7 +125,28 @@ describe('ProactiveFieldProtector (Sanctuary Sealed Apertures)', () => {
 
     expect(input.dataset.sanctuarySealed).toBeUndefined();
     expect(input.readOnly).toBe(false);
+    expect(tooltip?.classList.contains('ts-closing')).toBe(true);
+
+    await new Promise((r) => setTimeout(r, 160));
     expect(shadowRoot.querySelector('.ts-sanctuary-loupe-tooltip')).toBeNull();
+  });
+
+  it('preserves real-time vault leakage warning on unsealed fields when sensitive data is typed', () => {
+    const form = document.createElement('form');
+    const input = document.createElement('input');
+    input.name = 'secretWord';
+    input.placeholder = 'Секретне слово';
+    form.appendChild(input);
+    document.body.appendChild(form);
+
+    ProactiveFieldProtector.init('untrusted-site.xyz');
+    expect(input.dataset.sanctuarySealed).toBe('true');
+
+    // Unseal field manually
+    ProactiveFieldProtector.unsealField(input, true);
+    expect(input.dataset.sanctuaryUnsealed).toBe('true');
+    // Ensure threatShieldApproved is undefined so checkRealtimeVaultLeakage is NOT bypassed!
+    expect(input.dataset.threatShieldApproved).toBeUndefined();
   });
 
   it('accurately seals fake-survey.html fields (fullName left open, taxId & secretWord sealed)', () => {
