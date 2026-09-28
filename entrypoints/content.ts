@@ -13,6 +13,8 @@ import { FormSubmitInterceptor } from '../src/interceptors/form-submit.intercept
 import { ChatSubmitInterceptor } from '../src/interceptors/chat-submit.interceptor';
 import { ClipboardInterceptor } from '../src/interceptors/clipboard.interceptor';
 import { ProactiveFieldProtector } from '../src/heuristics/proactive-field-protector';
+import { AIArbiterService } from '../src/ai/ai-arbiter.service';
+import { ToastNotifier } from '../src/ui/toast-notifier';
 
 export default defineContentScript({
   matches: ['<all_urls>'],
@@ -285,6 +287,37 @@ export default defineContentScript({
           },
         });
       } catch {}
+
+      // ── TIER 2: АСИНХРОННИЙ АРБІТРАЖ ШТУЧНОГО ІНТЕЛЕКТУ (LLM ARBITER) ──
+      AIArbiterService.verify({
+        context: localContext,
+        rawTextToScan,
+        intentType,
+        confidence,
+      }).then((aiResult) => {
+        if (!aiResult) return;
+
+        if (!aiResult.isScam && aiResult.confidence >= 70) {
+          // Якщо ШІ переконливо спростував загрозу (False Positive Mitigation):
+          console.log('[ThreatShield:Content] ШІ-Арбітр спростував евристичну загрозу:', aiResult.reasoning);
+          activeContext = null;
+          GlobalInputInterceptor.setHardLock(null);
+          SecurityFriction.removeContextWarningBanner();
+          ToastNotifier.show(`ШІ-Арбітр перевірив діалог: безпечно (${aiResult.reasoning})`, 'success', 6000);
+          window.postMessage({ type: 'THREAT_SHIELD_CONTEXT_CLEARED' }, '*');
+        } else if (aiResult.isScam) {
+          console.log('[ThreatShield:Content] ШІ-Арбітр підтвердив загрозу:', aiResult);
+          if (debugMode) {
+            DebuggerOverlay.log(
+              'ШІ-Арбітр (Вердикт)',
+              `Загрозу підтверджено [${aiResult.provider || 'ШІ'}: ${aiResult.modelUsed || ''}]: ${aiResult.reasoning} (${aiResult.confidence}%)`,
+              '#EF4444'
+            );
+          }
+        }
+      }).catch((err) => {
+        console.warn('[ThreatShield:Content] Помилка фонового ШІ-арбітражу:', err);
+      });
     };
 
     // 1. Моніторинг діалогових вікон та чатів
