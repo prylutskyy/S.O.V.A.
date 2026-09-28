@@ -167,7 +167,12 @@ export class SettingsTabController {
     // Cloud AI Switch
     this.toggleCloudAi?.addEventListener('change', async (e) => {
       const isEnabled = (e.target as HTMLInputElement).checked;
-      await SecureKeyStore.saveConfig({ enabled: isEnabled });
+      const provider = (this.cloudAiProviderSelect?.value as LLMProviderType) || 'gemini';
+      let model = 'gemini-2.5-flash';
+      if (provider === 'groq') model = 'llama-3.3-70b-versatile';
+      if (provider === 'openai') model = 'gpt-4o-mini';
+
+      await SecureKeyStore.saveConfig({ enabled: isEnabled, provider, model });
       this.showToast(isEnabled ? 'Хмарний ШІ арбітр активовано' : 'Хмарний ШІ вимкнено');
     });
 
@@ -193,11 +198,17 @@ export class SettingsTabController {
       }
 
       const provider = (this.cloudAiProviderSelect?.value as LLMProviderType) || 'gemini';
+      let model = 'gemini-2.5-flash';
+      if (provider === 'groq') model = 'llama-3.3-70b-versatile';
+      if (provider === 'openai') model = 'gpt-4o-mini';
+
       try {
         await SecureKeyStore.saveApiKey(provider, val, 'device_encrypted');
+        await SecureKeyStore.saveConfig({ provider, model, enabled: true });
+        if (this.toggleCloudAi) this.toggleCloudAi.checked = true;
         if (this.cloudAiKeyInput) this.cloudAiKeyInput.value = '';
         await this.updateKeyHint();
-        this.showToast(`Ключ ${provider.toUpperCase()} зашифровано та збережено`);
+        this.showToast(`Ключ ${provider.toUpperCase()} зашифровано та активовано!`);
       } catch (err: any) {
         alert(`Помилка збереження ключа: ${err?.message || err}`);
       }

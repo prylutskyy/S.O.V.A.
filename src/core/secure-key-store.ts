@@ -254,8 +254,6 @@ export class SecureKeyStore {
    * Отримання конфігурації хмарного ШІ
    */
   public static async getConfig(): Promise<LLMConfig> {
-    if (this.cachedConfig) return { ...this.cachedConfig };
-
     if (typeof chrome !== 'undefined' && chrome.storage?.local) {
       const res = await chrome.storage.local.get(LLM_CONFIG_STORAGE_KEY);
       if (res && res[LLM_CONFIG_STORAGE_KEY]) {
@@ -264,6 +262,7 @@ export class SecureKeyStore {
       }
     }
 
+    if (this.cachedConfig) return { ...this.cachedConfig };
     this.cachedConfig = { ...DEFAULT_LLM_CONFIG };
     return { ...this.cachedConfig };
   }

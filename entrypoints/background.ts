@@ -141,10 +141,10 @@ export default defineBackground(() => {
             }
           }
         } catch (e) {
-          console.warn('[ThreatShield:Background] Cloud LLM verification failed, falling back to local Gemini Nano:', e);
+          console.warn('[ThreatShield:Background] Cloud LLM verification failed, falling back to local LLM:', e);
         }
 
-        // 2. Фолбек на локальний Gemini Nano через Offscreen Document
+        // 2. Фолбек на локальний LLM через Offscreen Document
         setupOffscreenDocument('offscreen.html').then(() => {
           const attemptSend = (retries: number) => {
             chrome.runtime.sendMessage({
@@ -201,30 +201,82 @@ export default defineBackground(() => {
     }
 
     if (message.type === 'SIMULATE_CHAT_REPLY') {
-      setupOffscreenDocument('offscreen.html').then(() => {
-        const attemptSend = (retries: number) => {
-          chrome.runtime.sendMessage({
-            target: 'offscreen',
-            type: 'SIMULATE_CHAT_REPLY',
-            payload: message.payload
-          }, (response) => {
-            if (chrome.runtime.lastError) {
-              if (retries > 0) {
-                setTimeout(() => attemptSend(retries - 1), 200);
-              } else {
-                console.error('[ThreatShield:Background] Offscreen failed to receive SIMULATE_CHAT_REPLY:', chrome.runtime.lastError.message);
-                sendResponse({ reply: 'Доброго дня! Чим можу допомогти?', engine: 'error-fallback' });
-              }
+      (async () => {
+        const { persona, history, latestUserMessage, itemContext, customGoal } = message.payload || {};
+
+        // 1. Пріоритет: Хмарна LLM (Gemini 2.5 Flash, Groq, OpenAI), якщо налаштовано та увімкнено
+        try {
+          const isCloud = await CloudLLMDispatcher.isConfigured();
+          if (isCloud) {
+            console.log('[ThreatShield:Background] Запит генерації репліки симулятора через Cloud LLM...');
+            const cloudResult = await CloudLLMDispatcher.generateChatReply(
+              persona,
+              history || [],
+              latestUserMessage,
+              itemContext,
+              customGoal
+            );
+            if (cloudResult && cloudResult.reply) {
+              console.log('[ThreatShield:Background] Cloud LLM згенерував відповідь:', cloudResult);
+              sendResponse({
+                reply: cloudResult.reply,
+                engine: cloudResult.engine,
+                latencyMs: cloudResult.latencyMs,
+              });
               return;
             }
-            sendResponse(response);
+          }
+        } catch (err) {
+          console.warn('[ThreatShield:Background] Cloud LLM simulation failed, falling back to local/rules:', err);
+        }
+
+        // 2. Фолбек на Offscreen Document (Локальна LLM або правила)
+        setupOffscreenDocument('offscreen.html').then(() => {
+          const attemptSend = (retries: number) => {
+            chrome.runtime.sendMessage({
+              target: 'offscreen',
+              type: 'SIMULATE_CHAT_REPLY',
+              payload: message.payload
+            }, (response) => {
+              if (chrome.runtime.lastError) {
+                if (retries > 0) {
+                  setTimeout(() => attemptSend(retries - 1), 200);
+                } else {
+                  console.error('[ThreatShield:Background] Offscreen failed to receive SIMULATE_CHAT_REPLY:', chrome.runtime.lastError.message);
+                  sendResponse({ reply: 'Доброго дня! Чим можу допомогти?', engine: 'error-fallback' });
+                }
+                return;
+              }
+              sendResponse(response);
+            });
+          };
+          attemptSend(10);
+        }).catch(e => {
+          console.error('[ThreatShield:Background] Failed to setup offscreen for simulation:', e);
+          sendResponse({ reply: 'Доброго дня!', engine: 'error-fallback' });
+        });
+      })();
+      return true;
+    }
+
+    if (message.type === 'GET_AI_STATUS') {
+      (async () => {
+        try {
+          const config = await SecureKeyStore.getConfig();
+          const key = await SecureKeyStore.getApiKey(config.provider);
+          sendResponse({
+            cloudEnabled: config.enabled,
+            cloudProvider: config.provider,
+            cloudModel: config.model,
+            hasKey: !!key,
           });
-        };
-        attemptSend(10);
-      }).catch(e => {
-        console.error('[ThreatShield:Background] Failed to setup offscreen for simulation:', e);
-        sendResponse({ reply: 'Доброго дня!', engine: 'error-fallback' });
-      });
+        } catch (err: any) {
+          sendResponse({
+            cloudEnabled: false,
+            error: err?.message,
+          });
+        }
+      })();
       return true;
     }
 
@@ -244,7 +296,7 @@ export default defineBackground(() => {
     creatingOffscreen = chrome.offscreen.createDocument({
       url: path,
       reasons: ['DOM_PARSER' as chrome.offscreen.Reason],
-      justification: 'Accessing DOM-bound Gemini Nano Prompt API',
+      justification: 'Accessing DOM-bound local LLM Prompt API',
     });
     
     try {

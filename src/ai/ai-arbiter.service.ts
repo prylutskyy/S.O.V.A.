@@ -17,6 +17,9 @@ export interface AIArbiterVerifyResult {
   confidence: number;
   reasoning: string;
   rawResponse?: string;
+  provider?: string;
+  modelUsed?: string;
+  latencyMs?: number;
 }
 
 /**
@@ -76,11 +79,17 @@ export class AIArbiterService {
     // 1. Швидкий кеш: якщо однаковий контекст уже перевірявся — 0 мс затримки, 0% CPU
     const cached = this.cache.get(cacheKey);
     if (cached && Date.now() < cached.expiresAt) {
+      const providerLabel = cached.result.provider ? ` [${cached.result.provider}]` : '';
       DebuggerOverlay.logAI(
         'ШІ Арбітр → Кеш',
-        `Результат миттєво взято з пам'яті (0 мс)\nВпевненість: ${cached.result.confidence}%\nВисновок: "${cached.result.reasoning}"`,
+        `Результат миттєво взято з пам'яті (0 мс)${providerLabel}\nВпевненість: ${cached.result.confidence}%\nВисновок: "${cached.result.reasoning}"`,
         cached.result.isScam ? '#EF4444' : '#22C55E',
-        { rawResponse: cached.result.rawResponse }
+        {
+          rawResponse: cached.result.rawResponse,
+          provider: cached.result.provider,
+          model: cached.result.modelUsed,
+          latencyMs: cached.result.latencyMs,
+        }
       );
       return cached.result;
     }
@@ -245,37 +254,36 @@ Required JSON schema:
             if (!aiResult) {
               DebuggerOverlay.logAI(
                 'ШІ Арбітр → Аналіз',
-                'Gemini Nano не зміг обробити запит.',
+                'ШІ-арбітр (LLM) не зміг обробити запит.',
                 '#EF4444',
                 undefined,
                 aiLogId
               );
               resolve(null);
-            } else if (aiResult.isScam) {
-              AIArbiterService.cache.set(cacheKey, {
-                result: aiResult,
-                expiresAt: Date.now() + AIArbiterService.CACHE_TTL_MS,
-              });
-
-              DebuggerOverlay.logAI(
-                'ШІ Арбітр → Аналіз',
-                `СКАМ підтверджено (Впевненість: ${aiResult.confidence}%)\n\nВисновок: "${aiResult.reasoning}"`,
-                '#EF4444',
-                { rawResponse: aiResult.rawResponse },
-                aiLogId
-              );
-              resolve(aiResult);
             } else {
+              const providerLabel = aiResult.provider
+                ? ` [${aiResult.provider}: ${aiResult.modelUsed || ''} (${aiResult.latencyMs || 0}мс)]`
+                : '';
+
               AIArbiterService.cache.set(cacheKey, {
                 result: aiResult,
                 expiresAt: Date.now() + AIArbiterService.CACHE_TTL_MS,
               });
 
+              const verdict = aiResult.isScam
+                ? `СКАМ підтверджено${providerLabel} (Впевненість: ${aiResult.confidence}%)\n\nВисновок: "${aiResult.reasoning}"`
+                : `Загрозу спростовано${providerLabel} (Впевненість: ${aiResult.confidence}%)\n\nВисновок: "${aiResult.reasoning}"`;
+
               DebuggerOverlay.logAI(
                 'ШІ Арбітр → Аналіз',
-                `Загрозу спростовано (Впевненість: ${aiResult.confidence}%)\n\nВисновок: "${aiResult.reasoning}"`,
-                '#22C55E',
-                { rawResponse: aiResult.rawResponse },
+                verdict,
+                aiResult.isScam ? '#EF4444' : '#22C55E',
+                {
+                  rawResponse: aiResult.rawResponse,
+                  provider: aiResult.provider,
+                  model: aiResult.modelUsed,
+                  latencyMs: aiResult.latencyMs,
+                },
                 aiLogId
               );
               resolve(aiResult);

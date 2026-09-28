@@ -21,6 +21,26 @@ export interface CloudVerificationResponse {
   modelUsed: string;
 }
 
+export interface CloudTextGenerationRequest {
+  provider: LLMProviderType;
+  userPrompt: string;
+  systemPrompt?: string;
+  apiKey: string;
+  model?: string;
+  customBaseUrl?: string;
+  temperature?: number;
+  timeoutMs?: number;
+  signal?: AbortSignal;
+}
+
+export interface CloudTextGenerationResponse {
+  text: string;
+  latencyMs: number;
+  provider: LLMProviderType;
+  modelUsed: string;
+}
+
 export interface ICloudLLMDriver {
   verifyThreat(request: CloudVerificationRequest): Promise<CloudVerificationResponse>;
+  generateText?(request: CloudTextGenerationRequest): Promise<CloudTextGenerationResponse>;
 }

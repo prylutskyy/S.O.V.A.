@@ -33,7 +33,7 @@ export class AILureVerifier {
     }
 
     const rules = AILureVerifier.intentContextRules[detectedType] || 'Analyze for social engineering, phishing, and payment credential theft.';
-    console.log(`[ThreatShield:AIVerifier] Запуск перевірки Рівня 2 (Gemini Nano) для типу: ${detectedType}`);
+    console.log(`[ThreatShield:AIVerifier] Запуск перевірки Рівня 2 (LLM) для типу: ${detectedType}`);
     
     return this.aiProvider.verifyIntent(text, rules, triggerWord, heuristicContext);
   }

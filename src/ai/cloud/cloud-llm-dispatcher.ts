@@ -3,6 +3,7 @@ import { ICloudLLMDriver, CloudVerificationRequest, CloudVerificationResponse } 
 import { GeminiDriver } from './drivers/gemini-driver';
 import { OpenAIDriver } from './drivers/openai-driver';
 import { GroqDriver } from './drivers/groq-driver';
+import { SimulatorPersona, DialogueMessage, ChatSimulatorEngine } from '../../heuristics/chat-simulator';
 
 export class CloudLLMDispatcher {
   private static drivers: Map<LLMProviderType, ICloudLLMDriver> = new Map([
@@ -17,9 +18,14 @@ export class CloudLLMDispatcher {
    */
   public static async isConfigured(): Promise<boolean> {
     const config = await SecureKeyStore.getConfig();
-    if (!config.enabled) return false;
+    if (!config.enabled) {
+      console.log('[ThreatShield:CloudAI] isConfigured: false (config.enabled is false)');
+      return false;
+    }
     const key = await SecureKeyStore.getApiKey(config.provider);
-    return !!key;
+    const hasKey = !!key;
+    console.log(`[ThreatShield:CloudAI] isConfigured: ${hasKey} (provider: ${config.provider}, model: ${config.model}, hasKey: ${hasKey})`);
+    return hasKey;
   }
 
   /**
@@ -72,6 +78,73 @@ export class CloudLLMDispatcher {
       } else {
         console.error(`[ThreatShield:CloudAI] Помилка інференсу ${effectiveConfig.provider}:`, err);
       }
+      return null;
+    } finally {
+      clearTimeout(timeoutId);
+    }
+  }
+
+  /**
+   * Генерація динамічної репліки співрозмовника-шахрая в симуляторі чату через хмарну LLM
+   */
+  public static async generateChatReply(
+    persona: SimulatorPersona,
+    history: DialogueMessage[],
+    latestUserMessage?: string,
+    itemContext?: string,
+    customGoal?: string,
+    signal?: AbortSignal
+  ): Promise<{ reply: string; engine: string; latencyMs: number } | null> {
+    const config = await SecureKeyStore.getConfig();
+    if (!config.enabled) return null;
+
+    const apiKey = await SecureKeyStore.getApiKey(config.provider);
+    if (!apiKey) return null;
+
+    const driver = this.drivers.get(config.provider);
+    if (!driver || typeof driver.generateText !== 'function') return null;
+
+    const systemPrompt = ChatSimulatorEngine.buildSystemPrompt(persona, itemContext, customGoal);
+    const fullPrompt = ChatSimulatorEngine.buildPromptWithHistory(persona, history, latestUserMessage, itemContext, customGoal);
+
+    const timeoutMs = Math.max(config.timeoutMs || 4000, 6000);
+    const timeoutController = new AbortController();
+    const timeoutId = setTimeout(() => timeoutController.abort(), timeoutMs);
+
+    let combinedSignal = timeoutController.signal;
+    if (signal) {
+      signal.addEventListener('abort', () => timeoutController.abort(), { once: true });
+    }
+
+    try {
+      const response = await driver.generateText({
+        provider: config.provider,
+        userPrompt: fullPrompt,
+        systemPrompt,
+        apiKey,
+        model: config.model,
+        customBaseUrl: config.customBaseUrl,
+        temperature: 0.7,
+        timeoutMs,
+        signal: combinedSignal,
+      });
+
+      let reply = (response.text || '')
+        .replace(/^\[(?:Співрозмовник|Покупець|Шахрай|Продавець|Клієнт)\]:\s*/i, '')
+        .replace(/^["'«»]|["'«»]$/g, '')
+        .trim();
+
+      if (!reply || /as an ai|cannot fulfill|safety guidelines|unable to/i.test(reply)) {
+        return null;
+      }
+
+      return {
+        reply,
+        engine: `cloud-${config.provider} (${response.modelUsed})`,
+        latencyMs: response.latencyMs,
+      };
+    } catch (e) {
+      console.warn(`[ThreatShield:CloudAI] Помилка генерації репліки симулятора через ${config.provider}:`, e);
       return null;
     } finally {
       clearTimeout(timeoutId);

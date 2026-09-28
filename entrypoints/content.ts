@@ -194,6 +194,45 @@ export default defineContentScript({
           85
         );
       }
+
+      if (event.data.type === 'THREAT_SHIELD_GET_AI_STATUS') {
+        try {
+          if (typeof chrome !== 'undefined' && chrome.runtime) {
+            const resp = await chrome.runtime.sendMessage({ type: 'GET_AI_STATUS' });
+            window.postMessage({
+              type: 'THREAT_SHIELD_AI_STATUS_RESPONSE',
+              requestId: event.data.requestId,
+              status: resp,
+            }, '*');
+          }
+        } catch (e) {
+          console.error('[ThreatShield:Content] Failed to get AI status:', e);
+        }
+      }
+
+      if (event.data.type === 'THREAT_SHIELD_SIMULATE_CHAT_REPLY') {
+        try {
+          if (typeof chrome !== 'undefined' && chrome.runtime) {
+            const resp = await chrome.runtime.sendMessage({
+              type: 'SIMULATE_CHAT_REPLY',
+              payload: event.data.payload,
+            });
+            window.postMessage(
+              {
+                type: 'THREAT_SHIELD_SIMULATED_REPLY_RESULT',
+                requestId: event.data.requestId,
+                reply: resp?.reply,
+                engine: resp?.engine,
+                latencyMs: resp?.latencyMs,
+                reason: resp?.reason,
+              },
+              '*'
+            );
+          }
+        } catch (e) {
+          console.error('[ThreatShield:Content] Помилка прокидання SIMULATE_CHAT_REPLY:', e);
+        }
+      }
     });
 
     const triggerLureContext = (

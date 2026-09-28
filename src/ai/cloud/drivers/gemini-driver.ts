@@ -1,4 +1,10 @@
-import { ICloudLLMDriver, CloudVerificationRequest, CloudVerificationResponse } from '../types';
+import {
+  ICloudLLMDriver,
+  CloudVerificationRequest,
+  CloudVerificationResponse,
+  CloudTextGenerationRequest,
+  CloudTextGenerationResponse,
+} from '../types';
 
 export class GeminiDriver implements ICloudLLMDriver {
   public async verifyThreat(request: CloudVerificationRequest): Promise<CloudVerificationResponse> {
@@ -62,6 +68,56 @@ export class GeminiDriver implements ICloudLLMDriver {
       scamType,
       reasoning,
       rawResponse: rawReply,
+      latencyMs,
+      provider: 'gemini',
+      modelUsed: model,
+    };
+  }
+
+  public async generateText(request: CloudTextGenerationRequest): Promise<CloudTextGenerationResponse> {
+    const startTime = performance.now();
+    const model = request.model || 'gemini-2.5-flash';
+    const baseUrl = request.customBaseUrl || 'https://generativelanguage.googleapis.com/v1beta';
+    const endpoint = `${baseUrl}/models/${model}:generateContent?key=${encodeURIComponent(request.apiKey)}`;
+
+    const body: any = {
+      contents: [
+        {
+          parts: [{ text: request.userPrompt }],
+        },
+      ],
+      generationConfig: {
+        temperature: request.temperature ?? 0.7,
+      },
+    };
+
+    if (request.systemPrompt) {
+      body.systemInstruction = {
+        parts: [{ text: request.systemPrompt }],
+      };
+    }
+
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+      signal: request.signal,
+    });
+
+    const latencyMs = Math.round(performance.now() - startTime);
+
+    if (!response.ok) {
+      const errText = await response.text().catch(() => '');
+      throw new Error(`Gemini Text Generation error (${response.status}): ${errText.slice(0, 200)}`);
+    }
+
+    const data = await response.json();
+    const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
+    return {
+      text: rawText.trim(),
       latencyMs,
       provider: 'gemini',
       modelUsed: model,

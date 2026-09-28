@@ -181,5 +181,39 @@ describe('CloudLLMDispatcher & Drivers (TDD Suite)', () => {
       expect(res?.confidence).toBe(91);
       expect(res?.provider).toBe('gemini');
     });
+
+    it('should generate simulated chat reply via configured cloud provider', async () => {
+      await SecureKeyStore.saveConfig({
+        provider: 'gemini',
+        model: 'gemini-2.5-flash',
+        enabled: true,
+      });
+      await SecureKeyStore.saveApiKey('gemini', 'test_key', 'device_encrypted');
+
+      // @ts-ignore
+      globalThis.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          candidates: [
+            {
+              content: {
+                parts: [{ text: '[Співрозмовник]: Доброго дня! Я вже оплатив доставку, ось лінк: https://olx.fake' }],
+              },
+            },
+          ],
+        }),
+      });
+
+      const replyResult = await CloudLLMDispatcher.generateChatReply(
+        'SCAMMER_ESCROW',
+        [],
+        'Чи актуально?',
+        'Ноутбук'
+      );
+
+      expect(replyResult).not.toBeNull();
+      expect(replyResult?.reply).toBe('Доброго дня! Я вже оплатив доставку, ось лінк: https://olx.fake');
+      expect(replyResult?.engine).toContain('cloud-gemini');
+    });
   });
 });

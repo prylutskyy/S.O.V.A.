@@ -18,6 +18,9 @@ export interface LogItem {
     raisedFlags?: string[];
     formDetails?: string;
     rawResponse?: string;
+    provider?: string;
+    model?: string;
+    latencyMs?: number;
   };
   expanded?: boolean;
 }
@@ -493,7 +496,7 @@ export class DebuggerOverlay {
     return currentId;
   }
 
-  // Оцінка консенсусу (Евристика vs Gemini Nano)
+  // Оцінка консенсусу (Евристика vs LLM)
   private static assessFalsePositive() {
     const { score, severity, logs, threatMitigated, peakScore, liveScore, mitigationReason } = this.state;
     const isHeuristicRisk = score >= 40 || severity === 'HIGH' || severity === 'CRITICAL';
@@ -565,7 +568,7 @@ export class DebuggerOverlay {
         badgeIcon: ICONS.alertTriangle(12, '#B25900'),
         badgeText: 'РОЗБІЖНІСТЬ: ЙМОВІРНИЙ FALSE POSITIVE',
         badgeClass: 'sc-badge-amber',
-        explanation: `Евристика зафіксувала ${score}/100 балів, але локальний ШІ Gemini Nano підтвердив безпечність (${lastAiVerdict?.confidence}% впевненості). Рекомендується довірити або уточнити статус сторінки.`,
+        explanation: `Евристика зафіксувала ${score}/100 балів, але ШІ-арбітр (LLM) підтвердив безпечність (${lastAiVerdict?.confidence}% впевненості). Рекомендується довірити або уточнити статус сторінки.`,
         recommendation: 'Можливе надмірне спрацювання на легітимній формі.',
         heuristicVerdict: `Ризик ${score}/100 (${severity})`,
         aiVerdict: `Безпечно (${lastAiVerdict?.confidence}%)`,
@@ -577,7 +580,7 @@ export class DebuggerOverlay {
         badgeIcon: ICONS.alertCircle(12, '#D70015'),
         badgeText: 'ПІДТВЕРДЖЕНА ЗАГРОЗА (TRUE POSITIVE)',
         badgeClass: 'sc-badge-red',
-        explanation: `Консенсус безпеки: евристика (${score} балів) та Gemini Nano (${lastAiVerdict?.confidence}%) підтвердили зловмисний намір або фішинг.`,
+        explanation: `Консенсус безпеки: евристика (${score} балів) та ШІ-арбітр LLM (${lastAiVerdict?.confidence}%) підтвердили зловмисний намір або фішинг.`,
         recommendation: 'Захисне блокування та переривання введення повністю виправдані.',
         heuristicVerdict: `Ризик ${score}/100 (${severity})`,
         aiVerdict: `СКАМ (${lastAiVerdict?.confidence}%)`,
@@ -761,8 +764,8 @@ export class DebuggerOverlay {
                 <span class="sc-pillar-val" style="color: ${riskColor}">${score}/100${threatMitigated ? ` <span style="font-size:9.5px;color:#86868B;font-weight:400;">(Live: ${liveScore})</span>` : ''}</span>
               </div>
               <div class="sc-pillar-cell">
-                <span class="sc-pillar-label">Gemini Nano XAI</span>
-                <span class="sc-pillar-val sc-val-blue">${aiCount > 0 ? (logs.some((l) => l.isAi && l.isPending) ? 'Аналіз Nano...' : 'On-Device (~140ms)') : 'Вбудований ШІ'}</span>
+                <span class="sc-pillar-label">ШІ-Арбітр (LLM)</span>
+                <span class="sc-pillar-val sc-val-blue">${aiCount > 0 ? (logs.some((l) => l.isAi && l.isPending) ? 'Аналіз LLM...' : 'LLM (~140ms)') : 'ШІ-Арбітр'}</span>
               </div>
               <div class="sc-pillar-cell">
                 <span class="sc-pillar-label">DOM Cloaking AST</span>
@@ -879,16 +882,16 @@ export class DebuggerOverlay {
       `;
     };
 
-    // Вкладка 3: Gemini Nano
+    // Вкладка 3: ШІ-Арбітраж (LLM)
     const renderAiTab = () => {
       const aiLogs = logs.filter((l) => l.isAi);
       if (aiLogs.length === 0) {
         return `
           <div class="sc-empty-state" style="padding: 48px 24px;">
             ${ICONS.cpu(36, '#0071E3')}
-            <div class="sc-empty-title">Запитів до Gemini Nano ще не було</div>
+            <div class="sc-empty-title">Запитів до ШІ-арбітра (LLM) ще не було</div>
             <div class="sc-empty-sub" style="max-width: 320px;">
-              Локальна нейромережа викликається селективно для перевірки шахрайських намірів у чатах та аналізу підозрілих форм без передачі даних у хмару.
+              Нейромодуль викликається селективно для перевірки шахрайських намірів у чатах та аналізу підозрілих форм.
             </div>
           </div>
         `;
@@ -902,7 +905,7 @@ export class DebuggerOverlay {
             <div class="sc-ai-header">
               <div class="sc-badge sc-badge-blue">
                 ${ICONS.cpu(11, '#0071E3')}
-                <span>GEMINI NANO ON-DEVICE</span>
+                <span>${ctx.provider ? `${ctx.provider.toUpperCase()} (${ctx.model || 'Cloud'})` : 'LLM ARBITER'}</span>
               </div>
               <span class="sc-event-time">${log.time}</span>
             </div>
@@ -1651,7 +1654,7 @@ export class DebuggerOverlay {
           </button>
           <button type="button" class="sc-tab-btn ${activeTab === 'ai' ? 'active' : ''}" data-tab="ai">
             ${ICONS.cpu(12)}
-            <span>Gemini Nano (${aiCount})</span>
+            <span>ШІ LLM (${aiCount})</span>
           </button>
         </nav>
 
