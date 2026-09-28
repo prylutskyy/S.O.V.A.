@@ -29,7 +29,7 @@ export const DEVICE_SALT_STORAGE_KEY = 'threat_shield_device_salt';
 
 export const DEFAULT_LLM_CONFIG: LLMConfig = {
   provider: 'gemini',
-  model: 'gemini-1.5-flash',
+  model: 'gemini-2.5-flash',
   timeoutMs: 3000,
   enabled: false,
   storageMode: 'device_encrypted',

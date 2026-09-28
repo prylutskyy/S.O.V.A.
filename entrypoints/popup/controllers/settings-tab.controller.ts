@@ -174,7 +174,7 @@ export class SettingsTabController {
     // Cloud AI Provider Change
     this.cloudAiProviderSelect?.addEventListener('change', async (e) => {
       const provider = (e.target as HTMLSelectElement).value as LLMProviderType;
-      let model = 'gemini-1.5-flash';
+      let model = 'gemini-2.5-flash';
       if (provider === 'groq') model = 'llama-3.3-70b-versatile';
       if (provider === 'openai') model = 'gpt-4o-mini';
 

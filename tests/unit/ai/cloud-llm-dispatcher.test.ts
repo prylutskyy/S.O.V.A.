@@ -43,12 +43,12 @@ describe('CloudLLMDispatcher & Drivers (TDD Suite)', () => {
         provider: 'gemini',
         apiKey: 'AIzaSy_fake_test_key',
         sanitizedPrompt: 'Test sanitized prompt with [VERIFIED_CARD_NUMBER_1]',
-        model: 'gemini-1.5-flash',
+        model: 'gemini-2.5-flash',
       });
 
       expect(fetch).toHaveBeenCalledTimes(1);
       const [url, options] = (fetch as any).mock.calls[0];
-      expect(url).toContain('gemini-1.5-flash:generateContent');
+      expect(url).toContain('gemini-2.5-flash:generateContent');
       expect(url).toContain('key=AIzaSy_fake_test_key');
       expect(options.method).toBe('POST');
 
@@ -156,7 +156,7 @@ describe('CloudLLMDispatcher & Drivers (TDD Suite)', () => {
     it('should dispatch to configured provider and return response', async () => {
       await SecureKeyStore.saveConfig({
         provider: 'gemini',
-        model: 'gemini-1.5-flash',
+        model: 'gemini-2.5-flash',
         enabled: true,
       });
       await SecureKeyStore.saveApiKey('gemini', 'test_key', 'device_encrypted');

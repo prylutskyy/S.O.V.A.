@@ -3,7 +3,7 @@ import { ICloudLLMDriver, CloudVerificationRequest, CloudVerificationResponse } 
 export class GeminiDriver implements ICloudLLMDriver {
   public async verifyThreat(request: CloudVerificationRequest): Promise<CloudVerificationResponse> {
     const startTime = performance.now();
-    const model = request.model || 'gemini-1.5-flash';
+    const model = request.model || 'gemini-2.5-flash';
     const baseUrl = request.customBaseUrl || 'https://generativelanguage.googleapis.com/v1beta';
     const endpoint = `${baseUrl}/models/${model}:generateContent?key=${encodeURIComponent(request.apiKey)}`;
 
