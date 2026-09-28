@@ -41,8 +41,9 @@ export class GroqDriver implements ICloudLLMDriver {
     const latencyMs = Math.round(performance.now() - startTime);
 
     if (!response.ok) {
-      const errText = await response.text().catch(() => '');
-      throw new Error(`Groq API error (${response.status}): ${errText.slice(0, 200)}`);
+      const errData = await response.json().catch(() => null);
+      const errMsg = errData?.error?.message || `Groq API error (${response.status})`;
+      throw new Error(errMsg);
     }
 
     const data = await response.json();
@@ -107,8 +108,9 @@ export class GroqDriver implements ICloudLLMDriver {
     const latencyMs = Math.round(performance.now() - startTime);
 
     if (!response.ok) {
-      const errText = await response.text().catch(() => '');
-      throw new Error(`Groq Text Generation error (${response.status}): ${errText.slice(0, 200)}`);
+      const errData = await response.json().catch(() => null);
+      const errMsg = errData?.error?.message || `Groq Text Generation error (${response.status})`;
+      throw new Error(errMsg);
     }
 
     const data = await response.json();

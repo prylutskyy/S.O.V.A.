@@ -171,8 +171,8 @@ export class SettingsTabController {
         { id: 'gemini-1.5-flash', label: 'gemini-1.5-flash' },
       ],
       groq: [
-        { id: 'llama-3.3-70b-versatile', label: 'llama-3.3-70b-versatile (~150мс)' },
-        { id: 'mixtral-8x7b-32768', label: 'mixtral-8x7b-32768' },
+        { id: 'llama-3.3-70b-versatile', label: 'llama-3.3-70b-versatile (Флагман / Рекомендовано)' },
+        { id: 'llama-3.1-8b-instant', label: 'llama-3.1-8b-instant (Швидкість ~100мс / 14k req/день)' },
       ],
       openai: [
         { id: 'gpt-4o-mini', label: 'gpt-4o-mini (Економічна)' },
