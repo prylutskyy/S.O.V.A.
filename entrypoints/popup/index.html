@@ -28,6 +28,15 @@
         <p class="brand-subtitle">Оптична призма · Цифрова гідність</p>
       </div>
     </div>
+    <div class="header-actions">
+      <button type="button" class="btn-icon-subtle" id="btnExpandTab" title="Розгорнути в окремій вкладці (macOS View)" aria-label="Розгорнути в окремій вкладці">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+          <polyline points="15 3 21 3 21 9"></polyline>
+          <line x1="10" y1="14" x2="21" y2="3"></line>
+        </svg>
+      </button>
+    </div>
   </header>
 
   <!-- =========================================================================
@@ -311,15 +320,18 @@
     <div class="section-group">
       <div class="section-header-flex">
         <span class="section-label" id="whitelistTitle">Довірені сайти (0)</span>
-        <button type="button" class="btn-subtle danger" id="btnClearAllWhitelist">Очистити всі</button>
+        <div style="display: flex; align-items: center; gap: 4px;">
+          <button type="button" class="btn-subtle" id="btnToggleManualAdd" title="Додати довірений сайт вручну">+ Додати</button>
+          <button type="button" class="btn-subtle danger" id="btnClearAllWhitelist">Очистити всі</button>
+        </div>
       </div>
 
       <div class="sanctuary-card">
         <p class="card-caption">
-          Сайти, для яких аналіз форм та аудит прихованих полів вимкнено за вашим рішенням. Захист від витоку реквізитів у чатах (DLP та ШІ) залишається активним.
+          Сайти, для яких аналіз форм та аудит прихованих полів вимкнено за вашим рішенням. Захист від витоку реквізитів у чатах залишається активним.
         </p>
 
-        <div class="manual-add-row">
+        <div class="manual-add-row" id="manualAddRow" style="display: none;">
           <input type="text" class="sanctuary-input" id="manualHostInput" placeholder="наприклад: bank.gov.ua">
           <button type="button" class="btn-primary compact" id="btnAddManual">Додати</button>
         </div>
@@ -330,7 +342,7 @@
 
     <!-- Cloud LLM Configuration & Zero-Knowledge Enclave -->
     <div class="section-group">
-      <div class="section-label">ХМАРНИЙ ШІ ТА API КЛЮЧІ (CLOUD ARBITER)</div>
+      <div class="section-label">НЕЙРОАРБІТРАЖ (CLOUD SHIELD)</div>
       <div class="sanctuary-card" style="display: flex; flex-direction: column; gap: 12px;">
         <div style="display: flex; justify-content: space-between; align-items: center;">
           <div>
@@ -345,19 +357,41 @@
 
         <div id="cloudAiSettingsArea" style="display: flex; flex-direction: column; gap: 10px;">
           <div>
-            <label style="font-size: 11px; font-weight: 600; color: var(--sanctuary-ink-secondary); margin-bottom: 4px; display: block;">Провайдер ШІ</label>
-            <select class="sanctuary-input" id="cloudAiProviderSelect" style="cursor: pointer;">
-              <option value="gemini">Google Gemini — Рекомендовано</option>
-              <option value="groq">Groq LPU — Ультрашвидкий (~150мс)</option>
+            <label style="font-size: 11px; font-weight: 600; color: var(--sanctuary-ink-secondary); margin-bottom: 6px; display: block;">Провайдер інтелекту</label>
+            <div class="provider-segmented-control" id="cloudAiProviderSegmented" role="radiogroup" aria-label="Провайдер ШІ">
+              <button type="button" class="provider-segment-btn active" data-provider="gemini" role="radio" aria-checked="true">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 0C12 6.627 6.627 12 0 12C6.627 12 12 17.373 12 24C12 17.373 17.373 12 24 12C17.373 12 12 6.627 12 0Z"/>
+                </svg>
+                <span>Gemini</span>
+              </button>
+              <button type="button" class="provider-segment-btn" data-provider="groq" role="radio" aria-checked="false">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                </svg>
+                <span>Groq</span>
+              </button>
+              <button type="button" class="provider-segment-btn" data-provider="openai" role="radio" aria-checked="false">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"/>
+                  <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/>
+                  <path d="M2 12h20"/>
+                </svg>
+                <span>OpenAI</span>
+              </button>
+            </div>
+            <select class="sanctuary-input" id="cloudAiProviderSelect" style="display: none;">
+              <option value="gemini">Google Gemini</option>
+              <option value="groq">Groq LPU</option>
               <option value="openai">OpenAI</option>
             </select>
           </div>
 
           <div id="cloudAiModelContainer">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-              <label style="font-size: 11px; font-weight: 600; color: var(--sanctuary-ink-secondary);">Модель</label>
+              <label style="font-size: 11px; font-weight: 600; color: var(--sanctuary-ink-secondary);">Модель арбітражу</label>
               <button type="button" id="btnRefreshModels" class="btn-ghost-sm" title="Підтягнути актуальний список моделей через API" style="font-size: 10.5px; padding: 2px 6px; cursor: pointer; color: var(--sanctuary-blue); display: flex; align-items: center; gap: 4px; border: none; background: transparent;">
-                <span id="refreshModelsIcon">🔄</span> <span>Оновити з API</span>
+                <span id="refreshModelsIcon">🔄</span> <span>Оновити каталог</span>
               </button>
             </div>
             <select class="sanctuary-input" id="cloudAiModelSelect" style="cursor: pointer;">
@@ -374,7 +408,7 @@
 
           <div>
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-              <label style="font-size: 11px; font-weight: 600; color: var(--sanctuary-ink-secondary);">API Ключ</label>
+              <label style="font-size: 11px; font-weight: 600; color: var(--sanctuary-ink-secondary);">Секретний API Ключ</label>
               <div style="display: flex; align-items: center; gap: 6px;">
                 <span id="cloudAiKeyHint" style="font-size: 10.5px; color: var(--sanctuary-blue); font-family: monospace;"></span>
                 <button type="button" id="btnDeleteCloudAiKey" class="btn-ghost-sm" title="Видалити збережений ключ" style="display: none; color: #ef4444; padding: 2px 6px; font-size: 10.5px; cursor: pointer;">✕</button>
@@ -382,23 +416,26 @@
             </div>
             <input type="password" class="sanctuary-input" id="cloudAiKeyInput" placeholder="Вставте API ключ...">
             <div style="display: flex; gap: 8px; margin-top: 8px;">
-              <button type="button" class="btn-primary compact" id="btnSaveCloudAiKey" style="flex: 1; white-space: nowrap;">Зберегти та перевірити</button>
-              <button type="button" class="btn-secondary compact" id="btnTestCloudAiKey" style="flex: 1; white-space: nowrap;">Тест зв'язку</button>
+              <button type="button" class="btn-primary compact" id="btnSaveCloudAiKey" style="flex: 1; white-space: nowrap; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>
+                <span id="btnSaveCloudAiKeyText">Зберегти та підключити</span>
+              </button>
+              <button type="button" class="btn-secondary compact" id="btnTestCloudAiKey" style="display: none;">Тест зв'язку</button>
             </div>
-            <div id="cloudAiStatusFeedback" style="display: none; margin-top: 8px; font-size: 11px; padding: 8px 10px; border-radius: 6px; line-height: 1.4;"></div>
+            <div id="cloudAiStatusFeedback" style="display: none; margin-top: 8px; font-size: 11px; padding: 8px 10px; border-radius: 8px; line-height: 1.4; transition: all 0.25s var(--ease-apple-spring);"></div>
           </div>
 
-          <div style="background: rgba(0, 113, 227, 0.06); border-radius: 8px; padding: 8px 10px; display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--sanctuary-blue);">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-            <span>Ключ захищено AES-GCM-256. Реальні дані картки/CVV ніколи не надсилаються.</span>
+          <div class="security-capsule-badge">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="flex-shrink: 0;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span>Ключ захищено апаратним AES-GCM-256. Реальні платіжні реквізити ніколи не залишають пристрій.</span>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Swiss Watch Diagnostics & Thesis Defense Settings -->
+    <!-- Diagnostics Settings -->
     <div class="section-group">
-      <div class="section-label">ШВЕЙЦАРСЬКИЙ МЕХАНІЗМ (ДІАГНОСТИКА ДИПЛОМА)</div>
+      <div class="section-label">ПРОЗОРІСТЬ ТА ДІАГНОСТИКА</div>
       <div class="inset-group">
         <div class="inset-row">
           <div class="inset-lead">
@@ -408,8 +445,8 @@
               </svg>
             </div>
             <div class="inset-info">
-              <div class="inset-title">Діагностичний оверлей</div>
-              <div class="inset-desc">Плаваючий турбійон телеметрії на вебсторінках</div>
+              <div class="inset-title">Діагностичний HUD (Ctrl+Shift+D)</div>
+              <div class="inset-desc">Плаваючий оверлей телеметрії на вебсторінках</div>
             </div>
           </div>
           <label class="ios-switch" title="Увімкнути/вимкнути дебагер-оверлей">

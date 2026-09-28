@@ -1314,6 +1314,31 @@ html, body {
   background: var(--sanctuary-red-bg);
 }
 
+.btn-icon-subtle {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--sanctuary-ink-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.18s var(--ease-apple-spring);
+}
+
+.btn-icon-subtle:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--sanctuary-ink-primary);
+  border-color: var(--sanctuary-hairline);
+  transform: scale(1.04);
+}
+
+.btn-icon-subtle:active {
+  transform: scale(0.96);
+}
+
 /* ==========================================================================
    10. WHITELIST & SETTINGS TAB
    ========================================================================== */
@@ -1328,6 +1353,76 @@ html, body {
   display: flex;
   gap: 8px;
   margin-bottom: 12px;
+  animation: springDrop 0.24s var(--ease-apple-spring);
+}
+
+@keyframes springDrop {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Provider Segmented Control */
+.provider-segmented-control {
+  padding: 3px;
+  background: rgba(118, 118, 128, 0.08);
+  border-radius: 11px;
+  display: flex;
+  gap: 3px;
+  border: 1px solid var(--sanctuary-hairline);
+}
+
+.provider-segment-btn {
+  flex: 1;
+  height: 32px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--sanctuary-ink-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.22s var(--ease-apple-spring);
+  outline: none;
+}
+
+.provider-segment-btn:hover {
+  color: var(--sanctuary-ink-primary);
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.provider-segment-btn.active {
+  background: var(--sanctuary-surface);
+  color: var(--sanctuary-ink-primary);
+  font-weight: 600;
+  box-shadow: 0 1.5px 5px rgba(0, 0, 0, 0.08), 0 0.5px 1.5px rgba(0, 0, 0, 0.04);
+}
+
+.provider-segment-btn.active svg {
+  color: var(--sanctuary-blue);
+  stroke: var(--sanctuary-blue);
+}
+
+.security-capsule-badge {
+  background: rgba(0, 113, 227, 0.05);
+  border: 1px solid rgba(0, 113, 227, 0.12);
+  border-radius: 9px;
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--sanctuary-blue);
+  line-height: 1.35;
 }
 
 .whitelist-ul {

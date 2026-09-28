@@ -68,6 +68,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   tabs.vault.btn.addEventListener('click', () => setActiveTab('vault'));
   tabs.settings.btn.addEventListener('click', () => setActiveTab('settings'));
 
+  // 4. Можливість розгорнути інтерфейс у повноцінній окремій вкладці браузера
+  const btnExpandTab = document.getElementById('btnExpandTab');
+  btnExpandTab?.addEventListener('click', () => {
+    if (typeof chrome !== 'undefined' && chrome.tabs && chrome.tabs.create) {
+      chrome.tabs.create({ url: chrome.runtime.getURL('entrypoints/popup/index.html') });
+    } else {
+      window.open(window.location.href, '_blank');
+    }
+  });
+
   // За замовчуванням відкриваємо розділ ЗАХИСТУ САЙТУ
   await setActiveTab('shield');
 });

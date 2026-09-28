@@ -2,11 +2,14 @@ import { UserWhitelistManager } from '../../../src/core/user-whitelist';
 import { SecureKeyStore, LLMProviderType } from '../../../src/core/secure-key-store';
 
 export class SettingsTabController {
+  // Whitelist Controls
   private whitelistTitle: HTMLElement;
   private whitelistUl: HTMLUListElement;
   private manualHostInput: HTMLInputElement;
   private btnAddManual: HTMLButtonElement;
   private btnClearAllWhitelist: HTMLButtonElement;
+  private btnToggleManualAdd: HTMLButtonElement | null;
+  private manualAddRow: HTMLElement | null;
 
   private aiStatusText: HTMLElement;
   private toggleDebugMode: HTMLInputElement;
@@ -16,9 +19,11 @@ export class SettingsTabController {
   // Cloud AI Controls
   private toggleCloudAi: HTMLInputElement | null;
   private cloudAiProviderSelect: HTMLSelectElement | null;
+  private providerSegmentBtns: NodeListOf<HTMLButtonElement>;
   private cloudAiModelSelect: HTMLSelectElement | null;
   private cloudAiKeyInput: HTMLInputElement | null;
   private btnSaveCloudAiKey: HTMLButtonElement | null;
+  private btnSaveCloudAiKeyText: HTMLElement | null;
   private btnTestCloudAiKey: HTMLButtonElement | null;
   private btnDeleteCloudAiKey: HTMLButtonElement | null;
   private btnRefreshModels: HTMLButtonElement | null;
@@ -37,18 +42,22 @@ export class SettingsTabController {
     this.manualHostInput = document.getElementById('manualHostInput') as HTMLInputElement;
     this.btnAddManual = document.getElementById('btnAddManual') as HTMLButtonElement;
     this.btnClearAllWhitelist = document.getElementById('btnClearAllWhitelist') as HTMLButtonElement;
+    this.btnToggleManualAdd = document.getElementById('btnToggleManualAdd') as HTMLButtonElement | null;
+    this.manualAddRow = document.getElementById('manualAddRow') as HTMLElement | null;
 
     this.aiStatusText = document.getElementById('aiStatusText') as HTMLElement;
     this.toggleDebugMode = document.getElementById('toggleDebugMode') as HTMLInputElement;
 
     this.toggleCloudAi = document.getElementById('toggleCloudAi') as HTMLInputElement | null;
     this.cloudAiProviderSelect = document.getElementById('cloudAiProviderSelect') as HTMLSelectElement | null;
+    this.providerSegmentBtns = document.querySelectorAll<HTMLButtonElement>('.provider-segment-btn');
     this.cloudAiModelSelect = document.getElementById('cloudAiModelSelect') as HTMLSelectElement | null;
     this.btnRefreshModels = document.getElementById('btnRefreshModels') as HTMLButtonElement | null;
     this.customModelInputWrapper = document.getElementById('customModelInputWrapper') as HTMLElement | null;
     this.cloudAiCustomModelInput = document.getElementById('cloudAiCustomModelInput') as HTMLInputElement | null;
     this.cloudAiKeyInput = document.getElementById('cloudAiKeyInput') as HTMLInputElement | null;
     this.btnSaveCloudAiKey = document.getElementById('btnSaveCloudAiKey') as HTMLButtonElement | null;
+    this.btnSaveCloudAiKeyText = document.getElementById('btnSaveCloudAiKeyText');
     this.btnTestCloudAiKey = document.getElementById('btnTestCloudAiKey') as HTMLButtonElement | null;
     this.btnDeleteCloudAiKey = document.getElementById('btnDeleteCloudAiKey') as HTMLButtonElement | null;
     this.cloudAiKeyHint = document.getElementById('cloudAiKeyHint') as HTMLElement | null;
@@ -161,9 +170,54 @@ export class SettingsTabController {
     if (this.cloudAiProviderSelect) {
       this.cloudAiProviderSelect.value = config.provider;
     }
+    this.setActiveSegment(config.provider);
 
     this.populateModelsForProvider(config.provider, config.model);
     await this.updateKeyHint();
+  }
+
+  private setActiveSegment(provider: LLMProviderType): void {
+    this.providerSegmentBtns.forEach((btn) => {
+      const isMatch = btn.dataset.provider === provider;
+      btn.classList.toggle('active', isMatch);
+      btn.setAttribute('aria-checked', isMatch ? 'true' : 'false');
+    });
+  }
+
+  private async handleProviderChange(provider: LLMProviderType): Promise<void> {
+    this.populateModelsForProvider(provider);
+    const model = this.getSelectedModel();
+
+    await SecureKeyStore.saveConfig({ provider, model });
+    await this.updateKeyHint();
+    if (this.cloudAiKeyInput) this.cloudAiKeyInput.value = '';
+    if (this.cloudAiStatusFeedback) this.cloudAiStatusFeedback.style.display = 'none';
+    this.showToast(`Провайдер: ${provider.toUpperCase()}`);
+  }
+
+  private setSaveButtonState(state: 'idle' | 'loading' | 'success'): void {
+    if (!this.btnSaveCloudAiKey) return;
+    if (state === 'loading') {
+      this.btnSaveCloudAiKey.disabled = true;
+      if (this.btnSaveCloudAiKeyText) {
+        this.btnSaveCloudAiKeyText.textContent = 'Підключення...';
+      }
+    } else if (state === 'success') {
+      this.btnSaveCloudAiKey.disabled = false;
+      if (this.btnSaveCloudAiKeyText) {
+        this.btnSaveCloudAiKeyText.textContent = 'Збережено та підключено';
+      }
+      setTimeout(() => {
+        if (this.btnSaveCloudAiKeyText) {
+          this.btnSaveCloudAiKeyText.textContent = 'Зберегти та підключити';
+        }
+      }, 3000);
+    } else {
+      this.btnSaveCloudAiKey.disabled = false;
+      if (this.btnSaveCloudAiKeyText) {
+        this.btnSaveCloudAiKeyText.textContent = 'Зберегти та підключити';
+      }
+    }
   }
 
   private getSelectedModel(): string {
@@ -253,7 +307,7 @@ export class SettingsTabController {
         this.cachedDynamicModels[provider] = resp.models;
         const currentModel = this.getSelectedModel();
         this.populateModelsForProvider(provider, currentModel);
-        this.showFeedback(`✅ Отримано ${resp.models.length} актуальних моделей від ${provider.toUpperCase()}`, true);
+        this.showFeedback(`✦ Отримано ${resp.models.length} актуальних моделей від ${provider.toUpperCase()}`, true);
         this.showToast(`Оновлено каталог: ${resp.models.length} моделей`);
       } else {
         this.showFeedback(`❌ Помилка оновлення каталогу: ${resp?.error || 'Не вдалося отримати список'}`, false);
@@ -283,23 +337,23 @@ export class SettingsTabController {
   private showFeedback(text: string, isSuccess: boolean): void {
     if (!this.cloudAiStatusFeedback) return;
     this.cloudAiStatusFeedback.style.display = 'block';
-    this.cloudAiStatusFeedback.style.background = isSuccess ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)';
-    this.cloudAiStatusFeedback.style.color = isSuccess ? '#15803d' : '#b91c1c';
-    this.cloudAiStatusFeedback.style.border = isSuccess ? '1px solid #86efac' : '1px solid #fca5a5';
+    this.cloudAiStatusFeedback.style.background = isSuccess ? 'rgba(52, 199, 89, 0.1)' : 'rgba(255, 59, 48, 0.1)';
+    this.cloudAiStatusFeedback.style.color = isSuccess ? 'var(--sanctuary-green-ink)' : 'var(--sanctuary-red-ink)';
+    this.cloudAiStatusFeedback.style.border = isSuccess ? '1px solid var(--sanctuary-green-bd)' : '1px solid var(--sanctuary-red-bd)';
     this.cloudAiStatusFeedback.textContent = text;
   }
 
-  private async testConnection(keyOverride?: string): Promise<void> {
+  private async testConnection(keyOverride?: string): Promise<boolean> {
     const provider = (this.cloudAiProviderSelect?.value as LLMProviderType) || 'gemini';
     const model = this.getSelectedModel();
     const apiKey = keyOverride || (this.cloudAiKeyInput?.value?.trim()) || (await SecureKeyStore.getApiKey(provider));
 
     if (!apiKey) {
       this.showFeedback('⚠️ Введіть або збережіть API ключ перед перевіркою', false);
-      return;
+      return false;
     }
 
-    this.showFeedback('⏳ Перевірка зв’язку з API...', true);
+    this.showFeedback(`⏳ Тестування захищеного каналу ${provider.toUpperCase()}...`, true);
     if (this.btnTestCloudAiKey) this.btnTestCloudAiKey.disabled = true;
 
     try {
@@ -309,18 +363,34 @@ export class SettingsTabController {
       });
 
       if (resp && resp.success) {
-        this.showFeedback(`✅ Зв'язок успішний! Модель: ${resp.modelUsed || model} (${resp.latencyMs || 0}мс)`, true);
+        this.showFeedback(`✦ Зв'язок бездоганний · ${resp.modelUsed || model} (${resp.latencyMs || 0} мс)`, true);
+        return true;
       } else {
         this.showFeedback(`❌ Помилка API: ${resp?.error || 'Невідома помилка підключення'}`, false);
+        return false;
       }
     } catch (err: any) {
       this.showFeedback(`❌ Помилка виклику: ${err?.message || err}`, false);
+      return false;
     } finally {
       if (this.btnTestCloudAiKey) this.btnTestCloudAiKey.disabled = false;
     }
   }
 
   private bindEvents(): void {
+    // Whitelist Manual Add Toggle
+    this.btnToggleManualAdd?.addEventListener('click', () => {
+      if (!this.manualAddRow) return;
+      const isHidden = this.manualAddRow.style.display === 'none' || !this.manualAddRow.style.display;
+      this.manualAddRow.style.display = isHidden ? 'flex' : 'none';
+      if (this.btnToggleManualAdd) {
+        this.btnToggleManualAdd.textContent = isHidden ? '✕ Закрити' : '+ Додати';
+      }
+      if (isHidden) {
+        this.manualHostInput?.focus();
+      }
+    });
+
     // Refresh Models from Provider API
     this.btnRefreshModels?.addEventListener('click', async () => {
       await this.refreshModelsFromApi();
@@ -333,20 +403,26 @@ export class SettingsTabController {
       const model = this.getSelectedModel();
 
       await SecureKeyStore.saveConfig({ enabled: isEnabled, provider, model });
-      this.showToast(isEnabled ? 'Хмарний ШІ арбітр активовано' : 'Хмарний ШІ вимкнено');
+      this.showToast(isEnabled ? 'Хмарний арбітраж активовано' : 'Хмарний арбітраж вимкнено');
     });
 
-    // Cloud AI Provider Change
+    // Provider Segmented Buttons
+    this.providerSegmentBtns.forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const provider = (btn.dataset.provider as LLMProviderType) || 'gemini';
+        this.setActiveSegment(provider);
+        if (this.cloudAiProviderSelect) {
+          this.cloudAiProviderSelect.value = provider;
+        }
+        await this.handleProviderChange(provider);
+      });
+    });
+
+    // Cloud AI Provider Change (native fallback)
     this.cloudAiProviderSelect?.addEventListener('change', async (e) => {
       const provider = (e.target as HTMLSelectElement).value as LLMProviderType;
-      this.populateModelsForProvider(provider);
-      const model = this.getSelectedModel();
-
-      await SecureKeyStore.saveConfig({ provider, model });
-      await this.updateKeyHint();
-      if (this.cloudAiKeyInput) this.cloudAiKeyInput.value = '';
-      if (this.cloudAiStatusFeedback) this.cloudAiStatusFeedback.style.display = 'none';
-      this.showToast(`Обрано провайдер: ${provider.toUpperCase()}`);
+      this.setActiveSegment(provider);
+      await this.handleProviderChange(provider);
     });
 
     // Cloud AI Model Change
@@ -377,29 +453,40 @@ export class SettingsTabController {
       }
     });
 
-    // Save Cloud AI Key & Verify
+    // Save Cloud AI Key & Verify (Unified action)
     const saveKeyAction = async () => {
       const val = this.cloudAiKeyInput?.value?.trim() || '';
-      if (!val) {
-        alert('Будь ласка, введіть API ключ');
-        return;
-      }
-
       const provider = (this.cloudAiProviderSelect?.value as LLMProviderType) || 'gemini';
       const model = this.getSelectedModel();
 
+      if (!val) {
+        const existingKey = await SecureKeyStore.getApiKey(provider);
+        if (existingKey) {
+          this.setSaveButtonState('loading');
+          this.showToast(`Перевірка зв’язку з ${provider.toUpperCase()}...`);
+          const success = await this.testConnection(existingKey);
+          this.setSaveButtonState(success ? 'success' : 'idle');
+          return;
+        }
+        this.showFeedback('⚠️ Введіть API ключ для збереження та перевірки', false);
+        return;
+      }
+
+      this.setSaveButtonState('loading');
       try {
         await SecureKeyStore.saveApiKey(provider, val, 'device_encrypted');
         await SecureKeyStore.saveConfig({ provider, model, enabled: true });
         if (this.toggleCloudAi) this.toggleCloudAi.checked = true;
         await this.updateKeyHint();
+        if (this.cloudAiKeyInput) this.cloudAiKeyInput.value = '';
         this.showToast(`Ключ ${provider.toUpperCase()} збережено! Перевірка зв’язку...`);
 
         // Автоматична верифікація з'єднання
-        await this.testConnection(val);
-        if (this.cloudAiKeyInput) this.cloudAiKeyInput.value = '';
+        const success = await this.testConnection(val);
+        this.setSaveButtonState(success ? 'success' : 'idle');
       } catch (err: any) {
-        alert(`Помилка збереження ключа: ${err?.message || err}`);
+        this.showFeedback(`❌ Помилка збереження ключа: ${err?.message || err}`, false);
+        this.setSaveButtonState('idle');
       }
     };
 
@@ -411,7 +498,7 @@ export class SettingsTabController {
       }
     });
 
-    // Test Cloud AI Key
+    // Test Cloud AI Key (fallback)
     this.btnTestCloudAiKey?.addEventListener('click', () => this.testConnection());
 
     // Delete Cloud AI Key
@@ -425,6 +512,7 @@ export class SettingsTabController {
       }
     });
 
+    // Add domain to whitelist
     this.btnAddManual?.addEventListener('click', async () => {
       const rawVal = this.manualHostInput.value;
       const domain = this.cleanDomain(rawVal);
@@ -435,6 +523,8 @@ export class SettingsTabController {
 
       await UserWhitelistManager.allowDomain(domain);
       this.manualHostInput.value = '';
+      if (this.manualAddRow) this.manualAddRow.style.display = 'none';
+      if (this.btnToggleManualAdd) this.btnToggleManualAdd.textContent = '+ Додати';
       this.showToast(`Додано до довірених: ${domain}`);
       await this.renderWhitelist();
       this.onWhitelistChanged();
