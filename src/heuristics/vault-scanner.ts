@@ -225,12 +225,19 @@ export class VaultScanner {
   }
 
   /**
-   * Автоматична підстановка безпечних маскувальних даних (Decoy) у форму
+   * Автоматична підстановка безпечних маскувальних даних (Decoy) у форму.
+   * За замовчуванням підставляє маскувальні дані ТІЛЬКИ в ті поля, де користувач
+   * реально ввів справжні конфіденційні дані зі Сховища (VALUE_MATCH).
+   * Поля з довільними, фейковими або порожніми значеннями залишаються недоторканими.
    */
-  public static applyDecoys(matches: VaultMatchResult[]): number {
+  public static applyDecoys(matches: VaultMatchResult[], onlyRealValueLeaks: boolean = true): number {
     let replacedCount = 0;
 
-    matches.forEach((match) => {
+    const targets = onlyRealValueLeaks
+      ? matches.filter((m) => m.matchType === 'VALUE_MATCH')
+      : matches;
+
+    targets.forEach((match) => {
       if (match.inputElement && match.matchedItem.decoyValue) {
         match.inputElement.value = match.matchedItem.decoyValue;
 

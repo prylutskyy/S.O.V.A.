@@ -184,6 +184,43 @@ describe('VaultScanner with Zero-Knowledge Blind Tokens', () => {
     expect(changeFired).toBe(true);
   });
 
+  it('selectively substitutes decoys ONLY into fields with real value leaks when onlyRealValueLeaks is true', () => {
+    expect(PersonalVaultManager.isLocked()).toBe(true);
+
+    const form = document.createElement('form');
+
+    // Field 1: label matches TAX_ID, but user left it empty or typed random text (NOT real value)
+    const inputTax = document.createElement('input');
+    inputTax.name = 'tax_number';
+    inputTax.placeholder = 'Податковий номер (РНОКПП)';
+    inputTax.value = 'random_benign_text';
+    form.appendChild(inputTax);
+
+    // Field 2: user typed their actual real secret maiden name ('Шевченко')
+    const inputMother = document.createElement('input');
+    inputMother.name = 'mother_maiden';
+    inputMother.value = 'Шевченко';
+    form.appendChild(inputMother);
+
+    const scan = VaultScanner.scanFormSync(form, 'fake-portal.org');
+    expect(scan.matches.length).toBe(2);
+
+    const taxMatch = scan.matches.find((m) => m.matchedItem.category === 'TAX_ID')!;
+    const motherMatch = scan.matches.find((m) => m.matchedItem.category === 'MOTHER_MAIDEN_NAME')!;
+
+    expect(taxMatch.matchType).toBe('FIELD_LABEL_MATCH');
+    expect(motherMatch.matchType).toBe('VALUE_MATCH');
+
+    // Apply decoys with onlyRealValueLeaks = true (default)
+    const replacedCount = VaultScanner.applyDecoys(scan.matches, true);
+
+    expect(replacedCount).toBe(1);
+    // Real secret is safely substituted by its decoy
+    expect(inputMother.value).toBe('Коваленко');
+    // Benign / arbitrary field is completely preserved!
+    expect(inputTax.value).toBe('random_benign_text');
+  });
+
   it('respects immune domains (.gov.ua, accredited payment gateways, whitelisted)', () => {
     expect(PersonalVaultManager.isLocked()).toBe(true);
 

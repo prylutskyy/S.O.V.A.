@@ -19,6 +19,10 @@ export class FormSubmitInterceptor {
   private static clickListener: ((e: MouseEvent) => void) | null = null;
   private static keydownListener: ((e: KeyboardEvent) => void) | null = null;
   private static submitListener: ((e: SubmitEvent) => void) | null = null;
+  private static inputListener: ((e: Event) => void) | null = null;
+  private static realtimeDebounceTimer: any = null;
+  private static lastReportedScore: number | null = null;
+  private static lastReportedTriggers: string = '';
 
   public static init(options: FormSubmitInterceptorOptions): void {
     this.options = options;
@@ -62,35 +66,69 @@ export class FormSubmitInterceptor {
     return assessment.level === 'CRITICAL' || (assessment.level === 'HIGH' && formState.hasFilledAnySensitive);
   }
 
-  private static handleFormAnalysis(form: HTMLFormElement): FormAnalysisResult {
+  public static handleFormAnalysis(form: HTMLFormElement, isRealtime: boolean = false): FormAnalysisResult {
     const { pipeline, getCurrentHost, getActiveContext, getDebugMode } = this.options!;
     const currentHost = getCurrentHost();
     const activeContext = getActiveContext();
     const result = pipeline.analyze(form, currentHost, activeContext);
 
     if (getDebugMode()) {
+      // 1. Оновлюємо кругову шкалу та бейдж Швейцарської Лупи миттєво в реальному часі!
       DebuggerOverlay.setAssessment(result.assessment.score, result.assessment.level);
-      DebuggerOverlay.log(
-        'Форма: Оцінка Ризику',
-        `${result.assessment.score} балів (Рівень: ${result.assessment.level})`,
-        result.assessment.score >= 50 ? '#EF4444' : '#F59E0B'
-      );
-      if (result.assessment.triggers.length > 0) {
+
+      const triggersKey = result.assessment.triggers.map((t) => t.name).sort().join(',');
+      const hasChanged = this.lastReportedScore !== result.assessment.score || this.lastReportedTriggers !== triggersKey;
+
+      // 2. До журналу подій (Events Log) додаємо запис при сабміті або коли рівень/тригери суттєво змінилися
+      if (!isRealtime || hasChanged) {
+        this.lastReportedScore = result.assessment.score;
+        this.lastReportedTriggers = triggersKey;
+
+        const liveTag = isRealtime ? ' (Live)' : '';
         DebuggerOverlay.log(
-          'Форма: Спрацьовані Тригери',
-          result.assessment.triggers.map((t) => `${t.name} (+${t.scoreContribution})`),
-          '#F59E0B'
+          `Форма: Оцінка Ризику${liveTag}`,
+          `${result.assessment.score} балів (Рівень: ${result.assessment.level})`,
+          result.assessment.score >= 50 ? '#EF4444' : '#F59E0B'
         );
-      } else {
-        DebuggerOverlay.log('Форма: Спрацьовані Тригери', 'Немає тригерів', '#22C55E');
+        if (result.assessment.triggers.length > 0) {
+          DebuggerOverlay.log(
+            `Форма: Спрацьовані Тригери${liveTag}`,
+            result.assessment.triggers.map((t) => `${t.name} (+${t.scoreContribution})`),
+            '#F59E0B'
+          );
+        } else {
+          DebuggerOverlay.log(`Форма: Спрацьовані Тригери${liveTag}`, 'Немає тригерів', '#22C55E');
+        }
       }
     }
 
     return result;
   }
 
+  public static auditForm(form: HTMLFormElement, isRealtime: boolean = true): FormAnalysisResult | null {
+    if (!this.options) return null;
+    return this.handleFormAnalysis(form, isRealtime);
+  }
+
   private static setupListeners(): void {
     if (typeof document === 'undefined') return;
+
+    // Реактивний моніторинг введення у формах (Live Loupe Telemetry)
+    this.inputListener = (event: Event) => {
+      if (!this.options || !this.options.getDebugMode()) return;
+      const target = event.target as HTMLElement | null;
+      if (!target) return;
+      const form = target.closest('form');
+      if (!form) return;
+
+      if (this.realtimeDebounceTimer) {
+        clearTimeout(this.realtimeDebounceTimer);
+      }
+      this.realtimeDebounceTimer = setTimeout(() => {
+        if (!this.options || !this.options.getDebugMode()) return;
+        this.handleFormAnalysis(form, true);
+      }, 150);
+    };
 
     this.clickListener = (event: MouseEvent) => {
       if (!this.options) return;
@@ -162,6 +200,8 @@ export class FormSubmitInterceptor {
       }
     };
 
+    document.addEventListener('input', this.inputListener, true);
+    document.addEventListener('change', this.inputListener, true);
     document.addEventListener('click', this.clickListener, true);
     document.addEventListener('keydown', this.keydownListener, true);
     document.addEventListener('submit', this.submitListener, true);
@@ -169,9 +209,18 @@ export class FormSubmitInterceptor {
 
   public static destroy(): void {
     if (typeof document !== 'undefined') {
+      if (this.inputListener) {
+        document.removeEventListener('input', this.inputListener, true);
+        document.removeEventListener('change', this.inputListener, true);
+        this.inputListener = null;
+      }
       if (this.clickListener) document.removeEventListener('click', this.clickListener, true);
       if (this.keydownListener) document.removeEventListener('keydown', this.keydownListener, true);
       if (this.submitListener) document.removeEventListener('submit', this.submitListener, true);
+    }
+    if (this.realtimeDebounceTimer) {
+      clearTimeout(this.realtimeDebounceTimer);
+      this.realtimeDebounceTimer = null;
     }
     this.options = null;
   }

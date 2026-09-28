@@ -53,6 +53,10 @@ export default defineContentScript({
           if (activeContext && activeContext.sessionId) {
             DebuggerOverlay.setSession(activeContext.sessionId, activeContext.threatLevel);
           }
+          const primaryForm = document.querySelector('form');
+          if (primaryForm) {
+            FormSubmitInterceptor.auditForm(primaryForm, true);
+          }
         } else {
           DebuggerOverlay.hide();
         }
@@ -300,6 +304,13 @@ export default defineContentScript({
       getActiveContext: () => activeContext,
       getDebugMode: () => debugMode,
     });
+
+    if (debugMode) {
+      const primaryForm = document.querySelector('form');
+      if (primaryForm) {
+        FormSubmitInterceptor.auditForm(primaryForm, true);
+      }
+    }
 
     ChatSubmitInterceptor.init({
       getActiveContext: () => activeContext,

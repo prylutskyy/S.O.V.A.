@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { FormSubmitInterceptor } from '../../../src/interceptors/form-submit.interceptor';
 import { ThreatAssessment } from '../../../src/types';
 import { FormSensitiveState } from '../../../src/heuristics/input-detector';
@@ -124,6 +124,54 @@ describe('FormSubmitInterceptor', () => {
       DebuggerOverlay.setAssessment(0, 'LOW');
       expect(DebuggerOverlay['state'].score).toBe(0);
       expect(DebuggerOverlay['state'].severity).toBe('LOW');
+    });
+  });
+
+  describe('Real-time input telemetry', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+      FormSubmitInterceptor.destroy();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+      FormSubmitInterceptor.destroy();
+    });
+
+    it('triggers debounced form analysis on input event and updates DebuggerOverlay assessment', () => {
+      const mockPipeline = {
+        analyze: vi.fn().mockReturnValue({
+          formState: { isEntirelyEmpty: false, hasFilledAnySensitive: true },
+          assessment: { score: 75, level: 'HIGH', triggers: [] },
+          vaultMatches: [],
+        }),
+      };
+
+      FormSubmitInterceptor.init({
+        pipeline: mockPipeline as any,
+        getCurrentHost: () => 'phishing-site.test',
+        getActiveContext: () => null,
+        getDebugMode: () => true,
+      });
+
+      const form = document.createElement('form');
+      const input = document.createElement('input');
+      input.name = 'test_field';
+      form.appendChild(input);
+      document.body.appendChild(form);
+
+      input.value = 'sensitive data';
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+
+      // Before debounce timer fires
+      expect(mockPipeline.analyze).not.toHaveBeenCalled();
+
+      // Fast-forward debounce timer (150ms)
+      vi.advanceTimersByTime(150);
+
+      expect(mockPipeline.analyze).toHaveBeenCalledWith(form, 'phishing-site.test', null);
+      expect(DebuggerOverlay['state'].score).toBe(75);
+      expect(DebuggerOverlay['state'].severity).toBe('HIGH');
     });
   });
 });

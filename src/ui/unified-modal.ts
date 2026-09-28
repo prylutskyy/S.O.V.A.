@@ -498,7 +498,7 @@ export class UnifiedFrictionModal {
 
         <!-- ACTION STACK -->
         <div class="ts-actions-stack">
-          ${options.vaultMatches && options.vaultMatches.some((m) => m.isDecoyAvailable) ? `
+          ${options.vaultMatches && options.vaultMatches.some((m) => m.isDecoyAvailable && (options.vaultMatches?.some(v => v.matchType === 'VALUE_MATCH') ? m.matchType === 'VALUE_MATCH' : true)) ? `
             <button id="ts-decoy-btn" class="ts-btn-decoy">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="9 12 11 14 15 10"/></svg>
               <span>Підставити маскувальні дані зі Сховища</span>
@@ -570,10 +570,10 @@ export class UnifiedFrictionModal {
         : '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg> <span>▾ Діагностичний звіт швейцарського механізму (XAI)</span>';
     });
 
-    // Decoy button
+    // Decoy button: підставляємо маскувальні дані ТІЛЬКИ в поля, де користувач реально ввів дані зі Сховища
     btnDecoy?.addEventListener('click', () => {
       if (options.vaultMatches && options.vaultMatches.length > 0) {
-        const count = VaultScanner.applyDecoys(options.vaultMatches);
+        const count = VaultScanner.applyDecoys(options.vaultMatches, true);
         this.close();
         options.onCancel();
         const pluralValues = ToastNotifier.formatPluralUkrainian(
@@ -583,7 +583,7 @@ export class UnifiedFrictionModal {
           'безпечних маскувальних значень'
         );
         ToastNotifier.show(
-          `Підставлено ${pluralValues}. Справжні дані вашого Сховища надійно захищено.`,
+          `Підставлено ${pluralValues} замість справжніх даних. Справжні секрети вашого Сховища надійно захищено.`,
           'info',
           7500
         );
