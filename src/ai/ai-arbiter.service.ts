@@ -3,6 +3,7 @@ import { AILureVerifier } from '../heuristics/ai-verifier';
 import { ScamIntentType } from '../heuristics/intent-classifier';
 import { ChatChannelMonitor } from '../heuristics/chat-channel';
 import { DebuggerOverlay } from '../ui/debugger-overlay';
+import { OutboundDataSanitizer } from '../privacy/outbound-data-sanitizer';
 
 export interface AIArbiterVerifyOptions {
   context: ActiveThreatContext;
@@ -169,6 +170,16 @@ Required JSON schema:
 
     const chatDialogue = ChatChannelMonitor.getDialogueHistory();
 
+    // ── ZERO-KNOWLEDGE ПСЕВДОНІМІЗАЦІЯ ДАНИХ ──────────────────────────────
+    const sanitizedScan = OutboundDataSanitizer.sanitize(scanText);
+    const sanitizedDialogue = OutboundDataSanitizer.sanitize(chatDialogue);
+
+    const sanitizedPrompt = OutboundDataSanitizer.buildCloudPrompt(sanitizedScan, {
+      sourcePlatform: context.sourcePlatform,
+      targetHost,
+      scenarioRule: contextRules,
+    });
+
     const heuristicContext = {
       intentType: intentLabel,
       detectedKeywords: context.detectedKeywords || [],
@@ -176,21 +187,25 @@ Required JSON schema:
       triggeredClusters: context.offPlatformLure ? ['off_platform'] : [],
       nlpConfidence: confidence || (context.threatLevel === 'HIGH' ? 75 : 25),
       raisedFlags,
-      chatDialogue,
+      chatDialogue: sanitizedDialogue.sanitizedText,
       sourcePlatform: context.sourcePlatform,
       targetHost,
+      telemetry: sanitizedScan.telemetry,
     };
 
     const aiLogId = DebuggerOverlay.logAI(
       'ШІ Арбітр → Аналіз',
-      'Запит відправлено, очікую відповідь...',
+      sanitizedScan.telemetry.totalSensitiveAssetsRedacted > 0
+        ? `Запит відправлено (Захищено ${sanitizedScan.telemetry.totalSensitiveAssetsRedacted} конфіденційних активів)...`
+        : 'Запит відправлено, очікую відповідь...',
       '#3B82F6',
       {
         systemPrompt,
         contextRules,
-        textSent: scanText,
-        chatDialogue,
+        textSent: sanitizedScan.sanitizedText,
+        chatDialogue: sanitizedDialogue.sanitizedText,
         raisedFlags,
+        sanitizedPrompt,
       }
     );
 
@@ -210,7 +225,8 @@ Required JSON schema:
           {
             type: 'AI_VERIFY',
             payload: {
-              text: scanText,
+              text: sanitizedScan.sanitizedText,
+              sanitizedPrompt,
               intentType: intentLabel,
               triggerWord,
               heuristicContext,

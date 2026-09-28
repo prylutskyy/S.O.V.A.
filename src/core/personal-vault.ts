@@ -145,6 +145,10 @@ export class PersonalVaultManager {
     return this.locked;
   }
 
+  public static getMasterKey(): CryptoKey | null {
+    return this.masterKey;
+  }
+
   public static getBlindSalt(): Uint8Array | null {
     return this.blindSalt;
   }

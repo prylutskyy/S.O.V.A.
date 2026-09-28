@@ -328,6 +328,50 @@
       </div>
     </div>
 
+    <!-- Cloud LLM Configuration & Zero-Knowledge Enclave -->
+    <div class="section-group">
+      <div class="section-label">ХМАРНИЙ ШІ ТА API КЛЮЧІ (CLOUD ARBITER)</div>
+      <div class="sanctuary-card" style="display: flex; flex-direction: column; gap: 12px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <div style="font-weight: 600; font-size: 13px; color: var(--sanctuary-ink-primary);">Хмарний арбітраж загроз</div>
+            <div style="font-size: 11px; color: var(--sanctuary-ink-tertiary);">Zero-Knowledge псевдонімізація перед відправкою</div>
+          </div>
+          <label class="ios-switch" title="Увімкнути/вимкнути хмарний ШІ">
+            <input type="checkbox" id="toggleCloudAi">
+            <span class="ios-slider"></span>
+          </label>
+        </div>
+
+        <div id="cloudAiSettingsArea" style="display: flex; flex-direction: column; gap: 10px;">
+          <div>
+            <label style="font-size: 11px; font-weight: 600; color: var(--sanctuary-ink-secondary); margin-bottom: 4px; display: block;">Провайдер ШІ</label>
+            <select class="sanctuary-input" id="cloudAiProviderSelect" style="cursor: pointer;">
+              <option value="gemini">Google Gemini (gemini-1.5-flash) — Рекомендовано</option>
+              <option value="groq">Groq LPU (llama-3.3-70b) — Ультрашвидкий (~150мс)</option>
+              <option value="openai">OpenAI (gpt-4o-mini)</option>
+            </select>
+          </div>
+
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <label style="font-size: 11px; font-weight: 600; color: var(--sanctuary-ink-secondary);">API Ключ</label>
+              <span id="cloudAiKeyHint" style="font-size: 10.5px; color: var(--sanctuary-blue); font-family: monospace;"></span>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <input type="password" class="sanctuary-input" id="cloudAiKeyInput" placeholder="Вставте API ключ...">
+              <button type="button" class="btn-primary compact" id="btnSaveCloudAiKey" style="white-space: nowrap;">Зберегти</button>
+            </div>
+          </div>
+
+          <div style="background: rgba(0, 113, 227, 0.06); border-radius: 8px; padding: 8px 10px; display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--sanctuary-blue);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span>Ключ захищено AES-GCM-256. Реальні дані картки/CVV ніколи не надсилаються.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Swiss Watch Diagnostics & Thesis Defense Settings -->
     <div class="section-group">
       <div class="section-label">ШВЕЙЦАРСЬКИЙ МЕХАНІЗМ (ДІАГНОСТИКА ДИПЛОМА)</div>

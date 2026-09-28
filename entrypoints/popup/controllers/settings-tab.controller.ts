@@ -1,4 +1,5 @@
 import { UserWhitelistManager } from '../../../src/core/user-whitelist';
+import { SecureKeyStore, LLMProviderType } from '../../../src/core/secure-key-store';
 
 export class SettingsTabController {
   private whitelistTitle: HTMLElement;
@@ -11,6 +12,13 @@ export class SettingsTabController {
   private toggleDebugMode: HTMLInputElement;
   private showToast: (msg: string) => void;
   private onWhitelistChanged: () => void;
+
+  // Cloud AI Controls
+  private toggleCloudAi: HTMLInputElement | null;
+  private cloudAiProviderSelect: HTMLSelectElement | null;
+  private cloudAiKeyInput: HTMLInputElement | null;
+  private btnSaveCloudAiKey: HTMLButtonElement | null;
+  private cloudAiKeyHint: HTMLElement | null;
 
   constructor(showToast: (msg: string) => void, onWhitelistChanged: () => void) {
     this.showToast = showToast;
@@ -25,8 +33,15 @@ export class SettingsTabController {
     this.aiStatusText = document.getElementById('aiStatusText') as HTMLElement;
     this.toggleDebugMode = document.getElementById('toggleDebugMode') as HTMLInputElement;
 
+    this.toggleCloudAi = document.getElementById('toggleCloudAi') as HTMLInputElement | null;
+    this.cloudAiProviderSelect = document.getElementById('cloudAiProviderSelect') as HTMLSelectElement | null;
+    this.cloudAiKeyInput = document.getElementById('cloudAiKeyInput') as HTMLInputElement | null;
+    this.btnSaveCloudAiKey = document.getElementById('btnSaveCloudAiKey') as HTMLButtonElement | null;
+    this.cloudAiKeyHint = document.getElementById('cloudAiKeyHint') as HTMLElement | null;
+
     this.initDebugMode();
     this.checkAI();
+    this.initCloudAI();
     this.bindEvents();
   }
 
@@ -121,7 +136,73 @@ export class SettingsTabController {
     }
   }
 
+  private async initCloudAI(): Promise<void> {
+    const config = await SecureKeyStore.getConfig();
+
+    if (this.toggleCloudAi) {
+      this.toggleCloudAi.checked = config.enabled;
+    }
+
+    if (this.cloudAiProviderSelect) {
+      this.cloudAiProviderSelect.value = config.provider;
+    }
+
+    await this.updateKeyHint();
+  }
+
+  private async updateKeyHint(): Promise<void> {
+    if (!this.cloudAiKeyHint || !this.cloudAiProviderSelect) return;
+    const provider = this.cloudAiProviderSelect.value as LLMProviderType;
+    const hint = await SecureKeyStore.getKeyHint(provider);
+    if (hint) {
+      this.cloudAiKeyHint.textContent = `Збережено: ${hint}`;
+      this.cloudAiKeyHint.style.display = 'inline';
+    } else {
+      this.cloudAiKeyHint.textContent = 'Ключ не встановлено';
+      this.cloudAiKeyHint.style.display = 'inline';
+    }
+  }
+
   private bindEvents(): void {
+    // Cloud AI Switch
+    this.toggleCloudAi?.addEventListener('change', async (e) => {
+      const isEnabled = (e.target as HTMLInputElement).checked;
+      await SecureKeyStore.saveConfig({ enabled: isEnabled });
+      this.showToast(isEnabled ? 'Хмарний ШІ арбітр активовано' : 'Хмарний ШІ вимкнено');
+    });
+
+    // Cloud AI Provider Change
+    this.cloudAiProviderSelect?.addEventListener('change', async (e) => {
+      const provider = (e.target as HTMLSelectElement).value as LLMProviderType;
+      let model = 'gemini-1.5-flash';
+      if (provider === 'groq') model = 'llama-3.3-70b-versatile';
+      if (provider === 'openai') model = 'gpt-4o-mini';
+
+      await SecureKeyStore.saveConfig({ provider, model });
+      await this.updateKeyHint();
+      if (this.cloudAiKeyInput) this.cloudAiKeyInput.value = '';
+      this.showToast(`Обрано провайдер: ${provider.toUpperCase()}`);
+    });
+
+    // Save Cloud AI Key
+    this.btnSaveCloudAiKey?.addEventListener('click', async () => {
+      const val = this.cloudAiKeyInput?.value?.trim() || '';
+      if (!val) {
+        alert('Будь ласка, введіть API ключ');
+        return;
+      }
+
+      const provider = (this.cloudAiProviderSelect?.value as LLMProviderType) || 'gemini';
+      try {
+        await SecureKeyStore.saveApiKey(provider, val, 'device_encrypted');
+        if (this.cloudAiKeyInput) this.cloudAiKeyInput.value = '';
+        await this.updateKeyHint();
+        this.showToast(`Ключ ${provider.toUpperCase()} зашифровано та збережено`);
+      } catch (err: any) {
+        alert(`Помилка збереження ключа: ${err?.message || err}`);
+      }
+    });
+
     this.btnAddManual?.addEventListener('click', async () => {
       const rawVal = this.manualHostInput.value;
       const domain = this.cleanDomain(rawVal);

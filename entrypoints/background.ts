@@ -2,6 +2,7 @@ import { contextManager } from '../src/core/context-manager';
 import { isWhitelisted } from '../src/core/whitelist';
 import { AILureVerifier } from '../src/heuristics/ai-verifier';
 import { ChromeBuiltinAIProvider } from '../src/heuristics/chrome-ai-provider';
+import { CloudLLMDispatcher } from '../src/ai/cloud/cloud-llm-dispatcher';
 
 export default defineBackground(() => {
   console.log('[ThreatShield:Background] Service Worker активовано');
@@ -115,36 +116,62 @@ export default defineBackground(() => {
     }
 
     if (message.type === 'AI_VERIFY') {
-      const { text, intentType, triggerWord, heuristicContext } = message.payload;
+      const { text, intentType, triggerWord, heuristicContext, sanitizedPrompt } = message.payload;
       
-      // We must run this in an Offscreen Document because the Prompt API
-      // is often bound to the DOM (window) and not available in the Service Worker.
-      setupOffscreenDocument('offscreen.html').then(() => {
-        const attemptSend = (retries: number) => {
-          chrome.runtime.sendMessage({
-            target: 'offscreen',
-            type: 'AI_VERIFY',
-            payload: { text, intentType, triggerWord, heuristicContext }
-          }, (response) => {
-            if (chrome.runtime.lastError) {
-              if (retries > 0) {
-                console.warn(`[ThreatShield:Background] Offscreen not ready yet, retrying... (${retries} left)`);
-                setTimeout(() => attemptSend(retries - 1), 200);
-              } else {
-                console.error('[ThreatShield:Background] Offscreen failed to receive message:', chrome.runtime.lastError.message);
-                sendResponse({ aiResult: null });
-              }
+      (async () => {
+        // 1. Перевірка, чи налаштовано та увімкнено хмарний ШІ (Gemini / Groq / OpenAI)
+        try {
+          if (await CloudLLMDispatcher.isConfigured()) {
+            const promptToSend = sanitizedPrompt || text;
+            const cloudRes = await CloudLLMDispatcher.verifyThreat(promptToSend);
+            if (cloudRes) {
+              sendResponse({
+                aiResult: {
+                  isScam: cloudRes.isScam,
+                  confidence: cloudRes.confidence,
+                  scamType: cloudRes.scamType,
+                  reasoning: cloudRes.reasoning,
+                  rawResponse: cloudRes.rawResponse,
+                  provider: cloudRes.provider,
+                  modelUsed: cloudRes.modelUsed,
+                  latencyMs: cloudRes.latencyMs,
+                },
+              });
               return;
             }
-            sendResponse(response);
-          });
-        };
-        attemptSend(10); // Retry up to 10 times (2 seconds total)
-      }).catch(e => {
-        console.error('[ThreatShield:Background] Failed to setup offscreen doc:', e);
-        sendResponse({ aiResult: null });
-      });
-      
+          }
+        } catch (e) {
+          console.warn('[ThreatShield:Background] Cloud LLM verification failed, falling back to local Gemini Nano:', e);
+        }
+
+        // 2. Фолбек на локальний Gemini Nano через Offscreen Document
+        setupOffscreenDocument('offscreen.html').then(() => {
+          const attemptSend = (retries: number) => {
+            chrome.runtime.sendMessage({
+              target: 'offscreen',
+              type: 'AI_VERIFY',
+              payload: { text, intentType, triggerWord, heuristicContext }
+            }, (response) => {
+              if (chrome.runtime.lastError) {
+                if (retries > 0) {
+                  console.warn(`[ThreatShield:Background] Offscreen not ready yet, retrying... (${retries} left)`);
+                  setTimeout(() => attemptSend(retries - 1), 200);
+                } else {
+                  console.error('[ThreatShield:Background] Offscreen failed to receive message:', chrome.runtime.lastError.message);
+                  sendResponse({ aiResult: null });
+                }
+                return;
+              }
+              sendResponse(response);
+            });
+          };
+          attemptSend(10); // Retry up to 10 times (2 seconds total)
+        }).catch(e => {
+          console.error('[ThreatShield:Background] Failed to setup offscreen doc:', e);
+          sendResponse({ aiResult: null });
+        });
+      })();
+
       return true; // Keep channel open for async
     }
 
