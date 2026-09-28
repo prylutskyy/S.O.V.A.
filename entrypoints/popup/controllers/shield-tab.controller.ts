@@ -260,5 +260,19 @@ export class ShieldTabController {
     this.moduleVaultItem.addEventListener('click', () => {
       this.onNavigateToVault();
     });
+
+    // Реактивне оновлення інтерфейсу при зміні/очищенні контексту загрози через ШІ чи іншу вкладку
+    if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.onMessage) {
+      chrome.runtime.onMessage.addListener((msg) => {
+        if (msg?.type === 'CONTEXT_CLEARED') {
+          this.taintedBanner.style.display = 'none';
+          if (this.chainSourceNode) {
+            this.chainSourceNode.innerText = 'Легітимне джерело';
+          }
+        } else if (msg?.type === 'CONTEXT_UPDATED') {
+          this.checkTaintedContext();
+        }
+      });
+    }
   }
 }

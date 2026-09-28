@@ -134,11 +134,12 @@ export default defineContentScript({
           GlobalInputInterceptor.setHardLock(null);
           ChatChannelMonitor.reset();
           FormSubmitInterceptor.resetAuditState();
+          DebuggerOverlay.setAssessment(0, 'LOW', true);
           DebuggerOverlay.resetSessionRisk();
           SecurityFriction.removeContextWarningBanner();
           if (debugMode) {
             DebuggerOverlay.setSession(null);
-            DebuggerOverlay.log('Зшивання Сесій (Context)', 'Контекст очищено через іншу вкладку', '#22C55E');
+            DebuggerOverlay.log('Зшивання Сесій (Context)', 'Контекст очищено', '#22C55E');
           }
         } else if (msg && msg.type === 'CONTEXT_UPDATED' && msg.context) {
           applyContext(msg.context as ActiveThreatContext);
@@ -297,12 +298,35 @@ export default defineContentScript({
       }).then((aiResult) => {
         if (!aiResult) return;
 
-        if (!aiResult.isScam && aiResult.confidence >= 70) {
+        if (!aiResult.isScam && (aiResult.confidence === undefined || aiResult.confidence >= 50)) {
           // Якщо ШІ переконливо спростував загрозу (False Positive Mitigation):
           console.log('[ThreatShield:Content] ШІ-Арбітр спростував евристичну загрозу:', aiResult.reasoning);
           activeContext = null;
           GlobalInputInterceptor.setHardLock(null);
           SecurityFriction.removeContextWarningBanner();
+          ChatChannelMonitor.reset();
+          FormSubmitInterceptor.resetAuditState();
+
+          // 1. Повідомляємо background про повне зняття тривоги з вкладки (скидає badge "!" та статус у popup)
+          try {
+            if (typeof chrome !== 'undefined' && chrome.runtime) {
+              chrome.runtime.sendMessage({ type: 'CLEAR_CONTEXT' });
+            }
+          } catch {}
+
+          // 2. Скидаємо індекс ризику R (до 0) та сесію в DebuggerOverlay
+          DebuggerOverlay.setAssessment(0, 'LOW', true);
+          DebuggerOverlay.resetSessionRisk();
+          DebuggerOverlay.setSession(null);
+
+          if (debugMode) {
+            DebuggerOverlay.log(
+              'ШІ-Арбітр (Вердикт)',
+              `Загрозу спростовано [${aiResult.provider || 'ШІ'}: ${aiResult.modelUsed || ''}]: безпечно — ${aiResult.reasoning} (${aiResult.confidence}%)`,
+              '#22C55E'
+            );
+          }
+
           ToastNotifier.show(`ШІ-Арбітр перевірив діалог: безпечно (${aiResult.reasoning})`, 'success', 6000);
           window.postMessage({ type: 'THREAT_SHIELD_CONTEXT_CLEARED' }, '*');
         } else if (aiResult.isScam) {
