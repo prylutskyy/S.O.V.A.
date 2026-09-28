@@ -27,9 +27,18 @@ export class GlobalInputInterceptor {
   /**
    * Перевірка, чи має поточний домен апріорний імунітет (державні портали, білі списки, шлюзи)
    */
-  private static isCurrentHostImmune(): boolean {
-    const host = (typeof window !== 'undefined' && window.location ? window.location.hostname : '').toLowerCase().trim();
-    if (!host) return true;
+  public static isCurrentHostImmune(): boolean {
+    if (typeof window === 'undefined' || !window.location) return false;
+    const protocol = (window.location.protocol || '').toLowerCase();
+    if (protocol === 'chrome-extension:' || protocol === 'moz-extension:') return true;
+
+    let host = (window.location.hostname || '').toLowerCase().trim();
+    if (!host && protocol === 'file:') {
+      const parts = (window.location.pathname || '').split('/');
+      host = 'file://' + (parts[parts.length - 1] || 'local-file');
+    }
+    if (!host) return false;
+
     return (
       isWhitelisted(host) ||
       host.endsWith('.gov.ua') ||
@@ -164,10 +173,18 @@ export class GlobalInputInterceptor {
 
   public static init() {
     const intercept = (e: Event) => {
+      const target = e.target as HTMLElement;
+      if (target && target.dataset?.sanctuarySealed === 'true') {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        import('./proactive-field-protector').then(({ ProactiveFieldProtector }) => {
+          ProactiveFieldProtector.showTooltipForElement(target as HTMLInputElement);
+        });
+        return;
+      }
+
       // Якщо немає блокувань — пропускаємо
       if (!this.isSoftLocked && !this.hardLockContext) return;
-
-      const target = e.target as HTMLElement;
       if (!target) return;
 
       // Пропуск, якщо користувач вже свідомо надав дозвіл цьому елементу чи формі

@@ -7,6 +7,67 @@ import { UserWhitelistManager } from '../core/user-whitelist';
 
 export class VaultScanner {
   /**
+   * Витягує повний контекстний дескриптор поля (лейбли, плейсхолдери, заголовки блоків, camelCase)
+   */
+  public static extractInputContext(input: HTMLElement, form?: HTMLFormElement): {
+    descriptor: string;
+    labelText: string;
+  } {
+    let labelText = '';
+    const id = input.id;
+    if (id && form) {
+      const labelEl = form.querySelector(`label[for="${id}"]`);
+      if (labelEl) labelText = labelEl.textContent || '';
+    }
+    if (!labelText && id && typeof document !== 'undefined') {
+      const labelEl = document.querySelector(`label[for="${id}"]`);
+      if (labelEl) labelText = labelEl.textContent || '';
+    }
+    if (!labelText) {
+      const parentLabel = input.closest('label');
+      if (parentLabel) labelText = parentLabel.textContent || '';
+    }
+    if (!labelText) {
+      const container = input.closest('.question, .form-group, .form-field, .field, fieldset, .form-row, [role="group"]');
+      if (container) {
+        const titleEl = container.querySelector('.q-title, .title, .label, legend, .q-desc, .desc, .help-block');
+        if (titleEl) {
+          labelText = titleEl.textContent || '';
+        } else {
+          try {
+            const clone = container.cloneNode(true) as HTMLElement;
+            clone.querySelectorAll('input, textarea, select, button').forEach((el) => el.remove());
+            labelText = clone.textContent || '';
+          } catch {}
+        }
+      }
+    }
+    if (!labelText && input.previousElementSibling) {
+      const prev = input.previousElementSibling;
+      if (['DIV', 'SPAN', 'P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'LABEL', 'LEGEND'].includes(prev.tagName)) {
+        labelText = prev.textContent || '';
+      }
+    }
+
+    const name = input.getAttribute('name') || '';
+    const placeholder = input.getAttribute('placeholder') || '';
+    const autocomplete = input.getAttribute('autocomplete') || '';
+    const ariaLabel = input.getAttribute('aria-label') || '';
+    const ariaDesc = input.getAttribute('aria-description') || '';
+
+    // CamelCase splitting (наприклад, 'secretWord' -> 'secret Word', 'taxId' -> 'tax Id')
+    const splitName = name.replace(/([a-z\d])([A-Z])/g, '$1 $2');
+    const splitId = (id || '').replace(/([a-z\d])([A-Z])/g, '$1 $2');
+
+    const descriptor = `${name} ${splitName} ${id} ${splitId} ${placeholder} ${autocomplete} ${ariaLabel} ${ariaDesc} ${labelText}`.toLowerCase().trim();
+
+    return {
+      descriptor,
+      labelText: labelText.trim(),
+    };
+  }
+
+  /**
    * Синхронне DLP-сканування форми на наявність запиту або введення маркерів із Vault
    */
   public static scanFormSync(
@@ -19,10 +80,6 @@ export class VaultScanner {
     const items = PersonalVaultManager.getItemsSync();
     const matches: VaultMatchResult[] = [];
     const triggers: HeuristicResult[] = [];
-
-    if (!items || items.length === 0) {
-      return { triggers, matches };
-    }
 
     const cleanHost = (host || window.location.hostname || '').toLowerCase().trim();
 
@@ -40,21 +97,11 @@ export class VaultScanner {
 
     inputs.forEach((input) => {
       // Отримання повного контексту поля (лейбл, плейсхолдер, ім'я, id, aria)
-      let labelText = '';
-      if (input.id) {
-        const labelEl = form.querySelector(`label[for="${input.id}"]`);
-        if (labelEl) labelText = labelEl.textContent || '';
-      }
-      if (!labelText) {
-        const parentLabel = input.closest('label');
-        if (parentLabel) labelText = parentLabel.textContent || '';
-      }
-
-      const descriptor = `${input.name} ${input.id} ${input.placeholder} ${input.autocomplete} ${input.getAttribute('aria-label') || ''} ${labelText}`.toLowerCase();
+      const { descriptor, labelText } = VaultScanner.extractInputContext(input, form);
       const val = input.value?.trim() || '';
 
       // Перевірка на співпадіння за ключовими словами поля (Field Context Inspection)
-      const itemByField = PersonalVaultManager.findMatchingVaultItemForField(descriptor, items);
+      const itemByField = PersonalVaultManager.findMatchingVaultItemForField(descriptor, items, true);
       if (itemByField) {
         const tier = PersonalVaultManager.getCategoryTier(itemByField.category);
         matches.push({

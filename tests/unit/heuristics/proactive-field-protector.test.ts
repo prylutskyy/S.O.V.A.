@@ -1,0 +1,202 @@
+// @vitest-environment happy-dom
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { ProactiveFieldProtector } from '../../../src/heuristics/proactive-field-protector';
+import { PersonalVaultManager } from '../../../src/core/personal-vault';
+import { ShadowHost } from '../../../src/ui/shadow-host';
+
+describe('ProactiveFieldProtector (Sanctuary Sealed Apertures)', () => {
+  beforeEach(() => {
+    document.body.innerHTML = '';
+    const existingHost = document.getElementById('threat-shield-shadow-host');
+    if (existingHost) existingHost.remove();
+    ProactiveFieldProtector.reset();
+  });
+
+  it('proactively seals secret word / mother maiden name field on untrusted origin', () => {
+    const form = document.createElement('form');
+    const container = document.createElement('div');
+    container.className = 'question';
+
+    const title = document.createElement('div');
+    title.className = 'q-title';
+    title.textContent = 'Дівоче прізвище вашої матері *';
+
+    const input = document.createElement('input');
+    input.name = 'secretWord';
+    input.placeholder = 'Ваша відповідь';
+
+    container.appendChild(title);
+    container.appendChild(input);
+    form.appendChild(container);
+    document.body.appendChild(form);
+
+    ProactiveFieldProtector.init('untrusted-survey-phish.com');
+
+    // Field should be sealed
+    expect(input.dataset.sanctuarySealed).toBe('true');
+    expect(input.readOnly).toBe(true);
+    expect(input.style.outline).toContain('solid');
+
+    // Micro-badge should be in Shadow DOM
+    const shadowRoot = ShadowHost.getRoot();
+    const badge = shadowRoot.querySelector('.ts-sanctuary-seal-badge');
+    expect(badge).not.toBeNull();
+    expect(badge?.textContent).toContain('Захищено');
+  });
+
+  it('proactively seals CVV / CVC field on untrusted origin', () => {
+    const form = document.createElement('form');
+    const input = document.createElement('input');
+    input.name = 'cvv';
+    input.placeholder = 'CVV2 / CVC2';
+    form.appendChild(input);
+    document.body.appendChild(form);
+
+    ProactiveFieldProtector.init('fake-delivery-payment.xyz');
+
+    expect(input.dataset.sanctuarySealed).toBe('true');
+    expect(input.readOnly).toBe(true);
+    expect(input.dataset.sanctuaryLabel).toContain('CVV');
+  });
+
+  it('does NOT seal fields on whitelisted or accredited domains', () => {
+    const form = document.createElement('form');
+    const input = document.createElement('input');
+    input.name = 'cvv';
+    input.placeholder = 'CVV2';
+    form.appendChild(input);
+    document.body.appendChild(form);
+
+    // Whitelisted banking gateway
+    ProactiveFieldProtector.init('privatbank.ua');
+
+    expect(input.dataset.sanctuarySealed).toBeUndefined();
+    expect(input.readOnly).toBe(false);
+
+    const shadowRoot = ShadowHost.getRoot();
+    expect(shadowRoot.querySelector('.ts-sanctuary-seal-badge')).toBeNull();
+  });
+
+  it('unseals field and restores interactivity when unsealField is called', () => {
+    const form = document.createElement('form');
+    const input = document.createElement('input');
+    input.name = 'taxId';
+    input.placeholder = 'Індивідуальний податковий номер (ІПН)';
+    form.appendChild(input);
+    document.body.appendChild(form);
+
+    ProactiveFieldProtector.init('fake-job-portal.com');
+    expect(input.dataset.sanctuarySealed).toBe('true');
+    expect(input.readOnly).toBe(true);
+
+    ProactiveFieldProtector.unsealField(input, true);
+
+    expect(input.dataset.sanctuarySealed).toBeUndefined();
+    expect(input.readOnly).toBe(false);
+    expect(input.dataset.threatShieldApproved).toBe('true');
+    expect(input.style.outline).toBe('');
+
+    const shadowRoot = ShadowHost.getRoot();
+    expect(shadowRoot.querySelector('.ts-sanctuary-seal-badge')).toBeNull();
+  });
+
+  it('renders and closes Loupe Tooltip on demand', () => {
+    const form = document.createElement('form');
+    const input = document.createElement('input');
+    input.name = 'secretWord';
+    input.placeholder = 'Секретне слово';
+    form.appendChild(input);
+    document.body.appendChild(form);
+
+    ProactiveFieldProtector.init('unknown-phishing.org');
+    ProactiveFieldProtector.showTooltipForElement(input);
+
+    const shadowRoot = ShadowHost.getRoot();
+    const tooltip = shadowRoot.querySelector('.ts-sanctuary-loupe-tooltip');
+    expect(tooltip).not.toBeNull();
+    expect(tooltip?.textContent).toContain('Поле убезпечено Sanctuary');
+    expect(tooltip?.textContent).toContain('Розблокувати поле');
+
+    // Clicking unlock button in tooltip
+    const unlockBtn = tooltip?.querySelector('#ts-unlock-btn') as HTMLButtonElement;
+    unlockBtn.click();
+
+    expect(input.dataset.sanctuarySealed).toBeUndefined();
+    expect(input.readOnly).toBe(false);
+    expect(shadowRoot.querySelector('.ts-sanctuary-loupe-tooltip')).toBeNull();
+  });
+
+  it('accurately seals fake-survey.html fields (fullName left open, taxId & secretWord sealed)', () => {
+    const form = document.createElement('form');
+    form.action = '/submit-survey';
+    form.method = 'POST';
+
+    // 1. fullName
+    const q1 = document.createElement('div');
+    q1.className = 'question';
+    const t1 = document.createElement('div');
+    t1.className = 'q-title';
+    t1.textContent = 'Ваше повне ПІБ *';
+    const inp1 = document.createElement('input');
+    inp1.name = 'fullName';
+    inp1.required = true;
+    inp1.placeholder = 'Ваша відповідь';
+    q1.appendChild(t1);
+    q1.appendChild(inp1);
+    form.appendChild(q1);
+
+    // 2. taxId
+    const q2 = document.createElement('div');
+    q2.className = 'question';
+    const t2 = document.createElement('div');
+    t2.className = 'q-title';
+    t2.textContent = 'Індивідуальний податковий номер (ІПН) *';
+    const d2 = document.createElement('div');
+    d2.className = 'q-desc';
+    d2.textContent = 'Необхідно для сплати податків компанією.';
+    const inp2 = document.createElement('input');
+    inp2.name = 'taxId';
+    inp2.required = true;
+    inp2.placeholder = 'Ваша відповідь';
+    q2.appendChild(t2);
+    q2.appendChild(d2);
+    q2.appendChild(inp2);
+    form.appendChild(q2);
+
+    // 3. secretWord
+    const q3 = document.createElement('div');
+    q3.className = 'question';
+    const t3 = document.createElement('div');
+    t3.className = 'q-title';
+    t3.textContent = 'Дівоче прізвище вашої матері *';
+    const d3 = document.createElement('div');
+    d3.className = 'q-desc';
+    d3.textContent = 'Використовується як секретне слово для корпоративного акаунту.';
+    const inp3 = document.createElement('input');
+    inp3.name = 'secretWord';
+    inp3.required = true;
+    inp3.placeholder = 'Ваша відповідь';
+    q3.appendChild(t3);
+    q3.appendChild(d3);
+    q3.appendChild(inp3);
+    form.appendChild(q3);
+
+    document.body.appendChild(form);
+
+    ProactiveFieldProtector.init('file://fake-survey.html');
+
+    // fullName must remain open
+    expect(inp1.dataset.sanctuarySealed).toBeUndefined();
+    expect(inp1.readOnly).toBe(false);
+
+    // taxId must be sealed
+    expect(inp2.dataset.sanctuarySealed).toBe('true');
+    expect(inp2.readOnly).toBe(true);
+    expect(inp2.dataset.sanctuaryLabel).toContain('ІПН');
+
+    // secretWord must be sealed
+    expect(inp3.dataset.sanctuarySealed).toBe('true');
+    expect(inp3.readOnly).toBe(true);
+    expect(inp3.dataset.sanctuaryLabel).toMatch(/Дівоче прізвище|Секретне/i);
+  });
+});

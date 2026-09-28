@@ -12,6 +12,7 @@ import { FormAnalysisPipeline } from '../src/detectors/form-analysis-pipeline';
 import { FormSubmitInterceptor } from '../src/interceptors/form-submit.interceptor';
 import { ChatSubmitInterceptor } from '../src/interceptors/chat-submit.interceptor';
 import { ClipboardInterceptor } from '../src/interceptors/clipboard.interceptor';
+import { ProactiveFieldProtector } from '../src/heuristics/proactive-field-protector';
 
 export default defineContentScript({
   matches: ['<all_urls>'],
@@ -73,10 +74,12 @@ export default defineContentScript({
           document.querySelectorAll('form').forEach((form) => {
             HiddenFieldInspector.restoreForm(form);
           });
+          ProactiveFieldProtector.unsealAll();
         } else {
           console.log('[ThreatShield:Content] Сайт видалено з білого списку. Запускаємо повторний аудит форм.');
           ProactiveFormScanner.resetScannedForms();
           ProactiveFormScanner.scanCurrentDocument();
+          ProactiveFieldProtector.scanAndProtect();
         }
       }
     });
@@ -287,7 +290,10 @@ export default defineContentScript({
       currentHost
     );
 
-    // 3. Модульні перехоплювачі форм, чатів та буфера обміну
+    // 3. Проактивний захист чутливих полів (Sanctuary Sealed Apertures)
+    ProactiveFieldProtector.init(currentHost);
+
+    // 4. Модульні перехоплювачі форм, чатів та буфера обміну
     FormSubmitInterceptor.init({
       pipeline: formPipeline,
       getCurrentHost: () => currentHost,

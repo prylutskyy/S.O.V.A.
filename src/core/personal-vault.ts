@@ -18,9 +18,9 @@ export const DEFAULT_VAULT_ITEMS: VaultItem[] = [
     decoyValue: '',
     keywords: [
       // UK
-      'дівоче', 'дівоче прізвище', 'прізвище матері', 'дівоче прізвище матері',
+      'дівоче', 'дівоче прізвище', 'прізвище матері', 'дівоче прізвище матері', 'дівочепрізвище',
       // EN
-      'maiden', 'maiden name', "mother's maiden name", 'mother maiden',
+      'maiden', 'maiden name', "mother's maiden name", 'mother maiden', 'maidenname', 'mothersmaidenname',
       // RU
       'девичья фамилия', 'девичья фамилия матери', 'фамилия матери', 'девичья'
     ],
@@ -35,9 +35,9 @@ export const DEFAULT_VAULT_ITEMS: VaultItem[] = [
     decoyValue: '',
     keywords: [
       // UK
-      'рнокпп', 'іпн', 'ідентифікаційний код', 'податковий номер', 'код платника',
+      'рнокпп', 'іпн', 'ідентифікаційний код', 'податковий номер', 'код платника', 'податковий код',
       // EN
-      'tax id', 'tax number', 'inn', 'ssn', 'taxpayer number', 'national tax',
+      'tax id', 'tax number', 'inn', 'ssn', 'taxpayer number', 'national tax', 'taxid', 'taxnumber',
       // RU
       'инн', 'идентификационный код', 'налоговый номер', 'код налогоплательщика'
     ],
@@ -52,9 +52,9 @@ export const DEFAULT_VAULT_ITEMS: VaultItem[] = [
     decoyValue: '',
     keywords: [
       // UK
-      'кодове слово', 'секретне слово', 'слово-пароль', 'контрольне слово',
+      'кодове слово', 'секретне слово', 'слово-пароль', 'контрольне слово', 'кодовеслово', 'секретнеслово',
       // EN
-      'codeword', 'secret word', 'security word', 'passphrase', 'control word',
+      'codeword', 'secret word', 'security word', 'passphrase', 'control word', 'secretword',
       // RU
       'кодовое слово', 'секретное слово', 'слово-пароль', 'контрольное слово'
     ],
@@ -670,7 +670,8 @@ export class PersonalVaultManager {
    */
   public static findMatchingVaultItemForField(
     descriptor: string,
-    items: VaultItem[] = this.cachedItems
+    items: VaultItem[] = this.cachedItems,
+    includeTemplates: boolean = false
   ): VaultItem | null {
     const lower = descriptor.toLowerCase();
     const activeItems = items.filter(
@@ -683,6 +684,17 @@ export class PersonalVaultManager {
         }
       }
     }
+
+    if (includeTemplates) {
+      for (const item of DEFAULT_VAULT_ITEMS) {
+        for (const kw of item.keywords) {
+          if (kw && lower.includes(kw.toLowerCase())) {
+            return item;
+          }
+        }
+      }
+    }
+
     return null;
   }
 
