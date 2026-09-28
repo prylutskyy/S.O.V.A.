@@ -165,9 +165,10 @@ export class SettingsTabController {
 
     const modelOptions: Record<LLMProviderType, Array<{ id: string; label: string }>> = {
       gemini: [
-        { id: 'gemini-2.5-flash', label: 'gemini-2.5-flash (Остання гібридна версія)' },
-        { id: 'gemini-2.0-flash', label: 'gemini-2.0-flash (Швидка та стабільна)' },
-        { id: 'gemini-1.5-flash', label: 'gemini-1.5-flash (Класична)' },
+        { id: 'gemini-3.8-flash', label: 'gemini-3.8-flash (Актуальна / Рекомендовано)' },
+        { id: 'gemini-3.5-flash-lite', label: 'gemini-3.5-flash-lite (Ультрашвидка)' },
+        { id: 'gemini-2.0-flash', label: 'gemini-2.0-flash' },
+        { id: 'gemini-1.5-flash', label: 'gemini-1.5-flash' },
       ],
       groq: [
         { id: 'llama-3.3-70b-versatile', label: 'llama-3.3-70b-versatile (~150мс)' },
@@ -223,7 +224,7 @@ export class SettingsTabController {
 
   private async testConnection(keyOverride?: string): Promise<void> {
     const provider = (this.cloudAiProviderSelect?.value as LLMProviderType) || 'gemini';
-    const model = this.cloudAiModelSelect?.value || 'gemini-2.5-flash';
+    const model = this.cloudAiModelSelect?.value || 'gemini-3.8-flash';
     const apiKey = keyOverride || (this.cloudAiKeyInput?.value?.trim()) || (await SecureKeyStore.getApiKey(provider));
 
     if (!apiKey) {
@@ -257,7 +258,7 @@ export class SettingsTabController {
     this.toggleCloudAi?.addEventListener('change', async (e) => {
       const isEnabled = (e.target as HTMLInputElement).checked;
       const provider = (this.cloudAiProviderSelect?.value as LLMProviderType) || 'gemini';
-      const model = this.cloudAiModelSelect?.value || 'gemini-2.5-flash';
+      const model = this.cloudAiModelSelect?.value || 'gemini-3.8-flash';
 
       await SecureKeyStore.saveConfig({ enabled: isEnabled, provider, model });
       this.showToast(isEnabled ? 'Хмарний ШІ арбітр активовано' : 'Хмарний ШІ вимкнено');
@@ -267,7 +268,7 @@ export class SettingsTabController {
     this.cloudAiProviderSelect?.addEventListener('change', async (e) => {
       const provider = (e.target as HTMLSelectElement).value as LLMProviderType;
       this.populateModelsForProvider(provider);
-      const model = this.cloudAiModelSelect?.value || 'gemini-2.5-flash';
+      const model = this.cloudAiModelSelect?.value || 'gemini-3.8-flash';
 
       await SecureKeyStore.saveConfig({ provider, model });
       await this.updateKeyHint();
@@ -293,7 +294,7 @@ export class SettingsTabController {
       }
 
       const provider = (this.cloudAiProviderSelect?.value as LLMProviderType) || 'gemini';
-      const model = this.cloudAiModelSelect?.value || 'gemini-2.5-flash';
+      const model = this.cloudAiModelSelect?.value || 'gemini-3.8-flash';
 
       try {
         await SecureKeyStore.saveApiKey(provider, val, 'device_encrypted');

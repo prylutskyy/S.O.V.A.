@@ -215,5 +215,46 @@ describe('CloudLLMDispatcher & Drivers (TDD Suite)', () => {
       expect(replyResult?.reply).toBe('Доброго дня! Я вже оплатив доставку, ось лінк: https://olx.fake');
       expect(replyResult?.engine).toContain('cloud-gemini');
     });
+
+    it('should test connection successfully with gemini-3.8-flash', async () => {
+      // @ts-ignore
+      globalThis.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          candidates: [{ content: { parts: [{ text: 'OK' }] } }],
+        }),
+      });
+
+      const res = await CloudLLMDispatcher.testConnection('gemini', 'test_key', 'gemini-3.8-flash');
+      expect(res.success).toBe(true);
+      expect(res.modelUsed).toBe('gemini-3.8-flash');
+      const [url] = (fetch as any).mock.calls[0];
+      expect(url).toContain('gemini-3.8-flash:generateContent');
+    });
+
+    it('should fallback to next candidate model if 404 is encountered during testConnection', async () => {
+      let callCount = 0;
+      // @ts-ignore
+      globalThis.fetch = vi.fn().mockImplementation(async (url: string) => {
+        callCount++;
+        if (url.includes('gemini-2.5-flash')) {
+          return {
+            ok: false,
+            status: 404,
+            json: async () => ({ error: { message: 'models/gemini-2.5-flash is no longer available' } }),
+          };
+        }
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({ candidates: [{ content: { parts: [{ text: 'OK' }] } }] }),
+        };
+      });
+
+      const res = await CloudLLMDispatcher.testConnection('gemini', 'test_key', 'gemini-2.5-flash');
+      expect(res.success).toBe(true);
+      expect(res.modelUsed).toBe('gemini-3.8-flash');
+      expect(callCount).toBeGreaterThanOrEqual(2);
+    });
   });
 });

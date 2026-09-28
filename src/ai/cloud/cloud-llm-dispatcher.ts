@@ -165,7 +165,7 @@ export class CloudLLMDispatcher {
     }
 
     if (provider === 'gemini') {
-      return GeminiDriver.testKey(key, model || 'gemini-2.5-flash');
+      return GeminiDriver.testKey(key, model || 'gemini-3.8-flash');
     }
 
     const driver = this.drivers.get(provider);

@@ -8,15 +8,16 @@ import {
 
 export class GeminiDriver implements ICloudLLMDriver {
   public static readonly CANDIDATE_MODELS = [
+    'gemini-3.8-flash',
+    'gemini-3.5-flash-lite',
     'gemini-2.5-flash',
     'gemini-2.0-flash',
     'gemini-1.5-flash',
-    'gemini-2.5-flash-lite',
   ];
 
   public async verifyThreat(request: CloudVerificationRequest): Promise<CloudVerificationResponse> {
     const startTime = performance.now();
-    const primaryModel = request.model || 'gemini-2.5-flash';
+    const primaryModel = request.model || 'gemini-3.8-flash';
     const baseUrl = request.customBaseUrl || 'https://generativelanguage.googleapis.com/v1beta';
 
     const modelsToTry = [primaryModel, ...GeminiDriver.CANDIDATE_MODELS.filter((m) => m !== primaryModel)];
@@ -97,7 +98,7 @@ export class GeminiDriver implements ICloudLLMDriver {
 
   public async generateText(request: CloudTextGenerationRequest): Promise<CloudTextGenerationResponse> {
     const startTime = performance.now();
-    const primaryModel = request.model || 'gemini-2.5-flash';
+    const primaryModel = request.model || 'gemini-3.8-flash';
     const baseUrl = request.customBaseUrl || 'https://generativelanguage.googleapis.com/v1beta';
 
     const modelsToTry = [primaryModel, ...GeminiDriver.CANDIDATE_MODELS.filter((m) => m !== primaryModel)];
@@ -165,7 +166,7 @@ export class GeminiDriver implements ICloudLLMDriver {
    */
   public static async testKey(
     apiKey: string,
-    model: string = 'gemini-2.5-flash',
+    model: string = 'gemini-3.8-flash',
     baseUrl: string = 'https://generativelanguage.googleapis.com/v1beta'
   ): Promise<{ success: boolean; modelUsed?: string; latencyMs?: number; error?: string }> {
     const startTime = performance.now();

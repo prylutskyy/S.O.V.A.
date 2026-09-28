@@ -30,7 +30,7 @@ export const DEVICE_SALT_STORAGE_KEY = 'threat_shield_device_salt';
 
 export const DEFAULT_LLM_CONFIG: LLMConfig = {
   provider: 'gemini',
-  model: 'gemini-2.5-flash',
+  model: 'gemini-3.8-flash',
   timeoutMs: 3000,
   enabled: false,
   storageMode: 'device_encrypted',
@@ -292,6 +292,11 @@ export class SecureKeyStore {
       const res = await chrome.storage.local.get(LLM_CONFIG_STORAGE_KEY);
       if (res && res[LLM_CONFIG_STORAGE_KEY]) {
         this.cachedConfig = { ...DEFAULT_LLM_CONFIG, ...res[LLM_CONFIG_STORAGE_KEY] };
+        // Автоматична міграція застарілих/депрекейтованих Google моделей
+        if (this.cachedConfig.provider === 'gemini' && (this.cachedConfig.model === 'gemini-2.5-flash' || !this.cachedConfig.model)) {
+          this.cachedConfig.model = 'gemini-3.8-flash';
+          chrome.storage.local.set({ [LLM_CONFIG_STORAGE_KEY]: this.cachedConfig }).catch(() => {});
+        }
         return { ...this.cachedConfig };
       }
     }
