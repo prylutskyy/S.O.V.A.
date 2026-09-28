@@ -314,6 +314,7 @@ export default defineContentScript({
 
     ChatSubmitInterceptor.init({
       getActiveContext: () => activeContext,
+      getDebugMode: () => debugMode,
     });
 
     ClipboardInterceptor.init({

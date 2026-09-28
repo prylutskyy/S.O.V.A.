@@ -5,6 +5,7 @@ import { isAccreditedPaymentGateway } from '../core/payment-gateways';
 import { isWhitelisted } from '../core/whitelist';
 import { UserWhitelistManager } from '../core/user-whitelist';
 import { SecurityFriction } from '../ui/friction';
+import { ToastNotifier } from '../ui/toast-notifier';
 import { DebuggerOverlay } from '../ui/debugger-overlay';
 
 export interface FormSubmitInterceptorOptions {
@@ -113,9 +114,9 @@ export class FormSubmitInterceptor {
   private static setupListeners(): void {
     if (typeof document === 'undefined') return;
 
-    // Реактивний моніторинг введення у формах (Live Loupe Telemetry)
+    // Реактивний моніторинг введення у формах (Live Loupe Telemetry та Proactive Warnings)
     this.inputListener = (event: Event) => {
-      if (!this.options || !this.options.getDebugMode()) return;
+      if (!this.options) return;
       const target = event.target as HTMLElement | null;
       if (!target) return;
       const form = target.closest('form');
@@ -125,8 +126,27 @@ export class FormSubmitInterceptor {
         clearTimeout(this.realtimeDebounceTimer);
       }
       this.realtimeDebounceTimer = setTimeout(() => {
-        if (!this.options || !this.options.getDebugMode()) return;
-        this.handleFormAnalysis(form, true);
+        if (!this.options) return;
+        const result = this.handleFormAnalysis(form, true);
+
+        // Проактивне застереження при одночасному введенні номера картки та CVV на сторонніх ресурсах
+        const currentHost = this.options.getCurrentHost();
+        if (
+          !this.isFormWhitelisted(form, currentHost) &&
+          result.formState.hasFilledCard &&
+          result.formState.hasFilledCvv
+        ) {
+          const now = Date.now();
+          const lastWarn = parseInt(form.dataset?.threatShieldLastCardCvvWarn || '0', 10);
+          if (now - lastWarn > 8000) {
+            form.dataset.threatShieldLastCardCvvWarn = now.toString();
+            ToastNotifier.show(
+              '⚠️ Увага! У формі зафіксовано введення номера картки та CVV-коду. Для отримання коштів CVV-код ніколи не потрібен! Переконайтеся в надійності сайту.',
+              'error',
+              10000
+            );
+          }
+        }
       }, 150);
     };
 

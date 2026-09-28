@@ -123,7 +123,16 @@ export class SecurityFriction {
    */
   public static applyToChat(
     chatInput: HTMLInputElement | HTMLTextAreaElement,
-    leakage: { hasCard: boolean; hasCvv: boolean; hasExpiry?: boolean; hasOtp?: boolean; cards: string[] },
+    leakage: {
+      hasCard: boolean;
+      hasCvv: boolean;
+      hasExpiry?: boolean;
+      hasOtp?: boolean;
+      cards: string[];
+      isCrossMessage?: boolean;
+      customReason?: string;
+      customTriggers?: Array<{ message: string; severity: string }>;
+    },
     onProceed: () => void,
     onCancel?: () => void,
     activeContext?: ActiveThreatContext | null
@@ -133,18 +142,27 @@ export class SecurityFriction {
     const vaultScan = VaultScanner.scanTextSync(chatInput.value || '');
 
     const triggers: Array<{ message: string; severity: string }> = [];
-    if (leakage.hasCard && (leakage.hasCvv || leakage.hasExpiry)) {
-      triggers.push({
-        message: 'У тексті повідомлення виявлено повні платіжні реквізити (номер картки + секретні дані авторизації)!',
-        severity: 'CRITICAL',
-      });
-    }
-    if (leakage.hasCvv) {
-      triggers.push({
-        message: 'Виявлено секретний тризначний код безпеки картки (CVV/CVC). Для отримання коштів він ніколи не потрібен!',
-        severity: 'CRITICAL',
-      });
-    }
+    if (leakage.customTriggers && leakage.customTriggers.length > 0) {
+      triggers.push(...leakage.customTriggers);
+    } else {
+      if (leakage.isCrossMessage) {
+        triggers.push({
+          message: 'У діалозі зафіксовано роздільну передачу платіжних реквізитів: номер картки та CVV-код відправляються різними повідомленнями! Разом це відкриває шахраям прямий доступ до ваших коштів.',
+          severity: 'CRITICAL',
+        });
+      }
+      if (leakage.hasCard && (leakage.hasCvv || leakage.hasExpiry)) {
+        triggers.push({
+          message: 'У тексті повідомлення виявлено повні платіжні реквізити (номер картки + секретні дані авторизації)!',
+          severity: 'CRITICAL',
+        });
+      }
+      if (leakage.hasCvv) {
+        triggers.push({
+          message: 'Виявлено секретний тризначний код безпеки картки (CVV/CVC). Для отримання коштів він ніколи не потрібен!',
+          severity: 'CRITICAL',
+        });
+      }
     if (leakage.hasExpiry) {
       triggers.push({
         message: 'Виявлено термін дії банківської картки (MM/YY)!',
@@ -160,6 +178,7 @@ export class SecurityFriction {
     if (vaultScan.triggers.length > 0) {
       triggers.push(...vaultScan.triggers);
     }
+  }
 
     UnifiedFrictionModal.show({
       type: 'chat',

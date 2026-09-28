@@ -60,7 +60,7 @@ export function passesLuhnCheck(value: string): boolean {
 /**
  * Регулярні вирази для чутливих авторизаційних даних (SAD)
  */
-export const CVV_REGEX = /(?:^|[^\p{L}\p{N}])(?:cvv|cvc|cvv2|cvc2|свв|свс|код\s*безпеки|код\s*картки|три\s*цифри\s*(?:ззаду|на\s*звороті)|код\s*ззаду|security\s*code)[\s\p{L}:=_-]{0,20}?([0-9]{3,4})(?:$|[^\p{L}\p{N}])/iu;
+export const CVV_REGEX = /(?:^|[^\p{L}\p{N}])(?:cvv|cvc|cvv2|cvc2|свв|свс|код\s*безпеки|код\s*картки|код\s*перевірки|три\s*цифри\s*(?:ззаду|на\s*звороті)|код\s*ззаду|security\s*code)[\s\p{L}:=_-]{0,15}?([0-9]{3,4})(?:$|[^\p{L}\p{N}])/iu;
 
 export const EXPIRATION_CONTEXT_REGEX = /(?:діє\s*до|термін(?:\s*дії)?|exp(?:ir(?:y|ation))?|valid\s*thru)[\s:=_-]*([0-1][0-9][\/\.-](?:20)?[2-3][0-9])/iu;
 export const EXPIRATION_STANDALONE_REGEX = /(?:^|\s)([0-1][0-9]\/[2-3][0-9])(?:\s|$|[,\.])/;
@@ -89,14 +89,57 @@ export class SensitiveAssetDetector {
   }
 
   /**
-   * Перевірка наявності CVV/CVC коду
+   * Перевірка наявності CVV/CVC коду.
+   * Якщо hasCardContext === true (номер картки є в повідомленні або вже переданий у сесії),
+   * розпізнає автономні 3-значні числа як код безпеки.
    */
-  public static detectCvv(text: string): { detected: boolean; match?: string } {
+  public static detectCvv(text: string, hasCardContext: boolean = false): { detected: boolean; match?: string } {
     if (!text) return { detected: false };
+
+    // 1. Пошук за контекстним регулярним виразом
     const match = text.match(CVV_REGEX);
     if (match && match[1]) {
       return { detected: true, match: match[1] };
     }
+
+    // 2. Якщо номер картки вже є в тексті або в історії сесії:
+    // (Але якщо текст містить ознаки одноразового SMS-пароля OTP, не плутати з CVV)
+    if (hasCardContext && !OTP_REGEX.test(text)) {
+      let cleaned = text;
+
+      // Видаляємо всі послідовності картки
+      const potentialCards = text.match(/(?:\d[ -]*?){13,19}/g);
+      if (potentialCards) {
+        for (const c of potentialCards) {
+          cleaned = cleaned.replace(c, ' ');
+        }
+      }
+
+      // Видаляємо термін дії MM/YY
+      cleaned = cleaned.replace(/(?:^|\s)[0-1][0-9][\/\.-][2-3][0-9](?:\s|$)/g, ' ');
+
+      // Видаляємо телефонні номери (+380..., 098..., тощо)
+      cleaned = cleaned.replace(/(?:\+?38)?\s*0\d{2}[\s-]?\d{3}[\s-]?\d{2}[\s-]?\d{2}/g, ' ');
+      cleaned = cleaned.replace(/\b\d{10,12}\b/g, ' ');
+
+      // Видаляємо грошові суми (100 грн, 500 $, 18500 uah тощо)
+      cleaned = cleaned.replace(/[0-9]+(?:\s*[.,]\s*[0-9]+)?\s*(?:грн|uah|usd|eur|\$|€|євро|долар|гривень|гривні)/gi, ' ');
+
+      // Шукаємо окремі 3-значні або 4-значні числа
+      const candidateMatches = cleaned.match(/(?:^|[^\d])([0-9]{3,4})(?:$|[^\d])/g);
+      if (candidateMatches) {
+        for (const cand of candidateMatches) {
+          const digits = cand.replace(/\D/g, '');
+          const num = parseInt(digits, 10);
+          // Відсікаємо 4-значні роки (1920-2050)
+          if (digits.length === 4 && num >= 1920 && num <= 2050) continue;
+          if (digits.length === 3 || digits.length === 4) {
+            return { detected: true, match: digits };
+          }
+        }
+      }
+    }
+
     return { detected: false };
   }
 
@@ -198,7 +241,7 @@ export class SensitiveAssetDetector {
     const cards = this.extractCardNumbers(text);
     const hasCard = cards.length > 0;
 
-    const cvvResult = this.detectCvv(text);
+    const cvvResult = this.detectCvv(text, hasCard);
     const expiryResult = this.detectExpirationDate(text, hasCard);
     const otpResult = this.detectOtp(text);
     const vaultMatches = this.detectVaultMatches(text, payload.unlockedVaultItems);

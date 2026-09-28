@@ -1,5 +1,6 @@
 import { IntentClassifier } from './intent-classifier';
 import { ChatSessionState } from './chat-session-state';
+import { SessionOutboundMemory } from './session-outbound-memory';
 import { AILureVerifier } from './ai-verifier';
 import { ChromeBuiltinAIProvider } from './chrome-ai-provider';
 import { checkOutboundChatLeakage } from './input-detector';
@@ -292,7 +293,11 @@ export class ChatChannelMonitor {
     if (scan.hasFormedIntent) {
       if (this.debugMode) DebuggerOverlay.log('3. Intent Formed!', scan.intentType, '#EF4444');
       // TIER 1: Миттєве виявлення загрози (без виклику ШІ)
-      ToastNotifier.show('Виявлено ознаки підозрілого діалогу. Будьте пильними.', 'warning', 3000);
+      ToastNotifier.show(
+        'Виявлено ознаки підозрілого діалогу. Будьте пильними: ніколи не переходьте за сторонніми посиланнями та не передавайте реквізити картки.',
+        'warning',
+        9000
+      );
       
       this.recentLuresCache.add(text);
       if (this.recentLuresCache.size > 50) {
@@ -333,6 +338,7 @@ export class ChatChannelMonitor {
     const text = textEl.innerText?.trim() || element.innerText?.trim() || '';
     if (text.length >= 2) {
       ChatSessionState.addMessageAndEvaluate(text, 'outbound');
+      SessionOutboundMemory.recordSentMessage(text);
     }
   }
 
@@ -384,5 +390,6 @@ export class ChatChannelMonitor {
     this.processedElements = new WeakSet();
     this.recentLuresCache.clear();
     ChatSessionState.reset();
+    SessionOutboundMemory.reset();
   }
 }
