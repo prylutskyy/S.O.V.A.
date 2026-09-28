@@ -84,6 +84,10 @@ export class ChatChannelMonitor {
     }
 
     // 4. Селектори класів та дата-атрибутів популярних чатів та маркетплейсів
+    if (element.closest('.has-text-centered, .text-center, .system-message, .status-message, .chat-info, .peer-info')) {
+      return 'unknown';
+    }
+
     if (element.closest('.has-text-right, .text-right, .chat-end, .is-right, .justify-end, .self-end, .align-right')) {
       return 'outbound';
     }
@@ -202,23 +206,44 @@ export class ChatChannelMonitor {
       '[data-nx-name="SentChatMessage"]',
       '[data-cy="received-message"]',
       '[data-cy="sent-message"]',
+      '.msg.received',
+      '.msg.sent',
+      '.msg-in',
+      '.msg-out',
       '.chat-msg',
       '.message',
       '[role="row"]',
       '.bubble',
       '.has-text-left',
       '.has-text-right',
-      '.tag',
-      '[class*="chat-"]',
-      '[class*="msg-"]',
-      '[class*="message-"]',
+      '.text-left',
+      '.text-right',
+      '.chat-start',
+      '.chat-end',
+      '.messages > div',
+      '.chat-thread > div',
+      '[class*="chat-message"]',
+      '[class*="message-item"]',
+      '[class*="message-row"]',
       'li',
     ].join(', ');
 
     // Шукаємо потенційні повідомлення
-    const candidates = container.matches(selector)
+    const rawCandidates = container.matches(selector)
       ? [container, ...Array.from(container.querySelectorAll<HTMLElement>(selector))]
       : Array.from(container.querySelectorAll<HTMLElement>(selector));
+
+    // Фільтруємо лише найвищі в ієрархії елементи, щоб не обробляти двічі контейнер і його дочірній тег
+    const candidates = rawCandidates.filter((el) => {
+      let parent = el.parentElement;
+      while (parent && parent !== container) {
+        if (rawCandidates.includes(parent as HTMLElement)) {
+          return false;
+        }
+        parent = parent.parentElement;
+      }
+      return true;
+    });
 
     for (const el of candidates) {
       if (this.processedElements.has(el)) continue;
@@ -384,30 +409,63 @@ export class ChatChannelMonitor {
     const selector = [
       '[data-testid="received-message"]',
       '[data-testid="sent-message"]',
+      '[data-testid*="message"]',
       '[data-nx-name="ReceivedChatMessage"]',
       '[data-nx-name="SentChatMessage"]',
       '[data-cy="received-message"]',
       '[data-cy="sent-message"]',
       '.msg.received',
       '.msg.sent',
+      '.msg-in',
+      '.msg-out',
       '.chat-msg',
       '.bubble',
+      '.has-text-left',
+      '.has-text-right',
+      '.text-left',
+      '.text-right',
+      '.chat-start',
+      '.chat-end',
+      '.messages > div',
+      '.chat-thread > div',
+      '.chat-history > div',
+      '[class*="chat-message"]',
+      '[class*="message-item"]',
+      '[class*="message-row"]',
       '.message',
     ].join(', ');
 
-    const elements = Array.from(document.querySelectorAll<HTMLElement>(selector));
-    if (elements.length === 0) return [];
+    const rawElements = Array.from(document.querySelectorAll<HTMLElement>(selector));
+    if (rawElements.length === 0) return [];
+
+    // Залишаємо лише найвищі в ієрархії елементи-контейнери повідомлень (щоб уникнути дублювання)
+    const elements = rawElements.filter((el) => {
+      let parent = el.parentElement;
+      while (parent) {
+        if (rawElements.includes(parent as HTMLElement)) {
+          return false;
+        }
+        parent = parent.parentElement;
+      }
+      return true;
+    });
 
     const lines: string[] = [];
-    const seen = new Set<string>();
 
     for (const el of elements) {
-      if (el.querySelector(selector)) continue;
-
       const direction = this.determineDirection(el);
+      // Пропускаємо системні або нейтральні повідомлення без явного автора
+      if (direction === 'unknown') {
+        continue;
+      }
+
       const speaker = direction === 'outbound' ? '[Ви]' : '[Співрозмовник]';
 
-      const textEl = el.querySelector<HTMLElement>('[data-testid="message"], [data-nx-name="TextContainer"], .bubble, p, span') || el;
+      const textEl =
+        el.querySelector<HTMLElement>(
+          '[data-testid="message"], [data-nx-name="TextContainer"], .bubble, .tag, p, span'
+        ) || el;
+
       let text = (textEl.innerText || el.innerText || '').trim();
 
       const links = Array.from(el.querySelectorAll<HTMLAnchorElement>('a[href]'));
@@ -417,8 +475,7 @@ export class ChatChannelMonitor {
         }
       }
 
-      if (text.length > 0 && !seen.has(text)) {
-        seen.add(text);
+      if (text.length > 0) {
         lines.push(`${speaker}: ${text}`);
       }
     }

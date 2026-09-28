@@ -12,7 +12,7 @@ export interface ChatMessageContext {
 
 export class ChatSessionState {
   private static messages: ChatMessageContext[] = [];
-  private static readonly MAX_MESSAGES = 10;
+  private static readonly MAX_MESSAGES = 30;
   private static readonly TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes
 
   public static reset() { this.messages = []; }

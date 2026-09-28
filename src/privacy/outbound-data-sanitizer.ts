@@ -319,8 +319,9 @@ ${sanitizedText}
 
 Instructions:
 1. Examine the FULL context of the conversation, not just the isolated trigger message.
-2. In online marketplace chats (OLX, Prom, eBay, etc.):
+2. In online marketplace chats, messengers, or peer-to-peer discussions:
    - If an interlocutor claims they already paid and sends an external link for the seller to "receive money" or "confirm delivery", this is an Escrow Delivery Scam (isScam: true).
+   - If an interlocutor sends or shares scam scripts, fake delivery/escrow phishing templates, fake support/verification bots (e.g. t.me/*bot, fake OLX bots), or lures to external sites/messengers to steal credentials or funds, this is Scam / Phishing (isScam: true).
    - If an interlocutor asks the user to switch to Telegram/Viber/WhatsApp, or requests card numbers, CVV, expiration date, or SMS one-time passwords, this is Social Engineering (isScam: true).
 3. If this is a benign, legitimate interaction (e.g. asking about item condition, bargaining, proposing in-person meeting or official cash-on-delivery without external phishing links or sensitive credential requests), classify as SAFE (isScam: false).
 4. Note that all [VERIFIED_*] tags represent real, validated user assets that were redacted for privacy.

@@ -1,5 +1,7 @@
+// @vitest-environment happy-dom
 import { describe, it, expect, beforeEach } from 'vitest';
 import { ChatSessionState } from '../src/heuristics/chat-session-state';
+import { ChatChannelMonitor } from '../src/heuristics/chat-channel';
 import { AIHeuristicContext } from '../src/heuristics/ai-provider.interface';
 
 describe('Chat Dialogue Context for AI Arbiter (TDD Suite)', () => {
@@ -80,6 +82,33 @@ describe('Chat Dialogue Context for AI Arbiter (TDD Suite)', () => {
       expect(context.chatDialogue).toBeDefined();
       expect(context.chatDialogue).toContain('[Ви (Чернетка)]');
       expect(context.chatDialogue).toContain('[Співрозмовник]');
+    });
+  });
+
+  describe('DOM-based multi-turn chat dialogue extraction', () => {
+    it('успішно витягує весь живий діалог із Bulma/P2P чату без дублювання та системних статусів', () => {
+      document.body.innerHTML = `
+        <div class="container"><div class="messages" style="height: 100%; width: 100%;"><div class="has-text-centered" style="padding: 0.5rem; font-size: 0.8rem;">Created Peer: 576x5013f496x4k5dx1i64</div><div class="has-text-centered" style="padding: 0.5rem; font-size: 0.8rem;">Connected to Peer: 2r2yt1k2f326x5174bb4d3</div><div class="has-text-right" style="padding: 0.5rem;"><span class="tag is-medium is-primary">привіт. Як справи?)</span></div><div class="has-text-left" style="padding: 0.5rem;"><span class="tag is-medium is-light">Йоу. Все шикарно, а у тебе?</span></div><div class="has-text-left" style="padding: 0.5rem;"><span class="tag is-medium is-light">Що плануєш сьогодні робити?</span></div><div class="has-text-right" style="padding: 0.5rem;"><span class="tag is-medium is-primary">Та хуй його зна</span></div><div class="has-text-right" style="padding: 0.5rem;"><span class="tag is-medium is-primary">нічого поки</span></div><div class="has-text-left" style="padding: 0.5rem;"><span class="tag is-medium is-light">Слухай! я тут тємку знайшов, як бабок заробити</span></div><div class="has-text-right" style="padding: 0.5rem;"><span class="tag is-medium is-primary">Недай бог це будуть офіси)</span></div><div class="has-text-left" style="padding: 0.5rem;"><span class="tag is-medium is-light">старий, які офіси?))</span></div><div class="has-text-left" style="padding: 0.5rem;"><span class="tag is-medium is-light">там тєма чуто мутна, слизька, але пару купюр можна заробити</span></div><div class="has-text-right" style="padding: 0.5rem;"><span class="tag is-medium is-primary">Добро. Валяй.</span></div><div class="has-text-right" style="padding: 0.5rem;"><span class="tag is-medium is-primary">що там у тебе?</span></div><div class="has-text-left" style="padding: 0.5rem;"><span class="tag is-medium is-light">заходиш на olx та пишеш повідомлення по типу "Інформація про замовлення: Найменування товару Бавовняна рубашка H&amp;M (S) Сума до отримання 600 грн. Будь ласка, зверніть увагу Оскільки це ваша перша угода через «OLX Доставка», для завершення операції потрібно пройти додаткову перевірку профілю. Що потрібно зробити: Виділіть посилання -t.me/OLXHelpProtect_bot Вставте її у свій браузер або натисніть «Перейти» одразу з меню, що з'явилося Дотримуйтесь інструкцій бота та завершіть миттєву перевірку даних Зверніть увагу: Доки перевірка не буде завершена, замовлення залишатиметься у статусі очікування. Дякуємо, що обираєте OLX"</span></div></div></div>
+      `;
+
+      const dialogue = ChatChannelMonitor.getDialogueHistory();
+
+      // Не повинно містити системні повідомлення peer
+      expect(dialogue).not.toContain('Created Peer');
+      expect(dialogue).not.toContain('Connected to Peer');
+
+      // Повинно містити повідомлення з правильними ролями
+      expect(dialogue).toContain('[Ви]: привіт. Як справи?)');
+      expect(dialogue).toContain('[Співрозмовник]: Йоу. Все шикарно, а у тебе?');
+      expect(dialogue).toContain('[Співрозмовник]: Що плануєш сьогодні робити?');
+      expect(dialogue).toContain('[Ви]: Та хуй його зна');
+      expect(dialogue).toContain('[Співрозмовник]: Слухай! я тут тємку знайшов, як бабок заробити');
+      expect(dialogue).toContain('[Співрозмовник]: заходиш на olx та пишеш повідомлення');
+      expect(dialogue).toContain('t.me/OLXHelpProtect_bot');
+
+      // Перевірка кількості рядків: рівно 12 реплік
+      const lines = dialogue.split('\n');
+      expect(lines.length).toBe(12);
     });
   });
 });

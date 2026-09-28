@@ -16,6 +16,7 @@ export interface LogItem {
     textSent?: string;
     chatDialogue?: string;
     raisedFlags?: string[];
+    sanitizedPrompt?: string;
     formDetails?: string;
     rawResponse?: string;
     provider?: string;
@@ -344,15 +345,7 @@ export class DebuggerOverlay {
     customColor?: string,
     broadcast: boolean = true,
     isAi: boolean = false,
-    aiContext?: {
-      systemPrompt?: string;
-      contextRules?: string;
-      textSent?: string;
-      raisedFlags?: string[];
-      formDetails?: string;
-      rawResponse?: string;
-      chatDialogue?: string;
-    },
+    aiContext?: LogItem['aiContext'],
     logId?: string
   ) {
     const cleanStepKey = this.stripEmoji(stepKey);
@@ -428,15 +421,7 @@ export class DebuggerOverlay {
     stepKey: string,
     data: any,
     customColor?: string,
-    aiContext?: {
-      systemPrompt?: string;
-      contextRules?: string;
-      textSent?: string;
-      chatDialogue?: string;
-      raisedFlags?: string[];
-      formDetails?: string;
-      rawResponse?: string;
-    },
+    aiContext?: LogItem['aiContext'],
     logId?: string
   ): string {
     this.show();
@@ -913,16 +898,45 @@ export class DebuggerOverlay {
 
             <div class="sc-ai-sections">
               ${
-                ctx.systemPrompt
+                ctx.sanitizedPrompt
                   ? `
                 <div class="sc-ai-box">
                   <div class="sc-ai-box-title">
-                    <span>СИСТЕМНИЙ ПРОМПТ</span>
-                    <button type="button" class="sc-btn-ghost" data-copy="${encodeURIComponent(ctx.systemPrompt)}">
+                    <span style="color:#0071E3;">ПОВНИЙ ЗАПИТ ДО ШІ (PROMPT + ДІАЛОГ + ЕВРИСТИКИ)</span>
+                    <button type="button" class="sc-btn-ghost" data-copy="${encodeURIComponent(ctx.sanitizedPrompt)}">
                       ${ICONS.copy(10)} <span>Копіювати</span>
                     </button>
                   </div>
-                  <pre class="sc-code-block">${ctx.systemPrompt}</pre>
+                  <pre class="sc-code-block" style="white-space: pre-wrap; font-size: 11px;">${ctx.sanitizedPrompt}</pre>
+                </div>
+              `
+                  : ''
+              }
+
+              ${
+                ctx.chatDialogue
+                  ? `
+                <div class="sc-ai-box">
+                  <div class="sc-ai-box-title">
+                    <span style="color:#10B981;">ІСТОРІЯ ЛИСТУВАННЯ (MULTI-TURN CHAT CONTEXT)</span>
+                    <button type="button" class="sc-btn-ghost" data-copy="${encodeURIComponent(ctx.chatDialogue)}">
+                      ${ICONS.copy(10)} <span>Копіювати</span>
+                    </button>
+                  </div>
+                  <pre class="sc-code-block" style="white-space: pre-wrap; font-size: 11px;">${ctx.chatDialogue}</pre>
+                </div>
+              `
+                  : ''
+              }
+
+              ${
+                ctx.raisedFlags && ctx.raisedFlags.length > 0
+                  ? `
+                <div class="sc-ai-box">
+                  <div class="sc-ai-box-title">
+                    <span style="color:#F59E0B;">ЕВРИСТИЧНІ ПРАПОРЦІ (TIER 1 TELEMETRY)</span>
+                  </div>
+                  <pre class="sc-code-block" style="white-space: pre-wrap; font-size: 11px;">${ctx.raisedFlags.join('\n')}</pre>
                 </div>
               `
                   : ''
@@ -933,12 +947,28 @@ export class DebuggerOverlay {
                   ? `
                 <div class="sc-ai-box">
                   <div class="sc-ai-box-title">
-                    <span>АНАЛІЗОВАНИЙ КОНТЕНТ</span>
+                    <span>ТРИГЕРНЕ ПОВІДОМЛЕННЯ (AUDITED MESSAGE)</span>
                     <button type="button" class="sc-btn-ghost" data-copy="${encodeURIComponent(ctx.textSent)}">
                       ${ICONS.copy(10)} <span>Копіювати</span>
                     </button>
                   </div>
                   <pre class="sc-code-block">${ctx.textSent}</pre>
+                </div>
+              `
+                  : ''
+              }
+
+              ${
+                ctx.systemPrompt
+                  ? `
+                <div class="sc-ai-box">
+                  <div class="sc-ai-box-title">
+                    <span>СИСТЕМНИЙ ПРОМПТ</span>
+                    <button type="button" class="sc-btn-ghost" data-copy="${encodeURIComponent(ctx.systemPrompt)}">
+                      ${ICONS.copy(10)} <span>Копіювати</span>
+                    </button>
+                  </div>
+                  <pre class="sc-code-block">${ctx.systemPrompt}</pre>
                 </div>
               `
                   : ''
