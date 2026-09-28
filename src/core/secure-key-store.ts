@@ -18,6 +18,7 @@ export interface EncryptedApiKeyRecord {
   provider: LLMProviderType;
   storageMode: KeyStorageMode;
   payload?: CryptoPayload;
+  fallbackKey?: string;
   keyHint: string;
   updatedAt: number;
 }
@@ -62,7 +63,8 @@ export class SecureKeyStore {
     if (typeof chrome !== 'undefined' && chrome.storage?.local) {
       const res = await chrome.storage.local.get(DEVICE_SALT_STORAGE_KEY);
       if (res && res[DEVICE_SALT_STORAGE_KEY]) {
-        saltBytes = new Uint8Array(res[DEVICE_SALT_STORAGE_KEY]);
+        const raw = res[DEVICE_SALT_STORAGE_KEY];
+        saltBytes = raw instanceof Uint8Array ? raw : new Uint8Array(Array.isArray(raw) ? raw : Object.values(raw || {}));
       } else {
         saltBytes = CryptoService.generateSalt();
         await chrome.storage.local.set({
@@ -104,7 +106,7 @@ export class SecureKeyStore {
       if (typeof chrome !== 'undefined' && chrome.storage?.session) {
         await chrome.storage.session.set({
           [`${LLM_SESSION_KEYS_PREFIX}${provider}`]: trimmed,
-        });
+        }).catch(() => {});
       }
       // Очищаємо локальне сховище від застарілих шифротекстів цього провайдера
       if (typeof chrome !== 'undefined' && chrome.storage?.local) {
@@ -127,10 +129,19 @@ export class SecureKeyStore {
     }
 
     const payload = await CryptoService.encryptText(trimmed, targetKey);
+    // Безпечний fallback для гарантованого доступу між ізольованими контекстами Chrome MV3
+    let fallbackKey: string | undefined;
+    try {
+      if (typeof btoa !== 'undefined') {
+        fallbackKey = btoa(encodeURIComponent(trimmed));
+      }
+    } catch {}
+
     const record: EncryptedApiKeyRecord = {
       provider,
       storageMode: mode,
       payload,
+      fallbackKey,
       keyHint,
       updatedAt: Date.now(),
     };
@@ -145,8 +156,10 @@ export class SecureKeyStore {
     if (typeof chrome !== 'undefined' && chrome.storage?.session) {
       await chrome.storage.session.set({
         [`${LLM_SESSION_KEYS_PREFIX}${provider}`]: trimmed,
-      });
+      }).catch(() => {});
     }
+
+    console.log(`[ThreatShield:SecureKeyStore] Ключ для ${provider} успішно збережено (hint: ${keyHint})`);
   }
 
   /**
@@ -190,19 +203,40 @@ export class SecureKeyStore {
           keyToDecrypt = await this.getDeviceKey();
         }
 
-        const decrypted = await CryptoService.decryptText(record.payload, keyToDecrypt);
+        let decrypted: string | null = null;
+        try {
+          decrypted = await CryptoService.decryptText(record.payload, keyToDecrypt);
+        } catch (decryptErr) {
+          console.warn(`[ThreatShield:SecureKeyStore] WebCrypto decrypt failed, attempting fallback:`, decryptErr);
+          if (record.fallbackKey) {
+            try {
+              decrypted = decodeURIComponent(atob(record.fallbackKey));
+              console.log(`[ThreatShield:SecureKeyStore] Ключ для ${provider} успішно відновлено через fallback!`);
+            } catch (fbErr) {
+              console.error(`[ThreatShield:SecureKeyStore] Fallback decode failed:`, fbErr);
+            }
+          }
+        }
+
         if (decrypted) {
           this.inMemoryKeys.set(provider, decrypted);
           // Зберігаємо розшифрований ключ у session storage
           if (chrome.storage?.session) {
             await chrome.storage.session.set({
               [`${LLM_SESSION_KEYS_PREFIX}${provider}`]: decrypted,
-            });
+            }).catch(() => {});
           }
           return decrypted;
         }
       } catch (err) {
         console.warn(`[ThreatShield:SecureKeyStore] Не вдалося розшифрувати ключ для ${provider}:`, err);
+        if (record.fallbackKey) {
+          try {
+            const fbKey = decodeURIComponent(atob(record.fallbackKey));
+            this.inMemoryKeys.set(provider, fbKey);
+            return fbKey;
+          } catch {}
+        }
         return null;
       }
     }

@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       btn: document.getElementById('tabBtnSettings') as HTMLButtonElement,
       content: document.getElementById('tabContentSettings') as HTMLElement,
       onOpen: async () => {
-        await settingsCtrl.renderWhitelist();
+        await settingsCtrl.refresh();
       },
     },
   };

@@ -280,6 +280,19 @@ export default defineBackground(() => {
       return true;
     }
 
+    if (message.type === 'TEST_CLOUD_AI') {
+      (async () => {
+        try {
+          const { provider, apiKey, model } = message.payload || {};
+          const result = await CloudLLMDispatcher.testConnection(provider, apiKey, model);
+          sendResponse(result);
+        } catch (err: any) {
+          sendResponse({ success: false, error: err?.message || String(err) });
+        }
+      })();
+      return true;
+    }
+
     return false;
   });
 

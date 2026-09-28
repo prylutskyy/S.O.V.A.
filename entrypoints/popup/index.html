@@ -347,21 +347,35 @@
           <div>
             <label style="font-size: 11px; font-weight: 600; color: var(--sanctuary-ink-secondary); margin-bottom: 4px; display: block;">Провайдер ШІ</label>
             <select class="sanctuary-input" id="cloudAiProviderSelect" style="cursor: pointer;">
-              <option value="gemini">Google Gemini (gemini-2.5-flash) — Рекомендовано</option>
-              <option value="groq">Groq LPU (llama-3.3-70b) — Ультрашвидкий (~150мс)</option>
-              <option value="openai">OpenAI (gpt-4o-mini)</option>
+              <option value="gemini">Google Gemini — Рекомендовано</option>
+              <option value="groq">Groq LPU — Ультрашвидкий (~150мс)</option>
+              <option value="openai">OpenAI</option>
+            </select>
+          </div>
+
+          <div id="cloudAiModelContainer">
+            <label style="font-size: 11px; font-weight: 600; color: var(--sanctuary-ink-secondary); margin-bottom: 4px; display: block;">Модель</label>
+            <select class="sanctuary-input" id="cloudAiModelSelect" style="cursor: pointer;">
+              <option value="gemini-2.5-flash">gemini-2.5-flash (Остання версія)</option>
+              <option value="gemini-2.0-flash">gemini-2.0-flash (Стабільна)</option>
+              <option value="gemini-1.5-flash">gemini-1.5-flash (Класична)</option>
             </select>
           </div>
 
           <div>
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
               <label style="font-size: 11px; font-weight: 600; color: var(--sanctuary-ink-secondary);">API Ключ</label>
-              <span id="cloudAiKeyHint" style="font-size: 10.5px; color: var(--sanctuary-blue); font-family: monospace;"></span>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span id="cloudAiKeyHint" style="font-size: 10.5px; color: var(--sanctuary-blue); font-family: monospace;"></span>
+                <button type="button" id="btnDeleteCloudAiKey" class="btn-ghost-sm" title="Видалити збережений ключ" style="display: none; color: #ef4444; padding: 2px 6px; font-size: 10.5px; cursor: pointer;">✕</button>
+              </div>
             </div>
-            <div style="display: flex; gap: 8px;">
-              <input type="password" class="sanctuary-input" id="cloudAiKeyInput" placeholder="Вставте API ключ...">
-              <button type="button" class="btn-primary compact" id="btnSaveCloudAiKey" style="white-space: nowrap;">Зберегти</button>
+            <input type="password" class="sanctuary-input" id="cloudAiKeyInput" placeholder="Вставте API ключ...">
+            <div style="display: flex; gap: 8px; margin-top: 8px;">
+              <button type="button" class="btn-primary compact" id="btnSaveCloudAiKey" style="flex: 1; white-space: nowrap;">Зберегти та перевірити</button>
+              <button type="button" class="btn-secondary compact" id="btnTestCloudAiKey" style="flex: 1; white-space: nowrap;">Тест зв'язку</button>
             </div>
+            <div id="cloudAiStatusFeedback" style="display: none; margin-top: 8px; font-size: 11px; padding: 8px 10px; border-radius: 6px; line-height: 1.4;"></div>
           </div>
 
           <div style="background: rgba(0, 113, 227, 0.06); border-radius: 8px; padding: 8px 10px; display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--sanctuary-blue);">

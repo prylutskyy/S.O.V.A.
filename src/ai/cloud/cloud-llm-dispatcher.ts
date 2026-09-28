@@ -150,4 +150,41 @@ export class CloudLLMDispatcher {
       clearTimeout(timeoutId);
     }
   }
+
+  /**
+   * Пряма перевірка валідності API ключа та зв'язку з обраним провайдером
+   */
+  public static async testConnection(
+    provider: LLMProviderType,
+    customApiKey?: string,
+    model?: string
+  ): Promise<{ success: boolean; modelUsed?: string; latencyMs?: number; error?: string }> {
+    const key = customApiKey || (await SecureKeyStore.getApiKey(provider));
+    if (!key) {
+      return { success: false, error: 'API-ключ не знайдено або не вказано' };
+    }
+
+    if (provider === 'gemini') {
+      return GeminiDriver.testKey(key, model || 'gemini-2.5-flash');
+    }
+
+    const driver = this.drivers.get(provider);
+    if (!driver || typeof driver.generateText !== 'function') {
+      return { success: false, error: `Провайдер ${provider} не підтримується для тестування` };
+    }
+
+    try {
+      const res = await driver.generateText({
+        provider,
+        userPrompt: 'Ping. Respond with OK.',
+        apiKey: key,
+        model: model || (provider === 'groq' ? 'llama-3.3-70b-versatile' : 'gpt-4o-mini'),
+        temperature: 0.1,
+        timeoutMs: 5000,
+      });
+      return { success: true, modelUsed: res.modelUsed, latencyMs: res.latencyMs };
+    } catch (err: any) {
+      return { success: false, error: err?.message || String(err) };
+    }
+  }
 }

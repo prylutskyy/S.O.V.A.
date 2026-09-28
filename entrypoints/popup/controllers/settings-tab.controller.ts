@@ -16,9 +16,13 @@ export class SettingsTabController {
   // Cloud AI Controls
   private toggleCloudAi: HTMLInputElement | null;
   private cloudAiProviderSelect: HTMLSelectElement | null;
+  private cloudAiModelSelect: HTMLSelectElement | null;
   private cloudAiKeyInput: HTMLInputElement | null;
   private btnSaveCloudAiKey: HTMLButtonElement | null;
+  private btnTestCloudAiKey: HTMLButtonElement | null;
+  private btnDeleteCloudAiKey: HTMLButtonElement | null;
   private cloudAiKeyHint: HTMLElement | null;
+  private cloudAiStatusFeedback: HTMLElement | null;
 
   constructor(showToast: (msg: string) => void, onWhitelistChanged: () => void) {
     this.showToast = showToast;
@@ -35,9 +39,13 @@ export class SettingsTabController {
 
     this.toggleCloudAi = document.getElementById('toggleCloudAi') as HTMLInputElement | null;
     this.cloudAiProviderSelect = document.getElementById('cloudAiProviderSelect') as HTMLSelectElement | null;
+    this.cloudAiModelSelect = document.getElementById('cloudAiModelSelect') as HTMLSelectElement | null;
     this.cloudAiKeyInput = document.getElementById('cloudAiKeyInput') as HTMLInputElement | null;
     this.btnSaveCloudAiKey = document.getElementById('btnSaveCloudAiKey') as HTMLButtonElement | null;
+    this.btnTestCloudAiKey = document.getElementById('btnTestCloudAiKey') as HTMLButtonElement | null;
+    this.btnDeleteCloudAiKey = document.getElementById('btnDeleteCloudAiKey') as HTMLButtonElement | null;
     this.cloudAiKeyHint = document.getElementById('cloudAiKeyHint') as HTMLElement | null;
+    this.cloudAiStatusFeedback = document.getElementById('cloudAiStatusFeedback') as HTMLElement | null;
 
     this.initDebugMode();
     this.checkAI();
@@ -147,7 +155,46 @@ export class SettingsTabController {
       this.cloudAiProviderSelect.value = config.provider;
     }
 
+    this.populateModelsForProvider(config.provider, config.model);
     await this.updateKeyHint();
+  }
+
+  private populateModelsForProvider(provider: LLMProviderType, selectedModel?: string): void {
+    if (!this.cloudAiModelSelect) return;
+    this.cloudAiModelSelect.innerHTML = '';
+
+    const modelOptions: Record<LLMProviderType, Array<{ id: string; label: string }>> = {
+      gemini: [
+        { id: 'gemini-2.5-flash', label: 'gemini-2.5-flash (Остання гібридна версія)' },
+        { id: 'gemini-2.0-flash', label: 'gemini-2.0-flash (Швидка та стабільна)' },
+        { id: 'gemini-1.5-flash', label: 'gemini-1.5-flash (Класична)' },
+      ],
+      groq: [
+        { id: 'llama-3.3-70b-versatile', label: 'llama-3.3-70b-versatile (~150мс)' },
+        { id: 'mixtral-8x7b-32768', label: 'mixtral-8x7b-32768' },
+      ],
+      openai: [
+        { id: 'gpt-4o-mini', label: 'gpt-4o-mini (Економічна)' },
+        { id: 'gpt-4o', label: 'gpt-4o (Флагман)' },
+      ],
+      claude: [
+        { id: 'claude-3-5-haiku-20241022', label: 'claude-3-5-haiku' },
+      ],
+      custom_openai: [
+        { id: 'default', label: 'За замовчуванням' },
+      ],
+    };
+
+    const options = modelOptions[provider] || modelOptions.gemini;
+    options.forEach((opt) => {
+      const optEl = document.createElement('option');
+      optEl.value = opt.id;
+      optEl.textContent = opt.label;
+      if (selectedModel && opt.id === selectedModel) {
+        optEl.selected = true;
+      }
+      this.cloudAiModelSelect!.appendChild(optEl);
+    });
   }
 
   private async updateKeyHint(): Promise<void> {
@@ -157,9 +204,51 @@ export class SettingsTabController {
     if (hint) {
       this.cloudAiKeyHint.textContent = `Збережено: ${hint}`;
       this.cloudAiKeyHint.style.display = 'inline';
+      if (this.btnDeleteCloudAiKey) this.btnDeleteCloudAiKey.style.display = 'inline-block';
     } else {
       this.cloudAiKeyHint.textContent = 'Ключ не встановлено';
       this.cloudAiKeyHint.style.display = 'inline';
+      if (this.btnDeleteCloudAiKey) this.btnDeleteCloudAiKey.style.display = 'none';
+    }
+  }
+
+  private showFeedback(text: string, isSuccess: boolean): void {
+    if (!this.cloudAiStatusFeedback) return;
+    this.cloudAiStatusFeedback.style.display = 'block';
+    this.cloudAiStatusFeedback.style.background = isSuccess ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)';
+    this.cloudAiStatusFeedback.style.color = isSuccess ? '#15803d' : '#b91c1c';
+    this.cloudAiStatusFeedback.style.border = isSuccess ? '1px solid #86efac' : '1px solid #fca5a5';
+    this.cloudAiStatusFeedback.textContent = text;
+  }
+
+  private async testConnection(keyOverride?: string): Promise<void> {
+    const provider = (this.cloudAiProviderSelect?.value as LLMProviderType) || 'gemini';
+    const model = this.cloudAiModelSelect?.value || 'gemini-2.5-flash';
+    const apiKey = keyOverride || (this.cloudAiKeyInput?.value?.trim()) || (await SecureKeyStore.getApiKey(provider));
+
+    if (!apiKey) {
+      this.showFeedback('⚠️ Введіть або збережіть API ключ перед перевіркою', false);
+      return;
+    }
+
+    this.showFeedback('⏳ Перевірка зв’язку з API...', true);
+    if (this.btnTestCloudAiKey) this.btnTestCloudAiKey.disabled = true;
+
+    try {
+      const resp = await chrome.runtime.sendMessage({
+        type: 'TEST_CLOUD_AI',
+        payload: { provider, apiKey, model },
+      });
+
+      if (resp && resp.success) {
+        this.showFeedback(`✅ Зв'язок успішний! Модель: ${resp.modelUsed || model} (${resp.latencyMs || 0}мс)`, true);
+      } else {
+        this.showFeedback(`❌ Помилка API: ${resp?.error || 'Невідома помилка підключення'}`, false);
+      }
+    } catch (err: any) {
+      this.showFeedback(`❌ Помилка виклику: ${err?.message || err}`, false);
+    } finally {
+      if (this.btnTestCloudAiKey) this.btnTestCloudAiKey.disabled = false;
     }
   }
 
@@ -168,9 +257,7 @@ export class SettingsTabController {
     this.toggleCloudAi?.addEventListener('change', async (e) => {
       const isEnabled = (e.target as HTMLInputElement).checked;
       const provider = (this.cloudAiProviderSelect?.value as LLMProviderType) || 'gemini';
-      let model = 'gemini-2.5-flash';
-      if (provider === 'groq') model = 'llama-3.3-70b-versatile';
-      if (provider === 'openai') model = 'gpt-4o-mini';
+      const model = this.cloudAiModelSelect?.value || 'gemini-2.5-flash';
 
       await SecureKeyStore.saveConfig({ enabled: isEnabled, provider, model });
       this.showToast(isEnabled ? 'Хмарний ШІ арбітр активовано' : 'Хмарний ШІ вимкнено');
@@ -179,18 +266,26 @@ export class SettingsTabController {
     // Cloud AI Provider Change
     this.cloudAiProviderSelect?.addEventListener('change', async (e) => {
       const provider = (e.target as HTMLSelectElement).value as LLMProviderType;
-      let model = 'gemini-2.5-flash';
-      if (provider === 'groq') model = 'llama-3.3-70b-versatile';
-      if (provider === 'openai') model = 'gpt-4o-mini';
+      this.populateModelsForProvider(provider);
+      const model = this.cloudAiModelSelect?.value || 'gemini-2.5-flash';
 
       await SecureKeyStore.saveConfig({ provider, model });
       await this.updateKeyHint();
       if (this.cloudAiKeyInput) this.cloudAiKeyInput.value = '';
+      if (this.cloudAiStatusFeedback) this.cloudAiStatusFeedback.style.display = 'none';
       this.showToast(`Обрано провайдер: ${provider.toUpperCase()}`);
     });
 
-    // Save Cloud AI Key
-    this.btnSaveCloudAiKey?.addEventListener('click', async () => {
+    // Cloud AI Model Change
+    this.cloudAiModelSelect?.addEventListener('change', async (e) => {
+      const model = (e.target as HTMLSelectElement).value;
+      const provider = (this.cloudAiProviderSelect?.value as LLMProviderType) || 'gemini';
+      await SecureKeyStore.saveConfig({ provider, model });
+      this.showToast(`Обрано модель: ${model}`);
+    });
+
+    // Save Cloud AI Key & Verify
+    const saveKeyAction = async () => {
       const val = this.cloudAiKeyInput?.value?.trim() || '';
       if (!val) {
         alert('Будь ласка, введіть API ключ');
@@ -198,19 +293,42 @@ export class SettingsTabController {
       }
 
       const provider = (this.cloudAiProviderSelect?.value as LLMProviderType) || 'gemini';
-      let model = 'gemini-2.5-flash';
-      if (provider === 'groq') model = 'llama-3.3-70b-versatile';
-      if (provider === 'openai') model = 'gpt-4o-mini';
+      const model = this.cloudAiModelSelect?.value || 'gemini-2.5-flash';
 
       try {
         await SecureKeyStore.saveApiKey(provider, val, 'device_encrypted');
         await SecureKeyStore.saveConfig({ provider, model, enabled: true });
         if (this.toggleCloudAi) this.toggleCloudAi.checked = true;
-        if (this.cloudAiKeyInput) this.cloudAiKeyInput.value = '';
         await this.updateKeyHint();
-        this.showToast(`Ключ ${provider.toUpperCase()} зашифровано та активовано!`);
+        this.showToast(`Ключ ${provider.toUpperCase()} збережено! Перевірка зв’язку...`);
+
+        // Автоматична верифікація з'єднання
+        await this.testConnection(val);
+        if (this.cloudAiKeyInput) this.cloudAiKeyInput.value = '';
       } catch (err: any) {
         alert(`Помилка збереження ключа: ${err?.message || err}`);
+      }
+    };
+
+    this.btnSaveCloudAiKey?.addEventListener('click', saveKeyAction);
+
+    this.cloudAiKeyInput?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        saveKeyAction();
+      }
+    });
+
+    // Test Cloud AI Key
+    this.btnTestCloudAiKey?.addEventListener('click', () => this.testConnection());
+
+    // Delete Cloud AI Key
+    this.btnDeleteCloudAiKey?.addEventListener('click', async () => {
+      const provider = (this.cloudAiProviderSelect?.value as LLMProviderType) || 'gemini';
+      if (confirm(`Видалити збережений ключ для ${provider.toUpperCase()}?`)) {
+        await SecureKeyStore.deleteApiKey(provider);
+        await this.updateKeyHint();
+        if (this.cloudAiStatusFeedback) this.cloudAiStatusFeedback.style.display = 'none';
+        this.showToast(`Ключ ${provider.toUpperCase()} видалено`);
       }
     });
 
@@ -239,9 +357,14 @@ export class SettingsTabController {
       if (confirm('Видалити всі сайти зі списку довірених?')) {
         await UserWhitelistManager.clearAll();
         this.showToast('Список довірених сайтів очищено');
-        await this.renderWhitelist();
         this.onWhitelistChanged();
       }
     });
+  }
+
+  public async refresh(): Promise<void> {
+    await this.renderWhitelist();
+    await this.initCloudAI();
+    await this.checkAI();
   }
 }
