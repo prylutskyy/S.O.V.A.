@@ -3,6 +3,7 @@ import { ICloudLLMDriver, CloudVerificationRequest, CloudVerificationResponse, M
 import { GeminiDriver } from './drivers/gemini-driver';
 import { OpenAIDriver } from './drivers/openai-driver';
 import { GroqDriver } from './drivers/groq-driver';
+import { OpenRouterDriver } from './drivers/openrouter-driver';
 import { SimulatorPersona, DialogueMessage, ChatSimulatorEngine } from '../../heuristics/chat-simulator';
 
 export class CloudLLMDispatcher {
@@ -11,6 +12,7 @@ export class CloudLLMDispatcher {
     ['openai', new OpenAIDriver()],
     ['custom_openai', new OpenAIDriver()],
     ['groq', new GroqDriver()],
+    ['openrouter', new OpenRouterDriver()],
   ]);
 
   /**
@@ -174,11 +176,18 @@ export class CloudLLMDispatcher {
     }
 
     try {
+      const defaultModel =
+        provider === 'groq'
+          ? 'llama-3.3-70b-versatile'
+          : provider === 'openrouter'
+            ? 'google/gemini-2.0-flash-exp:free'
+            : 'gpt-4o-mini';
+
       const res = await driver.generateText({
         provider,
         userPrompt: 'Ping. Respond with OK.',
         apiKey: key,
-        model: model || (provider === 'groq' ? 'llama-3.3-70b-versatile' : 'gpt-4o-mini'),
+        model: model || defaultModel,
         temperature: 0.1,
         timeoutMs: 5000,
       });
@@ -208,6 +217,8 @@ export class CloudLLMDispatcher {
         models = await GroqDriver.listModels(key);
       } else if (provider === 'openai' || provider === 'custom_openai') {
         models = await OpenAIDriver.listModels(key);
+      } else if (provider === 'openrouter') {
+        models = await OpenRouterDriver.listModels(key);
       } else {
         return { success: false, error: `Провайдер ${provider} не підтримує динамічний каталог` };
       }

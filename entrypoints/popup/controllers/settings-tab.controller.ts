@@ -188,11 +188,27 @@ export class SettingsTabController {
     });
   }
 
-  private async handleProviderChange(provider: LLMProviderType): Promise<void> {
-    this.populateModelsForProvider(provider);
-    const model = this.getSelectedModel();
+  private getDefaultModelPlaceholder(provider: LLMProviderType): string {
+    switch (provider) {
+      case 'gemini':
+        return 'gemini-2.5-flash';
+      case 'groq':
+        return 'llama-3.3-70b-versatile';
+      case 'openai':
+        return 'gpt-4o-mini';
+      case 'openrouter':
+        return 'google/gemini-2.0-flash-exp:free';
+      default:
+        return 'default';
+    }
+  }
 
-    await SecureKeyStore.saveConfig({ provider, model });
+  private async handleProviderChange(provider: LLMProviderType): Promise<void> {
+    const config = await SecureKeyStore.getConfig();
+    const currentModel = config.provider === provider && config.model ? config.model : this.getDefaultModelPlaceholder(provider);
+    this.populateModelsForProvider(provider, currentModel);
+
+    await SecureKeyStore.saveConfig({ provider, model: currentModel });
     await this.updateKeyHint();
     if (this.cloudAiKeyInput) this.cloudAiKeyInput.value = '';
     if (this.cloudAiStatusFeedback) this.cloudAiStatusFeedback.style.display = 'none';
@@ -225,44 +241,43 @@ export class SettingsTabController {
   }
 
   private getSelectedModel(): string {
-    const val = this.cloudAiModelSelect?.value;
-    if (val === '__custom__') {
-      return this.cloudAiCustomModelInput?.value?.trim() || 'gemini-3.8-flash';
+    const selectVal = this.cloudAiModelSelect?.value;
+    if (this.cloudAiModelSelect && this.cloudAiModelSelect.style.display !== 'none' && selectVal && selectVal !== '__custom__') {
+      return selectVal;
     }
-    return val || 'gemini-3.8-flash';
+
+    const customVal = this.cloudAiCustomModelInput?.value?.trim();
+    if (customVal) return customVal;
+
+    const provider = (this.cloudAiProviderSelect?.value as LLMProviderType) || 'gemini';
+    return this.getDefaultModelPlaceholder(provider);
   }
 
   private populateModelsForProvider(provider: LLMProviderType, selectedModel?: string): void {
     if (!this.cloudAiModelSelect) return;
     this.cloudAiModelSelect.innerHTML = '';
 
-    const defaultOptions: Record<LLMProviderType, Array<{ id: string; label: string }>> = {
-      gemini: [
-        { id: 'gemini-3.8-flash', label: 'gemini-3.8-flash (Актуальна / Рекомендовано)' },
-        { id: 'gemini-3.5-flash-lite', label: 'gemini-3.5-flash-lite (Ультрашвидка)' },
-        { id: 'gemini-2.0-flash', label: 'gemini-2.0-flash' },
-        { id: 'gemini-1.5-flash', label: 'gemini-1.5-flash' },
-      ],
-      groq: [
-        { id: 'llama-3.3-70b-versatile', label: 'llama-3.3-70b-versatile (Флагман / Рекомендовано)' },
-        { id: 'llama-3.1-8b-instant', label: 'llama-3.1-8b-instant (Швидкість ~100мс / 14k req/день)' },
-      ],
-      openai: [
-        { id: 'gpt-4o-mini', label: 'gpt-4o-mini (Економічна)' },
-        { id: 'gpt-4o', label: 'gpt-4o (Флагман)' },
-      ],
-      claude: [
-        { id: 'claude-3-5-haiku-20241022', label: 'claude-3-5-haiku' },
-      ],
-      custom_openai: [
-        { id: 'default', label: 'За замовчуванням' },
-      ],
-    };
+    const dynamicModels = this.cachedDynamicModels[provider];
 
-    const options = this.cachedDynamicModels[provider] || defaultOptions[provider] || defaultOptions.gemini;
+    if (!dynamicModels || dynamicModels.length === 0) {
+      // Жодних заготовлених моделей: показуємо текстове поле для ручного введення власної моделі
+      this.cloudAiModelSelect.style.display = 'none';
+      if (this.customModelInputWrapper) {
+        this.customModelInputWrapper.style.display = 'block';
+        this.customModelInputWrapper.style.marginTop = '0';
+      }
+      if (this.cloudAiCustomModelInput) {
+        this.cloudAiCustomModelInput.placeholder = `Введіть назву моделі (напр., ${this.getDefaultModelPlaceholder(provider)})...`;
+        this.cloudAiCustomModelInput.value = selectedModel || '';
+      }
+      return;
+    }
+
+    // Якщо моделі отримано через API — відображаємо випадаючий список актуальних моделей
+    this.cloudAiModelSelect.style.display = 'block';
     let matchFound = false;
 
-    options.forEach((opt) => {
+    dynamicModels.forEach((opt) => {
       const optEl = document.createElement('option');
       optEl.value = opt.id;
       optEl.textContent = opt.label;
@@ -273,15 +288,18 @@ export class SettingsTabController {
       this.cloudAiModelSelect!.appendChild(optEl);
     });
 
-    // Опція для ручного введення користувацької моделі
+    // Можливість вказати іншу модель вручну
     const customOpt = document.createElement('option');
     customOpt.value = '__custom__';
-    customOpt.textContent = 'Вказати власну модель...';
+    customOpt.textContent = 'Вказати іншу модель вручну...';
     this.cloudAiModelSelect.appendChild(customOpt);
 
     if (selectedModel && !matchFound) {
       customOpt.selected = true;
-      if (this.customModelInputWrapper) this.customModelInputWrapper.style.display = 'block';
+      if (this.customModelInputWrapper) {
+        this.customModelInputWrapper.style.display = 'block';
+        this.customModelInputWrapper.style.marginTop = '6px';
+      }
       if (this.cloudAiCustomModelInput) this.cloudAiCustomModelInput.value = selectedModel;
     } else {
       if (this.customModelInputWrapper) this.customModelInputWrapper.style.display = 'none';
@@ -456,13 +474,21 @@ export class SettingsTabController {
     });
 
     // Custom Model Input Change
-    this.cloudAiCustomModelInput?.addEventListener('input', async () => {
+    const saveCustomModelIfActive = async () => {
       const customModel = this.cloudAiCustomModelInput?.value?.trim();
-      if (customModel && this.cloudAiModelSelect?.value === '__custom__') {
+      const isCustomActive =
+        !this.cloudAiModelSelect ||
+        this.cloudAiModelSelect.style.display === 'none' ||
+        this.cloudAiModelSelect.value === '__custom__';
+
+      if (customModel && isCustomActive) {
         const provider = (this.cloudAiProviderSelect?.value as LLMProviderType) || 'gemini';
         await SecureKeyStore.saveConfig({ provider, model: customModel });
       }
-    });
+    };
+
+    this.cloudAiCustomModelInput?.addEventListener('input', saveCustomModelIfActive);
+    this.cloudAiCustomModelInput?.addEventListener('change', saveCustomModelIfActive);
 
     // Save Cloud AI Key & Verify (Unified action)
     const saveKeyAction = async () => {

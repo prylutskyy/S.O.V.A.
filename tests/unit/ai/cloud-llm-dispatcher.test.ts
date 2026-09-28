@@ -4,6 +4,7 @@ import { SecureKeyStore } from '../../../src/core/secure-key-store';
 import { GeminiDriver } from '../../../src/ai/cloud/drivers/gemini-driver';
 import { OpenAIDriver } from '../../../src/ai/cloud/drivers/openai-driver';
 import { GroqDriver } from '../../../src/ai/cloud/drivers/groq-driver';
+import { OpenRouterDriver } from '../../../src/ai/cloud/drivers/openrouter-driver';
 
 describe('CloudLLMDispatcher & Drivers (TDD Suite)', () => {
   beforeEach(() => {
@@ -140,6 +141,70 @@ describe('CloudLLMDispatcher & Drivers (TDD Suite)', () => {
       expect(res.isScam).toBe(true);
       expect(res.confidence).toBe(98);
       expect(res.provider).toBe('groq');
+    });
+  });
+
+  describe('OpenRouterDriver', () => {
+    it('should format request with OpenRouter headers and parse JSON threat verdict', async () => {
+      const mockReply = {
+        choices: [
+          {
+            message: {
+              content: JSON.stringify({
+                isScam: true,
+                confidence: 96,
+                scamType: 'CREDENTIAL_HARVESTING',
+                reasoning: 'Фішинговий лінк для крадіжки авторизаційних даних',
+              }),
+            },
+          },
+        ],
+      };
+
+      // @ts-ignore
+      globalThis.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => mockReply,
+      });
+
+      const driver = new OpenRouterDriver();
+      const res = await driver.verifyThreat({
+        provider: 'openrouter',
+        apiKey: 'sk-or-v1-test-key',
+        sanitizedPrompt: 'Target dialogue',
+        model: 'google/gemini-2.0-flash-exp:free',
+      });
+
+      const [url, options] = (fetch as any).mock.calls[0];
+      expect(url).toBe('https://openrouter.ai/api/v1/chat/completions');
+      expect(options.headers.Authorization).toBe('Bearer sk-or-v1-test-key');
+      expect(options.headers['HTTP-Referer']).toBe('https://sanctuary-prism.local');
+      expect(options.headers['X-Title']).toBe('Sanctuary Prism');
+
+      expect(res.isScam).toBe(true);
+      expect(res.confidence).toBe(96);
+      expect(res.scamType).toBe('CREDENTIAL_HARVESTING');
+      expect(res.provider).toBe('openrouter');
+      expect(res.modelUsed).toBe('google/gemini-2.0-flash-exp:free');
+    });
+
+    it('should fetch live models for openrouter', async () => {
+      const mockModels = {
+        data: [
+          { id: 'meta-llama/llama-3.3-70b-instruct', name: 'Llama 3.3 70B Instruct', description: 'Meta LLM' },
+          { id: 'google/gemini-2.0-flash-exp:free', name: 'Gemini 2.0 Flash (Free)', description: 'Google Free' },
+        ],
+      };
+
+      // @ts-ignore
+      globalThis.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => mockModels,
+      });
+
+      const models = await OpenRouterDriver.listModels('sk-or-v1-test-key');
+      expect(models.length).toBe(2);
+      expect(models.find((m) => m.id === 'google/gemini-2.0-flash-exp:free')).toBeDefined();
     });
   });
 
@@ -301,6 +366,24 @@ describe('CloudLLMDispatcher & Drivers (TDD Suite)', () => {
       expect(res.models).toBeDefined();
       expect(res.models?.length).toBe(1);
       expect(res.models?.[0].id).toBe('llama-3.3-70b-versatile');
+    });
+
+    it('should fetch live models for openrouter via CloudLLMDispatcher.fetchModels', async () => {
+      // @ts-ignore
+      globalThis.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          data: [
+            { id: 'anthropic/claude-3.5-sonnet', name: 'Claude 3.5 Sonnet' },
+          ],
+        }),
+      });
+
+      const res = await CloudLLMDispatcher.fetchModels('openrouter', 'sk-or-test');
+      expect(res.success).toBe(true);
+      expect(res.models).toBeDefined();
+      expect(res.models?.length).toBe(1);
+      expect(res.models?.[0].id).toBe('anthropic/claude-3.5-sonnet');
     });
   });
 });

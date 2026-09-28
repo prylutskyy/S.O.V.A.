@@ -1,7 +1,7 @@
 import { CryptoService, CryptoPayload } from './crypto-service';
 import { PersonalVaultManager } from './personal-vault';
 
-export type LLMProviderType = 'gemini' | 'openai' | 'claude' | 'groq' | 'custom_openai';
+export type LLMProviderType = 'gemini' | 'openai' | 'claude' | 'groq' | 'custom_openai' | 'openrouter';
 
 export type KeyStorageMode = 'vault_encrypted' | 'session_only' | 'device_encrypted';
 

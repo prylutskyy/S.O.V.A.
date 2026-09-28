@@ -360,30 +360,40 @@
             <label style="font-size: 11px; font-weight: 600; color: var(--sanctuary-ink-secondary); margin-bottom: 6px; display: block;">Провайдер інтелекту</label>
             <div class="provider-segmented-control" id="cloudAiProviderSegmented" role="radiogroup" aria-label="Провайдер ШІ">
               <button type="button" class="provider-segment-btn active" data-provider="gemini" role="radio" aria-checked="true">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M12 0C12 6.627 6.627 12 0 12C6.627 12 12 17.373 12 24C12 17.373 17.373 12 24 12C17.373 12 12 6.627 12 0Z"/>
                 </svg>
                 <span>Gemini</span>
               </button>
               <button type="button" class="provider-segment-btn" data-provider="groq" role="radio" aria-checked="false">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                   <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
                 </svg>
                 <span>Groq</span>
               </button>
               <button type="button" class="provider-segment-btn" data-provider="openai" role="radio" aria-checked="false">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <circle cx="12" cy="12" r="10"/>
                   <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/>
                   <path d="M2 12h20"/>
                 </svg>
                 <span>OpenAI</span>
               </button>
+              <button type="button" class="provider-segment-btn" data-provider="openrouter" role="radio" aria-checked="false">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="5" r="3"/>
+                  <circle cx="5" cy="19" r="3"/>
+                  <circle cx="19" cy="19" r="3"/>
+                  <path d="M12 8v4M9.5 14.5L6.5 17M14.5 14.5L17.5 17"/>
+                </svg>
+                <span>OpenRouter</span>
+              </button>
             </div>
             <select class="sanctuary-input" id="cloudAiProviderSelect" style="display: none;">
               <option value="gemini">Google Gemini</option>
               <option value="groq">Groq LPU</option>
               <option value="openai">OpenAI</option>
+              <option value="openrouter">OpenRouter</option>
             </select>
           </div>
 
@@ -397,15 +407,11 @@
                 <span>Оновити з API</span>
               </button>
             </div>
-            <select class="sanctuary-input" id="cloudAiModelSelect" style="cursor: pointer;">
-              <option value="gemini-3.8-flash">gemini-3.8-flash (Рекомендовано / 2026)</option>
-              <option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite (Ультрашвидка)</option>
-              <option value="gemini-2.0-flash">gemini-2.0-flash</option>
-              <option value="gemini-1.5-flash">gemini-1.5-flash</option>
+            <select class="sanctuary-input" id="cloudAiModelSelect" style="display: none; cursor: pointer;">
               <option value="__custom__">Вказати власну модель...</option>
             </select>
-            <div id="customModelInputWrapper" style="display: none; margin-top: 6px;">
-              <input type="text" class="sanctuary-input" id="cloudAiCustomModelInput" placeholder="Введіть назву моделі (напр., llama-3.3-70b-versatile)..." style="font-size: 11.5px;">
+            <div id="customModelInputWrapper" style="margin-top: 0;">
+              <input type="text" class="sanctuary-input" id="cloudAiCustomModelInput" placeholder="Введіть назву моделі..." style="font-size: 11.5px;">
             </div>
           </div>
 
