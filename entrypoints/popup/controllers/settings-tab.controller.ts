@@ -30,6 +30,8 @@ export class SettingsTabController {
   private customModelInputWrapper: HTMLElement | null;
   private cloudAiCustomModelInput: HTMLInputElement | null;
   private cloudAiKeyHint: HTMLElement | null;
+  private cloudAiKeySavedPill: HTMLElement | null;
+  private cloudAiKeyNotSet: HTMLElement | null;
   private cloudAiStatusFeedback: HTMLElement | null;
   private cachedDynamicModels: Record<string, Array<{ id: string; label: string }>> = {};
 
@@ -61,6 +63,8 @@ export class SettingsTabController {
     this.btnTestCloudAiKey = document.getElementById('btnTestCloudAiKey') as HTMLButtonElement | null;
     this.btnDeleteCloudAiKey = document.getElementById('btnDeleteCloudAiKey') as HTMLButtonElement | null;
     this.cloudAiKeyHint = document.getElementById('cloudAiKeyHint') as HTMLElement | null;
+    this.cloudAiKeySavedPill = document.getElementById('cloudAiKeySavedPill') as HTMLElement | null;
+    this.cloudAiKeyNotSet = document.getElementById('cloudAiKeyNotSet') as HTMLElement | null;
     this.cloudAiStatusFeedback = document.getElementById('cloudAiStatusFeedback') as HTMLElement | null;
 
     this.initDebugMode();
@@ -272,7 +276,7 @@ export class SettingsTabController {
     // Опція для ручного введення користувацької моделі
     const customOpt = document.createElement('option');
     customOpt.value = '__custom__';
-    customOpt.textContent = '✍️ Вказати власну модель...';
+    customOpt.textContent = 'Вказати власну модель...';
     this.cloudAiModelSelect.appendChild(customOpt);
 
     if (selectedModel && !matchFound) {
@@ -290,12 +294,15 @@ export class SettingsTabController {
     const apiKey = (this.cloudAiKeyInput?.value?.trim()) || (await SecureKeyStore.getApiKey(provider));
 
     if (!apiKey) {
-      this.showFeedback('⚠️ Введіть або збережіть API ключ перед оновленням списку моделей', false);
+      this.showFeedback('Введіть або збережіть API ключ перед оновленням каталогу моделей', false);
       return;
     }
 
-    if (this.btnRefreshModels) this.btnRefreshModels.disabled = true;
-    this.showFeedback(`⏳ Запит актуальних моделей від ${provider.toUpperCase()} API...`, true);
+    if (this.btnRefreshModels) {
+      this.btnRefreshModels.disabled = true;
+      this.btnRefreshModels.classList.add('is-loading');
+    }
+    this.showFeedback(`Запит актуальних моделей через ${provider.toUpperCase()} API...`, true);
 
     try {
       const resp = await chrome.runtime.sendMessage({
@@ -307,30 +314,34 @@ export class SettingsTabController {
         this.cachedDynamicModels[provider] = resp.models;
         const currentModel = this.getSelectedModel();
         this.populateModelsForProvider(provider, currentModel);
-        this.showFeedback(`✦ Отримано ${resp.models.length} актуальних моделей від ${provider.toUpperCase()}`, true);
+        this.showFeedback(`Отримано ${resp.models.length} актуальних моделей від ${provider.toUpperCase()}`, true);
         this.showToast(`Оновлено каталог: ${resp.models.length} моделей`);
       } else {
-        this.showFeedback(`❌ Помилка оновлення каталогу: ${resp?.error || 'Не вдалося отримати список'}`, false);
+        this.showFeedback(`Помилка оновлення каталогу: ${resp?.error || 'Не вдалося отримати список'}`, false);
       }
     } catch (err: any) {
-      this.showFeedback(`❌ Помилка запиту моделей: ${err?.message || err}`, false);
+      this.showFeedback(`Помилка запиту моделей: ${err?.message || err}`, false);
     } finally {
-      if (this.btnRefreshModels) this.btnRefreshModels.disabled = false;
+      if (this.btnRefreshModels) {
+        this.btnRefreshModels.disabled = false;
+        this.btnRefreshModels.classList.remove('is-loading');
+      }
     }
   }
 
   private async updateKeyHint(): Promise<void> {
-    if (!this.cloudAiKeyHint || !this.cloudAiProviderSelect) return;
+    if (!this.cloudAiProviderSelect) return;
     const provider = this.cloudAiProviderSelect.value as LLMProviderType;
     const hint = await SecureKeyStore.getKeyHint(provider);
     if (hint) {
-      this.cloudAiKeyHint.textContent = `Збережено: ${hint}`;
-      this.cloudAiKeyHint.style.display = 'inline';
-      if (this.btnDeleteCloudAiKey) this.btnDeleteCloudAiKey.style.display = 'inline-block';
+      if (this.cloudAiKeyHint) this.cloudAiKeyHint.textContent = hint;
+      if (this.cloudAiKeySavedPill) this.cloudAiKeySavedPill.style.display = 'inline-flex';
+      if (this.cloudAiKeyNotSet) this.cloudAiKeyNotSet.style.display = 'none';
+      if (this.cloudAiKeyInput) this.cloudAiKeyInput.placeholder = 'Введіть новий ключ для заміни...';
     } else {
-      this.cloudAiKeyHint.textContent = 'Ключ не встановлено';
-      this.cloudAiKeyHint.style.display = 'inline';
-      if (this.btnDeleteCloudAiKey) this.btnDeleteCloudAiKey.style.display = 'none';
+      if (this.cloudAiKeySavedPill) this.cloudAiKeySavedPill.style.display = 'none';
+      if (this.cloudAiKeyNotSet) this.cloudAiKeyNotSet.style.display = 'inline-flex';
+      if (this.cloudAiKeyInput) this.cloudAiKeyInput.placeholder = 'Вставте API ключ...';
     }
   }
 
@@ -349,11 +360,11 @@ export class SettingsTabController {
     const apiKey = keyOverride || (this.cloudAiKeyInput?.value?.trim()) || (await SecureKeyStore.getApiKey(provider));
 
     if (!apiKey) {
-      this.showFeedback('⚠️ Введіть або збережіть API ключ перед перевіркою', false);
+      this.showFeedback('Введіть або збережіть API ключ перед перевіркою', false);
       return false;
     }
 
-    this.showFeedback(`⏳ Тестування захищеного каналу ${provider.toUpperCase()}...`, true);
+    this.showFeedback(`Перевірка захищеного каналу ${provider.toUpperCase()}...`, true);
     if (this.btnTestCloudAiKey) this.btnTestCloudAiKey.disabled = true;
 
     try {
@@ -363,14 +374,14 @@ export class SettingsTabController {
       });
 
       if (resp && resp.success) {
-        this.showFeedback(`✦ Зв'язок бездоганний · ${resp.modelUsed || model} (${resp.latencyMs || 0} мс)`, true);
+        this.showFeedback(`Зв'язок встановлено успішно · ${resp.modelUsed || model} (${resp.latencyMs || 0} мс)`, true);
         return true;
       } else {
-        this.showFeedback(`❌ Помилка API: ${resp?.error || 'Невідома помилка підключення'}`, false);
+        this.showFeedback(`Помилка API: ${resp?.error || 'Невідома помилка підключення'}`, false);
         return false;
       }
     } catch (err: any) {
-      this.showFeedback(`❌ Помилка виклику: ${err?.message || err}`, false);
+      this.showFeedback(`Помилка виклику: ${err?.message || err}`, false);
       return false;
     } finally {
       if (this.btnTestCloudAiKey) this.btnTestCloudAiKey.disabled = false;
@@ -384,7 +395,7 @@ export class SettingsTabController {
       const isHidden = this.manualAddRow.style.display === 'none' || !this.manualAddRow.style.display;
       this.manualAddRow.style.display = isHidden ? 'flex' : 'none';
       if (this.btnToggleManualAdd) {
-        this.btnToggleManualAdd.textContent = isHidden ? '✕ Закрити' : '+ Додати';
+        this.btnToggleManualAdd.textContent = isHidden ? 'Закрити' : '+ Додати';
       }
       if (isHidden) {
         this.manualHostInput?.focus();
@@ -468,7 +479,7 @@ export class SettingsTabController {
           this.setSaveButtonState(success ? 'success' : 'idle');
           return;
         }
-        this.showFeedback('⚠️ Введіть API ключ для збереження та перевірки', false);
+        this.showFeedback('Введіть API ключ для збереження та підключення', false);
         return;
       }
 
@@ -485,7 +496,7 @@ export class SettingsTabController {
         const success = await this.testConnection(val);
         this.setSaveButtonState(success ? 'success' : 'idle');
       } catch (err: any) {
-        this.showFeedback(`❌ Помилка збереження ключа: ${err?.message || err}`, false);
+        this.showFeedback(`Помилка збереження ключа: ${err?.message || err}`, false);
         this.setSaveButtonState('idle');
       }
     };
