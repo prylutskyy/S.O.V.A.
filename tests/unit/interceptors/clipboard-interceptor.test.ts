@@ -3,13 +3,13 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { ClipboardInterceptor } from '../../../src/interceptors/clipboard.interceptor';
 
 describe('ClipboardInterceptor (Self-Immunity & Truthful Lure Detection)', () => {
-  let lureDetectedMock: ReturnType<typeof vi.fn>;
+  let lureDetectedMock: any;
 
   beforeEach(() => {
     lureDetectedMock = vi.fn();
     ClipboardInterceptor.init({
       getDebugMode: () => false,
-      onLureDetected: lureDetectedMock,
+      onLureDetected: (...args: any[]) => lureDetectedMock(...args),
     });
   });
 

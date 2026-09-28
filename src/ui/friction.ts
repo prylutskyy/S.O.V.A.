@@ -597,7 +597,7 @@ export class SecurityFriction {
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="20 6 9 17 4 12"/>
           </svg>
-          Все гаразд · Захищено
+          Окей
         </button>
       </div>
       ${
@@ -652,7 +652,7 @@ export class SecurityFriction {
         form.style.transition = 'box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
         form.style.boxShadow = '0 0 0 3px rgba(0, 113, 227, 0.65), 0 12px 36px rgba(0, 113, 227, 0.20)';
 
-        // Створюємо оптичні неруйнівні X-Ray бейджі у Shadow DOM
+        // Створюємо оптичні неруйнівні X-Ray мікро-капсули (Swiss Caliper) та рентген-рамки
         const xrayBadges: HTMLElement[] = [];
         let formRect = { top: 0, left: 0, width: 300, height: 100, bottom: 100 };
         try {
@@ -660,6 +660,21 @@ export class SecurityFriction {
             formRect = form.getBoundingClientRect();
           }
         } catch {}
+
+        const compactFieldTagsUa: Record<string, string> = {
+          CARD_NUMBER: 'КАРТКА',
+          CVV: 'CVV / CVC',
+          CARD_EXPIRY: 'MM / YY',
+          PASSWORD: 'ПАРОЛЬ',
+          PIN: 'PIN',
+          OTHER_SENSITIVE: 'РЕКВІЗИТ',
+        };
+
+        const scrollY = typeof window !== 'undefined' ? window.scrollY || 0 : 0;
+        const scrollX = typeof window !== 'undefined' ? window.scrollX || 0 : 0;
+
+        const placedPills: { left: number; top: number; right: number; bottom: number }[] = [];
+        let offscreenIdx = 0;
 
         scan.flaggedInputs.forEach((flaggedInput, idx) => {
           const el = flaggedInput.element as HTMLElement;
@@ -670,46 +685,121 @@ export class SecurityFriction {
             }
           } catch {}
 
-          const label = sensitiveFieldLabelsUa[flaggedInput.fieldType] || flaggedInput.fieldType;
+          const fullLabel = sensitiveFieldLabelsUa[flaggedInput.fieldType] || flaggedInput.fieldType;
+          const compactTag = compactFieldTagsUa[flaggedInput.fieldType] || flaggedInput.fieldType;
+          const technique = formatCloakingTechnique(flaggedInput.cloakingReason);
 
-          const scrollY = typeof window !== 'undefined' ? window.scrollY || 0 : 0;
-          const scrollX = typeof window !== 'undefined' ? window.scrollX || 0 : 0;
+          const isOffscreenOrTiny = rect.left < 0 || rect.top < 0 || rect.width <= 2 || rect.height <= 2;
 
-          let top = scrollY + rect.top - 28;
-          let left = scrollX + rect.left;
+          let pillTop = 0;
+          let pillLeft = 0;
 
-          // Якщо поле винесене за межі екрана або має нульовий розмір, позиціонуємо біля форми
-          if (rect.left < 0 || rect.top < 0 || rect.width <= 2 || rect.height <= 2) {
-            top = scrollY + formRect.top + 8 + (idx * 32);
-            left = scrollX + formRect.left + 12;
+          if (isOffscreenOrTiny) {
+            // Винесені або нульові поля шикуємо у витончений вертикальний каскад збоку форми
+            pillTop = scrollY + formRect.top + 8 + (offscreenIdx * 28);
+            pillLeft = scrollX + formRect.left + 12;
+            offscreenIdx++;
+          } else {
+            // Відображаємо напівпрозору сапфірову рентген-рамку (Phantom Frame) навколо видимих меж інпута
+            const frame = document.createElement('div');
+            frame.className = 'ts-xray-badge ts-xray-frame';
+            frame.style.cssText = `
+              position: absolute !important;
+              top: ${scrollY + rect.top}px !important;
+              left: ${scrollX + rect.left}px !important;
+              width: ${Math.max(rect.width, 24)}px !important;
+              height: ${Math.max(rect.height, 22)}px !important;
+              border: 1.5px dashed rgba(0, 113, 227, 0.85) !important;
+              background: rgba(0, 113, 227, 0.07) !important;
+              border-radius: 6px !important;
+              box-sizing: border-box !important;
+              pointer-events: none !important;
+              z-index: 2147483645 !important;
+            `;
+            root.appendChild(frame);
+            xrayBadges.push(frame);
+
+            // Базова позиція мікро-капсули: над інпутом
+            pillTop = scrollY + rect.top - 23;
+            pillLeft = scrollX + rect.left;
+
+            if (pillTop < scrollY + 4) {
+              pillTop = scrollY + rect.bottom + 4;
+            }
+
+            // Розумна анти-колізія: якщо сусідній бейдж перекриває цей, застосовуємо шахове зміщення
+            const isColliding = (t: number, l: number) => {
+              const r = l + 72;
+              const b = t + 22;
+              return placedPills.some((p) => !(r < p.left || l > p.right || b < p.top || t > p.bottom));
+            };
+
+            if (isColliding(pillTop, pillLeft)) {
+              const bottomCandidate = scrollY + rect.bottom + 4;
+              if (!isColliding(bottomCandidate, pillLeft)) {
+                pillTop = bottomCandidate;
+              } else {
+                pillTop = scrollY + rect.top - 23 - (((idx % 2) + 1) * 24);
+                pillLeft = scrollX + rect.left + ((idx % 3) * 12);
+              }
+            }
+
+            placedPills.push({
+              left: pillLeft,
+              top: pillTop,
+              right: pillLeft + 72,
+              bottom: pillTop + 22,
+            });
           }
 
           const badge = document.createElement('div');
           badge.className = 'ts-xray-badge';
+          badge.title = `Прихована пастка: ${fullLabel} (${technique}) · Заблоковано Sanctuary`;
           badge.style.cssText = `
             position: absolute !important;
-            top: ${top}px !important;
-            left: ${left}px !important;
+            top: ${pillTop}px !important;
+            left: ${pillLeft}px !important;
             z-index: 2147483646 !important;
             background: rgba(0, 113, 227, 0.94) !important;
-            backdrop-filter: blur(12px) !important;
-            -webkit-backdrop-filter: blur(12px) !important;
+            backdrop-filter: blur(16px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
             color: #FFFFFF !important;
-            padding: 4px 10px !important;
-            border-radius: 8px !important;
-            font-size: 11px !important;
-            font-weight: 600 !important;
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif !important;
-            box-shadow: 0 4px 14px rgba(0, 113, 227, 0.35) !important;
-            display: flex !important;
+            padding: 3px 8px !important;
+            border-radius: 7px !important;
+            font-size: 10px !important;
+            font-weight: 700 !important;
+            letter-spacing: 0.03em !important;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif !important;
+            box-shadow: 0 4px 12px rgba(0, 113, 227, 0.32), inset 0 0 0 1px rgba(255, 255, 255, 0.25) !important;
+            display: inline-flex !important;
             align-items: center !important;
-            gap: 6px !important;
-            pointer-events: none !important;
+            gap: 4px !important;
+            pointer-events: auto !important;
+            cursor: help !important;
+            white-space: nowrap !important;
+            line-height: 1.2 !important;
+            box-sizing: border-box !important;
+            transform-origin: center !important;
+            transition: transform 0.15s ease, box-shadow 0.15s ease !important;
           `;
           badge.innerHTML = `
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
-            <span>Прихована пастка: ${label} (заблоковано)</span>
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+            <span>${compactTag}</span>
+            <span class="ts-xray-details" style="display: none;">Прихована пастка: ${fullLabel} (заблоковано)</span>
           `;
+
+          badge.addEventListener('mouseenter', () => {
+            badge.style.transform = 'scale(1.06)';
+            badge.style.boxShadow = '0 6px 16px rgba(0, 113, 227, 0.45), inset 0 0 0 1px rgba(255, 255, 255, 0.4)';
+          });
+          badge.addEventListener('mouseleave', () => {
+            badge.style.transform = 'scale(1)';
+            badge.style.boxShadow = '0 4px 12px rgba(0, 113, 227, 0.32), inset 0 0 0 1px rgba(255, 255, 255, 0.25)';
+          });
+
           root.appendChild(badge);
           xrayBadges.push(badge);
         });
