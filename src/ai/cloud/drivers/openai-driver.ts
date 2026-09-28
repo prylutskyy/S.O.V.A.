@@ -19,7 +19,7 @@ export class OpenAIDriver implements ICloudLLMDriver {
       messages: [
         {
           role: 'system',
-          content: 'You are an elite cybersecurity arbiter analyzing online threats. You must respond strictly with valid JSON with keys: "isScam" (boolean), "confidence" (number 0-100), "scamType" (string), "reasoning" (concise explanation in Ukrainian).',
+          content: 'You are a cybersecurity arbiter protecting THE USER ([Ви]) from social engineering and phishing attacks directed at them. Classify whether [Ви] is actively being targeted as a victim (isScam: true) or if this is safe/meta-discussion/quoting (isScam: false). Respond strictly with valid JSON with keys: "isScam" (boolean), "confidence" (number 0-100), "scamType" (string), "reasoning" (concise explanation in Ukrainian, max 35 words).',
         },
         {
           role: 'user',

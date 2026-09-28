@@ -147,18 +147,22 @@ export class AIArbiterService {
       AILureVerifier.intentContextRules[intentLabel as ScamIntentType] ||
       'Analyze for social engineering, phishing, and payment credential theft.';
 
-    const systemPrompt = `You are a cybersecurity expert specializing in detecting phishing, payment credential theft, and social engineering attacks on online marketplaces and chats.
+    const systemPrompt = `You are a cybersecurity expert acting as an AI Shield Arbiter protecting the current user ([Ви]) from phishing, social engineering, and payment credential theft.
+
+Your primary mission is to determine whether THE CURRENT USER ([Ви]) is being targeted as a victim of social engineering, fraud, or phishing.
+If the interlocutor is simply discussing a scheme, quoting a scam script/template ("пишеш повідомлення по типу..."), or joking, and NOT actively trying to defraud or deceive [Ви], classify as SAFE (isScam: false).
 
 IMPORTANT RULES:
 1. Respond ONLY with a valid JSON object. Do NOT include markdown blocks or any conversational text.
-2. JSON keys MUST strictly be: "isScam", "confidence", "reasoning".
-3. Write "reasoning" in English: concise, direct explanation (1-2 sentences, max 30 words).
+2. JSON keys MUST strictly be: "isScam", "confidence", "scamType", "reasoning".
+3. Write "reasoning" in Ukrainian: concise, direct explanation (max 35 words).
 
 Required JSON schema:
 {
   "isScam": boolean,
   "confidence": number (0-100),
-  "reasoning": string (concise explanation in English)
+  "scamType": string,
+  "reasoning": string (concise explanation in Ukrainian)
 }`;
 
     const raisedFlags: string[] = [

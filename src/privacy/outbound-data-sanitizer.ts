@@ -305,7 +305,12 @@ ${context.dialogueHistory.trim()}
       : '';
 
     return `Threat Analysis Task for External AI Arbiter:
-Analyze the interaction below for social engineering, escrow scams, phishing, and credential harvesting.
+Analyze the interaction below to determine whether THE CURRENT USER ([Ви]) is being targeted by an active social engineering attack, phishing trap, or payment fraud.
+
+PRIMARY OBJECTIVE:
+You are a Personal Cyber Defense Arbiter for THE USER ([Ви]).
+Your task is NOT simply to detect whether phishing keywords, scam scripts, or fraudulent terminology exist in the text in the abstract.
+Your task is strictly: IS THE CURRENT USER ([Ви]) PERSONALLY AT RISK OF BEING MANIPULATED, DEFRAUDED, OR DECEIVED AS A VICTIM IN THIS INTERACTION?
 
 === DETECTED HEURISTIC THREAT FLAGS & TELEMETRY ===
 ${threatDetails.length > 0 ? threatDetails.join('\n') + '\n\n' : ''}Security Telemetry & Verified Asset Flags:
@@ -317,14 +322,27 @@ ${dialogueSection ? `${dialogueSection}\n\n` : ''}=== TRIGGER / LATEST MESSAGE U
 ${sanitizedText}
 """
 
-Instructions:
-1. Examine the FULL context of the conversation, not just the isolated trigger message.
-2. In online marketplace chats, messengers, or peer-to-peer discussions:
-   - If an interlocutor claims they already paid and sends an external link for the seller to "receive money" or "confirm delivery", this is an Escrow Delivery Scam (isScam: true).
-   - If an interlocutor sends or shares scam scripts, fake delivery/escrow phishing templates, fake support/verification bots (e.g. t.me/*bot, fake OLX bots), or lures to external sites/messengers to steal credentials or funds, this is Scam / Phishing (isScam: true).
-   - If an interlocutor asks the user to switch to Telegram/Viber/WhatsApp, or requests card numbers, CVV, expiration date, or SMS one-time passwords, this is Social Engineering (isScam: true).
-3. If this is a benign, legitimate interaction (e.g. asking about item condition, bargaining, proposing in-person meeting or official cash-on-delivery without external phishing links or sensitive credential requests), classify as SAFE (isScam: false).
-4. Note that all [VERIFIED_*] tags represent real, validated user assets that were redacted for privacy.
-5. Respond ONLY with valid JSON with keys: "isScam" (boolean), "confidence" (number 0-100), "scamType" (string), "reasoning" (string in Ukrainian, max 35 words).`;
+CRITICAL EVALUATION RULES:
+1. VICTIM-CENTRIC ASSESSMENT (Is [Ви] being attacked?):
+   - ACTIVE ATTACK TARGETING [Ви] (isScam: true):
+     The interlocutor is actively trying to manipulate, deceive, or exploit [Ви] as a victim:
+     * Posing as an interested buyer who "already paid" and sending an external link or bot for [Ви] to "receive money" or "confirm delivery" (Escrow / Delivery Scam).
+     * Asking [Ви] directly to provide credit card numbers, CVV/CVC, expiration dates, or bank SMS verification codes (Credential Theft).
+     * Impersonating platform administration or technical support demanding that [Ви] verify their account, unblock their profile, or confirm credentials via an external link or bot (Verification Phishing).
+     * Urging [Ви] into another platform/messenger under false pretenses to carry out a scam against [Ви].
+
+   - NOT AN ATTACK AGAINST [Ви] / SAFE CONTEXT (isScam: false):
+     [Ви] is NOT the victim being defrauded:
+     * META-DISCUSSION & TEMPLATE SHARING: The interlocutor is sharing a scam script, citing a phishing template ("пишеш повідомлення по типу...", "ось який текст треба надсилати"), discussing fraudulent schemes ("як заробити на олх", "тєма мутна"), or warning [Ви] about scams. Even if the text quotes a fake bot (e.g. t.me/*bot) or delivery scam message as an example or instruction, [Ви] is NOT the target victim being deceived into surrendering credentials or funds. Therefore, there is NO social engineering threat to [Ви].
+     * NORMAL INTERACTION: Legitimate conversation between buyer and seller (asking about item condition, bargaining, arranging in-person meetings, official on-platform cash on delivery or standard delivery without external fake links, friendly chit-chat).
+
+2. VERDICT REQUIREMENTS:
+   - "isScam": true ONLY if [Ви] is the intended victim being deceived or defrauded in this chat.
+   - "isScam": false if [Ви] is NOT the target victim (including benign chat, bargaining, quoting/discussing scam methods, or sharing scam templates without targeting [Ви]).
+   - "confidence": number (0-100).
+   - "scamType": string (e.g. "escrow_fraud", "credential_theft", "phishing", or "none").
+   - "reasoning": string in Ukrainian (max 35 words), explaining concisely why [Ви] is or is not at risk.
+
+Respond ONLY with valid JSON with keys: "isScam" (boolean), "confidence" (number 0-100), "scamType" (string), "reasoning" (string in Ukrainian).`;
   }
 }

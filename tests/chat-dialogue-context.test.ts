@@ -3,6 +3,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { ChatSessionState } from '../src/heuristics/chat-session-state';
 import { ChatChannelMonitor } from '../src/heuristics/chat-channel';
 import { AIHeuristicContext } from '../src/heuristics/ai-provider.interface';
+import { OutboundDataSanitizer } from '../src/privacy/outbound-data-sanitizer';
 
 describe('Chat Dialogue Context for AI Arbiter (TDD Suite)', () => {
   beforeEach(() => {
@@ -109,6 +110,23 @@ describe('Chat Dialogue Context for AI Arbiter (TDD Suite)', () => {
       // Перевірка кількості рядків: рівно 12 реплік
       const lines = dialogue.split('\n');
       expect(lines.length).toBe(12);
+    });
+
+    it('формує промпт з орієнтацією на захист автора [Ви] та розмежуванням цитування шаблонів (isScam: false)', () => {
+      const payload = OutboundDataSanitizer.sanitize('заходиш на olx та пишеш повідомлення по типу "OLX Доставка... t.me/bot"');
+      const prompt = OutboundDataSanitizer.buildCloudPrompt(payload, {
+        intentType: 'VERIFICATION_PHISHING',
+        dialogueHistory: '[Співрозмовник]: заробити бабосиків\n[Ви]: валяй\n[Співрозмовник]: заходиш на olx...',
+        detectedKeywords: ['olx доставка', 'бот'],
+        suspiciousUrls: ['https://t.me/olxhelpprotect_bot'],
+      });
+
+      // Перевірка наявності чітких правил щодо захисту автора
+      expect(prompt).toContain('IS THE CURRENT USER ([Ви]) PERSONALLY AT RISK');
+      expect(prompt).toContain('META-DISCUSSION & TEMPLATE SHARING');
+      expect(prompt).toContain('NOT AN ATTACK AGAINST [Ви] / SAFE CONTEXT (isScam: false)');
+      expect(prompt).toContain('=== FULL CHAT DIALOGUE HISTORY ===');
+      expect(prompt).toContain('[Співрозмовник]: заробити бабосиків');
     });
   });
 });
