@@ -243,6 +243,12 @@ export class OutboundDataSanitizer {
       sourcePlatform?: string;
       targetHost?: string;
       scenarioRule?: string;
+      intentType?: string;
+      dialogueHistory?: string;
+      detectedKeywords?: string[];
+      suspiciousUrls?: string[];
+      raisedFlags?: string[];
+      offPlatformLure?: boolean;
     }
   ): string {
     const { telemetry, sanitizedText } = payload;
@@ -271,24 +277,53 @@ export class OutboundDataSanitizer {
       flags.push(`- Encrypted Personal Vault Markers: PRESENT (${labels})`);
     }
 
-    if (context?.sourcePlatform || context?.targetHost) {
-      flags.push(`- Route: ${context?.sourcePlatform || 'internal'} -> ${context?.targetHost || 'external'}`);
+    const threatDetails: string[] = [];
+    if (context?.intentType && context.intentType !== 'UNKNOWN') {
+      threatDetails.push(`• Detected Threat Intent: ${context.intentType}`);
     }
+    if (context?.detectedKeywords && context.detectedKeywords.length > 0) {
+      threatDetails.push(`• Suspicious Trigger Keywords: ${context.detectedKeywords.map((k) => `"${k}"`).join(', ')}`);
+    }
+    if (context?.suspiciousUrls && context.suspiciousUrls.length > 0) {
+      threatDetails.push(`• Suspicious Links/URLs: ${context.suspiciousUrls.join(', ')}`);
+    }
+    if (context?.offPlatformLure) {
+      threatDetails.push('• Off-Platform Redirection: TRUE (Attempt to lure user away to external messenger)');
+    }
+    if (context?.raisedFlags && context.raisedFlags.length > 0) {
+      threatDetails.push(`• Heuristic Warnings:\n  ${context.raisedFlags.map((f) => `- ${f}`).join('\n  ')}`);
+    }
+    if (context?.sourcePlatform || context?.targetHost) {
+      threatDetails.push(`- Route: ${context?.sourcePlatform || 'internal'} -> ${context?.targetHost || 'external'}`);
+    }
+
+    const dialogueSection = context?.dialogueHistory && context.dialogueHistory.trim().length > 0
+      ? `=== FULL CHAT DIALOGUE HISTORY ===
+"""
+${context.dialogueHistory.trim()}
+"""`
+      : '';
 
     return `Threat Analysis Task for External AI Arbiter:
 Analyze the interaction below for social engineering, escrow scams, phishing, and credential harvesting.
 
-Security Telemetry & Verified Asset Flags:
+=== DETECTED HEURISTIC THREAT FLAGS & TELEMETRY ===
+${threatDetails.length > 0 ? threatDetails.join('\n') + '\n\n' : ''}Security Telemetry & Verified Asset Flags:
 ${flags.join('\n')}
 
 ${context?.scenarioRule ? `Evaluation Rules:\n${context.scenarioRule}\n` : ''}
-Sanitized Content / Dialogue Draft:
+${dialogueSection ? `${dialogueSection}\n\n` : ''}=== TRIGGER / LATEST MESSAGE UNDER AUDIT ===
 """
 ${sanitizedText}
 """
 
 Instructions:
-- Note that all [VERIFIED_*] tags represent real, validated user assets that were redacted for privacy.
-- Respond ONLY with valid JSON with keys: "isScam" (boolean), "confidence" (number 0-100), "scamType" (string), "reasoning" (string in Ukrainian, max 35 words).`;
+1. Examine the FULL context of the conversation, not just the isolated trigger message.
+2. In online marketplace chats (OLX, Prom, eBay, etc.):
+   - If an interlocutor claims they already paid and sends an external link for the seller to "receive money" or "confirm delivery", this is an Escrow Delivery Scam (isScam: true).
+   - If an interlocutor asks the user to switch to Telegram/Viber/WhatsApp, or requests card numbers, CVV, expiration date, or SMS one-time passwords, this is Social Engineering (isScam: true).
+3. If this is a benign, legitimate interaction (e.g. asking about item condition, bargaining, proposing in-person meeting or official cash-on-delivery without external phishing links or sensitive credential requests), classify as SAFE (isScam: false).
+4. Note that all [VERIFIED_*] tags represent real, validated user assets that were redacted for privacy.
+5. Respond ONLY with valid JSON with keys: "isScam" (boolean), "confidence" (number 0-100), "scamType" (string), "reasoning" (string in Ukrainian, max 35 words).`;
   }
 }

@@ -92,6 +92,10 @@ export class ChatChannelMonitor {
     }
 
     const classStr = typeof element.className === 'string' ? element.className : (element.getAttribute('class') || '');
+    const classTokens = classStr.toLowerCase().split(/\s+/);
+    if (classTokens.includes('sent')) return 'outbound';
+    if (classTokens.includes('received')) return 'inbound';
+
     const classAndAttr = (classStr + ' ' + (element.getAttribute('data-direction') || '') + ' ' + (element.getAttribute('data-author') || '')).toLowerCase();
 
     // Явні ознаки мого повідомлення (Outbound / Sent / Me)
@@ -343,7 +347,7 @@ export class ChatChannelMonitor {
   }
 
   /**
-   * Отримання повної історії листування для ШІ (включаючи поточну чернетку в полі вводу)
+   * Отримання повної історії листування для ШІ (включаючи DOM-повідомлення та чернетку)
    */
   public static getDialogueHistory(currentDraft?: string): string {
     let draft = currentDraft;
@@ -355,7 +359,71 @@ export class ChatChannelMonitor {
         draft = (activeInput as HTMLInputElement).value || activeInput.innerText || '';
       }
     }
+
+    // 1. Спроба витягти повний живий діалог безпосередньо з DOM дерева сторінки
+    if (typeof document !== 'undefined') {
+      const domDialogue = this.extractDialogueFromDOM();
+      if (domDialogue.length > 0) {
+        if (draft && draft.trim().length > 0) {
+          domDialogue.push(`[Ви (Чернетка)]: ${draft.trim()}`);
+        }
+        return domDialogue.join('\n');
+      }
+    }
+
+    // 2. Якщо DOM порожній (наприклад, у тестах), використовуємо ChatSessionState
     return ChatSessionState.getDialogueHistory(draft);
+  }
+
+  /**
+   * Сканування всіх видимих бульбашок повідомлень на сторінці для створення 100% точного контексту діалогу
+   */
+  public static extractDialogueFromDOM(): string[] {
+    if (typeof document === 'undefined') return [];
+
+    const selector = [
+      '[data-testid="received-message"]',
+      '[data-testid="sent-message"]',
+      '[data-nx-name="ReceivedChatMessage"]',
+      '[data-nx-name="SentChatMessage"]',
+      '[data-cy="received-message"]',
+      '[data-cy="sent-message"]',
+      '.msg.received',
+      '.msg.sent',
+      '.chat-msg',
+      '.bubble',
+      '.message',
+    ].join(', ');
+
+    const elements = Array.from(document.querySelectorAll<HTMLElement>(selector));
+    if (elements.length === 0) return [];
+
+    const lines: string[] = [];
+    const seen = new Set<string>();
+
+    for (const el of elements) {
+      if (el.querySelector(selector)) continue;
+
+      const direction = this.determineDirection(el);
+      const speaker = direction === 'outbound' ? '[Ви]' : '[Співрозмовник]';
+
+      const textEl = el.querySelector<HTMLElement>('[data-testid="message"], [data-nx-name="TextContainer"], .bubble, p, span') || el;
+      let text = (textEl.innerText || el.innerText || '').trim();
+
+      const links = Array.from(el.querySelectorAll<HTMLAnchorElement>('a[href]'));
+      for (const a of links) {
+        if (a.href && !text.includes(a.href)) {
+          text += ' ' + a.href;
+        }
+      }
+
+      if (text.length > 0 && !seen.has(text)) {
+        seen.add(text);
+        lines.push(`${speaker}: ${text}`);
+      }
+    }
+
+    return lines;
   }
 
   /**

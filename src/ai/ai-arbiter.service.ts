@@ -187,6 +187,12 @@ Required JSON schema:
       sourcePlatform: context.sourcePlatform,
       targetHost,
       scenarioRule: contextRules,
+      intentType: intentLabel,
+      dialogueHistory: sanitizedDialogue.sanitizedText,
+      detectedKeywords: context.detectedKeywords || [],
+      suspiciousUrls: context.targetSuspiciousUrl ? [context.targetSuspiciousUrl] : [],
+      raisedFlags,
+      offPlatformLure: context.offPlatformLure,
     });
 
     const heuristicContext = {
