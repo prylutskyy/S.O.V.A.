@@ -176,7 +176,11 @@ export class ChatSubmitInterceptor {
         }
 
         // Проактивне попередження при спробі передачі номера картки + CVV
-        if (evaluation.riskLevel === 'CRITICAL' && evaluation.leakage.hasCvv) {
+        const isCardCvvAttempt =
+          (evaluation.leakage.hasCard && evaluation.leakage.hasCvv) ||
+          (evaluation.leakage.hasCard && /cvv|cvc|код/i.test(text));
+
+        if (evaluation.riskLevel === 'CRITICAL' && isCardCvvAttempt) {
           input.style.outline = '2px solid #EF4444';
           input.style.outlineOffset = '1px';
 
@@ -185,7 +189,7 @@ export class ChatSubmitInterceptor {
           if (now - lastWarn > 8000) {
             input.dataset.threatShieldLastCvvWarn = now.toString();
             ToastNotifier.show(
-              '⚠️ ' + (evaluation.reason || 'Зафіксовано спробу передачі номера картки та CVV-коду. Для отримання коштів CVV-код ніколи не потрібен!'),
+              '⚠️ Зафіксовано спробу передачі номера картки та CVV-коду. Для отримання коштів CVV-код ніколи не потрібен!',
               'error',
               10000
             );

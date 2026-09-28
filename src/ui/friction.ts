@@ -9,6 +9,7 @@ import { DESIGN_TOKENS_CSS } from './design-tokens';
 import { PersonalVaultManager } from '../core/personal-vault';
 import { UserWhitelistManager } from '../core/user-whitelist';
 import { ToastNotifier } from './toast-notifier';
+import { DebuggerOverlay } from './debugger-overlay';
 
 export class SecurityFriction {
   private static activeDisarmedForm: {
@@ -114,6 +115,11 @@ export class SecurityFriction {
       },
       onCancel: () => {
         console.log('[ThreatShield] Користувач скасував відправку підозрілої форми');
+        DebuggerOverlay.recordMitigation(
+          'Відправку форми заблоковано користувачем',
+          assessment.score,
+          assessment.level
+        );
       },
     });
   }
@@ -202,6 +208,11 @@ export class SecurityFriction {
       },
       onCancel: () => {
         console.log('[ThreatShield] Користувач скасував відправку повідомлення в чаті');
+        DebuggerOverlay.recordMitigation(
+          'Відправку реквізитів у чаті заблоковано користувачем',
+          95,
+          'CRITICAL'
+        );
         if (onCancel) onCancel();
       },
     });

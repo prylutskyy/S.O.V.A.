@@ -6,11 +6,13 @@ import { ShadowHost } from '../../../src/ui/shadow-host';
 describe('ToastNotifier (Sanctuary Dynamic Capsule)', () => {
   beforeEach(() => {
     vi.useFakeTimers();
+    ToastNotifier.clearHistory();
     ShadowHost.clear();
   });
 
   afterEach(() => {
     vi.useRealTimers();
+    ToastNotifier.clearHistory();
     ShadowHost.clear();
   });
 
@@ -141,6 +143,56 @@ describe('ToastNotifier (Sanctuary Dynamic Capsule)', () => {
       vi.advanceTimersByTime(2000);
       vi.advanceTimersByTime(300);
       expect(toast.parentElement).toBeNull();
+    });
+  });
+
+  describe('Optical Deduplication (Anti-Spam / Serenity Filter)', () => {
+    it('should suppress identical messages within deduplication window', () => {
+      const toast1 = ToastNotifier.show('Повідомлення дублікат', 'warning', 5000);
+      const root = ShadowHost.getRoot();
+      const container = root.getElementById('threat-shield-toast-container');
+      expect(container?.children.length).toBe(1);
+
+      // Attempt to show the exact same message immediately
+      const toast2 = ToastNotifier.show('Повідомлення дублікат', 'warning', 5000);
+      expect(container?.children.length).toBe(1);
+      expect(toast2).toBe(toast1);
+    });
+
+    it('should suppress semantic Vault marker duplicate toasts', () => {
+      // Toast 1: GlobalInputInterceptor style
+      const toast1 = ToastNotifier.show(
+        'Ви вводите персональний ідентифікатор: «РНОКПП (ІПН / Податковий код)». Переконайтеся в надійності ресурсу перед надсиланням.',
+        'warning',
+        8000
+      );
+      const root = ShadowHost.getRoot();
+      const container = root.getElementById('threat-shield-toast-container');
+      expect(container?.children.length).toBe(1);
+
+      // Toast 2: SessionOutboundMemory / ChatSubmitInterceptor style for the SAME marker
+      const toast2 = ToastNotifier.show(
+        'Виявлено передачу конфіденційного маркера безпеки зі Сховища: РНОКПП (ІПН / Податковий код)!',
+        'error',
+        10000
+      );
+
+      // Should be deduplicated into the single serene capsule
+      expect(container?.children.length).toBe(1);
+      expect(toast2).toBe(toast1);
+    });
+
+    it('should allow showing message again after deduplication window expires', () => {
+      ToastNotifier.show('Повідомлення із затримкою', 'info', 10000);
+      const root = ShadowHost.getRoot();
+      const container = root.getElementById('threat-shield-toast-container');
+      expect(container?.children.length).toBe(1);
+
+      // Advance 4000ms (past 3500ms deduplication window)
+      vi.advanceTimersByTime(4000);
+
+      ToastNotifier.show('Повідомлення із затримкою', 'info', 10000);
+      expect(container?.children.length).toBe(2);
     });
   });
 });

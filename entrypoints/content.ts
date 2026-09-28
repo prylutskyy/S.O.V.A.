@@ -131,6 +131,8 @@ export default defineContentScript({
           activeContext = null;
           GlobalInputInterceptor.setHardLock(null);
           ChatChannelMonitor.reset();
+          FormSubmitInterceptor.resetAuditState();
+          DebuggerOverlay.resetSessionRisk();
           SecurityFriction.removeContextWarningBanner();
           if (debugMode) {
             DebuggerOverlay.setSession(null);
@@ -171,6 +173,8 @@ export default defineContentScript({
         activeContext = null;
         GlobalInputInterceptor.setHardLock(null);
         ChatChannelMonitor.reset();
+        FormSubmitInterceptor.resetAuditState();
+        DebuggerOverlay.resetSessionRisk();
         if (debugMode) {
           DebuggerOverlay.log('Зшивання Сесій (Context)', 'Контекст очищено', '#22C55E');
         }

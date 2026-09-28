@@ -133,11 +133,18 @@ export class SessionOutboundMemory {
     const hasCardInHistory = this.hasSentCard();
     const cardAvailable = hasCardInDraft || hasCardInHistory;
 
-    // Детекція CVV з урахуванням наявності картки (в поточному драфті або в історії сесії)
-    const cvvResult = SensitiveAssetDetector.detectCvv(trimmed, cardAvailable);
-    const expiryResult = SensitiveAssetDetector.detectExpirationDate(trimmed, cardAvailable);
-    const otpResult = SensitiveAssetDetector.detectOtp(trimmed);
     const vaultScan = VaultScanner.scanTextSync(trimmed);
+    let textForCardCvv = trimmed;
+    for (const item of vaultScan.matchedItems) {
+      if (item.value) {
+        textForCardCvv = textForCardCvv.replace(item.value, ' ');
+      }
+    }
+
+    // Детекція CVV з урахуванням наявності картки (в поточному драфті або в історії сесії)
+    const cvvResult = SensitiveAssetDetector.detectCvv(textForCardCvv, cardAvailable);
+    const expiryResult = SensitiveAssetDetector.detectExpirationDate(textForCardCvv, cardAvailable);
+    const otpResult = SensitiveAssetDetector.detectOtp(textForCardCvv);
 
     const hasCvvInDraft = cvvResult.detected;
     const hasCvvInHistory = this.hasSentCvv();
@@ -252,8 +259,8 @@ export class SessionOutboundMemory {
       triggers,
       leakage: {
         hasCard: cardAvailable,
-        hasCvv: hasCvvInDraft || hasCvvInHistory,
-        hasExpiry: hasExpiryInDraft || hasExpiryInHistory,
+        hasCvv: hasCvvInDraft || (hasCvvInHistory && hasCardInDraft),
+        hasExpiry: hasExpiryInDraft || (hasExpiryInHistory && hasCardInDraft),
         hasOtp: hasOtpInDraft,
         cards: allCards,
         isCrossMessage,

@@ -78,6 +78,12 @@ export class DebuggerOverlay {
     sessionId: null as string | null,
     severity: 'LOW' as string,
     score: 0,
+    peakScore: 0,
+    peakSeverity: 'LOW' as string,
+    liveScore: 0,
+    liveSeverity: 'LOW' as string,
+    threatMitigated: false,
+    mitigationReason: '',
     activeTab: 'overview' as NeuromonitorTab,
     filterCategory: 'ALL' as NeuromonitorCategoryFilter,
     filterSearch: '',
@@ -199,6 +205,7 @@ export class DebuggerOverlay {
 
   public static clear() {
     this.state.logs = [];
+    this.resetSessionRisk();
     this.setSession(null);
     this.render();
   }
@@ -212,13 +219,120 @@ export class DebuggerOverlay {
     else if (severity === 'LOW' && id) this.state.score = 25;
     else this.state.score = 0;
 
+    this.state.peakScore = this.state.score;
+    this.state.peakSeverity = severity;
+    this.state.liveScore = this.state.score;
+    this.state.liveSeverity = severity;
+    this.state.threatMitigated = false;
+    this.state.mitigationReason = '';
+
     this.render();
   }
 
-  public static setAssessment(score: number, severity: string = 'LOW') {
-    this.state.score = Math.max(0, Math.min(100, Math.round(score)));
-    this.state.severity = severity;
+  public static setAssessment(score: number, severity: string = 'LOW', forceReset: boolean = false) {
+    const normalizedScore = Math.max(0, Math.min(100, Math.round(score)));
+    this.state.liveScore = normalizedScore;
+    this.state.liveSeverity = severity;
+
+    if (forceReset) {
+      this.state.score = normalizedScore;
+      this.state.peakScore = normalizedScore;
+      this.state.severity = severity;
+      this.state.peakSeverity = severity;
+      this.state.threatMitigated = false;
+      this.state.mitigationReason = '';
+      this.render();
+      return;
+    }
+
+    if (normalizedScore > this.state.peakScore) {
+      this.state.peakScore = normalizedScore;
+      this.state.peakSeverity = severity;
+      this.state.threatMitigated = false;
+      this.state.mitigationReason = '';
+    } else if (normalizedScore < this.state.peakScore && this.state.peakScore >= 35) {
+      // Загрозу було виявлено раніше, але поточне введення користувач скасував або очистив
+      this.state.threatMitigated = true;
+      if (!this.state.mitigationReason) {
+        this.state.mitigationReason = 'Користувач скасував або очистив введення секретних даних';
+      }
+    }
+
+    // Зберігаємо сесійний піковий ризик (High-Water Mark), щоб запобігти скиданню в ZERO
+    this.state.score = Math.max(this.state.peakScore, normalizedScore);
+    const effectiveSeverity =
+      this.state.score >= 76
+        ? 'CRITICAL'
+        : this.state.score >= 51
+        ? 'HIGH'
+        : this.state.score >= 21
+        ? 'MEDIUM'
+        : 'LOW';
+    this.state.severity = effectiveSeverity;
+
     this.render();
+  }
+
+  public static recordMitigation(reason: string, score?: number, severity?: string) {
+    const finalScore = score !== undefined ? score : this.state.peakScore;
+    const finalSeverity =
+      severity ||
+      (finalScore >= 76 ? 'CRITICAL' : finalScore >= 51 ? 'HIGH' : finalScore >= 21 ? 'MEDIUM' : 'LOW');
+
+    if (finalScore > this.state.peakScore) {
+      this.state.peakScore = finalScore;
+      this.state.peakSeverity = finalSeverity;
+    }
+    this.state.threatMitigated = true;
+    this.state.mitigationReason = reason;
+    this.state.liveScore = 0;
+    this.state.liveSeverity = 'LOW';
+    this.state.score = Math.max(this.state.peakScore, finalScore);
+    this.state.severity =
+      this.state.score >= 76
+        ? 'CRITICAL'
+        : this.state.score >= 51
+        ? 'HIGH'
+        : this.state.score >= 21
+        ? 'MEDIUM'
+        : 'LOW';
+
+    this.log('Захист', `Загрозу відвернено: ${reason} (Піковий індекс R: ${this.state.score}/100)`, '#34C759');
+    this.render();
+  }
+
+  public static resetSessionRisk() {
+    this.state.score = 0;
+    this.state.peakScore = 0;
+    this.state.peakSeverity = 'LOW';
+    this.state.severity = 'LOW';
+    this.state.liveScore = 0;
+    this.state.liveSeverity = 'LOW';
+    this.state.threatMitigated = false;
+    this.state.mitigationReason = '';
+    this.state.logs = this.state.logs.filter(
+      (l) =>
+        !l.stepKey.includes('Ризик') &&
+        !l.stepKey.includes('Тригери') &&
+        !l.stepKey.includes('Trap') &&
+        !l.stepKey.includes('СКАМ') &&
+        l.color !== '#FF3B30' &&
+        l.color !== '#FF453A' &&
+        l.color !== '#EF4444'
+    );
+    this.render();
+  }
+
+  public static getPeakScore(): number {
+    return this.state.peakScore;
+  }
+
+  public static getLiveScore(): number {
+    return this.state.liveScore;
+  }
+
+  public static isThreatMitigated(): boolean {
+    return this.state.threatMitigated;
   }
 
   public static log(
@@ -381,7 +495,7 @@ export class DebuggerOverlay {
 
   // Оцінка консенсусу (Евристика vs Gemini Nano)
   private static assessFalsePositive() {
-    const { score, severity, logs } = this.state;
+    const { score, severity, logs, threatMitigated, peakScore, liveScore, mitigationReason } = this.state;
     const isHeuristicRisk = score >= 40 || severity === 'HIGH' || severity === 'CRITICAL';
 
     const aiLogs = logs.filter((l) => l.isAi);
@@ -415,16 +529,35 @@ export class DebuggerOverlay {
         l.color === '#FF3B30' ||
         l.color === '#FF453A' ||
         l.color === '#EF4444' ||
-        l.stepKey.includes('Ризик') ||
+        (l.stepKey.includes('Ризик') && !l.stepKey.includes('Скасовано') && !l.stepKey.includes('Нейтралізовано')) ||
         l.stepKey.includes('Trap') ||
         l.stepKey.includes('СКАМ')
       ) {
-        triggers.push(l.stepKey);
+        if (!triggers.includes(l.stepKey)) {
+          triggers.push(l.stepKey);
+        }
       }
     });
 
     const isAiDisproved = lastAiVerdict !== null && !lastAiVerdict.isScam;
     const isAiConfirmed = lastAiVerdict !== null && lastAiVerdict.isScam;
+
+    // 1. Сценарій: Ризик нейтралізовано користувачем (скасовано введення / очищено форму / застосовано decoys)
+    if (threatMitigated && peakScore >= 35) {
+      return {
+        status: 'THREAT_MITIGATED',
+        badgeIcon: ICONS.shieldCheck(12, '#B25900'),
+        badgeText: 'ЗАГРОЗУ ВІДВЕРНУТО (ВВЕДЕННЯ СКАСОВАНО)',
+        badgeClass: 'sc-badge-amber',
+        explanation: `Система зафіксувала піковий ризик ${peakScore}/100 через спробу передачі чутливих даних. Користувач вчасно зупинив відправку або очистив поле. Безпосередню загрозу витоку нейтралізовано, але сесійний рівень загрози збережено для аудиту.`,
+        recommendation:
+          mitigationReason ||
+          'Чутливі дані вилучено з форми. Уникайте повторного введення секретної інформації на цій сторінці.',
+        heuristicVerdict: `Пік: ${peakScore}/100 (${severity}) · Чернетка: ${liveScore}/100 (Очищено)`,
+        aiVerdict: lastAiVerdict ? (lastAiVerdict.isScam ? 'ШІ: СКАМ (Відвернуто)' : 'ШІ: Безпечно') : 'Захищено користувачем',
+        triggers: triggers.length > 0 ? triggers : ['Витік персональних маркерів (відвернуто)'],
+      };
+    }
 
     if (isHeuristicRisk && isAiDisproved) {
       return {
@@ -462,6 +595,19 @@ export class DebuggerOverlay {
         aiVerdict: 'Очікується аналіз',
         triggers,
       };
+    } else if (triggers.length > 0) {
+      return {
+        status: 'LOW_ACTIVITY',
+        badgeIcon: ICONS.info(12, '#0071E3'),
+        badgeText: 'ПОМІРНА АКТИВНІСТЬ (НИЗЬКИЙ РИЗИК)',
+        badgeClass: 'sc-badge-blue',
+        explanation:
+          'Зафіксовано окремі інформаційні тригери, проте інтегральний ризик форми знаходиться в межах безпечної норми.',
+        recommendation: 'Система продовжує пасивний моніторинг полів вводу.',
+        heuristicVerdict: `Низький ризик (${score}/100)`,
+        aiVerdict: lastAiVerdict ? 'Безпечно' : 'У нормі',
+        triggers,
+      };
     } else {
       return {
         status: 'CLEAN',
@@ -473,7 +619,7 @@ export class DebuggerOverlay {
         recommendation: 'Система функціонує у фоновому пасивному режимі.',
         heuristicVerdict: `Безпечно (${score}/100)`,
         aiVerdict: lastAiVerdict ? 'Безпечно' : 'У нормі',
-        triggers: triggers.length > 0 ? triggers : ['Тригери відсутні'],
+        triggers: ['Тригери відсутні'],
       };
     }
   }
@@ -526,7 +672,7 @@ export class DebuggerOverlay {
 
     this.applyContainerGeometry();
 
-    const { sessionId, severity, score, logs, activeTab, filterCategory, filterSearch } = this.state;
+    const { sessionId, severity, score, logs, activeTab, filterCategory, filterSearch, threatMitigated, liveScore } = this.state;
 
     // Apple Light Theme Palette
     const riskColor =
@@ -604,7 +750,7 @@ export class DebuggerOverlay {
                   ${fpInfo.badgeIcon}
                   <span>${fpInfo.badgeText}</span>
                 </div>
-                <div class="sc-subtext">${sessionId ? `Сесія: ${sessionId.substring(0, 16)}...` : 'Пасивний фоновий моніторинг'}</div>
+                <div class="sc-subtext">${threatMitigated ? `Чернетка: ${liveScore}/100 (Вилучено) · Піковий ризик збережено` : (sessionId ? `Сесія: ${sessionId.substring(0, 16)}...` : 'Пасивний фоновий моніторинг')}</div>
               </div>
             </div>
 
@@ -612,7 +758,7 @@ export class DebuggerOverlay {
             <div class="sc-loupe-pillars">
               <div class="sc-pillar-cell">
                 <span class="sc-pillar-label">Евристичний ризик</span>
-                <span class="sc-pillar-val" style="color: ${riskColor}">${score}/100</span>
+                <span class="sc-pillar-val" style="color: ${riskColor}">${score}/100${threatMitigated ? ` <span style="font-size:9.5px;color:#86868B;font-weight:400;">(Live: ${liveScore})</span>` : ''}</span>
               </div>
               <div class="sc-pillar-cell">
                 <span class="sc-pillar-label">Gemini Nano XAI</span>
@@ -1523,7 +1669,7 @@ export class DebuggerOverlay {
   private static renderMinimized() {
     if (!this.shadowRoot) return;
 
-    const { severity, score, logs } = this.state;
+    const { severity, score, logs, threatMitigated } = this.state;
     const riskColor =
       severity === 'CRITICAL' || severity === 'HIGH'
         ? '#FF3B30'
@@ -1596,7 +1742,7 @@ export class DebuggerOverlay {
       <div class="sc-pill" id="btn-restore" title="Відкрити Швейцарську Лупу">
         <span class="sc-pill-icon">${ICONS.loupe(13, riskColor)}</span>
         <span class="sc-pill-text">Швейцарська Лупа</span>
-        <span class="sc-pill-badge">${score}/100</span>
+        <span class="sc-pill-badge">${score}/100${threatMitigated ? ' (Пік)' : ''}</span>
         <span class="sc-pill-count">
           <span>${logs.length}</span>
           ${ICONS.expand(11, '#86868B')}
@@ -1686,6 +1832,7 @@ export class DebuggerOverlay {
 
     this.shadowRoot.getElementById('btn-quick-reset-session')?.addEventListener('click', (e) => {
       window.postMessage({ type: 'THREAT_SHIELD_CLEAR_CONTEXT' }, '*');
+      this.resetSessionRisk();
       this.log('Система', 'Користувач примусово скинув стан тривоги', '#34C759');
       const btn = e.currentTarget as HTMLElement;
       if (btn) {

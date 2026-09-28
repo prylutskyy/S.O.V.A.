@@ -5,6 +5,7 @@ import { XaiEngine } from '../xai/xai-engine';
 import { VaultScanner } from '../heuristics/vault-scanner';
 import { ShadowHost } from './shadow-host';
 import { ToastNotifier } from './toast-notifier';
+import { DebuggerOverlay } from './debugger-overlay';
 import { DESIGN_TOKENS_CSS } from './design-tokens';
 
 export interface UnifiedModalOptions {
@@ -574,6 +575,11 @@ export class UnifiedFrictionModal {
     btnDecoy?.addEventListener('click', () => {
       if (options.vaultMatches && options.vaultMatches.length > 0) {
         const count = VaultScanner.applyDecoys(options.vaultMatches, true);
+        DebuggerOverlay.recordMitigation(
+          'Застосовано дезінформаційні фейкові дані (Decoys)',
+          options.assessment?.score,
+          options.assessment?.level
+        );
         this.close();
         options.onCancel();
         const pluralValues = ToastNotifier.formatPluralUkrainian(

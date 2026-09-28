@@ -8,6 +8,7 @@ import { DebuggerOverlay } from '../../../src/ui/debugger-overlay';
 describe('FormSubmitInterceptor', () => {
   beforeEach(() => {
     document.body.innerHTML = '';
+    DebuggerOverlay.resetSessionRisk();
   });
 
   describe('shouldBlock logic', () => {
@@ -111,7 +112,11 @@ describe('FormSubmitInterceptor', () => {
     });
   });
 
-  describe('DebuggerOverlay integration', () => {
+  describe('DebuggerOverlay integration & Threat Retention', () => {
+    beforeEach(() => {
+      DebuggerOverlay.resetSessionRisk();
+    });
+
     it('updates DebuggerOverlay assessment score and severity via setAssessment', () => {
       DebuggerOverlay.setAssessment(45, 'MEDIUM');
       expect(DebuggerOverlay['state'].score).toBe(45);
@@ -121,15 +126,47 @@ describe('FormSubmitInterceptor', () => {
       expect(DebuggerOverlay['state'].score).toBe(85);
       expect(DebuggerOverlay['state'].severity).toBe('CRITICAL');
 
+      // Коли користувач очищає форму (0 балів), сесійний піковий ризик НЕ збивається в ZERO!
       DebuggerOverlay.setAssessment(0, 'LOW');
+      expect(DebuggerOverlay['state'].score).toBe(85);
+      expect(DebuggerOverlay.getLiveScore()).toBe(0);
+      expect(DebuggerOverlay.isThreatMitigated()).toBe(true);
+
+      // Примусове скидання сесії повертає стан до 0
+      DebuggerOverlay.resetSessionRisk();
       expect(DebuggerOverlay['state'].score).toBe(0);
       expect(DebuggerOverlay['state'].severity).toBe('LOW');
+    });
+
+    it('correctly assesses THREAT_MITIGATED when user cancels or clears secret data', () => {
+      DebuggerOverlay.setAssessment(75, 'HIGH');
+      DebuggerOverlay.log('Форма: Оцінка Ризику', '75 балів (Рівень: HIGH)', '#EF4444');
+
+      // Користувач передумав і видалив секретні дані
+      DebuggerOverlay.setAssessment(0, 'LOW');
+
+      const fpAssessment = DebuggerOverlay['assessFalsePositive']();
+      expect(fpAssessment.status).toBe('THREAT_MITIGATED');
+      expect(fpAssessment.badgeText).toContain('ЗАГРОЗУ ВІДВЕРНУТО');
+      expect(fpAssessment.heuristicVerdict).toContain('75/100');
+      expect(fpAssessment.heuristicVerdict).toContain('Чернетка: 0/100');
+    });
+
+    it('records mitigation when user blocks submission or applies decoys', () => {
+      DebuggerOverlay.recordMitigation('Застосовано дезінформаційні фейкові дані (Decoys)', 80, 'CRITICAL');
+      expect(DebuggerOverlay['state'].score).toBe(80);
+      expect(DebuggerOverlay.isThreatMitigated()).toBe(true);
+
+      const fpAssessment = DebuggerOverlay['assessFalsePositive']();
+      expect(fpAssessment.status).toBe('THREAT_MITIGATED');
+      expect(fpAssessment.recommendation).toContain('Decoys');
     });
   });
 
   describe('Real-time input telemetry', () => {
     beforeEach(() => {
       vi.useFakeTimers();
+      DebuggerOverlay.resetSessionRisk();
       FormSubmitInterceptor.destroy();
     });
 
@@ -172,6 +209,48 @@ describe('FormSubmitInterceptor', () => {
       expect(mockPipeline.analyze).toHaveBeenCalledWith(form, 'phishing-site.test', null);
       expect(DebuggerOverlay['state'].score).toBe(75);
       expect(DebuggerOverlay['state'].severity).toBe('HIGH');
+    });
+
+    it('preserves peak score when sensitive input is erased by the user', () => {
+      let currentScore = 75;
+      const mockPipeline = {
+        analyze: vi.fn().mockImplementation(() => ({
+          formState: { isEntirelyEmpty: currentScore === 0, hasFilledAnySensitive: currentScore > 0 },
+          assessment: { score: currentScore, level: currentScore > 0 ? 'HIGH' : 'LOW', triggers: [] },
+          vaultMatches: [],
+        })),
+      };
+
+      FormSubmitInterceptor.init({
+        pipeline: mockPipeline as any,
+        getCurrentHost: () => 'phishing-site.test',
+        getActiveContext: () => null,
+        getDebugMode: () => true,
+      });
+
+      const form = document.createElement('form');
+      const input = document.createElement('input');
+      input.name = 'secretField';
+      form.appendChild(input);
+      document.body.appendChild(form);
+
+      // 1. Користувач вводить секретні дані
+      input.value = 'mySecretMotherMaidenName';
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      vi.advanceTimersByTime(150);
+
+      expect(DebuggerOverlay['state'].score).toBe(75);
+
+      // 2. Користувач передумав та вилучив секретні дані
+      currentScore = 0;
+      input.value = '';
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      vi.advanceTimersByTime(150);
+
+      // Risk score НЕ стає ZERO! Він зберігає 75 балів та показує нейтралізацію
+      expect(DebuggerOverlay['state'].score).toBe(75);
+      expect(DebuggerOverlay.getLiveScore()).toBe(0);
+      expect(DebuggerOverlay.isThreatMitigated()).toBe(true);
     });
   });
 });

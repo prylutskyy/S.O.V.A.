@@ -10,6 +10,44 @@ import { ShadowHost } from './shadow-host';
  */
 export class ToastNotifier {
   private static container: HTMLElement | null = null;
+  private static recentToasts: Map<string, number> = new Map();
+  private static activeToastElements: Map<string, HTMLElement> = new Map();
+
+  /**
+   * Очищення історії сповіщень (для тестів або скидання стану)
+   */
+  public static clearHistory(): void {
+    this.recentToasts.clear();
+    this.activeToastElements.clear();
+  }
+
+  /**
+   * Витягнення семантичних ключів для оптичної дедуплікації сповіщень
+   */
+  private static extractDeduplicationKeys(message: string): string[] {
+    const keys: string[] = [];
+    const normalized = message.trim().toLowerCase().replace(/\s+/g, ' ');
+    keys.push(`exact:${normalized}`);
+
+    // Маркери у лапках: «РНОКПП (ІПН / Податковий код)» або «Дівоче прізвище матері»
+    const quoteMatch = message.match(/[«"']([^»"']+)["'»]/);
+    if (quoteMatch && quoteMatch[1]?.trim()) {
+      keys.push(`marker:${quoteMatch[1].trim().toLowerCase()}`);
+    }
+
+    // Маркери зі Сховища: Сховища: РНОКПП (ІПН / Податковий код)!
+    const vaultMatch = message.match(/Сховища:\s*([^!.\n]+)/i);
+    if (vaultMatch && vaultMatch[1]?.trim()) {
+      keys.push(`marker:${vaultMatch[1].trim().toLowerCase()}`);
+    }
+
+    // Застереження щодо CVV / номеру картки
+    if (/cvv|cvc/i.test(message) && /картк/i.test(message)) {
+      keys.push('topic:card_cvv');
+    }
+
+    return keys;
+  }
 
   private static init(): HTMLElement {
     const root = ShadowHost.getRoot();
@@ -86,6 +124,32 @@ export class ToastNotifier {
     durationMs?: number
   ): HTMLElement {
     const container = this.init();
+
+    const now = Date.now();
+    // Очищення застарілих записів дедуплікації (>15 сек)
+    for (const [key, timestamp] of this.recentToasts.entries()) {
+      if (now - timestamp > 15000) {
+        this.recentToasts.delete(key);
+        this.activeToastElements.delete(key);
+      }
+    }
+
+    const dedupKeys = this.extractDeduplicationKeys(message);
+    const DEDUP_WINDOW_MS = 3500;
+    for (const key of dedupKeys) {
+      const lastShown = this.recentToasts.get(key);
+      if (lastShown && now - lastShown < DEDUP_WINDOW_MS) {
+        const existing = this.activeToastElements.get(key);
+        if (existing) {
+          return existing;
+        }
+        return container;
+      }
+    }
+
+    for (const key of dedupKeys) {
+      this.recentToasts.set(key, now);
+    }
 
     // Калібрування тривалості за швидкістю читання (~3.5 слова/сек) та важливістю події
     const wordCount = message.trim().split(/\s+/).length;
@@ -230,6 +294,11 @@ export class ToastNotifier {
         clearTimeout(autoCloseTimer);
         autoCloseTimer = null;
       }
+      for (const key of dedupKeys) {
+        if (ToastNotifier.activeToastElements.get(key) === toast) {
+          ToastNotifier.activeToastElements.delete(key);
+        }
+      }
       toast.style.opacity = '0';
       toast.style.transform = 'translateY(-8px) scale(0.96)';
       toast.style.filter = 'blur(3px)';
@@ -289,6 +358,9 @@ export class ToastNotifier {
     }
 
     container.appendChild(toast);
+    for (const key of dedupKeys) {
+      ToastNotifier.activeToastElements.set(key, toast);
+    }
 
     // Apple spring animation in
     requestAnimationFrame(() => {

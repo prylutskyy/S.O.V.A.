@@ -67,6 +67,11 @@ export class FormSubmitInterceptor {
     return assessment.level === 'CRITICAL' || (assessment.level === 'HIGH' && formState.hasFilledAnySensitive);
   }
 
+  public static resetAuditState(): void {
+    this.lastReportedScore = null;
+    this.lastReportedTriggers = '';
+  }
+
   public static handleFormAnalysis(form: HTMLFormElement, isRealtime: boolean = false): FormAnalysisResult {
     const { pipeline, getCurrentHost, getActiveContext, getDebugMode } = this.options!;
     const currentHost = getCurrentHost();
@@ -74,31 +79,44 @@ export class FormSubmitInterceptor {
     const result = pipeline.analyze(form, currentHost, activeContext);
 
     if (getDebugMode()) {
+      const prevReportedScore = this.lastReportedScore;
+      const currentScore = result.assessment.score;
+      const peakBefore = DebuggerOverlay.getPeakScore();
+
       // 1. Оновлюємо кругову шкалу та бейдж Швейцарської Лупи миттєво в реальному часі!
-      DebuggerOverlay.setAssessment(result.assessment.score, result.assessment.level);
+      DebuggerOverlay.setAssessment(currentScore, result.assessment.level);
 
       const triggersKey = result.assessment.triggers.map((t) => t.name).sort().join(',');
-      const hasChanged = this.lastReportedScore !== result.assessment.score || this.lastReportedTriggers !== triggersKey;
+      const hasChanged = this.lastReportedScore !== currentScore || this.lastReportedTriggers !== triggersKey;
 
       // 2. До журналу подій (Events Log) додаємо запис при сабміті або коли рівень/тригери суттєво змінилися
       if (!isRealtime || hasChanged) {
-        this.lastReportedScore = result.assessment.score;
+        this.lastReportedScore = currentScore;
         this.lastReportedTriggers = triggersKey;
 
         const liveTag = isRealtime ? ' (Live)' : '';
-        DebuggerOverlay.log(
-          `Форма: Оцінка Ризику${liveTag}`,
-          `${result.assessment.score} балів (Рівень: ${result.assessment.level})`,
-          result.assessment.score >= 50 ? '#EF4444' : '#F59E0B'
-        );
-        if (result.assessment.triggers.length > 0) {
+        if (currentScore === 0 && (peakBefore >= 35 || (prevReportedScore !== null && prevReportedScore >= 35))) {
           DebuggerOverlay.log(
-            `Форма: Спрацьовані Тригери${liveTag}`,
-            result.assessment.triggers.map((t) => `${t.name} (+${t.scoreContribution})`),
-            '#F59E0B'
+            `Форма: Введення Скасовано${liveTag}`,
+            `Користувач вилучив конфіденційні дані або очистив форму. Безпосередній витік відвернено (Чернетка: 0 балів, Сесійний пік: ${DebuggerOverlay.getPeakScore()} балів)`,
+            '#22C55E'
           );
+          DebuggerOverlay.log(`Форма: Спрацьовані Тригери${liveTag}`, 'Чутливі тригери нейтралізовано', '#22C55E');
         } else {
-          DebuggerOverlay.log(`Форма: Спрацьовані Тригери${liveTag}`, 'Немає тригерів', '#22C55E');
+          DebuggerOverlay.log(
+            `Форма: Оцінка Ризику${liveTag}`,
+            `${currentScore} балів (Рівень: ${result.assessment.level})`,
+            currentScore >= 50 ? '#EF4444' : currentScore >= 20 ? '#F59E0B' : '#22C55E'
+          );
+          if (result.assessment.triggers.length > 0) {
+            DebuggerOverlay.log(
+              `Форма: Спрацьовані Тригери${liveTag}`,
+              result.assessment.triggers.map((t) => `${t.name} (+${t.scoreContribution})`),
+              '#F59E0B'
+            );
+          } else {
+            DebuggerOverlay.log(`Форма: Спрацьовані Тригери${liveTag}`, 'Немає тригерів', '#22C55E');
+          }
         }
       }
     }
@@ -228,6 +246,7 @@ export class FormSubmitInterceptor {
   }
 
   public static destroy(): void {
+    this.resetAuditState();
     if (typeof document !== 'undefined') {
       if (this.inputListener) {
         document.removeEventListener('input', this.inputListener, true);
