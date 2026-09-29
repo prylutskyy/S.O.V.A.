@@ -10,7 +10,6 @@ export interface FieldDetailsInfo {
   shortLabel: string;
   iconSvg: string;
   bannerWarning: string;
-  explanation: string;
 }
 
 export interface FieldLivePillRecord {
@@ -18,20 +17,18 @@ export interface FieldLivePillRecord {
   metadata: FieldProtectionMetadata;
   details: FieldDetailsInfo;
   pillElement: HTMLElement;
-  bannerElement: HTMLElement | null;
+  isExpanded: boolean;
   isRedAlert: boolean;
+  isHovered: boolean;
   cleanups: Array<() => void>;
 }
 
 export class FieldLivePill {
   private static activePills = new Map<HTMLInputElement | HTMLTextAreaElement, FieldLivePillRecord>();
-  private static activePopover: HTMLElement | null = null;
-  private static activePopoverInput: (HTMLInputElement | HTMLTextAreaElement) | null = null;
-  private static popoverCloseTimer: any = null;
   private static viewportListenerAttached = false;
 
   /**
-   * Створення та прикріплення мікро-пігулки безпеки скраю поля форми
+   * Створення та прикріплення мікро-пігулки безпеки під полем форми (праворуч знизу)
    */
   public static attach(
     input: HTMLInputElement | HTMLTextAreaElement,
@@ -50,15 +47,6 @@ export class FieldLivePill {
     pill.setAttribute('role', 'status');
     pill.setAttribute('aria-live', 'polite');
 
-    pill.innerHTML = `
-      <span class="ts-field-pill-icon" style="color: #0071E3; display: flex; align-items: center;">
-        ${details.iconSvg}
-      </span>
-      <span class="ts-field-pill-label" style="color: #1D1D1F;">${details.shortLabel}</span>
-      <span style="font-size: 9px; color: #86868B;">•</span>
-      <span style="font-size: 9.5px; color: #0071E3; font-weight: 500;">Захист</span>
-    `;
-
     root.appendChild(pill);
 
     const record: FieldLivePillRecord = {
@@ -66,30 +54,51 @@ export class FieldLivePill {
       metadata: meta,
       details,
       pillElement: pill,
-      bannerElement: null,
+      isExpanded: false,
       isRedAlert: false,
+      isHovered: false,
       cleanups: [],
     };
 
-    // Якщо поле вже заповнене при завантаженні сторінки — одразу вмикаємо червоний режим
-    if (input.value && input.value.trim().length >= 2) {
-      this.setRedAlertState(input, record, true);
+    // Початковий рендер вмісту пігулки
+    const hasInitialValue = Boolean(input.value && input.value.trim().length >= 2);
+    if (hasInitialValue) {
+      record.isRedAlert = true;
     }
-
+    this.renderPillContent(record);
     this.updatePillPosition(input, pill);
 
-    // 1. Поведінка при наведенні та кліку на пігулку (розкриття поповера з роз'ясненнями)
+    // 1. Поведінка при наведенні та кліку на пігулку (розгортання/згортання застереження)
     const handleMouseEnterPill = () => {
-      this.cancelPopoverClose();
-      this.showPopover(input, record);
+      record.isHovered = true;
+      if (!record.isExpanded) {
+        this.expandPill(input, record);
+      }
     };
+
     const handleMouseLeavePill = () => {
-      this.schedulePopoverClose();
+      record.isHovered = false;
+      const isFocused = typeof document !== 'undefined' && document.activeElement === input;
+      // Якщо поле не у фокусі або вже введено достатньо символів (червона тривога) — згортаємо
+      if (!isFocused || input.value.trim().length >= 2) {
+        if (record.isExpanded) {
+          this.collapsePill(input, record);
+        }
+      }
     };
+
     const handleClickPill = (e: MouseEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (target && target.closest('.ts-pill-quick-clean-btn')) {
+        // Клік по кнопці очищення обробляється окремо
+        return;
+      }
       e.stopPropagation();
-      this.cancelPopoverClose();
-      this.showPopover(input, record);
+      if (record.isExpanded) {
+        this.collapsePill(input, record);
+      } else {
+        this.expandPill(input, record);
+      }
     };
 
     pill.addEventListener('mouseenter', handleMouseEnterPill);
@@ -102,10 +111,10 @@ export class FieldLivePill {
       pill.removeEventListener('click', handleClickPill);
     });
 
-    // 2. Інтерактивна реакція на дії користувача в полі (фокус, введення символів)
+    // 2. Інтерактивна реакція на дії користувача в полі (ручне введення, фокус, blur)
     const handleFocus = () => {
       if (input.value.trim().length <= 1 && !record.isRedAlert) {
-        this.showBanner(input, record);
+        this.expandPill(input, record);
       }
     };
 
@@ -113,20 +122,23 @@ export class FieldLivePill {
       const val = input.value.trim();
 
       if (val.length === 0) {
-        // Поле очищено: скидаємо червону тривогу в початковий синій стан
+        // Поле очищено: повертаємо у початковий синій стан спокою
         if (record.isRedAlert) {
           this.setRedAlertState(input, record, false);
         }
+        if (record.isExpanded) {
+          this.collapsePill(input, record);
+        }
       } else if (val.length === 1) {
-        // Перший символ: розгортаємо інформаційний банер-завісу
-        if (!record.bannerElement && !record.isRedAlert) {
-          this.showBanner(input, record);
+        // Перший символ: інформаційне застереження розгортається з пігулки
+        if (!record.isExpanded && !record.isRedAlert) {
+          this.expandPill(input, record);
         }
       } else {
-        // Користувач продовжує вводити інформацію (довжина >= 2):
-        // Інформаційне поле ховається гарною кривою Apple у пігулку, змінивши колір на червону пігулку!
-        if (record.bannerElement) {
-          this.retractBanner(input, record);
+        // Користувач продовжує введення (довжина >= 2):
+        // Повідомлення плавно згортається назад у пігулку за кривою Apple, змінюючи колір на червоний!
+        if (record.isExpanded) {
+          this.collapsePill(input, record);
         }
         if (!record.isRedAlert) {
           this.setRedAlertState(input, record, true);
@@ -135,8 +147,8 @@ export class FieldLivePill {
     };
 
     const handleBlur = () => {
-      if (record.bannerElement) {
-        this.retractBanner(input, record);
+      if (record.isExpanded && !record.isHovered) {
+        this.collapsePill(input, record);
       }
     };
 
@@ -170,15 +182,8 @@ export class FieldLivePill {
 
     record.cleanups.forEach((cleanup) => cleanup());
 
-    if (record.bannerElement && record.bannerElement.parentNode) {
-      record.bannerElement.parentNode.removeChild(record.bannerElement);
-    }
     if (record.pillElement && record.pillElement.parentNode) {
       record.pillElement.parentNode.removeChild(record.pillElement);
-    }
-
-    if (this.activePopoverInput === input) {
-      this.closePopover();
     }
 
     this.activePills.delete(input);
@@ -197,28 +202,20 @@ export class FieldLivePill {
     for (const input of Array.from(this.activePills.keys())) {
       this.detach(input);
     }
-    this.closePopover();
   }
 
   private static handleViewportChange = () => {
     for (const [input, record] of FieldLivePill.activePills.entries()) {
       if (input.isConnected) {
         FieldLivePill.updatePillPosition(input, record.pillElement);
-        if (record.bannerElement) {
-          FieldLivePill.updateBannerPosition(input, record.bannerElement);
-        }
       } else {
         FieldLivePill.detach(input);
       }
     }
-
-    if (FieldLivePill.activePopover && FieldLivePill.activePopoverInput) {
-      FieldLivePill.updatePopoverPosition(FieldLivePill.activePopoverInput, FieldLivePill.activePopover);
-    }
   };
 
   /**
-   * Оновлення координат розташування пігулки скраю поля форми
+   * Розташування пігулки: строго праворуч знизу під полем (не перекриваючи поле вводу)
    */
   public static updatePillPosition(input: HTMLInputElement | HTMLTextAreaElement, pill: HTMLElement): void {
     if (!input.isConnected) return;
@@ -227,20 +224,23 @@ export class FieldLivePill {
     const scrollX = typeof window !== 'undefined' ? (window.scrollX || window.pageXOffset || 0) : 0;
     const scrollY = typeof window !== 'undefined' ? (window.scrollY || window.pageYOffset || 0) : 0;
 
-    const pillWidth = pill.offsetWidth || 88;
-    const pillHeight = pill.offsetHeight || 22;
+    const pillWidth = pill.offsetWidth || (pill.classList.contains('ts-expanded') ? 280 : 96);
 
-    // Розміщуємо скраю поля введення: над правим краєм поля
-    let top = scrollY + rect.top - pillHeight - 4;
+    // Розміщуємо строго ЗНИЗУ під полем (gap: 4px)
+    const top = scrollY + rect.bottom + 4;
+
+    // Праворуч знизу під полем: вирівнюємо правий край пігулки з правим краєм поля
     let left = scrollX + rect.right - pillWidth;
 
-    // Якщо зверху немає місця або це перший рядок сторінки — розміщуємо знизу під полем
-    if (top < scrollY + 4) {
-      top = scrollY + rect.bottom + 4;
+    // Якщо лівий край пігулки виходить за лівий край вікна браузера
+    if (left < scrollX + 8) {
+      left = scrollX + 8;
     }
-    // Якщо не вміщується праворуч — вирівнюємо по лівому краю
-    if (left < scrollX + rect.left) {
-      left = scrollX + rect.left;
+
+    // Запобігаємо виходу за правий край екрану
+    const maxLeft = (typeof window !== 'undefined' ? window.innerWidth : 1200) + scrollX - pillWidth - 8;
+    if (left > maxLeft) {
+      left = Math.max(scrollX + 8, maxLeft);
     }
 
     pill.style.top = `${Math.max(0, top)}px`;
@@ -248,111 +248,31 @@ export class FieldLivePill {
   }
 
   /**
-   * Плавне розгортання інформаційного банера-завіси (перекриває поле, якщо воно невелике)
+   * Розгортання інформаційного повідомлення прямо з пігулки (без сторонніх вікон)
    */
-  public static showBanner(input: HTMLInputElement | HTMLTextAreaElement, record: FieldLivePillRecord): void {
-    if (record.bannerElement || record.isRedAlert) return;
-
-    const root = ShadowHost.getRoot();
-    this.ensureStylesInjected(root);
-
-    const banner = document.createElement('div');
-    banner.className = 'ts-field-banner-curtain';
-
-    this.updateBannerPosition(input, banner);
-
-    const details = record.details;
-    banner.innerHTML = `
-      <div style="display: flex; align-items: center; gap: 7px; min-width: 0; flex: 1;">
-        <span style="font-size: 13px; line-height: 1; flex-shrink: 0;">⚠️</span>
-        <span style="font-size: 11px; font-weight: 500; color: #1D1D1F; line-height: 1.35;">
-          ${details.bannerWarning}
-        </span>
-      </div>
-      <div style="display: flex; align-items: center; gap: 4px; flex-shrink: 0;">
-        <button class="ts-banner-dismiss-btn" title="Продовжити введення" style="
-          appearance: none !important;
-          -webkit-appearance: none !important;
-          background: rgba(0, 0, 0, 0.06) !important;
-          color: #1D1D1F !important;
-          border: 1px solid rgba(0, 0, 0, 0.08) !important;
-          font-size: 10px !important;
-          font-weight: 600 !important;
-          padding: 3px 8px !important;
-          border-radius: 5px !important;
-          cursor: pointer !important;
-          line-height: 1.2 !important;
-          transition: background-color 0.15s ease !important;
-        ">
-          Зрозуміло
-        </button>
-      </div>
-    `;
-
-    const dismissBtn = banner.querySelector('.ts-banner-dismiss-btn');
-    if (dismissBtn) {
-      dismissBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        this.retractBanner(input, record);
-        input.focus();
+  public static expandPill(input: HTMLInputElement | HTMLTextAreaElement, record: FieldLivePillRecord): void {
+    record.isExpanded = true;
+    this.renderPillContent(record);
+    this.updatePillPosition(input, record.pillElement);
+    if (typeof requestAnimationFrame !== 'undefined') {
+      requestAnimationFrame(() => {
+        this.updatePillPosition(input, record.pillElement);
       });
     }
-
-    banner.addEventListener('click', () => {
-      this.retractBanner(input, record);
-      input.focus();
-    });
-
-    root.appendChild(banner);
-    record.bannerElement = banner;
   }
 
   /**
-   * Координати та розмір банера: перекриває поле, якщо воно невелике
+   * Згортання повідомлення назад у компактну пігулку за фірмовою Apple-кривою
    */
-  private static updateBannerPosition(input: HTMLInputElement | HTMLTextAreaElement, banner: HTMLElement): void {
-    if (!input.isConnected) return;
-
-    const rect = input.getBoundingClientRect();
-    const scrollX = typeof window !== 'undefined' ? (window.scrollX || window.pageXOffset || 0) : 0;
-    const scrollY = typeof window !== 'undefined' ? (window.scrollY || window.pageYOffset || 0) : 0;
-
-    // Невеликі розміри поля (типово для CVV чи Expiry, наприклад width <= 260px)
-    const isSmallField = rect.width > 0 && rect.width <= 260 && rect.height <= 70;
-
-    if (isSmallField) {
-      const targetWidth = Math.max(rect.width, 220);
-      const targetHeight = Math.max(rect.height, 36);
-
-      banner.style.top = `${scrollY + rect.top}px`;
-      banner.style.left = `${scrollX + rect.left}px`;
-      banner.style.width = `${targetWidth}px`;
-      banner.style.minHeight = `${targetHeight}px`;
-    } else {
-      let top = scrollY + rect.top - 46;
-      if (top < scrollY + 4) top = scrollY + rect.bottom + 6;
-      banner.style.top = `${Math.max(0, top)}px`;
-      banner.style.left = `${scrollX + rect.left}px`;
-      banner.style.maxWidth = '360px';
-      banner.style.width = 'auto';
+  public static collapsePill(input: HTMLInputElement | HTMLTextAreaElement, record: FieldLivePillRecord): void {
+    record.isExpanded = false;
+    this.renderPillContent(record);
+    this.updatePillPosition(input, record.pillElement);
+    if (typeof requestAnimationFrame !== 'undefined') {
+      requestAnimationFrame(() => {
+        this.updatePillPosition(input, record.pillElement);
+      });
     }
-  }
-
-  /**
-   * Плавне згортання інформаційного банера назад у пігулку за кривою Apple
-   */
-  public static retractBanner(input: HTMLInputElement | HTMLTextAreaElement, record: FieldLivePillRecord): void {
-    if (!record.bannerElement) return;
-
-    const banner = record.bannerElement;
-    banner.classList.add('ts-retracting');
-    record.bannerElement = null;
-
-    setTimeout(() => {
-      if (banner.parentNode) {
-        banner.parentNode.removeChild(banner);
-      }
-    }, 220);
   }
 
   /**
@@ -364,148 +284,91 @@ export class FieldLivePill {
     isRed: boolean
   ): void {
     record.isRedAlert = isRed;
-    const pill = record.pillElement;
-    const details = record.details;
-
-    if (isRed) {
-      pill.classList.add('ts-pill-red');
-      pill.innerHTML = `
-        <span class="ts-field-pill-icon" style="color: #DC2626; display: flex; align-items: center;">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-        </span>
-        <span class="ts-field-pill-label" style="color: #B91C1C; font-weight: 700;">${details.shortLabel}</span>
-        <span style="font-size: 9px; color: #DC2626; opacity: 0.7;">•</span>
-        <span style="font-size: 9.5px; color: #DC2626; font-weight: 600;">Увага</span>
-      `;
-    } else {
-      pill.classList.remove('ts-pill-red');
-      pill.innerHTML = `
-        <span class="ts-field-pill-icon" style="color: #0071E3; display: flex; align-items: center;">
-          ${details.iconSvg}
-        </span>
-        <span class="ts-field-pill-label" style="color: #1D1D1F;">${details.shortLabel}</span>
-        <span style="font-size: 9px; color: #86868B;">•</span>
-        <span style="font-size: 9.5px; color: #0071E3; font-weight: 500;">Захист</span>
-      `;
+    this.renderPillContent(record);
+    this.updatePillPosition(input, record.pillElement);
+    if (typeof requestAnimationFrame !== 'undefined') {
+      requestAnimationFrame(() => {
+        this.updatePillPosition(input, record.pillElement);
+      });
     }
-
-    this.updatePillPosition(input, pill);
   }
 
   /**
-   * Відображення картки з детальним поясненням та кнопкою швидкого очищення
+   * Рендеринг вмісту пігулки залежно від поточного стану
    */
-  public static showPopover(input: HTMLInputElement | HTMLTextAreaElement, record: FieldLivePillRecord): void {
-    this.closePopover();
-
-    const root = ShadowHost.getRoot();
-    const popover = document.createElement('div');
-    popover.className = 'ts-field-live-popover';
-
+  private static renderPillContent(record: FieldLivePillRecord): void {
+    const pill = record.pillElement;
     const details = record.details;
     const isRed = record.isRedAlert;
-    const hasValue = Boolean(input.value && input.value.trim().length > 0);
+    const isExpanded = record.isExpanded;
 
-    const statusBadge = isRed
-      ? `<span style="font-size: 10px; font-weight: 700; background: rgba(239, 68, 68, 0.12); color: #DC2626; padding: 1px 7px; border-radius: 9999px; border: 1px solid rgba(239, 68, 68, 0.25);">Ризик витоку</span>`
-      : `<span style="font-size: 10px; font-weight: 700; background: rgba(0, 113, 227, 0.10); color: #0071E3; padding: 1px 7px; border-radius: 9999px; border: 1px solid rgba(0, 113, 227, 0.22);">Захищено</span>`;
+    pill.classList.toggle('ts-pill-red', isRed);
+    pill.classList.toggle('ts-expanded', isExpanded);
 
-    const cleanButtonHtml = hasValue
-      ? `<button id="ts-field-clean-btn" class="ts-pill-btn-primary" style="padding: 6px 12px !important; font-size: 11px !important;">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-          Очистити поле
-        </button>`
-      : '';
-
-    popover.innerHTML = `
-      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-        <div style="display: flex; align-items: center; gap: 6px;">
-          <div style="width: 20px; height: 20px; border-radius: 50%; background: ${isRed ? 'rgba(239, 68, 68, 0.12)' : 'rgba(0, 113, 227, 0.1)'}; display: flex; align-items: center; justify-content: center; color: ${isRed ? '#DC2626' : '#0071E3'};">
-            ${details.iconSvg}
-          </div>
-          <span style="font-size: 12px; font-weight: 700; color: #1D1D1F;">
-            ${record.metadata.categoryLabel}
+    if (isExpanded) {
+      if (isRed) {
+        pill.innerHTML = `
+          <span class="ts-field-pill-icon" style="color: #DC2626; display: flex; align-items: center; flex-shrink: 0;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
           </span>
-        </div>
-        ${statusBadge}
-      </div>
-      <p style="font-size: 11px; line-height: 1.45; color: #515154; margin: 0 0 10px 0;">
-        ${details.explanation}
-      </p>
-      <div style="display: flex; align-items: center; justify-content: flex-end; gap: 6px;">
-        ${cleanButtonHtml}
-      </div>
-    `;
+          <span class="ts-field-pill-msg" style="color: #991B1B; font-size: 11px; line-height: 1.35; font-weight: 500; flex: 1;">
+            ${details.bannerWarning}
+          </span>
+          <button class="ts-pill-quick-clean-btn ts-clean-prominent" title="Очистити поле" type="button">
+            Очистити
+          </button>
+        `;
+      } else {
+        pill.innerHTML = `
+          <span class="ts-field-pill-icon" style="color: #0071E3; display: flex; align-items: center; flex-shrink: 0;">
+            ${details.iconSvg}
+          </span>
+          <span class="ts-field-pill-msg" style="color: #1D1D1F; font-size: 11px; line-height: 1.35; font-weight: 500;">
+            ${details.bannerWarning}
+          </span>
+        `;
+      }
+    } else {
+      if (isRed) {
+        pill.innerHTML = `
+          <span class="ts-field-pill-icon" style="color: #DC2626; display: flex; align-items: center;">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </span>
+          <span class="ts-field-pill-label" style="color: #B91C1C; font-weight: 700;">${details.shortLabel}</span>
+          <span style="font-size: 9px; color: #DC2626; opacity: 0.7;">•</span>
+          <span style="font-size: 9.5px; color: #DC2626; font-weight: 600;">Увага</span>
+          <button class="ts-pill-quick-clean-btn" title="Очистити поле" type="button">Очистити</button>
+        `;
+      } else {
+        pill.innerHTML = `
+          <span class="ts-field-pill-icon" style="color: #0071E3; display: flex; align-items: center;">
+            ${details.iconSvg}
+          </span>
+          <span class="ts-field-pill-label" style="color: #1D1D1F;">${details.shortLabel}</span>
+          <span style="font-size: 9px; color: #86868B;">•</span>
+          <span style="font-size: 9.5px; color: #0071E3; font-weight: 500;">Захист</span>
+        `;
+      }
+    }
 
-    popover.addEventListener('mouseenter', () => this.cancelPopoverClose());
-    popover.addEventListener('mouseleave', () => this.schedulePopoverClose());
-
-    const cleanBtn = popover.querySelector('#ts-field-clean-btn') as HTMLButtonElement | null;
+    // Слухач для кнопки швидкого очищення
+    const cleanBtn = pill.querySelector('.ts-pill-quick-clean-btn');
     if (cleanBtn) {
       cleanBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        this.clearInputField(input, record);
+        this.clearInputField(record.input, record);
       });
-    }
-
-    root.appendChild(popover);
-    this.activePopover = popover;
-    this.activePopoverInput = input;
-    this.updatePopoverPosition(input, popover);
-  }
-
-  private static updatePopoverPosition(input: HTMLInputElement | HTMLTextAreaElement, popover: HTMLElement): void {
-    if (!input.isConnected) return;
-
-    const rect = input.getBoundingClientRect();
-    const scrollX = typeof window !== 'undefined' ? (window.scrollX || window.pageXOffset || 0) : 0;
-    const scrollY = typeof window !== 'undefined' ? (window.scrollY || window.pageYOffset || 0) : 0;
-
-    const popoverWidth = popover.offsetWidth || 300;
-    const popoverHeight = popover.offsetHeight || 120;
-
-    let top = scrollY + rect.bottom + 6;
-    let left = scrollX + rect.right - popoverWidth;
-
-    if (left < scrollX + 10) left = scrollX + 10;
-    if (typeof window !== 'undefined' && rect.bottom + popoverHeight + 10 > window.innerHeight) {
-      top = scrollY + rect.top - popoverHeight - 6;
-    }
-
-    popover.style.top = `${Math.max(0, top)}px`;
-    popover.style.left = `${Math.max(0, left)}px`;
-  }
-
-  public static closePopover(): void {
-    if (this.activePopover && this.activePopover.parentNode) {
-      this.activePopover.parentNode.removeChild(this.activePopover);
-    }
-    this.activePopover = null;
-    this.activePopoverInput = null;
-  }
-
-  private static schedulePopoverClose(): void {
-    if (this.popoverCloseTimer) clearTimeout(this.popoverCloseTimer);
-    this.popoverCloseTimer = setTimeout(() => {
-      this.closePopover();
-    }, 150);
-  }
-
-  private static cancelPopoverClose(): void {
-    if (this.popoverCloseTimer) {
-      clearTimeout(this.popoverCloseTimer);
-      this.popoverCloseTimer = null;
     }
   }
 
   /**
-   * Очищення поля в 1 клік
+   * Очищення поля в 1 клік зі скиданням пігулки в безпечний стан
    */
-  private static clearInputField(input: HTMLInputElement | HTMLTextAreaElement, record: FieldLivePillRecord): void {
+  public static clearInputField(input: HTMLInputElement | HTMLTextAreaElement, record: FieldLivePillRecord): void {
     if ('value' in input && typeof input.value === 'string') {
       const proto = input instanceof HTMLTextAreaElement
-        ? window.HTMLTextAreaElement?.prototype
-        : window.HTMLInputElement?.prototype;
+        ? (typeof window !== 'undefined' ? window.HTMLTextAreaElement?.prototype : null)
+        : (typeof window !== 'undefined' ? window.HTMLInputElement?.prototype : null);
       const nativeSetter = proto ? Object.getOwnPropertyDescriptor(proto, 'value')?.set : null;
       if (nativeSetter) {
         nativeSetter.call(input, '');
@@ -522,13 +385,7 @@ export class FieldLivePill {
     } catch {}
 
     this.setRedAlertState(input, record, false);
-    this.closePopover();
-
-    if (typeof input.focus === 'function') {
-      try {
-        input.focus();
-      } catch {}
-    }
+    this.collapsePill(input, record);
   }
 
   private static resolveFieldDetails(meta: FieldProtectionMetadata): FieldDetailsInfo {
@@ -540,7 +397,6 @@ export class FieldLivePill {
         shortLabel: 'CVV',
         iconSvg: `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`,
         bannerWarning: 'Для отримання коштів CVV-код ніколи не потрібен! Його запитують лише для списання.',
-        explanation: 'Для зарахування коштів або переказу тризначний CVV/CVC-код ніколи не потрібен. Його запитують виключно для списання коштів з вашої картки.',
       };
     }
 
@@ -549,7 +405,6 @@ export class FieldLivePill {
         shortLabel: 'Термін дії',
         iconSvg: `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
         bannerWarning: 'Термін дії картки потрібен лише для покупок, а не для зарахування коштів.',
-        explanation: 'Для отримання грошей потрібен лише номер картки. Дата закінчення терміну дії запитується шахраями для авторизації списання.',
       };
     }
 
@@ -558,7 +413,6 @@ export class FieldLivePill {
         shortLabel: 'ПІН-код',
         iconSvg: `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`,
         bannerWarning: 'Категорично заборонено: введення ПІН-коду картки на вебсайтах!',
-        explanation: 'ПІН-код використовується лише в банкоматах і терміналах. Жоден офіційний сайт ніколи не запитує ПІН-код.',
       };
     }
 
@@ -567,7 +421,6 @@ export class FieldLivePill {
         shortLabel: 'ІПН / РНОКПП',
         iconSvg: `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>`,
         bannerWarning: 'Перевірте одержувача: введення ІПН на сторонніх сайтах несе загрозу крадіжки особистих даних.',
-        explanation: 'Введення персонального ідентифікаційного коду на підозрілих або фішингових сайтах може бути використане для оформлення кредитів на ваше ім’я.',
       };
     }
 
@@ -575,7 +428,6 @@ export class FieldLivePill {
       shortLabel: meta.categoryLabel.length > 16 ? meta.categoryLabel.slice(0, 14) + '…' : meta.categoryLabel,
       iconSvg: `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-1.5 1.5L12 11l-4-4-6 6 4 4 6-6 5.5-5.5M19 5l-2-2"/></svg>`,
       bannerWarning: `Виявлено запит конфіденційного маркера безпеки: «${meta.categoryLabel}».`,
-      explanation: `Це поле призначене для введення персонального маркера зі сховища Vault. Переконайтеся в надійності сайту перед відправкою.`,
     };
   }
 
@@ -596,29 +448,7 @@ export class FieldLivePill {
         }
       }
 
-      @keyframes tsBannerUnroll {
-        0% {
-          opacity: 0;
-          transform: scale(0.88) translateY(-4px);
-        }
-        100% {
-          opacity: 1;
-          transform: scale(1) translateY(0);
-        }
-      }
-
-      @keyframes tsBannerRetract {
-        0% {
-          opacity: 1;
-          transform: scale(1) translateY(0);
-        }
-        100% {
-          opacity: 0;
-          transform: scale(0.88) translateY(-4px);
-        }
-      }
-
-      /* Resting Security Pill */
+      /* Resting Security Pill (Bottom-right under input) */
       .ts-field-live-pill {
         position: absolute !important;
         z-index: 2147483645 !important;
@@ -630,7 +460,7 @@ export class FieldLivePill {
         -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
         border: 1px solid rgba(0, 113, 227, 0.25) !important;
         color: #0071E3 !important;
-        padding: 3px 8px !important;
+        padding: 3px 9px !important;
         border-radius: 9999px !important;
         font-size: 10.5px !important;
         font-weight: 600 !important;
@@ -641,16 +471,31 @@ export class FieldLivePill {
         user-select: none !important;
         white-space: nowrap !important;
         box-sizing: border-box !important;
+        max-width: 95vw !important;
         animation: tsFieldPillFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
-        transition: background-color 0.24s cubic-bezier(0.16, 1, 0.3, 1),
+        transition: padding 0.24s cubic-bezier(0.16, 1, 0.3, 1),
+                    border-radius 0.24s cubic-bezier(0.16, 1, 0.3, 1),
+                    background-color 0.24s cubic-bezier(0.16, 1, 0.3, 1),
                     border-color 0.24s cubic-bezier(0.16, 1, 0.3, 1),
                     color 0.24s cubic-bezier(0.16, 1, 0.3, 1),
                     box-shadow 0.24s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        pointer-events: auto !important;
       }
 
       .ts-field-live-pill:hover {
         border-color: rgba(0, 113, 227, 0.45) !important;
         box-shadow: 0 4px 12px rgba(0, 113, 227, 0.15) !important;
+      }
+
+      /* Unrolled Informational Message (Expanded Pill under field) */
+      .ts-field-live-pill.ts-expanded {
+        border-radius: 10px !important;
+        padding: 6px 11px !important;
+        white-space: normal !important;
+        max-width: 380px !important;
+        gap: 8px !important;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.10), 0 2px 6px rgba(0, 0, 0, 0.04) !important;
+        cursor: default !important;
       }
 
       /* Morphed Red Alert State */
@@ -667,48 +512,54 @@ export class FieldLivePill {
         box-shadow: 0 4px 16px rgba(220, 38, 38, 0.25) !important;
       }
 
-      /* Unrolled Informational Banner Curtain */
-      .ts-field-banner-curtain {
-        position: absolute !important;
-        z-index: 2147483646 !important;
-        background: rgba(255, 255, 255, 0.96) !important;
-        backdrop-filter: blur(20px) saturate(180%) !important;
-        -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
-        border: 1px solid rgba(0, 113, 227, 0.35) !important;
-        border-radius: 8px !important;
-        padding: 6px 10px !important;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.06) !important;
-        display: flex !important;
+      .ts-field-live-pill.ts-pill-red.ts-expanded {
+        border-color: rgba(220, 38, 38, 0.55) !important;
+        box-shadow: 0 8px 24px rgba(220, 38, 38, 0.20), 0 2px 6px rgba(220, 38, 38, 0.08) !important;
+      }
+
+      /* Inline Quick Clean Button */
+      .ts-pill-quick-clean-btn {
+        all: unset !important;
+        appearance: none !important;
+        -webkit-appearance: none !important;
+        cursor: pointer !important;
+        background: rgba(220, 38, 38, 0.12) !important;
+        color: #DC2626 !important;
+        border: 1px solid rgba(220, 38, 38, 0.25) !important;
+        font-size: 9.5px !important;
+        font-weight: 600 !important;
+        padding: 1.5px 7px !important;
+        border-radius: 9999px !important;
+        margin-left: 2px !important;
+        display: inline-flex !important;
         align-items: center !important;
-        justify-content: space-between !important;
-        gap: 8px !important;
-        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif !important;
+        line-height: 1.3 !important;
+        transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        flex-shrink: 0 !important;
         box-sizing: border-box !important;
-        animation: tsBannerUnroll 0.26s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
-        pointer-events: auto !important;
       }
 
-      .ts-field-banner-curtain.ts-retracting {
-        animation: tsBannerRetract 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
-        pointer-events: none !important;
+      .ts-pill-quick-clean-btn:hover {
+        background: #DC2626 !important;
+        color: #FFFFFF !important;
+        border-color: #DC2626 !important;
+        transform: scale(1.03) !important;
       }
 
-      /* Popover Card */
-      .ts-field-live-popover {
-        position: absolute !important;
-        z-index: 2147483647 !important;
-        background: rgba(255, 255, 255, 0.98) !important;
-        backdrop-filter: blur(24px) saturate(180%) !important;
-        -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-        border: 1px solid rgba(0, 0, 0, 0.08) !important;
-        border-radius: 14px !important;
-        padding: 12px 14px !important;
-        width: 300px !important;
-        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.14), 0 2px 8px rgba(0, 0, 0, 0.04) !important;
-        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif !important;
-        box-sizing: border-box !important;
-        overflow-x: hidden !important;
-        animation: tsFieldPillFadeIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+      .ts-pill-quick-clean-btn.ts-clean-prominent {
+        background: #DC2626 !important;
+        color: #FFFFFF !important;
+        border-color: #DC2626 !important;
+        font-size: 10px !important;
+        padding: 3px 8px !important;
+        border-radius: 6px !important;
+        box-shadow: 0 1px 3px rgba(220, 38, 38, 0.3) !important;
+      }
+
+      .ts-pill-quick-clean-btn.ts-clean-prominent:hover {
+        background: #B91C1C !important;
+        border-color: #B91C1C !important;
+        box-shadow: 0 2px 6px rgba(220, 38, 38, 0.4) !important;
       }
     `;
     root.appendChild(style);

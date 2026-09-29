@@ -181,14 +181,6 @@ export class GlobalInputInterceptor {
   public static init() {
     const intercept = (e: Event) => {
       const target = e.target as HTMLElement;
-      if (target && target.dataset?.sanctuarySealed === 'true') {
-        e.preventDefault();
-        e.stopImmediatePropagation();
-        import('./proactive-field-protector').then(({ ProactiveFieldProtector }) => {
-          ProactiveFieldProtector.showTooltipForElement(target as HTMLInputElement);
-        });
-        return;
-      }
 
       // Якщо немає блокувань — пропускаємо
       if (!this.isSoftLocked && !this.hardLockContext) return;
