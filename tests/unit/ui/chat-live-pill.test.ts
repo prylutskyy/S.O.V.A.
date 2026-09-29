@@ -230,4 +230,101 @@ describe('ChatLivePill (Tactile Stack & Multi-Trigger Protection Deck)', () => {
     expect(input.value).not.toContain('999');
     expect(input.value).toContain('SecretVaultKey456');
   });
+
+  it('accurately strips TAX_ID (ІПН) and mother maiden name from input text', () => {
+    input.value = 'Ось мій ІПН: 3124567890, а дівоче прізвище матері Коваленко!';
+
+    const evalVault: SessionOutboundEvaluation = {
+      shouldBlock: true,
+      reason: 'Виявлено конфіденційні маркери зі сховища',
+      riskLevel: 'CRITICAL',
+      score: 95,
+      triggers: [],
+      leakage: {
+        hasCard: false,
+        hasCvv: false,
+        hasExpiry: false,
+        hasOtp: false,
+        cards: [],
+        isCrossMessage: false,
+      },
+      vaultMatches: [
+        {
+          id: 'v_tax',
+          label: 'РНОКПП (ІПН)',
+          category: 'TAX_ID',
+          realValue: '3124567890',
+          decoyValue: '2987654321',
+          keywords: ['іпн'],
+          createdAt: 0,
+        },
+        {
+          id: 'v_maiden',
+          label: 'Дівоче прізвище матері',
+          category: 'MOTHER_MAIDEN_NAME',
+          realValue: 'Коваленко',
+          decoyValue: 'Шевченко',
+          keywords: ['прізвище'],
+          createdAt: 0,
+        },
+      ],
+    };
+
+    ChatLivePill.show(input, evalVault);
+    const root = ShadowHost.getRoot();
+    const pill = root.querySelector('.ts-chat-live-pill') as HTMLElement;
+    expect(pill).not.toBeNull();
+
+    // Hover -> deck with 2 vault items
+    pill.dispatchEvent(new MouseEvent('mouseenter'));
+    const popover = root.querySelector('.ts-chat-live-popover') as HTMLElement;
+    const singleBtns = popover.querySelectorAll('.ts-pill-clean-single-btn');
+    expect(singleBtns.length).toBe(2);
+
+    // 1. Remove TAX_ID specifically
+    singleBtns[0].dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(input.value).not.toContain('3124567890');
+    expect(input.value).toContain('Коваленко');
+
+    // Show pill again for maiden name
+    const evalSingleVault: SessionOutboundEvaluation = {
+      ...evalVault,
+      vaultMatches: [evalVault.vaultMatches[1]],
+    };
+    ChatLivePill.show(input, evalSingleVault);
+
+    // 2. Open single-trigger popover and click clean
+    const pill2 = root.querySelector('.ts-chat-live-pill') as HTMLElement;
+    pill2.dispatchEvent(new MouseEvent('mouseenter'));
+    const popover2 = root.querySelector('.ts-chat-live-popover') as HTMLElement;
+    const singleCleanBtn = popover2.querySelector('#ts-pill-clean-btn') as HTMLButtonElement;
+    expect(singleCleanBtn).not.toBeNull();
+
+    singleCleanBtn.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(input.value).not.toContain('Коваленко');
+  });
+
+  it('ensures popover and deck container suppress horizontal scrollbar and button hover scaling', () => {
+    const root = ShadowHost.getRoot();
+    ChatLivePill.show(input, {
+      shouldBlock: true,
+      riskLevel: 'CRITICAL',
+      score: 80,
+      triggers: [],
+      leakage: { hasCard: false, hasCvv: true, hasExpiry: false, hasOtp: false, cards: [], isCrossMessage: false },
+      vaultMatches: [],
+    });
+
+    const styleEl = root.getElementById('ts-chat-live-pill-styles') as HTMLStyleElement;
+    expect(styleEl).not.toBeNull();
+    const css = styleEl.textContent || '';
+
+    // Must prevent horizontal scrollbar via overflow-x: hidden
+    expect(css).toContain('overflow-x: hidden !important');
+    expect(css).toContain('.ts-deck-body::-webkit-scrollbar-horizontal');
+
+    // Buttons must NOT scale on hover (which caused the overflow glitch)
+    expect(css).not.toContain('.ts-pill-btn-primary:hover {\n        transform: translateY(-1px) scale');
+    expect(css).not.toContain('.ts-pill-btn-secondary:hover {\n        background-color: rgba(239, 68, 68, 0.10) !important;\n        color: #DC2626 !important;\n        border-color: rgba(239, 68, 68, 0.25) !important;\n        transform: scale');
+  });
 });

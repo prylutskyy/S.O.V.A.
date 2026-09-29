@@ -746,6 +746,52 @@ export class PersonalVaultManager {
   }
 
   /**
+   * Співставлення кандидатів із їхніми Salted HMAC хешами
+   */
+  private static extractCandidateHashMap(cleanVal: string, salt: Uint8Array): Map<string, string> {
+    const map = new Map<string, string>();
+    const candidates = new Set<string>();
+
+    candidates.add(cleanVal);
+
+    const digits = cleanVal.replace(/\D/g, '');
+    if (digits.length >= 6) {
+      candidates.add(digits);
+      if (digits.length >= 7) candidates.add(digits.slice(-7));
+      if (digits.length >= 9) candidates.add(digits.slice(-9));
+      if (digits.length >= 10) candidates.add(digits.slice(-10));
+    }
+
+    // Текстові слова (chat, free text)
+    const words = cleanVal.split(/[\s,.;:!?+/'"()\[\]{}]+/).filter((w) => w.length >= 2);
+    for (const w of words) {
+      candidates.add(w);
+    }
+
+    // Числові послідовності в тексті
+    const digitMatches = cleanVal.match(/\d{6,14}/g);
+    if (digitMatches) {
+      for (const d of digitMatches) {
+        candidates.add(d);
+        if (d.length >= 7) candidates.add(d.slice(-7));
+        if (d.length >= 9) candidates.add(d.slice(-9));
+        if (d.length >= 10) candidates.add(d.slice(-10));
+      }
+    }
+
+    for (const cand of candidates) {
+      if (cand.length >= 2) {
+        const h = CryptoService.computeHmacSync(cand, salt);
+        if (!map.has(h)) {
+          map.set(h, cand);
+        }
+      }
+    }
+
+    return map;
+  }
+
+  /**
    * Перевірка введеного тексту на присутність конфіденційного значення з Vault (Value Inspection)
    * Підтримує пряме співставлення (у розблокованому стані) та Zero-Knowledge Salted HMAC (у заблокованому)
    */
@@ -774,6 +820,7 @@ export class PersonalVaultManager {
           const last7Real = digitsOnlyReal.slice(-7);
           const last7Val = digitsOnlyVal.slice(-7);
           if (last7Real === last7Val) {
+            (item as any).matchedValue = item.realValue;
             return item;
           }
         }
@@ -784,12 +831,23 @@ export class PersonalVaultManager {
         const dateDigitsReal = realClean.replace(/\D/g, '');
         const dateDigitsVal = cleanVal.replace(/\D/g, '');
         if (dateDigitsReal.length >= 6 && dateDigitsReal === dateDigitsVal) {
+          (item as any).matchedValue = item.realValue;
           return item;
         }
       }
 
-      // 1c. Загальне текстове або точне цифрове співпадіння
+      // 1c. Спеціальна цифрова перевірка для ІПН / РНОКПП
+      if (item.category === 'TAX_ID') {
+        const digitsOnlyReal = realClean.replace(/\D/g, '');
+        if (digitsOnlyReal.length >= 8 && digitsOnlyVal.includes(digitsOnlyReal)) {
+          (item as any).matchedValue = item.realValue || digitsOnlyReal;
+          return item;
+        }
+      }
+
+      // 1d. Загальне текстове або точне цифрове співпадіння
       if (cleanVal === realClean || (realClean.length >= 3 && cleanVal.includes(realClean))) {
+        (item as any).matchedValue = item.realValue;
         return item;
       }
     }
@@ -797,12 +855,13 @@ export class PersonalVaultManager {
     // 2. ZERO-KNOWLEDGE BLIND TOKEN MATCHING (HMAC-SHA256)
     // Працює 24/7 у фоні навіть при заблокованому сховищі!
     if (this.blindSalt) {
-      const candidateHashes = this.extractCandidateHashes(cleanVal, this.blindSalt);
-      if (candidateHashes.size > 0) {
+      const candidateMap = this.extractCandidateHashMap(cleanVal, this.blindSalt);
+      if (candidateMap.size > 0) {
         for (const item of activeItems) {
           if (!item.blindTokens || item.blindTokens.length === 0) continue;
           for (const token of item.blindTokens) {
-            if (candidateHashes.has(token)) {
+            if (candidateMap.has(token)) {
+              (item as any).matchedValue = candidateMap.get(token) || item.realValue;
               return item;
             }
           }

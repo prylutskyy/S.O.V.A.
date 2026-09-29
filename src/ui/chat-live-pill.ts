@@ -193,18 +193,19 @@ export class ChatLivePill {
     if (evalRes.vaultMatches && evalRes.vaultMatches.length > 0) {
       const seenVaultLabels = new Set<string>();
       for (const item of evalRes.vaultMatches) {
-        const itemKey = `${item.label}_${item.value || ''}`;
+        const itemVal = (item as any).matchedValue || item.realValue || (item as any).value || '';
+        const itemKey = `${item.label}_${itemVal}`;
         if (seenVaultLabels.has(itemKey)) continue;
         seenVaultLabels.add(itemKey);
 
         list.push({
-          id: `vault_${item.label}_${item.value || ''}`,
+          id: `vault_${item.label}_${itemVal}`,
           iconSvg: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-1.5 1.5L12 11l-4-4-6 6 4 4 6-6 5.5-5.5M19 5l-2-2"/></svg>`,
           label: `Сховище: ${item.label}`,
           sublabel: 'Особистий секрет',
           explanation: `Ви ввели конфіденційний маркер зі свого Personal Vault («${item.label}»). Не передавайте його стороннім ресурсам.`,
           stripType: 'VAULT',
-          vaultValue: item.value,
+          vaultValue: itemVal,
           isCivic: false,
           priority: 5,
           buttonLabel: 'Видалити секрет',
@@ -337,7 +338,7 @@ export class ChatLivePill {
         .map((item, idx) => {
           const itemAccent = item.isCivic ? '#0284C7' : '#0071E3';
           const isLast = idx === detailsList.length - 1;
-          const escapedVault = item.vaultValue ? item.vaultValue.replace(/"/g, '&quot;') : '';
+          const escapedVault = item.vaultValue ? encodeURIComponent(item.vaultValue) : '';
 
           return `
             <div class="ts-deck-row" data-item-id="${item.id}" style="
@@ -345,7 +346,7 @@ export class ChatLivePill {
               ${isLast ? '' : 'border-bottom: 1px solid rgba(0, 0, 0, 0.06);'}
             ">
               <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px;">
-                <div style="display: flex; align-items: center; gap: 8px; min-width: 0;">
+                <div style="display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1;">
                   <div style="
                     width: 20px;
                     height: 20px;
@@ -359,14 +360,14 @@ export class ChatLivePill {
                   ">
                     ${item.iconSvg}
                   </div>
-                  <div style="min-width: 0;">
+                  <div style="min-width: 0; flex: 1;">
                     <div style="font-size: 11.5px; font-weight: 600; color: #1D1D1F; line-height: 1.2; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">
                       ${item.label}
                     </div>
                     <div style="font-size: 9.5px; color: #86868B;">${item.sublabel}</div>
                   </div>
                 </div>
-                <button class="ts-pill-clean-single-btn ts-pill-btn-secondary" data-strip-type="${item.stripType}" ${item.vaultValue ? `data-vault-value="${escapedVault}"` : ''}>
+                <button class="ts-pill-clean-single-btn ts-pill-btn-secondary" data-item-index="${idx}" data-strip-type="${item.stripType}" ${item.vaultValue ? `data-vault-value="${escapedVault}"` : ''}>
                   Видалити
                 </button>
               </div>
@@ -399,7 +400,7 @@ export class ChatLivePill {
             Очистити всі
           </button>
         </div>
-        <div class="ts-deck-body" style="max-height: 260px; overflow-y: auto;">
+        <div class="ts-deck-body" style="max-height: 260px; overflow-y: auto; overflow-x: hidden; box-sizing: border-box;">
           ${rowsHtml}
         </div>
       `;
@@ -436,9 +437,17 @@ export class ChatLivePill {
       const b = btn as HTMLButtonElement;
       b.addEventListener('click', (e) => {
         e.stopPropagation();
-        const stripType = b.dataset.stripType as any;
-        const vaultValue = b.dataset.vaultValue;
-        this.stripSensitiveData(stripType, vaultValue);
+        const idxStr = b.dataset.itemIndex;
+        const idx = idxStr !== undefined ? parseInt(idxStr, 10) : -1;
+        const item = detailsList[idx];
+        if (item) {
+          this.stripSensitiveData(item.stripType, item.vaultValue);
+        } else {
+          const stripType = b.dataset.stripType as any;
+          const rawVault = b.dataset.vaultValue;
+          const vaultValue = rawVault ? decodeURIComponent(rawVault) : undefined;
+          this.stripSensitiveData(stripType, vaultValue);
+        }
       });
     });
 
@@ -493,6 +502,51 @@ export class ChatLivePill {
   }
 
   /**
+   * Точне очищення чутливого значення зі сховища або реквізитів особи
+   */
+  private static stripVaultValue(
+    currentText: string,
+    targetVal?: string,
+    category?: string,
+    label?: string
+  ): string {
+    let updated = currentText;
+
+    if (targetVal && targetVal.trim().length > 0) {
+      const cleanTarget = targetVal.trim();
+      const escaped = cleanTarget.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+      // Шаблони префіксів для ІПН, прізвища, кодового слова тощо
+      const prefix = `(?:\\b(?:іпн|рнокпп|податковий\\s*(?:номер|код)|прізвище(?:\\s*матері)?|дівоче\\s*прізвище|паспорт(?:ні\\s*дані|ний\\s*код)?|код(?:ове\\s*слово)?|секретне\\s*слово|слово-пароль|tax\\s*id|inn|maiden\\s*name|secret\\s*word)\\s*[:=]?\\s*)?`;
+
+      // 1. Спроба видалити разом із контекстним словом-префіксом (наприклад "ІПН: 3124567890" або "прізвище Коваленко")
+      const patternWithPrefix = new RegExp(`(?:,\\s*)?${prefix}${escaped}(?:\\s*,)?`, 'gi');
+      updated = updated.replace(patternWithPrefix, ' ').replace(/\s{2,}/g, ' ').trim();
+
+      // 2. Якщо не спрацювало або префіксу не було — пряме видалення значення (незалежно від регістру)
+      if (updated === currentText) {
+        const directPattern = new RegExp(`(?:,\\s*)?${escaped}(?:\\s*,)?`, 'gi');
+        updated = updated.replace(directPattern, ' ').replace(/\s{2,}/g, ' ').trim();
+      }
+    }
+
+    // Резервний варіант для ІПН: якщо конкретне значення не передано або є залишком — шукаємо 8-10 цифр
+    if (
+      (updated === currentText || !targetVal) &&
+      (category === 'TAX_ID' || label?.toLowerCase().includes('іпн') || label?.toLowerCase().includes('податк'))
+    ) {
+      updated = updated.replace(/(?:,\s*)?(?:\b(?:іпн|рнокпп|податковий\\s*(?:номер|код)|инн)\s*[:=]?\s*)?\b\d{8,10}\b(?:\s*,)?/gi, ' ')
+        .replace(/\s{2,}/g, ' ')
+        .trim();
+    }
+
+    // Очищення залишкових розділових знаків на краях
+    updated = updated.replace(/^[,;:\s]+|[,;:\s]+$/g, '').trim();
+
+    return updated;
+  }
+
+  /**
    * Точкове видалення конкретного виявленого елемента
    */
   private static stripSensitiveData(type: 'CVV' | 'GPS' | 'SABOTAGE' | 'VAULT' | 'OTP', vaultValue?: string): void {
@@ -516,15 +570,15 @@ export class ChatLivePill {
     } else if (type === 'OTP') {
       updated = val.replace(/(?:код\s*з\s*смс|пароль\s*підтвердження|код\s*підтвердження|sms\s*code|otp\s*code|otp)[\s\p{L}:=_-]{0,25}?[0-9]{4,8}/giu, '').trim();
     } else if (type === 'VAULT') {
-      if (vaultValue) {
-        updated = updated.replace(vaultValue, '').trim();
-      } else if (this.currentEvaluation?.vaultMatches) {
-        for (const item of this.currentEvaluation.vaultMatches) {
-          if (item.value) {
-            updated = updated.replace(item.value, '').trim();
-          }
-        }
-      }
+      const item = this.currentDetailsList.find(d => d.stripType === 'VAULT' && (!vaultValue || d.vaultValue === vaultValue));
+      const vaultMatch = this.currentEvaluation?.vaultMatches?.find(
+        m => (m as any).matchedValue === vaultValue || m.realValue === vaultValue || (item && m.label === item.label)
+      );
+      const targetVal = vaultValue || item?.vaultValue || (vaultMatch as any)?.matchedValue || vaultMatch?.realValue;
+      const category = vaultMatch?.category;
+      const label = item?.label || vaultMatch?.label;
+
+      updated = this.stripVaultValue(updated, targetVal, category, label);
     } else if (type === 'SABOTAGE') {
       updated = '';
     }
@@ -553,8 +607,15 @@ export class ChatLivePill {
           .trim();
       } else if (item.stripType === 'OTP') {
         updated = updated.replace(/(?:код\s*з\s*смс|пароль\s*підтвердження|код\s*підтвердження|sms\s*code|otp\s*code|otp)[\s\p{L}:=_-]{0,25}?[0-9]{4,8}/giu, '').trim();
-      } else if (item.stripType === 'VAULT' && item.vaultValue) {
-        updated = updated.replace(item.vaultValue, '').trim();
+      } else if (item.stripType === 'VAULT') {
+        const vaultMatch = this.currentEvaluation?.vaultMatches?.find(
+          m => (m as any).matchedValue === item.vaultValue || m.realValue === item.vaultValue || m.label === item.label
+        );
+        const targetVal = item.vaultValue || (vaultMatch as any)?.matchedValue || vaultMatch?.realValue;
+        const category = vaultMatch?.category;
+        const label = item.label || vaultMatch?.label;
+
+        updated = this.stripVaultValue(updated, targetVal, category, label);
       } else if (item.stripType === 'SABOTAGE') {
         updated = '';
       }
@@ -566,7 +627,20 @@ export class ChatLivePill {
   private static applyUpdatedInput(updated: string): void {
     if (!this.currentInput) return;
 
-    this.currentInput.value = updated;
+    if ('value' in this.currentInput && typeof (this.currentInput as HTMLInputElement).value === 'string') {
+      const proto = this.currentInput instanceof HTMLTextAreaElement
+        ? window.HTMLTextAreaElement?.prototype
+        : window.HTMLInputElement?.prototype;
+      const nativeSetter = proto ? Object.getOwnPropertyDescriptor(proto, 'value')?.set : null;
+      if (nativeSetter) {
+        nativeSetter.call(this.currentInput, updated);
+      } else {
+        (this.currentInput as HTMLInputElement).value = updated;
+      }
+    } else {
+      (this.currentInput as HTMLElement).innerText = updated;
+    }
+
     try {
       this.currentInput.dispatchEvent(new Event('input', { bubbles: true }));
       this.currentInput.dispatchEvent(new Event('change', { bubbles: true }));
@@ -670,7 +744,31 @@ export class ChatLivePill {
         box-shadow: 0 16px 40px rgba(0, 0, 0, 0.14), 0 2px 8px rgba(0, 0, 0, 0.04) !important;
         font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif !important;
         box-sizing: border-box !important;
+        overflow-x: hidden !important;
         animation: tsPillFadeIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+      }
+
+      /* Deck Scroll Container */
+      .ts-deck-body {
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        box-sizing: border-box !important;
+        padding-right: 4px !important;
+      }
+
+      .ts-deck-body::-webkit-scrollbar {
+        width: 4px !important;
+        height: 0px !important;
+      }
+
+      .ts-deck-body::-webkit-scrollbar-horizontal {
+        display: none !important;
+        height: 0px !important;
+      }
+
+      .ts-deck-body::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.15) !important;
+        border-radius: 9999px !important;
       }
 
       /* Primary Dark Action Buttons (Clean & Clean-All) */
@@ -690,21 +788,20 @@ export class ChatLivePill {
         font-weight: 600 !important;
         letter-spacing: -0.01em !important;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12) !important;
-        transition: background-color 0.15s ease, transform 0.12s ease, box-shadow 0.15s ease !important;
+        transition: background-color 0.15s ease, box-shadow 0.15s ease !important;
         box-sizing: border-box !important;
+        flex-shrink: 0 !important;
       }
 
       .ts-pill-btn-primary:hover {
         background-color: #000000 !important;
         color: #FFFFFF !important;
-        transform: translateY(-1px) scale(1.02) !important;
-        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.20) !important;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.22) !important;
       }
 
       .ts-pill-btn-primary:active {
         background-color: #2C2C2E !important;
         color: #FFFFFF !important;
-        transform: translateY(0) scale(0.98) !important;
         box-shadow: 0 1px 2px rgba(0, 0, 0, 0.10) !important;
       }
 
@@ -725,29 +822,21 @@ export class ChatLivePill {
         align-items: center !important;
         justify-content: center !important;
         font-family: inherit !important;
-        transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.12s ease !important;
+        flex-shrink: 0 !important;
+        transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease !important;
         box-sizing: border-box !important;
       }
 
       .ts-pill-btn-secondary:hover {
-        background-color: rgba(239, 68, 68, 0.10) !important;
+        background-color: rgba(239, 68, 68, 0.12) !important;
         color: #DC2626 !important;
-        border-color: rgba(239, 68, 68, 0.25) !important;
-        transform: scale(1.03) !important;
+        border-color: rgba(239, 68, 68, 0.30) !important;
+        box-shadow: 0 1px 4px rgba(220, 38, 38, 0.12) !important;
       }
 
       .ts-pill-btn-secondary:active {
-        background-color: rgba(239, 68, 68, 0.18) !important;
+        background-color: rgba(239, 68, 68, 0.22) !important;
         color: #B91C1C !important;
-        transform: scale(0.97) !important;
-      }
-
-      .ts-deck-body::-webkit-scrollbar {
-        width: 4px;
-      }
-      .ts-deck-body::-webkit-scrollbar-thumb {
-        background: rgba(0, 0, 0, 0.15);
-        border-radius: 9999px;
       }
     `;
     root.appendChild(style);
