@@ -123,4 +123,24 @@ describe('SessionOutboundMemory (TDD Suite)', () => {
       expect(evalAfterReset.leakage.isCrossMessage).toBe(false);
     });
   });
+
+  describe('Civic Defense & National Resistance in Session Outbound Memory', () => {
+    it('blocks outbound GPS coordinates with score 100 and CRITICAL risk', () => {
+      const evalGps = SessionOutboundMemory.evaluateWithHistory('Координати для зустрічі: 48.4647, 35.0462');
+      expect(evalGps.shouldBlock).toBe(true);
+      expect(evalGps.riskLevel).toBe('CRITICAL');
+      expect(evalGps.score).toBe(100);
+      expect(evalGps.leakage.hasGps).toBe(true);
+      expect(evalGps.reason).toContain('GPS');
+    });
+
+    it('blocks outbound sabotage recruitment phrases with score 100 and CRITICAL risk', () => {
+      const evalSab = SessionOutboundMemory.evaluateWithHistory('плачу в гривнях за підпал релейних шаф');
+      expect(evalSab.shouldBlock).toBe(true);
+      expect(evalSab.riskLevel).toBe('CRITICAL');
+      expect(evalSab.score).toBe(100);
+      expect(evalSab.leakage.hasSabotage).toBe(true);
+      expect(evalSab.reason).toContain('диверсій');
+    });
+  });
 });

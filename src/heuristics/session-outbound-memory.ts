@@ -19,6 +19,8 @@ export interface SessionOutboundEvaluation {
     hasCvv: boolean;
     hasExpiry: boolean;
     hasOtp: boolean;
+    hasGps?: boolean;
+    hasSabotage?: boolean;
     cards: string[];
     isCrossMessage: boolean;
   };
@@ -145,6 +147,8 @@ export class SessionOutboundMemory {
     const cvvResult = SensitiveAssetDetector.detectCvv(textForCardCvv, cardAvailable);
     const expiryResult = SensitiveAssetDetector.detectExpirationDate(textForCardCvv, cardAvailable);
     const otpResult = SensitiveAssetDetector.detectOtp(textForCardCvv);
+    const gpsResult = SensitiveAssetDetector.detectGpsCoordinates(trimmed);
+    const sabotageResult = SensitiveAssetDetector.detectSabotageRecruitment(trimmed);
 
     const hasCvvInDraft = cvvResult.detected;
     const hasCvvInHistory = this.hasSentCvv();
@@ -157,6 +161,31 @@ export class SessionOutboundMemory {
     let score = 0;
     let shouldBlock = false;
     let primaryReason = '';
+
+    // ── СЦЕНАРІЙ 0: Національний спротив (GPS-координати та маркери диверсій) ─
+    if (gpsResult.detected) {
+      shouldBlock = true;
+      score = 100;
+      const detail = 'Виявлено передачу точних GPS-координат або посилання на картографічні сервіси! Під час воєнного стану це несе пряму загрозу коригування ударів ворога.';
+      triggers.push({
+        message: detail,
+        severity: 'CRITICAL',
+        scoreContribution: 100,
+      });
+      primaryReason = detail;
+    }
+
+    if (sabotageResult.detected) {
+      shouldBlock = true;
+      score = 100;
+      const detail = 'Увага! Текст містить маркери вербування до диверсій / підпалів або збору даних про Сили оборони (ст. 111-2, 113 КК України).';
+      triggers.push({
+        message: detail,
+        severity: 'CRITICAL',
+        scoreContribution: 100,
+      });
+      if (!primaryReason) primaryReason = detail;
+    }
 
     // ── СЦЕНАРІЙ 1: Повні платіжні реквізити (Номер картки + CVV) ─────────────
     // Або в одному повідомленні, або картка була раніше, а CVV зараз (чи навпаки)
@@ -262,6 +291,8 @@ export class SessionOutboundMemory {
         hasCvv: hasCvvInDraft || (hasCvvInHistory && hasCardInDraft),
         hasExpiry: hasExpiryInDraft || (hasExpiryInHistory && hasCardInDraft),
         hasOtp: hasOtpInDraft,
+        hasGps: gpsResult.detected,
+        hasSabotage: sabotageResult.detected,
         cards: allCards,
         isCrossMessage,
       },

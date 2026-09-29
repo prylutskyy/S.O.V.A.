@@ -119,6 +119,8 @@ export class ChatSubmitInterceptor {
           hasCvv: evaluation.leakage.hasCvv,
           hasExpiry: evaluation.leakage.hasExpiry,
           hasOtp: evaluation.leakage.hasOtp,
+          hasGps: evaluation.leakage.hasGps,
+          hasSabotage: evaluation.leakage.hasSabotage,
           cards: evaluation.leakage.cards,
           isCrossMessage: evaluation.leakage.isCrossMessage,
           customReason: evaluation.reason,
@@ -146,7 +148,7 @@ export class ChatSubmitInterceptor {
   private static setupListeners(): void {
     if (typeof document === 'undefined') return;
 
-    // 1. Реактивний фоновий моніторинг введення в чаті (Live Telemetry)
+    // 1. Реактивний фоновий моніторинг введення в чаті (Live Telemetry & Tactile Outline)
     this.inputListener = (event: Event) => {
       const target = event.target as HTMLElement | null;
       if (!target) return;
@@ -162,37 +164,45 @@ export class ChatSubmitInterceptor {
         const text = input.value || input.innerText || '';
         const evaluation = SessionOutboundMemory.evaluateWithHistory(text);
 
-        // Оновлюємо Швейцарську Лупу
+        // Оновлюємо Швейцарську Лупу (тільки у debugMode)
         if (this.options?.getDebugMode && this.options.getDebugMode()) {
           DebuggerOverlay.setAssessment(evaluation.score, evaluation.riskLevel);
           if (evaluation.riskLevel === 'CRITICAL' && this.lastReportedScore !== evaluation.score) {
             this.lastReportedScore = evaluation.score;
             DebuggerOverlay.log(
               'Чат: Витік Даних (Live)',
-              evaluation.reason || 'Виявлено спробу передачі платіжних реквізитів',
+              evaluation.reason || 'Виявлено спробу передачі чутливих реквізитів',
               '#EF4444'
             );
           }
         }
 
-        // Проактивне попередження при спробі передачі номера картки + CVV
-        const isCardCvvAttempt =
-          (evaluation.leakage.hasCard && evaluation.leakage.hasCvv) ||
-          (evaluation.leakage.hasCard && /cvv|cvc|код/i.test(text));
+        // Тактильний захисний контур без спаму модальними вікнами (Tactile Apple-grade Kinetic Feedback)
+        const isCriticalLeak =
+          evaluation.riskLevel === 'CRITICAL' &&
+          (evaluation.leakage.hasCvv ||
+            evaluation.leakage.hasGps ||
+            evaluation.leakage.hasSabotage ||
+            evaluation.leakage.hasOtp ||
+            evaluation.vaultMatches.length > 0 ||
+            (evaluation.leakage.hasCard && /cvv|cvc|код/i.test(text)));
 
-        if (evaluation.riskLevel === 'CRITICAL' && isCardCvvAttempt) {
+        if (isCriticalLeak) {
           input.style.outline = '2px solid #EF4444';
           input.style.outlineOffset = '1px';
+          input.style.transition = 'outline 0.2s ease, outline-offset 0.2s ease';
 
-          const now = Date.now();
-          const lastWarn = parseInt(input.dataset?.threatShieldLastCvvWarn || '0', 10);
-          if (now - lastWarn > 8000) {
-            input.dataset.threatShieldLastCvvWarn = now.toString();
-            ToastNotifier.show(
-              '⚠️ Зафіксовано спробу передачі номера картки та CVV-коду. Для отримання коштів CVV-код ніколи не потрібен!',
-              'error',
-              10000
-            );
+          if (this.options?.getDebugMode && this.options.getDebugMode()) {
+            const now = Date.now();
+            const lastWarn = parseInt(input.dataset?.threatShieldLastCvvWarn || '0', 10);
+            if (now - lastWarn > 8000) {
+              input.dataset.threatShieldLastCvvWarn = now.toString();
+              ToastNotifier.show(
+                '⚠️ Зафіксовано спробу передачі номера картки та CVV-коду. Для отримання коштів CVV-код ніколи не потрібен!',
+                'error',
+                10000
+              );
+            }
           }
         } else {
           if (input.style.outline.includes('rgb(239, 68, 68)') || input.style.outline.toLowerCase().includes('ef4444')) {

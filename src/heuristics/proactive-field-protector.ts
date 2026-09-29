@@ -122,16 +122,6 @@ export class ProactiveFieldProtector {
       }
     }
 
-    if (newlySealedLabels.length > 0) {
-      const distinct = Array.from(new Set(newlySealedLabels));
-      const labelText = distinct.slice(0, 2).join(', ') + (distinct.length > 2 ? ' та ін.' : '');
-      ToastNotifier.show(
-        `Sanctuary убезпечив поля від витоку даних: «${labelText}».`,
-        'warning',
-        8000
-      );
-    }
-
     return newlySealedLabels.length;
   }
 

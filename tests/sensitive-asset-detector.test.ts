@@ -247,4 +247,53 @@ describe('SensitiveAssetDetector (TDD Unit Suite)', () => {
       expect(result.detectedAssets.vaultMatches.length).toBe(0);
     });
   });
+
+  // ── 7. Національний спротив: витік геолокації та диверсії ───────────────
+  describe('Національний спротив: захист від коригування та диверсій (Civic Defense)', () => {
+    it('детектує та блокує точні GPS-координати в повідомленні', () => {
+      const gpsText = 'Ось точне місце: 50.4501, 30.5234 біля мосту';
+      const gpsRes = SensitiveAssetDetector.detectGpsCoordinates(gpsText);
+      expect(gpsRes.detected).toBe(true);
+      expect(gpsRes.match).toBe('50.4501, 30.5234');
+
+      const result = SensitiveAssetDetector.evaluateOutboundPayload({ text: gpsText });
+      expect(result.shouldBlock).toBe(true);
+      expect(result.action).toBe('BLOCK');
+      expect(result.riskLevel).toBe('CRITICAL');
+      expect(result.detectedAssets.hasGps).toBe(true);
+      expect(result.reason).toContain('GPS');
+    });
+
+    it('детектує та блокує посилання на карти Google Maps', () => {
+      const mapsText = 'Скинув точку https://maps.app.goo.gl/AbCdEf123';
+      const gpsRes = SensitiveAssetDetector.detectGpsCoordinates(mapsText);
+      expect(gpsRes.detected).toBe(true);
+
+      const result = SensitiveAssetDetector.evaluateOutboundPayload({ text: mapsText });
+      expect(result.shouldBlock).toBe(true);
+      expect(result.action).toBe('BLOCK');
+      expect(result.riskLevel).toBe('CRITICAL');
+      expect(result.detectedAssets.hasGps).toBe(true);
+    });
+
+    it('детектує та блокує маркери диверсійного рекрутингу та підпалів', () => {
+      const texts = [
+        'Плачу в гривнях за підпал релейних шаф',
+        'Треба знати де стоїть ппо',
+        'Потрібні координати ппо або склад',
+      ];
+
+      for (const t of texts) {
+        const sabRes = SensitiveAssetDetector.detectSabotageRecruitment(t);
+        expect(sabRes.detected).toBe(true);
+
+        const result = SensitiveAssetDetector.evaluateOutboundPayload({ text: t });
+        expect(result.shouldBlock).toBe(true);
+        expect(result.action).toBe('BLOCK');
+        expect(result.riskLevel).toBe('CRITICAL');
+        expect(result.detectedAssets.hasSabotage).toBe(true);
+        expect(result.reason).toMatch(/диверсій|Сили оборони/i);
+      }
+    });
+  });
 });

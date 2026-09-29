@@ -321,12 +321,6 @@ export class ChatChannelMonitor {
     // Ми скануємо вхідні повідомлення на наявність намірів:
     if (scan.hasFormedIntent) {
       if (this.debugMode) DebuggerOverlay.log('3. Intent Formed!', scan.intentType, '#EF4444');
-      // TIER 1: Миттєве виявлення загрози (без виклику ШІ)
-      ToastNotifier.show(
-        'Виявлено ознаки підозрілого діалогу. Будьте пильними: ніколи не переходьте за сторонніми посиланнями та не передавайте реквізити картки.',
-        'warning',
-        9000
-      );
       
       this.recentLuresCache.add(text);
       if (this.recentLuresCache.size > 50) {

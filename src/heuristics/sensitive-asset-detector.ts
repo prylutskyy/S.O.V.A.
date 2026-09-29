@@ -11,6 +11,10 @@ export interface OutboundAssetDetectionResult {
   expiry?: string;
   hasOtp: boolean;
   otp?: string;
+  hasGps?: boolean;
+  gpsMatch?: string;
+  hasSabotage?: boolean;
+  sabotageMatch?: string;
   vaultMatches: VaultItem[];
 }
 
@@ -67,7 +71,34 @@ export const EXPIRATION_STANDALONE_REGEX = /(?:^|\s)([0-1][0-9]\/[2-3][0-9])(?:\
 
 export const OTP_REGEX = /(?:код\s*з\s*смс|пароль\s*підтвердження|код\s*підтвердження|sms\s*code|otp\s*code|otp)[\s\p{L}:=_-]{0,25}?([0-9]{4,8})(?:$|[^\p{L}\p{N}])/iu;
 
+export const GPS_COORDINATES_REGEX = /\b([3-7]\d\.\d{4,8})\s*,\s*([2-4]\d\.\d{4,8})\b|https?:\/\/(?:maps\.app\.goo\.gl|goo\.gl\/maps|(?:www\.)?google\.[a-z.]+\/maps)/i;
+
+export const SABOTAGE_RECRUITMENT_REGEX = /(?:релейн[а-яіїє]*\s*шаф|підпал[а-яіїє]*\s*(?:авто|потяг|релейн|шаф|технік)|де\s*стоїть\s*ппо|координат[а-яіїє]*\s*(?:ппо|баз|частин|в\/ч|склад|дислокац)|розташуванн[а-яіїє]*\s*(?:ппо|технік|військ|батаре)|фото\s*(?:підстанц|тец|гес|трансформатор)|плачу\s*(?:за|в)\s*(?:крипт|гривн|фото|відео)\s*(?:шаф|підпал|координат))/iu;
+
 export class SensitiveAssetDetector {
+  /**
+   * Детекція точних GPS-координат або посилань на мапи
+   */
+  public static detectGpsCoordinates(text: string): { detected: boolean; match?: string } {
+    if (!text) return { detected: false };
+    const match = text.match(GPS_COORDINATES_REGEX);
+    if (match) {
+      return { detected: true, match: match[0] };
+    }
+    return { detected: false };
+  }
+
+  /**
+   * Детекція лінгвістичних маркерів ворожого рекрутингу та диверсій (Нацспротив)
+   */
+  public static detectSabotageRecruitment(text: string): { detected: boolean; match?: string } {
+    if (!text) return { detected: false };
+    const match = text.match(SABOTAGE_RECRUITMENT_REGEX);
+    if (match) {
+      return { detected: true, match: match[0] };
+    }
+    return { detected: false };
+  }
   /**
    * Витяг номерів банківських карток за алгоритмом Луна
    */
@@ -244,6 +275,8 @@ export class SensitiveAssetDetector {
     const cvvResult = this.detectCvv(text, hasCard);
     const expiryResult = this.detectExpirationDate(text, hasCard);
     const otpResult = this.detectOtp(text);
+    const gpsResult = this.detectGpsCoordinates(text);
+    const sabotageResult = this.detectSabotageRecruitment(text);
     const vaultMatches = this.detectVaultMatches(text, payload.unlockedVaultItems);
 
     const detectedAssets: OutboundAssetDetectionResult = {
@@ -255,10 +288,35 @@ export class SensitiveAssetDetector {
       expiry: expiryResult.match,
       hasOtp: otpResult.detected,
       otp: otpResult.match,
+      hasGps: gpsResult.detected,
+      gpsMatch: gpsResult.match,
+      hasSabotage: sabotageResult.detected,
+      sabotageMatch: sabotageResult.match,
       vaultMatches,
     };
 
     // ── СЦЕНАРІЇ БЛОКУВАННЯ (CRITICAL / HIGH) ────────────────────────────────
+
+    // 0. Національний спротив: витік геолокації або маркери диверсій
+    if (gpsResult.detected) {
+      return {
+        shouldBlock: true,
+        action: 'BLOCK',
+        riskLevel: 'CRITICAL',
+        reason: 'Виявлено передачу точних GPS-координат або посилання на картографічні сервіси! Під час воєнного стану це несе пряму загрозу коригування ударів ворога.',
+        detectedAssets,
+      };
+    }
+
+    if (sabotageResult.detected) {
+      return {
+        shouldBlock: true,
+        action: 'BLOCK',
+        riskLevel: 'CRITICAL',
+        reason: 'Увага! Текст містить маркери вербування до диверсій / підпалів або збору даних про Сили оборони (ст. 111-2, 113 КК України).',
+        detectedAssets,
+      };
+    }
 
     // 1. Секретний код CVV/CVC
     if (cvvResult.detected) {

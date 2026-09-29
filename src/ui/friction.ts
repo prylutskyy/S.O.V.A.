@@ -134,9 +134,13 @@ export class SecurityFriction {
       hasCvv: boolean;
       hasExpiry?: boolean;
       hasOtp?: boolean;
+      hasGps?: boolean;
+      hasSabotage?: boolean;
       cards: string[];
       isCrossMessage?: boolean;
       customReason?: string;
+      customTitle?: string;
+      customBadgeText?: string;
       customTriggers?: Array<{ message: string; severity: string }>;
     },
     onProceed: () => void,
@@ -186,10 +190,21 @@ export class SecurityFriction {
     }
   }
 
+    const isCivicDefense = leakage.hasGps || leakage.hasSabotage || triggers.some(t =>
+      t.message.toLowerCase().includes('геолокац') ||
+      t.message.toLowerCase().includes('диверсій') ||
+      t.message.toLowerCase().includes('ппо') ||
+      t.message.toLowerCase().includes('координат') ||
+      t.message.toLowerCase().includes('підпал')
+    );
+
+    const modalTitle = leakage.customTitle || (isCivicDefense ? 'Державна безпека: захист від передачі чутливих даних' : 'Призупинено надсилання в чаті');
+    const modalBadge = leakage.customBadgeText || (isCivicDefense ? 'ГРОМАДЯНСЬКИЙ ЗАХИСТ (CRITICAL)' : 'ВИТІК ПЛАТІЖНИХ ДАНИХ (CRITICAL)');
+
     UnifiedFrictionModal.show({
       type: 'chat',
-      title: 'Призупинено надсилання в чаті',
-      badgeText: 'ВИТІК ПЛАТІЖНИХ ДАНИХ (CRITICAL)',
+      title: modalTitle,
+      badgeText: modalBadge,
       badgeLevel: 'CRITICAL',
       contextLabel: 'Платформа діалогу',
       contextValue: currentPlatform,
@@ -199,7 +214,7 @@ export class SecurityFriction {
       vaultItems: vaultScan.matchedItems,
       chatLeakage: { hasCard: leakage.hasCard, hasCvv: leakage.hasCvv },
       rawTextToScan: chatInput.value || activeContext?.targetSuspiciousUrl || undefined,
-      intentType: activeContext?.scenario || 'PAYMENT_CREDENTIAL_THEFT',
+      intentType: activeContext?.scenario || (isCivicDefense ? 'CIVIC_DEFENSE_COMPROMISE' : 'PAYMENT_CREDENTIAL_THEFT'),
       allowRememberDomain: false,
       onProceed: () => {
         console.log('[ThreatShield] Користувач свідомо розблокував відправку повідомлення в чаті');

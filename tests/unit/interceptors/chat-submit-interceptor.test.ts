@@ -138,5 +138,49 @@ describe('ChatSubmitInterceptor (TDD Suite)', () => {
       expect(toastSpy).toHaveBeenCalled();
       expect(input.style.outline.toLowerCase()).toMatch(/#ef4444|rgb\(239,\s*68,\s*68\)/);
     });
+
+    it('applies tactile outline without noisy toast when debugMode is false (Apple-grade Silence)', () => {
+      const toastSpy = vi.spyOn(ToastNotifier, 'show').mockImplementation(() => {});
+
+      ChatSubmitInterceptor.init({
+        getActiveContext: () => null,
+        getDebugMode: () => false,
+      });
+
+      const input = document.createElement('input');
+      document.body.appendChild(input);
+
+      input.value = '4149 4390 1234 5678, 123';
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+
+      vi.advanceTimersByTime(150);
+
+      // NO toast for normal users!
+      expect(toastSpy).not.toHaveBeenCalled();
+      // Tactile kinetic outline IS applied
+      expect(input.style.outline.toLowerCase()).toMatch(/#ef4444|rgb\(239,\s*68,\s*68\)/);
+    });
+
+    it('blocks civic defense GPS coordinates and invokes SecurityFriction.applyToChat', () => {
+      const applyToChatSpy = vi.spyOn(SecurityFriction, 'applyToChat').mockImplementation(() => {});
+
+      ChatSubmitInterceptor.init({
+        getActiveContext: () => null,
+        getDebugMode: () => false,
+      });
+
+      const input = document.createElement('input');
+      input.value = 'Ось точні координати ппо: 50.4501, 30.5234';
+      document.body.appendChild(input);
+
+      const fakeEvent = new Event('click', { cancelable: true });
+      const blocked = ChatSubmitInterceptor.interceptChatSend(input, fakeEvent);
+
+      expect(blocked).toBe(true);
+      expect(fakeEvent.defaultPrevented).toBe(true);
+      expect(applyToChatSpy).toHaveBeenCalled();
+      const lastCallArgs = applyToChatSpy.mock.calls[0];
+      expect(lastCallArgs[1].hasGps).toBe(true);
+    });
   });
 });

@@ -114,7 +114,7 @@ export default defineContentScript({
         );
       }
 
-      if (shouldDisplayContextBanner(ctx)) {
+      if (debugMode && shouldDisplayContextBanner(ctx)) {
         SecurityFriction.showContextWarningBanner(ctx);
       }
     };
@@ -272,9 +272,11 @@ export default defineContentScript({
         GlobalInputInterceptor.setHardLock(localContext);
       }
 
-      SecurityFriction.showContextWarningBanner(localContext, bannerSubtitle, rawTextToScan, intentType, () => {
-        window.postMessage({ type: 'THREAT_SHIELD_CLEAR_CONTEXT' }, '*');
-      });
+      if (debugMode) {
+        SecurityFriction.showContextWarningBanner(localContext, bannerSubtitle, rawTextToScan, intentType, () => {
+          window.postMessage({ type: 'THREAT_SHIELD_CLEAR_CONTEXT' }, '*');
+        });
+      }
 
       try {
         chrome.runtime.sendMessage({
@@ -325,9 +327,9 @@ export default defineContentScript({
               `Загрозу спростовано [${aiResult.provider || 'ШІ'}: ${aiResult.modelUsed || ''}]: безпечно — ${aiResult.reasoning} (${aiResult.confidence}%)`,
               '#22C55E'
             );
+            ToastNotifier.show(`ШІ-Арбітр перевірив діалог: безпечно (${aiResult.reasoning})`, 'success', 4000);
           }
 
-          ToastNotifier.show(`ШІ-Арбітр перевірив діалог: безпечно (${aiResult.reasoning})`, 'success', 6000);
           window.postMessage({ type: 'THREAT_SHIELD_CONTEXT_CLEARED' }, '*');
         } else if (aiResult.isScam) {
           console.log('[ThreatShield:Content] ШІ-Арбітр підтвердив загрозу:', aiResult);
@@ -421,5 +423,32 @@ export default defineContentScript({
       getDebugMode: () => debugMode,
       onLureDetected: triggerLureContext,
     });
+
+    // 5. Секретна комбінація клавіш для наукового захисту (Thesis Defense: Ctrl + Shift + D)
+    window.addEventListener('keydown', (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'D' || e.key === 'd' || e.code === 'KeyD')) {
+        e.preventDefault();
+        e.stopPropagation();
+        debugMode = !debugMode;
+        ChatChannelMonitor.debugMode = debugMode;
+        if (debugMode) {
+          DebuggerOverlay.show();
+          if (activeContext && activeContext.sessionId) {
+            DebuggerOverlay.setSession(activeContext.sessionId, activeContext.threatLevel);
+          }
+          const primaryForm = document.querySelector('form');
+          if (primaryForm) {
+            FormSubmitInterceptor.auditForm(primaryForm, true);
+          }
+          ToastNotifier.show('Режим налагодження активовано (Thesis Defense)', 'info', 2500);
+        } else {
+          DebuggerOverlay.hide();
+          ToastNotifier.show('Режим налагодження вимкнено', 'info', 2000);
+        }
+        try {
+          chrome.storage.local.set({ debugModeEnabled: debugMode });
+        } catch {}
+      }
+    }, true);
   },
 });
