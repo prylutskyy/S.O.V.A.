@@ -5,6 +5,8 @@ import { SessionOutboundMemory } from '../../../src/heuristics/session-outbound-
 import { SecurityFriction } from '../../../src/ui/friction';
 import { ToastNotifier } from '../../../src/ui/toast-notifier';
 import { DebuggerOverlay } from '../../../src/ui/debugger-overlay';
+import { ShadowHost } from '../../../src/ui/shadow-host';
+import { ChatLivePill } from '../../../src/ui/chat-live-pill';
 
 describe('ChatSubmitInterceptor (TDD Suite)', () => {
   beforeEach(() => {
@@ -119,7 +121,7 @@ describe('ChatSubmitInterceptor (TDD Suite)', () => {
       vi.useRealTimers();
     });
 
-    it('proactively shows toast warning and outlines input when card + CVV is typed live in chat', () => {
+    it('proactively shows toast warning and renders ChatLivePill in debugMode', () => {
       const toastSpy = vi.spyOn(ToastNotifier, 'show').mockImplementation(() => {});
 
       ChatSubmitInterceptor.init({
@@ -136,10 +138,15 @@ describe('ChatSubmitInterceptor (TDD Suite)', () => {
       vi.advanceTimersByTime(150);
 
       expect(toastSpy).toHaveBeenCalled();
-      expect(input.style.outline.toLowerCase()).toMatch(/#ef4444|rgb\(239,\s*68,\s*68\)/);
+      const shadowRoot = ShadowHost.getRoot();
+      const pill = shadowRoot.querySelector('.ts-chat-live-pill');
+      expect(pill).not.toBeNull();
+      expect(pill?.textContent).toContain('CVV');
+      // Native outline remains pristine (no aggressive red border)
+      expect(input.style.outline).toBe('');
     });
 
-    it('applies tactile outline without noisy toast when debugMode is false (Apple-grade Silence)', () => {
+    it('renders ChatLivePill without noisy toast and keeps input outline native when debugMode is false (Apple-grade Silence)', () => {
       const toastSpy = vi.spyOn(ToastNotifier, 'show').mockImplementation(() => {});
 
       ChatSubmitInterceptor.init({
@@ -157,8 +164,49 @@ describe('ChatSubmitInterceptor (TDD Suite)', () => {
 
       // NO toast for normal users!
       expect(toastSpy).not.toHaveBeenCalled();
-      // Tactile kinetic outline IS applied
-      expect(input.style.outline.toLowerCase()).toMatch(/#ef4444|rgb\(239,\s*68,\s*68\)/);
+      // Native input frame is NOT corrupted with red outline
+      expect(input.style.outline).toBe('');
+
+      // Elegant pill in Shadow DOM is displayed
+      const shadowRoot = ShadowHost.getRoot();
+      const pill = shadowRoot.querySelector('.ts-chat-live-pill');
+      expect(pill).not.toBeNull();
+      expect(pill?.textContent).toContain('CVV');
+    });
+
+    it('shows popover on hover and strips sensitive CVV when action button is clicked', () => {
+      ChatSubmitInterceptor.init({
+        getActiveContext: () => null,
+        getDebugMode: () => false,
+      });
+
+      const input = document.createElement('input');
+      input.value = '4149 4390 1234 5678, cvv 789';
+      document.body.appendChild(input);
+
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      vi.advanceTimersByTime(150);
+
+      const shadowRoot = ShadowHost.getRoot();
+      const pill = shadowRoot.querySelector('.ts-chat-live-pill') as HTMLElement;
+      expect(pill).not.toBeNull();
+
+      // Trigger hover
+      pill.dispatchEvent(new MouseEvent('mouseenter'));
+
+      const popover = shadowRoot.querySelector('.ts-chat-live-popover') as HTMLElement;
+      expect(popover).not.toBeNull();
+      expect(popover.textContent).toContain('Для отримання коштів тризначний CVV/CVC-код ніколи не потрібен');
+
+      // Click "Видалити з тексту"
+      const cleanBtn = popover.querySelector('#ts-pill-clean-btn') as HTMLButtonElement;
+      expect(cleanBtn).not.toBeNull();
+      cleanBtn.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+
+      // Input value has CVV stripped
+      expect(input.value).not.toContain('789');
+      expect(input.value).toContain('4149 4390 1234 5678');
+      expect(shadowRoot.querySelector('.ts-chat-live-pill')).toBeNull();
     });
 
     it('blocks civic defense GPS coordinates and invokes SecurityFriction.applyToChat', () => {

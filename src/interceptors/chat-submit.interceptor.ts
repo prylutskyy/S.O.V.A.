@@ -4,6 +4,7 @@ import { ToastNotifier } from '../ui/toast-notifier';
 import { DebuggerOverlay } from '../ui/debugger-overlay';
 import { SessionOutboundMemory } from '../heuristics/session-outbound-memory';
 import { HiddenFieldInspector } from '../heuristics/hidden-field-inspector';
+import { ChatLivePill } from '../ui/chat-live-pill';
 
 export interface ChatSubmitInterceptorOptions {
   getActiveContext: () => ActiveThreatContext | null;
@@ -103,6 +104,7 @@ export class ChatSubmitInterceptor {
     const evaluation = SessionOutboundMemory.evaluateWithHistory(currentText);
 
     if (evaluation.shouldBlock) {
+      ChatLivePill.hide();
       event.preventDefault();
       event.stopPropagation();
       event.stopImmediatePropagation();
@@ -141,6 +143,7 @@ export class ChatSubmitInterceptor {
     }
 
     // Безпечне повідомлення або звичайний P2P-номер картки — фіксуємо в пам'яті сесії
+    ChatLivePill.hide();
     SessionOutboundMemory.recordSentMessage(currentText);
     return false;
   }
@@ -148,7 +151,7 @@ export class ChatSubmitInterceptor {
   private static setupListeners(): void {
     if (typeof document === 'undefined') return;
 
-    // 1. Реактивний фоновий моніторинг введення в чаті (Live Telemetry & Tactile Outline)
+    // 1. Реактивний фоновий моніторинг введення в чаті (Live Telemetry & Floating Safety Pill)
     this.inputListener = (event: Event) => {
       const target = event.target as HTMLElement | null;
       if (!target) return;
@@ -164,6 +167,12 @@ export class ChatSubmitInterceptor {
         const text = input.value || input.innerText || '';
         const evaluation = SessionOutboundMemory.evaluateWithHistory(text);
 
+        // Очищаємо можливі залишкові червоні контури — рамка поля завжди залишається нативною
+        if (input.style.outline && (input.style.outline.includes('rgb(239, 68, 68)') || input.style.outline.toLowerCase().includes('ef4444'))) {
+          input.style.outline = '';
+          input.style.outlineOffset = '';
+        }
+
         // Оновлюємо Швейцарську Лупу (тільки у debugMode)
         if (this.options?.getDebugMode && this.options.getDebugMode()) {
           DebuggerOverlay.setAssessment(evaluation.score, evaluation.riskLevel);
@@ -177,7 +186,7 @@ export class ChatSubmitInterceptor {
           }
         }
 
-        // Тактильний захисний контур без спаму модальними вікнами (Tactile Apple-grade Kinetic Feedback)
+        // Невагома плаваюча капсула безпеки під полем введення (Apple-grade Spatial Micro-Pill)
         const isCriticalLeak =
           evaluation.riskLevel === 'CRITICAL' &&
           (evaluation.leakage.hasCvv ||
@@ -188,9 +197,7 @@ export class ChatSubmitInterceptor {
             (evaluation.leakage.hasCard && /cvv|cvc|код/i.test(text)));
 
         if (isCriticalLeak) {
-          input.style.outline = '2px solid #EF4444';
-          input.style.outlineOffset = '1px';
-          input.style.transition = 'outline 0.2s ease, outline-offset 0.2s ease';
+          ChatLivePill.show(input, evaluation);
 
           if (this.options?.getDebugMode && this.options.getDebugMode()) {
             const now = Date.now();
@@ -205,10 +212,7 @@ export class ChatSubmitInterceptor {
             }
           }
         } else {
-          if (input.style.outline.includes('rgb(239, 68, 68)') || input.style.outline.toLowerCase().includes('ef4444')) {
-            input.style.outline = '';
-            input.style.outlineOffset = '';
-          }
+          ChatLivePill.hide();
         }
       }, 150);
     };
@@ -266,6 +270,7 @@ export class ChatSubmitInterceptor {
       clearTimeout(this.realtimeDebounceTimer);
       this.realtimeDebounceTimer = null;
     }
+    ChatLivePill.hide();
     this.options = null;
   }
 }
