@@ -474,7 +474,6 @@ export class FieldLivePill {
         max-width: 95vw !important;
         animation: tsFieldPillFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
         transition: padding 0.24s cubic-bezier(0.16, 1, 0.3, 1),
-                    border-radius 0.24s cubic-bezier(0.16, 1, 0.3, 1),
                     background-color 0.24s cubic-bezier(0.16, 1, 0.3, 1),
                     border-color 0.24s cubic-bezier(0.16, 1, 0.3, 1),
                     color 0.24s cubic-bezier(0.16, 1, 0.3, 1),
@@ -489,8 +488,7 @@ export class FieldLivePill {
 
       /* Unrolled Informational Message (Expanded Pill under field) */
       .ts-field-live-pill.ts-expanded {
-        border-radius: 10px !important;
-        padding: 6px 11px !important;
+        padding: 6px 14px !important;
         white-space: normal !important;
         max-width: 380px !important;
         gap: 8px !important;
