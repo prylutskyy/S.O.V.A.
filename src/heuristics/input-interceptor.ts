@@ -60,8 +60,8 @@ export class GlobalInputInterceptor {
     if (!items || items.length === 0) return;
 
 
-    const matchedItem = PersonalVaultManager.findMatchingVaultItemForValue(text, items);
-    if (!matchedItem) {
+    const vaultScan = VaultScanner.scanTextSync(text);
+    if (!vaultScan.matchedItems || vaultScan.matchedItems.length === 0) {
       if (target.dataset?.threatShieldHasVaultWarning === 'true') {
         if (target.style.outline && (target.style.outline.includes('rgb(220, 38, 38)') || target.style.outline.includes('rgb(217, 119, 6)') || target.style.outline.toLowerCase().includes('dc2626') || target.style.outline.toLowerCase().includes('d97706'))) {
           target.style.outline = '';
@@ -83,16 +83,13 @@ export class GlobalInputInterceptor {
 
     // Відображаємо виключно невагому капсулу ChatLivePill (без зміни рамки і без спливаючих тостів-попапів)
     if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target.isContentEditable || target.getAttribute('role') === 'textbox') {
+      const firstLabel = vaultScan.matchedItems[0].label;
       ChatLivePill.show(target as any, {
         shouldBlock: true,
-        reason: `Виявлено введення конфіденційного маркера: «${matchedItem.label}».`,
+        reason: `Виявлено введення конфіденційного маркера: «${firstLabel}».`,
         riskLevel: 'CRITICAL',
         score: 85,
-        triggers: [{
-          message: `Виявлено введення конфіденційного маркера: «${matchedItem.label}».`,
-          severity: 'CRITICAL',
-          scoreContribution: 85,
-        }],
+        triggers: vaultScan.triggers,
         leakage: {
           hasCard: false,
           hasCvv: false,
@@ -101,7 +98,7 @@ export class GlobalInputInterceptor {
           cards: [],
           isCrossMessage: false,
         },
-        vaultMatches: [matchedItem],
+        vaultMatches: vaultScan.matchedItems,
       });
     }
   }
