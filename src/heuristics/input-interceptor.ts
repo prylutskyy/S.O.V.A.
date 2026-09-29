@@ -1,4 +1,5 @@
 import { ToastNotifier } from '../ui/toast-notifier';
+import { ChatLivePill } from '../ui/chat-live-pill';
 import { ActiveThreatContext } from '../types';
 import { SensitiveAssetDetector } from './sensitive-asset-detector';
 import { PersonalVaultManager } from '../core/personal-vault';
@@ -62,42 +63,46 @@ export class GlobalInputInterceptor {
     const matchedItem = PersonalVaultManager.findMatchingVaultItemForValue(text, items);
     if (!matchedItem) {
       if (target.dataset?.threatShieldHasVaultWarning === 'true') {
-        target.style.outline = '';
-        target.style.outlineOffset = '';
+        if (target.style.outline && (target.style.outline.includes('rgb(220, 38, 38)') || target.style.outline.includes('rgb(217, 119, 6)') || target.style.outline.toLowerCase().includes('dc2626') || target.style.outline.toLowerCase().includes('d97706'))) {
+          target.style.outline = '';
+          target.style.outlineOffset = '';
+        }
         delete target.dataset.threatShieldHasVaultWarning;
+        ChatLivePill.hide();
       }
       return;
     }
 
-    const tier = PersonalVaultManager.getCategoryTier(matchedItem.category);
-    const isTierA = tier === 'TIER_A_ABSOLUTE';
-
     target.dataset.threatShieldHasVaultWarning = 'true';
 
-    // Запобігання повторному показу сповіщень на кожне натискання клавіші (throttle 6с)
-    const now = Date.now();
-    const lastWarn = parseInt(target.dataset?.threatShieldLastVaultWarn || '0', 10);
-    if (now - lastWarn < 6000) return;
-    target.dataset.threatShieldLastVaultWarn = now.toString();
+    // Гарантуємо, що рамка інпуту завжди залишається чистою та нативною (Apple-grade Silence)
+    if (target.style.outline && (target.style.outline.includes('rgb(220, 38, 38)') || target.style.outline.includes('rgb(217, 119, 6)') || target.style.outline.toLowerCase().includes('dc2626') || target.style.outline.toLowerCase().includes('d97706'))) {
+      target.style.outline = '';
+      target.style.outlineOffset = '';
+    }
 
-    if (isTierA) {
-      // Конфіденційний маркер банку (контрольне слово, дівоче прізвище)
-      target.style.outline = '2px solid #DC2626';
-      target.style.outlineOffset = '1px';
-      ToastNotifier.show(
-        `Зафіксовано введення конфіденційного маркера: «${matchedItem.label}». Сховище рекомендує не передавати його стороннім вебсайтам.`,
-        'error',
-        15000
-      );
-    } else {
-      // Персональний ідентифікатор особи
-      target.style.outline = '2px solid #D97706';
-      target.style.outlineOffset = '1px';
-      ToastNotifier.show(
-        `Ви вводите персональний ідентифікатор: «${matchedItem.label}». Переконайтеся в надійності ресурсу перед надсиланням.`,
-        'warning',
-        8000
-      );
+    // Відображаємо виключно невагому капсулу ChatLivePill (без зміни рамки і без спливаючих тостів-попапів)
+    if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target.isContentEditable || target.getAttribute('role') === 'textbox') {
+      ChatLivePill.show(target as any, {
+        shouldBlock: true,
+        reason: `Виявлено введення конфіденційного маркера: «${matchedItem.label}».`,
+        riskLevel: 'CRITICAL',
+        score: 85,
+        triggers: [{
+          message: `Виявлено введення конфіденційного маркера: «${matchedItem.label}».`,
+          severity: 'CRITICAL',
+          scoreContribution: 85,
+        }],
+        leakage: {
+          hasCard: false,
+          hasCvv: false,
+          hasExpiry: false,
+          hasOtp: false,
+          cards: [],
+          isCrossMessage: false,
+        },
+        vaultMatches: [matchedItem],
+      });
     }
   }
 
