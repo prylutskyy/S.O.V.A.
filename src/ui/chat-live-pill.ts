@@ -259,11 +259,8 @@ export class ChatLivePill {
     const count = detailsList.length;
     const isCivic = primary.isCivic;
     const accentColor = isCivic ? '#0284C7' : '#0071E3'; // Sky Blue vs Apple Royal Blue
-    const borderColor = isCivic ? 'rgba(2, 132, 199, 0.35)' : 'rgba(0, 113, 227, 0.3)';
-    const bgColor = 'rgba(255, 255, 255, 0.94)';
-    const textColor = isCivic ? '#0369A1' : '#005BB5';
 
-    // Встановлюємо класи фізичного стека (One UI / iOS Notification Stack)
+    // Чистий, монолітний дизайн пігулки без зайвих нагромаджень
     if (count >= 3) {
       pill.className = 'ts-chat-live-pill ts-has-stack ts-has-stack-multi';
     } else if (count === 2) {
@@ -272,48 +269,14 @@ export class ChatLivePill {
       pill.className = 'ts-chat-live-pill';
     }
 
-    pill.style.cssText = `
-      position: absolute !important;
-      z-index: 2147483646 !important;
-      display: inline-flex !important;
-      align-items: center !important;
-      gap: 6px !important;
-      background: ${bgColor} !important;
-      backdrop-filter: blur(20px) saturate(180%) !important;
-      -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
-      border: 1px solid ${borderColor} !important;
-      color: ${textColor} !important;
-      padding: 4px 10px !important;
-      border-radius: 9999px !important;
-      font-size: 11px !important;
-      font-weight: 600 !important;
-      letter-spacing: -0.01em !important;
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif !important;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04) !important;
-      cursor: pointer !important;
-      user-select: none !important;
-      white-space: nowrap !important;
-      box-sizing: border-box !important;
-      animation: tsPillFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
-      transition: transform 0.15s ease, box-shadow 0.15s ease !important;
-    `;
+    if (isCivic) {
+      pill.classList.add('ts-civic');
+    } else {
+      pill.classList.remove('ts-civic');
+    }
 
     const counterBadge = count > 1
-      ? `<span class="ts-pill-counter" style="
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 10px;
-          font-weight: 700;
-          background: ${isCivic ? 'rgba(2, 132, 199, 0.14)' : 'rgba(0, 113, 227, 0.12)'};
-          color: ${accentColor};
-          border: 1px solid ${isCivic ? 'rgba(2, 132, 199, 0.28)' : 'rgba(0, 113, 227, 0.24)'};
-          border-radius: 9999px;
-          padding: 0 5px;
-          height: 16px;
-          line-height: 16px;
-          letter-spacing: -0.01em;
-        ">+${count - 1}</span>`
+      ? `<span class="ts-pill-counter">+${count - 1}</span>`
       : '';
 
     pill.innerHTML = `
@@ -343,25 +306,11 @@ export class ChatLivePill {
     const primary = detailsList[0];
     const accentColor = primary.isCivic ? '#0284C7' : '#0071E3';
 
-    popover.style.cssText = `
-      position: absolute !important;
-      z-index: 2147483647 !important;
-      width: ${isMulti ? '330px' : '290px'} !important;
-      max-width: 90vw !important;
-      background: rgba(255, 255, 255, 0.98) !important;
-      backdrop-filter: blur(24px) saturate(180%) !important;
-      -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-      border: 1px solid rgba(0, 0, 0, 0.08) !important;
-      border-radius: 14px !important;
-      padding: ${isMulti ? '14px 16px' : '12px 14px'} !important;
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.14), 0 2px 8px rgba(0, 0, 0, 0.04) !important;
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif !important;
-      box-sizing: border-box !important;
-      animation: tsPillFadeIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
-    `;
+    popover.style.width = isMulti ? '330px' : '290px';
+    popover.style.padding = isMulti ? '14px 16px' : '12px 14px';
 
     if (!isMulti) {
-      // Одиночний тригер (сумісність з існуючими тестами та компактністю)
+      // Одиночний тригер
       popover.innerHTML = `
         <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
           <div style="width: 22px; height: 22px; border-radius: 50%; background: ${primary.isCivic ? 'rgba(2, 132, 199, 0.12)' : 'rgba(0, 113, 227, 0.1)'}; display: flex; align-items: center; justify-content: center; color: ${accentColor};">
@@ -376,20 +325,8 @@ export class ChatLivePill {
           ${primary.explanation}
         </p>
         <div style="display: flex; align-items: center; justify-content: flex-end; gap: 6px;">
-          <button id="ts-pill-clean-btn" class="ts-pill-clean-btn" style="
-            all: unset !important;
-            background: #1D1D1F !important;
-            color: #FFFFFF !important;
-            padding: 5px 11px !important;
-            border-radius: 6px !important;
-            font-size: 11px !important;
-            font-weight: 500 !important;
-            cursor: pointer !important;
-            display: inline-flex !important;
-            align-items: center !important;
-            gap: 4px !important;
-            transition: background-color 0.15s ease, transform 0.15s ease !important;
-          ">
+          <button id="ts-pill-clean-btn" class="ts-pill-btn-primary" style="padding: 6px 13px !important; font-size: 11px !important;">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
             ${primary.buttonLabel || 'Видалити з тексту'}
           </button>
         </div>
@@ -429,19 +366,7 @@ export class ChatLivePill {
                     <div style="font-size: 9.5px; color: #86868B;">${item.sublabel}</div>
                   </div>
                 </div>
-                <button class="ts-pill-clean-single-btn" data-strip-type="${item.stripType}" ${item.vaultValue ? `data-vault-value="${escapedVault}"` : ''} style="
-                  all: unset !important;
-                  background: rgba(0, 0, 0, 0.05) !important;
-                  color: #1D1D1F !important;
-                  padding: 3px 8px !important;
-                  border-radius: 5px !important;
-                  font-size: 10px !important;
-                  font-weight: 600 !important;
-                  cursor: pointer !important;
-                  white-space: nowrap !important;
-                  border: 1px solid rgba(0, 0, 0, 0.08) !important;
-                  transition: background-color 0.15s ease, color 0.15s ease, transform 0.15s ease !important;
-                ">
+                <button class="ts-pill-clean-single-btn ts-pill-btn-secondary" data-strip-type="${item.stripType}" ${item.vaultValue ? `data-vault-value="${escapedVault}"` : ''}>
                   Видалити
                 </button>
               </div>
@@ -462,27 +387,14 @@ export class ChatLivePill {
             <span style="
               font-size: 10px;
               font-weight: 700;
-              background: rgba(0, 113, 227, 0.12);
+              background: rgba(0, 113, 227, 0.10);
               color: #0071E3;
               padding: 1px 6px;
               border-radius: 9999px;
               border: 1px solid rgba(0, 113, 227, 0.22);
             ">${count}</span>
           </div>
-          <button id="ts-pill-clean-all-btn" style="
-            all: unset !important;
-            background: #1D1D1F !important;
-            color: #FFFFFF !important;
-            padding: 4px 10px !important;
-            border-radius: 6px !important;
-            font-size: 10.5px !important;
-            font-weight: 600 !important;
-            cursor: pointer !important;
-            display: inline-flex !important;
-            align-items: center !important;
-            gap: 4px !important;
-            transition: background-color 0.15s ease, transform 0.15s ease !important;
-          ">
+          <button id="ts-pill-clean-all-btn" class="ts-pill-btn-primary" style="padding: 5px 11px !important; font-size: 10.5px !important;">
             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
             Очистити всі
           </button>
@@ -508,14 +420,6 @@ export class ChatLivePill {
         e.stopPropagation();
         this.stripSensitiveData(detailsList[0].stripType, detailsList[0].vaultValue);
       });
-      cleanBtn.addEventListener('mouseenter', () => {
-        cleanBtn.style.backgroundColor = '#000000';
-        cleanBtn.style.transform = 'scale(1.02)';
-      });
-      cleanBtn.addEventListener('mouseleave', () => {
-        cleanBtn.style.backgroundColor = '#1D1D1F';
-        cleanBtn.style.transform = 'scale(1)';
-      });
     }
 
     // Кнопка «Очистити всі»
@@ -524,14 +428,6 @@ export class ChatLivePill {
       cleanAllBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         this.stripAllSensitiveData();
-      });
-      cleanAllBtn.addEventListener('mouseenter', () => {
-        cleanAllBtn.style.backgroundColor = '#000000';
-        cleanAllBtn.style.transform = 'scale(1.02)';
-      });
-      cleanAllBtn.addEventListener('mouseleave', () => {
-        cleanAllBtn.style.backgroundColor = '#1D1D1F';
-        cleanAllBtn.style.transform = 'scale(1)';
       });
     }
 
@@ -543,14 +439,6 @@ export class ChatLivePill {
         const stripType = b.dataset.stripType as any;
         const vaultValue = b.dataset.vaultValue;
         this.stripSensitiveData(stripType, vaultValue);
-      });
-      b.addEventListener('mouseenter', () => {
-        b.style.backgroundColor = 'rgba(0, 0, 0, 0.1)';
-        b.style.transform = 'scale(1.03)';
-      });
-      b.addEventListener('mouseleave', () => {
-        b.style.backgroundColor = 'rgba(0, 0, 0, 0.05)';
-        b.style.transform = 'scale(1)';
       });
     });
 
@@ -709,55 +597,151 @@ export class ChatLivePill {
           transform: translateY(0) scale(1);
         }
       }
+
       .ts-chat-live-pill {
-        position: relative !important;
-      }
-      .ts-chat-live-pill:hover {
-        transform: scale(1.03) !important;
-        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12) !important;
-      }
-      .ts-chat-live-pill.ts-has-stack::before {
-        content: '' !important;
         position: absolute !important;
-        top: 3px !important;
-        left: 4px !important;
-        right: 4px !important;
-        bottom: -3px !important;
-        background: rgba(255, 255, 255, 0.85) !important;
-        backdrop-filter: blur(12px) !important;
-        -webkit-backdrop-filter: blur(12px) !important;
+        z-index: 2147483646 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        background: rgba(255, 255, 255, 0.96) !important;
+        backdrop-filter: blur(20px) saturate(180%) !important;
+        -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+        border: 1px solid rgba(0, 113, 227, 0.28) !important;
+        color: #005BB5 !important;
+        padding: 4px 10px !important;
+        border-radius: 9999px !important;
+        font-size: 11px !important;
+        font-weight: 600 !important;
+        letter-spacing: -0.01em !important;
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif !important;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+        cursor: pointer !important;
+        user-select: none !important;
+        white-space: nowrap !important;
+        box-sizing: border-box !important;
+        animation: tsPillFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+        transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease !important;
+      }
+
+      .ts-chat-live-pill:hover {
+        transform: translateY(-1px) scale(1.02) !important;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12) !important;
+        border-color: rgba(0, 113, 227, 0.45) !important;
+      }
+
+      .ts-chat-live-pill.ts-civic {
+        border-color: rgba(2, 132, 199, 0.32) !important;
+        color: #0369A1 !important;
+      }
+
+      .ts-pill-counter {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 10px !important;
+        font-weight: 700 !important;
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif !important;
+        background: rgba(0, 113, 227, 0.10) !important;
+        color: #0071E3 !important;
         border: 1px solid rgba(0, 113, 227, 0.22) !important;
         border-radius: 9999px !important;
-        z-index: -1 !important;
-        transform: scale(0.96) !important;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
-        pointer-events: none !important;
-        transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease !important;
+        padding: 0 5px !important;
+        height: 16px !important;
+        line-height: 16px !important;
+        letter-spacing: -0.01em !important;
       }
-      .ts-chat-live-pill.ts-has-stack-multi::after {
-        content: '' !important;
+
+      .ts-chat-live-pill.ts-civic .ts-pill-counter {
+        background: rgba(2, 132, 199, 0.12) !important;
+        color: #0284C7 !important;
+        border-color: rgba(2, 132, 199, 0.25) !important;
+      }
+
+      /* Popover Card Styles */
+      .ts-chat-live-popover {
         position: absolute !important;
-        top: 6px !important;
-        left: 8px !important;
-        right: 8px !important;
-        bottom: -6px !important;
-        background: rgba(255, 255, 255, 0.60) !important;
-        backdrop-filter: blur(8px) !important;
-        -webkit-backdrop-filter: blur(8px) !important;
-        border: 1px solid rgba(0, 113, 227, 0.15) !important;
-        border-radius: 9999px !important;
-        z-index: -2 !important;
-        transform: scale(0.92) !important;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
-        pointer-events: none !important;
-        transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease !important;
+        z-index: 2147483647 !important;
+        background: rgba(255, 255, 255, 0.98) !important;
+        backdrop-filter: blur(24px) saturate(180%) !important;
+        -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+        border: 1px solid rgba(0, 0, 0, 0.08) !important;
+        border-radius: 14px !important;
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.14), 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif !important;
+        box-sizing: border-box !important;
+        animation: tsPillFadeIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
       }
-      .ts-chat-live-pill.ts-has-stack:hover::before {
-        transform: translateY(2px) scale(0.98) !important;
+
+      /* Primary Dark Action Buttons (Clean & Clean-All) */
+      .ts-pill-btn-primary {
+        appearance: none !important;
+        -webkit-appearance: none !important;
+        background-color: #1D1D1F !important;
+        color: #FFFFFF !important;
+        border: 1px solid rgba(0, 0, 0, 0.15) !important;
+        border-radius: 7px !important;
+        cursor: pointer !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 5px !important;
+        font-family: inherit !important;
+        font-weight: 600 !important;
+        letter-spacing: -0.01em !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12) !important;
+        transition: background-color 0.15s ease, transform 0.12s ease, box-shadow 0.15s ease !important;
+        box-sizing: border-box !important;
       }
-      .ts-chat-live-pill.ts-has-stack-multi:hover::after {
-        transform: translateY(4px) scale(0.95) !important;
+
+      .ts-pill-btn-primary:hover {
+        background-color: #000000 !important;
+        color: #FFFFFF !important;
+        transform: translateY(-1px) scale(1.02) !important;
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.20) !important;
       }
+
+      .ts-pill-btn-primary:active {
+        background-color: #2C2C2E !important;
+        color: #FFFFFF !important;
+        transform: translateY(0) scale(0.98) !important;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.10) !important;
+      }
+
+      /* Secondary Item Action Buttons (Delete specific item) */
+      .ts-pill-btn-secondary {
+        appearance: none !important;
+        -webkit-appearance: none !important;
+        background-color: rgba(0, 0, 0, 0.05) !important;
+        color: #1D1D1F !important;
+        border: 1px solid rgba(0, 0, 0, 0.08) !important;
+        border-radius: 6px !important;
+        font-size: 10.5px !important;
+        font-weight: 600 !important;
+        cursor: pointer !important;
+        padding: 3px 8px !important;
+        white-space: nowrap !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-family: inherit !important;
+        transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.12s ease !important;
+        box-sizing: border-box !important;
+      }
+
+      .ts-pill-btn-secondary:hover {
+        background-color: rgba(239, 68, 68, 0.10) !important;
+        color: #DC2626 !important;
+        border-color: rgba(239, 68, 68, 0.25) !important;
+        transform: scale(1.03) !important;
+      }
+
+      .ts-pill-btn-secondary:active {
+        background-color: rgba(239, 68, 68, 0.18) !important;
+        color: #B91C1C !important;
+        transform: scale(0.97) !important;
+      }
+
       .ts-deck-body::-webkit-scrollbar {
         width: 4px;
       }
