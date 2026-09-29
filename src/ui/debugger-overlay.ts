@@ -77,6 +77,7 @@ const ICONS = {
 export class DebuggerOverlay {
   private static container: HTMLElement | null = null;
   private static shadowRoot: ShadowRoot | null = null;
+  private static isVisible = false;
 
   private static state = {
     sessionId: null as string | null,
@@ -114,26 +115,33 @@ export class DebuggerOverlay {
 
   public static show() {
     if (typeof document === 'undefined') return;
-    if (this.container) {
-      this.container.style.display = 'block';
+    this.isVisible = true;
+
+    if (this.container && document.body && document.body.contains(this.container)) {
       this.applyContainerGeometry();
+      this.render();
       return;
     }
 
     this.container = document.createElement('div');
     this.container.id = 'threatshield-neuro-monitor';
     this.container.className = 'sanctuary-core-root';
-    this.applyContainerGeometry();
 
     this.shadowRoot = this.container.attachShadow({ mode: 'open' });
     document.body.appendChild(this.container);
 
     this.setupDrag();
+    this.applyContainerGeometry();
     this.render();
   }
 
   private static applyContainerGeometry() {
     if (!this.container) return;
+
+    if (!this.isVisible) {
+      this.container.style.display = 'none';
+      return;
+    }
 
     if (this.state.isMinimized) {
       if (this.container.style.width && this.container.style.width !== 'auto') {
@@ -202,9 +210,14 @@ export class DebuggerOverlay {
   }
 
   public static hide() {
+    this.isVisible = false;
     if (this.container) {
       this.container.style.display = 'none';
     }
+  }
+
+  public static isOpen(): boolean {
+    return this.isVisible;
   }
 
   public static clear() {
@@ -361,8 +374,6 @@ export class DebuggerOverlay {
       return this.logAI(cleanStepKey, data, customColor, aiContext, logId);
     }
 
-    this.show();
-
     if (broadcast && this.state.sessionId) {
       try {
         if (typeof chrome !== 'undefined' && chrome.runtime) {
@@ -424,8 +435,6 @@ export class DebuggerOverlay {
     aiContext?: LogItem['aiContext'],
     logId?: string
   ): string {
-    this.show();
-
     const cleanStepKey = this.stripEmoji(stepKey);
     const cleanData = typeof data === 'string' ? this.stripEmoji(data) : data;
 
@@ -651,6 +660,13 @@ export class DebuggerOverlay {
 
   private static render() {
     if (!this.shadowRoot) return;
+
+    if (!this.isVisible) {
+      if (this.container) {
+        this.container.style.display = 'none';
+      }
+      return;
+    }
 
     if (this.state.isMinimized) {
       this.applyContainerGeometry();
@@ -1808,6 +1824,11 @@ export class DebuggerOverlay {
     // Window controls
     this.shadowRoot.getElementById('btn-close-window')?.addEventListener('click', () => {
       this.hide();
+      try {
+        if (typeof chrome !== 'undefined' && chrome.storage?.local) {
+          chrome.storage.local.set({ debugModeEnabled: false });
+        }
+      } catch {}
     });
 
     this.shadowRoot.getElementById('btn-minimize')?.addEventListener('click', () => {

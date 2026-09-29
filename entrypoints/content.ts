@@ -36,7 +36,11 @@ export default defineContentScript({
       const res = await chrome.storage.local.get(['debugModeEnabled']);
       debugMode = !!res.debugModeEnabled;
       ChatChannelMonitor.debugMode = debugMode;
-      if (debugMode) DebuggerOverlay.show();
+      if (debugMode) {
+        DebuggerOverlay.show();
+      } else {
+        DebuggerOverlay.hide();
+      }
     } catch (e) {}
 
     // Базові менеджери користувацького стану: обов'язковий await,
