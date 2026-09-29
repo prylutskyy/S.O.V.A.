@@ -32,16 +32,15 @@ describe('ProactiveFieldProtector (Sanctuary Sealed Apertures)', () => {
 
     ProactiveFieldProtector.init('untrusted-survey-phish.com');
 
-    // Field should be sealed
+    // Field should be sealed with FieldLivePill without intrusive outline
     expect(input.dataset.sanctuarySealed).toBe('true');
-    expect(input.readOnly).toBe(true);
-    expect(input.style.outline).toContain('solid');
+    expect(input.style.outline).toBe('');
 
-    // Micro-badge should be in Shadow DOM
+    // FieldLivePill should be in Shadow DOM
     const shadowRoot = ShadowHost.getRoot();
-    const badge = shadowRoot.querySelector('.ts-sanctuary-seal-badge');
-    expect(badge).not.toBeNull();
-    expect(badge?.textContent).toContain('Захищено');
+    const pill = shadowRoot.querySelector('.ts-field-live-pill');
+    expect(pill).not.toBeNull();
+    expect(pill?.textContent).toContain('Захист');
   });
 
   it('proactively seals CVV / CVC field on untrusted origin', () => {
@@ -55,8 +54,11 @@ describe('ProactiveFieldProtector (Sanctuary Sealed Apertures)', () => {
     ProactiveFieldProtector.init('fake-delivery-payment.xyz');
 
     expect(input.dataset.sanctuarySealed).toBe('true');
-    expect(input.readOnly).toBe(true);
     expect(input.dataset.sanctuaryLabel).toContain('CVV');
+    const shadowRoot = ShadowHost.getRoot();
+    const pill = shadowRoot.querySelector('.ts-field-live-pill');
+    expect(pill).not.toBeNull();
+    expect(pill?.textContent).toContain('CVV');
   });
 
   it('does NOT seal fields on whitelisted or accredited domains', () => {
@@ -71,10 +73,9 @@ describe('ProactiveFieldProtector (Sanctuary Sealed Apertures)', () => {
     ProactiveFieldProtector.init('privatbank.ua');
 
     expect(input.dataset.sanctuarySealed).toBeUndefined();
-    expect(input.readOnly).toBe(false);
 
     const shadowRoot = ShadowHost.getRoot();
-    expect(shadowRoot.querySelector('.ts-sanctuary-seal-badge')).toBeNull();
+    expect(shadowRoot.querySelector('.ts-field-live-pill')).toBeNull();
   });
 
   it('unseals field and restores interactivity when unsealField is called', () => {
@@ -87,19 +88,17 @@ describe('ProactiveFieldProtector (Sanctuary Sealed Apertures)', () => {
 
     ProactiveFieldProtector.init('fake-job-portal.com');
     expect(input.dataset.sanctuarySealed).toBe('true');
-    expect(input.readOnly).toBe(true);
 
     ProactiveFieldProtector.unsealField(input, true);
 
     expect(input.dataset.sanctuarySealed).toBeUndefined();
-    expect(input.readOnly).toBe(false);
     expect(input.dataset.sanctuaryUnsealed).toBe('true');
     // Crucial: threatShieldApproved must NOT be set, so real-time vault warning remains active!
     expect(input.dataset.threatShieldApproved).toBeUndefined();
     expect(input.style.outline).toBe('');
 
     const shadowRoot = ShadowHost.getRoot();
-    expect(shadowRoot.querySelector('.ts-sanctuary-seal-badge')).toBeNull();
+    expect(shadowRoot.querySelector('.ts-field-live-pill')).toBeNull();
   });
 
   it('renders and closes Loupe Tooltip on demand with smooth exit animation', async () => {
@@ -214,12 +213,10 @@ describe('ProactiveFieldProtector (Sanctuary Sealed Apertures)', () => {
 
     // taxId must be sealed
     expect(inp2.dataset.sanctuarySealed).toBe('true');
-    expect(inp2.readOnly).toBe(true);
     expect(inp2.dataset.sanctuaryLabel).toContain('ІПН');
 
     // secretWord must be sealed
     expect(inp3.dataset.sanctuarySealed).toBe('true');
-    expect(inp3.readOnly).toBe(true);
     expect(inp3.dataset.sanctuaryLabel).toMatch(/Дівоче прізвище|Секретне/i);
   });
 });

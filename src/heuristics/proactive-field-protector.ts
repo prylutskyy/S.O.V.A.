@@ -6,6 +6,7 @@ import { isWhitelisted } from '../core/whitelist';
 import { isAccreditedPaymentGateway } from '../core/payment-gateways';
 import { UserWhitelistManager } from '../core/user-whitelist';
 import { HiddenFieldInspector } from './hidden-field-inspector';
+import { FieldLivePill } from '../ui/field-live-pill';
 
 export interface SealedFieldMetadata {
   input: HTMLInputElement | HTMLTextAreaElement;
@@ -195,39 +196,30 @@ export class ProactiveFieldProtector {
   ): void {
     if (input.dataset.sanctuarySealed === 'true') return;
 
-    // Зберігаємо оригінальний стан для безшовного відновлення
+    // Зберігаємо стан для сумісності та безшовного відновлення
     input.dataset.sanctuarySealed = 'true';
     input.dataset.sanctuaryLabel = meta.categoryLabel;
     input.dataset.sanctuaryIsTierA = String(meta.isTierA);
-    input.dataset.tsOriginalReadonly = String(input.readOnly);
-    input.dataset.tsOriginalOutline = input.style.outline || '';
-    input.dataset.tsOriginalOutlineOffset = input.style.outlineOffset || '';
-    input.dataset.tsOriginalBg = input.style.backgroundColor || '';
-    input.dataset.tsOriginalCursor = input.style.cursor || '';
-    input.dataset.tsOriginalTransition = input.style.transition || '';
 
-    // Апертурний бар'єр: readOnly блокує клавіатурний ввід нативним рушієм браузера (0 байт кейлогеру!)
-    input.readOnly = true;
+    // Замість грубого обведення рамкою — зберігаємо нативний контур поля недоторканим (Apple-grade Silence)
+    if (input.style.outline && (input.style.outline.includes('rgb(220, 38, 38)') || input.style.outline.includes('rgb(217, 119, 6)'))) {
+      input.style.outline = '';
+      input.style.outlineOffset = '';
+    }
 
-    // Оптична естетика Sanctuary
-    const accentColor = meta.isTierA ? 'rgba(220, 38, 38, 0.55)' : 'rgba(217, 119, 6, 0.55)';
-    const bgColor = meta.isTierA ? 'rgba(220, 38, 38, 0.03)' : 'rgba(217, 119, 6, 0.03)';
-
-    input.style.outline = `2px solid ${accentColor}`;
-    input.style.outlineOffset = '1px';
-    input.style.backgroundColor = bgColor;
-    input.style.cursor = 'pointer';
-    input.style.transition = 'outline 0.2s ease, background-color 0.2s ease';
-
-    // Рендеринг мікро-бейджа у Shadow DOM
-    const badge = this.renderMicroBadge(input, meta.categoryLabel, meta.isTierA);
+    // Прикріплюємо витончену пігулку безпеки FieldLivePill скраю поля
+    const pill = FieldLivePill.attach(input, {
+      categoryLabel: meta.categoryLabel,
+      fieldType: meta.fieldType,
+      isTierA: meta.isTierA,
+    });
 
     const record: SealedFieldMetadata = {
       input,
       categoryLabel: meta.categoryLabel,
       isTierA: meta.isTierA,
       fieldType: meta.fieldType,
-      badgeElement: badge,
+      badgeElement: pill,
     };
 
     this.sealedFields.set(input, record);
@@ -240,30 +232,16 @@ export class ProactiveFieldProtector {
     const record = this.sealedFields.get(input);
     if (!record && input.dataset.sanctuarySealed !== 'true') return;
 
-    // Відновлення атрибутів
-    input.readOnly = input.dataset.tsOriginalReadonly === 'true';
-    input.style.outline = input.dataset.tsOriginalOutline || '';
-    input.style.outlineOffset = input.dataset.tsOriginalOutlineOffset || '';
-    input.style.backgroundColor = input.dataset.tsOriginalBg || '';
-    input.style.cursor = input.dataset.tsOriginalCursor || '';
-    input.style.transition = input.dataset.tsOriginalTransition || '';
-
-    // Очищення метаданих
     delete input.dataset.sanctuarySealed;
     delete input.dataset.sanctuaryLabel;
     delete input.dataset.sanctuaryIsTierA;
-    delete input.dataset.tsOriginalReadonly;
-    delete input.dataset.tsOriginalOutline;
-    delete input.dataset.tsOriginalOutlineOffset;
-    delete input.dataset.tsOriginalBg;
-    delete input.dataset.tsOriginalCursor;
-    delete input.dataset.tsOriginalTransition;
 
     if (userInitiated) {
       input.dataset.sanctuaryUnsealed = 'true';
     }
 
-    // Видалення бейджа та тултіпа з Shadow DOM
+    FieldLivePill.detach(input);
+
     if (record?.badgeElement && record.badgeElement.parentNode) {
       record.badgeElement.parentNode.removeChild(record.badgeElement);
     }
@@ -281,6 +259,7 @@ export class ProactiveFieldProtector {
    * Розблокування всіх полів (наприклад, при внесенні сайту до білого списку)
    */
   public static unsealAll(): void {
+    FieldLivePill.detachAll();
     for (const input of Array.from(this.sealedFields.keys())) {
       this.unsealField(input, false);
       delete input.dataset.sanctuaryUnsealed;
@@ -657,31 +636,7 @@ export class ProactiveFieldProtector {
    * Глобальне перехоплення подій для запечатаних полів (фаза Capture)
    */
   private static setupGlobalInterception(): void {
-    if (typeof window === 'undefined') return;
-
-    const handleInteraction = (e: Event) => {
-      const target = e.target as HTMLElement | null;
-      if (!target) return;
-
-      if (target.dataset?.sanctuarySealed === 'true') {
-        const inp = target as HTMLInputElement | HTMLTextAreaElement;
-
-        // Повне блокування введення клавіш для кейлогерів сайту
-        if (['keydown', 'keypress', 'beforeinput', 'input', 'paste'].includes(e.type)) {
-          e.preventDefault();
-          e.stopImmediatePropagation();
-          this.showTooltipForElement(inp);
-        } else if (e.type === 'click') {
-          // Клік на полі викликає картку розблокування
-          this.showTooltipForElement(inp);
-        }
-      }
-    };
-
-    window.addEventListener('keydown', handleInteraction, true);
-    window.addEventListener('keypress', handleInteraction, true);
-    window.addEventListener('beforeinput', handleInteraction, true);
-    window.addEventListener('paste', handleInteraction, true);
-    window.addEventListener('click', handleInteraction, true);
+    // Введення більше не блокується превентивно через preventDefault:
+    // Інтерактивний захист забезпечується шторкою-банером та червоною пігулкою FieldLivePill
   }
 }
