@@ -320,6 +320,12 @@ export class FieldLivePill {
     const record = this.activePills.get(input);
     if (!record) return;
 
+    // ОПТИМІЗАЦІЯ: Уникаємо постійного перемальовування (блимання) при кожному натисканні клавіші
+    if (record.isVaultAlert && record.vaultLabel === vaultLabel && record.isRedAlert) {
+      // Стан вже встановлено. Дозволяємо власному слухачеві 'input' у FieldLivePill керувати згортанням/розгортанням.
+      return;
+    }
+
     record.isVaultAlert = true;
     record.isRedAlert = true;
     record.vaultLabel = vaultLabel;
@@ -327,6 +333,8 @@ export class FieldLivePill {
     // Якщо в полі до 7 символів — розгортаємо детальне застереження Сховища
     if ((input.value || '').trim().length <= 7) {
       record.isExpanded = true;
+    } else {
+      record.isExpanded = false;
     }
 
     this.renderPillContent(record);
@@ -344,6 +352,11 @@ export class FieldLivePill {
   public static clearVaultAlert(input: HTMLInputElement | HTMLTextAreaElement): void {
     const record = this.activePills.get(input);
     if (!record) return;
+
+    if (!record.isVaultAlert) {
+      // Якщо стан і так звичайний — не перемальовуємо
+      return;
+    }
 
     record.isVaultAlert = false;
     record.isRedAlert = false;
