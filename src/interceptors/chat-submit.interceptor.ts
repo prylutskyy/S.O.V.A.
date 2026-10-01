@@ -129,9 +129,7 @@ export class ChatSubmitInterceptor {
           customTriggers: triggers,
         },
         () => {
-          inputElement.dataset.threatShieldApproved = 'true';
-          SessionOutboundMemory.recordSentMessage(inputElement.value || '');
-          ToastNotifier.show('Захист тимчасово призупинено. Натисніть «Надіслати» або Enter.', 'info', 4000);
+          this.dispatchApprovedSend(inputElement);
         },
         () => {
           // При скасуванні залишаємо текст у полі, щоб користувач міг видалити секретні дані
@@ -146,6 +144,73 @@ export class ChatSubmitInterceptor {
     ChatLivePill.hide();
     SessionOutboundMemory.recordSentMessage(currentText);
     return false;
+  }
+
+  /**
+   * Автоматична безперервна відправка після усвідомленого підтвердження (Option A)
+   * Реалізує принцип прямої маніпуляції Apple: дія в модалці безпосередньо завершує намір відправки.
+   */
+  public static dispatchApprovedSend(inputElement: HTMLInputElement | HTMLTextAreaElement): void {
+    inputElement.dataset.threatShieldApproved = 'true';
+    SessionOutboundMemory.recordSentMessage(inputElement.value || '');
+
+    // 1. Пошук асоційованої кнопки відправки в межах форми або чат-контейнера
+    const container = inputElement.closest(
+      'form, [data-testid="conversation-layout"], .chat, .messenger, .conversation, .chat-input-area, main, body'
+    ) || document.body;
+
+    const submitBtn = container.querySelector(
+      'button[type="submit"], input[type="submit"], button#btnSend, button[aria-label*="send" i], button[aria-label*="надіслати" i], [role="button"][aria-label*="send" i], [role="button"][aria-label*="надіслати" i], .chat-input-area button'
+    ) as HTMLElement | null;
+
+    let submitted = false;
+    if (submitBtn && typeof submitBtn.click === 'function') {
+      try {
+        submitBtn.click();
+        submitted = true;
+      } catch (err) {
+        console.warn('[ThreatShield] Не вдалося викликати click на кнопці відправки:', err);
+      }
+    }
+
+    // 2. Якщо кнопку не знайдено або поле все ще містить текст, емулюємо Enter
+    const hasRemainingText = (inputElement.value || inputElement.innerText || '').trim().length > 0;
+    if (!submitted || hasRemainingText) {
+      try {
+        const enterDown = new KeyboardEvent('keydown', {
+          bubbles: true,
+          cancelable: true,
+          key: 'Enter',
+          code: 'Enter',
+          keyCode: 13,
+          which: 13,
+        });
+        inputElement.dispatchEvent(enterDown);
+
+        const enterUp = new KeyboardEvent('keyup', {
+          bubbles: true,
+          cancelable: true,
+          key: 'Enter',
+          code: 'Enter',
+          keyCode: 13,
+          which: 13,
+        });
+        inputElement.dispatchEvent(enterUp);
+      } catch (err) {
+        console.warn('[ThreatShield] Не вдалося відправити Enter подію:', err);
+      }
+    }
+
+    // 3. Захисний фолбек: якщо сторінка (наприклад, складний SPA фреймворк) заблокувала синтетичну подію
+    // і текст залишився в полі — повертаємо фокус користувачеві без шумного тосту в кутку
+    setTimeout(() => {
+      const stillHasValue = (inputElement.value || inputElement.innerText || '').trim().length > 0;
+      if (stillHasValue && inputElement.dataset.threatShieldApproved === 'true') {
+        inputElement.focus();
+      } else {
+        ChatLivePill.hide();
+      }
+    }, 120);
   }
 
   private static setupListeners(): void {

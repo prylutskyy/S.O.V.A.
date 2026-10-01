@@ -251,7 +251,6 @@ export class ProactiveFieldProtector {
 
     if (userInitiated) {
       input.focus();
-      ToastNotifier.show('Поле розблоковано за вашим запитом.', 'info', 3000);
     }
   }
 

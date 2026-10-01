@@ -271,7 +271,6 @@ export class GlobalInputInterceptor {
         if (this.isSoftLocked) {
           e.preventDefault();
           e.stopImmediatePropagation();
-          ToastNotifier.show('Аналіз безпеки повідомлення в чаті...', 'info', 2000);
           return;
         }
 
@@ -359,8 +358,24 @@ export class GlobalInputInterceptor {
         onProceed: () => {
           targetElement.dataset.threatShieldApproved = 'true';
           const closestForm = targetElement.closest('form');
-          if (closestForm) closestForm.dataset.threatShieldApproved = 'true';
-          ToastNotifier.show('Дію підтверджено. Тепер ви можете безпечно надіслати повідомлення.', 'info', 4000);
+          if (closestForm) {
+            closestForm.dataset.threatShieldApproved = 'true';
+            try {
+              closestForm.submit();
+            } catch {}
+          } else {
+            try {
+              const enterDown = new KeyboardEvent('keydown', {
+                bubbles: true,
+                cancelable: true,
+                key: 'Enter',
+                code: 'Enter',
+                keyCode: 13,
+                which: 13,
+              });
+              targetElement.dispatchEvent(enterDown);
+            } catch {}
+          }
         },
         onCancel: () => {},
       });

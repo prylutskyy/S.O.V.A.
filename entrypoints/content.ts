@@ -444,10 +444,8 @@ export default defineContentScript({
           if (primaryForm) {
             FormSubmitInterceptor.auditForm(primaryForm, true);
           }
-          ToastNotifier.show('Режим налагодження активовано (Thesis Defense)', 'info', 2500);
         } else {
           DebuggerOverlay.hide();
-          ToastNotifier.show('Режим налагодження вимкнено', 'info', 2000);
         }
         try {
           chrome.storage.local.set({ debugModeEnabled: debugMode });
