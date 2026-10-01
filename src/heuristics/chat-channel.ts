@@ -437,7 +437,7 @@ export class ChatChannelMonitor {
     if (rawElements.length === 0) return [];
 
     // Залишаємо лише найвищі в ієрархії елементи-контейнери повідомлень (щоб уникнути дублювання)
-    const elements = rawElements.filter((el) => {
+    let elements = rawElements.filter((el) => {
       let parent = el.parentElement;
       while (parent) {
         if (rawElements.includes(parent as HTMLElement)) {
@@ -448,7 +448,13 @@ export class ChatChannelMonitor {
       return true;
     });
 
+    // ОПТИМІЗАЦІЯ КОНТЕКСТУ: Беремо лише останні 20 повідомлень
+    // Це запобігає переповненню контексту LLM (і помилкам 429) при довгих переписках
+    elements = elements.slice(-20);
+
     const lines: string[] = [];
+    let totalLength = 0;
+    const MAX_CHARS = 4000;
 
     for (const el of elements) {
       const direction = this.determineDirection(el);
@@ -476,6 +482,13 @@ export class ChatChannelMonitor {
       if (text.length > 0) {
         lines.push(`${speaker}: ${text}`);
       }
+    }
+
+    // Захист від переповнення: залишаємо лише останні MAX_CHARS символів (найновіші повідомлення)
+    let fullText = lines.join('\n');
+    if (fullText.length > MAX_CHARS) {
+      fullText = '...[Старі повідомлення обрізано]...\n' + fullText.substring(fullText.length - MAX_CHARS);
+      return fullText.split('\n');
     }
 
     return lines;
