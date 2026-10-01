@@ -4,6 +4,7 @@ import { ScamIntentType } from '../heuristics/intent-classifier';
 import { ChatChannelMonitor } from '../heuristics/chat-channel';
 import { DebuggerOverlay } from '../ui/debugger-overlay';
 import { OutboundDataSanitizer } from '../privacy/outbound-data-sanitizer';
+import { ChatSessionState } from '../heuristics/chat-session-state';
 
 export interface AIArbiterVerifyOptions {
   context: ActiveThreatContext;
@@ -72,6 +73,38 @@ export class AIArbiterService {
   ): Promise<AIArbiterVerifyResult | null> {
     if (typeof chrome === 'undefined' || !chrome.runtime || !chrome.runtime.sendMessage) {
       return null;
+    }
+
+    const { context, confidence } = options;
+    const currentScore = confidence || (context.threatLevel === 'HIGH' ? 75 : (context.threatLevel === 'MEDIUM' ? 50 : 25));
+
+    // 0. Карантин та Імунітет Сесії (Session Quarantine & Immunity)
+    if (ChatSessionState.sessionLlmVerdict === 'SCAM') {
+      return {
+        isScam: true,
+        confidence: 99,
+        reasoning: 'Автоматичний карантин: чат вже визнано небезпечним (ШІ)',
+        provider: 'session-quarantine'
+      };
+    }
+    
+    if (ChatSessionState.sessionLlmVerdict === 'SAFE') {
+      if (currentScore <= ChatSessionState.sessionLlmImmunityPeakScore + 15) {
+        // Рівень загрози не зріс суттєво — не турбуємо LLM
+        return {
+          isScam: false,
+          confidence: 99,
+          reasoning: 'Імунітет сесії: ескалації загроз не виявлено',
+          provider: 'session-immunity'
+        };
+      } else {
+        DebuggerOverlay.logAI(
+          'ШІ Арбітр → Переоцінка',
+          `Ескалація загрози (${ChatSessionState.sessionLlmImmunityPeakScore} ➔ ${currentScore}). Імунітет скасовано.`,
+          '#EAB308'
+        );
+        ChatSessionState.sessionLlmVerdict = null;
+      }
     }
 
     const cacheKey = this.generateCacheKey(options);
@@ -279,6 +312,14 @@ Required JSON schema:
                 result: aiResult,
                 expiresAt: Date.now() + AIArbiterService.CACHE_TTL_MS,
               });
+
+              // Оновлюємо стан сесії для Карантину та Імунітету
+              if (aiResult.isScam && aiResult.confidence >= 75) {
+                ChatSessionState.sessionLlmVerdict = 'SCAM';
+              } else if (!aiResult.isScam) {
+                ChatSessionState.sessionLlmVerdict = 'SAFE';
+                ChatSessionState.sessionLlmImmunityPeakScore = confidence || (context.threatLevel === 'HIGH' ? 75 : (context.threatLevel === 'MEDIUM' ? 50 : 25));
+              }
 
               const verdict = aiResult.isScam
                 ? `СКАМ підтверджено${providerLabel} (Впевненість: ${aiResult.confidence}%)\n\nВисновок: "${aiResult.reasoning}"`

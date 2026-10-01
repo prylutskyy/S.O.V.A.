@@ -15,7 +15,15 @@ export class ChatSessionState {
   private static readonly MAX_MESSAGES = 30;
   private static readonly TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes
 
-  public static reset() { this.messages = []; }
+  // Керування станом перевірки ШІ (Карантин / Імунітет)
+  public static sessionLlmVerdict: 'SCAM' | 'SAFE' | null = null;
+  public static sessionLlmImmunityPeakScore: number = 0;
+
+  public static reset() { 
+    this.messages = []; 
+    this.sessionLlmVerdict = null;
+    this.sessionLlmImmunityPeakScore = 0;
+  }
 
   public static getRecentMessages(): ChatMessageContext[] {
     this.cleanExpired();
@@ -90,6 +98,8 @@ export class ChatSessionState {
 
   public static clear() {
     this.messages = [];
+    this.sessionLlmVerdict = null;
+    this.sessionLlmImmunityPeakScore = 0;
   }
 
   private static cleanExpired() {

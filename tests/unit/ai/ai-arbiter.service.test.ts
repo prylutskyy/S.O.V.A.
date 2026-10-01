@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { AIArbiterService } from '../../../src/ai/ai-arbiter.service';
 import { ActiveThreatContext } from '../../../src/types';
+import { ChatSessionState } from '../../../src/heuristics/chat-session-state';
 
 describe('AIArbiterService (Single-Flight & Cache)', () => {
   const baseContext: ActiveThreatContext = {
@@ -17,6 +18,7 @@ describe('AIArbiterService (Single-Flight & Cache)', () => {
 
   beforeEach(() => {
     AIArbiterService.clearCache();
+    ChatSessionState.reset();
     vi.restoreAllMocks();
   });
 
