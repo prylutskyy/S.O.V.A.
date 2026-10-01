@@ -30,7 +30,7 @@ export const DEVICE_SALT_STORAGE_KEY = 'threat_shield_device_salt';
 
 export const DEFAULT_LLM_CONFIG: LLMConfig = {
   provider: 'groq',
-  model: 'llama-3.3-70b-versatile',
+  model: 'qwen3.8-27b',
   timeoutMs: 3000,
   enabled: false,
   storageMode: 'device_encrypted',

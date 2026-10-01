@@ -347,9 +347,9 @@
         </div>
 
         <div id="cloudAiSettingsArea" style="display: flex; flex-direction: column; gap: 8px;">
-          <!-- Dedicated Groq Policy Note -->
-          <div class="groq-policy-note">
-            <span>Використовується виключно <strong>Groq</strong> через його надшвидкий аналіз (&lt; 0.3 с). Потрібен лише ваш API ключ.</span>
+          <!-- Fact Note (Pure statement, zero excuses) -->
+          <div class="apple-fact-note">
+            <span>Потрібен API-ключ Groq. Стандарт перевірки — <strong>qwen3.8-27b</strong>.</span>
           </div>
 
           <!-- Hidden fallback select for backward compatibility if any service queries it -->
@@ -368,7 +368,7 @@
               </div>
               <div class="groq-connected-actions">
                 <button type="button" class="btn-subtle" id="btnToggleChangeKey" title="Замінити API ключ">Змінити</button>
-                <button type="button" class="sc-tool-btn sc-tool-btn-close" id="btnDeleteCloudAiKey" title="Видалити збережений ключ" aria-label="Видалити збережений ключ">
+                <button type="button" class="sc-tool-btn sc-tool-btn-close" id="btnDeleteCloudAiKey" title="Відключити Groq" aria-label="Відключити Groq">
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="18" y1="6" x2="6" y2="18"></line>
                     <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -386,48 +386,40 @@
               <input type="password" class="sanctuary-input" id="cloudAiKeyInput" placeholder="Вставте ключ (gsk_...)">
               <button type="button" class="btn-primary" id="btnSaveCloudAiKey" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px;">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>
-                <span id="btnSaveCloudAiKeyText">Підключити Groq та отримати моделі</span>
+                <span id="btnSaveCloudAiKeyText">Підключити</span>
               </button>
             </div>
           </div>
 
           <!-- Model Management Area -->
-          <div id="cloudAiModelContainer" style="display: none;">
-            <!-- State A: Primary button to fetch models from API when empty -->
-            <div id="modelsEmptyState" style="display: none; width: 100%;">
-              <button type="button" class="btn-secondary" id="btnFetchModelsPrimary" style="width: 100%; font-size: 11.5px; height: 32px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+          <div id="cloudAiModelContainer" style="display: none; flex-direction: column; gap: 6px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <label style="font-size: 11px; font-weight: 500; color: var(--sanctuary-ink-secondary);">Модель арбітражу</label>
+              <button type="button" id="btnRefreshModels" class="subtle-sync-btn" title="Оновити каталог моделей" aria-label="Оновити каталог">
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="sync-icon">
                   <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
                 </svg>
-                <span>Отримати список моделей з API</span>
+                <span>Оновити список</span>
               </button>
             </div>
 
-            <!-- State B: Dropdown populated with Groq models -->
-            <div id="modelsLoadedState" style="display: none; width: 100%; flex-direction: column; gap: 4px;">
-              <div style="display: flex; justify-content: space-between; align-items: center;">
-                <label style="font-size: 11px; font-weight: 500; color: var(--sanctuary-ink-secondary);">Модель арбітражу</label>
-                <button type="button" id="btnRefreshModels" class="subtle-sync-btn" title="Оновити список моделей через API" aria-label="Оновити моделі">
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="sync-icon">
-                    <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
-                  </svg>
-                  <span>Оновити з API</span>
+            <div style="display: flex; gap: 6px; align-items: center;">
+              <select class="sanctuary-input" id="cloudAiModelSelect" style="flex: 1; cursor: pointer; font-size: 11.5px; height: 32px;">
+                <option value="qwen3.8-27b" selected>qwen3.8-27b (Стандарт)</option>
+              </select>
+              <button type="button" class="btn-secondary" id="btnApplyModel" style="height: 32px; padding: 0 14px; font-size: 11.5px; white-space: nowrap; font-weight: 500;">
+                Вибрати
+              </button>
+            </div>
+
+            <div id="customModelInputWrapper" style="display: none; margin-top: 2px;">
+              <div style="display: flex; gap: 6px;">
+                <input type="text" class="sanctuary-input" id="cloudAiCustomModelInput" placeholder="Введіть назву моделі..." style="flex: 1; font-size: 11.5px; height: 32px;">
+                <button type="button" class="btn-secondary" id="btnApplyCustomModel" style="height: 32px; padding: 0 14px; font-size: 11.5px; white-space: nowrap;">
+                  Вибрати
                 </button>
               </div>
-              <select class="sanctuary-input" id="cloudAiModelSelect" style="cursor: pointer;">
-                <option value="__custom__">Вказати власну модель...</option>
-              </select>
-              <div id="customModelInputWrapper" style="display: none; margin-top: 4px;">
-                <input type="text" class="sanctuary-input" id="cloudAiCustomModelInput" placeholder="Введіть назву моделі..." style="font-size: 11.5px;">
-              </div>
             </div>
-          </div>
-
-          <!-- Connection Test Row -->
-          <div id="cloudAiTestRow" style="display: none; justify-content: flex-end; align-items: center;">
-            <button type="button" class="btn-subtle" id="btnTestCloudAiKey" style="font-size: 11px; padding: 2px 8px;">
-              Перевірити зв'язок
-            </button>
           </div>
 
           <div id="cloudAiStatusFeedback" style="display: none; font-size: 11px; padding: 6px 8px; border-radius: 6px; line-height: 1.4;"></div>

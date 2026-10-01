@@ -29,15 +29,12 @@ export class SettingsTabController {
   private btnSaveCloudAiKey: HTMLButtonElement | null;
   private btnSaveCloudAiKeyText: HTMLElement | null;
   private cloudAiModelContainer: HTMLElement | null;
-  private modelsEmptyState: HTMLElement | null;
-  private btnFetchModelsPrimary: HTMLButtonElement | null;
-  private modelsLoadedState: HTMLElement | null;
   private btnRefreshModels: HTMLButtonElement | null;
   private cloudAiModelSelect: HTMLSelectElement | null;
+  private btnApplyModel: HTMLButtonElement | null;
   private customModelInputWrapper: HTMLElement | null;
   private cloudAiCustomModelInput: HTMLInputElement | null;
-  private cloudAiTestRow: HTMLElement | null;
-  private btnTestCloudAiKey: HTMLButtonElement | null;
+  private btnApplyCustomModel: HTMLButtonElement | null;
   private cloudAiStatusFeedback: HTMLElement | null;
   private cachedDynamicModels: Record<string, Array<{ id: string; label: string }>> = {};
 
@@ -68,15 +65,12 @@ export class SettingsTabController {
     this.btnSaveCloudAiKey = document.getElementById('btnSaveCloudAiKey') as HTMLButtonElement | null;
     this.btnSaveCloudAiKeyText = document.getElementById('btnSaveCloudAiKeyText');
     this.cloudAiModelContainer = document.getElementById('cloudAiModelContainer') as HTMLElement | null;
-    this.modelsEmptyState = document.getElementById('modelsEmptyState') as HTMLElement | null;
-    this.btnFetchModelsPrimary = document.getElementById('btnFetchModelsPrimary') as HTMLButtonElement | null;
-    this.modelsLoadedState = document.getElementById('modelsLoadedState') as HTMLElement | null;
     this.btnRefreshModels = document.getElementById('btnRefreshModels') as HTMLButtonElement | null;
     this.cloudAiModelSelect = document.getElementById('cloudAiModelSelect') as HTMLSelectElement | null;
+    this.btnApplyModel = document.getElementById('btnApplyModel') as HTMLButtonElement | null;
     this.customModelInputWrapper = document.getElementById('customModelInputWrapper') as HTMLElement | null;
     this.cloudAiCustomModelInput = document.getElementById('cloudAiCustomModelInput') as HTMLInputElement | null;
-    this.cloudAiTestRow = document.getElementById('cloudAiTestRow') as HTMLElement | null;
-    this.btnTestCloudAiKey = document.getElementById('btnTestCloudAiKey') as HTMLButtonElement | null;
+    this.btnApplyCustomModel = document.getElementById('btnApplyCustomModel') as HTMLButtonElement | null;
     this.cloudAiStatusFeedback = document.getElementById('cloudAiStatusFeedback') as HTMLElement | null;
 
     this.initDebugMode();
@@ -213,28 +207,16 @@ export class SettingsTabController {
       if (this.cloudAiKeyNotSet) this.cloudAiKeyNotSet.style.display = 'none';
 
       // Показуємо блок моделей
-      if (this.cloudAiModelContainer) this.cloudAiModelContainer.style.display = 'block';
+      if (this.cloudAiModelContainer) this.cloudAiModelContainer.style.display = 'flex';
 
-      const dynamicModels = this.cachedDynamicModels['groq'];
-      if (dynamicModels && dynamicModels.length > 0) {
-        // Моделі завантажено з API: показуємо випадаючий список
-        if (this.modelsEmptyState) this.modelsEmptyState.style.display = 'none';
-        if (this.modelsLoadedState) this.modelsLoadedState.style.display = 'flex';
-        this.populateModelsSelect(dynamicModels, config.model);
-        if (this.cloudAiTestRow) this.cloudAiTestRow.style.display = 'flex';
-      } else {
-        // Моделі ще не завантажено: показуємо головну кнопку завантаження з API
-        if (this.modelsEmptyState) this.modelsEmptyState.style.display = 'block';
-        if (this.modelsLoadedState) this.modelsLoadedState.style.display = 'none';
-        if (this.cloudAiTestRow) this.cloudAiTestRow.style.display = 'none';
-      }
+      const dynamicModels = this.cachedDynamicModels['groq'] || [];
+      this.populateModelsSelect(dynamicModels, config.model || 'qwen3.8-27b');
     } else {
       // 2. Стан: Ключ ще не введено (початковий мінімалістичний стан)
       if (this.cloudAiKeySavedPill) this.cloudAiKeySavedPill.style.display = 'none';
       if (this.cloudAiKeyInputWrapper) this.cloudAiKeyInputWrapper.style.display = 'flex';
       if (this.cloudAiKeyNotSet) this.cloudAiKeyNotSet.style.display = 'inline-flex';
       if (this.cloudAiModelContainer) this.cloudAiModelContainer.style.display = 'none';
-      if (this.cloudAiTestRow) this.cloudAiTestRow.style.display = 'none';
       if (this.cloudAiKeyInput) this.cloudAiKeyInput.value = '';
     }
   }
@@ -243,14 +225,32 @@ export class SettingsTabController {
     if (!this.cloudAiModelSelect) return;
     this.cloudAiModelSelect.innerHTML = '';
 
-    let matchFound = false;
-    const targetModel = selectedModel || 'llama-3.3-70b-versatile';
+    const standardModelId = 'qwen3.8-27b';
+    const targetModel = selectedModel || standardModelId;
 
-    models.forEach((m) => {
+    // Створюємо робочий масив моделей з обов'язковою наявністю qwen3.8-27b на початку
+    const list = [...models];
+    const qwenIndex = list.findIndex((m) => m.id === standardModelId || m.id.toLowerCase().includes('qwen3.8'));
+
+    if (qwenIndex === -1) {
+      list.unshift({
+        id: standardModelId,
+        label: `${standardModelId} (Стандарт)`,
+      });
+    } else {
+      const [qwenModel] = list.splice(qwenIndex, 1);
+      list.unshift({
+        id: qwenModel.id,
+        label: qwenModel.label.includes('(Стандарт)') ? qwenModel.label : `${qwenModel.id} (Стандарт)`,
+      });
+    }
+
+    let matchFound = false;
+    list.forEach((m) => {
       const opt = document.createElement('option');
       opt.value = m.id;
       opt.textContent = m.label;
-      if (m.id === targetModel) {
+      if (m.id === targetModel || (!matchFound && m.id === standardModelId)) {
         opt.selected = true;
         matchFound = true;
       }
@@ -259,7 +259,7 @@ export class SettingsTabController {
 
     const customOpt = document.createElement('option');
     customOpt.value = '__custom__';
-    customOpt.textContent = 'Вказати іншу модель вручну...';
+    customOpt.textContent = 'Вказати іншу модель...';
     this.cloudAiModelSelect.appendChild(customOpt);
 
     if (selectedModel && !matchFound) {
@@ -278,22 +278,22 @@ export class SettingsTabController {
     if (state === 'loading') {
       this.btnSaveCloudAiKey.disabled = true;
       if (this.btnSaveCloudAiKeyText) {
-        this.btnSaveCloudAiKeyText.textContent = 'Підключення до Groq API...';
+        this.btnSaveCloudAiKeyText.textContent = 'Підключення...';
       }
     } else if (state === 'success') {
       this.btnSaveCloudAiKey.disabled = false;
       if (this.btnSaveCloudAiKeyText) {
-        this.btnSaveCloudAiKeyText.textContent = 'Groq успішно підключено';
+        this.btnSaveCloudAiKeyText.textContent = 'Підключено';
       }
       setTimeout(() => {
         if (this.btnSaveCloudAiKeyText) {
-          this.btnSaveCloudAiKeyText.textContent = 'Підключити Groq та отримати моделі';
+          this.btnSaveCloudAiKeyText.textContent = 'Підключити';
         }
-      }, 3000);
+      }, 2500);
     } else {
       this.btnSaveCloudAiKey.disabled = false;
       if (this.btnSaveCloudAiKeyText) {
-        this.btnSaveCloudAiKeyText.textContent = 'Підключити Groq та отримати моделі';
+        this.btnSaveCloudAiKeyText.textContent = 'Підключити';
       }
     }
   }
@@ -302,7 +302,7 @@ export class SettingsTabController {
     const apiKey = keyOverride || this.cloudAiKeyInput?.value?.trim() || (await SecureKeyStore.getApiKey('groq'));
 
     if (!apiKey) {
-      this.showFeedback('Введіть або збережіть Groq API ключ для завантаження каталогу', false);
+      this.showFeedback('Введіть Groq API ключ для підключення', false);
       return false;
     }
 
@@ -310,12 +310,7 @@ export class SettingsTabController {
       this.btnRefreshModels.disabled = true;
       this.btnRefreshModels.classList.add('is-loading');
     }
-    if (this.btnFetchModelsPrimary) {
-      this.btnFetchModelsPrimary.disabled = true;
-      const span = this.btnFetchModelsPrimary.querySelector('span');
-      if (span) span.textContent = 'Завантаження з Groq API...';
-    }
-    this.showFeedback('Запит доступних моделей через Groq API...', true);
+    this.showFeedback('Підключення до Groq API...', true);
 
     try {
       const resp = await chrome.runtime.sendMessage({
@@ -323,7 +318,7 @@ export class SettingsTabController {
         payload: { provider: 'groq', apiKey },
       });
 
-      if (resp && resp.success && Array.isArray(resp.models) && resp.models.length > 0) {
+      if (resp && resp.success && Array.isArray(resp.models)) {
         this.cachedDynamicModels['groq'] = resp.models;
 
         if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
@@ -332,33 +327,25 @@ export class SettingsTabController {
 
         const config = await SecureKeyStore.getConfig();
         let chosenModel = config.model;
-        const hasCurrentModel = resp.models.some((m: any) => m.id === chosenModel);
-        if (!hasCurrentModel) {
-          const defaultLlama = resp.models.find((m: any) => m.id.includes('llama-3.3-70b')) || resp.models[0];
-          chosenModel = defaultLlama.id;
+        if (!chosenModel || chosenModel === 'llama-3.3-70b-versatile') {
+          chosenModel = 'qwen3.8-27b';
           await SecureKeyStore.saveConfig({ provider: 'groq', model: chosenModel });
         }
 
         await this.renderCloudAiState();
-        this.showFeedback(`Отримано ${resp.models.length} актуальних моделей Groq`, true);
-        this.showToast(`Каталог Groq оновлено: ${resp.models.length} моделей`);
+        this.showFeedback(`Каталог Groq синхронізовано (${resp.models.length} моделей)`, true);
         return true;
       } else {
-        this.showFeedback(`Помилка Groq API: ${resp?.error || 'Не вдалося отримати список моделей'}`, false);
+        this.showFeedback(`Помилка Groq API: ${resp?.error || 'Не вдалося отримати моделі'}`, false);
         return false;
       }
     } catch (err: any) {
-      this.showFeedback(`Помилка запиту моделей: ${err?.message || err}`, false);
+      this.showFeedback(`Помилка зв'язку: ${err?.message || err}`, false);
       return false;
     } finally {
       if (this.btnRefreshModels) {
         this.btnRefreshModels.disabled = false;
         this.btnRefreshModels.classList.remove('is-loading');
-      }
-      if (this.btnFetchModelsPrimary) {
-        this.btnFetchModelsPrimary.disabled = false;
-        const span = this.btnFetchModelsPrimary.querySelector('span');
-        if (span) span.textContent = 'Отримати список моделей з API';
       }
     }
   }
@@ -370,40 +357,6 @@ export class SettingsTabController {
     this.cloudAiStatusFeedback.style.color = isSuccess ? 'var(--sanctuary-green-ink)' : 'var(--sanctuary-red-ink)';
     this.cloudAiStatusFeedback.style.border = isSuccess ? '1px solid var(--sanctuary-green-bd)' : '1px solid var(--sanctuary-red-bd)';
     this.cloudAiStatusFeedback.textContent = text;
-  }
-
-  private async testConnection(keyOverride?: string): Promise<boolean> {
-    const config = await SecureKeyStore.getConfig();
-    const model = config.model || 'llama-3.3-70b-versatile';
-    const apiKey = keyOverride || (this.cloudAiKeyInput?.value?.trim()) || (await SecureKeyStore.getApiKey('groq'));
-
-    if (!apiKey) {
-      this.showFeedback('Спочатку збережіть або введіть Groq API ключ', false);
-      return false;
-    }
-
-    this.showFeedback('Перевірка зв\'язку з Groq API...', true);
-    if (this.btnTestCloudAiKey) this.btnTestCloudAiKey.disabled = true;
-
-    try {
-      const resp = await chrome.runtime.sendMessage({
-        type: 'TEST_CLOUD_AI',
-        payload: { provider: 'groq', apiKey, model },
-      });
-
-      if (resp && resp.success) {
-        this.showFeedback(`Зв'язок з Groq встановлено успішно · ${resp.modelUsed || model} (${resp.latencyMs || 0} мс)`, true);
-        return true;
-      } else {
-        this.showFeedback(`Помилка Groq: ${resp?.error || 'Не вдалося встановити зв\'язок'}`, false);
-        return false;
-      }
-    } catch (err: any) {
-      this.showFeedback(`Помилка виклику: ${err?.message || err}`, false);
-      return false;
-    } finally {
-      if (this.btnTestCloudAiKey) this.btnTestCloudAiKey.disabled = false;
-    }
   }
 
   private bindEvents(): void {
@@ -432,11 +385,6 @@ export class SettingsTabController {
       await this.refreshModelsFromApi();
     });
 
-    // Primary Fetch Models button (when models not yet loaded)
-    this.btnFetchModelsPrimary?.addEventListener('click', async () => {
-      await this.refreshModelsFromApi();
-    });
-
     // Toggle Change Key Form
     this.btnToggleChangeKey?.addEventListener('click', () => {
       if (!this.cloudAiKeyInputWrapper) return;
@@ -450,63 +398,67 @@ export class SettingsTabController {
       }
     });
 
-    // Cloud AI Model Change
-    this.cloudAiModelSelect?.addEventListener('change', async (e) => {
+    // Cloud AI Model Dropdown Change
+    this.cloudAiModelSelect?.addEventListener('change', (e) => {
       const val = (e.target as HTMLSelectElement).value;
-
       if (val === '__custom__') {
         if (this.customModelInputWrapper) this.customModelInputWrapper.style.display = 'block';
         this.cloudAiCustomModelInput?.focus();
-        const customModel = this.cloudAiCustomModelInput?.value?.trim() || '';
-        if (customModel) {
-          await SecureKeyStore.saveConfig({ provider: 'groq', model: customModel });
-        }
       } else {
         if (this.customModelInputWrapper) this.customModelInputWrapper.style.display = 'none';
-        await SecureKeyStore.saveConfig({ provider: 'groq', model: val });
-        this.showToast(`Модель: ${val}`);
       }
     });
 
-    // Custom Model Input Change
-    const saveCustomModelIfActive = async () => {
-      const customModel = this.cloudAiCustomModelInput?.value?.trim();
-      const isCustomActive =
-        !this.cloudAiModelSelect ||
-        this.cloudAiModelSelect.style.display === 'none' ||
-        this.cloudAiModelSelect.value === '__custom__';
-
-      if (customModel && isCustomActive) {
-        await SecureKeyStore.saveConfig({ provider: 'groq', model: customModel });
+    // Apply Model from Dropdown (Explicit "Вибрати" Action)
+    this.btnApplyModel?.addEventListener('click', async () => {
+      if (!this.cloudAiModelSelect) return;
+      const val = this.cloudAiModelSelect.value;
+      if (val === '__custom__') {
+        if (this.customModelInputWrapper) this.customModelInputWrapper.style.display = 'block';
+        this.cloudAiCustomModelInput?.focus();
+      } else {
+        if (this.customModelInputWrapper) this.customModelInputWrapper.style.display = 'none';
+        await SecureKeyStore.saveConfig({ provider: 'groq', model: val });
+        this.showToast(`Вибрано модель: ${val}`);
+        this.showFeedback(`Активна модель: ${val}`, true);
       }
-    };
+    });
 
-    this.cloudAiCustomModelInput?.addEventListener('input', saveCustomModelIfActive);
-    this.cloudAiCustomModelInput?.addEventListener('change', saveCustomModelIfActive);
+    // Apply Custom Model
+    this.btnApplyCustomModel?.addEventListener('click', async () => {
+      const customModel = this.cloudAiCustomModelInput?.value?.trim();
+      if (!customModel) {
+        this.showFeedback('Введіть назву моделі', false);
+        return;
+      }
+      await SecureKeyStore.saveConfig({ provider: 'groq', model: customModel });
+      this.showToast(`Вибрано модель: ${customModel}`);
+      this.showFeedback(`Активна модель: ${customModel}`, true);
+    });
 
-    // Save Groq API Key & Auto-fetch Models (Unified primary action)
+    // Save Groq API Key & Auto-connect (Unified "Підключити" action)
     const saveKeyAction = async () => {
       const val = this.cloudAiKeyInput?.value?.trim() || '';
 
       if (!val) {
-        this.showFeedback('Введіть Groq API ключ для підключення', false);
+        this.showFeedback('Вставте Groq API ключ для підключення', false);
         return;
       }
 
       this.setSaveButtonState('loading');
       try {
         await SecureKeyStore.saveApiKey('groq', val, 'device_encrypted');
-        await SecureKeyStore.saveConfig({ provider: 'groq', enabled: true });
+        await SecureKeyStore.saveConfig({ provider: 'groq', model: 'qwen3.8-27b', enabled: true });
         if (this.toggleCloudAi) this.toggleCloudAi.checked = true;
 
         if (this.cloudAiKeyInput) this.cloudAiKeyInput.value = '';
-        this.showToast('Ключ Groq збережено! Завантаження моделей...');
+        this.showToast('Groq підключено · Модель qwen3.8-27b');
 
         const success = await this.refreshModelsFromApi(val);
         this.setSaveButtonState(success ? 'success' : 'idle');
         await this.renderCloudAiState();
       } catch (err: any) {
-        this.showFeedback(`Помилка збереження ключа: ${err?.message || err}`, false);
+        this.showFeedback(`Помилка підключення: ${err?.message || err}`, false);
         this.setSaveButtonState('idle');
       }
     };
@@ -519,18 +471,15 @@ export class SettingsTabController {
       }
     });
 
-    // Test Groq Connection
-    this.btnTestCloudAiKey?.addEventListener('click', () => this.testConnection());
-
-    // Delete Groq Key
+    // Delete Groq Key (Disconnect)
     this.btnDeleteCloudAiKey?.addEventListener('click', async () => {
-      if (confirm('Видалити збережений ключ Groq?')) {
+      if (confirm('Відключити Groq та видалити збережений ключ?')) {
         await SecureKeyStore.deleteApiKey('groq');
         await SecureKeyStore.saveConfig({ enabled: false });
         if (this.toggleCloudAi) this.toggleCloudAi.checked = false;
         await this.renderCloudAiState();
         if (this.cloudAiStatusFeedback) this.cloudAiStatusFeedback.style.display = 'none';
-        this.showToast('Ключ Groq видалено');
+        this.showToast('Groq відключено');
       }
     });
 

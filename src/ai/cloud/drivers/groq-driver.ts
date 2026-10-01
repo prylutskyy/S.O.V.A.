@@ -10,7 +10,7 @@ import {
 export class GroqDriver implements ICloudLLMDriver {
   public async verifyThreat(request: CloudVerificationRequest): Promise<CloudVerificationResponse> {
     const startTime = performance.now();
-    const model = request.model || 'llama-3.3-70b-versatile';
+    const model = request.model || 'qwen3.8-27b';
     const endpoint = 'https://api.groq.com/openai/v1/chat/completions';
 
     const body = {
@@ -81,7 +81,7 @@ export class GroqDriver implements ICloudLLMDriver {
 
   public async generateText(request: CloudTextGenerationRequest): Promise<CloudTextGenerationResponse> {
     const startTime = performance.now();
-    const model = request.model || 'llama-3.3-70b-versatile';
+    const model = request.model || 'qwen3.8-27b';
     const endpoint = 'https://api.groq.com/openai/v1/chat/completions';
 
     const messages: any[] = [];
@@ -153,6 +153,10 @@ export class GroqDriver implements ICloudLLMDriver {
         description: `Контекст: ${m.context_window || 'N/A'}`,
       }))
       .sort((a, b) => {
+        const aQwen = a.id.toLowerCase().includes('qwen');
+        const bQwen = b.id.toLowerCase().includes('qwen');
+        if (aQwen && !bQwen) return -1;
+        if (!aQwen && bQwen) return 1;
         const aLlama = a.id.includes('llama-3');
         const bLlama = b.id.includes('llama-3');
         if (aLlama && !bLlama) return -1;

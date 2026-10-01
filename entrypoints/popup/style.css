@@ -1680,8 +1680,8 @@ html, body {
   transform: scale(0.96);
 }
 
-/* Groq Dedicated Cloud Styles */
-.groq-policy-note {
+/* Apple Fact Note */
+.apple-fact-note {
   font-size: 11px;
   color: var(--sanctuary-ink-secondary);
   line-height: 1.4;
@@ -1691,7 +1691,7 @@ html, body {
   padding: 7px 10px;
 }
 
-.groq-policy-note strong {
+.apple-fact-note strong {
   color: var(--sanctuary-ink-primary);
   font-weight: 600;
 }
