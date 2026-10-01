@@ -243,27 +243,38 @@ export class FieldLivePill {
   public static updatePillPosition(input: HTMLInputElement | HTMLTextAreaElement, pill: HTMLElement): void {
     if (!input.isConnected) return;
 
+    const record = this.activePills.get(input);
     const rect = input.getBoundingClientRect();
     const scrollX = typeof window !== 'undefined' ? (window.scrollX || window.pageXOffset || 0) : 0;
     const scrollY = typeof window !== 'undefined' ? (window.scrollY || window.pageYOffset || 0) : 0;
 
-    const pillWidth = pill.offsetWidth || (pill.classList.contains('ts-expanded') ? 280 : 96);
+    const isExpanded = record?.isExpanded || pill.classList.contains('ts-expanded');
+    const pillWidth = pill.offsetWidth || (isExpanded ? 360 : 180);
+    const pillHeight = pill.offsetHeight || (isExpanded ? 72 : 28);
 
-    // Розміщуємо строго ЗНИЗУ під полем (gap: 4px)
-    const top = scrollY + rect.bottom + 4;
-
-    // Праворуч знизу під полем: вирівнюємо правий край пігулки з правим краєм поля
+    // Розміщуємо акуратно під нижнім правим краєм поля
+    let top = scrollY + rect.bottom + 5;
     let left = scrollX + rect.right - pillWidth;
 
-    // Якщо лівий край пігулки виходить за лівий край вікна браузера
+    // Якщо не влазить праворуч або поле вужче за розгорнутий банер — вирівнюємо по лівому краю поля
+    if (left < scrollX + rect.left) {
+      left = scrollX + rect.left;
+    }
+
+    // Запобігаємо виходу за лівий край екрану
     if (left < scrollX + 8) {
       left = scrollX + 8;
     }
 
-    // Запобігаємо виходу за правий край екрану
-    const maxLeft = (typeof window !== 'undefined' ? window.innerWidth : 1200) + scrollX - pillWidth - 8;
+    // Запобігаємо виходу за правий край вікна
+    const maxLeft = (typeof window !== 'undefined' ? window.innerWidth : 1200) + scrollX - pillWidth - 10;
     if (left > maxLeft) {
       left = Math.max(scrollX + 8, maxLeft);
+    }
+
+    // Якщо знизу не вистачає місця у в'юпорті — виносимо над полем
+    if (typeof window !== 'undefined' && rect.bottom + pillHeight + 10 > window.innerHeight) {
+      top = scrollY + rect.top - pillHeight - 5;
     }
 
     pill.style.top = `${Math.max(0, top)}px`;
@@ -391,7 +402,7 @@ export class FieldLivePill {
       const vaultLabel = record.vaultLabel || details.shortLabel;
       if (isExpanded) {
         pill.innerHTML = `
-          <div class="ts-field-pill-inner" style="display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%;">
+          <div class="ts-field-pill-inner" style="display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%;">
             <div style="display: flex; align-items: flex-start; gap: 8px; min-width: 0; flex: 1;">
               <span class="ts-field-pill-icon" style="color: #DC2626; display: flex; align-items: center; margin-top: 1px; flex-shrink: 0;">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
@@ -399,11 +410,22 @@ export class FieldLivePill {
                   <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
                 </svg>
               </span>
-              <span class="ts-field-pill-msg" style="color: #991B1B; font-size: 11px; line-height: 1.35; font-weight: 500; flex: 1;">
-                Сховище: ${vaultLabel} — виявлено збережений маркер безпеки. Не передавайте його стороннім!
-              </span>
+              <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1;">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <span style="font-size: 11.5px; font-weight: 700; color: #991B1B; letter-spacing: -0.01em;">
+                    Сховище: ${vaultLabel}
+                  </span>
+                  <span style="font-size: 9px; color: #DC2626; opacity: 0.7;">•</span>
+                  <span style="font-size: 9.5px; color: #DC2626; font-weight: 600;">
+                    Особистий секрет
+                  </span>
+                </div>
+                <p style="font-size: 10.5px; line-height: 1.35; color: #7F1D1D; margin: 1px 0 0 0;">
+                  Виявлено збережений маркер безпеки. Не передавайте його стороннім ресурсам!
+                </p>
+              </div>
             </div>
-            <button class="ts-pill-action-chip ts-field-clean-action" style="align-self: center;">
+            <button class="ts-pill-action-chip ts-field-clean-action" style="margin-left: 6px; align-self: center;">
               Очистити
             </button>
           </div>
@@ -425,16 +447,27 @@ export class FieldLivePill {
       // 2. ДЕЛІКАТНЕ ЗАСТЕРЕЖЕННЯ ПРИ ВВЕДЕННІ (> 7 символів) — ТЕПЛИЙ БУРШТИН (AMBER)
       if (isExpanded) {
         pill.innerHTML = `
-          <div class="ts-field-pill-inner" style="display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%;">
+          <div class="ts-field-pill-inner" style="display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%;">
             <div style="display: flex; align-items: flex-start; gap: 8px; min-width: 0; flex: 1;">
               <span class="ts-field-pill-icon" style="color: #D97706; display: flex; align-items: center; margin-top: 1px; flex-shrink: 0;">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
               </span>
-              <span class="ts-field-pill-msg" style="color: #92400E; font-size: 11px; line-height: 1.35; font-weight: 500; flex: 1;">
-                ${details.bannerWarning}
-              </span>
+              <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1;">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <span style="font-size: 11.5px; font-weight: 700; color: #92400E; letter-spacing: -0.01em;">
+                    ${details.shortLabel}
+                  </span>
+                  <span style="font-size: 9px; color: #D97706; opacity: 0.7;">•</span>
+                  <span style="font-size: 9.5px; color: #D97706; font-weight: 600;">
+                    Увага
+                  </span>
+                </div>
+                <p style="font-size: 10.5px; line-height: 1.35; color: #92400E; margin: 1px 0 0 0;">
+                  ${details.bannerWarning}
+                </p>
+              </div>
             </div>
-            <button class="ts-pill-action-chip ts-field-clean-action" style="align-self: center;">
+            <button class="ts-pill-action-chip ts-field-clean-action" style="margin-left: 6px; align-self: center;">
               Очистити
             </button>
           </div>
@@ -453,17 +486,28 @@ export class FieldLivePill {
       // 3. СТАН СПОКОЮ ТА РОЗГОРНУТОЇ ПІДКАЗКИ (0–7 СИМВОЛІВ АБО ФОКУС) — SANCTUARY BLUE
       if (isExpanded) {
         pill.innerHTML = `
-          <div class="ts-field-pill-inner" style="display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%;">
+          <div class="ts-field-pill-inner" style="display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%;">
             <div style="display: flex; align-items: flex-start; gap: 8px; min-width: 0; flex: 1;">
               <span class="ts-field-pill-icon" style="color: #0071E3; display: flex; align-items: center; margin-top: 1px; flex-shrink: 0;">
                 ${details.iconSvg}
               </span>
-              <span class="ts-field-pill-msg" style="color: #1D1D1F; font-size: 11px; line-height: 1.35; font-weight: 500;">
-                ${details.bannerWarning}
-              </span>
+              <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1;">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <span style="font-size: 11.5px; font-weight: 700; color: #1D1D1F; letter-spacing: -0.01em;">
+                    ${details.shortLabel}
+                  </span>
+                  <span style="font-size: 9px; color: #86868B;">•</span>
+                  <span style="font-size: 9.5px; color: #0071E3; font-weight: 600;">
+                    Захист поля
+                  </span>
+                </div>
+                <p style="font-size: 10.5px; line-height: 1.35; color: #515154; margin: 1px 0 0 0;">
+                  ${details.bannerWarning}
+                </p>
+              </div>
             </div>
             ${hasText ? `
-              <button class="ts-pill-action-chip ts-field-clean-action" style="align-self: center;">
+              <button class="ts-pill-action-chip ts-field-clean-action" style="margin-left: 6px; align-self: center;">
                 Очистити
               </button>
             ` : ''}
@@ -625,9 +669,11 @@ export class FieldLivePill {
         border-radius: 12px !important;
         white-space: normal !important;
         max-width: 440px !important;
+        min-width: 280px !important;
         gap: 8px !important;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.10), 0 2px 6px rgba(0, 0, 0, 0.04) !important;
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.04) !important;
         cursor: default !important;
+        overflow-x: hidden !important;
       }
 
       @keyframes tsContentUnroll {
