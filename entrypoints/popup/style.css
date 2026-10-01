@@ -1731,3 +1731,327 @@ html, body {
 
 
 
+
+/* ==========================================================================
+   13. SETTINGS REDESIGN — UNIFIED PATTERNS & MICRO-INTERACTIONS
+   Jony Ive Design Audit · October 2026
+   ========================================================================== */
+
+/* Utility: Hidden */
+.hidden {
+  display: none !important;
+}
+
+/* Utility: Flex stacks (replace inline styles) */
+.stack-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.stack-col-6  { gap: 6px; }
+.stack-col-8  { gap: 8px; }
+.stack-col-10 { gap: 10px; }
+
+.row-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.row-center {
+  display: flex;
+  align-items: center;
+}
+
+.row-gap-6 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ---- Empty State (Whitelist) ---- */
+.empty-state {
+  text-align: center;
+  padding: 24px 16px;
+}
+
+.empty-state-icon {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 12px;
+  background: var(--sanctuary-blue-bg);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--sanctuary-blue);
+}
+
+.empty-state-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--sanctuary-ink-primary);
+  margin-bottom: 4px;
+}
+
+.empty-state-desc {
+  font-size: 12px;
+  color: var(--sanctuary-ink-tertiary);
+  line-height: 1.5;
+  margin-bottom: 14px;
+}
+
+/* ---- Inline Validation (replaces alert()) ---- */
+.field-error {
+  font-size: 11px;
+  color: var(--sanctuary-red-ink);
+  padding: 3px 4px 0;
+  line-height: 1.3;
+  animation: fieldErrorFade 0.25s var(--ease-apple-spring);
+}
+
+@keyframes fieldErrorFade {
+  from { opacity: 0; transform: translateY(-3px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.sanctuary-input.is-invalid {
+  border-color: var(--sanctuary-red);
+  animation: inputShake 0.45s var(--ease-apple-rebound);
+}
+
+@keyframes inputShake {
+  0%, 100% { transform: translateX(0); }
+  15%, 55% { transform: translateX(-4px); }
+  35%, 75% { transform: translateX(4px); }
+}
+
+.sanctuary-input.is-invalid:focus {
+  box-shadow: 0 0 0 3px rgba(255, 59, 48, 0.18);
+  border-color: var(--sanctuary-red);
+}
+
+/* ---- Keyboard Shortcut Capsules ---- */
+kbd {
+  display: inline-block;
+  padding: 1px 5px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--sanctuary-ink-secondary);
+  background: var(--sanctuary-surface-subtle);
+  border: 1px solid var(--sanctuary-hairline);
+  border-radius: 4px;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
+  line-height: 1.4;
+}
+
+.kbd-group {
+  margin-left: 6px;
+  white-space: nowrap;
+}
+
+.kbd-plus {
+  font-size: 9px;
+  color: var(--sanctuary-ink-quaternary);
+  margin: 0 1px;
+}
+
+/* ---- Groq Connection Animations ---- */
+.groq-connected-bar.just-connected {
+  animation: connectionPulse 0.6s var(--ease-apple-spring);
+}
+
+@keyframes connectionPulse {
+  0% {
+    transform: scale(0.95);
+    opacity: 0;
+    border-color: transparent;
+  }
+  50% {
+    border-color: var(--sanctuary-green);
+    box-shadow: 0 0 0 4px rgba(52, 199, 89, 0.15);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+    border-color: var(--sanctuary-green-bd);
+    box-shadow: none;
+  }
+}
+
+.groq-connected-bar.disconnecting {
+  animation: disconnectFade 0.35s var(--ease-apple-spring) forwards;
+}
+
+@keyframes disconnectFade {
+  0%   { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(0.96); }
+}
+
+/* ---- Feedback Banner (replaces inline styles) ---- */
+.cloud-ai-feedback {
+  font-size: 11px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  line-height: 1.4;
+  animation: fieldErrorFade 0.25s var(--ease-apple-spring);
+}
+
+.cloud-ai-feedback.success {
+  background: var(--sanctuary-green-bg);
+  color: var(--sanctuary-green-ink);
+  border: 1px solid var(--sanctuary-green-bd);
+}
+
+.cloud-ai-feedback.error {
+  background: var(--sanctuary-red-bg);
+  color: var(--sanctuary-red-ink);
+  border: 1px solid var(--sanctuary-red-bd);
+}
+
+/* ---- Destructive Confirmation Sheet (replaces confirm()) ---- */
+.confirm-sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: var(--sanctuary-backdrop);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 16px;
+  animation: sheetBackdropIn 0.2s ease;
+}
+
+@keyframes sheetBackdropIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.confirm-sheet {
+  width: 100%;
+  max-width: 358px;
+  background: var(--sanctuary-glass-elevated);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border-radius: var(--radius-modal);
+  box-shadow: var(--shadow-modal);
+  padding: 20px;
+  animation: sheetSlideUp 0.3s var(--ease-apple-sheet);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+@keyframes sheetSlideUp {
+  from { transform: translateY(20px) scale(0.96); opacity: 0; }
+  to   { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.confirm-sheet-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--sanctuary-ink-primary);
+  text-align: center;
+  letter-spacing: -0.01em;
+}
+
+.confirm-sheet-body {
+  font-size: 12.5px;
+  color: var(--sanctuary-ink-secondary);
+  text-align: center;
+  line-height: 1.5;
+}
+
+.confirm-sheet-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.confirm-sheet-actions .btn-primary.danger {
+  background: var(--sanctuary-red);
+  color: #FFFFFF;
+  width: 100%;
+  height: 38px;
+  font-size: 13px;
+  border-radius: var(--radius-control);
+}
+
+.confirm-sheet-actions .btn-primary.danger:hover {
+  background: #E0342B;
+}
+
+.confirm-sheet-actions .btn-primary.danger:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.confirm-sheet-actions .btn-cancel {
+  width: 100%;
+  height: 38px;
+  border: none;
+  background: rgba(118, 118, 128, 0.12);
+  color: var(--sanctuary-blue);
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: var(--radius-control);
+  cursor: pointer;
+  transition: background 0.15s var(--ease-apple-spring);
+}
+
+.confirm-sheet-actions .btn-cancel:hover {
+  background: rgba(118, 118, 128, 0.18);
+}
+
+/* ---- About Section (replaces footer) ---- */
+.about-inset-row .inset-title {
+  font-size: 13px;
+}
+
+.about-version {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--sanctuary-ink-tertiary);
+  font-family: var(--font-mono);
+}
+
+.inset-row.danger-row {
+  color: var(--sanctuary-red-ink);
+}
+
+.inset-row.danger-row .inset-title {
+  color: var(--sanctuary-red-ink);
+}
+
+.inset-row.danger-row .inset-icon-box {
+  background: var(--sanctuary-red-bg);
+  color: var(--sanctuary-red-ink);
+}
+
+.inset-row.danger-row:hover {
+  background: var(--sanctuary-red-bg);
+}
+
+/* Whitelist domain name styling (replaces inline style) */
+.domain-name {
+  font-weight: 500;
+  color: var(--sanctuary-ink-primary);
+}
+
+/* Whitelist empty placeholder (replaces inline style) */
+.list-entry.empty-placeholder {
+  justify-content: center;
+  color: var(--sanctuary-ink-tertiary);
+}
+
+/* Cloud AI inset-row for toggle */
+.cloud-ai-header {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--sanctuary-divider);
+}
+
+.cloud-ai-header .inset-info {
+  flex: 1;
+}

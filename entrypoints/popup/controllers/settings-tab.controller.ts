@@ -6,11 +6,13 @@ export class SettingsTabController {
   private whitelistTitle: HTMLElement;
   private whitelistUl: HTMLUListElement;
   private manualHostInput: HTMLInputElement;
+  private manualHostError: HTMLElement | null;
   private btnAddManual: HTMLButtonElement;
   private btnClearAllWhitelist: HTMLButtonElement;
   private btnToggleManualAdd: HTMLButtonElement | null;
   private manualAddRow: HTMLElement | null;
 
+  // Status & Debug
   private aiStatusText: HTMLElement;
   private toggleDebugMode: HTMLInputElement;
   private showToast: (msg: string) => void;
@@ -38,6 +40,14 @@ export class SettingsTabController {
   private cloudAiStatusFeedback: HTMLElement | null;
   private cachedDynamicModels: Record<string, Array<{ id: string; label: string }>> = {};
 
+  // Apple-Inspired Confirmation Sheet
+  private confirmSheetBackdrop: HTMLElement | null;
+  private confirmSheetTitle: HTMLElement | null;
+  private confirmSheetBody: HTMLElement | null;
+  private btnConfirmAction: HTMLButtonElement | null;
+  private btnCancelAction: HTMLButtonElement | null;
+  private activeConfirmCallback: (() => Promise<void> | void) | null = null;
+
   constructor(showToast: (msg: string) => void, onWhitelistChanged: () => void) {
     this.showToast = showToast;
     this.onWhitelistChanged = onWhitelistChanged;
@@ -45,6 +55,7 @@ export class SettingsTabController {
     this.whitelistTitle = document.getElementById('whitelistTitle') as HTMLElement;
     this.whitelistUl = document.getElementById('whitelistUl') as HTMLUListElement;
     this.manualHostInput = document.getElementById('manualHostInput') as HTMLInputElement;
+    this.manualHostError = document.getElementById('manualHostError') as HTMLElement | null;
     this.btnAddManual = document.getElementById('btnAddManual') as HTMLButtonElement;
     this.btnClearAllWhitelist = document.getElementById('btnClearAllWhitelist') as HTMLButtonElement;
     this.btnToggleManualAdd = document.getElementById('btnToggleManualAdd') as HTMLButtonElement | null;
@@ -73,14 +84,99 @@ export class SettingsTabController {
     this.btnApplyCustomModel = document.getElementById('btnApplyCustomModel') as HTMLButtonElement | null;
     this.cloudAiStatusFeedback = document.getElementById('cloudAiStatusFeedback') as HTMLElement | null;
 
+    // Confirmation Sheet Elements
+    this.confirmSheetBackdrop = document.getElementById('confirmSheetBackdrop') as HTMLElement | null;
+    this.confirmSheetTitle = document.getElementById('confirmSheetTitle') as HTMLElement | null;
+    this.confirmSheetBody = document.getElementById('confirmSheetBody') as HTMLElement | null;
+    this.btnConfirmAction = document.getElementById('btnConfirmAction') as HTMLButtonElement | null;
+    this.btnCancelAction = document.getElementById('btnCancelAction') as HTMLButtonElement | null;
+
     this.initDebugMode();
     this.checkAI();
     this.initCloudAI();
+    this.initConfirmSheet();
     this.bindEvents();
   }
 
   private cleanDomain(raw: string): string {
     return UserWhitelistManager.normalizeDomain(raw);
+  }
+
+  private initConfirmSheet(): void {
+    this.btnConfirmAction?.addEventListener('click', async () => {
+      if (this.activeConfirmCallback) {
+        const callback = this.activeConfirmCallback;
+        this.closeConfirmDialog();
+        await callback();
+      } else {
+        this.closeConfirmDialog();
+      }
+    });
+
+    this.btnCancelAction?.addEventListener('click', () => {
+      this.closeConfirmDialog();
+    });
+
+    this.confirmSheetBackdrop?.addEventListener('click', (e) => {
+      if (e.target === this.confirmSheetBackdrop) {
+        this.closeConfirmDialog();
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && this.confirmSheetBackdrop && !this.confirmSheetBackdrop.classList.contains('hidden')) {
+        this.closeConfirmDialog();
+      }
+    });
+  }
+
+  private showConfirmDialog(options: {
+    title: string;
+    body: string;
+    confirmText?: string;
+    onConfirm: () => Promise<void> | void;
+  }): void {
+    if (!this.confirmSheetBackdrop) {
+      if (confirm(`${options.title}\n\n${options.body}`)) {
+        options.onConfirm();
+      }
+      return;
+    }
+
+    if (this.confirmSheetTitle) this.confirmSheetTitle.textContent = options.title;
+    if (this.confirmSheetBody) this.confirmSheetBody.textContent = options.body;
+    if (this.btnConfirmAction) {
+      this.btnConfirmAction.textContent = options.confirmText || 'Підтвердити';
+    }
+
+    this.activeConfirmCallback = options.onConfirm;
+    this.confirmSheetBackdrop.classList.remove('hidden');
+    this.confirmSheetBackdrop.setAttribute('aria-hidden', 'false');
+  }
+
+  private closeConfirmDialog(): void {
+    if (!this.confirmSheetBackdrop) return;
+    this.confirmSheetBackdrop.classList.add('hidden');
+    this.confirmSheetBackdrop.setAttribute('aria-hidden', 'true');
+    this.activeConfirmCallback = null;
+  }
+
+  private clearManualError(): void {
+    if (this.manualHostInput) this.manualHostInput.classList.remove('is-invalid');
+    if (this.manualHostError) this.manualHostError.classList.add('hidden');
+  }
+
+  private showManualError(msg?: string): void {
+    if (this.manualHostInput) {
+      this.manualHostInput.classList.remove('is-invalid');
+      void this.manualHostInput.offsetWidth; // Trigger reflow for shake animation
+      this.manualHostInput.classList.add('is-invalid');
+      this.manualHostInput.focus();
+    }
+    if (this.manualHostError) {
+      if (msg) this.manualHostError.textContent = msg;
+      this.manualHostError.classList.remove('hidden');
+    }
   }
 
   public async renderWhitelist(): Promise<void> {
@@ -93,8 +189,27 @@ export class SettingsTabController {
     this.whitelistUl.innerHTML = '';
 
     if (domains.length === 0) {
-      this.whitelistUl.innerHTML =
-        '<li class="list-entry" style="justify-content:center; color:var(--sanctuary-ink-tertiary);">Немає доданих сайтів</li>';
+      this.whitelistUl.innerHTML = `
+        <li class="empty-state">
+          <div class="empty-state-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+          </div>
+          <div class="empty-state-title">Немає довірених сайтів</div>
+          <div class="empty-state-desc">Сайти зі списку винятків не скануються на загрози.</div>
+          <button type="button" class="btn-secondary" id="btnEmptyAdd" style="font-size: 11.5px; height: 30px;">+ Додати перший сайт</button>
+        </li>
+      `;
+
+      const btnEmptyAdd = this.whitelistUl.querySelector('#btnEmptyAdd') as HTMLButtonElement | null;
+      btnEmptyAdd?.addEventListener('click', () => {
+        if (this.manualAddRow) {
+          this.manualAddRow.classList.remove('hidden');
+          if (this.btnToggleManualAdd) this.btnToggleManualAdd.textContent = 'Закрити';
+          this.manualHostInput?.focus();
+        }
+      });
       return;
     }
 
@@ -102,8 +217,8 @@ export class SettingsTabController {
       const li = document.createElement('li');
       li.className = 'list-entry';
       li.innerHTML = `
-        <span style="font-weight:500; color:var(--sanctuary-ink-primary);">${domain}</span>
-        <button type="button" class="btn-remove" title="Видалити зі списку">
+        <span class="domain-name">${domain}</span>
+        <button type="button" class="btn-remove" title="Видалити зі списку" aria-label="Видалити ${domain}">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
         </button>
       `;
@@ -201,22 +316,22 @@ export class SettingsTabController {
 
     if (key) {
       // 1. Стан: Ключ налаштовано
-      if (this.cloudAiKeySavedPill) this.cloudAiKeySavedPill.style.display = 'flex';
+      if (this.cloudAiKeySavedPill) this.cloudAiKeySavedPill.classList.remove('hidden');
       if (this.cloudAiKeyHint) this.cloudAiKeyHint.textContent = hint || 'gsk_••••••••';
-      if (this.cloudAiKeyInputWrapper) this.cloudAiKeyInputWrapper.style.display = 'none';
-      if (this.cloudAiKeyNotSet) this.cloudAiKeyNotSet.style.display = 'none';
+      if (this.cloudAiKeyInputWrapper) this.cloudAiKeyInputWrapper.classList.add('hidden');
+      if (this.cloudAiKeyNotSet) this.cloudAiKeyNotSet.classList.add('hidden');
 
       // Показуємо блок моделей
-      if (this.cloudAiModelContainer) this.cloudAiModelContainer.style.display = 'flex';
+      if (this.cloudAiModelContainer) this.cloudAiModelContainer.classList.remove('hidden');
 
       const dynamicModels = this.cachedDynamicModels['groq'] || [];
       this.populateModelsSelect(dynamicModels, config.model || 'qwen3.8-27b');
     } else {
       // 2. Стан: Ключ ще не введено (початковий мінімалістичний стан)
-      if (this.cloudAiKeySavedPill) this.cloudAiKeySavedPill.style.display = 'none';
-      if (this.cloudAiKeyInputWrapper) this.cloudAiKeyInputWrapper.style.display = 'flex';
-      if (this.cloudAiKeyNotSet) this.cloudAiKeyNotSet.style.display = 'inline-flex';
-      if (this.cloudAiModelContainer) this.cloudAiModelContainer.style.display = 'none';
+      if (this.cloudAiKeySavedPill) this.cloudAiKeySavedPill.classList.add('hidden');
+      if (this.cloudAiKeyInputWrapper) this.cloudAiKeyInputWrapper.classList.remove('hidden');
+      if (this.cloudAiKeyNotSet) this.cloudAiKeyNotSet.classList.remove('hidden');
+      if (this.cloudAiModelContainer) this.cloudAiModelContainer.classList.add('hidden');
       if (this.cloudAiKeyInput) this.cloudAiKeyInput.value = '';
     }
   }
@@ -265,11 +380,11 @@ export class SettingsTabController {
     if (selectedModel && !matchFound) {
       customOpt.selected = true;
       if (this.customModelInputWrapper) {
-        this.customModelInputWrapper.style.display = 'block';
+        this.customModelInputWrapper.classList.remove('hidden');
       }
       if (this.cloudAiCustomModelInput) this.cloudAiCustomModelInput.value = selectedModel;
     } else {
-      if (this.customModelInputWrapper) this.customModelInputWrapper.style.display = 'none';
+      if (this.customModelInputWrapper) this.customModelInputWrapper.classList.add('hidden');
     }
   }
 
@@ -352,10 +467,8 @@ export class SettingsTabController {
 
   private showFeedback(text: string, isSuccess: boolean): void {
     if (!this.cloudAiStatusFeedback) return;
-    this.cloudAiStatusFeedback.style.display = 'block';
-    this.cloudAiStatusFeedback.style.background = isSuccess ? 'rgba(52, 199, 89, 0.1)' : 'rgba(255, 59, 48, 0.1)';
-    this.cloudAiStatusFeedback.style.color = isSuccess ? 'var(--sanctuary-green-ink)' : 'var(--sanctuary-red-ink)';
-    this.cloudAiStatusFeedback.style.border = isSuccess ? '1px solid var(--sanctuary-green-bd)' : '1px solid var(--sanctuary-red-bd)';
+    this.cloudAiStatusFeedback.classList.remove('hidden', 'success', 'error');
+    this.cloudAiStatusFeedback.classList.add(isSuccess ? 'success' : 'error');
     this.cloudAiStatusFeedback.textContent = text;
   }
 
@@ -363,13 +476,15 @@ export class SettingsTabController {
     // Whitelist Manual Add Toggle
     this.btnToggleManualAdd?.addEventListener('click', () => {
       if (!this.manualAddRow) return;
-      const isHidden = this.manualAddRow.style.display === 'none' || !this.manualAddRow.style.display;
-      this.manualAddRow.style.display = isHidden ? 'flex' : 'none';
-      if (this.btnToggleManualAdd) {
-        this.btnToggleManualAdd.textContent = isHidden ? 'Закрити' : '+ Додати';
-      }
+      const isHidden = this.manualAddRow.classList.contains('hidden');
       if (isHidden) {
+        this.manualAddRow.classList.remove('hidden');
+        if (this.btnToggleManualAdd) this.btnToggleManualAdd.textContent = 'Закрити';
         this.manualHostInput?.focus();
+      } else {
+        this.manualAddRow.classList.add('hidden');
+        if (this.btnToggleManualAdd) this.btnToggleManualAdd.textContent = '+ Додати';
+        this.clearManualError();
       }
     });
 
@@ -388,13 +503,14 @@ export class SettingsTabController {
     // Toggle Change Key Form
     this.btnToggleChangeKey?.addEventListener('click', () => {
       if (!this.cloudAiKeyInputWrapper) return;
-      const isHidden = this.cloudAiKeyInputWrapper.style.display === 'none' || !this.cloudAiKeyInputWrapper.style.display;
-      this.cloudAiKeyInputWrapper.style.display = isHidden ? 'flex' : 'none';
-      if (this.btnToggleChangeKey) {
-        this.btnToggleChangeKey.textContent = isHidden ? 'Скасувати' : 'Змінити';
-      }
+      const isHidden = this.cloudAiKeyInputWrapper.classList.contains('hidden');
       if (isHidden) {
+        this.cloudAiKeyInputWrapper.classList.remove('hidden');
+        if (this.btnToggleChangeKey) this.btnToggleChangeKey.textContent = 'Скасувати';
         this.cloudAiKeyInput?.focus();
+      } else {
+        this.cloudAiKeyInputWrapper.classList.add('hidden');
+        if (this.btnToggleChangeKey) this.btnToggleChangeKey.textContent = 'Змінити';
       }
     });
 
@@ -402,10 +518,10 @@ export class SettingsTabController {
     this.cloudAiModelSelect?.addEventListener('change', (e) => {
       const val = (e.target as HTMLSelectElement).value;
       if (val === '__custom__') {
-        if (this.customModelInputWrapper) this.customModelInputWrapper.style.display = 'block';
+        if (this.customModelInputWrapper) this.customModelInputWrapper.classList.remove('hidden');
         this.cloudAiCustomModelInput?.focus();
       } else {
-        if (this.customModelInputWrapper) this.customModelInputWrapper.style.display = 'none';
+        if (this.customModelInputWrapper) this.customModelInputWrapper.classList.add('hidden');
       }
     });
 
@@ -414,10 +530,10 @@ export class SettingsTabController {
       if (!this.cloudAiModelSelect) return;
       const val = this.cloudAiModelSelect.value;
       if (val === '__custom__') {
-        if (this.customModelInputWrapper) this.customModelInputWrapper.style.display = 'block';
+        if (this.customModelInputWrapper) this.customModelInputWrapper.classList.remove('hidden');
         this.cloudAiCustomModelInput?.focus();
       } else {
-        if (this.customModelInputWrapper) this.customModelInputWrapper.style.display = 'none';
+        if (this.customModelInputWrapper) this.customModelInputWrapper.classList.add('hidden');
         await SecureKeyStore.saveConfig({ provider: 'groq', model: val });
         this.showToast(`Вибрано модель: ${val}`);
         this.showFeedback(`Активна модель: ${val}`, true);
@@ -457,6 +573,13 @@ export class SettingsTabController {
         const success = await this.refreshModelsFromApi(val);
         this.setSaveButtonState(success ? 'success' : 'idle');
         await this.renderCloudAiState();
+
+        if (this.cloudAiKeySavedPill) {
+          this.cloudAiKeySavedPill.classList.add('just-connected');
+          setTimeout(() => {
+            this.cloudAiKeySavedPill?.classList.remove('just-connected');
+          }, 700);
+        }
       } catch (err: any) {
         this.showFeedback(`Помилка підключення: ${err?.message || err}`, false);
         this.setSaveButtonState('idle');
@@ -471,34 +594,57 @@ export class SettingsTabController {
       }
     });
 
-    // Delete Groq Key (Disconnect)
-    this.btnDeleteCloudAiKey?.addEventListener('click', async () => {
-      if (confirm('Відключити Groq та видалити збережений ключ?')) {
-        await SecureKeyStore.deleteApiKey('groq');
-        await SecureKeyStore.saveConfig({ enabled: false });
-        if (this.toggleCloudAi) this.toggleCloudAi.checked = false;
-        await this.renderCloudAiState();
-        if (this.cloudAiStatusFeedback) this.cloudAiStatusFeedback.style.display = 'none';
-        this.showToast('Groq відключено');
-      }
+    // Delete Groq Key (Disconnect) with Apple Confirmation Sheet
+    this.btnDeleteCloudAiKey?.addEventListener('click', () => {
+      this.showConfirmDialog({
+        title: 'Відключити Groq Cloud?',
+        body: 'Збережений API-ключ буде стерто з безпечного сховища пристрою. Хмарний арбітраж буде вимкнено.',
+        confirmText: 'Відключити',
+        onConfirm: async () => {
+          if (this.cloudAiKeySavedPill) {
+            this.cloudAiKeySavedPill.classList.add('disconnecting');
+            setTimeout(async () => {
+              await SecureKeyStore.deleteApiKey('groq');
+              await SecureKeyStore.saveConfig({ enabled: false });
+              if (this.toggleCloudAi) this.toggleCloudAi.checked = false;
+              if (this.cloudAiKeySavedPill) this.cloudAiKeySavedPill.classList.remove('disconnecting');
+              await this.renderCloudAiState();
+              if (this.cloudAiStatusFeedback) this.cloudAiStatusFeedback.classList.add('hidden');
+              this.showToast('Groq відключено');
+            }, 300);
+          } else {
+            await SecureKeyStore.deleteApiKey('groq');
+            await SecureKeyStore.saveConfig({ enabled: false });
+            if (this.toggleCloudAi) this.toggleCloudAi.checked = false;
+            await this.renderCloudAiState();
+            if (this.cloudAiStatusFeedback) this.cloudAiStatusFeedback.classList.add('hidden');
+            this.showToast('Groq відключено');
+          }
+        },
+      });
     });
 
-    // Add domain to whitelist
+    // Add domain to whitelist with inline validation (no alert())
     this.btnAddManual?.addEventListener('click', async () => {
       const rawVal = this.manualHostInput.value;
       const domain = this.cleanDomain(rawVal);
-      if (!domain || domain.length < 3) {
-        alert('Будь ласка, введіть коректну адресу сайту (наприклад: myshop.ua)');
+      if (!domain || domain.length < 3 || !domain.includes('.')) {
+        this.showManualError('Введіть коректну адресу сайту (наприклад: domain.ua)');
         return;
       }
 
       await UserWhitelistManager.allowDomain(domain);
       this.manualHostInput.value = '';
-      if (this.manualAddRow) this.manualAddRow.style.display = 'none';
+      this.clearManualError();
+      if (this.manualAddRow) this.manualAddRow.classList.add('hidden');
       if (this.btnToggleManualAdd) this.btnToggleManualAdd.textContent = '+ Додати';
       this.showToast(`Додано до довірених: ${domain}`);
       await this.renderWhitelist();
       this.onWhitelistChanged();
+    });
+
+    this.manualHostInput?.addEventListener('input', () => {
+      this.clearManualError();
     });
 
     this.manualHostInput?.addEventListener('keydown', (e) => {
@@ -507,12 +653,25 @@ export class SettingsTabController {
       }
     });
 
+    // Clear all whitelist with Apple Confirmation Sheet (no confirm())
     this.btnClearAllWhitelist?.addEventListener('click', async () => {
-      if (confirm('Видалити всі сайти зі списку довірених?')) {
-        await UserWhitelistManager.clearAll();
-        this.showToast('Список довірених сайтів очищено');
-        this.onWhitelistChanged();
+      const domains = await UserWhitelistManager.getDomains();
+      if (domains.length === 0) {
+        this.showToast('Список довірених сайтів уже порожній');
+        return;
       }
+
+      this.showConfirmDialog({
+        title: 'Очистити довірені сайти?',
+        body: `Цю дію неможливо скасувати. Всі ${domains.length} сайтів буде видалено зі списку винятків.`,
+        confirmText: 'Очистити список',
+        onConfirm: async () => {
+          await UserWhitelistManager.clearAll();
+          this.showToast('Список довірених сайтів очищено');
+          await this.renderWhitelist();
+          this.onWhitelistChanged();
+        },
+      });
     });
   }
 

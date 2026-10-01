@@ -308,22 +308,25 @@
   </main>
 
   <!-- =========================================================================
-       5. TAB 3: SETTINGS & TRUSTED SITES
+       5. TAB 3: SETTINGS & TRUSTED SITES (JONY IVE REDESIGN)
        ========================================================================= -->
   <main class="sanctuary-tab" id="tabContentSettings" role="tabpanel" aria-labelledby="tabBtnSettings" hidden style="display: none;">
-    <!-- Whitelist Section -->
+    <!-- 1. Whitelist Section: TRUST & EXCEPTIONS -->
     <div class="section-group">
       <div class="section-header-flex">
         <span class="section-label" id="whitelistTitle">Довірені сайти (0)</span>
-        <div style="display: flex; align-items: center; gap: 4px;">
+        <div class="row-gap-6">
           <button type="button" class="btn-subtle" id="btnToggleManualAdd" title="Додати довірений сайт вручну">+ Додати</button>
           <button type="button" class="btn-subtle danger" id="btnClearAllWhitelist">Очистити всі</button>
         </div>
       </div>
 
-      <div class="sanctuary-card">
-        <div class="manual-add-row" id="manualAddRow" style="display: none;">
-          <input type="text" class="sanctuary-input" id="manualHostInput" placeholder="наприклад: bank.gov.ua">
+      <div class="sanctuary-card stack-col stack-col-8">
+        <div class="manual-add-row hidden" id="manualAddRow">
+          <div class="stack-col stack-col-6" style="flex: 1;">
+            <input type="text" class="sanctuary-input" id="manualHostInput" placeholder="наприклад: bank.gov.ua" autocomplete="off" spellcheck="false">
+            <div class="field-error hidden" id="manualHostError">Введіть коректну адресу сайту (наприклад: domain.ua)</div>
+          </div>
           <button type="button" class="btn-primary compact" id="btnAddManual">Додати</button>
         </div>
 
@@ -331,14 +334,14 @@
       </div>
     </div>
 
-    <!-- Cloud LLM Configuration & Zero-Knowledge Enclave -->
+    <!-- 2. Cloud AI (Groq) Section: INTELLECT & ARBITRATION -->
     <div class="section-group">
       <div class="section-label">ХМАРНИЙ АРБІТРАЖ (GROQ CLOUD)</div>
-      <div class="sanctuary-card" style="display: flex; flex-direction: column; gap: 10px;">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <div>
-            <div style="font-weight: 600; font-size: 13px; color: var(--sanctuary-ink-primary);">Нейроперевірка загроз</div>
-            <div style="font-size: 11px; color: var(--sanctuary-ink-tertiary);">Zero-Knowledge псевдонімізація перед відправкою</div>
+      <div class="sanctuary-card stack-col stack-col-10">
+        <div class="row-between">
+          <div class="inset-info">
+            <div class="inset-title">Нейроперевірка загроз</div>
+            <div class="inset-desc">Zero-Knowledge псевдонімізація перед відправкою</div>
           </div>
           <label class="ios-switch" title="Увімкнути/вимкнути хмарний ШІ">
             <input type="checkbox" id="toggleCloudAi">
@@ -346,21 +349,21 @@
           </label>
         </div>
 
-        <div id="cloudAiSettingsArea" style="display: flex; flex-direction: column; gap: 8px;">
+        <div id="cloudAiSettingsArea" class="stack-col stack-col-8">
           <!-- Fact Note (Pure statement, zero excuses) -->
           <div class="apple-fact-note">
             <span>Потрібен API-ключ Groq. Стандарт перевірки — <strong>qwen3.8-27b</strong>.</span>
           </div>
 
-          <!-- Hidden fallback select for backward compatibility if any service queries it -->
-          <select class="sanctuary-input" id="cloudAiProviderSelect" style="display: none;">
+          <!-- Hidden fallback select for backward compatibility -->
+          <select class="sanctuary-input hidden" id="cloudAiProviderSelect">
             <option value="groq" selected>Groq</option>
           </select>
 
           <!-- Key Management Area -->
           <div id="cloudAiKeySection">
             <!-- Saved Connected Bar (Shown when key is saved) -->
-            <div id="cloudAiKeySavedPill" class="groq-connected-bar" style="display: none;">
+            <div id="cloudAiKeySavedPill" class="groq-connected-bar hidden">
               <div class="groq-connected-meta">
                 <span class="status-pulse-dot green"></span>
                 <span>Groq підключено</span>
@@ -378,13 +381,13 @@
             </div>
 
             <!-- Key Input Form (Shown when no key is saved or when editing) -->
-            <div id="cloudAiKeyInputWrapper" style="display: flex; flex-direction: column; gap: 6px;">
-              <div style="display: flex; justify-content: space-between; align-items: center;">
-                <label style="font-size: 11px; font-weight: 500; color: var(--sanctuary-ink-secondary);">Groq API Ключ</label>
+            <div id="cloudAiKeyInputWrapper" class="stack-col stack-col-6">
+              <div class="row-between">
+                <label class="inset-desc">Groq API Ключ</label>
                 <span id="cloudAiKeyNotSet" class="key-status-badge not-saved">Не підключено</span>
               </div>
               <input type="password" class="sanctuary-input" id="cloudAiKeyInput" placeholder="Вставте ключ (gsk_...)">
-              <button type="button" class="btn-primary" id="btnSaveCloudAiKey" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px;">
+              <button type="button" class="btn-primary" id="btnSaveCloudAiKey" style="width: 100%;">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>
                 <span id="btnSaveCloudAiKeyText">Підключити</span>
               </button>
@@ -392,9 +395,9 @@
           </div>
 
           <!-- Model Management Area -->
-          <div id="cloudAiModelContainer" style="display: none; flex-direction: column; gap: 6px;">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <label style="font-size: 11px; font-weight: 500; color: var(--sanctuary-ink-secondary);">Модель арбітражу</label>
+          <div id="cloudAiModelContainer" class="stack-col stack-col-6 hidden">
+            <div class="row-between">
+              <label class="inset-desc">Модель арбітражу</label>
               <button type="button" id="btnRefreshModels" class="subtle-sync-btn" title="Оновити каталог моделей" aria-label="Оновити каталог">
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="sync-icon">
                   <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
@@ -403,7 +406,7 @@
               </button>
             </div>
 
-            <div style="display: flex; gap: 6px; align-items: center;">
+            <div class="row-gap-6">
               <select class="sanctuary-input" id="cloudAiModelSelect" style="flex: 1; cursor: pointer; font-size: 11.5px; height: 32px;">
                 <option value="qwen3.8-27b" selected>qwen3.8-27b (Стандарт)</option>
               </select>
@@ -412,8 +415,8 @@
               </button>
             </div>
 
-            <div id="customModelInputWrapper" style="display: none; margin-top: 2px;">
-              <div style="display: flex; gap: 6px;">
+            <div id="customModelInputWrapper" class="hidden" style="margin-top: 2px;">
+              <div class="row-gap-6">
                 <input type="text" class="sanctuary-input" id="cloudAiCustomModelInput" placeholder="Введіть назву моделі..." style="flex: 1; font-size: 11.5px; height: 32px;">
                 <button type="button" class="btn-secondary" id="btnApplyCustomModel" style="height: 32px; padding: 0 14px; font-size: 11.5px; white-space: nowrap;">
                   Вибрати
@@ -422,7 +425,7 @@
             </div>
           </div>
 
-          <div id="cloudAiStatusFeedback" style="display: none; font-size: 11px; padding: 6px 8px; border-radius: 6px; line-height: 1.4;"></div>
+          <div id="cloudAiStatusFeedback" class="cloud-ai-feedback hidden"></div>
 
           <div class="security-capsule-badge">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="flex-shrink: 0;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
@@ -432,9 +435,9 @@
       </div>
     </div>
 
-    <!-- Diagnostics Settings -->
+    <!-- 3. Diagnostics Settings: TRANSPARENCY & TELEMETRY -->
     <div class="section-group">
-      <div class="section-label">ПРОЗОРІСТЬ ТА ДІАГНОСТИКА</div>
+      <div class="section-label">ПРОЗОРІСТЬ ТА ТЕЛЕМЕТРІЯ</div>
       <div class="inset-group">
         <div class="inset-row">
           <div class="inset-lead">
@@ -444,7 +447,10 @@
               </svg>
             </div>
             <div class="inset-info">
-              <div class="inset-title">Діагностичний HUD (Ctrl+Shift+D)</div>
+              <div class="inset-title">
+                Діагностичний HUD
+                <span class="kbd-group"><kbd>Ctrl</kbd><span class="kbd-plus">+</span><kbd>Shift</kbd><span class="kbd-plus">+</span><kbd>D</kbd></span>
+              </div>
               <div class="inset-desc">Плаваючий оверлей телеметрії на вебсторінках</div>
             </div>
           </div>
@@ -470,9 +476,32 @@
       </div>
     </div>
 
+    <!-- 4. System & About Section -->
+    <div class="section-group">
+      <div class="section-label">СИСТЕМА ТА ДАНІ</div>
+      <div class="inset-group">
+        <div class="inset-row about-inset-row">
+          <div class="inset-lead">
+            <div class="inset-icon-box dark">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="9"/>
+                <circle cx="12" cy="12" r="5" stroke-opacity="0.75"/>
+                <circle cx="12" cy="12" r="1.8" fill="currentColor"/>
+              </svg>
+            </div>
+            <div class="inset-info">
+              <div class="inset-title">Sanctuary Prism</div>
+              <div class="inset-desc">Дипломний проєкт · Jony Ive Edition</div>
+            </div>
+          </div>
+          <span class="about-version">v1.0.0</span>
+        </div>
+      </div>
+    </div>
+
     <!-- Footer Copyright -->
     <footer class="popup-footer">
-      <span>Sanctuary Prism · Дипломний проєкт · Jony Ive Edition</span>
+      <span>Sanctuary Prism · Digital Dignity</span>
     </footer>
   </main>
 
@@ -480,6 +509,20 @@
        6. TRANSIENT TACTILE TOAST NOTIFIER
        ========================================================================= -->
   <div class="sanctuary-toast" id="toastMessage" role="status" aria-live="polite" style="display: none;"></div>
+
+  <!-- =========================================================================
+       7. APPLE-INSPIRED CONFIRMATION SHEET (ZERO NATIVE ALERTS/CONFIRMS)
+       ========================================================================= -->
+  <div class="confirm-sheet-backdrop hidden" id="confirmSheetBackdrop" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="confirm-sheet" id="confirmSheet">
+      <div class="confirm-sheet-title" id="confirmSheetTitle">Підтвердження</div>
+      <div class="confirm-sheet-body" id="confirmSheetBody">Ви впевнені, що бажаєте продовжити?</div>
+      <div class="confirm-sheet-actions">
+        <button type="button" class="btn-primary danger" id="btnConfirmAction">Підтвердити</button>
+        <button type="button" class="btn-cancel" id="btnCancelAction">Скасувати</button>
+      </div>
+    </div>
+  </div>
 
   <script type="module" src="./main.ts"></script>
 </body>
