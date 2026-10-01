@@ -249,8 +249,9 @@ export class FieldLivePill {
     const scrollY = typeof window !== 'undefined' ? (window.scrollY || window.pageYOffset || 0) : 0;
 
     const isExpanded = record?.isExpanded || pill.classList.contains('ts-expanded');
-    const pillWidth = pill.offsetWidth || (isExpanded ? 360 : 180);
-    const pillHeight = pill.offsetHeight || (isExpanded ? 72 : 28);
+    const FIXED_EXPANDED_WIDTH = 340;
+    const pillWidth = isExpanded ? FIXED_EXPANDED_WIDTH : (pill.offsetWidth || 180);
+    const pillHeight = pill.offsetHeight || (isExpanded ? 88 : 28);
 
     // Розміщуємо акуратно під нижнім правим краєм поля
     let top = scrollY + rect.bottom + 5;
@@ -402,8 +403,8 @@ export class FieldLivePill {
       const vaultLabel = record.vaultLabel || details.shortLabel;
       if (isExpanded) {
         pill.innerHTML = `
-          <div class="ts-field-pill-inner" style="display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%;">
-            <div style="display: flex; align-items: flex-start; gap: 8px; min-width: 0; flex: 1;">
+          <div class="ts-field-pill-inner" style="display: flex; flex-direction: column; width: 100%;">
+            <div style="display: flex; align-items: flex-start; gap: 8px; width: 100%;">
               <span class="ts-field-pill-icon" style="color: #DC2626; display: flex; align-items: center; margin-top: 1px; flex-shrink: 0;">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
                   <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
@@ -411,7 +412,7 @@ export class FieldLivePill {
                 </svg>
               </span>
               <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1;">
-                <div style="display: flex; align-items: center; gap: 6px;">
+                <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
                   <span style="font-size: 11.5px; font-weight: 700; color: #991B1B; letter-spacing: -0.01em;">
                     Сховище: ${vaultLabel}
                   </span>
@@ -420,14 +421,17 @@ export class FieldLivePill {
                     Особистий секрет
                   </span>
                 </div>
-                <p style="font-size: 10.5px; line-height: 1.35; color: #7F1D1D; margin: 1px 0 0 0;">
+                <p style="font-size: 10.5px; line-height: 1.35; color: #7F1D1D; margin: 2px 0 0 0; word-break: break-word;">
                   Виявлено збережений маркер безпеки. Не передавайте його стороннім ресурсам!
                 </p>
               </div>
             </div>
-            <button class="ts-pill-action-chip ts-field-clean-action" style="margin-left: 6px; align-self: center;">
-              Очистити
-            </button>
+            <div style="display: flex; justify-content: flex-end; align-items: center; margin-top: 8px; padding-top: 6px; border-top: 1px solid rgba(220, 38, 38, 0.12);">
+              <button class="ts-pill-action-chip ts-field-clean-action">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                Очистити
+              </button>
+            </div>
           </div>
         `;
       } else {
@@ -447,13 +451,13 @@ export class FieldLivePill {
       // 2. ДЕЛІКАТНЕ ЗАСТЕРЕЖЕННЯ ПРИ ВВЕДЕННІ (> 7 символів) — ТЕПЛИЙ БУРШТИН (AMBER)
       if (isExpanded) {
         pill.innerHTML = `
-          <div class="ts-field-pill-inner" style="display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%;">
-            <div style="display: flex; align-items: flex-start; gap: 8px; min-width: 0; flex: 1;">
+          <div class="ts-field-pill-inner" style="display: flex; flex-direction: column; width: 100%;">
+            <div style="display: flex; align-items: flex-start; gap: 8px; width: 100%;">
               <span class="ts-field-pill-icon" style="color: #D97706; display: flex; align-items: center; margin-top: 1px; flex-shrink: 0;">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
               </span>
               <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1;">
-                <div style="display: flex; align-items: center; gap: 6px;">
+                <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
                   <span style="font-size: 11.5px; font-weight: 700; color: #92400E; letter-spacing: -0.01em;">
                     ${details.shortLabel}
                   </span>
@@ -462,14 +466,17 @@ export class FieldLivePill {
                     Увага
                   </span>
                 </div>
-                <p style="font-size: 10.5px; line-height: 1.35; color: #92400E; margin: 1px 0 0 0;">
+                <p style="font-size: 10.5px; line-height: 1.35; color: #92400E; margin: 2px 0 0 0; word-break: break-word;">
                   ${details.bannerWarning}
                 </p>
               </div>
             </div>
-            <button class="ts-pill-action-chip ts-field-clean-action" style="margin-left: 6px; align-self: center;">
-              Очистити
-            </button>
+            <div style="display: flex; justify-content: flex-end; align-items: center; margin-top: 8px; padding-top: 6px; border-top: 1px solid rgba(217, 119, 6, 0.15);">
+              <button class="ts-pill-action-chip ts-field-clean-action">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                Очистити
+              </button>
+            </div>
           </div>
         `;
       } else {
@@ -486,13 +493,13 @@ export class FieldLivePill {
       // 3. СТАН СПОКОЮ ТА РОЗГОРНУТОЇ ПІДКАЗКИ (0–7 СИМВОЛІВ АБО ФОКУС) — SANCTUARY BLUE
       if (isExpanded) {
         pill.innerHTML = `
-          <div class="ts-field-pill-inner" style="display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%;">
-            <div style="display: flex; align-items: flex-start; gap: 8px; min-width: 0; flex: 1;">
+          <div class="ts-field-pill-inner" style="display: flex; flex-direction: column; width: 100%;">
+            <div style="display: flex; align-items: flex-start; gap: 8px; width: 100%;">
               <span class="ts-field-pill-icon" style="color: #0071E3; display: flex; align-items: center; margin-top: 1px; flex-shrink: 0;">
                 ${details.iconSvg}
               </span>
               <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1;">
-                <div style="display: flex; align-items: center; gap: 6px;">
+                <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
                   <span style="font-size: 11.5px; font-weight: 700; color: #1D1D1F; letter-spacing: -0.01em;">
                     ${details.shortLabel}
                   </span>
@@ -501,15 +508,18 @@ export class FieldLivePill {
                     Захист поля
                   </span>
                 </div>
-                <p style="font-size: 10.5px; line-height: 1.35; color: #515154; margin: 1px 0 0 0;">
+                <p style="font-size: 10.5px; line-height: 1.35; color: #515154; margin: 2px 0 0 0; word-break: break-word;">
                   ${details.bannerWarning}
                 </p>
               </div>
             </div>
             ${hasText ? `
-              <button class="ts-pill-action-chip ts-field-clean-action" style="margin-left: 6px; align-self: center;">
-                Очистити
-              </button>
+              <div style="display: flex; justify-content: flex-end; align-items: center; margin-top: 8px; padding-top: 6px; border-top: 1px solid rgba(0, 113, 227, 0.10);">
+                <button class="ts-pill-action-chip ts-field-clean-action">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                  Очистити
+                </button>
+              </div>
             ` : ''}
           </div>
         `;
@@ -650,7 +660,7 @@ export class FieldLivePill {
         animation: tsFieldPillFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
         transition: padding 0.28s cubic-bezier(0.16, 1, 0.3, 1),
                     border-radius 0.28s cubic-bezier(0.16, 1, 0.3, 1),
-                    max-width 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+                    width 0.28s cubic-bezier(0.16, 1, 0.3, 1),
                     background-color 0.28s cubic-bezier(0.16, 1, 0.3, 1),
                     border-color 0.28s cubic-bezier(0.16, 1, 0.3, 1),
                     color 0.28s cubic-bezier(0.16, 1, 0.3, 1),
@@ -665,15 +675,16 @@ export class FieldLivePill {
 
       /* Unrolled Informational Message (Expanded Pill under field) */
       .ts-field-live-pill.ts-expanded {
-        padding: 7px 14px !important;
+        display: block !important;
+        width: 340px !important;
+        max-width: calc(100vw - 20px) !important;
+        padding: 10px 14px !important;
         border-radius: 12px !important;
         white-space: normal !important;
-        max-width: 440px !important;
-        min-width: 280px !important;
-        gap: 8px !important;
         box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.04) !important;
         cursor: default !important;
         overflow-x: hidden !important;
+        box-sizing: border-box !important;
       }
 
       @keyframes tsContentUnroll {

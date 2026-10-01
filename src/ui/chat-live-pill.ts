@@ -107,8 +107,9 @@ export class ChatLivePill {
     const scrollX = typeof window !== 'undefined' ? (window.scrollX || window.pageXOffset || 0) : 0;
     const scrollY = typeof window !== 'undefined' ? (window.scrollY || window.pageYOffset || 0) : 0;
 
-    const pillWidth = this.activePill.offsetWidth || (this.isExpanded ? 360 : 180);
-    const pillHeight = this.activePill.offsetHeight || (this.isExpanded ? 80 : 28);
+    const FIXED_EXPANDED_WIDTH = 340;
+    const pillWidth = this.isExpanded ? FIXED_EXPANDED_WIDTH : (this.activePill.offsetWidth || 180);
+    const pillHeight = this.activePill.offsetHeight || (this.isExpanded ? 88 : 28);
 
     // Розміщуємо акуратно під нижнім правим краєм поля
     let top = scrollY + rect.bottom + 5;
@@ -351,15 +352,16 @@ export class ChatLivePill {
       if (count === 1) {
         // Одиночний тригер: елегантний банер із вбудованим чіпом-дією
         const actionLabel = primary.buttonLabel || 'Вилучити';
+        const borderDivider = isRed ? 'rgba(220, 38, 38, 0.12)' : (isCivic ? 'rgba(2, 132, 199, 0.12)' : 'rgba(0, 113, 227, 0.10)');
 
         pill.innerHTML = `
-          <div class="ts-chat-pill-inner" style="display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%;">
-            <div style="display: flex; align-items: flex-start; gap: 8px; min-width: 0; flex: 1;">
+          <div class="ts-chat-pill-inner" style="display: flex; flex-direction: column; width: 100%;">
+            <div style="display: flex; align-items: flex-start; gap: 8px; width: 100%;">
               <span class="ts-pill-icon" style="color: ${accentColor}; display: flex; align-items: center; margin-top: 1px; flex-shrink: 0;">
                 ${primary.iconSvg}
               </span>
-              <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0;">
-                <div style="display: flex; align-items: center; gap: 6px;">
+              <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1;">
+                <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
                   <span style="font-size: 11.5px; font-weight: 700; color: ${labelColor}; letter-spacing: -0.01em;">
                     ${primary.label}
                   </span>
@@ -368,15 +370,17 @@ export class ChatLivePill {
                     ${primary.sublabel}
                   </span>
                 </div>
-                <p style="font-size: 10.5px; line-height: 1.35; color: ${isRed ? '#7F1D1D' : '#515154'}; margin: 1px 0 0 0;">
+                <p style="font-size: 10.5px; line-height: 1.35; color: ${isRed ? '#7F1D1D' : '#515154'}; margin: 2px 0 0 0; word-break: break-word;">
                   ${primary.explanation}
                 </p>
               </div>
             </div>
-            <button id="ts-pill-clean-btn" class="ts-pill-action-chip ts-pill-btn-primary" style="margin-left: 4px;">
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-              ${actionLabel}
-            </button>
+            <div style="display: flex; justify-content: flex-end; align-items: center; margin-top: 8px; padding-top: 6px; border-top: 1px solid ${borderDivider};">
+              <button id="ts-pill-clean-btn" class="ts-pill-action-chip ts-pill-btn-primary">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                ${actionLabel}
+              </button>
+            </div>
           </div>
         `;
 
@@ -671,7 +675,7 @@ export class ChatLivePill {
         animation: tsChatPillFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
         transition: padding 0.28s cubic-bezier(0.16, 1, 0.3, 1),
                     border-radius 0.28s cubic-bezier(0.16, 1, 0.3, 1),
-                    max-width 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+                    width 0.28s cubic-bezier(0.16, 1, 0.3, 1),
                     background-color 0.28s cubic-bezier(0.16, 1, 0.3, 1),
                     border-color 0.28s cubic-bezier(0.16, 1, 0.3, 1),
                     box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
@@ -740,14 +744,16 @@ export class ChatLivePill {
 
       /* Expanded Banner State (In-Place Fluid Surface) */
       .ts-chat-live-pill.ts-expanded {
-        padding: 7px 14px !important;
+        display: block !important;
+        width: 340px !important;
+        max-width: calc(100vw - 20px) !important;
+        padding: 10px 14px !important;
         border-radius: 12px !important;
         white-space: normal !important;
-        max-width: 440px !important;
-        min-width: 280px !important;
         box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.04) !important;
         cursor: default !important;
         overflow-x: hidden !important;
+        box-sizing: border-box !important;
       }
 
       @keyframes tsContentUnroll {
