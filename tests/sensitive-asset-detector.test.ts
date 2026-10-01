@@ -296,4 +296,47 @@ describe('SensitiveAssetDetector (TDD Unit Suite)', () => {
       }
     });
   });
+
+  // ── 8. Криптовалютні Seed-фрази та паролі ───────────────────────────────
+  describe('Криптовалютні Seed-фрази та паролі', () => {
+    it('детектує та блокує Seed-фразу з 12 слів без контекстних маркерів', () => {
+      const seedText = 'apple banana cherry dog elephant frog giraffe house igloo jump kite lemon';
+      const result = SensitiveAssetDetector.evaluateOutboundPayload({ text: seedText });
+      
+      expect(result.shouldBlock).toBe(true);
+      expect(result.action).toBe('BLOCK');
+      expect(result.riskLevel).toBe('CRITICAL');
+      expect(result.detectedAssets.hasSeedPhrase).toBe(true);
+      expect(result.reason).toContain('Seed-фраз');
+    });
+
+    it('детектує Seed-фразу з контекстним маркером', () => {
+      const seedText = 'моя сід фраза: apple banana cherry dog elephant frog giraffe house igloo jump kite lemon';
+      const result = SensitiveAssetDetector.evaluateOutboundPayload({ text: seedText });
+      
+      expect(result.shouldBlock).toBe(true);
+      expect(result.action).toBe('BLOCK');
+      expect(result.detectedAssets.hasSeedPhrase).toBe(true);
+    });
+
+    it('детектує та блокує паролі з контекстом', () => {
+      const pwdText = 'Ось мій пароль: SuperSecretP@ss123!';
+      const result = SensitiveAssetDetector.evaluateOutboundPayload({ text: pwdText });
+      
+      expect(result.shouldBlock).toBe(true);
+      expect(result.action).toBe('BLOCK');
+      expect(result.riskLevel).toBe('HIGH');
+      expect(result.detectedAssets.hasPassword).toBe(true);
+      expect(result.detectedAssets.passwordMatch).toBe('SuperSecretP@ss123!');
+    });
+
+    it('не блокує короткі або небезпечні набори слів, які не є паролем чи seed-фразою', () => {
+      const normalText = 'я просто написав три слова англійською: one two three';
+      const result = SensitiveAssetDetector.evaluateOutboundPayload({ text: normalText });
+      
+      expect(result.shouldBlock).toBe(false);
+      expect(result.detectedAssets.hasSeedPhrase).toBe(false);
+      expect(result.detectedAssets.hasPassword).toBe(false);
+    });
+  });
 });
