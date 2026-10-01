@@ -470,6 +470,78 @@ describe('PersonalVaultManager', () => {
       expect(fieldMatch).not.toBeNull();
       expect(fieldMatch?.category).toBe('TAX_ID');
     });
+
+    it('should match compound secrets with punctuation (e.g. "Super!Secret2026") embedded in sentences while locked', async () => {
+      await PersonalVaultManager.setupMasterPassword('admin-password');
+      const secretWordItem = PersonalVaultManager.getItemsSync().find((i) => i.category === 'SECRET_WORD')!;
+
+      await PersonalVaultManager.saveItem({
+        id: secretWordItem.id,
+        category: secretWordItem.category,
+        label: secretWordItem.label,
+        realValue: 'Super!Secret2026',
+        decoyValue: 'DecoyPass123',
+        keywords: secretWordItem.keywords,
+        enabled: true,
+      });
+
+      // Блокуємо сховище
+      await PersonalVaultManager.lock();
+      expect(PersonalVaultManager.isLocked()).toBe(true);
+
+      // 1. Точний ввід
+      expect(PersonalVaultManager.findMatchingVaultItemForValue('Super!Secret2026')).not.toBeNull();
+
+      // 2. Ввід всередині речення з розділовими знаками навколо
+      const sentenceMatch = PersonalVaultManager.findMatchingVaultItemForValue(
+        'Моє секретне кодове слово: Super!Secret2026, нікому не кажи!'
+      );
+      expect(sentenceMatch).not.toBeNull();
+      expect(sentenceMatch?.category).toBe('SECRET_WORD');
+
+      // 3. Ввід у дужках
+      const parenMatch = PersonalVaultManager.findMatchingVaultItemForValue(
+        'Пароль для входу: (Super!Secret2026)'
+      );
+      expect(parenMatch).not.toBeNull();
+      expect(parenMatch?.category).toBe('SECRET_WORD');
+    });
+
+    it('should match multi-word phrases (Sliding N-grams) like "київ мій дім" in locked state', async () => {
+      await PersonalVaultManager.setupMasterPassword('admin-password');
+      const secretWordItem = PersonalVaultManager.getItemsSync().find((i) => i.category === 'SECRET_WORD')!;
+
+      await PersonalVaultManager.saveItem({
+        id: secretWordItem.id,
+        category: secretWordItem.category,
+        label: secretWordItem.label,
+        realValue: 'київ мій дім',
+        decoyValue: 'дніпро наше місто',
+        keywords: secretWordItem.keywords,
+        enabled: true,
+      });
+
+      // Блокуємо сховище
+      await PersonalVaultManager.lock();
+      expect(PersonalVaultManager.isLocked()).toBe(true);
+
+      // 1. Точний збіг
+      expect(PersonalVaultManager.findMatchingVaultItemForValue('київ мій дім')).not.toBeNull();
+
+      // 2. Багатослівна фраза всередині діалогу в чаті
+      const chatMatch = PersonalVaultManager.findMatchingVaultItemForValue(
+        'Доброго дня! Моє контрольне слово київ мій дім, розблокуйте картку будь ласка.'
+      );
+      expect(chatMatch).not.toBeNull();
+      expect(chatMatch?.category).toBe('SECRET_WORD');
+
+      // 3. Фраза з пунктуацією на краях
+      const punctMatch = PersonalVaultManager.findMatchingVaultItemForValue(
+        'Підказка: «київ мій дім»!'
+      );
+      expect(punctMatch).not.toBeNull();
+      expect(punctMatch?.category).toBe('SECRET_WORD');
+    });
   });
 });
 

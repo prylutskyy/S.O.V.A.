@@ -244,6 +244,16 @@ export class PersonalVaultManager {
     const lower = trimmed.toLowerCase();
     candidates.add(lower);
 
+    const normalizedSpaces = lower.replace(/\s+/g, ' ');
+    if (normalizedSpaces.length >= 2) {
+      candidates.add(normalizedSpaces);
+    }
+
+    const stripped = lower.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, '');
+    if (stripped.length >= 2) {
+      candidates.add(stripped);
+    }
+
     const digits = trimmed.replace(/\D/g, '');
 
     if (category === 'FINANCIAL_PHONE') {
@@ -706,54 +716,66 @@ export class PersonalVaultManager {
    * Екстракція хешів кандидатів із вхідного значення для сліпого пошуку (HMAC-SHA256)
    */
   private static extractCandidateHashes(cleanVal: string, salt: Uint8Array): Set<string> {
-    const hashes = new Set<string>();
-    const candidates = new Set<string>();
-
-    candidates.add(cleanVal);
-
-    const digits = cleanVal.replace(/\D/g, '');
-    if (digits.length >= 6) {
-      candidates.add(digits);
-      if (digits.length >= 7) candidates.add(digits.slice(-7));
-      if (digits.length >= 9) candidates.add(digits.slice(-9));
-      if (digits.length >= 10) candidates.add(digits.slice(-10));
-    }
-
-    // Текстові слова (chat, free text)
-    const words = cleanVal.split(/[\s,.;:!?+/'"()\[\]{}]+/).filter((w) => w.length >= 2);
-    for (const w of words) {
-      candidates.add(w);
-    }
-
-    // Числові послідовності в тексті
-    const digitMatches = cleanVal.match(/\d{6,14}/g);
-    if (digitMatches) {
-      for (const d of digitMatches) {
-        candidates.add(d);
-        if (d.length >= 7) candidates.add(d.slice(-7));
-        if (d.length >= 9) candidates.add(d.slice(-9));
-        if (d.length >= 10) candidates.add(d.slice(-10));
-      }
-    }
-
-    for (const cand of candidates) {
-      if (cand.length >= 2) {
-        hashes.add(CryptoService.computeHmacSync(cand, salt));
-      }
-    }
-
-    return hashes;
+    const map = this.extractCandidateHashMap(cleanVal, salt);
+    return new Set(map.keys());
   }
 
   /**
-   * Співставлення кандидатів із їхніми Salted HMAC хешами
+   * Співставлення кандидатів із їхніми Salted HMAC хешами.
+   * Використовує Dual-Stream Tokenizer зі Sliding N-grams (n=1..4),
+   * що дозволяє надійно знаходити:
+   * 1. Токени з внутрішньою пунктуацією та спецсимволами (наприклад: "Super!Secret2026", "pass#123", "user@test")
+   * 2. Багатослівні фрази-паролі (наприклад: "київ мій дім", "червона калина") у вільному тексті/чаті
+   * 3. Окремі атомарні слова без пунктуації
+   * 4. Числові послідовності та телефонні суфікси
    */
   private static extractCandidateHashMap(cleanVal: string, salt: Uint8Array): Map<string, string> {
     const map = new Map<string, string>();
     const candidates = new Set<string>();
 
-    candidates.add(cleanVal);
+    const normalizedFull = cleanVal.replace(/\s+/g, ' ').trim();
+    if (normalizedFull.length >= 2) {
+      candidates.add(normalizedFull);
+    }
 
+    // ── STREAM 1: Raw Whitespace Stream (збереження внутрішньої пунктуації) ──
+    const rawWhitespaceTokens = cleanVal.split(/\s+/).filter(Boolean);
+    const cleanTokens: string[] = [];
+
+    for (const raw of rawWhitespaceTokens) {
+      if (raw.length >= 2) {
+        candidates.add(raw);
+      }
+      // Очищуємо ТІЛЬКИ зовнішню пунктуацію на краях (напр. "(Super!Secret2026)," -> "Super!Secret2026")
+      const stripped = raw.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, '');
+      if (stripped && stripped.length >= 2) {
+        candidates.add(stripped);
+        cleanTokens.push(stripped);
+      } else if (raw.length >= 1) {
+        cleanTokens.push(raw);
+      }
+    }
+
+    // ── STREAM 2: Sliding N-grams (для багатослівних фраз-секретів від 2 до 4 слів) ──
+    if (cleanTokens.length >= 2) {
+      const maxN = Math.min(4, cleanTokens.length);
+      for (let n = 2; n <= maxN; n++) {
+        for (let i = 0; i <= cleanTokens.length - n; i++) {
+          const ngram = cleanTokens.slice(i, i + n).join(' ');
+          if (ngram.length >= 3) {
+            candidates.add(ngram);
+          }
+        }
+      }
+    }
+
+    // ── STREAM 3: Атомарні слова (класичний спліт для простих ізольованих слів) ──
+    const atomWords = cleanVal.split(/[\s,.;:!?+/'"()\[\]{}]+/).filter((w) => w.length >= 2);
+    for (const w of atomWords) {
+      candidates.add(w);
+    }
+
+    // ── STREAM 4: Числові послідовності в тексті ──
     const digits = cleanVal.replace(/\D/g, '');
     if (digits.length >= 6) {
       candidates.add(digits);
@@ -762,13 +784,6 @@ export class PersonalVaultManager {
       if (digits.length >= 10) candidates.add(digits.slice(-10));
     }
 
-    // Текстові слова (chat, free text)
-    const words = cleanVal.split(/[\s,.;:!?+/'"()\[\]{}]+/).filter((w) => w.length >= 2);
-    for (const w of words) {
-      candidates.add(w);
-    }
-
-    // Числові послідовності в тексті
     const digitMatches = cleanVal.match(/\d{6,14}/g);
     if (digitMatches) {
       for (const d of digitMatches) {
@@ -779,6 +794,7 @@ export class PersonalVaultManager {
       }
     }
 
+    // Хешування унікальних кандидатів
     for (const cand of candidates) {
       if (cand.length >= 2) {
         const h = CryptoService.computeHmacSync(cand, salt);
