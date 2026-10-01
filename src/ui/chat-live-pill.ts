@@ -1,5 +1,6 @@
 import { ShadowHost } from './shadow-host';
 import { SessionOutboundEvaluation } from '../heuristics/session-outbound-memory';
+import { FieldLivePill } from './field-live-pill';
 
 export interface PillDetailItem {
   id: string;
@@ -31,6 +32,7 @@ export class ChatLivePill {
     evaluation: SessionOutboundEvaluation
   ): void {
     if (typeof document === 'undefined') return;
+    if (FieldLivePill.hasPill(input)) return;
 
     this.currentInput = input;
     this.currentEvaluation = evaluation;

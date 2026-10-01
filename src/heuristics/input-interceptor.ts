@@ -1,5 +1,6 @@
 import { ToastNotifier } from '../ui/toast-notifier';
 import { ChatLivePill } from '../ui/chat-live-pill';
+import { FieldLivePill } from '../ui/field-live-pill';
 import { ActiveThreatContext } from '../types';
 import { SensitiveAssetDetector } from './sensitive-asset-detector';
 import { PersonalVaultManager } from '../core/personal-vault';
@@ -59,7 +60,6 @@ export class GlobalInputInterceptor {
     const items = PersonalVaultManager.getItemsSync();
     if (!items || items.length === 0) return;
 
-
     const vaultScan = VaultScanner.scanTextSync(text);
     if (!vaultScan.matchedItems || vaultScan.matchedItems.length === 0) {
       if (target.dataset?.threatShieldHasVaultWarning === 'true') {
@@ -68,6 +68,9 @@ export class GlobalInputInterceptor {
           target.style.outlineOffset = '';
         }
         delete target.dataset.threatShieldHasVaultWarning;
+        if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) {
+          FieldLivePill.clearVaultAlert(target);
+        }
         ChatLivePill.hide();
       }
       return;
@@ -81,9 +84,20 @@ export class GlobalInputInterceptor {
       target.style.outlineOffset = '';
     }
 
-    // Відображаємо виключно невагому капсулу ChatLivePill (без зміни рамки і без спливаючих тостів-попапів)
+    // Відображаємо виключно невагому капсулу (без зміни рамки і без спливаючих тостів-попапів)
     if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target.isContentEditable || target.getAttribute('role') === 'textbox') {
       const firstLabel = vaultScan.matchedItems[0].label;
+
+      // Singular Presence: Якщо поле вже має FieldLivePill, морфуємо його і НЕ створюємо другий бейдж!
+      if (
+        (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) &&
+        FieldLivePill.hasPill(target)
+      ) {
+        ChatLivePill.hide();
+        FieldLivePill.morphToVaultAlert(target, firstLabel);
+        return;
+      }
+
       ChatLivePill.show(target as any, {
         shouldBlock: true,
         reason: `Виявлено введення конфіденційного маркера: «${firstLabel}».`,

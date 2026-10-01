@@ -18,7 +18,10 @@ export interface FieldLivePillRecord {
   details: FieldDetailsInfo;
   pillElement: HTMLElement;
   isExpanded: boolean;
+  isCaution: boolean;
+  isVaultAlert: boolean;
   isRedAlert: boolean;
+  vaultLabel?: string;
   isHovered: boolean;
   cleanups: Array<() => void>;
 }
@@ -26,6 +29,13 @@ export interface FieldLivePillRecord {
 export class FieldLivePill {
   private static activePills = new Map<HTMLInputElement | HTMLTextAreaElement, FieldLivePillRecord>();
   private static viewportListenerAttached = false;
+
+  /**
+   * Чи закріплено за цим полем активну пігулку безпеки
+   */
+  public static hasPill(input: HTMLElement): boolean {
+    return this.activePills.has(input as any);
+  }
 
   /**
    * Створення та прикріплення мікро-пігулки безпеки під полем форми (праворуч знизу)
@@ -55,15 +65,17 @@ export class FieldLivePill {
       details,
       pillElement: pill,
       isExpanded: false,
+      isCaution: false,
+      isVaultAlert: false,
       isRedAlert: false,
       isHovered: false,
       cleanups: [],
     };
 
-    // Початковий рендер вмісту пігулки
-    const hasInitialValue = Boolean(input.value && input.value.trim().length >= 2);
-    if (hasInitialValue) {
-      record.isRedAlert = true;
+    // Якщо в полі вже є довгий текст (> 7 символів) — вмикаємо делікатне бурштинове застереження
+    const valLength = (input.value || '').trim().length;
+    if (valLength > 7) {
+      record.isCaution = true;
     }
     this.renderPillContent(record);
     this.updatePillPosition(input, pill);
@@ -79,8 +91,8 @@ export class FieldLivePill {
     const handleMouseLeavePill = () => {
       record.isHovered = false;
       const isFocused = typeof document !== 'undefined' && document.activeElement === input;
-      // Якщо поле не у фокусі або вже введено достатньо символів (червона тривога) — згортаємо
-      if (!isFocused || input.value.trim().length >= 2) {
+      // Згортаємо лише якщо поле не у фокусі АБО введено більше 7 символів
+      if (!isFocused || (input.value || '').trim().length > 7) {
         if (record.isExpanded) {
           this.collapsePill(input, record);
         }
@@ -88,11 +100,6 @@ export class FieldLivePill {
     };
 
     const handleClickPill = (e: MouseEvent) => {
-      const target = e.target as HTMLElement | null;
-      if (target && target.closest('.ts-pill-quick-clean-btn')) {
-        // Клік по кнопці очищення обробляється окремо
-        return;
-      }
       e.stopPropagation();
       if (record.isExpanded) {
         this.collapsePill(input, record);
@@ -113,35 +120,51 @@ export class FieldLivePill {
 
     // 2. Інтерактивна реакція на дії користувача в полі (ручне введення, фокус, blur)
     const handleFocus = () => {
-      if (input.value.trim().length <= 1 && !record.isRedAlert) {
+      // При фокусі розгортаємо застереження, якщо введено не більше 7 символів
+      if ((input.value || '').trim().length <= 7) {
         this.expandPill(input, record);
       }
     };
 
     const handleInput = () => {
-      const val = input.value.trim();
+      const val = (input.value || '').trim();
+
+      if (record.isVaultAlert) {
+        // Якщо активна тривога Сховища: розгорнуто при <= 7 символах, згорнуто при > 7
+        if (val.length <= 7) {
+          if (!record.isExpanded) this.expandPill(input, record);
+        } else {
+          if (record.isExpanded) this.collapsePill(input, record);
+        }
+        return;
+      }
 
       if (val.length === 0) {
-        // Поле очищено: повертаємо у початковий синій стан спокою
-        if (record.isRedAlert) {
-          this.setRedAlertState(input, record, false);
-        }
+        // Поле очищено: повертаємо у початковий стан спокою
+        record.isCaution = false;
+        record.isRedAlert = false;
+        this.renderPillContent(record);
         if (record.isExpanded) {
           this.collapsePill(input, record);
         }
-      } else if (val.length === 1) {
-        // Перший символ: інформаційне застереження розгортається з пігулки
-        if (!record.isExpanded && !record.isRedAlert) {
+      } else if (val.length <= 7) {
+        // Від 1 до 7 символів: застереження залишається РОЗГОРНУТИМ (людина встигає прочитати)
+        record.isCaution = false;
+        record.isRedAlert = false;
+        if (!record.isExpanded) {
           this.expandPill(input, record);
+        } else {
+          this.renderPillContent(record);
         }
       } else {
-        // Користувач продовжує введення (довжина >= 2):
-        // Повідомлення плавно згортається назад у пігулку за кривою Apple, змінюючи колір на червоний!
+        // Більше 7 символів: користувач свідомо продовжує введення.
+        // Банер плавно згортається в компактну бурштинову пігулку (Warm Amber), звільняючи форму
+        record.isCaution = true;
+        record.isRedAlert = false;
         if (record.isExpanded) {
           this.collapsePill(input, record);
-        }
-        if (!record.isRedAlert) {
-          this.setRedAlertState(input, record, true);
+        } else {
+          this.renderPillContent(record);
         }
       }
     };
@@ -276,6 +299,60 @@ export class FieldLivePill {
   }
 
   /**
+   * Плавний морфінг пігулки у стан тривоги Сховища (Singular Presence)
+   */
+  public static morphToVaultAlert(
+    input: HTMLInputElement | HTMLTextAreaElement,
+    vaultLabel: string
+  ): void {
+    const record = this.activePills.get(input);
+    if (!record) return;
+
+    record.isVaultAlert = true;
+    record.isRedAlert = true;
+    record.vaultLabel = vaultLabel;
+
+    // Якщо в полі до 7 символів — розгортаємо детальне застереження Сховища
+    if ((input.value || '').trim().length <= 7) {
+      record.isExpanded = true;
+    }
+
+    this.renderPillContent(record);
+    this.updatePillPosition(input, record.pillElement);
+    if (typeof requestAnimationFrame !== 'undefined') {
+      requestAnimationFrame(() => {
+        this.updatePillPosition(input, record.pillElement);
+      });
+    }
+  }
+
+  /**
+   * Скидання стану тривоги Сховища до звичайного спостереження
+   */
+  public static clearVaultAlert(input: HTMLInputElement | HTMLTextAreaElement): void {
+    const record = this.activePills.get(input);
+    if (!record) return;
+
+    record.isVaultAlert = false;
+    record.isRedAlert = false;
+    delete record.vaultLabel;
+
+    const val = (input.value || '').trim();
+    record.isCaution = val.length > 7;
+    if (typeof document !== 'undefined' && document.activeElement !== input) {
+      record.isExpanded = false;
+    }
+
+    this.renderPillContent(record);
+    this.updatePillPosition(input, record.pillElement);
+    if (typeof requestAnimationFrame !== 'undefined') {
+      requestAnimationFrame(() => {
+        this.updatePillPosition(input, record.pillElement);
+      });
+    }
+  }
+
+  /**
    * Перемикання пігулки у червоний режим тривоги (Red Security Pill)
    */
   public static setRedAlertState(
@@ -283,6 +360,7 @@ export class FieldLivePill {
     record: FieldLivePillRecord,
     isRed: boolean
   ): void {
+    record.isVaultAlert = isRed;
     record.isRedAlert = isRed;
     this.renderPillContent(record);
     this.updatePillPosition(input, record.pillElement);
@@ -294,31 +372,71 @@ export class FieldLivePill {
   }
 
   /**
-   * Рендеринг вмісту пігулки залежно від поточного стану
+   * Рендеринг вмісту пігулки залежно від поточного стану (Fluid Morphing)
    */
   private static renderPillContent(record: FieldLivePillRecord): void {
     const pill = record.pillElement;
     const details = record.details;
-    const isRed = record.isRedAlert;
     const isExpanded = record.isExpanded;
+    const isVaultAlert = record.isVaultAlert;
+    const isCaution = record.isCaution;
 
-    pill.classList.toggle('ts-pill-red', isRed);
+    pill.classList.toggle('ts-pill-red', isVaultAlert);
+    pill.classList.toggle('ts-pill-amber', isCaution && !isVaultAlert);
     pill.classList.toggle('ts-expanded', isExpanded);
 
-    if (isExpanded) {
-      if (isRed) {
+    if (isVaultAlert) {
+      // 1. ПІДТВЕРДЖЕНИЙ ЗБІГ ЗІ СХОВИЩЕМ (КРИТИЧНИЙ СТАН CRIMSON RED)
+      const vaultLabel = record.vaultLabel || details.shortLabel;
+      if (isExpanded) {
         pill.innerHTML = `
           <span class="ts-field-pill-icon" style="color: #DC2626; display: flex; align-items: center; flex-shrink: 0;">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
           </span>
           <span class="ts-field-pill-msg" style="color: #991B1B; font-size: 11px; line-height: 1.35; font-weight: 500; flex: 1;">
-            ${details.bannerWarning}
+            Сховище: ${vaultLabel} — виявлено збережений маркер безпеки. Не передавайте його стороннім!
           </span>
-          <button class="ts-pill-quick-clean-btn ts-clean-prominent" title="Очистити поле" type="button">
-            Очистити
-          </button>
         `;
       } else {
+        pill.innerHTML = `
+          <span class="ts-field-pill-icon" style="color: #DC2626; display: flex; align-items: center;">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+          </span>
+          <span class="ts-field-pill-label" style="color: #B91C1C; font-weight: 700;">Сховище: ${vaultLabel}</span>
+          <span style="font-size: 9px; color: #DC2626; opacity: 0.7;">•</span>
+          <span style="font-size: 9.5px; color: #DC2626; font-weight: 600;">Маркер</span>
+        `;
+      }
+    } else if (isCaution) {
+      // 2. ДЕЛІКАТНЕ ЗАСТЕРЕЖЕННЯ ПРИ ВВЕДЕННІ (> 7 символів) — ТЕПЛИЙ БУРШТИН (AMBER)
+      if (isExpanded) {
+        pill.innerHTML = `
+          <span class="ts-field-pill-icon" style="color: #D97706; display: flex; align-items: center; flex-shrink: 0;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </span>
+          <span class="ts-field-pill-msg" style="color: #92400E; font-size: 11px; line-height: 1.35; font-weight: 500; flex: 1;">
+            ${details.bannerWarning}
+          </span>
+        `;
+      } else {
+        pill.innerHTML = `
+          <span class="ts-field-pill-icon" style="color: #D97706; display: flex; align-items: center;">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </span>
+          <span class="ts-field-pill-label" style="color: #92400E; font-weight: 700;">${details.shortLabel}</span>
+          <span style="font-size: 9px; color: #D97706; opacity: 0.7;">•</span>
+          <span style="font-size: 9.5px; color: #D97706; font-weight: 600;">Увага</span>
+        `;
+      }
+    } else {
+      // 3. СТАН СПОКОЮ ТА РОЗГОРНУТОЇ ПІДКАЗКИ (0–7 СИМВОЛІВ АБО ФОКУС) — SANCTUARY BLUE
+      if (isExpanded) {
         pill.innerHTML = `
           <span class="ts-field-pill-icon" style="color: #0071E3; display: flex; align-items: center; flex-shrink: 0;">
             ${details.iconSvg}
@@ -326,18 +444,6 @@ export class FieldLivePill {
           <span class="ts-field-pill-msg" style="color: #1D1D1F; font-size: 11px; line-height: 1.35; font-weight: 500;">
             ${details.bannerWarning}
           </span>
-        `;
-      }
-    } else {
-      if (isRed) {
-        pill.innerHTML = `
-          <span class="ts-field-pill-icon" style="color: #DC2626; display: flex; align-items: center;">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-          </span>
-          <span class="ts-field-pill-label" style="color: #B91C1C; font-weight: 700;">${details.shortLabel}</span>
-          <span style="font-size: 9px; color: #DC2626; opacity: 0.7;">•</span>
-          <span style="font-size: 9.5px; color: #DC2626; font-weight: 600;">Увага</span>
-          <button class="ts-pill-quick-clean-btn" title="Очистити поле" type="button">Очистити</button>
         `;
       } else {
         pill.innerHTML = `
@@ -350,19 +456,10 @@ export class FieldLivePill {
         `;
       }
     }
-
-    // Слухач для кнопки швидкого очищення
-    const cleanBtn = pill.querySelector('.ts-pill-quick-clean-btn');
-    if (cleanBtn) {
-      cleanBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        this.clearInputField(record.input, record);
-      });
-    }
   }
 
   /**
-   * Очищення поля в 1 клік зі скиданням пігулки в безпечний стан
+   * Очищення поля зі скиданням пігулки в безпечний стан
    */
   public static clearInputField(input: HTMLInputElement | HTMLTextAreaElement, record: FieldLivePillRecord): void {
     if ('value' in input && typeof input.value === 'string') {
@@ -384,7 +481,9 @@ export class FieldLivePill {
       input.dispatchEvent(new Event('change', { bubbles: true }));
     } catch {}
 
-    this.setRedAlertState(input, record, false);
+    record.isCaution = false;
+    record.isVaultAlert = false;
+    record.isRedAlert = false;
     this.collapsePill(input, record);
   }
 
@@ -496,7 +595,26 @@ export class FieldLivePill {
         cursor: default !important;
       }
 
-      /* Morphed Red Alert State */
+      /* Morphed Amber Caution State (> 7 characters) */
+      .ts-field-live-pill.ts-pill-amber {
+        background: rgba(255, 251, 235, 0.96) !important;
+        border-color: rgba(217, 119, 6, 0.35) !important;
+        color: #B45309 !important;
+        box-shadow: 0 2px 8px rgba(217, 119, 6, 0.12), 0 1px 2px rgba(217, 119, 6, 0.06) !important;
+      }
+
+      .ts-field-live-pill.ts-pill-amber:hover {
+        background: rgba(254, 243, 199, 0.98) !important;
+        border-color: rgba(217, 119, 6, 0.55) !important;
+        box-shadow: 0 3px 12px rgba(217, 119, 6, 0.18) !important;
+      }
+
+      .ts-field-live-pill.ts-pill-amber.ts-expanded {
+        border-color: rgba(217, 119, 6, 0.45) !important;
+        box-shadow: 0 8px 24px rgba(217, 119, 6, 0.16), 0 2px 6px rgba(217, 119, 6, 0.06) !important;
+      }
+
+      /* Morphed Red Alert State (Direct Vault Secret Match) */
       .ts-field-live-pill.ts-pill-red {
         background: rgba(254, 242, 242, 0.96) !important;
         border-color: rgba(220, 38, 38, 0.45) !important;
@@ -513,51 +631,6 @@ export class FieldLivePill {
       .ts-field-live-pill.ts-pill-red.ts-expanded {
         border-color: rgba(220, 38, 38, 0.55) !important;
         box-shadow: 0 8px 24px rgba(220, 38, 38, 0.20), 0 2px 6px rgba(220, 38, 38, 0.08) !important;
-      }
-
-      /* Inline Quick Clean Button */
-      .ts-pill-quick-clean-btn {
-        all: unset !important;
-        appearance: none !important;
-        -webkit-appearance: none !important;
-        cursor: pointer !important;
-        background: rgba(220, 38, 38, 0.12) !important;
-        color: #DC2626 !important;
-        border: 1px solid rgba(220, 38, 38, 0.25) !important;
-        font-size: 9.5px !important;
-        font-weight: 600 !important;
-        padding: 1.5px 7px !important;
-        border-radius: 9999px !important;
-        margin-left: 2px !important;
-        display: inline-flex !important;
-        align-items: center !important;
-        line-height: 1.3 !important;
-        transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
-        flex-shrink: 0 !important;
-        box-sizing: border-box !important;
-      }
-
-      .ts-pill-quick-clean-btn:hover {
-        background: #DC2626 !important;
-        color: #FFFFFF !important;
-        border-color: #DC2626 !important;
-        transform: scale(1.03) !important;
-      }
-
-      .ts-pill-quick-clean-btn.ts-clean-prominent {
-        background: #DC2626 !important;
-        color: #FFFFFF !important;
-        border-color: #DC2626 !important;
-        font-size: 10px !important;
-        padding: 3px 8px !important;
-        border-radius: 6px !important;
-        box-shadow: 0 1px 3px rgba(220, 38, 38, 0.3) !important;
-      }
-
-      .ts-pill-quick-clean-btn.ts-clean-prominent:hover {
-        background: #B91C1C !important;
-        border-color: #B91C1C !important;
-        box-shadow: 0 2px 6px rgba(220, 38, 38, 0.4) !important;
       }
     `;
     root.appendChild(style);

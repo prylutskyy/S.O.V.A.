@@ -64,7 +64,7 @@ describe('FieldLivePill (Edge Micro-Pill & Unrolling Cognitive Banner)', () => {
     expect(pill.classList.contains('ts-pill-red')).toBe(false);
   });
 
-  it('retracts expanded message and morphs pill into Red Alert on continued typing (length >= 2)', () => {
+  it('keeps banner expanded up to 7 characters and retracts to Warm Amber caution on length > 7', () => {
     FieldLivePill.attach(input, {
       categoryLabel: 'Код безпеки (CVV)',
       fieldType: 'PAYMENT_CVV',
@@ -74,23 +74,24 @@ describe('FieldLivePill (Edge Micro-Pill & Unrolling Cognitive Banner)', () => {
     const root = ShadowHost.getRoot();
     const pill = root.querySelector('.ts-field-live-pill') as HTMLElement;
 
-    // Start filling 1 character -> expanded
-    input.value = '4';
+    // Typing 1-7 characters -> remains expanded for user readability, does not scream red
+    input.value = '1234567';
     input.dispatchEvent(new Event('input'));
     expect(pill.classList.contains('ts-expanded')).toBe(true);
+    expect(pill.classList.contains('ts-pill-red')).toBe(false);
 
-    // Continue typing (length >= 2) -> collapses back and turns red
-    input.value = '45';
+    // Continue typing (length > 7) -> collapses back into subtle amber caution without intrusive red
+    input.value = '12345678';
     input.dispatchEvent(new Event('input'));
 
     expect(pill.classList.contains('ts-expanded')).toBe(false);
-    expect(pill.classList.contains('ts-pill-red')).toBe(true);
+    expect(pill.classList.contains('ts-pill-amber')).toBe(true);
+    expect(pill.classList.contains('ts-pill-red')).toBe(false);
     expect(pill.textContent).toContain('Увага');
 
-    // Has quick clean button inside the red pill
+    // Does NOT have noisy clean button inside the pill
     const cleanBtn = pill.querySelector('.ts-pill-quick-clean-btn');
-    expect(cleanBtn).not.toBeNull();
-    expect(cleanBtn?.textContent).toContain('Очистити');
+    expect(cleanBtn).toBeNull();
   });
 
   it('restores resting blue pill when field is cleared by user', () => {
@@ -103,43 +104,41 @@ describe('FieldLivePill (Edge Micro-Pill & Unrolling Cognitive Banner)', () => {
     const root = ShadowHost.getRoot();
     const pill = root.querySelector('.ts-field-live-pill') as HTMLElement;
 
-    // Type 3 characters -> red pill
-    input.value = '789';
+    // Type > 7 characters -> amber caution
+    input.value = '12345678';
     input.dispatchEvent(new Event('input'));
-    expect(pill.classList.contains('ts-pill-red')).toBe(true);
+    expect(pill.classList.contains('ts-pill-amber')).toBe(true);
 
-    // User hits backspace, clearing the field
+    // User clears the field
     input.value = '';
     input.dispatchEvent(new Event('input'));
 
     // Pill returns to resting state
+    expect(pill.classList.contains('ts-pill-amber')).toBe(false);
     expect(pill.classList.contains('ts-pill-red')).toBe(false);
     expect(pill.classList.contains('ts-expanded')).toBe(false);
     expect(pill.textContent).toContain('Захист');
   });
 
-  it('clears field and resets pill to resting state via inline clean button in the pill', () => {
+  it('fluidly morphs pill into Vault Alert on secret match and restores on clear without duplicate pills', () => {
     FieldLivePill.attach(input, {
-      categoryLabel: 'Код безпеки (CVV)',
-      fieldType: 'PAYMENT_CVV',
+      categoryLabel: 'Дівоче прізвище',
+      fieldType: 'VAULT_ITEM',
       isTierA: true,
     });
 
     const root = ShadowHost.getRoot();
     const pill = root.querySelector('.ts-field-live-pill') as HTMLElement;
 
-    // Type CVV -> red alert
-    input.value = '999';
-    input.dispatchEvent(new Event('input'));
+    expect(FieldLivePill.hasPill(input)).toBe(true);
+
+    // Morph to Vault Alert
+    FieldLivePill.morphToVaultAlert(input, 'Смирнова');
     expect(pill.classList.contains('ts-pill-red')).toBe(true);
+    expect(pill.textContent).toContain('Сховище: Смирнова');
 
-    const cleanBtn = pill.querySelector('.ts-pill-quick-clean-btn') as HTMLButtonElement;
-    expect(cleanBtn).not.toBeNull();
-
-    cleanBtn.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-
-    // Field value cleared, pill back to resting blue
-    expect(input.value).toBe('');
+    // Clear Vault Alert
+    FieldLivePill.clearVaultAlert(input);
     expect(pill.classList.contains('ts-pill-red')).toBe(false);
     expect(pill.textContent).toContain('Захист');
   });
