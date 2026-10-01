@@ -143,6 +143,34 @@ describe('FieldLivePill (Edge Micro-Pill & Unrolling Cognitive Banner)', () => {
     expect(pill.textContent).toContain('Захист');
   });
 
+  it('provides a refined clean action chip in expanded state to wipe field in one click', () => {
+    FieldLivePill.attach(input, {
+      categoryLabel: 'Код безпеки (CVV)',
+      fieldType: 'PAYMENT_CVV',
+      isTierA: true,
+    });
+
+    const root = ShadowHost.getRoot();
+    const pill = root.querySelector('.ts-field-live-pill') as HTMLElement;
+
+    // Type 4 characters -> stays expanded (<= 7)
+    input.value = '1234';
+    input.dispatchEvent(new Event('input'));
+    expect(pill.classList.contains('ts-expanded')).toBe(true);
+
+    const cleanAction = pill.querySelector('.ts-field-clean-action') as HTMLButtonElement;
+    expect(cleanAction).not.toBeNull();
+    expect(cleanAction.textContent).toContain('Очистити');
+
+    // Click clean action
+    cleanAction.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+
+    // Input field is cleared, and pill is collapsed back to resting state
+    expect(input.value).toBe('');
+    expect(pill.classList.contains('ts-expanded')).toBe(false);
+    expect(pill.textContent).toContain('Захист');
+  });
+
   it('supports Expiry and Tax ID (ІПН) field types with contextual warnings', () => {
     const taxInput = document.createElement('input');
     taxInput.name = 'taxNumber';

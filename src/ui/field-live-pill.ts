@@ -380,6 +380,7 @@ export class FieldLivePill {
     const isExpanded = record.isExpanded;
     const isVaultAlert = record.isVaultAlert;
     const isCaution = record.isCaution;
+    const hasText = (record.input?.value || '').trim().length > 0;
 
     pill.classList.toggle('ts-pill-red', isVaultAlert);
     pill.classList.toggle('ts-pill-amber', isCaution && !isVaultAlert);
@@ -390,15 +391,22 @@ export class FieldLivePill {
       const vaultLabel = record.vaultLabel || details.shortLabel;
       if (isExpanded) {
         pill.innerHTML = `
-          <span class="ts-field-pill-icon" style="color: #DC2626; display: flex; align-items: center; flex-shrink: 0;">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-            </svg>
-          </span>
-          <span class="ts-field-pill-msg" style="color: #991B1B; font-size: 11px; line-height: 1.35; font-weight: 500; flex: 1;">
-            Сховище: ${vaultLabel} — виявлено збережений маркер безпеки. Не передавайте його стороннім!
-          </span>
+          <div class="ts-field-pill-inner" style="display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%;">
+            <div style="display: flex; align-items: flex-start; gap: 8px; min-width: 0; flex: 1;">
+              <span class="ts-field-pill-icon" style="color: #DC2626; display: flex; align-items: center; margin-top: 1px; flex-shrink: 0;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+              </span>
+              <span class="ts-field-pill-msg" style="color: #991B1B; font-size: 11px; line-height: 1.35; font-weight: 500; flex: 1;">
+                Сховище: ${vaultLabel} — виявлено збережений маркер безпеки. Не передавайте його стороннім!
+              </span>
+            </div>
+            <button class="ts-pill-action-chip ts-field-clean-action" style="align-self: center;">
+              Очистити
+            </button>
+          </div>
         `;
       } else {
         pill.innerHTML = `
@@ -417,12 +425,19 @@ export class FieldLivePill {
       // 2. ДЕЛІКАТНЕ ЗАСТЕРЕЖЕННЯ ПРИ ВВЕДЕННІ (> 7 символів) — ТЕПЛИЙ БУРШТИН (AMBER)
       if (isExpanded) {
         pill.innerHTML = `
-          <span class="ts-field-pill-icon" style="color: #D97706; display: flex; align-items: center; flex-shrink: 0;">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-          </span>
-          <span class="ts-field-pill-msg" style="color: #92400E; font-size: 11px; line-height: 1.35; font-weight: 500; flex: 1;">
-            ${details.bannerWarning}
-          </span>
+          <div class="ts-field-pill-inner" style="display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%;">
+            <div style="display: flex; align-items: flex-start; gap: 8px; min-width: 0; flex: 1;">
+              <span class="ts-field-pill-icon" style="color: #D97706; display: flex; align-items: center; margin-top: 1px; flex-shrink: 0;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              </span>
+              <span class="ts-field-pill-msg" style="color: #92400E; font-size: 11px; line-height: 1.35; font-weight: 500; flex: 1;">
+                ${details.bannerWarning}
+              </span>
+            </div>
+            <button class="ts-pill-action-chip ts-field-clean-action" style="align-self: center;">
+              Очистити
+            </button>
+          </div>
         `;
       } else {
         pill.innerHTML = `
@@ -438,12 +453,21 @@ export class FieldLivePill {
       // 3. СТАН СПОКОЮ ТА РОЗГОРНУТОЇ ПІДКАЗКИ (0–7 СИМВОЛІВ АБО ФОКУС) — SANCTUARY BLUE
       if (isExpanded) {
         pill.innerHTML = `
-          <span class="ts-field-pill-icon" style="color: #0071E3; display: flex; align-items: center; flex-shrink: 0;">
-            ${details.iconSvg}
-          </span>
-          <span class="ts-field-pill-msg" style="color: #1D1D1F; font-size: 11px; line-height: 1.35; font-weight: 500;">
-            ${details.bannerWarning}
-          </span>
+          <div class="ts-field-pill-inner" style="display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%;">
+            <div style="display: flex; align-items: flex-start; gap: 8px; min-width: 0; flex: 1;">
+              <span class="ts-field-pill-icon" style="color: #0071E3; display: flex; align-items: center; margin-top: 1px; flex-shrink: 0;">
+                ${details.iconSvg}
+              </span>
+              <span class="ts-field-pill-msg" style="color: #1D1D1F; font-size: 11px; line-height: 1.35; font-weight: 500;">
+                ${details.bannerWarning}
+              </span>
+            </div>
+            ${hasText ? `
+              <button class="ts-pill-action-chip ts-field-clean-action" style="align-self: center;">
+                Очистити
+              </button>
+            ` : ''}
+          </div>
         `;
       } else {
         pill.innerHTML = `
@@ -455,6 +479,14 @@ export class FieldLivePill {
           <span style="font-size: 9.5px; color: #0071E3; font-weight: 500;">Захист</span>
         `;
       }
+    }
+
+    const cleanBtn = pill.querySelector('.ts-field-clean-action');
+    if (cleanBtn) {
+      cleanBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.clearInputField(record.input, record);
+      });
     }
   }
 
@@ -559,8 +591,8 @@ export class FieldLivePill {
         -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
         border: 1px solid rgba(0, 113, 227, 0.25) !important;
         color: #0071E3 !important;
-        padding: 3px 9px !important;
-        border-radius: 9999px !important;
+        padding: 3.5px 10px !important;
+        border-radius: 14px !important;
         font-size: 10.5px !important;
         font-weight: 600 !important;
         letter-spacing: -0.01em !important;
@@ -572,11 +604,13 @@ export class FieldLivePill {
         box-sizing: border-box !important;
         max-width: 95vw !important;
         animation: tsFieldPillFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
-        transition: padding 0.24s cubic-bezier(0.16, 1, 0.3, 1),
-                    background-color 0.24s cubic-bezier(0.16, 1, 0.3, 1),
-                    border-color 0.24s cubic-bezier(0.16, 1, 0.3, 1),
-                    color 0.24s cubic-bezier(0.16, 1, 0.3, 1),
-                    box-shadow 0.24s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        transition: padding 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+                    border-radius 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+                    max-width 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+                    background-color 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+                    border-color 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+                    color 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+                    box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
         pointer-events: auto !important;
       }
 
@@ -587,12 +621,29 @@ export class FieldLivePill {
 
       /* Unrolled Informational Message (Expanded Pill under field) */
       .ts-field-live-pill.ts-expanded {
-        padding: 6px 14px !important;
+        padding: 7px 14px !important;
+        border-radius: 12px !important;
         white-space: normal !important;
-        max-width: 380px !important;
+        max-width: 440px !important;
         gap: 8px !important;
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.10), 0 2px 6px rgba(0, 0, 0, 0.04) !important;
         cursor: default !important;
+      }
+
+      @keyframes tsContentUnroll {
+        0% {
+          opacity: 0;
+          transform: translateY(-2px) scale(0.98);
+        }
+        100% {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+
+      .ts-field-live-pill.ts-expanded .ts-field-pill-inner {
+        animation: tsContentUnroll 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+        width: 100% !important;
       }
 
       /* Morphed Amber Caution State (> 7 characters) */
@@ -631,6 +682,64 @@ export class FieldLivePill {
       .ts-field-live-pill.ts-pill-red.ts-expanded {
         border-color: rgba(220, 38, 38, 0.55) !important;
         box-shadow: 0 8px 24px rgba(220, 38, 38, 0.20), 0 2px 6px rgba(220, 38, 38, 0.08) !important;
+      }
+
+      /* Action Chips (Integrated Minimalist Clean Button) */
+      .ts-pill-action-chip {
+        all: unset !important;
+        appearance: none !important;
+        -webkit-appearance: none !important;
+        cursor: pointer !important;
+        font-family: inherit !important;
+        font-size: 10px !important;
+        font-weight: 600 !important;
+        letter-spacing: -0.01em !important;
+        padding: 2.5px 9px !important;
+        border-radius: 9999px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 3px !important;
+        box-sizing: border-box !important;
+        flex-shrink: 0 !important;
+        white-space: nowrap !important;
+        background: rgba(0, 113, 227, 0.08) !important;
+        color: #0071E3 !important;
+        border: 1px solid rgba(0, 113, 227, 0.25) !important;
+        transition: background-color 0.16s ease, color 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease !important;
+      }
+
+      .ts-pill-action-chip:hover {
+        background: #0071E3 !important;
+        color: #FFFFFF !important;
+        border-color: #0071E3 !important;
+        box-shadow: 0 2px 6px rgba(0, 113, 227, 0.22) !important;
+      }
+
+      .ts-field-live-pill.ts-pill-amber .ts-pill-action-chip {
+        background: rgba(217, 119, 6, 0.08) !important;
+        color: #B45309 !important;
+        border: 1px solid rgba(217, 119, 6, 0.25) !important;
+      }
+
+      .ts-field-live-pill.ts-pill-amber .ts-pill-action-chip:hover {
+        background: #D97706 !important;
+        color: #FFFFFF !important;
+        border-color: #D97706 !important;
+        box-shadow: 0 2px 6px rgba(217, 119, 6, 0.22) !important;
+      }
+
+      .ts-field-live-pill.ts-pill-red .ts-pill-action-chip {
+        background: rgba(220, 38, 38, 0.08) !important;
+        color: #DC2626 !important;
+        border: 1px solid rgba(220, 38, 38, 0.28) !important;
+      }
+
+      .ts-field-live-pill.ts-pill-red .ts-pill-action-chip:hover {
+        background: #DC2626 !important;
+        color: #FFFFFF !important;
+        border-color: #DC2626 !important;
+        box-shadow: 0 2px 6px rgba(220, 38, 38, 0.25) !important;
       }
     `;
     root.appendChild(style);

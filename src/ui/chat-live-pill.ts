@@ -353,7 +353,7 @@ export class ChatLivePill {
         const actionLabel = primary.buttonLabel || 'Вилучити';
 
         pill.innerHTML = `
-          <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%;">
+          <div class="ts-chat-pill-inner" style="display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%;">
             <div style="display: flex; align-items: flex-start; gap: 8px; min-width: 0; flex: 1;">
               <span class="ts-pill-icon" style="color: ${accentColor}; display: flex; align-items: center; margin-top: 1px; flex-shrink: 0;">
                 ${primary.iconSvg}
@@ -427,7 +427,7 @@ export class ChatLivePill {
           .join('');
 
         pill.innerHTML = `
-          <div style="width: 100%;">
+          <div class="ts-chat-pill-inner" style="width: 100%;">
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid rgba(0, 0, 0, 0.07);">
               <div style="display: flex; align-items: center; gap: 6px;">
                 <span style="font-size: 11.5px; font-weight: 700; color: #1D1D1F; letter-spacing: -0.01em;">
@@ -657,8 +657,8 @@ export class ChatLivePill {
         -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
         border: 1px solid rgba(0, 113, 227, 0.28) !important;
         color: #005BB5 !important;
-        padding: 4px 10px !important;
-        border-radius: 9999px !important;
+        padding: 3.5px 10px !important;
+        border-radius: 14px !important;
         font-size: 11px !important;
         font-weight: 600 !important;
         letter-spacing: -0.01em !important;
@@ -669,12 +669,12 @@ export class ChatLivePill {
         white-space: nowrap !important;
         box-sizing: border-box !important;
         animation: tsChatPillFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
-        transition: padding 0.24s cubic-bezier(0.16, 1, 0.3, 1),
-                    border-radius 0.24s cubic-bezier(0.16, 1, 0.3, 1),
-                    max-width 0.24s cubic-bezier(0.16, 1, 0.3, 1),
-                    background-color 0.24s cubic-bezier(0.16, 1, 0.3, 1),
-                    border-color 0.24s cubic-bezier(0.16, 1, 0.3, 1),
-                    box-shadow 0.24s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        transition: padding 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+                    border-radius 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+                    max-width 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+                    background-color 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+                    border-color 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+                    box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
       }
 
       .ts-chat-live-pill:hover {
@@ -740,14 +740,30 @@ export class ChatLivePill {
 
       /* Expanded Banner State (In-Place Fluid Surface) */
       .ts-chat-live-pill.ts-expanded {
-        padding: 9px 14px !important;
-        border-radius: 14px !important;
+        padding: 7px 14px !important;
+        border-radius: 12px !important;
         white-space: normal !important;
         max-width: 440px !important;
         min-width: 280px !important;
         box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.04) !important;
         cursor: default !important;
         overflow-x: hidden !important;
+      }
+
+      @keyframes tsContentUnroll {
+        0% {
+          opacity: 0;
+          transform: translateY(-2px) scale(0.98);
+        }
+        100% {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+
+      .ts-chat-live-pill.ts-expanded .ts-chat-pill-inner {
+        animation: tsContentUnroll 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+        width: 100% !important;
       }
 
       .ts-chat-live-popover {
