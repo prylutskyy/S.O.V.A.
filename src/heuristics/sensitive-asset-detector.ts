@@ -15,6 +15,10 @@ export interface OutboundAssetDetectionResult {
   gpsMatch?: string;
   hasSabotage?: boolean;
   sabotageMatch?: string;
+  hasSeedPhrase?: boolean;
+  seedPhraseMatch?: string;
+  hasPassword?: boolean;
+  passwordMatch?: string;
   vaultMatches: VaultItem[];
 }
 
@@ -75,6 +79,12 @@ export const GPS_COORDINATES_REGEX = /\b([3-7]\d\.\d{4,8})\s*,\s*([2-4]\d\.\d{4,
 
 export const SABOTAGE_RECRUITMENT_REGEX = /(?:релейн[а-яіїє]*\s*шаф|підпал[а-яіїє]*\s*(?:авто|потяг|релейн|шаф|технік)|де\s*стоїть\s*ппо|координат[а-яіїє]*\s*(?:ппо|баз|частин|в\/ч|склад|дислокац)|розташуванн[а-яіїє]*\s*(?:ппо|технік|військ|батаре)|фото\s*(?:підстанц|тец|гес|трансформатор)|плачу\s*(?:за|в)\s*(?:крипт|гривн|фото|відео)\s*(?:шаф|підпал|координат))/iu;
 
+export const SEED_PHRASE_REGEX = /(?:seed\s*phrase|recovery\s*phrase|mnemonic|secret\s*recovery|фраза\s*відновлення|сід-фраза|сід\s*фраза|мнемонічн[а-яіїє]*\s*фраз[а-яіїє]*|12\s*слів|24\s*слова)[\s:=_-]*(?:[a-zA-Z]{3,8}\s+){11,23}[a-zA-Z]{3,8}/iu;
+// Шукаємо або 12/24 англійських слова підряд (автономно), або з контекстним словом.
+export const STANDALONE_SEED_PHRASE_REGEX = /(?:^|\s)((?:[a-z]{3,8}\s+){11}[a-z]{3,8}|(?:[a-z]{3,8}\s+){23}[a-z]{3,8})(?:\s|$)/i;
+
+export const PASSWORD_REGEX = /(?:password|пароль|pwd|pass)[\s:=_-]+([A-Za-z0-9!@#$%^&*()_+]{6,32})(?:\s|$)/iu;
+
 export class SensitiveAssetDetector {
   /**
    * Детекція точних GPS-координат або посилань на мапи
@@ -117,6 +127,33 @@ export class SensitiveAssetDetector {
     }
 
     return [...new Set(validCards)];
+  }
+
+  /**
+   * Детекція Seed-фрази від криптогаманця (12 або 24 слова)
+   */
+  public static detectSeedPhrase(text: string): { detected: boolean; match?: string } {
+    if (!text) return { detected: false };
+    
+    // Спершу шукаємо з контекстними словами
+    let match = text.match(SEED_PHRASE_REGEX);
+    if (match) return { detected: true, match: match[0].trim() };
+    
+    // Потім шукаємо просто 12/24 слова автономно
+    match = text.match(STANDALONE_SEED_PHRASE_REGEX);
+    if (match) return { detected: true, match: match[1].trim() };
+    
+    return { detected: false };
+  }
+
+  /**
+   * Детекція потенційного введення паролю
+   */
+  public static detectPassword(text: string): { detected: boolean; match?: string } {
+    if (!text) return { detected: false };
+    const match = text.match(PASSWORD_REGEX);
+    if (match) return { detected: true, match: match[1].trim() };
+    return { detected: false };
   }
 
   /**
@@ -277,6 +314,8 @@ export class SensitiveAssetDetector {
     const otpResult = this.detectOtp(text);
     const gpsResult = this.detectGpsCoordinates(text);
     const sabotageResult = this.detectSabotageRecruitment(text);
+    const seedResult = this.detectSeedPhrase(text);
+    const passwordResult = this.detectPassword(text);
     const vaultMatches = this.detectVaultMatches(text, payload.unlockedVaultItems);
 
     const detectedAssets: OutboundAssetDetectionResult = {
@@ -292,10 +331,34 @@ export class SensitiveAssetDetector {
       gpsMatch: gpsResult.match,
       hasSabotage: sabotageResult.detected,
       sabotageMatch: sabotageResult.match,
+      hasSeedPhrase: seedResult.detected,
+      seedPhraseMatch: seedResult.match,
+      hasPassword: passwordResult.detected,
+      passwordMatch: passwordResult.match,
       vaultMatches,
     };
 
     // ── СЦЕНАРІЇ БЛОКУВАННЯ (CRITICAL / HIGH) ────────────────────────────────
+
+    if (seedResult.detected) {
+      return {
+        shouldBlock: true,
+        action: 'BLOCK',
+        riskLevel: 'CRITICAL',
+        reason: 'КРИТИЧНО: Виявлено спробу передачі Seed-фрази від криптогаманця. Ніколи і нікому не передавайте ці дані, інакше ви втратите всі свої кошти!',
+        detectedAssets,
+      };
+    }
+
+    if (passwordResult.detected) {
+      return {
+        shouldBlock: true,
+        action: 'BLOCK',
+        riskLevel: 'HIGH',
+        reason: 'Виявлено спробу передачі паролю у відкритому вигляді. Ніколи не надсилайте свої паролі в чатах!',
+        detectedAssets,
+      };
+    }
 
     // 0. Національний спротив: витік геолокації або маркери диверсій
     if (gpsResult.detected) {

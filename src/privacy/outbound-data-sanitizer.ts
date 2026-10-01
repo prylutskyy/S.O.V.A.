@@ -16,6 +16,8 @@ export interface SecurityTelemetryFlags {
   hasCvv: boolean;
   hasCardExpiry: boolean;
   hasOtp: boolean;
+  hasSeedPhrase?: boolean;
+  hasPassword?: boolean;
   vaultMarkersDetected: Array<{
     category: VaultItemCategory | string;
     label: string;
@@ -210,6 +212,38 @@ export class OutboundDataSanitizer {
       });
     }
 
+    // ── 6. SEED-ФРАЗА ВІД КРИПТОГАМАНЦЯ ───────────────────────────────────────
+    let hasSeedPhrase = false;
+    const seedResult = SensitiveAssetDetector.detectSeedPhrase(sanitizedText);
+    
+    if (seedResult.detected && seedResult.match) {
+      hasSeedPhrase = true;
+      const placeholder = '[VERIFIED_CRYPTO_SEED_PHRASE]';
+      sanitizedText = sanitizedText.replace(seedResult.match, placeholder);
+
+      redactedTokens.push({
+        placeholder,
+        originalAssetType: 'SEED_PHRASE',
+        label: 'Мнемонічна Seed-фраза від криптогаманця',
+      });
+    }
+
+    // ── 7. ПАРОЛЬ ─────────────────────────────────────────────────────────────
+    let hasPassword = false;
+    const passwordResult = SensitiveAssetDetector.detectPassword(sanitizedText);
+
+    if (passwordResult.detected && passwordResult.match) {
+      hasPassword = true;
+      const placeholder = '[VERIFIED_PASSWORD]';
+      sanitizedText = sanitizedText.replace(passwordResult.match, placeholder);
+
+      redactedTokens.push({
+        placeholder,
+        originalAssetType: 'PASSWORD',
+        label: 'Пароль доступу',
+      });
+    }
+
     const totalSensitiveAssetsRedacted = redactedTokens.length;
 
     // Перевірка цілісності: чи залишився будь-який сирий номер картки
@@ -225,6 +259,8 @@ export class OutboundDataSanitizer {
         hasCvv,
         hasCardExpiry,
         hasOtp,
+        hasSeedPhrase,
+        hasPassword,
         vaultMarkersDetected,
         totalSensitiveAssetsRedacted,
       },
@@ -270,6 +306,14 @@ export class OutboundDataSanitizer {
 
     if (telemetry.hasOtp) {
       flags.push('- Genuine One-Time SMS Code (OTP): PRESENT (Bank transaction approval token)');
+    }
+
+    if (telemetry.hasSeedPhrase) {
+      flags.push('- Genuine Cryptocurrency Seed Phrase: PRESENT (Critical wallet access secret)');
+    }
+
+    if (telemetry.hasPassword) {
+      flags.push('- Plaintext Password/Secret: PRESENT');
     }
 
     if (telemetry.vaultMarkersDetected.length > 0) {
