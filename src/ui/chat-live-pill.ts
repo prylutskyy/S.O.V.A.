@@ -23,6 +23,7 @@ export class ChatLivePill {
   private static currentDetailsList: PillDetailItem[] = [];
   private static scrollListenerAttached = false;
   private static popoverCloseTimer: any = null;
+  private static isExpanded = false;
 
   /**
    * Відобразити або оновити мікро-капсулу безпеки під полем чату
@@ -52,7 +53,7 @@ export class ChatLivePill {
       this.activePill = this.createPillElement(detailsList);
       root.appendChild(this.activePill);
     } else {
-      this.updatePillContent(this.activePill, detailsList);
+      this.renderPill(this.activePill, detailsList, this.isExpanded);
     }
 
     this.updatePosition();
@@ -69,7 +70,8 @@ export class ChatLivePill {
    */
   public static hide(): void {
     this.cancelPopoverClose();
-    this.closePopover();
+    this.isExpanded = false;
+    this.activePopover = null;
 
     if (this.activePill && this.activePill.parentNode) {
       this.activePill.parentNode.removeChild(this.activePill);
@@ -93,7 +95,7 @@ export class ChatLivePill {
   };
 
   /**
-   * Оновлення координат розташування капсули під правим краєм поля введення
+   * Оновлення координат розташування капсули під краєм поля введення
    */
   public static updatePosition(): void {
     if (!this.activePill || !this.currentInput || !this.currentInput.isConnected) {
@@ -105,8 +107,8 @@ export class ChatLivePill {
     const scrollX = typeof window !== 'undefined' ? (window.scrollX || window.pageXOffset || 0) : 0;
     const scrollY = typeof window !== 'undefined' ? (window.scrollY || window.pageYOffset || 0) : 0;
 
-    const pillWidth = this.activePill.offsetWidth || 180;
-    const pillHeight = this.activePill.offsetHeight || 28;
+    const pillWidth = this.activePill.offsetWidth || (this.isExpanded ? 360 : 180);
+    const pillHeight = this.activePill.offsetHeight || (this.isExpanded ? 80 : 28);
 
     // Розміщуємо акуратно під нижнім правим краєм поля
     let top = scrollY + rect.bottom + 5;
@@ -124,10 +126,6 @@ export class ChatLivePill {
 
     this.activePill.style.top = `${Math.max(0, top)}px`;
     this.activePill.style.left = `${Math.max(0, left)}px`;
-
-    if (this.activePopover) {
-      this.updatePopoverPosition();
-    }
   }
 
   /**
@@ -167,7 +165,7 @@ export class ChatLivePill {
     if (evalRes.leakage.hasCvv) {
       list.push({
         id: 'cvv',
-        iconSvg: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`,
+        iconSvg: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`,
         label: 'Код безпеки (CVV)',
         sublabel: 'Секретні реквізити',
         explanation: 'Для отримання коштів тризначний CVV/CVC-код ніколи не потрібен. Його запитують лише для списання коштів з вашої картки.',
@@ -202,7 +200,7 @@ export class ChatLivePill {
 
         list.push({
           id: `vault_${item.label}_${itemVal}`,
-          iconSvg: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-1.5 1.5L12 11l-4-4-6 6 4 4 6-6 5.5-5.5M19 5l-2-2"/></svg>`,
+          iconSvg: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`,
           label: `Сховище: ${item.label}`,
           sublabel: 'Особистий секрет',
           explanation: `Ви ввели конфіденційний маркер зі свого Personal Vault («${item.label}»). Не передавайте його стороннім ресурсам.`,
@@ -219,7 +217,7 @@ export class ChatLivePill {
   }
 
   /**
-   * Створення елемента капсули
+   * Створення елемента капсули (Singular Interactive Surface)
    */
   private static createPillElement(detailsList: PillDetailItem[]): HTMLElement {
     const pill = document.createElement('div');
@@ -227,242 +225,62 @@ export class ChatLivePill {
     pill.setAttribute('role', 'status');
     pill.setAttribute('aria-live', 'polite');
 
-    this.applyPillStyling(pill, detailsList);
+    this.renderPill(pill, detailsList, false);
 
     pill.addEventListener('mouseenter', () => {
       this.cancelPopoverClose();
-      this.showPopover(pill, this.currentDetailsList);
+      this.expandPill(pill, this.currentDetailsList);
     });
 
-    pill.addEventListener('mouseleave', (e) => {
-      const toEl = e.relatedTarget as HTMLElement | null;
-      if (!toEl || !this.activePopover || !this.activePopover.contains(toEl)) {
-        this.schedulePopoverClose();
-      }
+    pill.addEventListener('mouseleave', () => {
+      this.schedulePopoverClose();
     });
 
     pill.addEventListener('click', (e) => {
+      // Якщо клікнули на саму пігулку (не на кнопку) — розгортаємо/згортаємо
+      const target = e.target as HTMLElement;
+      if (target.closest('button')) return;
       e.stopPropagation();
       this.cancelPopoverClose();
-      this.showPopover(pill, this.currentDetailsList);
+      if (!this.isExpanded) {
+        this.expandPill(pill, this.currentDetailsList);
+      }
     });
 
     return pill;
   }
 
-  private static updatePillContent(pill: HTMLElement, detailsList: PillDetailItem[]): void {
-    this.applyPillStyling(pill, detailsList);
-    if (this.activePopover) {
-      this.showPopover(pill, detailsList);
+  public static expandPill(pill: HTMLElement, detailsList: PillDetailItem[]): void {
+    this.isExpanded = true;
+    this.activePopover = pill;
+    this.renderPill(pill, detailsList, true);
+    this.updatePosition();
+    if (typeof requestAnimationFrame !== 'undefined') {
+      requestAnimationFrame(() => {
+        this.updatePosition();
+      });
     }
   }
 
-  private static applyPillStyling(pill: HTMLElement, detailsList: PillDetailItem[]): void {
-    const primary = detailsList[0];
-    const count = detailsList.length;
-    const isCivic = primary.isCivic;
-    const accentColor = isCivic ? '#0284C7' : '#0071E3'; // Sky Blue vs Apple Royal Blue
-
-    // Чистий, монолітний дизайн пігулки без зайвих нагромаджень
-    if (count >= 3) {
-      pill.className = 'ts-chat-live-pill ts-has-stack ts-has-stack-multi';
-    } else if (count === 2) {
-      pill.className = 'ts-chat-live-pill ts-has-stack';
-    } else {
-      pill.className = 'ts-chat-live-pill';
-    }
-
-    if (isCivic) {
-      pill.classList.add('ts-civic');
-    } else {
-      pill.classList.remove('ts-civic');
-    }
-
-    const counterBadge = count > 1
-      ? `<span class="ts-pill-counter">+${count - 1}</span>`
-      : '';
-
-    pill.innerHTML = `
-      <span class="ts-pill-icon" style="display: flex; align-items: center; justify-content: center; color: ${accentColor};">${primary.iconSvg}</span>
-      <span class="ts-pill-label" style="color: #1D1D1F;">${primary.label}</span>
-      ${counterBadge}
-      <span class="ts-pill-dot" style="font-size: 9px; color: #86868B; margin-left: 2px;">•</span>
-      <span class="ts-pill-hint" style="font-size: 10px; color: ${accentColor}; font-weight: 500;">Підказка</span>
-    `;
-  }
-
-  /**
-   * Відображення розгорнутої картки-колоди тригерів при наведенні (Protection Deck)
-   */
-  private static showPopover(
-    pill: HTMLElement,
-    detailsList: PillDetailItem[]
-  ): void {
-    this.closePopover();
-
-    const root = ShadowHost.getRoot();
-    const popover = document.createElement('div');
-    popover.className = 'ts-chat-live-popover';
-
-    const count = detailsList.length;
-    const isMulti = count > 1;
-    const primary = detailsList[0];
-    const accentColor = primary.isCivic ? '#0284C7' : '#0071E3';
-
-    popover.style.width = isMulti ? '330px' : '290px';
-    popover.style.padding = isMulti ? '14px 16px' : '12px 14px';
-
-    if (!isMulti) {
-      // Одиночний тригер
-      popover.innerHTML = `
-        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
-          <div style="width: 22px; height: 22px; border-radius: 50%; background: ${primary.isCivic ? 'rgba(2, 132, 199, 0.12)' : 'rgba(0, 113, 227, 0.1)'}; display: flex; align-items: center; justify-content: center; color: ${accentColor};">
-            ${primary.iconSvg}
-          </div>
-          <div>
-            <div style="font-size: 12px; font-weight: 600; color: #1D1D1F; line-height: 1.2;">${primary.label}</div>
-            <div style="font-size: 10px; color: #86868B;">${primary.sublabel}</div>
-          </div>
-        </div>
-        <p style="font-size: 11px; line-height: 1.45; color: #515154; margin: 0 0 10px 0;">
-          ${primary.explanation}
-        </p>
-        <div style="display: flex; align-items: center; justify-content: flex-end; gap: 6px;">
-          <button id="ts-pill-clean-btn" class="ts-pill-btn-primary" style="padding: 6px 13px !important; font-size: 11px !important;">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-            ${primary.buttonLabel || 'Видалити з тексту'}
-          </button>
-        </div>
-      `;
-    } else {
-      // Багатопунктова картка-колода (Protection Deck)
-      const rowsHtml = detailsList
-        .map((item, idx) => {
-          const itemAccent = item.isCivic ? '#0284C7' : '#0071E3';
-          const isLast = idx === detailsList.length - 1;
-          const escapedVault = item.vaultValue ? encodeURIComponent(item.vaultValue) : '';
-
-          return `
-            <div class="ts-deck-row" data-item-id="${item.id}" style="
-              padding: ${idx === 0 ? '0 0 10px 0' : '10px 0'};
-              ${isLast ? '' : 'border-bottom: 1px solid rgba(0, 0, 0, 0.06);'}
-            ">
-              <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px;">
-                <div style="display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1;">
-                  <div style="
-                    width: 20px;
-                    height: 20px;
-                    border-radius: 50%;
-                    background: ${item.isCivic ? 'rgba(2, 132, 199, 0.12)' : 'rgba(0, 113, 227, 0.1)'};
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    color: ${itemAccent};
-                    flex-shrink: 0;
-                  ">
-                    ${item.iconSvg}
-                  </div>
-                  <div style="min-width: 0; flex: 1;">
-                    <div style="font-size: 11.5px; font-weight: 600; color: #1D1D1F; line-height: 1.2; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">
-                      ${item.label}
-                    </div>
-                    <div style="font-size: 9.5px; color: #86868B;">${item.sublabel}</div>
-                  </div>
-                </div>
-                <button class="ts-pill-clean-single-btn ts-pill-btn-secondary" data-item-index="${idx}" data-strip-type="${item.stripType}" ${item.vaultValue ? `data-vault-value="${escapedVault}"` : ''}>
-                  Видалити
-                </button>
-              </div>
-              <p style="font-size: 10.5px; line-height: 1.4; color: #515154; margin: 0 0 0 28px;">
-                ${item.explanation}
-              </p>
-            </div>
-          `;
-        })
-        .join('');
-
-      popover.innerHTML = `
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid rgba(0, 0, 0, 0.08);">
-          <div style="display: flex; align-items: center; gap: 6px;">
-            <span style="font-size: 12px; font-weight: 700; color: #1D1D1F; letter-spacing: -0.01em;">
-              Виявлені маркери
-            </span>
-            <span style="
-              font-size: 10px;
-              font-weight: 700;
-              background: rgba(0, 113, 227, 0.10);
-              color: #0071E3;
-              padding: 1px 6px;
-              border-radius: 9999px;
-              border: 1px solid rgba(0, 113, 227, 0.22);
-            ">${count}</span>
-          </div>
-          <button id="ts-pill-clean-all-btn" class="ts-pill-btn-primary" style="padding: 5px 11px !important; font-size: 10.5px !important;">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-            Очистити всі
-          </button>
-        </div>
-        <div class="ts-deck-body" style="max-height: 260px; overflow-y: auto; overflow-x: hidden; box-sizing: border-box;">
-          ${rowsHtml}
-        </div>
-      `;
-    }
-
-    // Слухачі для запобігання мерехтінню поповера при русі мишки
-    popover.addEventListener('mouseenter', () => {
-      this.cancelPopoverClose();
-    });
-    popover.addEventListener('mouseleave', () => {
-      this.schedulePopoverClose();
-    });
-
-    // Одиночна кнопка очищення
-    const cleanBtn = popover.querySelector('#ts-pill-clean-btn') as HTMLButtonElement | null;
-    if (cleanBtn && detailsList[0]) {
-      cleanBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        this.stripSensitiveData(detailsList[0].stripType, detailsList[0].vaultValue);
+  public static collapsePill(pill: HTMLElement, detailsList: PillDetailItem[]): void {
+    this.isExpanded = false;
+    this.activePopover = null;
+    this.renderPill(pill, detailsList, false);
+    this.updatePosition();
+    if (typeof requestAnimationFrame !== 'undefined') {
+      requestAnimationFrame(() => {
+        this.updatePosition();
       });
     }
-
-    // Кнопка «Очистити всі»
-    const cleanAllBtn = popover.querySelector('#ts-pill-clean-all-btn') as HTMLButtonElement | null;
-    if (cleanAllBtn) {
-      cleanAllBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        this.stripAllSensitiveData();
-      });
-    }
-
-    // Кнопки видалення окремих пунктів колоди
-    popover.querySelectorAll('.ts-pill-clean-single-btn').forEach((btn) => {
-      const b = btn as HTMLButtonElement;
-      b.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const idxStr = b.dataset.itemIndex;
-        const idx = idxStr !== undefined ? parseInt(idxStr, 10) : -1;
-        const item = detailsList[idx];
-        if (item) {
-          this.stripSensitiveData(item.stripType, item.vaultValue);
-        } else {
-          const stripType = b.dataset.stripType as any;
-          const rawVault = b.dataset.vaultValue;
-          const vaultValue = rawVault ? decodeURIComponent(rawVault) : undefined;
-          this.stripSensitiveData(stripType, vaultValue);
-        }
-      });
-    });
-
-    root.appendChild(popover);
-    this.activePopover = popover;
-    this.updatePopoverPosition();
   }
 
   private static schedulePopoverClose(): void {
     if (this.popoverCloseTimer) clearTimeout(this.popoverCloseTimer);
     this.popoverCloseTimer = setTimeout(() => {
-      this.closePopover();
-    }, 150);
+      if (this.activePill && this.isExpanded) {
+        this.collapsePill(this.activePill, this.currentDetailsList);
+      }
+    }, 180);
   }
 
   private static cancelPopoverClose(): void {
@@ -472,35 +290,189 @@ export class ChatLivePill {
     }
   }
 
-  private static updatePopoverPosition(): void {
-    if (!this.activePopover || !this.activePill) return;
-
-    const pillRect = this.activePill.getBoundingClientRect();
-    const scrollX = typeof window !== 'undefined' ? (window.scrollX || window.pageXOffset || 0) : 0;
-    const scrollY = typeof window !== 'undefined' ? (window.scrollY || window.pageYOffset || 0) : 0;
-
-    const popoverWidth = this.activePopover.offsetWidth || 300;
-    const popoverHeight = this.activePopover.offsetHeight || 140;
-
-    let top = scrollY + pillRect.bottom + 6;
-    let left = scrollX + pillRect.right - popoverWidth;
-
-    if (left < scrollX + 10) left = scrollX + 10;
-
-    // Якщо знизу не вміщується — відкриваємо зверху над пігулкою
-    if (typeof window !== 'undefined' && pillRect.bottom + popoverHeight + 10 > window.innerHeight) {
-      top = scrollY + pillRect.top - popoverHeight - 6;
+  public static closePopover(): void {
+    if (this.activePill && this.isExpanded) {
+      this.collapsePill(this.activePill, this.currentDetailsList);
     }
-
-    this.activePopover.style.top = `${Math.max(0, top)}px`;
-    this.activePopover.style.left = `${Math.max(0, left)}px`;
   }
 
-  public static closePopover(): void {
-    if (this.activePopover && this.activePopover.parentNode) {
-      this.activePopover.parentNode.removeChild(this.activePopover);
+  /**
+   * Суцільний рендеринг вмісту пігулки (In-Place Fluid Surface)
+   */
+  private static renderPill(pill: HTMLElement, detailsList: PillDetailItem[], isExpanded: boolean): void {
+    const count = detailsList.length;
+    const primary = detailsList[0];
+    if (!primary) return;
+
+    const isRed = detailsList.some(d => d.stripType === 'VAULT' || d.stripType === 'CVV' || d.stripType === 'OTP' || d.stripType === 'SABOTAGE');
+    const isCivic = !isRed && detailsList.some(d => d.isCivic || d.stripType === 'GPS');
+    const accentColor = isRed ? '#DC2626' : (isCivic ? '#0284C7' : '#0071E3');
+    const labelColor = isRed ? '#991B1B' : (isCivic ? '#0369A1' : '#1D1D1F');
+
+    // Керування базовими класами
+    pill.className = 'ts-chat-live-pill';
+    if (count >= 3) {
+      pill.classList.add('ts-has-stack', 'ts-has-stack-multi');
+    } else if (count === 2) {
+      pill.classList.add('ts-has-stack');
     }
-    this.activePopover = null;
+
+    if (isRed) {
+      pill.classList.add('ts-pill-red');
+    } else if (isCivic) {
+      pill.classList.add('ts-civic');
+    }
+
+    if (isExpanded) {
+      pill.classList.add('ts-expanded', 'ts-chat-live-popover');
+    } else {
+      pill.classList.remove('ts-expanded', 'ts-chat-live-popover');
+    }
+
+    if (!isExpanded) {
+      // ── КОМПАКТНИЙ СТАН (Minimalist Capsule) ──────────────────────────
+      const counterBadge = count > 1
+        ? `<span class="ts-pill-counter">+${count - 1}</span>`
+        : '';
+
+      const hintText = isRed
+        ? (primary.stripType === 'VAULT' ? 'Секрет' : 'Увага')
+        : (primary.stripType === 'GPS' ? 'Координати' : 'Підказка');
+
+      pill.innerHTML = `
+        <span class="ts-pill-icon" style="display: flex; align-items: center; justify-content: center; color: ${accentColor};">${primary.iconSvg}</span>
+        <span class="ts-pill-label" style="color: ${labelColor}; font-weight: 600;">${primary.label}</span>
+        ${counterBadge}
+        <span class="ts-pill-dot" style="font-size: 9px; color: #86868B; margin-left: 2px;">•</span>
+        <span class="ts-pill-hint" style="font-size: 10px; color: ${accentColor}; font-weight: 500;">${hintText}</span>
+      `;
+    } else {
+      // ── РОЗГОРНУТИЙ СТАН IN-PLACE (Unrolled Protection Banner) ──────────
+      if (count === 1) {
+        // Одиночний тригер: елегантний банер із вбудованим чіпом-дією
+        const actionLabel = primary.buttonLabel || 'Вилучити';
+
+        pill.innerHTML = `
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%;">
+            <div style="display: flex; align-items: flex-start; gap: 8px; min-width: 0; flex: 1;">
+              <span class="ts-pill-icon" style="color: ${accentColor}; display: flex; align-items: center; margin-top: 1px; flex-shrink: 0;">
+                ${primary.iconSvg}
+              </span>
+              <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0;">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <span style="font-size: 11.5px; font-weight: 700; color: ${labelColor}; letter-spacing: -0.01em;">
+                    ${primary.label}
+                  </span>
+                  <span style="font-size: 9px; color: ${accentColor}; opacity: 0.7;">•</span>
+                  <span style="font-size: 9.5px; color: ${accentColor}; font-weight: 600;">
+                    ${primary.sublabel}
+                  </span>
+                </div>
+                <p style="font-size: 10.5px; line-height: 1.35; color: ${isRed ? '#7F1D1D' : '#515154'}; margin: 1px 0 0 0;">
+                  ${primary.explanation}
+                </p>
+              </div>
+            </div>
+            <button id="ts-pill-clean-btn" class="ts-pill-action-chip ts-pill-btn-primary" style="margin-left: 4px;">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+              ${actionLabel}
+            </button>
+          </div>
+        `;
+
+        const cleanBtn = pill.querySelector('#ts-pill-clean-btn') as HTMLButtonElement | null;
+        if (cleanBtn) {
+          cleanBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.stripSensitiveData(primary.stripType, primary.vaultValue);
+          });
+        }
+      } else {
+        // Багатопунктовий стек (Protection Deck In-Place)
+        const rowsHtml = detailsList
+          .map((item, idx) => {
+            const itemAccent = (item.stripType === 'VAULT' || item.stripType === 'CVV' || item.stripType === 'OTP' || item.stripType === 'SABOTAGE')
+              ? '#DC2626'
+              : (item.isCivic ? '#0284C7' : '#0071E3');
+            const isLast = idx === detailsList.length - 1;
+            const escapedVault = item.vaultValue ? encodeURIComponent(item.vaultValue) : '';
+
+            return `
+              <div class="ts-deck-row" data-item-id="${item.id}" style="
+                padding: ${idx === 0 ? '0 0 8px 0' : '8px 0'};
+                ${isLast ? '' : 'border-bottom: 1px solid rgba(0, 0, 0, 0.05);'}
+              ">
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                  <div style="display: flex; align-items: center; gap: 6px; min-width: 0; flex: 1;">
+                    <span style="color: ${itemAccent}; display: flex; align-items: center; flex-shrink: 0;">
+                      ${item.iconSvg}
+                    </span>
+                    <div style="min-width: 0; flex: 1;">
+                      <div style="font-size: 11px; font-weight: 600; color: #1D1D1F; line-height: 1.2; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">
+                        ${item.label}
+                      </div>
+                      <div style="font-size: 9.5px; color: #86868B;">${item.sublabel}</div>
+                    </div>
+                  </div>
+                  <button class="ts-pill-clean-single-btn ts-pill-btn-secondary" data-item-index="${idx}" data-strip-type="${item.stripType}" ${item.vaultValue ? `data-vault-value="${escapedVault}"` : ''}>
+                    Видалити
+                  </button>
+                </div>
+                <p style="font-size: 10px; line-height: 1.35; color: #515154; margin: 3px 0 0 18px;">
+                  ${item.explanation}
+                </p>
+              </div>
+            `;
+          })
+          .join('');
+
+        pill.innerHTML = `
+          <div style="width: 100%;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid rgba(0, 0, 0, 0.07);">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span style="font-size: 11.5px; font-weight: 700; color: #1D1D1F; letter-spacing: -0.01em;">
+                  Виявлені маркери
+                </span>
+                <span class="ts-pill-counter">${count}</span>
+              </div>
+              <button id="ts-pill-clean-all-btn" class="ts-pill-action-chip ts-pill-btn-primary">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                Очистити всі
+              </button>
+            </div>
+            <div class="ts-deck-body" style="max-height: 220px; overflow-y: auto; overflow-x: hidden; box-sizing: border-box;">
+              ${rowsHtml}
+            </div>
+          </div>
+        `;
+
+        const cleanAllBtn = pill.querySelector('#ts-pill-clean-all-btn') as HTMLButtonElement | null;
+        if (cleanAllBtn) {
+          cleanAllBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.stripAllSensitiveData();
+          });
+        }
+
+        pill.querySelectorAll('.ts-pill-clean-single-btn').forEach((btn) => {
+          const b = btn as HTMLButtonElement;
+          b.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const idxStr = b.dataset.itemIndex;
+            const idx = idxStr !== undefined ? parseInt(idxStr, 10) : -1;
+            const item = detailsList[idx];
+            if (item) {
+              this.stripSensitiveData(item.stripType, item.vaultValue);
+            } else {
+              const stripType = b.dataset.stripType as any;
+              const rawVault = b.dataset.vaultValue;
+              const vaultValue = rawVault ? decodeURIComponent(rawVault) : undefined;
+              this.stripSensitiveData(stripType, vaultValue);
+            }
+          });
+        });
+      }
+    }
   }
 
   /**
@@ -663,7 +635,7 @@ export class ChatLivePill {
     const style = document.createElement('style');
     style.id = 'ts-chat-live-pill-styles';
     style.textContent = `
-      @keyframes tsPillFadeIn {
+      @keyframes tsChatPillFadeIn {
         0% {
           opacity: 0;
           transform: translateY(4px) scale(0.97);
@@ -696,28 +668,54 @@ export class ChatLivePill {
         user-select: none !important;
         white-space: nowrap !important;
         box-sizing: border-box !important;
-        animation: tsPillFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
-        transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease !important;
+        animation: tsChatPillFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+        transition: padding 0.24s cubic-bezier(0.16, 1, 0.3, 1),
+                    border-radius 0.24s cubic-bezier(0.16, 1, 0.3, 1),
+                    max-width 0.24s cubic-bezier(0.16, 1, 0.3, 1),
+                    background-color 0.24s cubic-bezier(0.16, 1, 0.3, 1),
+                    border-color 0.24s cubic-bezier(0.16, 1, 0.3, 1),
+                    box-shadow 0.24s cubic-bezier(0.16, 1, 0.3, 1) !important;
       }
 
       .ts-chat-live-pill:hover {
-        transform: translateY(-1px) scale(1.02) !important;
-        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12) !important;
         border-color: rgba(0, 113, 227, 0.45) !important;
+        box-shadow: 0 6px 18px rgba(0, 0, 113, 0.12) !important;
       }
 
+      /* Crimson Red State (Vault Secrets, CVV, OTP, Sabotage) */
+      .ts-chat-live-pill.ts-pill-red {
+        background: rgba(254, 242, 242, 0.96) !important;
+        border-color: rgba(220, 38, 38, 0.38) !important;
+        color: #DC2626 !important;
+        box-shadow: 0 4px 14px rgba(220, 38, 38, 0.12), 0 1px 3px rgba(220, 38, 38, 0.06) !important;
+      }
+
+      .ts-chat-live-pill.ts-pill-red:hover {
+        border-color: rgba(220, 38, 38, 0.55) !important;
+        box-shadow: 0 6px 20px rgba(220, 38, 38, 0.18) !important;
+      }
+
+      /* Civic State (GPS Coordinates, National Resistance) */
       .ts-chat-live-pill.ts-civic {
-        border-color: rgba(2, 132, 199, 0.32) !important;
+        background: rgba(240, 249, 255, 0.96) !important;
+        border-color: rgba(2, 132, 199, 0.35) !important;
         color: #0369A1 !important;
+        box-shadow: 0 4px 14px rgba(2, 132, 199, 0.12), 0 1px 3px rgba(2, 132, 199, 0.06) !important;
       }
 
+      .ts-chat-live-pill.ts-civic:hover {
+        border-color: rgba(2, 132, 199, 0.55) !important;
+        box-shadow: 0 6px 20px rgba(2, 132, 199, 0.18) !important;
+      }
+
+      /* Stack Indicators */
       .ts-pill-counter {
         display: inline-flex !important;
         align-items: center !important;
         justify-content: center !important;
         font-size: 10px !important;
         font-weight: 700 !important;
-        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif !important;
+        font-family: inherit !important;
         background: rgba(0, 113, 227, 0.10) !important;
         color: #0071E3 !important;
         border: 1px solid rgba(0, 113, 227, 0.22) !important;
@@ -728,26 +726,32 @@ export class ChatLivePill {
         letter-spacing: -0.01em !important;
       }
 
+      .ts-chat-live-pill.ts-pill-red .ts-pill-counter {
+        background: rgba(220, 38, 38, 0.12) !important;
+        color: #DC2626 !important;
+        border-color: rgba(220, 38, 38, 0.28) !important;
+      }
+
       .ts-chat-live-pill.ts-civic .ts-pill-counter {
         background: rgba(2, 132, 199, 0.12) !important;
         color: #0284C7 !important;
         border-color: rgba(2, 132, 199, 0.25) !important;
       }
 
-      /* Popover Card Styles */
-      .ts-chat-live-popover {
-        position: absolute !important;
-        z-index: 2147483647 !important;
-        background: rgba(255, 255, 255, 0.98) !important;
-        backdrop-filter: blur(24px) saturate(180%) !important;
-        -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-        border: 1px solid rgba(0, 0, 0, 0.08) !important;
+      /* Expanded Banner State (In-Place Fluid Surface) */
+      .ts-chat-live-pill.ts-expanded {
+        padding: 9px 14px !important;
         border-radius: 14px !important;
-        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.14), 0 2px 8px rgba(0, 0, 0, 0.04) !important;
-        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif !important;
-        box-sizing: border-box !important;
+        white-space: normal !important;
+        max-width: 440px !important;
+        min-width: 280px !important;
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+        cursor: default !important;
         overflow-x: hidden !important;
-        animation: tsPillFadeIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+      }
+
+      .ts-chat-live-popover {
+        overflow-x: hidden !important;
       }
 
       /* Deck Scroll Container */
@@ -773,72 +777,101 @@ export class ChatLivePill {
         border-radius: 9999px !important;
       }
 
-      /* Primary Dark Action Buttons (Clean & Clean-All) */
+      /* Action Chips (Minimalist, Apple-style) */
+      .ts-pill-action-chip,
       .ts-pill-btn-primary {
+        all: unset !important;
         appearance: none !important;
         -webkit-appearance: none !important;
-        background-color: #1D1D1F !important;
-        color: #FFFFFF !important;
-        border: 1px solid rgba(0, 0, 0, 0.15) !important;
-        border-radius: 7px !important;
         cursor: pointer !important;
-        display: inline-flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        gap: 5px !important;
         font-family: inherit !important;
-        font-weight: 600 !important;
-        letter-spacing: -0.01em !important;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12) !important;
-        transition: background-color 0.15s ease, box-shadow 0.15s ease !important;
-        box-sizing: border-box !important;
-        flex-shrink: 0 !important;
-      }
-
-      .ts-pill-btn-primary:hover {
-        background-color: #000000 !important;
-        color: #FFFFFF !important;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.22) !important;
-      }
-
-      .ts-pill-btn-primary:active {
-        background-color: #2C2C2E !important;
-        color: #FFFFFF !important;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.10) !important;
-      }
-
-      /* Secondary Item Action Buttons (Delete specific item) */
-      .ts-pill-btn-secondary {
-        appearance: none !important;
-        -webkit-appearance: none !important;
-        background-color: rgba(0, 0, 0, 0.05) !important;
-        color: #1D1D1F !important;
-        border: 1px solid rgba(0, 0, 0, 0.08) !important;
-        border-radius: 6px !important;
         font-size: 10.5px !important;
         font-weight: 600 !important;
-        cursor: pointer !important;
-        padding: 3px 8px !important;
-        white-space: nowrap !important;
+        letter-spacing: -0.01em !important;
+        padding: 3px 10px !important;
+        border-radius: 9999px !important;
         display: inline-flex !important;
         align-items: center !important;
         justify-content: center !important;
-        font-family: inherit !important;
-        flex-shrink: 0 !important;
-        transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease !important;
+        gap: 4px !important;
         box-sizing: border-box !important;
+        flex-shrink: 0 !important;
+        white-space: nowrap !important;
+        background: rgba(0, 113, 227, 0.09) !important;
+        color: #0071E3 !important;
+        border: 1px solid rgba(0, 113, 227, 0.25) !important;
+        transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease !important;
       }
 
-      .ts-pill-btn-secondary:hover {
-        background-color: rgba(239, 68, 68, 0.12) !important;
+      .ts-pill-action-chip:hover,
+      .ts-pill-btn-primary:hover {
+        background: #0071E3 !important;
+        color: #FFFFFF !important;
+        border-color: #0071E3 !important;
+        box-shadow: 0 2px 8px rgba(0, 113, 227, 0.25) !important;
+      }
+
+      .ts-pill-red .ts-pill-action-chip,
+      .ts-pill-red .ts-pill-btn-primary {
+        background: rgba(220, 38, 38, 0.10) !important;
         color: #DC2626 !important;
-        border-color: rgba(239, 68, 68, 0.30) !important;
-        box-shadow: 0 1px 4px rgba(220, 38, 38, 0.12) !important;
+        border: 1px solid rgba(220, 38, 38, 0.28) !important;
       }
 
-      .ts-pill-btn-secondary:active {
-        background-color: rgba(239, 68, 68, 0.22) !important;
-        color: #B91C1C !important;
+      .ts-pill-red .ts-pill-action-chip:hover,
+      .ts-pill-red .ts-pill-btn-primary:hover {
+        background: #DC2626 !important;
+        color: #FFFFFF !important;
+        border-color: #DC2626 !important;
+        box-shadow: 0 2px 8px rgba(220, 38, 38, 0.28) !important;
+      }
+
+      .ts-civic .ts-pill-action-chip,
+      .ts-civic .ts-pill-btn-primary {
+        background: rgba(2, 132, 199, 0.10) !important;
+        color: #0284C7 !important;
+        border: 1px solid rgba(2, 132, 199, 0.28) !important;
+      }
+
+      .ts-civic .ts-pill-action-chip:hover,
+      .ts-civic .ts-pill-btn-primary:hover {
+        background: #0284C7 !important;
+        color: #FFFFFF !important;
+        border-color: #0284C7 !important;
+        box-shadow: 0 2px 8px rgba(2, 132, 199, 0.28) !important;
+      }
+
+      /* Secondary Item Action Button (In Deck Rows) */
+      .ts-pill-clean-single-btn,
+      .ts-pill-btn-secondary {
+        all: unset !important;
+        appearance: none !important;
+        -webkit-appearance: none !important;
+        cursor: pointer !important;
+        font-family: inherit !important;
+        font-size: 10px !important;
+        font-weight: 600 !important;
+        letter-spacing: -0.01em !important;
+        padding: 2.5px 8px !important;
+        border-radius: 9999px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        box-sizing: border-box !important;
+        flex-shrink: 0 !important;
+        white-space: nowrap !important;
+        background: rgba(0, 0, 0, 0.04) !important;
+        color: #1D1D1F !important;
+        border: 1px solid rgba(0, 0, 0, 0.08) !important;
+        transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease !important;
+      }
+
+      .ts-pill-clean-single-btn:hover,
+      .ts-pill-btn-secondary:hover {
+        background: rgba(220, 38, 38, 0.12) !important;
+        color: #DC2626 !important;
+        border-color: rgba(220, 38, 38, 0.30) !important;
+        box-shadow: 0 1px 4px rgba(220, 38, 38, 0.12) !important;
       }
     `;
     root.appendChild(style);
