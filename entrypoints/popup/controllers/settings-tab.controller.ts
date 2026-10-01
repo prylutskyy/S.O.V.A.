@@ -16,22 +16,28 @@ export class SettingsTabController {
   private showToast: (msg: string) => void;
   private onWhitelistChanged: () => void;
 
-  // Cloud AI Controls
+  // Cloud AI Controls (Groq Dedicated)
   private toggleCloudAi: HTMLInputElement | null;
   private cloudAiProviderSelect: HTMLSelectElement | null;
-  private providerSegmentBtns: NodeListOf<HTMLButtonElement>;
-  private cloudAiModelSelect: HTMLSelectElement | null;
+  private cloudAiKeySavedPill: HTMLElement | null;
+  private cloudAiKeyHint: HTMLElement | null;
+  private btnToggleChangeKey: HTMLButtonElement | null;
+  private btnDeleteCloudAiKey: HTMLButtonElement | null;
+  private cloudAiKeyInputWrapper: HTMLElement | null;
+  private cloudAiKeyNotSet: HTMLElement | null;
   private cloudAiKeyInput: HTMLInputElement | null;
   private btnSaveCloudAiKey: HTMLButtonElement | null;
   private btnSaveCloudAiKeyText: HTMLElement | null;
-  private btnTestCloudAiKey: HTMLButtonElement | null;
-  private btnDeleteCloudAiKey: HTMLButtonElement | null;
+  private cloudAiModelContainer: HTMLElement | null;
+  private modelsEmptyState: HTMLElement | null;
+  private btnFetchModelsPrimary: HTMLButtonElement | null;
+  private modelsLoadedState: HTMLElement | null;
   private btnRefreshModels: HTMLButtonElement | null;
+  private cloudAiModelSelect: HTMLSelectElement | null;
   private customModelInputWrapper: HTMLElement | null;
   private cloudAiCustomModelInput: HTMLInputElement | null;
-  private cloudAiKeyHint: HTMLElement | null;
-  private cloudAiKeySavedPill: HTMLElement | null;
-  private cloudAiKeyNotSet: HTMLElement | null;
+  private cloudAiTestRow: HTMLElement | null;
+  private btnTestCloudAiKey: HTMLButtonElement | null;
   private cloudAiStatusFeedback: HTMLElement | null;
   private cachedDynamicModels: Record<string, Array<{ id: string; label: string }>> = {};
 
@@ -52,19 +58,25 @@ export class SettingsTabController {
 
     this.toggleCloudAi = document.getElementById('toggleCloudAi') as HTMLInputElement | null;
     this.cloudAiProviderSelect = document.getElementById('cloudAiProviderSelect') as HTMLSelectElement | null;
-    this.providerSegmentBtns = document.querySelectorAll<HTMLButtonElement>('.provider-segment-btn');
-    this.cloudAiModelSelect = document.getElementById('cloudAiModelSelect') as HTMLSelectElement | null;
-    this.btnRefreshModels = document.getElementById('btnRefreshModels') as HTMLButtonElement | null;
-    this.customModelInputWrapper = document.getElementById('customModelInputWrapper') as HTMLElement | null;
-    this.cloudAiCustomModelInput = document.getElementById('cloudAiCustomModelInput') as HTMLInputElement | null;
+    this.cloudAiKeySavedPill = document.getElementById('cloudAiKeySavedPill') as HTMLElement | null;
+    this.cloudAiKeyHint = document.getElementById('cloudAiKeyHint') as HTMLElement | null;
+    this.btnToggleChangeKey = document.getElementById('btnToggleChangeKey') as HTMLButtonElement | null;
+    this.btnDeleteCloudAiKey = document.getElementById('btnDeleteCloudAiKey') as HTMLButtonElement | null;
+    this.cloudAiKeyInputWrapper = document.getElementById('cloudAiKeyInputWrapper') as HTMLElement | null;
+    this.cloudAiKeyNotSet = document.getElementById('cloudAiKeyNotSet') as HTMLElement | null;
     this.cloudAiKeyInput = document.getElementById('cloudAiKeyInput') as HTMLInputElement | null;
     this.btnSaveCloudAiKey = document.getElementById('btnSaveCloudAiKey') as HTMLButtonElement | null;
     this.btnSaveCloudAiKeyText = document.getElementById('btnSaveCloudAiKeyText');
+    this.cloudAiModelContainer = document.getElementById('cloudAiModelContainer') as HTMLElement | null;
+    this.modelsEmptyState = document.getElementById('modelsEmptyState') as HTMLElement | null;
+    this.btnFetchModelsPrimary = document.getElementById('btnFetchModelsPrimary') as HTMLButtonElement | null;
+    this.modelsLoadedState = document.getElementById('modelsLoadedState') as HTMLElement | null;
+    this.btnRefreshModels = document.getElementById('btnRefreshModels') as HTMLButtonElement | null;
+    this.cloudAiModelSelect = document.getElementById('cloudAiModelSelect') as HTMLSelectElement | null;
+    this.customModelInputWrapper = document.getElementById('customModelInputWrapper') as HTMLElement | null;
+    this.cloudAiCustomModelInput = document.getElementById('cloudAiCustomModelInput') as HTMLInputElement | null;
+    this.cloudAiTestRow = document.getElementById('cloudAiTestRow') as HTMLElement | null;
     this.btnTestCloudAiKey = document.getElementById('btnTestCloudAiKey') as HTMLButtonElement | null;
-    this.btnDeleteCloudAiKey = document.getElementById('btnDeleteCloudAiKey') as HTMLButtonElement | null;
-    this.cloudAiKeyHint = document.getElementById('cloudAiKeyHint') as HTMLElement | null;
-    this.cloudAiKeySavedPill = document.getElementById('cloudAiKeySavedPill') as HTMLElement | null;
-    this.cloudAiKeyNotSet = document.getElementById('cloudAiKeyNotSet') as HTMLElement | null;
     this.cloudAiStatusFeedback = document.getElementById('cloudAiStatusFeedback') as HTMLElement | null;
 
     this.initDebugMode();
@@ -172,123 +184,79 @@ export class SettingsTabController {
     }
 
     if (this.cloudAiProviderSelect) {
-      this.cloudAiProviderSelect.value = config.provider;
+      this.cloudAiProviderSelect.value = 'groq';
     }
-    this.setActiveSegment(config.provider);
 
-    this.populateModelsForProvider(config.provider, config.model);
-    await this.updateKeyHint();
-  }
-
-  private setActiveSegment(provider: LLMProviderType): void {
-    this.providerSegmentBtns.forEach((btn) => {
-      const isMatch = btn.dataset.provider === provider;
-      btn.classList.toggle('active', isMatch);
-      btn.setAttribute('aria-checked', isMatch ? 'true' : 'false');
-    });
-  }
-
-  private getDefaultModelPlaceholder(provider: LLMProviderType): string {
-    switch (provider) {
-      case 'gemini':
-        return 'gemini-2.5-flash';
-      case 'groq':
-        return 'llama-3.3-70b-versatile';
-      case 'openai':
-        return 'gpt-4o-mini';
-      case 'openrouter':
-        return 'google/gemini-2.0-flash-exp:free';
-      default:
-        return 'default';
-    }
-  }
-
-  private async handleProviderChange(provider: LLMProviderType): Promise<void> {
-    const config = await SecureKeyStore.getConfig();
-    const currentModel = config.provider === provider && config.model ? config.model : this.getDefaultModelPlaceholder(provider);
-    this.populateModelsForProvider(provider, currentModel);
-
-    await SecureKeyStore.saveConfig({ provider, model: currentModel });
-    await this.updateKeyHint();
-    if (this.cloudAiKeyInput) this.cloudAiKeyInput.value = '';
-    if (this.cloudAiStatusFeedback) this.cloudAiStatusFeedback.style.display = 'none';
-    this.showToast(`Провайдер: ${provider.toUpperCase()}`);
-  }
-
-  private setSaveButtonState(state: 'idle' | 'loading' | 'success'): void {
-    if (!this.btnSaveCloudAiKey) return;
-    if (state === 'loading') {
-      this.btnSaveCloudAiKey.disabled = true;
-      if (this.btnSaveCloudAiKeyText) {
-        this.btnSaveCloudAiKeyText.textContent = 'Підключення...';
-      }
-    } else if (state === 'success') {
-      this.btnSaveCloudAiKey.disabled = false;
-      if (this.btnSaveCloudAiKeyText) {
-        this.btnSaveCloudAiKeyText.textContent = 'Збережено та підключено';
-      }
-      setTimeout(() => {
-        if (this.btnSaveCloudAiKeyText) {
-          this.btnSaveCloudAiKeyText.textContent = 'Зберегти та підключити';
+    // Завантажуємо кешовані моделі для Groq з локального сховища
+    if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+      chrome.storage.local.get(['groq_cached_models'], async (res) => {
+        if (Array.isArray(res.groq_cached_models) && res.groq_cached_models.length > 0) {
+          this.cachedDynamicModels['groq'] = res.groq_cached_models;
         }
-      }, 3000);
+        await this.renderCloudAiState();
+      });
     } else {
-      this.btnSaveCloudAiKey.disabled = false;
-      if (this.btnSaveCloudAiKeyText) {
-        this.btnSaveCloudAiKeyText.textContent = 'Зберегти та підключити';
+      await this.renderCloudAiState();
+    }
+  }
+
+  private async renderCloudAiState(): Promise<void> {
+    const key = await SecureKeyStore.getApiKey('groq');
+    const hint = await SecureKeyStore.getKeyHint('groq');
+    const config = await SecureKeyStore.getConfig();
+
+    if (key) {
+      // 1. Стан: Ключ налаштовано
+      if (this.cloudAiKeySavedPill) this.cloudAiKeySavedPill.style.display = 'flex';
+      if (this.cloudAiKeyHint) this.cloudAiKeyHint.textContent = hint || 'gsk_••••••••';
+      if (this.cloudAiKeyInputWrapper) this.cloudAiKeyInputWrapper.style.display = 'none';
+      if (this.cloudAiKeyNotSet) this.cloudAiKeyNotSet.style.display = 'none';
+
+      // Показуємо блок моделей
+      if (this.cloudAiModelContainer) this.cloudAiModelContainer.style.display = 'block';
+
+      const dynamicModels = this.cachedDynamicModels['groq'];
+      if (dynamicModels && dynamicModels.length > 0) {
+        // Моделі завантажено з API: показуємо випадаючий список
+        if (this.modelsEmptyState) this.modelsEmptyState.style.display = 'none';
+        if (this.modelsLoadedState) this.modelsLoadedState.style.display = 'flex';
+        this.populateModelsSelect(dynamicModels, config.model);
+        if (this.cloudAiTestRow) this.cloudAiTestRow.style.display = 'flex';
+      } else {
+        // Моделі ще не завантажено: показуємо головну кнопку завантаження з API
+        if (this.modelsEmptyState) this.modelsEmptyState.style.display = 'block';
+        if (this.modelsLoadedState) this.modelsLoadedState.style.display = 'none';
+        if (this.cloudAiTestRow) this.cloudAiTestRow.style.display = 'none';
       }
+    } else {
+      // 2. Стан: Ключ ще не введено (початковий мінімалістичний стан)
+      if (this.cloudAiKeySavedPill) this.cloudAiKeySavedPill.style.display = 'none';
+      if (this.cloudAiKeyInputWrapper) this.cloudAiKeyInputWrapper.style.display = 'flex';
+      if (this.cloudAiKeyNotSet) this.cloudAiKeyNotSet.style.display = 'inline-flex';
+      if (this.cloudAiModelContainer) this.cloudAiModelContainer.style.display = 'none';
+      if (this.cloudAiTestRow) this.cloudAiTestRow.style.display = 'none';
+      if (this.cloudAiKeyInput) this.cloudAiKeyInput.value = '';
     }
   }
 
-  private getSelectedModel(): string {
-    const selectVal = this.cloudAiModelSelect?.value;
-    if (this.cloudAiModelSelect && this.cloudAiModelSelect.style.display !== 'none' && selectVal && selectVal !== '__custom__') {
-      return selectVal;
-    }
-
-    const customVal = this.cloudAiCustomModelInput?.value?.trim();
-    if (customVal) return customVal;
-
-    const provider = (this.cloudAiProviderSelect?.value as LLMProviderType) || 'gemini';
-    return this.getDefaultModelPlaceholder(provider);
-  }
-
-  private populateModelsForProvider(provider: LLMProviderType, selectedModel?: string): void {
+  private populateModelsSelect(models: Array<{ id: string; label: string }>, selectedModel?: string): void {
     if (!this.cloudAiModelSelect) return;
     this.cloudAiModelSelect.innerHTML = '';
 
-    const dynamicModels = this.cachedDynamicModels[provider];
-
-    if (!dynamicModels || dynamicModels.length === 0) {
-      // Жодних заготовлених моделей: показуємо текстове поле для ручного введення власної моделі
-      this.cloudAiModelSelect.style.display = 'none';
-      if (this.customModelInputWrapper) {
-        this.customModelInputWrapper.style.display = 'block';
-        this.customModelInputWrapper.style.marginTop = '0';
-      }
-      if (this.cloudAiCustomModelInput) {
-        this.cloudAiCustomModelInput.placeholder = `Введіть назву моделі (напр., ${this.getDefaultModelPlaceholder(provider)})...`;
-        this.cloudAiCustomModelInput.value = selectedModel || '';
-      }
-      return;
-    }
-
-    // Якщо моделі отримано через API — відображаємо випадаючий список актуальних моделей
-    this.cloudAiModelSelect.style.display = 'block';
     let matchFound = false;
+    const targetModel = selectedModel || 'llama-3.3-70b-versatile';
 
-    dynamicModels.forEach((opt) => {
-      const optEl = document.createElement('option');
-      optEl.value = opt.id;
-      optEl.textContent = opt.label;
-      if (selectedModel && opt.id === selectedModel) {
-        optEl.selected = true;
+    models.forEach((m) => {
+      const opt = document.createElement('option');
+      opt.value = m.id;
+      opt.textContent = m.label;
+      if (m.id === targetModel) {
+        opt.selected = true;
         matchFound = true;
       }
-      this.cloudAiModelSelect!.appendChild(optEl);
+      this.cloudAiModelSelect!.appendChild(opt);
     });
 
-    // Можливість вказати іншу модель вручну
     const customOpt = document.createElement('option');
     customOpt.value = '__custom__';
     customOpt.textContent = 'Вказати іншу модель вручну...';
@@ -298,68 +266,100 @@ export class SettingsTabController {
       customOpt.selected = true;
       if (this.customModelInputWrapper) {
         this.customModelInputWrapper.style.display = 'block';
-        this.customModelInputWrapper.style.marginTop = '6px';
       }
       if (this.cloudAiCustomModelInput) this.cloudAiCustomModelInput.value = selectedModel;
     } else {
       if (this.customModelInputWrapper) this.customModelInputWrapper.style.display = 'none';
-      if (this.cloudAiCustomModelInput && !matchFound) this.cloudAiCustomModelInput.value = '';
     }
   }
 
-  private async refreshModelsFromApi(): Promise<void> {
-    const provider = (this.cloudAiProviderSelect?.value as LLMProviderType) || 'gemini';
-    const apiKey = (this.cloudAiKeyInput?.value?.trim()) || (await SecureKeyStore.getApiKey(provider));
+  private setSaveButtonState(state: 'idle' | 'loading' | 'success'): void {
+    if (!this.btnSaveCloudAiKey) return;
+    if (state === 'loading') {
+      this.btnSaveCloudAiKey.disabled = true;
+      if (this.btnSaveCloudAiKeyText) {
+        this.btnSaveCloudAiKeyText.textContent = 'Підключення до Groq API...';
+      }
+    } else if (state === 'success') {
+      this.btnSaveCloudAiKey.disabled = false;
+      if (this.btnSaveCloudAiKeyText) {
+        this.btnSaveCloudAiKeyText.textContent = 'Groq успішно підключено';
+      }
+      setTimeout(() => {
+        if (this.btnSaveCloudAiKeyText) {
+          this.btnSaveCloudAiKeyText.textContent = 'Підключити Groq та отримати моделі';
+        }
+      }, 3000);
+    } else {
+      this.btnSaveCloudAiKey.disabled = false;
+      if (this.btnSaveCloudAiKeyText) {
+        this.btnSaveCloudAiKeyText.textContent = 'Підключити Groq та отримати моделі';
+      }
+    }
+  }
+
+  private async refreshModelsFromApi(keyOverride?: string): Promise<boolean> {
+    const apiKey = keyOverride || this.cloudAiKeyInput?.value?.trim() || (await SecureKeyStore.getApiKey('groq'));
 
     if (!apiKey) {
-      this.showFeedback('Введіть або збережіть API ключ перед оновленням каталогу моделей', false);
-      return;
+      this.showFeedback('Введіть або збережіть Groq API ключ для завантаження каталогу', false);
+      return false;
     }
 
     if (this.btnRefreshModels) {
       this.btnRefreshModels.disabled = true;
       this.btnRefreshModels.classList.add('is-loading');
     }
-    this.showFeedback(`Запит актуальних моделей через ${provider.toUpperCase()} API...`, true);
+    if (this.btnFetchModelsPrimary) {
+      this.btnFetchModelsPrimary.disabled = true;
+      const span = this.btnFetchModelsPrimary.querySelector('span');
+      if (span) span.textContent = 'Завантаження з Groq API...';
+    }
+    this.showFeedback('Запит доступних моделей через Groq API...', true);
 
     try {
       const resp = await chrome.runtime.sendMessage({
         type: 'FETCH_CLOUD_MODELS',
-        payload: { provider, apiKey },
+        payload: { provider: 'groq', apiKey },
       });
 
       if (resp && resp.success && Array.isArray(resp.models) && resp.models.length > 0) {
-        this.cachedDynamicModels[provider] = resp.models;
-        const currentModel = this.getSelectedModel();
-        this.populateModelsForProvider(provider, currentModel);
-        this.showFeedback(`Отримано ${resp.models.length} актуальних моделей від ${provider.toUpperCase()}`, true);
-        this.showToast(`Оновлено каталог: ${resp.models.length} моделей`);
+        this.cachedDynamicModels['groq'] = resp.models;
+
+        if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+          chrome.storage.local.set({ groq_cached_models: resp.models });
+        }
+
+        const config = await SecureKeyStore.getConfig();
+        let chosenModel = config.model;
+        const hasCurrentModel = resp.models.some((m: any) => m.id === chosenModel);
+        if (!hasCurrentModel) {
+          const defaultLlama = resp.models.find((m: any) => m.id.includes('llama-3.3-70b')) || resp.models[0];
+          chosenModel = defaultLlama.id;
+          await SecureKeyStore.saveConfig({ provider: 'groq', model: chosenModel });
+        }
+
+        await this.renderCloudAiState();
+        this.showFeedback(`Отримано ${resp.models.length} актуальних моделей Groq`, true);
+        this.showToast(`Каталог Groq оновлено: ${resp.models.length} моделей`);
+        return true;
       } else {
-        this.showFeedback(`Помилка оновлення каталогу: ${resp?.error || 'Не вдалося отримати список'}`, false);
+        this.showFeedback(`Помилка Groq API: ${resp?.error || 'Не вдалося отримати список моделей'}`, false);
+        return false;
       }
     } catch (err: any) {
       this.showFeedback(`Помилка запиту моделей: ${err?.message || err}`, false);
+      return false;
     } finally {
       if (this.btnRefreshModels) {
         this.btnRefreshModels.disabled = false;
         this.btnRefreshModels.classList.remove('is-loading');
       }
-    }
-  }
-
-  private async updateKeyHint(): Promise<void> {
-    if (!this.cloudAiProviderSelect) return;
-    const provider = this.cloudAiProviderSelect.value as LLMProviderType;
-    const hint = await SecureKeyStore.getKeyHint(provider);
-    if (hint) {
-      if (this.cloudAiKeyHint) this.cloudAiKeyHint.textContent = hint;
-      if (this.cloudAiKeySavedPill) this.cloudAiKeySavedPill.style.display = 'inline-flex';
-      if (this.cloudAiKeyNotSet) this.cloudAiKeyNotSet.style.display = 'none';
-      if (this.cloudAiKeyInput) this.cloudAiKeyInput.placeholder = 'Введіть новий ключ для заміни...';
-    } else {
-      if (this.cloudAiKeySavedPill) this.cloudAiKeySavedPill.style.display = 'none';
-      if (this.cloudAiKeyNotSet) this.cloudAiKeyNotSet.style.display = 'inline-flex';
-      if (this.cloudAiKeyInput) this.cloudAiKeyInput.placeholder = 'Вставте API ключ...';
+      if (this.btnFetchModelsPrimary) {
+        this.btnFetchModelsPrimary.disabled = false;
+        const span = this.btnFetchModelsPrimary.querySelector('span');
+        if (span) span.textContent = 'Отримати список моделей з API';
+      }
     }
   }
 
@@ -373,29 +373,29 @@ export class SettingsTabController {
   }
 
   private async testConnection(keyOverride?: string): Promise<boolean> {
-    const provider = (this.cloudAiProviderSelect?.value as LLMProviderType) || 'gemini';
-    const model = this.getSelectedModel();
-    const apiKey = keyOverride || (this.cloudAiKeyInput?.value?.trim()) || (await SecureKeyStore.getApiKey(provider));
+    const config = await SecureKeyStore.getConfig();
+    const model = config.model || 'llama-3.3-70b-versatile';
+    const apiKey = keyOverride || (this.cloudAiKeyInput?.value?.trim()) || (await SecureKeyStore.getApiKey('groq'));
 
     if (!apiKey) {
-      this.showFeedback('Введіть або збережіть API ключ перед перевіркою', false);
+      this.showFeedback('Спочатку збережіть або введіть Groq API ключ', false);
       return false;
     }
 
-    this.showFeedback(`Перевірка захищеного каналу ${provider.toUpperCase()}...`, true);
+    this.showFeedback('Перевірка зв\'язку з Groq API...', true);
     if (this.btnTestCloudAiKey) this.btnTestCloudAiKey.disabled = true;
 
     try {
       const resp = await chrome.runtime.sendMessage({
         type: 'TEST_CLOUD_AI',
-        payload: { provider, apiKey, model },
+        payload: { provider: 'groq', apiKey, model },
       });
 
       if (resp && resp.success) {
-        this.showFeedback(`Зв'язок встановлено успішно · ${resp.modelUsed || model} (${resp.latencyMs || 0} мс)`, true);
+        this.showFeedback(`Зв'язок з Groq встановлено успішно · ${resp.modelUsed || model} (${resp.latencyMs || 0} мс)`, true);
         return true;
       } else {
-        this.showFeedback(`Помилка API: ${resp?.error || 'Невідома помилка підключення'}`, false);
+        this.showFeedback(`Помилка Groq: ${resp?.error || 'Не вдалося встановити зв\'язок'}`, false);
         return false;
       }
     } catch (err: any) {
@@ -420,56 +420,51 @@ export class SettingsTabController {
       }
     });
 
-    // Refresh Models from Provider API
+    // Cloud AI Switch
+    this.toggleCloudAi?.addEventListener('change', async (e) => {
+      const isEnabled = (e.target as HTMLInputElement).checked;
+      await SecureKeyStore.saveConfig({ enabled: isEnabled, provider: 'groq' });
+      this.showToast(isEnabled ? 'Хмарний арбітраж Groq активовано' : 'Хмарний арбітраж вимкнено');
+    });
+
+    // Refresh Models from Provider API (subtle header button)
     this.btnRefreshModels?.addEventListener('click', async () => {
       await this.refreshModelsFromApi();
     });
 
-    // Cloud AI Switch
-    this.toggleCloudAi?.addEventListener('change', async (e) => {
-      const isEnabled = (e.target as HTMLInputElement).checked;
-      const provider = (this.cloudAiProviderSelect?.value as LLMProviderType) || 'gemini';
-      const model = this.getSelectedModel();
-
-      await SecureKeyStore.saveConfig({ enabled: isEnabled, provider, model });
-      this.showToast(isEnabled ? 'Хмарний арбітраж активовано' : 'Хмарний арбітраж вимкнено');
+    // Primary Fetch Models button (when models not yet loaded)
+    this.btnFetchModelsPrimary?.addEventListener('click', async () => {
+      await this.refreshModelsFromApi();
     });
 
-    // Provider Segmented Buttons
-    this.providerSegmentBtns.forEach((btn) => {
-      btn.addEventListener('click', async () => {
-        const provider = (btn.dataset.provider as LLMProviderType) || 'gemini';
-        this.setActiveSegment(provider);
-        if (this.cloudAiProviderSelect) {
-          this.cloudAiProviderSelect.value = provider;
-        }
-        await this.handleProviderChange(provider);
-      });
-    });
-
-    // Cloud AI Provider Change (native fallback)
-    this.cloudAiProviderSelect?.addEventListener('change', async (e) => {
-      const provider = (e.target as HTMLSelectElement).value as LLMProviderType;
-      this.setActiveSegment(provider);
-      await this.handleProviderChange(provider);
+    // Toggle Change Key Form
+    this.btnToggleChangeKey?.addEventListener('click', () => {
+      if (!this.cloudAiKeyInputWrapper) return;
+      const isHidden = this.cloudAiKeyInputWrapper.style.display === 'none' || !this.cloudAiKeyInputWrapper.style.display;
+      this.cloudAiKeyInputWrapper.style.display = isHidden ? 'flex' : 'none';
+      if (this.btnToggleChangeKey) {
+        this.btnToggleChangeKey.textContent = isHidden ? 'Скасувати' : 'Змінити';
+      }
+      if (isHidden) {
+        this.cloudAiKeyInput?.focus();
+      }
     });
 
     // Cloud AI Model Change
     this.cloudAiModelSelect?.addEventListener('change', async (e) => {
       const val = (e.target as HTMLSelectElement).value;
-      const provider = (this.cloudAiProviderSelect?.value as LLMProviderType) || 'gemini';
 
       if (val === '__custom__') {
         if (this.customModelInputWrapper) this.customModelInputWrapper.style.display = 'block';
         this.cloudAiCustomModelInput?.focus();
         const customModel = this.cloudAiCustomModelInput?.value?.trim() || '';
         if (customModel) {
-          await SecureKeyStore.saveConfig({ provider, model: customModel });
+          await SecureKeyStore.saveConfig({ provider: 'groq', model: customModel });
         }
       } else {
         if (this.customModelInputWrapper) this.customModelInputWrapper.style.display = 'none';
-        await SecureKeyStore.saveConfig({ provider, model: val });
-        this.showToast(`Обрано модель: ${val}`);
+        await SecureKeyStore.saveConfig({ provider: 'groq', model: val });
+        this.showToast(`Модель: ${val}`);
       }
     });
 
@@ -482,45 +477,34 @@ export class SettingsTabController {
         this.cloudAiModelSelect.value === '__custom__';
 
       if (customModel && isCustomActive) {
-        const provider = (this.cloudAiProviderSelect?.value as LLMProviderType) || 'gemini';
-        await SecureKeyStore.saveConfig({ provider, model: customModel });
+        await SecureKeyStore.saveConfig({ provider: 'groq', model: customModel });
       }
     };
 
     this.cloudAiCustomModelInput?.addEventListener('input', saveCustomModelIfActive);
     this.cloudAiCustomModelInput?.addEventListener('change', saveCustomModelIfActive);
 
-    // Save Cloud AI Key & Verify (Unified action)
+    // Save Groq API Key & Auto-fetch Models (Unified primary action)
     const saveKeyAction = async () => {
       const val = this.cloudAiKeyInput?.value?.trim() || '';
-      const provider = (this.cloudAiProviderSelect?.value as LLMProviderType) || 'gemini';
-      const model = this.getSelectedModel();
 
       if (!val) {
-        const existingKey = await SecureKeyStore.getApiKey(provider);
-        if (existingKey) {
-          this.setSaveButtonState('loading');
-          this.showToast(`Перевірка зв’язку з ${provider.toUpperCase()}...`);
-          const success = await this.testConnection(existingKey);
-          this.setSaveButtonState(success ? 'success' : 'idle');
-          return;
-        }
-        this.showFeedback('Введіть API ключ для збереження та підключення', false);
+        this.showFeedback('Введіть Groq API ключ для підключення', false);
         return;
       }
 
       this.setSaveButtonState('loading');
       try {
-        await SecureKeyStore.saveApiKey(provider, val, 'device_encrypted');
-        await SecureKeyStore.saveConfig({ provider, model, enabled: true });
+        await SecureKeyStore.saveApiKey('groq', val, 'device_encrypted');
+        await SecureKeyStore.saveConfig({ provider: 'groq', enabled: true });
         if (this.toggleCloudAi) this.toggleCloudAi.checked = true;
-        await this.updateKeyHint();
-        if (this.cloudAiKeyInput) this.cloudAiKeyInput.value = '';
-        this.showToast(`Ключ ${provider.toUpperCase()} збережено! Перевірка зв’язку...`);
 
-        // Автоматична верифікація з'єднання
-        const success = await this.testConnection(val);
+        if (this.cloudAiKeyInput) this.cloudAiKeyInput.value = '';
+        this.showToast('Ключ Groq збережено! Завантаження моделей...');
+
+        const success = await this.refreshModelsFromApi(val);
         this.setSaveButtonState(success ? 'success' : 'idle');
+        await this.renderCloudAiState();
       } catch (err: any) {
         this.showFeedback(`Помилка збереження ключа: ${err?.message || err}`, false);
         this.setSaveButtonState('idle');
@@ -535,17 +519,18 @@ export class SettingsTabController {
       }
     });
 
-    // Test Cloud AI Key (fallback)
+    // Test Groq Connection
     this.btnTestCloudAiKey?.addEventListener('click', () => this.testConnection());
 
-    // Delete Cloud AI Key
+    // Delete Groq Key
     this.btnDeleteCloudAiKey?.addEventListener('click', async () => {
-      const provider = (this.cloudAiProviderSelect?.value as LLMProviderType) || 'gemini';
-      if (confirm(`Видалити збережений ключ для ${provider.toUpperCase()}?`)) {
-        await SecureKeyStore.deleteApiKey(provider);
-        await this.updateKeyHint();
+      if (confirm('Видалити збережений ключ Groq?')) {
+        await SecureKeyStore.deleteApiKey('groq');
+        await SecureKeyStore.saveConfig({ enabled: false });
+        if (this.toggleCloudAi) this.toggleCloudAi.checked = false;
+        await this.renderCloudAiState();
         if (this.cloudAiStatusFeedback) this.cloudAiStatusFeedback.style.display = 'none';
-        this.showToast(`Ключ ${provider.toUpperCase()} видалено`);
+        this.showToast('Ключ Groq видалено');
       }
     });
 
