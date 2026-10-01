@@ -47,13 +47,20 @@ export class ChatLivePill {
       this.hide();
       return;
     }
+
+    const newSignature = detailsList.map((d) => d.id).join('|');
+    const oldSignature = this.currentDetailsList.map((d) => d.id).join('|');
+    const isSameSignature = newSignature === oldSignature;
+
     this.currentDetailsList = detailsList;
 
     if (!this.activePill || !this.activePill.isConnected) {
       this.activePill = this.createPillElement(detailsList);
       root.appendChild(this.activePill);
     } else {
-      this.renderPill(this.activePill, detailsList, this.isExpanded);
+      if (!isSameSignature) {
+        this.renderPill(this.activePill, detailsList, this.isExpanded);
+      }
     }
 
     this.updatePosition();
