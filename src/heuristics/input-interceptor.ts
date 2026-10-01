@@ -54,13 +54,17 @@ export class GlobalInputInterceptor {
    */
   private static checkRealtimeVaultLeakage(target: HTMLElement, text: string): void {
     if (this.isCurrentHostImmune()) return;
-    if (!text || text.trim().length < 2) return;
     if (target.dataset?.threatShieldApproved === 'true') return;
 
     const items = PersonalVaultManager.getItemsSync();
     if (!items || items.length === 0) return;
 
-    const vaultScan = VaultScanner.scanTextSync(text);
+    // Якщо тексту немає або він занадто короткий, одразу вважаємо, що збігів немає
+    let vaultScan = { matchedItems: [] as any[], triggers: [] as string[] };
+    if (text && text.trim().length >= 2) {
+      vaultScan = VaultScanner.scanTextSync(text);
+    }
+
     if (!vaultScan.matchedItems || vaultScan.matchedItems.length === 0) {
       if (target.dataset?.threatShieldHasVaultWarning === 'true') {
         if (target.style.outline && (target.style.outline.includes('rgb(220, 38, 38)') || target.style.outline.includes('rgb(217, 119, 6)') || target.style.outline.toLowerCase().includes('dc2626') || target.style.outline.toLowerCase().includes('d97706'))) {
