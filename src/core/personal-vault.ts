@@ -1,5 +1,6 @@
 import { VaultItem, VaultItemCategory, VaultSensitivityTier, VaultBlindSignature } from '../types/vault';
 import { CryptoService } from './crypto-service';
+import { FuzzyMatcher } from '../heuristics/fuzzy-matcher';
 
 export const VAULT_STORAGE_KEY = 'threat_shield_personal_vault';
 export const ENCRYPTED_VAULT_KEY = 'threat_shield_personal_vault_encrypted';
@@ -252,6 +253,21 @@ export class PersonalVaultManager {
     const stripped = lower.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, '');
     if (stripped.length >= 2) {
       candidates.add(stripped);
+    }
+
+    // ── CANONICAL & TRANSLITERATION TOKENS (ZERO-KNOWLEDGE TOLERANCE) ──
+    const canonical = FuzzyMatcher.canonicalFold(lower);
+    if (canonical && canonical.length >= 2) {
+      candidates.add(canonical);
+    }
+
+    const translits = FuzzyMatcher.transliterateCyrillic(lower);
+    for (const tr of translits) {
+      if (tr && tr.length >= 2) {
+        candidates.add(tr);
+        const canonTr = FuzzyMatcher.canonicalFold(tr);
+        if (canonTr && canonTr.length >= 2) candidates.add(canonTr);
+      }
     }
 
     const digits = trimmed.replace(/\D/g, '');
@@ -745,12 +761,30 @@ export class PersonalVaultManager {
     for (const raw of rawWhitespaceTokens) {
       if (raw.length >= 2) {
         candidates.add(raw);
+        const canonRaw = FuzzyMatcher.canonicalFold(raw);
+        if (canonRaw && canonRaw.length >= 2) candidates.add(canonRaw);
       }
       // Очищуємо ТІЛЬКИ зовнішню пунктуацію на краях (напр. "(Super!Secret2026)," -> "Super!Secret2026")
       const stripped = raw.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, '');
       if (stripped && stripped.length >= 2) {
         candidates.add(stripped);
         cleanTokens.push(stripped);
+
+        // Канонічний вигляд (гомогліфи + звуки)
+        const canon = FuzzyMatcher.canonicalFold(stripped);
+        if (canon && canon.length >= 2) candidates.add(canon);
+
+        // Транслітерація
+        const cyr = FuzzyMatcher.transliterateLatinToCyrillic(stripped);
+        if (cyr && cyr !== stripped && cyr.length >= 2) {
+          candidates.add(cyr);
+          const canonCyr = FuzzyMatcher.canonicalFold(cyr);
+          if (canonCyr && canonCyr.length >= 2) candidates.add(canonCyr);
+        }
+        const lats = FuzzyMatcher.transliterateCyrillic(stripped);
+        for (const lat of lats) {
+          if (lat && lat.length >= 2) candidates.add(lat);
+        }
       } else if (raw.length >= 1) {
         cleanTokens.push(raw);
       }
@@ -764,6 +798,8 @@ export class PersonalVaultManager {
           const ngram = cleanTokens.slice(i, i + n).join(' ');
           if (ngram.length >= 3) {
             candidates.add(ngram);
+            const canonNgram = FuzzyMatcher.canonicalFold(ngram);
+            if (canonNgram && canonNgram.length >= 3) candidates.add(canonNgram);
           }
         }
       }
@@ -773,6 +809,8 @@ export class PersonalVaultManager {
     const atomWords = cleanVal.split(/[\s,.;:!?+/'"()\[\]{}]+/).filter((w) => w.length >= 2);
     for (const w of atomWords) {
       candidates.add(w);
+      const canonW = FuzzyMatcher.canonicalFold(w);
+      if (canonW && canonW.length >= 2) candidates.add(canonW);
     }
 
     // ── STREAM 4: Числові послідовності в тексті ──
@@ -852,12 +890,23 @@ export class PersonalVaultManager {
         }
       }
 
-      // 1c. Спеціальна цифрова перевірка для ІПН / РНОКПП
+      // 1c. Спеціальна цифрова перевірка для ІПН / РНОКПП (включно з одруківкою в 1 цифру)
       if (item.category === 'TAX_ID') {
         const digitsOnlyReal = realClean.replace(/\D/g, '');
         if (digitsOnlyReal.length >= 8 && digitsOnlyVal.includes(digitsOnlyReal)) {
           (item as any).matchedValue = item.realValue || digitsOnlyReal;
           return item;
+        }
+        // Перевірка 10-значних чисел на одруківку в 1 цифру (Levenshtein distance = 1)
+        if (digitsOnlyReal.length === 10) {
+          const candidateNumbers = cleanVal.match(/\b\d{10}\b/g) || [];
+          for (const candNum of candidateNumbers) {
+            if (FuzzyMatcher.isTypoTaxId(candNum, digitsOnlyReal)) {
+              (item as any).matchedValue = candNum;
+              (item as any).isTypoMatch = true;
+              return item;
+            }
+          }
         }
       }
 
@@ -865,6 +914,44 @@ export class PersonalVaultManager {
       if (cleanVal === realClean || (realClean.length >= 3 && cleanVal.includes(realClean))) {
         (item as any).matchedValue = item.realValue;
         return item;
+      }
+
+      // 1e. In-Memory NLP & Fuzzy Matching (Levenshtein + Transliteration + Homoglyphs)
+      if (realClean.length >= 4) {
+        // Перевірка транслітерації (напр. "Смирнова" <-> "Smirnova" / "Smyrnova")
+        if (FuzzyMatcher.isTranslitMatch(cleanVal, realClean)) {
+          (item as any).matchedValue = item.realValue;
+          (item as any).matchMode = 'TRANSLIT';
+          return item;
+        }
+
+        // Перевірка окремих слів на нечіткий збіг (одруківки: "Смирноваа", "Смірнова", "Смирнва")
+        const words = cleanVal.split(/[\s,.;:!?+/'"()\[\]{}]+/).filter((w) => w.length >= 3);
+        for (const w of words) {
+          if (FuzzyMatcher.isFuzzyMatch(w, realClean) || FuzzyMatcher.canonicalFold(w) === FuzzyMatcher.canonicalFold(realClean)) {
+            (item as any).matchedValue = w;
+            (item as any).matchMode = 'FUZZY';
+            return item;
+          }
+          if (FuzzyMatcher.isTranslitMatch(w, realClean)) {
+            (item as any).matchedValue = w;
+            (item as any).matchMode = 'TRANSLIT';
+            return item;
+          }
+        }
+
+        // Для багатослівних секретів (напр. "київ мій дім")
+        const secretWords = realClean.split(/\s+/).filter(Boolean);
+        if (secretWords.length >= 2 && words.length >= secretWords.length) {
+          for (let i = 0; i <= words.length - secretWords.length; i++) {
+            const ngram = words.slice(i, i + secretWords.length).join(' ');
+            if (FuzzyMatcher.isFuzzyMatch(ngram, realClean) || FuzzyMatcher.canonicalFold(ngram) === FuzzyMatcher.canonicalFold(realClean)) {
+              (item as any).matchedValue = ngram;
+              (item as any).matchMode = 'FUZZY';
+              return item;
+            }
+          }
+        }
       }
     }
 

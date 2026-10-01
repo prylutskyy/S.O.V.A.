@@ -542,6 +542,99 @@ describe('PersonalVaultManager', () => {
       expect(punctMatch).not.toBeNull();
       expect(punctMatch?.category).toBe('SECRET_WORD');
     });
+
+    it('should match canonical variations (vowels and transliteration) even when LOCKED (Zero-Knowledge Sentinel)', async () => {
+      await PersonalVaultManager.setupMasterPassword('admin-password');
+      const motherItem = PersonalVaultManager.getItemsSync().find((i) => i.category === 'MOTHER_MAIDEN_NAME')!;
+
+      await PersonalVaultManager.saveItem({
+        id: motherItem.id,
+        category: motherItem.category,
+        label: motherItem.label,
+        realValue: 'Смирнова',
+        decoyValue: 'Іванова',
+        keywords: motherItem.keywords,
+        enabled: true,
+      });
+
+      // Блокуємо сховище
+      await PersonalVaultManager.lock();
+      expect(PersonalVaultManager.isLocked()).toBe(true);
+
+      // 1. «Смірнова» (і замість и) - ловиться через canonicalFold у сліпих токенах
+      const vowelMatch = PersonalVaultManager.findMatchingVaultItemForValue('Моє прізвище Смірнова, прийміть заявку');
+      expect(vowelMatch).not.toBeNull();
+      expect(vowelMatch?.category).toBe('MOTHER_MAIDEN_NAME');
+
+      // 2. «Smirnova» (латиниця) - ловиться через transliteration blind tokens
+      const translitMatch = PersonalVaultManager.findMatchingVaultItemForValue('Hello, my name is Smirnova');
+      expect(translitMatch).not.toBeNull();
+      expect(translitMatch?.category).toBe('MOTHER_MAIDEN_NAME');
+
+      // 3. «Cмирнова» з латинською 'C' - ловиться через homoglyphs fold у сліпих токенах
+      const homoglyphMatch = PersonalVaultManager.findMatchingVaultItemForValue('Cмирнова');
+      expect(homoglyphMatch).not.toBeNull();
+      expect(homoglyphMatch?.category).toBe('MOTHER_MAIDEN_NAME');
+    });
+  });
+
+  describe('Active In-Memory Enclave (when UNLOCKED)', () => {
+    it('should detect Tax ID (ІПН) with 1-digit typo (Levenshtein distance = 1)', async () => {
+      await PersonalVaultManager.setupMasterPassword('admin-password');
+      const taxItem = PersonalVaultManager.getItemsSync().find((i) => i.category === 'TAX_ID')!;
+
+      await PersonalVaultManager.saveItem({
+        id: taxItem.id,
+        category: taxItem.category,
+        label: taxItem.label,
+        realValue: '3152607412',
+        decoyValue: '2987654321',
+        keywords: taxItem.keywords,
+        enabled: true,
+      });
+
+      // Сховище залишається РОЗБЛОКОВАНИМ (In-Memory Enclave)
+      expect(PersonalVaultManager.isLocked()).toBe(false);
+
+      // Користувач ввів ІПН з помилкою в останню цифру (3152607413 замість 3152607412)
+      const typoMatch = PersonalVaultManager.findMatchingVaultItemForValue('Мій ІПН 3152607413 перевірте');
+      expect(typoMatch).not.toBeNull();
+      expect(typoMatch?.category).toBe('TAX_ID');
+      expect((typoMatch as any)?.isTypoMatch).toBe(true);
+      expect((typoMatch as any)?.matchedValue).toBe('3152607413');
+    });
+
+    it('should detect typos and transliteration in text secrets using In-Memory Levenshtein', async () => {
+      await PersonalVaultManager.setupMasterPassword('admin-password');
+      const motherItem = PersonalVaultManager.getItemsSync().find((i) => i.category === 'MOTHER_MAIDEN_NAME')!;
+
+      await PersonalVaultManager.saveItem({
+        id: motherItem.id,
+        category: motherItem.category,
+        label: motherItem.label,
+        realValue: 'Смирнова',
+        decoyValue: 'Іванова',
+        keywords: motherItem.keywords,
+        enabled: true,
+      });
+
+      expect(PersonalVaultManager.isLocked()).toBe(false);
+
+      // 1. Одруківка: подвійна літера на кінці "Смирноваа"
+      const typo1 = PersonalVaultManager.findMatchingVaultItemForValue('дів. прізвище Смирноваа');
+      expect(typo1).not.toBeNull();
+      expect(typo1?.category).toBe('MOTHER_MAIDEN_NAME');
+
+      // 2. Одруківка: пропущена літера "Смирнва"
+      const typo2 = PersonalVaultManager.findMatchingVaultItemForValue('Смирнва');
+      expect(typo2).not.toBeNull();
+      expect(typo2?.category).toBe('MOTHER_MAIDEN_NAME');
+
+      // 3. Транслітерація латиницею: "Smirnova"
+      const translit = PersonalVaultManager.findMatchingVaultItemForValue('Smirnova');
+      expect(translit).not.toBeNull();
+      expect(translit?.category).toBe('MOTHER_MAIDEN_NAME');
+    });
   });
 });
 
