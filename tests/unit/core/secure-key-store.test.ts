@@ -158,7 +158,7 @@ describe('SecureKeyStore (TDD Suite)', () => {
   describe('Config Management', () => {
     it('should save and retrieve LLM configuration', async () => {
       const initial = await SecureKeyStore.getConfig();
-      expect(initial.provider).toBe('gemini');
+      expect(initial.provider).toBe('groq');
 
       const updated = await SecureKeyStore.saveConfig({
         provider: 'groq',

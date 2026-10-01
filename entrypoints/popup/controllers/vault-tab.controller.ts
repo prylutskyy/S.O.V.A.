@@ -413,6 +413,15 @@ export class VaultTabController {
       this.onStatsChanged();
     });
 
+    const btnQuickLock = document.getElementById('btnQuickLock');
+    btnQuickLock?.addEventListener('click', async () => {
+      this.isUiLocked = true;
+      this.expandedItemId = null;
+      this.showToast('Екран сховища закрито. Фоновий захист активний.');
+      await this.renderSplitView();
+      this.onStatsChanged();
+    });
+
     // 4. Скинути сховище до дефолту
     this.btnResetVaultDefaults?.addEventListener('click', async () => {
       if (confirm('Скинути всі налаштовані маркери та очистити сховище?')) {

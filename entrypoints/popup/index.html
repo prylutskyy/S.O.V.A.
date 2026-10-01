@@ -249,23 +249,64 @@
           <circle cx="12" cy="16" r="1.5" fill="currentColor"/>
         </svg>
       </div>
-      <h2 class="vault-state-title">Сховище заблоковано</h2>
+      <h2 class="vault-state-title">Сховище під паролем</h2>
       <p class="vault-state-desc">
-        Введіть майстер-пароль для редагування рубежів або перегляду значень. Фоновий захист форм від фішингу продовжує діяти безперервно.
+        Введіть майстер-пароль, щоб увімкнути максимальний In-Memory захист на час поточної сесії браузера.
       </p>
+
+      <!-- Adaptive Tier Comparison Card -->
+      <div class="vault-tier-comparison-card">
+        <div class="tier-item active">
+          <div class="tier-badge-lead">
+            <span class="tier-dot grey"></span>
+            <span class="tier-name">Фоновий режим (Зараз)</span>
+            <span class="tier-tag neutral">Рівень 1</span>
+          </div>
+          <span class="tier-desc">Zero-Knowledge захист на диску: точні збіги та телефонні суфікси.</span>
+        </div>
+        <div class="tier-item highlight">
+          <div class="tier-badge-lead">
+            <span class="tier-dot green"></span>
+            <span class="tier-name">In-Memory Enclave (Після вводу)</span>
+            <span class="tier-tag">Ultra Safe</span>
+          </div>
+          <span class="tier-desc">Максимальний рівень: толерантність до одруківок (Левенштейн), транслітерація прізвищ латиницею та захист від опечаток в ІПН.</span>
+        </div>
+      </div>
 
       <div class="form-group" style="width: 100%;">
         <input type="password" class="sanctuary-input" id="vaultUnlockPassword" placeholder="Майстер-пароль" autocomplete="current-password">
       </div>
 
       <button type="button" class="btn-primary" id="btnUnlockVault" style="width: 100%; margin-top: 4px;">
-        <span>Розблокувати сховище</span>
+        <span>Розблокувати максимальний захист</span>
       </button>
     </div>
 
 
     <!-- STATE 3: VAULT UNLOCKED (APPLE INSET ACCORDION EXPERIENCE) -->
     <div class="vault-unlocked-container" id="vaultUnlockedState" style="display: none;">
+      <!-- Active In-Memory Enclave Elevated Banner -->
+      <div class="vault-active-enclave-banner">
+        <div class="enclave-banner-header">
+          <div class="enclave-status-pill">
+            <span class="status-pulse-dot green"></span>
+            <span class="enclave-pill-title">Максимальний рівень захисту</span>
+            <span class="enclave-pill-tag">Ultra Safe</span>
+          </div>
+          <button type="button" class="btn-lock-quick" id="btnQuickLock" title="Замкнути екран сховища">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <span>Замкнути</span>
+          </button>
+        </div>
+        <div class="enclave-features-chips">
+          <span class="enclave-chip">✓ Нечіткий пошук (одруківки)</span>
+          <span class="enclave-chip">✓ Транслітерація (Smirnova)</span>
+          <span class="enclave-chip">✓ Захист від опечаток в ІПН</span>
+          <span class="enclave-chip">✓ Сесія в RAM пам'яті</span>
+        </div>
+      </div>
+
       <!-- Hero Card: Vault Defense Health Ring -->
       <section class="sanctuary-card vault-health-card" id="vaultHealthCard">
         <div class="vault-health-section">
@@ -356,46 +397,79 @@
         </div>
 
         <div id="cloudAiSettingsArea" style="display: flex; flex-direction: column; gap: 10px;">
-          <div>
-            <label style="font-size: 11px; font-weight: 600; color: var(--sanctuary-ink-secondary); margin-bottom: 6px; display: block;">Провайдер інтелекту</label>
-            <div class="provider-segmented-control" id="cloudAiProviderSegmented" role="radiogroup" aria-label="Провайдер ШІ">
-              <button type="button" class="provider-segment-btn active" data-provider="gemini" role="radio" aria-checked="true">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 0C12 6.627 6.627 12 0 12C6.627 12 12 17.373 12 24C12 17.373 17.373 12 24 12C17.373 12 12 6.627 12 0Z"/>
-                </svg>
-                <span>Gemini</span>
-              </button>
-              <button type="button" class="provider-segment-btn" data-provider="groq" role="radio" aria-checked="false">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-                </svg>
-                <span>Groq</span>
-              </button>
-              <button type="button" class="provider-segment-btn" data-provider="openai" role="radio" aria-checked="false">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="12" cy="12" r="10"/>
-                  <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/>
-                  <path d="M2 12h20"/>
-                </svg>
-                <span>OpenAI</span>
-              </button>
-              <button type="button" class="provider-segment-btn" data-provider="openrouter" role="radio" aria-checked="false">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="12" cy="5" r="3"/>
-                  <circle cx="5" cy="19" r="3"/>
-                  <circle cx="19" cy="19" r="3"/>
-                  <path d="M12 8v4M9.5 14.5L6.5 17M14.5 14.5L17.5 17"/>
-                </svg>
-                <span>OpenRouter</span>
-              </button>
+          <!-- Groq LPU Hero Spotlight Card (Variant A: Jony Ive Minimalism) -->
+          <div class="groq-spotlight-card">
+            <div class="groq-card-header">
+              <div class="groq-badge-combo">
+                <div class="groq-icon-box">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                  </svg>
+                </div>
+                <div>
+                  <div class="groq-title">Groq Ultra-Fast LPU</div>
+                  <div class="groq-subtitle">Апаратний процесор мовних моделей</div>
+                </div>
+              </div>
+              <span class="groq-speed-pill">⚡ Відгук &lt; 250 мс</span>
             </div>
-            <select class="sanctuary-input" id="cloudAiProviderSelect" style="display: none;">
-              <option value="gemini">Google Gemini</option>
-              <option value="groq">Groq LPU</option>
-              <option value="openai">OpenAI</option>
-              <option value="openrouter">OpenRouter</option>
-            </select>
+
+            <p class="groq-description">
+              <strong>Швидкість як безпека:</strong> На відміну від звичайних хмарних API (1.5–4 с), Groq генерує рішення за мілісекунди. Захист блокує фішинг миттєво, до того як сторінка встигне відправити дані.
+            </p>
           </div>
+
+          <!-- Advanced Providers Disclosure (Hidden from 99% of users) -->
+          <details class="advanced-ai-disclosure" id="advancedAiDisclosure">
+            <summary class="advanced-ai-summary">
+              <span>Інші провайдери та налаштування для розробників</span>
+              <svg class="chevron-disclosure" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="6 9 12 15 18 9"/></svg>
+            </summary>
+            <div class="advanced-ai-content">
+              <label style="font-size: 11px; font-weight: 600; color: var(--sanctuary-ink-secondary); display: block;">Вибір рушія арбітражу</label>
+              <div class="provider-segmented-control" id="cloudAiProviderSegmented" role="radiogroup" aria-label="Провайдер ШІ">
+                <button type="button" class="provider-segment-btn" data-provider="groq" role="radio" aria-checked="true">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                  </svg>
+                  <span>Groq</span>
+                </button>
+                <button type="button" class="provider-segment-btn" data-provider="gemini" role="radio" aria-checked="false">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 0C12 6.627 6.627 12 0 12C6.627 12 12 17.373 12 24C12 17.373 17.373 12 24 12C17.373 12 12 6.627 12 0Z"/>
+                  </svg>
+                  <span>Gemini</span>
+                </button>
+                <button type="button" class="provider-segment-btn" data-provider="openai" role="radio" aria-checked="false">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/>
+                    <path d="M2 12h20"/>
+                  </svg>
+                  <span>OpenAI</span>
+                </button>
+                <button type="button" class="provider-segment-btn" data-provider="openrouter" role="radio" aria-checked="false">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="5" r="3"/>
+                    <circle cx="5" cy="19" r="3"/>
+                    <circle cx="19" cy="19" r="3"/>
+                    <path d="M12 8v4M9.5 14.5L6.5 17M14.5 14.5L17.5 17"/>
+                  </svg>
+                  <span>OpenRouter</span>
+                </button>
+              </div>
+              <p class="advanced-ai-warning">
+                Увага: сторонні хмарні провайдери можуть створювати затримку відповіді 2–4 секунди при перевірці сайту.
+              </p>
+            </div>
+          </details>
+
+          <select class="sanctuary-input" id="cloudAiProviderSelect" style="display: none;">
+            <option value="groq">Groq LPU</option>
+            <option value="gemini">Google Gemini</option>
+            <option value="openai">OpenAI</option>
+            <option value="openrouter">OpenRouter</option>
+          </select>
 
           <div id="cloudAiModelContainer">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">

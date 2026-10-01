@@ -1614,3 +1614,322 @@ html, body {
   from { opacity: 0; transform: translateY(12px) scale(0.96); }
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
+
+/* ==========================================================================
+   12. JONY IVE CRAFTSMANSHIP: STATE-AWARE VAULT & GROQ LPU (VARIANT A)
+   ========================================================================== */
+
+/* Adaptive Protection Comparison Card (Locked State) */
+.vault-tier-comparison-card {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 12px 0 16px;
+  background: var(--sanctuary-surface-alt, rgba(0, 0, 0, 0.03));
+  border: 1px solid var(--sanctuary-hairline);
+  border-radius: 14px;
+  padding: 10px;
+  text-align: left;
+}
+
+.tier-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  transition: all 0.2s var(--ease-apple-spring);
+}
+
+.tier-item.active {
+  background: var(--sanctuary-surface, rgba(255, 255, 255, 0.7));
+  border: 1px solid var(--sanctuary-border, rgba(0, 0, 0, 0.06));
+}
+
+.tier-item.highlight {
+  background: linear-gradient(135deg, rgba(52, 199, 89, 0.09) 0%, rgba(0, 113, 227, 0.05) 100%);
+  border: 1px solid rgba(52, 199, 89, 0.3);
+}
+
+.tier-badge-lead {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tier-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.tier-dot.grey {
+  background: var(--sanctuary-ink-tertiary, #8E8E93);
+}
+
+.tier-dot.green {
+  background: #34C759;
+  box-shadow: 0 0 8px rgba(52, 199, 89, 0.7);
+}
+
+.tier-name {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--sanctuary-ink-primary);
+}
+
+.tier-tag {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 2px 6px;
+  border-radius: 9999px;
+  background: rgba(52, 199, 89, 0.18);
+  color: #1B5E20;
+  margin-left: auto;
+}
+
+.tier-tag.neutral {
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--sanctuary-ink-secondary);
+}
+
+.tier-desc {
+  font-size: 10.5px;
+  color: var(--sanctuary-ink-secondary);
+  line-height: 1.35;
+  padding-left: 13px;
+}
+
+/* Active In-Memory Enclave Elevated Banner (Unlocked State) */
+.vault-active-enclave-banner {
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, rgba(52, 199, 89, 0.1) 0%, rgba(0, 113, 227, 0.06) 100%);
+  border: 1px solid rgba(52, 199, 89, 0.32);
+  border-radius: 14px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+.enclave-banner-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.enclave-status-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.status-pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  position: relative;
+}
+
+.status-pulse-dot.green {
+  background: #34C759;
+  box-shadow: 0 0 10px rgba(52, 199, 89, 0.85);
+}
+
+.status-pulse-dot.green::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border-radius: 50%;
+  border: 1px solid rgba(52, 199, 89, 0.6);
+  animation: pulseEnclave 2s infinite ease-out;
+}
+
+@keyframes pulseEnclave {
+  0% { transform: scale(1); opacity: 0.8; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+.enclave-pill-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--sanctuary-ink-primary);
+  letter-spacing: -0.01em;
+}
+
+.enclave-pill-tag {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 2px 6px;
+  border-radius: 9999px;
+  background: rgba(52, 199, 89, 0.22);
+  color: #1B5E20;
+}
+
+.btn-lock-quick {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--sanctuary-hairline);
+  color: var(--sanctuary-ink-secondary);
+  font-size: 10.5px;
+  font-weight: 500;
+  padding: 3px 8px;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-lock-quick:hover {
+  background: rgba(0, 0, 0, 0.09);
+  color: var(--sanctuary-ink-primary);
+}
+
+.enclave-features-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.enclave-chip {
+  font-size: 10px;
+  font-weight: 500;
+  color: #1D6F42;
+  background: rgba(255, 255, 255, 0.75);
+  padding: 2.5px 7px;
+  border-radius: 6px;
+  border: 1px solid rgba(52, 199, 89, 0.2);
+}
+
+/* Groq LPU Hero Spotlight Card (Variant A) */
+.groq-spotlight-card {
+  background: linear-gradient(135deg, rgba(245, 80, 54, 0.07) 0%, rgba(255, 149, 0, 0.06) 100%);
+  border: 1px solid rgba(245, 80, 54, 0.26);
+  border-radius: 14px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: 0 2px 10px rgba(245, 80, 54, 0.04);
+}
+
+.groq-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.groq-badge-combo {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.groq-icon-box {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #F55036 0%, #FF9500 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(245, 80, 54, 0.35);
+  flex-shrink: 0;
+}
+
+.groq-title {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--sanctuary-ink-primary);
+  line-height: 1.2;
+}
+
+.groq-subtitle {
+  font-size: 10.5px;
+  color: var(--sanctuary-ink-secondary);
+}
+
+.groq-speed-pill {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 3px 8px;
+  border-radius: 9999px;
+  background: rgba(245, 80, 54, 0.12);
+  color: #D32F2F;
+  border: 1px solid rgba(245, 80, 54, 0.22);
+  white-space: nowrap;
+}
+
+.groq-description {
+  font-size: 11px;
+  color: var(--sanctuary-ink-secondary);
+  line-height: 1.4;
+  margin: 0;
+}
+
+.advanced-ai-disclosure {
+  border-top: 1px solid var(--sanctuary-hairline);
+  padding-top: 8px;
+  margin-top: 2px;
+}
+
+.advanced-ai-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--sanctuary-ink-tertiary);
+  cursor: pointer;
+  padding: 4px 0;
+  list-style: none;
+  user-select: none;
+  transition: color 0.15s;
+}
+
+.advanced-ai-summary::-webkit-details-marker {
+  display: none;
+}
+
+.advanced-ai-summary:hover {
+  color: var(--sanctuary-ink-primary);
+}
+
+.chevron-disclosure {
+  transition: transform 0.25s var(--ease-apple-spring);
+}
+
+details[open] .chevron-disclosure {
+  transform: rotate(180deg);
+}
+
+.advanced-ai-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 10px;
+  background: var(--sanctuary-surface-alt, rgba(0, 0, 0, 0.02));
+  border-radius: 10px;
+  border: 1px solid var(--sanctuary-hairline);
+}
+
+.advanced-ai-warning {
+  font-size: 10.5px;
+  color: var(--sanctuary-amber-ink, #B45309);
+  line-height: 1.35;
+  margin: 0;
+}
+

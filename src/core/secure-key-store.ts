@@ -29,8 +29,8 @@ export const LLM_SESSION_KEYS_PREFIX = 'threat_shield_llm_key_session_';
 export const DEVICE_SALT_STORAGE_KEY = 'threat_shield_device_salt';
 
 export const DEFAULT_LLM_CONFIG: LLMConfig = {
-  provider: 'gemini',
-  model: 'gemini-3.8-flash',
+  provider: 'groq',
+  model: 'llama-3.3-70b-versatile',
   timeoutMs: 3000,
   enabled: false,
   storageMode: 'device_encrypted',
