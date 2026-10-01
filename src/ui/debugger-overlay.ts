@@ -79,6 +79,9 @@ export class DebuggerOverlay {
   private static shadowRoot: ShadowRoot | null = null;
   private static isVisible = false;
 
+  /** Жорсткий ліміт кільцевого буфера подій (FIFO) для захисту від витоку пам'яті */
+  private static readonly MAX_LOGS = 150;
+
   private static state = {
     sessionId: null as string | null,
     severity: 'LOW' as string,
@@ -425,6 +428,7 @@ export class DebuggerOverlay {
       });
     }
 
+    this.enforceLogLimit();
     this.render();
   }
 
@@ -486,8 +490,30 @@ export class DebuggerOverlay {
       });
     }
 
+    this.enforceLogLimit();
     this.render();
     return currentId;
+  }
+
+  /**
+   * Кільцевий буфер (Ring Buffer): обмежує кількість подій у пам'яті.
+   * Спершу витісняє найстаріші НЕ-AI події, щоб зберегти цінну телеметрію LLM.
+   * Якщо після цього ліміт все ще перевищено — зрізає найстаріші записи незалежно від типу.
+   */
+  private static enforceLogLimit(): void {
+    if (this.state.logs.length <= this.MAX_LOGS) return;
+
+    // Фаза 1: Витіснення найстарших звичайних подій (не AI)
+    while (this.state.logs.length > this.MAX_LOGS) {
+      const oldestNonAiIndex = this.state.logs.findIndex(l => !l.isAi);
+      if (oldestNonAiIndex === -1) break; // Усі записи — AI, переходимо до FIFO
+      this.state.logs.splice(oldestNonAiIndex, 1);
+    }
+
+    // Фаза 2: Жорсткий FIFO-зріз, якщо AI-логів накопичилося більше за ліміт
+    if (this.state.logs.length > this.MAX_LOGS) {
+      this.state.logs = this.state.logs.slice(-this.MAX_LOGS);
+    }
   }
 
   // Оцінка консенсусу (Евристика vs LLM)

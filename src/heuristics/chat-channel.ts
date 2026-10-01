@@ -286,10 +286,14 @@ export class ChatChannelMonitor {
     // Використовуємо stateful-класифікатор, який пам'ятає попередні повідомлення
     const scan = ChatSessionState.addMessageAndEvaluate(text, 'inbound');
       if (this.debugMode) {
-        DebuggerOverlay.log('Текст повідомлення', text, '#9CA3AF');
+        // Безпечне логування: маскуємо сирий текст, щоб PII не зберігався в пам'яті Shadow DOM
+        const safePreview = text.length <= 20
+          ? text.replace(/\d{4,}/g, '****')
+          : text.substring(0, 20).replace(/\d{4,}/g, '****') + `... [${text.length} симв.]`;
+        DebuggerOverlay.log('Текст повідомлення', safePreview, '#9CA3AF');
         
         if (scan.normalizedText !== text) {
-          DebuggerOverlay.log('1. Нормалізація', scan.normalizedText, '#3B82F6');
+          DebuggerOverlay.log('1. Нормалізація', `Нормалізовано (${scan.normalizedText.length} симв.)`, '#3B82F6');
         }
         
         if (scan.clustersDetected.length > 0) {
