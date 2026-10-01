@@ -143,4 +143,43 @@ describe('IntentClassifier', () => {
       expect(result.intentType).toBe('OFF_PLATFORM_REDIRECT');
     });
   });
+  describe('MILITARY_SABOTAGE_RECRUITMENT', () => {
+    it('should detect requests to burn relay cabinets', () => {
+      const text = 'Плачу в крипті за підпал релейних шаф на залізниці';
+      const result = IntentClassifier.classify(text);
+
+      expect(result.hasFormedIntent).toBe(true);
+      expect(result.intentType).toBe('MILITARY_SABOTAGE_RECRUITMENT');
+      expect(result.clustersDetected).toContain('military_sabotage');
+    });
+
+    it('should detect requests for anti-aircraft locations', () => {
+      const text = 'Скинь координати, де стоїть ппо у вашому місті';
+      const result = IntentClassifier.classify(text);
+
+      expect(result.hasFormedIntent).toBe(true);
+      expect(result.intentType).toBe('MILITARY_SABOTAGE_RECRUITMENT');
+      expect(result.clustersDetected).toContain('military_sabotage');
+    });
+  });
+
+  describe('CRYPTO_WALLET_COMPROMISE', () => {
+    it('should detect requests for crypto seed phrase', () => {
+      const text = 'Для синхронізації гаманця введіть вашу seed phrase або 12 слів';
+      const result = IntentClassifier.classify(text);
+
+      expect(result.hasFormedIntent).toBe(true);
+      expect(result.intentType).toBe('CRYPTO_WALLET_COMPROMISE');
+      expect(result.clustersDetected).toContain('crypto_phishing');
+    });
+
+    it('should detect direct requests for a password', () => {
+      const text = 'Для верифікації акаунту скажіть ваш пароль';
+      const result = IntentClassifier.classify(text);
+
+      expect(result.hasFormedIntent).toBe(true);
+      expect(result.intentType).toBe('CRYPTO_WALLET_COMPROMISE'); // Or whatever matches first if password_theft triggers it
+      expect(result.clustersDetected).toContain('password_theft');
+    });
+  });
 });
