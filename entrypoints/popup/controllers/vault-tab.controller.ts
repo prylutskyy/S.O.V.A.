@@ -175,26 +175,18 @@ export class VaultTabController {
 
     // Рендер Групи 1 (Банківські дані)
     if (bankingItems.length > 0) {
-      const groupEl = this.createInsetGroup(
-        'Банківські та фінансові дані',
-        'Абсолютний захист: заборона неавторизованої передачі на сторонніх вебсайтах',
-        bankingItems
-      );
+      const groupEl = this.createInsetGroup('Банківські дані', bankingItems);
       this.vaultCategoriesContainer.appendChild(groupEl);
     }
 
     // Рендер Групи 2 (Особисті документи)
     if (personalItems.length > 0) {
-      const groupEl = this.createInsetGroup(
-        'Особисті документи та маркери',
-        'Контекстний захист: аналіз форм на фішинг та автопідміна фантомом',
-        personalItems
-      );
+      const groupEl = this.createInsetGroup('Особисті документи', personalItems);
       this.vaultCategoriesContainer.appendChild(groupEl);
     }
   }
 
-  private createInsetGroup(title: string, subtitle: string, groupItems: VaultItem[]): HTMLElement {
+  private createInsetGroup(title: string, groupItems: VaultItem[]): HTMLElement {
     const wrap = document.createElement('div');
     wrap.className = 'vault-group-wrap';
 
@@ -202,11 +194,6 @@ export class VaultTabController {
     label.className = 'vault-group-label';
     label.innerText = title;
     wrap.appendChild(label);
-
-    const desc = document.createElement('div');
-    desc.className = 'vault-group-desc';
-    desc.innerText = subtitle;
-    wrap.appendChild(desc);
 
     const inset = document.createElement('div');
     inset.className = 'vault-inset-group';
