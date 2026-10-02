@@ -30,16 +30,27 @@ export default defineContentScript({
     let activeContext: ActiveThreatContext | null = null;
     const formPipeline = new FormAnalysisPipeline();
 
-    // Await storage to prevent race condition when restoring context
-    try {
-      const res = await chrome.storage.local.get(['debugModeEnabled']);
-      debugMode = !!res.debugModeEnabled;
+    const syncDebugMode = (enabled: boolean) => {
+      debugMode = enabled;
       ChatChannelMonitor.debugMode = debugMode;
       if (debugMode) {
         DebuggerOverlay.show();
+        if (activeContext && activeContext.sessionId) {
+          DebuggerOverlay.setSession(activeContext.sessionId, activeContext.threatLevel);
+        }
+        const primaryForm = document.querySelector('form');
+        if (primaryForm) {
+          FormSubmitInterceptor.auditForm(primaryForm, true);
+        }
       } else {
         DebuggerOverlay.hide();
       }
+    };
+
+    // Await storage to prevent race condition when restoring context
+    try {
+      const res = await chrome.storage.local.get(['debugModeEnabled']);
+      syncDebugMode(!!res.debugModeEnabled);
     } catch (e) {}
 
     // Базові менеджери користувацького стану: обов'язковий await,
@@ -49,22 +60,9 @@ export default defineContentScript({
       PersonalVaultManager.init()
     ]).catch((e) => console.error('[ThreatShield] UserWhitelist/PersonalVault init error:', e));
 
-    chrome.storage.onChanged.addListener((changes) => {
-      if (changes.debugModeEnabled) {
-        debugMode = changes.debugModeEnabled.newValue;
-        ChatChannelMonitor.debugMode = debugMode;
-        if (debugMode) {
-          DebuggerOverlay.show();
-          if (activeContext && activeContext.sessionId) {
-            DebuggerOverlay.setSession(activeContext.sessionId, activeContext.threatLevel);
-          }
-          const primaryForm = document.querySelector('form');
-          if (primaryForm) {
-            FormSubmitInterceptor.auditForm(primaryForm, true);
-          }
-        } else {
-          DebuggerOverlay.hide();
-        }
+    chrome.storage.onChanged.addListener((changes, areaName) => {
+      if ((!areaName || areaName === 'local') && changes.debugModeEnabled) {
+        syncDebugMode(!!changes.debugModeEnabled.newValue);
       }
 
       if (changes.threat_shield_user_whitelist) {
@@ -144,6 +142,8 @@ export default defineContentScript({
             DebuggerOverlay.setSession(null);
             DebuggerOverlay.log('Зшивання Сесій (Context)', 'Контекст очищено', '#22C55E');
           }
+        } else if (msg && msg.type === 'SET_DEBUG_MODE') {
+          syncDebugMode(!!msg.enabled);
         } else if (msg && msg.type === 'CONTEXT_UPDATED' && msg.context) {
           applyContext(msg.context as ActiveThreatContext);
         } else if (msg && msg.type === 'RECEIVE_BROADCAST_LOG' && debugMode) {
@@ -432,22 +432,13 @@ export default defineContentScript({
       if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'D' || e.key === 'd' || e.code === 'KeyD')) {
         e.preventDefault();
         e.stopPropagation();
-        debugMode = !debugMode;
-        ChatChannelMonitor.debugMode = debugMode;
-        if (debugMode) {
-          DebuggerOverlay.show();
-          if (activeContext && activeContext.sessionId) {
-            DebuggerOverlay.setSession(activeContext.sessionId, activeContext.threatLevel);
-          }
-          const primaryForm = document.querySelector('form');
-          if (primaryForm) {
-            FormSubmitInterceptor.auditForm(primaryForm, true);
-          }
-        } else {
-          DebuggerOverlay.hide();
-        }
+        const nextState = !debugMode;
+        syncDebugMode(nextState);
         try {
-          chrome.storage.local.set({ debugModeEnabled: debugMode });
+          chrome.storage.local.set({ debugModeEnabled: nextState });
+          if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.sendMessage) {
+            chrome.runtime.sendMessage({ type: 'SET_DEBUG_MODE', enabled: nextState }).catch(() => {});
+          }
         } catch {}
       }
     }, true);

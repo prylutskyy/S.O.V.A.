@@ -14,6 +14,25 @@ export default defineBackground(() => {
     }
   });
 
+  // Синхронізація дебагера на всіх відкритих вкладках браузера при зміні налаштувань
+  if (chrome.storage && chrome.storage.onChanged) {
+    chrome.storage.onChanged.addListener((changes, areaName) => {
+      if ((!areaName || areaName === 'local') && changes.debugModeEnabled) {
+        const isEnabled = !!changes.debugModeEnabled.newValue;
+        chrome.tabs.query({}).then((tabs) => {
+          for (const tab of tabs) {
+            if (tab.id) {
+              chrome.tabs.sendMessage(tab.id, {
+                type: 'SET_DEBUG_MODE',
+                enabled: isEnabled,
+              }).catch(() => {});
+            }
+          }
+        }).catch(() => {});
+      }
+    });
+  }
+
   // Слухач повідомлень від Content Scripts
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     const tabId = sender.tab?.id || message.tabId;
@@ -112,6 +131,23 @@ export default defineBackground(() => {
         chrome.action.setBadgeBackgroundColor({ color: '#dc2626', tabId });
       }
       sendResponse({ status: 'ACKNOWLEDGED' });
+      return true;
+    }
+
+    if (message.type === 'SET_DEBUG_MODE') {
+      const isEnabled = !!message.enabled;
+      chrome.storage.local.set({ debugModeEnabled: isEnabled }).catch(() => {});
+      chrome.tabs.query({}).then((tabs) => {
+        for (const tab of tabs) {
+          if (tab.id) {
+            chrome.tabs.sendMessage(tab.id, {
+              type: 'SET_DEBUG_MODE',
+              enabled: isEnabled,
+            }).catch(() => {});
+          }
+        }
+      }).catch(() => {});
+      sendResponse({ success: true });
       return true;
     }
 

@@ -1851,8 +1851,9 @@ export class DebuggerOverlay {
     this.shadowRoot.getElementById('btn-close-window')?.addEventListener('click', () => {
       this.hide();
       try {
-        if (typeof chrome !== 'undefined' && chrome.storage?.local) {
-          chrome.storage.local.set({ debugModeEnabled: false });
+        if (typeof chrome !== 'undefined') {
+          chrome.storage?.local?.set({ debugModeEnabled: false });
+          chrome.runtime?.sendMessage?.({ type: 'SET_DEBUG_MODE', enabled: false }).catch?.(() => {});
         }
       } catch {}
     });

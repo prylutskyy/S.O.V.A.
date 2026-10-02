@@ -235,19 +235,65 @@ export class SettingsTabController {
     });
   }
 
-  private initDebugMode(): void {
+  private syncDebugModeToggle(): void {
     if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
       chrome.storage.local.get(['debugModeEnabled'], (res) => {
         if (this.toggleDebugMode) {
           this.toggleDebugMode.checked = !!res.debugModeEnabled;
         }
       });
-      this.toggleDebugMode?.addEventListener('change', (e) => {
-        const isChecked = (e.target as HTMLInputElement).checked;
-        chrome.storage.local.set({ debugModeEnabled: isChecked });
-        this.showToast(isChecked ? 'Дебагер активовано на сторінках' : 'Дебагер вимкнено');
+    }
+  }
+
+  private initDebugMode(): void {
+    this.syncDebugModeToggle();
+
+    if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.onChanged) {
+      chrome.storage.onChanged.addListener((changes, areaName) => {
+        if ((!areaName || areaName === 'local') && changes.debugModeEnabled && this.toggleDebugMode) {
+          this.toggleDebugMode.checked = !!changes.debugModeEnabled.newValue;
+        }
       });
     }
+
+    this.toggleDebugMode?.addEventListener('change', (e) => {
+      const isChecked = (e.target as HTMLInputElement).checked;
+      chrome.storage.local.set({ debugModeEnabled: isChecked });
+
+      // Миттєво надсилаємо команду всім відкритим вкладкам браузера
+      if (typeof chrome !== 'undefined' && chrome.tabs && chrome.tabs.query) {
+        chrome.tabs.query({}, (tabs) => {
+          tabs.forEach((tab) => {
+            if (tab.id) {
+              chrome.tabs.sendMessage(tab.id, {
+                type: 'SET_DEBUG_MODE',
+                enabled: isChecked,
+              }).catch(() => {});
+            }
+          });
+        });
+      }
+
+      // Також сповіщаємо background service worker для централізованої синхронізації
+      if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.sendMessage) {
+        chrome.runtime.sendMessage({
+          type: 'SET_DEBUG_MODE',
+          enabled: isChecked,
+        }).catch(() => {});
+      }
+
+      this.showToast(isChecked ? 'Дебагер активовано на сторінках' : 'Дебагер вимкнено');
+    });
+
+    // Дозволяємо перемикати дебагер кліком по всьому інтерактивному рядку
+    const row = document.getElementById('rowToggleDebugMode');
+    row?.addEventListener('click', (e) => {
+      if ((e.target as HTMLElement).closest('.ios-switch')) return;
+      if (this.toggleDebugMode) {
+        this.toggleDebugMode.checked = !this.toggleDebugMode.checked;
+        this.toggleDebugMode.dispatchEvent(new Event('change'));
+      }
+    });
   }
 
   private async checkAI(): Promise<void> {
@@ -676,6 +722,7 @@ export class SettingsTabController {
   }
 
   public async refresh(): Promise<void> {
+    this.syncDebugModeToggle();
     await this.renderWhitelist();
     await this.initCloudAI();
     await this.checkAI();
