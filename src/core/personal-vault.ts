@@ -197,6 +197,22 @@ export class PersonalVaultManager {
   public static async lock(): Promise<void> {
     this.locked = true;
     this.masterKey = null;
+
+    if (this.blindSignatures.length === 0 && typeof chrome !== 'undefined' && chrome.storage?.local) {
+      try {
+        const localData = await chrome.storage.local.get([
+          VAULT_BLIND_SIGNATURES_KEY,
+          VAULT_BLIND_SALT_KEY,
+        ]);
+        if (localData[VAULT_BLIND_SALT_KEY]) {
+          this.blindSalt = new Uint8Array(localData[VAULT_BLIND_SALT_KEY]);
+        }
+        if (Array.isArray(localData[VAULT_BLIND_SIGNATURES_KEY])) {
+          this.blindSignatures = localData[VAULT_BLIND_SIGNATURES_KEY];
+        }
+      } catch {}
+    }
+
     this.cachedItems = this.deriveOperationalItems(this.blindSignatures);
     if (typeof chrome !== 'undefined' && chrome.storage?.session) {
       await chrome.storage.session.remove([
@@ -540,6 +556,20 @@ export class PersonalVaultManager {
                   }
                 } else {
                   this.masterKey = null;
+                  if (this.blindSignatures.length === 0 && typeof chrome !== 'undefined' && chrome.storage?.local) {
+                    try {
+                      const localData = await chrome.storage.local.get([
+                        VAULT_BLIND_SIGNATURES_KEY,
+                        VAULT_BLIND_SALT_KEY,
+                      ]);
+                      if (localData[VAULT_BLIND_SALT_KEY]) {
+                        this.blindSalt = new Uint8Array(localData[VAULT_BLIND_SALT_KEY]);
+                      }
+                      if (Array.isArray(localData[VAULT_BLIND_SIGNATURES_KEY])) {
+                        this.blindSignatures = localData[VAULT_BLIND_SIGNATURES_KEY];
+                      }
+                    } catch {}
+                  }
                   this.cachedItems = this.deriveOperationalItems(this.blindSignatures);
                   this.locked = true;
                 }

@@ -636,6 +636,64 @@ describe('PersonalVaultManager', () => {
       expect(translit?.category).toBe('MOTHER_MAIDEN_NAME');
     });
   });
+
+  describe('Vault Locking Contract (Purge vs Retention)', () => {
+    it('should purge masterKey and all plaintexts from memory and session storage upon lock()', async () => {
+      await PersonalVaultManager.setupMasterPassword('test-password-lock');
+      const phoneItem = PersonalVaultManager.getItemsSync().find((i) => i.category === 'FINANCIAL_PHONE')!;
+      await PersonalVaultManager.saveItem({
+        id: phoneItem.id,
+        category: phoneItem.category,
+        label: phoneItem.label,
+        realValue: '+380991112233',
+        decoyValue: '+380998887766',
+        keywords: phoneItem.keywords,
+        enabled: true,
+      });
+
+      expect(PersonalVaultManager.isLocked()).toBe(false);
+      expect(PersonalVaultManager.getMasterKey()).not.toBeNull();
+      expect(mockSessionStorage['threat_shield_vault_decrypted']).toBeDefined();
+      expect(mockSessionStorage['threat_shield_vault_key_jwk']).toBeDefined();
+
+      // EXECUTE LOCK
+      await PersonalVaultManager.lock();
+
+      // 1. What must be PURGED:
+      expect(PersonalVaultManager.isLocked()).toBe(true);
+      expect(PersonalVaultManager.getMasterKey()).toBeNull();
+      expect(mockSessionStorage['threat_shield_vault_decrypted']).toBeUndefined();
+      expect(mockSessionStorage['threat_shield_vault_key_jwk']).toBeUndefined();
+
+      const memoryItems = PersonalVaultManager.getItemsSync();
+      for (const item of memoryItems) {
+        expect(item.realValue).toBe(''); // NO plaintext in RAM!
+      }
+
+      // 2. What must be KEPT:
+      expect(PersonalVaultManager.hasOperationalProtection()).toBe(true);
+      expect(PersonalVaultManager.getActiveSignaturesCount()).toBeGreaterThan(0);
+      expect(mockStorage['threat_shield_personal_vault_encrypted']).toBeDefined();
+      expect(mockStorage['threat_shield_vault_blind_signatures']).toBeDefined();
+      expect(mockStorage['threat_shield_vault_blind_salt']).toBeDefined();
+
+      // Operational items retain metadata, keywords, decoy, blindTokens
+      const lockedPhone = memoryItems.find((i) => i.category === 'FINANCIAL_PHONE')!;
+      expect(lockedPhone.decoyValue).toBe('+380998887766');
+      expect(lockedPhone.keywords.length).toBeGreaterThan(0);
+      expect(lockedPhone.blindTokens?.length).toBeGreaterThan(0);
+
+      // Background protection works without plaintext
+      expect(PersonalVaultManager.findMatchingVaultItemForValue('+380991112233')).not.toBeNull();
+      expect(PersonalVaultManager.findMatchingVaultItemForField('вкажіть фінансовий номер')).not.toBeNull();
+
+      // 3. New popup session must remain LOCKED until explicit password entry
+      PersonalVaultManager['isInitialized'] = false;
+      await PersonalVaultManager.init();
+      expect(PersonalVaultManager.isLocked()).toBe(true);
+      expect(PersonalVaultManager.getMasterKey()).toBeNull();
+    });
+  });
 });
 
 

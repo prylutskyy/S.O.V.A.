@@ -391,23 +391,40 @@ export class VaultTabController {
       }
     });
 
-    // 3. Заблокувати екран сховища (Privacy Screen Lock)
-    this.btnLockVault?.addEventListener('click', async () => {
+    // 3. Заблокувати сховище (Lock Personal Vault)
+    const handleLockVault = async () => {
+      await PersonalVaultManager.lock();
       this.isUiLocked = true;
       this.expandedItemId = null;
-      this.showToast('Екран сховища заблоковано. Захист активний.');
+      this.vaultUnlockPassword.value = '';
+      if (this.vaultCategoriesContainer) {
+        this.vaultCategoriesContainer.innerHTML = '';
+      }
+      this.showToast('Сховище заблоковано. Фоновий захист активний.');
       await this.renderSplitView();
       this.onStatsChanged();
-    });
+    };
+
+    this.btnLockVault?.addEventListener('click', handleLockVault);
 
     const btnQuickLock = document.getElementById('btnQuickLock');
-    btnQuickLock?.addEventListener('click', async () => {
-      this.isUiLocked = true;
-      this.expandedItemId = null;
-      this.showToast('Екран сховища закрито. Фоновий захист активний.');
-      await this.renderSplitView();
-      this.onStatsChanged();
-    });
+    btnQuickLock?.addEventListener('click', handleLockVault);
+
+    // Слухаємо блокування сховища з інших контекстів
+    if (typeof chrome !== 'undefined' && chrome.storage?.onChanged) {
+      chrome.storage.onChanged.addListener((changes, area) => {
+        if (area === 'session' && (changes['threat_shield_vault_decrypted'] || changes['threat_shield_vault_key_jwk'])) {
+          if (!changes['threat_shield_vault_key_jwk']?.newValue) {
+            this.isUiLocked = true;
+            this.expandedItemId = null;
+            if (this.vaultCategoriesContainer) {
+              this.vaultCategoriesContainer.innerHTML = '';
+            }
+          }
+          this.renderSplitView().catch(() => {});
+        }
+      });
+    }
 
     // 4. Скинути сховище до дефолту
     this.btnResetVaultDefaults?.addEventListener('click', async () => {

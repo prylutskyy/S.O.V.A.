@@ -162,6 +162,23 @@ export class SecureKeyStore {
     console.log(`[ThreatShield:SecureKeyStore] Ключ для ${provider} успішно збережено (hint: ${keyHint})`);
   }
 
+  private static storageListenerAttached = false;
+
+  private static ensureStorageListener(): void {
+    if (!this.storageListenerAttached && typeof chrome !== 'undefined' && chrome.storage?.onChanged) {
+      chrome.storage.onChanged.addListener((changes, area) => {
+        if (area === 'session') {
+          if (changes['threat_shield_vault_key_jwk'] || changes['threat_shield_vault_decrypted']) {
+            if (!changes['threat_shield_vault_key_jwk']?.newValue) {
+              SecureKeyStore.purgeVaultKeys().catch(() => {});
+            }
+          }
+        }
+      });
+      this.storageListenerAttached = true;
+    }
+  }
+
   /**
    * Отримання розшифрованого API-ключа
    */
@@ -169,6 +186,30 @@ export class SecureKeyStore {
     provider: LLMProviderType,
     vaultMasterKey?: CryptoKey | null
   ): Promise<string | null> {
+    this.ensureStorageListener();
+
+    // 0. Захист Personal Vault: якщо ключ збережено з шифруванням Personal Vault,
+    // а сховище заблоковано — негайно очищаємо тимчасовий кеш та повертаємо null
+    if (typeof chrome !== 'undefined' && chrome.storage?.local) {
+      try {
+        const localRes = await chrome.storage.local.get(`${LLM_ENCRYPTED_KEYS_PREFIX}${provider}`);
+        const record = localRes?.[`${LLM_ENCRYPTED_KEYS_PREFIX}${provider}`] as EncryptedApiKeyRecord | undefined;
+        if (record?.storageMode === 'vault_encrypted') {
+          const activeKey =
+            vaultMasterKey !== undefined
+              ? vaultMasterKey
+              : (PersonalVaultManager.isLocked() ? null : PersonalVaultManager.getMasterKey());
+          if (!activeKey) {
+            this.inMemoryKeys.delete(provider);
+            if (chrome.storage?.session) {
+              await chrome.storage.session.remove(`${LLM_SESSION_KEYS_PREFIX}${provider}`).catch(() => {});
+            }
+            return null;
+          }
+        }
+      } catch {}
+    }
+
     // 1. Перевірка in-memory кешу
     const inMemory = this.inMemoryKeys.get(provider);
     if (inMemory) return inMemory;
@@ -321,6 +362,30 @@ export class SecureKeyStore {
     }
 
     return updated;
+  }
+
+  /**
+   * Очищення розшифрованих ключів, захищених майстер-паролем Personal Vault (при блокуванні сховища)
+   */
+  public static async purgeVaultKeys(): Promise<void> {
+    if (typeof chrome !== 'undefined') {
+      try {
+        const providers: LLMProviderType[] = ['gemini', 'openai', 'claude', 'groq', 'custom_openai', 'openrouter'];
+        if (chrome.storage?.local) {
+          const keys = providers.map((p) => `${LLM_ENCRYPTED_KEYS_PREFIX}${p}`);
+          const records = await chrome.storage.local.get(keys).catch(() => ({}));
+          for (const p of providers) {
+            const rec = records?.[`${LLM_ENCRYPTED_KEYS_PREFIX}${p}`] as EncryptedApiKeyRecord | undefined;
+            if (rec?.storageMode === 'vault_encrypted') {
+              this.inMemoryKeys.delete(p);
+              if (chrome.storage?.session) {
+                await chrome.storage.session.remove(`${LLM_SESSION_KEYS_PREFIX}${p}`).catch(() => {});
+              }
+            }
+          }
+        }
+      } catch {}
+    }
   }
 
   /**
