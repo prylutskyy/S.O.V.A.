@@ -56,6 +56,11 @@ describe('FieldLivePill (Edge Micro-Pill & Unrolling Cognitive Banner)', () => {
     input.dispatchEvent(new Event('focus'));
     expect(pill.classList.contains('ts-expanded')).toBe(true);
     expect(pill.textContent).toContain('CVV-код ніколи не потрібен');
+    expect(pill.textContent).toContain('Захист поля');
+
+    const sublabelSpan = Array.from(pill.querySelectorAll('span')).find(s => s.textContent?.includes('Захист поля'));
+    expect(sublabelSpan).toBeDefined();
+    expect(sublabelSpan?.style.marginLeft).toBe('auto');
 
     // 2. Type first character (length === 1) -> pill remains expanded
     input.value = '4';
@@ -244,6 +249,31 @@ describe('FieldLivePill (Edge Micro-Pill & Unrolling Cognitive Banner)', () => {
     input.value = '1234567890';
     input.dispatchEvent(new Event('input'));
     expect(pill.firstElementChild).toBe(collapsedChild);
+  });
+
+  it('renders long category titles in full without truncation in expanded mode', () => {
+    const motherMaidenInput = document.createElement('input');
+    motherMaidenInput.name = 'motherMaidenName';
+    document.body.appendChild(motherMaidenInput);
+
+    FieldLivePill.attach(motherMaidenInput, {
+      categoryLabel: 'Дівоче прізвище матері',
+      fieldType: 'VAULT_ITEM',
+      isTierA: true,
+    });
+
+    const root = ShadowHost.getRoot();
+    const pills = root.querySelectorAll('.ts-field-live-pill');
+    const pill = pills[pills.length - 1] as HTMLElement;
+
+    // Expand pill via focus
+    motherMaidenInput.dispatchEvent(new Event('focus'));
+    expect(pill.classList.contains('ts-expanded')).toBe(true);
+
+    // Header must contain the full, untruncated category title
+    expect(pill.textContent).toContain('Дівоче прізвище матері');
+    expect(pill.textContent).not.toContain('Дівоче прізви…');
+    expect(pill.textContent).toContain('Захист поля');
   });
 });
 

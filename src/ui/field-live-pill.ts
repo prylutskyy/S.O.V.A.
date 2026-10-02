@@ -7,6 +7,7 @@ export interface FieldProtectionMetadata {
 }
 
 export interface FieldDetailsInfo {
+  label: string;
   shortLabel: string;
   iconSvg: string;
   bannerWarning: string;
@@ -422,6 +423,7 @@ export class FieldLivePill {
     const isVaultAlert = record.isVaultAlert;
     const isCaution = record.isCaution;
     const hasText = (record.input?.value || '').trim().length > 0;
+    const displayLabel = details.label || details.shortLabel;
 
     pill.classList.toggle('ts-pill-red', isVaultAlert);
     pill.classList.toggle('ts-pill-amber', isCaution && !isVaultAlert);
@@ -438,7 +440,7 @@ export class FieldLivePill {
 
     if (isVaultAlert) {
       // 1. ПІДТВЕРДЖЕНИЙ ЗБІГ ЗІ СХОВИЩЕМ (КРИТИЧНИЙ СТАН CRIMSON RED)
-      const vaultLabel = record.vaultLabel || details.shortLabel;
+      const vaultLabel = record.vaultLabel || displayLabel;
       if (isExpanded) {
         pill.innerHTML = `
           <div class="ts-field-pill-inner" style="display: flex; flex-direction: column; width: 100%;">
@@ -450,12 +452,11 @@ export class FieldLivePill {
                 </svg>
               </span>
               <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1;">
-                <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-                  <span style="font-size: 11.5px; font-weight: 700; color: #991B1B; letter-spacing: -0.01em;">
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 6px; width: 100%;">
+                  <span style="font-size: 11.5px; font-weight: 700; color: #991B1B; letter-spacing: -0.01em; min-width: 0; word-break: break-word; line-height: 1.25;">
                     Сховище: ${vaultLabel}
                   </span>
-                  <span style="font-size: 9px; color: #DC2626; opacity: 0.7;">•</span>
-                  <span style="font-size: 9.5px; color: #DC2626; font-weight: 600;">
+                  <span style="font-size: 9.5px; color: #DC2626; font-weight: 600; margin-left: auto; white-space: nowrap; flex-shrink: 0;">
                     Особистий секрет
                   </span>
                 </div>
@@ -495,12 +496,11 @@ export class FieldLivePill {
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
               </span>
               <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1;">
-                <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-                  <span style="font-size: 11.5px; font-weight: 700; color: #92400E; letter-spacing: -0.01em;">
-                    ${details.shortLabel}
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 6px; width: 100%;">
+                  <span style="font-size: 11.5px; font-weight: 700; color: #92400E; letter-spacing: -0.01em; min-width: 0; word-break: break-word; line-height: 1.25;">
+                    ${displayLabel}
                   </span>
-                  <span style="font-size: 9px; color: #D97706; opacity: 0.7;">•</span>
-                  <span style="font-size: 9.5px; color: #D97706; font-weight: 600;">
+                  <span style="font-size: 9.5px; color: #D97706; font-weight: 600; margin-left: auto; white-space: nowrap; flex-shrink: 0;">
                     Увага
                   </span>
                 </div>
@@ -537,12 +537,11 @@ export class FieldLivePill {
                 ${details.iconSvg}
               </span>
               <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1;">
-                <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-                  <span style="font-size: 11.5px; font-weight: 700; color: #1D1D1F; letter-spacing: -0.01em;">
-                    ${details.shortLabel}
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 6px; width: 100%;">
+                  <span style="font-size: 11.5px; font-weight: 700; color: #1D1D1F; letter-spacing: -0.01em; min-width: 0; word-break: break-word; line-height: 1.25;">
+                    ${displayLabel}
                   </span>
-                  <span style="font-size: 9px; color: #86868B;">•</span>
-                  <span style="font-size: 9.5px; color: #0071E3; font-weight: 600;">
+                  <span style="font-size: 9.5px; color: #0071E3; font-weight: 600; margin-left: auto; white-space: nowrap; flex-shrink: 0;">
                     Захист поля
                   </span>
                 </div>
@@ -615,6 +614,7 @@ export class FieldLivePill {
 
     if (type === 'PAYMENT_CVV' || labelLower.includes('cvv') || labelLower.includes('cvc')) {
       return {
+        label: meta.categoryLabel || 'CVV',
         shortLabel: 'CVV',
         iconSvg: `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`,
         bannerWarning: 'Для отримання коштів CVV-код ніколи не потрібен! Його запитують лише для списання.',
@@ -623,6 +623,7 @@ export class FieldLivePill {
 
     if (type === 'PAYMENT_EXPIRY' || labelLower.includes('термін') || labelLower.includes('срок') || labelLower.includes('exp')) {
       return {
+        label: meta.categoryLabel || 'Термін дії',
         shortLabel: 'Термін дії',
         iconSvg: `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
         bannerWarning: 'Термін дії картки потрібен лише для покупок, а не для зарахування коштів.',
@@ -631,6 +632,7 @@ export class FieldLivePill {
 
     if (type === 'PAYMENT_PIN' || labelLower.includes('пін') || labelLower.includes('pin')) {
       return {
+        label: meta.categoryLabel || 'ПІН-код',
         shortLabel: 'ПІН-код',
         iconSvg: `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`,
         bannerWarning: 'Категорично заборонено: введення ПІН-коду картки на вебсайтах!',
@@ -639,6 +641,7 @@ export class FieldLivePill {
 
     if (type === 'TAX_ID' || labelLower.includes('іпн') || labelLower.includes('рнокпп') || labelLower.includes('податк')) {
       return {
+        label: meta.categoryLabel || 'ІПН / РНОКПП',
         shortLabel: 'ІПН / РНОКПП',
         iconSvg: `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>`,
         bannerWarning: 'Перевірте одержувача: введення ІПН на сторонніх сайтах несе загрозу крадіжки особистих даних.',
@@ -646,7 +649,8 @@ export class FieldLivePill {
     }
 
     return {
-      shortLabel: meta.categoryLabel.length > 16 ? meta.categoryLabel.slice(0, 14) + '…' : meta.categoryLabel,
+      label: meta.categoryLabel,
+      shortLabel: meta.categoryLabel,
       iconSvg: `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-1.5 1.5L12 11l-4-4-6 6 4 4 6-6 5.5-5.5M19 5l-2-2"/></svg>`,
       bannerWarning: `Виявлено запит конфіденційного маркера безпеки: «${meta.categoryLabel}».`,
     };
@@ -707,6 +711,15 @@ export class FieldLivePill {
       .ts-field-live-pill:hover {
         border-color: rgba(0, 113, 227, 0.45) !important;
         box-shadow: 0 4px 12px rgba(0, 113, 227, 0.15) !important;
+      }
+
+      .ts-field-pill-label {
+        display: inline-block !important;
+        max-width: 140px !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+        vertical-align: middle !important;
       }
 
       /* Unrolled Informational Message (Expanded Pill under field) */
