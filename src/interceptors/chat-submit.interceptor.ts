@@ -5,6 +5,7 @@ import { DebuggerOverlay } from '../ui/debugger-overlay';
 import { SessionOutboundMemory } from '../heuristics/session-outbound-memory';
 import { HiddenFieldInspector } from '../heuristics/hidden-field-inspector';
 import { ChatLivePill } from '../ui/chat-live-pill';
+import { isMonitoredPlatform } from '../core/whitelist';
 
 export interface ChatSubmitInterceptorOptions {
   getActiveContext: () => ActiveThreatContext | null;
@@ -25,6 +26,61 @@ export class ChatSubmitInterceptor {
   public static init(options: ChatSubmitInterceptorOptions): void {
     this.options = options;
     this.setupListeners();
+  }
+
+  /**
+   * Визначає, чи є елемент полем чату / відправки повідомлення
+   * (навіть якщо він знаходиться всередині тегу <form>).
+   */
+  public static isChatOrMessageElement(target: HTMLElement): boolean {
+    if (!target) return false;
+    const form = target.closest('form');
+    if (!form) return true;
+
+    const chatSelectors = [
+      '[data-testid*="chat" i]',
+      '[data-testid*="message" i]',
+      '[data-testid*="conversation" i]',
+      '[data-cy*="chat" i]',
+      '[data-cy*="message" i]',
+      '.chat',
+      '.messenger',
+      '.conversation',
+      '.composer',
+      '.chat-input-area',
+      '.chat-input',
+      '.message-input',
+      '[class*="chat" i]',
+      '[class*="message" i]',
+      '[class*="composer" i]',
+    ].join(', ');
+
+    if (target.closest(chatSelectors) || form.matches(chatSelectors) || form.querySelector(chatSelectors)) {
+      return true;
+    }
+
+    const placeholder = (target.getAttribute('placeholder') || '').toLowerCase();
+    const ariaLabel = (target.getAttribute('aria-label') || '').toLowerCase();
+    const name = (target.getAttribute('name') || '').toLowerCase();
+    if (
+      placeholder.includes('повідомленн') ||
+      placeholder.includes('message') ||
+      placeholder.includes('напишіть') ||
+      placeholder.includes('чат') ||
+      ariaLabel.includes('повідомленн') ||
+      ariaLabel.includes('message') ||
+      name.includes('message') ||
+      name.includes('chat')
+    ) {
+      return true;
+    }
+
+    // На платформах комунікації (OLX, Prom, Facebook) textarea у формах — це поле чату/повідомлення
+    if (target.tagName === 'TEXTAREA' && typeof window !== 'undefined' && isMonitoredPlatform(window.location.hostname)) {
+      return true;
+    }
+
+    return false;
   }
 
   public static isFieldCvv(input: HTMLInputElement | HTMLTextAreaElement): boolean {
@@ -53,7 +109,16 @@ export class ChatSubmitInterceptor {
       if (inputs.length > 0) return inputs[0];
     }
 
-    // 2. Безпосередні сусіди кнопки або спільний батьківський вузол
+    // 2. Якщо кнопка всередині <form>, шукаємо інпут безпосередньо у цій формі
+    const parentForm = submitBtn.closest('form');
+    if (parentForm) {
+      const formInputs = Array.from(parentForm.querySelectorAll(this.ACTIVE_INPUTS_SELECTOR)) as (HTMLInputElement | HTMLTextAreaElement)[];
+      const withValue = formInputs.find((i) => (i.value || i.innerText || '').trim().length > 0);
+      if (withValue) return withValue;
+      if (formInputs.length > 0) return formInputs[0];
+    }
+
+    // 3. Безпосередні сусіди кнопки або спільний батьківський вузол
     if (submitBtn.parentElement) {
       const siblings = Array.from(submitBtn.parentElement.querySelectorAll(this.ACTIVE_INPUTS_SELECTOR)) as (HTMLInputElement | HTMLTextAreaElement)[];
       const withValue = siblings.find((i) => (i.value || i.innerText || '').trim().length > 0);
@@ -61,7 +126,7 @@ export class ChatSubmitInterceptor {
       if (siblings.length > 0) return siblings[0];
     }
 
-    // 3. Активний елемент у фокусі (якщо користувач щойно друкував у ньому)
+    // 4. Активний елемент у фокусі (якщо користувач щойно друкував у ньому)
     if (
       document.activeElement &&
       (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA' || document.activeElement.getAttribute('role') === 'textbox')
@@ -221,7 +286,7 @@ export class ChatSubmitInterceptor {
       const target = event.target as HTMLElement | null;
       if (!target) return;
       if (target.tagName !== 'INPUT' && target.tagName !== 'TEXTAREA' && target.getAttribute('role') !== 'textbox') return;
-      if (target.closest('form')) return; // Форми контролює FormSubmitInterceptor
+      if (target.closest('form') && !this.isChatOrMessageElement(target)) return; // Статичні форми контролює FormSubmitInterceptor
 
       if (this.realtimeDebounceTimer) {
         clearTimeout(this.realtimeDebounceTimer);
@@ -291,7 +356,7 @@ export class ChatSubmitInterceptor {
         'button[type="submit"], input[type="submit"], [role="button"], button'
       ) as HTMLElement | null;
 
-      if (submitBtn && !submitBtn.closest('form')) {
+      if (submitBtn && (!submitBtn.closest('form') || this.isChatOrMessageElement(submitBtn))) {
         const input = this.findAssociatedChatInput(submitBtn);
         if (input && (input.value || input.innerText)) {
           this.interceptChatSend(input, event, this.options?.getActiveContext());
@@ -307,7 +372,7 @@ export class ChatSubmitInterceptor {
       if (event.key === 'Enter' && !event.shiftKey) {
         if (
           (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.getAttribute('role') === 'textbox') &&
-          !target.closest('form')
+          (!target.closest('form') || this.isChatOrMessageElement(target))
         ) {
           const input = target as HTMLInputElement | HTMLTextAreaElement;
           this.interceptChatSend(input, event, this.options?.getActiveContext());

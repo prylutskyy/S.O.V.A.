@@ -1,4 +1,4 @@
-import { isWhitelisted } from '../src/core/whitelist';
+import { isWhitelisted, isMonitoredPlatform } from '../src/core/whitelist';
 import { isAccreditedPaymentGateway } from '../src/core/payment-gateways';
 import { UserWhitelistManager } from '../src/core/user-whitelist';
 import { PersonalVaultManager } from '../src/core/personal-vault';
@@ -390,9 +390,10 @@ export default defineContentScript({
         },
         isDomainAllowed: (domain) => {
           if (!domain) return false;
+          if (UserWhitelistManager.isDomainAllowedSync(domain)) return true;
+          if (isMonitoredPlatform(domain)) return false;
           return (
             isAccreditedPaymentGateway(domain) ||
-            UserWhitelistManager.isDomainAllowedSync(domain) ||
             isWhitelisted(domain)
           );
         },

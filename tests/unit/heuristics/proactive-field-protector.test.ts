@@ -2,6 +2,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ProactiveFieldProtector } from '../../../src/heuristics/proactive-field-protector';
 import { PersonalVaultManager } from '../../../src/core/personal-vault';
+import { UserWhitelistManager } from '../../../src/core/user-whitelist';
 import { ShadowHost } from '../../../src/ui/shadow-host';
 
 describe('ProactiveFieldProtector (Sanctuary Sealed Apertures)', () => {
@@ -218,5 +219,42 @@ describe('ProactiveFieldProtector (Sanctuary Sealed Apertures)', () => {
     // secretWord must be sealed
     expect(inp3.dataset.sanctuarySealed).toBe('true');
     expect(inp3.dataset.sanctuaryLabel).toMatch(/Дівоче прізвище|Секретне/i);
+  });
+
+  it('proactively seals CVV and Vault fields on monitored platforms like olx.ua (non-immune)', () => {
+    const form = document.createElement('form');
+    const cvvInput = document.createElement('input');
+    cvvInput.name = 'card_cvv';
+    cvvInput.placeholder = 'CVV';
+    form.appendChild(cvvInput);
+
+    const secretInput = document.createElement('input');
+    secretInput.name = 'secretWord';
+    secretInput.placeholder = 'Дівоче прізвище матері';
+    form.appendChild(secretInput);
+
+    document.body.appendChild(form);
+
+    ProactiveFieldProtector.init('olx.ua');
+
+    // Both CVV and Secret Word MUST be sealed on olx.ua!
+    expect(cvvInput.dataset.sanctuarySealed).toBe('true');
+    expect(cvvInput.dataset.sanctuaryLabel).toContain('CVV');
+    expect(secretInput.dataset.sanctuarySealed).toBe('true');
+    expect(secretInput.dataset.sanctuaryLabel).toMatch(/Дівоче прізвище|Секретне/i);
+  });
+
+  it('respects manual user whitelist override on olx.ua when added to UserWhitelistManager', () => {
+    vi.spyOn(UserWhitelistManager, 'isDomainAllowedSync').mockReturnValue(true);
+
+    const form = document.createElement('form');
+    const cvvInput = document.createElement('input');
+    cvvInput.name = 'cvv';
+    form.appendChild(cvvInput);
+    document.body.appendChild(form);
+
+    ProactiveFieldProtector.init('olx.ua');
+
+    expect(cvvInput.dataset.sanctuarySealed).toBeUndefined();
   });
 });

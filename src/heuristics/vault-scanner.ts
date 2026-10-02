@@ -1,7 +1,7 @@
 import { HeuristicResult } from '../types';
 import { VaultItem, VaultMatchResult } from '../types/vault';
 import { PersonalVaultManager } from '../core/personal-vault';
-import { isWhitelisted } from '../core/whitelist';
+import { isWhitelisted, isMonitoredPlatform } from '../core/whitelist';
 import { isAccreditedPaymentGateway } from '../core/payment-gateways';
 import { UserWhitelistManager } from '../core/user-whitelist';
 
@@ -83,14 +83,20 @@ export class VaultScanner {
 
     const cleanHost = (host || window.location.hostname || '').toLowerCase().trim();
 
-    // 1. ПРАВИЛО ІМУНІТЕТУ: Державні портали (.gov.ua), акредитовані шлюзи та сайти з білого списку не блокуються
-    if (
-      isWhitelisted(cleanHost) ||
-      cleanHost.endsWith('.gov.ua') ||
-      isAccreditedPaymentGateway(cleanHost) ||
-      UserWhitelistManager.isDomainAllowedSync(cleanHost)
-    ) {
+    // 1. ПРАВИЛО ІМУНІТЕТУ: Державні портали (.gov.ua), акредитовані шлюзи та сайти з білого списку не блокуються.
+    // Але платформи соціальної інженерії (MONITORED_PLATFORMS, наприклад OLX, Prom) не мають автоматичного імунітету
+    if (UserWhitelistManager.isDomainAllowedSync(cleanHost)) {
       return { triggers, matches };
+    }
+
+    if (!isMonitoredPlatform(cleanHost)) {
+      if (
+        isWhitelisted(cleanHost) ||
+        cleanHost.endsWith('.gov.ua') ||
+        isAccreditedPaymentGateway(cleanHost)
+      ) {
+        return { triggers, matches };
+      }
     }
 
     const inputs = form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('input, textarea');

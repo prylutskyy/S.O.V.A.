@@ -2,7 +2,7 @@ import { FormAnalysisPipeline, FormAnalysisResult } from '../detectors/form-anal
 import { ActiveThreatContext, ThreatAssessment } from '../types';
 import { FormSensitiveState } from '../heuristics/input-detector';
 import { isAccreditedPaymentGateway } from '../core/payment-gateways';
-import { isWhitelisted } from '../core/whitelist';
+import { isWhitelisted, isMonitoredPlatform } from '../core/whitelist';
 import { UserWhitelistManager } from '../core/user-whitelist';
 import { SecurityFriction } from '../ui/friction';
 import { ToastNotifier } from '../ui/toast-notifier';
@@ -39,10 +39,16 @@ export class FormSubmitInterceptor {
         targetHost = new URL(rawAction, window.location.href).hostname.toLowerCase();
       }
     } catch {}
+
+    if (isAccreditedPaymentGateway(targetHost)) return true;
+    if (UserWhitelistManager.isDomainAllowedSync(targetHost) || UserWhitelistManager.isDomainAllowedSync(currentHost)) return true;
+
+    // Платформи соціальної інженерії (OLX, Prom тощо) не мають автоматичного імунітету
+    if (isMonitoredPlatform(currentHost) || isMonitoredPlatform(targetHost)) {
+      return false;
+    }
+
     return (
-      isAccreditedPaymentGateway(targetHost) ||
-      UserWhitelistManager.isDomainAllowedSync(targetHost) ||
-      UserWhitelistManager.isDomainAllowedSync(currentHost) ||
       isWhitelisted(targetHost) ||
       isWhitelisted(currentHost)
     );
@@ -60,8 +66,9 @@ export class FormSubmitInterceptor {
     if (UserWhitelistManager.isDomainAllowedSync(targetHost)) return false;
     if (currentHost && UserWhitelistManager.isDomainAllowedSync(currentHost)) return false;
     if (isAccreditedPaymentGateway(targetHost)) return false;
-    if (isWhitelisted(targetHost)) return false;
-    if (currentHost && isWhitelisted(currentHost)) return false;
+
+    if (!isMonitoredPlatform(targetHost) && isWhitelisted(targetHost)) return false;
+    if (currentHost && !isMonitoredPlatform(currentHost) && isWhitelisted(currentHost)) return false;
 
     // Блокуємо якщо CRITICAL або HIGH при заповнених чутливих даних
     return assessment.level === 'CRITICAL' || (assessment.level === 'HIGH' && formState.hasFilledAnySensitive);

@@ -7,7 +7,7 @@ import { PersonalVaultManager } from '../core/personal-vault';
 import { VaultScanner } from './vault-scanner';
 import { isAccreditedPaymentGateway } from '../core/payment-gateways';
 import { UserWhitelistManager } from '../core/user-whitelist';
-import { isWhitelisted } from '../core/whitelist';
+import { isWhitelisted, isMonitoredPlatform } from '../core/whitelist';
 
 export class GlobalInputInterceptor {
   private static isSoftLocked = false;
@@ -41,11 +41,21 @@ export class GlobalInputInterceptor {
     }
     if (!host) return false;
 
+    // 1. Ручне налаштування користувача в попапі
+    if (UserWhitelistManager.isDomainAllowedSync(host)) {
+      return true;
+    }
+
+    // 2. Платформи соціальної інженерії (OLX, Prom тощо) не мають автоматичного імунітету
+    if (isMonitoredPlatform(host)) {
+      return false;
+    }
+
+    // 3. Довірені системні сайти, шлюзи та .gov.ua
     return (
       isWhitelisted(host) ||
       host.endsWith('.gov.ua') ||
-      isAccreditedPaymentGateway(host) ||
-      UserWhitelistManager.isDomainAllowedSync(host)
+      isAccreditedPaymentGateway(host)
     );
   }
 

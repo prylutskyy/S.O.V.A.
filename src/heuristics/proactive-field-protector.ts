@@ -2,7 +2,7 @@ import { PersonalVaultManager } from '../core/personal-vault';
 import { VaultScanner } from './vault-scanner';
 import { ToastNotifier } from '../ui/toast-notifier';
 import { ShadowHost } from '../ui/shadow-host';
-import { isWhitelisted } from '../core/whitelist';
+import { isWhitelisted, isMonitoredPlatform } from '../core/whitelist';
 import { isAccreditedPaymentGateway } from '../core/payment-gateways';
 import { UserWhitelistManager } from '../core/user-whitelist';
 import { HiddenFieldInspector } from './hidden-field-inspector';
@@ -53,11 +53,22 @@ export class ProactiveFieldProtector {
     if (!host) return false;
 
     const lower = host.toLowerCase().trim();
+
+    // 1. Ручне налаштування користувача в попапі має найвищий пріоритет
+    if (UserWhitelistManager.isDomainAllowedSync(lower)) {
+      return true;
+    }
+
+    // 2. Платформи соціальної інженерії (OLX, Prom, Facebook тощо) НІКОЛИ не мають автоматичного імунітету
+    if (isMonitoredPlatform(lower)) {
+      return false;
+    }
+
+    // 3. Державні портали (.gov.ua), акредитовані платіжні шлюзи та довірені системні домени
     return (
       isWhitelisted(lower) ||
       lower.endsWith('.gov.ua') ||
-      isAccreditedPaymentGateway(lower) ||
-      UserWhitelistManager.isDomainAllowedSync(lower)
+      isAccreditedPaymentGateway(lower)
     );
   }
 
@@ -616,6 +627,12 @@ export class ProactiveFieldProtector {
               }
             }
           }
+        } else if (m.type === 'attributes') {
+          const target = m.target as HTMLElement;
+          if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) {
+            shouldScan = true;
+            break;
+          }
         }
       }
       if (shouldScan) {
@@ -626,7 +643,12 @@ export class ProactiveFieldProtector {
     try {
       const target = document.body || document.documentElement;
       if (target) {
-        this.observer.observe(target, { childList: true, subtree: true });
+        this.observer.observe(target, {
+          childList: true,
+          subtree: true,
+          attributes: true,
+          attributeFilter: ['name', 'id', 'placeholder', 'type', 'aria-label'],
+        });
       }
     } catch {}
   }
@@ -635,7 +657,21 @@ export class ProactiveFieldProtector {
    * Глобальне перехоплення подій для запечатаних полів (фаза Capture)
    */
   private static setupGlobalInterception(): void {
-    // Введення більше не блокується превентивно через preventDefault:
-    // Інтерактивний захист забезпечується шторкою-банером та червоною пігулкою FieldLivePill
+    if (typeof window === 'undefined') return;
+
+    // Fail-safe: динамічно оцінюємо чутливі поля при фокусуванні (для важких React SPA з лінивим рендерингом)
+    window.addEventListener('focusin', (e) => {
+      if (this.isHostImmune(this.currentHost)) return;
+      const target = e.target as HTMLElement | null;
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) {
+        const inp = target as HTMLInputElement | HTMLTextAreaElement;
+        if (!inp.dataset?.sanctuarySealed && !inp.dataset?.sanctuaryUnsealed && !inp.dataset?.threatShieldApproved) {
+          const match = this.evaluateField(inp);
+          if (match) {
+            this.sealField(inp, match);
+          }
+        }
+      }
+    }, true);
   }
 }

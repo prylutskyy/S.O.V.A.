@@ -230,5 +230,60 @@ describe('ChatSubmitInterceptor (TDD Suite)', () => {
       const lastCallArgs = applyToChatSpy.mock.calls[0];
       expect(lastCallArgs[1].hasGps).toBe(true);
     });
+
+    it('monitors chat inputs wrapped inside <form> and shows ChatLivePill on CVV detection', () => {
+      vi.useFakeTimers();
+
+      ChatSubmitInterceptor.init({
+        getActiveContext: () => null,
+        getDebugMode: () => false,
+      });
+
+      const form = document.createElement('form');
+      form.className = 'chat-composer-form';
+      const textarea = document.createElement('textarea');
+      textarea.placeholder = 'Напишіть повідомлення...';
+      form.appendChild(textarea);
+      document.body.appendChild(form);
+
+      textarea.value = '4149 4390 1234 5678, cvv: 999';
+      textarea.dispatchEvent(new Event('input', { bubbles: true }));
+      vi.advanceTimersByTime(150);
+
+      const shadowRoot = ShadowHost.getRoot();
+      const pill = shadowRoot.querySelector('.ts-chat-live-pill');
+      expect(pill).not.toBeNull();
+      expect(pill?.textContent).toContain('CVV');
+
+      vi.useRealTimers();
+    });
+
+    it('intercepts submission when send button is clicked inside a form chat composer', () => {
+      const applyToChatSpy = vi.spyOn(SecurityFriction, 'applyToChat').mockImplementation(() => {});
+
+      ChatSubmitInterceptor.init({
+        getActiveContext: () => null,
+        getDebugMode: () => false,
+      });
+
+      const form = document.createElement('form');
+      form.className = 'chat-composer-form';
+
+      const textarea = document.createElement('textarea');
+      textarea.placeholder = 'Напишіть повідомлення...';
+      textarea.value = '4149 4390 1234 5678, cvv 999';
+
+      const sendBtn = document.createElement('button');
+      sendBtn.type = 'submit';
+      sendBtn.textContent = 'Надіслати';
+
+      form.appendChild(textarea);
+      form.appendChild(sendBtn);
+      document.body.appendChild(form);
+
+      sendBtn.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+
+      expect(applyToChatSpy).toHaveBeenCalled();
+    });
   });
 });
