@@ -178,8 +178,8 @@ describe('CloudLLMDispatcher & Drivers (TDD Suite)', () => {
       const [url, options] = (fetch as any).mock.calls[0];
       expect(url).toBe('https://openrouter.ai/api/v1/chat/completions');
       expect(options.headers.Authorization).toBe('Bearer sk-or-v1-test-key');
-      expect(options.headers['HTTP-Referer']).toBe('https://sanctuary-prism.local');
-      expect(options.headers['X-Title']).toBe('Sanctuary Prism');
+      expect(options.headers['HTTP-Referer']).toBe('https://sova.defense.local');
+      expect(options.headers['X-Title']).toBe('С.О.В.А. (S.O.V.A.)');
 
       expect(res.isScam).toBe(true);
       expect(res.confidence).toBe(96);

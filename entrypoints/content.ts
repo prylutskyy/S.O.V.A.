@@ -77,7 +77,7 @@ export default defineContentScript({
           }) || isWhitelisted(currentHost);
 
         if (isAllowedNow) {
-          console.log('[ThreatShield:Content] Сайт додано до білого списку. Знімаємо банери та відновлюємо форми.');
+          console.log('[SOVA:Content] Сайт додано до білого списку. Знімаємо банери та відновлюємо форми.');
           SecurityFriction.removeHiddenFieldTrapBanner();
           SecurityFriction.removeContextWarningBanner();
           document.querySelectorAll('form').forEach((form) => {
@@ -85,7 +85,7 @@ export default defineContentScript({
           });
           ProactiveFieldProtector.unsealAll();
         } else {
-          console.log('[ThreatShield:Content] Сайт видалено з білого списку. Запускаємо повторний аудит форм.');
+          console.log('[SOVA:Content] Сайт видалено з білого списку. Запускаємо повторний аудит форм.');
           ProactiveFormScanner.resetScannedForms();
           ProactiveFormScanner.scanCurrentDocument();
           ProactiveFieldProtector.scanAndProtect();
@@ -93,7 +93,7 @@ export default defineContentScript({
       }
     });
 
-    console.log('[ThreatShield:Content] Ініціалізація на сайті:', currentHost || 'local file');
+    console.log('[SOVA:Content] Ініціалізація на сайті:', currentHost || 'local file');
 
     const shouldDisplayContextBanner = (ctx: ActiveThreatContext): boolean => {
       if (UserWhitelistManager.isDomainAllowedSync(currentHost) || isWhitelisted(currentHost)) {
@@ -105,7 +105,7 @@ export default defineContentScript({
     const applyContext = (ctx: ActiveThreatContext) => {
       activeContext = ctx;
       GlobalInputInterceptor.setHardLock(ctx);
-      console.log('[ThreatShield:Content] Отримано спадковий контекст загрози:', ctx);
+      console.log('[SOVA:Content] Отримано спадковий контекст загрози:', ctx);
 
       if (debugMode) {
         if (ctx.sessionId) DebuggerOverlay.setSession(ctx.sessionId, ctx.threatLevel);
@@ -166,7 +166,7 @@ export default defineContentScript({
 
       if (event.data.type === 'THREAT_SHIELD_CLEAR_WHITELIST') {
         await UserWhitelistManager.clearAll();
-        console.log('[ThreatShield:Content] Персональний білий список користувача успішно очищено.');
+        console.log('[SOVA:Content] Персональний білий список користувача успішно очищено.');
         window.postMessage({ type: 'THREAT_SHIELD_WHITELIST_CLEARED' }, '*');
       }
 
@@ -185,7 +185,7 @@ export default defineContentScript({
           DebuggerOverlay.log('Зшивання Сесій (Context)', 'Контекст очищено', '#22C55E');
         }
         SecurityFriction.removeContextWarningBanner();
-        console.log('[ThreatShield:Content] Tainted Context Window примусово очищено.');
+        console.log('[SOVA:Content] Tainted Context Window примусово очищено.');
         window.postMessage({ type: 'THREAT_SHIELD_CONTEXT_CLEARED' }, '*');
       }
 
@@ -212,7 +212,7 @@ export default defineContentScript({
             }, '*');
           }
         } catch (e) {
-          console.error('[ThreatShield:Content] Failed to get AI status:', e);
+          console.error('[SOVA:Content] Failed to get AI status:', e);
         }
       }
 
@@ -236,7 +236,7 @@ export default defineContentScript({
             );
           }
         } catch (e) {
-          console.error('[ThreatShield:Content] Помилка прокидання SIMULATE_CHAT_REPLY:', e);
+          console.error('[SOVA:Content] Помилка прокидання SIMULATE_CHAT_REPLY:', e);
         }
       }
     });
@@ -305,7 +305,7 @@ export default defineContentScript({
 
         if (!aiResult.isScam && (aiResult.confidence === undefined || aiResult.confidence >= 50)) {
           // Якщо ШІ переконливо спростував загрозу (False Positive Mitigation):
-          console.log('[ThreatShield:Content] ШІ-Арбітр спростував евристичну загрозу:', aiResult.reasoning);
+          console.log('[SOVA:Content] ШІ-Арбітр спростував евристичну загрозу:', aiResult.reasoning);
           activeContext = null;
           GlobalInputInterceptor.setHardLock(null);
           SecurityFriction.removeContextWarningBanner();
@@ -334,7 +334,7 @@ export default defineContentScript({
 
           window.postMessage({ type: 'THREAT_SHIELD_CONTEXT_CLEARED' }, '*');
         } else if (aiResult.isScam) {
-          console.log('[ThreatShield:Content] ШІ-Арбітр підтвердив загрозу:', aiResult);
+          console.log('[SOVA:Content] ШІ-Арбітр підтвердив загрозу:', aiResult);
           if (debugMode) {
             DebuggerOverlay.log(
               'ШІ-Арбітр (Вердикт)',
@@ -344,7 +344,7 @@ export default defineContentScript({
           }
         }
       }).catch((err) => {
-        console.warn('[ThreatShield:Content] Помилка фонового ШІ-арбітражу:', err);
+        console.warn('[SOVA:Content] Помилка фонового ШІ-арбітражу:', err);
       });
     };
 
@@ -376,7 +376,7 @@ export default defineContentScript({
     ProactiveFormScanner.init(
       {
         onTrapDetected: (scan, form) => {
-          console.warn('[ThreatShield:Content] ⚠️ Виявлено приховані поля у формі (Autofill Phishing)!', scan);
+          console.warn('[SOVA:Content] ⚠️ Виявлено приховані поля у формі (Autofill Phishing)!', scan);
           SecurityFriction.showHiddenFieldTrapBanner(scan, form);
           if (debugMode) {
             DebuggerOverlay.log(
@@ -453,3 +453,4 @@ export default defineContentScript({
     }, true);
   },
 });
+

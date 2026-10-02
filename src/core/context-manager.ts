@@ -26,7 +26,7 @@ export class ContextManager {
 
     const key = this.getStorageKey(tabId);
     await this.storage.set(key, fullContext);
-    console.log(`[ThreatShield:Context] Активовано Tainted Context для вкладки ${tabId}:`, fullContext);
+    console.log(`[SOVA:Context] Активовано Tainted Context для вкладки ${tabId}:`, fullContext);
     return fullContext;
   }
 
@@ -46,14 +46,14 @@ export class ContextManager {
 
       // Перевірка терміну життя (TTL)
       if (elapsed > context.ttlMs) {
-        console.log(`[ThreatShield:Context] Термін дії контексту минув для вкладки ${tabId}, очищення...`);
+        console.log(`[SOVA:Context] Термін дії контексту минув для вкладки ${tabId}, очищення...`);
         await this.clearTaintedContext(tabId);
         return null;
       }
 
       return context;
     } catch (error) {
-      console.error(`[ThreatShield:Context] Помилка зчитування контексту для вкладки ${tabId}:`, error);
+      console.error(`[SOVA:Context] Помилка зчитування контексту для вкладки ${tabId}:`, error);
       return null;
     }
   }
@@ -77,10 +77,11 @@ export class ContextManager {
     const { timestamp, ttlMs, ...ctxWithoutTime } = sourceCtx;
     await this.setTaintedContext(targetTabId, ctxWithoutTime, ttlMs);
     
-    console.log(`[ThreatShield:Context] Контекст перенесено з ${sourceTabId} до ${targetTabId}`);
+    console.log(`[SOVA:Context] Контекст перенесено з ${sourceTabId} до ${targetTabId}`);
     return true;
   }
 }
 
 // Singleton for production use
 export const contextManager = new ContextManager(new ChromeSessionStorageAdapter());
+

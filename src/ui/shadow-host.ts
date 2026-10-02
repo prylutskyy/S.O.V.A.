@@ -16,10 +16,10 @@ export class ShadowHost {
     }
 
     // Якщо хост існує, але від'єднаний
-    let host = document.getElementById('threat-shield-shadow-host');
+    let host = document.getElementById('sova-shadow-host') || document.getElementById('threat-shield-shadow-host');
     if (!host) {
       host = document.createElement('div');
-      host.id = 'threat-shield-shadow-host';
+      host.id = 'sova-shadow-host';
       // Спеціальні стилі для хост-елемента: не впливає на макет сайту
       host.style.cssText = `
         all: initial !important;

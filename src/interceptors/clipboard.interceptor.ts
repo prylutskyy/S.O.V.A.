@@ -44,7 +44,7 @@ export class ClipboardInterceptor {
       if (anchorNode) {
         const parentElem = anchorNode instanceof HTMLElement ? anchorNode : anchorNode.parentElement;
         if (
-          parentElem?.closest('#threat-shield-shadow-host') ||
+          parentElem?.closest('#sova-shadow-host, #threat-shield-shadow-host') ||
           parentElem?.closest('.sanctuary-toast-capsule') ||
           parentElem?.closest('.sanctuary-focus-capsule') ||
           parentElem?.closest('.ts-unified-modal') ||

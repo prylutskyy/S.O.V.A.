@@ -651,7 +651,7 @@ export class DebuggerOverlay {
   private static exportDiagnosticReport(): string {
     const fpAssessment = this.assessFalsePositive();
     const report = {
-      generator: 'Sanctuary Prism · Swiss Loupe Telemetry (MV3 Light)',
+      generator: 'С.О.В.А. · Аналітичний модуль XAI (MV3)',
       timestamp: new Date().toISOString(),
       url: typeof window !== 'undefined' ? window.location.href : '',
       hostname: typeof window !== 'undefined' ? window.location.hostname : '',
@@ -1693,8 +1693,8 @@ export class DebuggerOverlay {
               </svg>
             </div>
             <div class="sc-brand-meta">
-              <span class="sc-brand-name">Sanctuary Prism</span>
-              <span class="sc-brand-pill">Швейцарська Лупа</span>
+              <span class="sc-brand-name">С.О.В.А.</span>
+              <span class="sc-brand-pill">Аналітичний модуль XAI</span>
             </div>
           </div>
           <div class="sc-win-controls">
@@ -1814,9 +1814,9 @@ export class DebuggerOverlay {
           gap: 4px;
         }
       </style>
-      <div class="sc-pill" id="btn-restore" title="Відкрити Швейцарську Лупу">
+      <div class="sc-pill" id="btn-restore" title="Відкрити Аналітичний модуль XAI">
         <span class="sc-pill-icon">${ICONS.loupe(13, riskColor)}</span>
-        <span class="sc-pill-text">Швейцарська Лупа</span>
+        <span class="sc-pill-text">Аналітичний модуль XAI</span>
         <span class="sc-pill-badge">${score}/100${threatMitigated ? ' (Пік)' : ''}</span>
         <span class="sc-pill-count">
           <span>${logs.length}</span>

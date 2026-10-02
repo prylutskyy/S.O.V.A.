@@ -21,12 +21,12 @@ export class CloudLLMDispatcher {
   public static async isConfigured(): Promise<boolean> {
     const config = await SecureKeyStore.getConfig();
     if (!config.enabled) {
-      console.log('[ThreatShield:CloudAI] isConfigured: false (config.enabled is false)');
+      console.log('[SOVA:CloudAI] isConfigured: false (config.enabled is false)');
       return false;
     }
     const key = await SecureKeyStore.getApiKey(config.provider);
     const hasKey = !!key;
-    console.log(`[ThreatShield:CloudAI] isConfigured: ${hasKey} (provider: ${config.provider}, model: ${config.model}, hasKey: ${hasKey})`);
+    console.log(`[SOVA:CloudAI] isConfigured: ${hasKey} (provider: ${config.provider}, model: ${config.model}, hasKey: ${hasKey})`);
     return hasKey;
   }
 
@@ -43,7 +43,7 @@ export class CloudLLMDispatcher {
 
     const apiKey = await SecureKeyStore.getApiKey(effectiveConfig.provider);
     if (!apiKey) {
-      console.warn(`[ThreatShield:CloudAI] API-ключ для провайдера ${effectiveConfig.provider} не знайдено.`);
+      console.warn(`[SOVA:CloudAI] API-ключ для провайдера ${effectiveConfig.provider} не знайдено.`);
       return null;
     }
 
@@ -76,9 +76,9 @@ export class CloudLLMDispatcher {
       return result;
     } catch (err: any) {
       if (err?.name === 'AbortError' || combinedSignal.aborted) {
-        console.warn(`[ThreatShield:CloudAI] Запит до ${effectiveConfig.provider} перервано за таймаутом (${timeoutMs} мс).`);
+        console.warn(`[SOVA:CloudAI] Запит до ${effectiveConfig.provider} перервано за таймаутом (${timeoutMs} мс).`);
       } else {
-        console.error(`[ThreatShield:CloudAI] Помилка інференсу ${effectiveConfig.provider}:`, err);
+        console.error(`[SOVA:CloudAI] Помилка інференсу ${effectiveConfig.provider}:`, err);
       }
       return null;
     } finally {
@@ -146,7 +146,7 @@ export class CloudLLMDispatcher {
         latencyMs: response.latencyMs,
       };
     } catch (e) {
-      console.warn(`[ThreatShield:CloudAI] Помилка генерації репліки симулятора через ${config.provider}:`, e);
+      console.warn(`[SOVA:CloudAI] Помилка генерації репліки симулятора через ${config.provider}:`, e);
       return null;
     } finally {
       clearTimeout(timeoutId);
@@ -228,3 +228,4 @@ export class CloudLLMDispatcher {
     }
   }
 }
+

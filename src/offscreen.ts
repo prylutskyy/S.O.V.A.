@@ -2,7 +2,7 @@ import { AILureVerifier } from './heuristics/ai-verifier';
 import { ChromeBuiltinAIProvider, getChromeAiLanguageModel, isGeminiAiAvailable, createAiSession } from './heuristics/chrome-ai-provider';
 import { ChatSimulatorEngine } from './heuristics/chat-simulator';
 
-console.log('[ThreatShield:Offscreen] Offscreen document started for Gemini Nano API');
+console.log('[SOVA:Offscreen] Offscreen document started for Gemini Nano API');
 
 let currentAbortController: AbortController | null = null;
 
@@ -13,7 +13,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   if (message.type === 'ABORT_AI') {
     if (currentAbortController) {
-      console.warn('[ThreatShield:Offscreen] Aborting AI verification...');
+      console.warn('[SOVA:Offscreen] Aborting AI verification...');
       currentAbortController.abort();
       currentAbortController = null;
     }
@@ -40,7 +40,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 
   if (message.type === 'AI_VERIFY') {
-    console.log('[ThreatShield:Offscreen] Processing AI_VERIFY task...', message.payload);
+    console.log('[SOVA:Offscreen] Processing AI_VERIFY task...', message.payload);
     
     // Cancel any ongoing request before starting a new one
     if (currentAbortController) {
@@ -52,15 +52,15 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     const aiVerifier = new AILureVerifier(new ChromeBuiltinAIProvider(currentAbortController.signal));
     
     aiVerifier.verifyIntent(text, intentType, triggerWord, heuristicContext).then((aiResult) => {
-      console.log('[ThreatShield:Offscreen] AI Result:', aiResult);
+      console.log('[SOVA:Offscreen] AI Result:', aiResult);
       if (currentAbortController?.signal.aborted) return;
       currentAbortController = null;
       sendResponse({ aiResult });
     }).catch((e) => {
       if (e.name === 'AbortError' || currentAbortController?.signal.aborted) {
-        console.warn('[ThreatShield:Offscreen] AI Verification Aborted!');
+        console.warn('[SOVA:Offscreen] AI Verification Aborted!');
       } else {
-        console.error('[ThreatShield:Offscreen] AI Verification Error:', e);
+        console.error('[SOVA:Offscreen] AI Verification Error:', e);
       }
       currentAbortController = null;
       sendResponse({ aiResult: null });
@@ -75,10 +75,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       const startTime = performance.now();
       try {
         const status = await isGeminiAiAvailable();
-        console.log('[ThreatShield:Offscreen] Gemini Nano availability check:', status);
+        console.log('[SOVA:Offscreen] Gemini Nano availability check:', status);
         
         if (!status.available) {
-          console.warn('[ThreatShield:Offscreen] Gemini Nano unavailable, generating fallback reply. Status:', status.status);
+          console.warn('[SOVA:Offscreen] Gemini Nano unavailable, generating fallback reply. Status:', status.status);
           const reply = ChatSimulatorEngine.generateFallbackReply(persona, history || [], latestUserMessage);
           sendResponse({ reply, engine: 'fallback-rules', reason: `AI unavailable (${status.status})` });
           return;
@@ -87,12 +87,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         const systemPrompt = ChatSimulatorEngine.buildSystemPrompt(persona, itemContext, customGoal);
         const fullPrompt = ChatSimulatorEngine.buildPromptWithHistory(persona, history || [], latestUserMessage, itemContext, customGoal);
         
-        console.log('[ThreatShield:Offscreen] Creating AI session with Gemini Nano...');
+        console.log('[SOVA:Offscreen] Creating AI session with Gemini Nano...');
         const session = await createAiSession(systemPrompt, 0.7);
         
-        console.log('[ThreatShield:Offscreen] Prompting Gemini Nano (prompt length: ' + fullPrompt.length + ')...');
+        console.log('[SOVA:Offscreen] Prompting Gemini Nano (prompt length: ' + fullPrompt.length + ')...');
         let rawReply = await session.prompt(fullPrompt);
-        console.log('[ThreatShield:Offscreen] Raw reply from Gemini Nano:', rawReply);
+        console.log('[SOVA:Offscreen] Raw reply from Gemini Nano:', rawReply);
 
         try {
           if (typeof session.destroy === 'function') session.destroy();
@@ -105,7 +105,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
         // Check for safety refusal or empty response
         if (!reply || /as an ai|cannot fulfill|safety guidelines|unable to/i.test(reply)) {
-          console.warn('[ThreatShield:Offscreen] Model returned empty or refusal, applying smart fallback:', reply);
+          console.warn('[SOVA:Offscreen] Model returned empty or refusal, applying smart fallback:', reply);
           reply = ChatSimulatorEngine.generateFallbackReply(persona, history || [], latestUserMessage);
           sendResponse({ reply, engine: 'fallback-rules', reason: 'Model refused or empty' });
           return;
@@ -114,7 +114,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         const latencyMs = Math.round(performance.now() - startTime);
         sendResponse({ reply, engine: 'gemini-nano', latencyMs });
       } catch (err: any) {
-        console.warn('[ThreatShield:Offscreen] Gemini Nano simulation threw error:', err);
+        console.warn('[SOVA:Offscreen] Gemini Nano simulation threw error:', err);
         const reply = ChatSimulatorEngine.generateFallbackReply(persona, history || [], latestUserMessage);
         sendResponse({
           reply,
@@ -128,3 +128,4 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   return false;
 });
+

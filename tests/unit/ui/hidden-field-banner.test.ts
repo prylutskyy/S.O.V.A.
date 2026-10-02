@@ -67,9 +67,9 @@ describe('Floating Disarm Capsule (SecurityFriction.showHiddenFieldTrapBanner)',
     const banner = root.getElementById('threat-shield-hidden-field-banner');
     expect(banner).not.toBeNull();
 
-    // Verify Jony Ive serene copy
+    // Verify disarmed form copy
     expect(banner?.innerHTML).toContain('Форму знешкоджено');
-    expect(banner?.innerHTML).toContain('Sanctuary Autofill Guard');
+    expect(banner?.innerHTML).toContain('Контроль автозаповнення С.О.В.А.');
     expect(banner?.innerHTML).toContain('Захищено · 2 поля');
     expect(banner?.innerHTML).toContain('Технічний аналіз пастки (2)');
 

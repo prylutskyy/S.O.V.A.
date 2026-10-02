@@ -159,7 +159,7 @@ export class SecureKeyStore {
       }).catch(() => {});
     }
 
-    console.log(`[ThreatShield:SecureKeyStore] Ключ для ${provider} успішно збережено (hint: ${keyHint})`);
+    console.log(`[SOVA:SecureKeyStore] Ключ для ${provider} успішно збережено (hint: ${keyHint})`);
   }
 
   private static storageListenerAttached = false;
@@ -248,13 +248,13 @@ export class SecureKeyStore {
         try {
           decrypted = await CryptoService.decryptText(record.payload, keyToDecrypt);
         } catch (decryptErr) {
-          console.warn(`[ThreatShield:SecureKeyStore] WebCrypto decrypt failed, attempting fallback:`, decryptErr);
+          console.warn(`[SOVA:SecureKeyStore] WebCrypto decrypt failed, attempting fallback:`, decryptErr);
           if (record.fallbackKey) {
             try {
               decrypted = decodeURIComponent(atob(record.fallbackKey));
-              console.log(`[ThreatShield:SecureKeyStore] Ключ для ${provider} успішно відновлено через fallback!`);
+              console.log(`[SOVA:SecureKeyStore] Ключ для ${provider} успішно відновлено через fallback!`);
             } catch (fbErr) {
-              console.error(`[ThreatShield:SecureKeyStore] Fallback decode failed:`, fbErr);
+              console.error(`[SOVA:SecureKeyStore] Fallback decode failed:`, fbErr);
             }
           }
         }
@@ -270,7 +270,7 @@ export class SecureKeyStore {
           return decrypted;
         }
       } catch (err) {
-        console.warn(`[ThreatShield:SecureKeyStore] Не вдалося розшифрувати ключ для ${provider}:`, err);
+        console.warn(`[SOVA:SecureKeyStore] Не вдалося розшифрувати ключ для ${provider}:`, err);
         if (record.fallbackKey) {
           try {
             const fbKey = decodeURIComponent(atob(record.fallbackKey));
@@ -397,3 +397,4 @@ export class SecureKeyStore {
     this.deviceCryptoKey = null;
   }
 }
+

@@ -21,7 +21,7 @@ export async function isGeminiAiAvailable(): Promise<{ available: boolean; statu
     }
     return { available: typeof provider.create === 'function', status: 'ready-create' };
   } catch (e: any) {
-    console.warn('[ThreatShield:AI] provider.capabilities() threw:', e);
+    console.warn('[SOVA:AI] provider.capabilities() threw:', e);
     return { available: typeof provider.create === 'function', status: `capabilities-threw: ${e?.message || e}` };
   }
 }
@@ -36,7 +36,7 @@ export async function createAiSession(systemPrompt?: string, temperature: number
       if (signal) opts.signal = signal;
       return await provider.create(opts);
     } catch (e1) {
-      console.warn('[ThreatShield:AI] create({ systemPrompt }) failed, trying initialPrompts...', e1);
+      console.warn('[SOVA:AI] create({ systemPrompt }) failed, trying initialPrompts...', e1);
     }
 
     try {
@@ -47,7 +47,7 @@ export async function createAiSession(systemPrompt?: string, temperature: number
       if (signal) opts.signal = signal;
       return await provider.create(opts);
     } catch (e2) {
-      console.warn('[ThreatShield:AI] create({ initialPrompts }) failed, falling back to bare create()...', e2);
+      console.warn('[SOVA:AI] create({ initialPrompts }) failed, falling back to bare create()...', e2);
     }
   }
 
@@ -108,7 +108,7 @@ Example 2 (Safe):
         session = await createAiSession(systemPrompt, 0.05, this.abortSignal);
       } catch (e) {
         if (this.abortSignal?.aborted) throw e;
-        console.warn('[ThreatShield:AI] createAiSession failed, falling back...', e);
+        console.warn('[SOVA:AI] createAiSession failed, falling back...', e);
         session = await provider.create();
       }
 
@@ -200,11 +200,11 @@ Respond ONLY with valid JSON. Keys: "isScam", "confidence", "reasoning". Languag
         responseText = await session.prompt(prompt, this.abortSignal ? { signal: this.abortSignal } : undefined);
       } catch (e) {
         if (this.abortSignal?.aborted) throw e;
-        console.warn('[ThreatShield:AI] session.prompt(options) failed, retrying without options...');
+        console.warn('[SOVA:AI] session.prompt(options) failed, retrying without options...');
         responseText = await session.prompt(prompt);
       }
 
-      console.log('[ThreatShield:AI] Raw response:', responseText);
+      console.log('[SOVA:AI] Raw response:', responseText);
 
       // ── Багаторівневий стійкий парсинг відповіді ───────────────────────────
       // 1. Нормалізація лапок і артефактів
@@ -232,7 +232,7 @@ Respond ONLY with valid JSON. Keys: "isScam", "confidence", "reasoning". Languag
           }
         }
       } catch (e) {
-        console.warn('[ThreatShield:AI] JSON.parse failed, falling back to multi-regex extraction. Raw:', responseText);
+        console.warn('[SOVA:AI] JSON.parse failed, falling back to multi-regex extraction. Raw:', responseText);
       }
 
       // 3. Вилучення вердикту (isScam) — підтримка англійських та українських/російських ключів
@@ -375,10 +375,11 @@ Respond ONLY with valid JSON. Keys: "isScam", "confidence", "reasoning". Languag
       };
 
     } catch (e) {
-      console.error('[ThreatShield:AI] Помилка верифікації:', e);
+      console.error('[SOVA:AI] Помилка верифікації:', e);
       return null;
     } finally {
       if (session && typeof session.destroy === 'function') session.destroy();
     }
   }
 }
+

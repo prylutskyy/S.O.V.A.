@@ -423,7 +423,7 @@ export class PersonalVaultManager {
 
   private static async persistEncrypted(salt?: Uint8Array): Promise<boolean> {
     if (!this.masterKey || this.locked) {
-      console.warn('[ThreatShield:Vault] Cannot persist: vault is locked or key is missing');
+      console.warn('[SOVA:Vault] Cannot persist: vault is locked or key is missing');
       return false;
     }
 
@@ -522,7 +522,7 @@ export class PersonalVaultManager {
             this.cachedItems = items;
             this.locked = false;
           } catch (keyErr) {
-            console.warn('[ThreatShield:Vault] Could not import key from session:', keyErr);
+            console.warn('[SOVA:Vault] Could not import key from session:', keyErr);
             this.masterKey = null;
             this.cachedItems = this.deriveOperationalItems(this.blindSignatures);
             this.locked = true;
@@ -601,7 +601,7 @@ export class PersonalVaultManager {
       }
       this.isInitialized = true;
     } catch (e) {
-      console.error('[ThreatShield:Vault] Помилка ініціалізації сховища:', e);
+      console.error('[SOVA:Vault] Помилка ініціалізації сховища:', e);
     }
   }
 
@@ -1005,3 +1005,4 @@ export class PersonalVaultManager {
     return null;
   }
 }
+

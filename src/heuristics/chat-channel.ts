@@ -334,7 +334,7 @@ export class ChatChannelMonitor {
       const suspiciousUrls = scan.suspiciousUrls || [];
       const isOffPlatformLure = scan.clustersDetected.includes('off_platform');
 
-      console.warn('[ThreatShield:ChatChannel] Виявлено загрозу (Tier 1):', {
+      console.warn('[SOVA:ChatChannel] Виявлено загрозу (Tier 1):', {
         text: text.slice(0, 80),
         keywords,
         urls: suspiciousUrls
@@ -528,3 +528,4 @@ export class ChatChannelMonitor {
     SessionOutboundMemory.reset();
   }
 }
+

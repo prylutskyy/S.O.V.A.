@@ -49,7 +49,7 @@ export class GeminiDriver implements ICloudLLMDriver {
         if (!response.ok) {
           const errText = await response.text().catch(() => '');
           if (response.status === 404 || errText.includes('NOT_FOUND') || errText.includes('is not found')) {
-            console.warn(`[ThreatShield:Gemini] Модель ${model} недоступна (404), спроба наступної моделі...`);
+            console.warn(`[SOVA:Gemini] Модель ${model} недоступна (404), спроба наступної моделі...`);
             lastError = new Error(`Gemini API 404: ${model} not found`);
             continue;
           }
@@ -135,7 +135,7 @@ export class GeminiDriver implements ICloudLLMDriver {
         if (!response.ok) {
           const errText = await response.text().catch(() => '');
           if (response.status === 404 || errText.includes('NOT_FOUND') || errText.includes('is not found')) {
-            console.warn(`[ThreatShield:Gemini] Модель ${model} недоступна (404), спроба наступної...`);
+            console.warn(`[SOVA:Gemini] Модель ${model} недоступна (404), спроба наступної...`);
             lastError = new Error(`Gemini Text Gen 404: ${model} not found`);
             continue;
           }
@@ -240,3 +240,4 @@ export class GeminiDriver implements ICloudLLMDriver {
       });
   }
 }
+

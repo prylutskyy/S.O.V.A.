@@ -28,13 +28,14 @@ export class AILureVerifier {
   ): Promise<AIValidationResult | null> {
     const isAvailable = await this.aiProvider.isAvailable();
     if (!isAvailable) {
-      console.log('[ThreatShield:AIVerifier] Нейромережа недоступна, пропускаємо рівень 2.');
+      console.log('[SOVA:AIVerifier] Нейромережа недоступна, пропускаємо рівень 2.');
       return null;
     }
 
     const rules = AILureVerifier.intentContextRules[detectedType] || 'Analyze for social engineering, phishing, and payment credential theft.';
-    console.log(`[ThreatShield:AIVerifier] Запуск перевірки Рівня 2 (LLM) для типу: ${detectedType}`);
+    console.log(`[SOVA:AIVerifier] Запуск перевірки Рівня 2 (LLM) для типу: ${detectedType}`);
     
     return this.aiProvider.verifyIntent(text, rules, triggerWord, heuristicContext);
   }
 }
+

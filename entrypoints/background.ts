@@ -5,7 +5,7 @@ import { ChromeBuiltinAIProvider } from '../src/heuristics/chrome-ai-provider';
 import { CloudLLMDispatcher } from '../src/ai/cloud/cloud-llm-dispatcher';
 
 export default defineBackground(() => {
-  console.log('[ThreatShield:Background] Service Worker активовано');
+  console.log('[SOVA:Background] Service Worker активовано');
 
   chrome.runtime.onInstalled.addListener(() => {
     // Allow content scripts to read/write to session storage
@@ -25,7 +25,7 @@ export default defineBackground(() => {
       }
       
       const { sessionId, sourcePlatform, keywords, offPlatformLure, suspiciousUrl } = message.payload;
-      console.warn(`[ThreatShield:Background] Отримано сигнал небезпеки на вкладці ${tabId}:`, message.payload);
+      console.warn(`[SOVA:Background] Отримано сигнал небезпеки на вкладці ${tabId}:`, message.payload);
 
       contextManager.setTaintedContext(tabId, {
         sessionId,
@@ -106,7 +106,7 @@ export default defineBackground(() => {
     }
 
     if (message.type === 'THREAT_DETECTED') {
-      console.warn(`[ThreatShield:Background] Загроза при заповненні на вкладці ${tabId}:`, sender.tab?.url);
+      console.warn(`[SOVA:Background] Загроза при заповненні на вкладці ${tabId}:`, sender.tab?.url);
       if (chrome.action && tabId) {
         chrome.action.setBadgeText({ text: 'ERR', tabId });
         chrome.action.setBadgeBackgroundColor({ color: '#dc2626', tabId });
@@ -141,7 +141,7 @@ export default defineBackground(() => {
             }
           }
         } catch (e) {
-          console.warn('[ThreatShield:Background] Cloud LLM verification failed, falling back to local LLM:', e);
+          console.warn('[SOVA:Background] Cloud LLM verification failed, falling back to local LLM:', e);
         }
 
         // 2. Фолбек на локальний LLM через Offscreen Document
@@ -154,10 +154,10 @@ export default defineBackground(() => {
             }, (response) => {
               if (chrome.runtime.lastError) {
                 if (retries > 0) {
-                  console.warn(`[ThreatShield:Background] Offscreen not ready yet, retrying... (${retries} left)`);
+                  console.warn(`[SOVA:Background] Offscreen not ready yet, retrying... (${retries} left)`);
                   setTimeout(() => attemptSend(retries - 1), 200);
                 } else {
-                  console.error('[ThreatShield:Background] Offscreen failed to receive message:', chrome.runtime.lastError.message);
+                  console.error('[SOVA:Background] Offscreen failed to receive message:', chrome.runtime.lastError.message);
                   sendResponse({ aiResult: null });
                 }
                 return;
@@ -167,7 +167,7 @@ export default defineBackground(() => {
           };
           attemptSend(10); // Retry up to 10 times (2 seconds total)
         }).catch(e => {
-          console.error('[ThreatShield:Background] Failed to setup offscreen doc:', e);
+          console.error('[SOVA:Background] Failed to setup offscreen doc:', e);
           sendResponse({ aiResult: null });
         });
       })();
@@ -176,7 +176,7 @@ export default defineBackground(() => {
     }
 
     if (message.type === 'ABORT_AI') {
-      console.log('[ThreatShield:Background] Forwarding ABORT_AI to offscreen...');
+      console.log('[SOVA:Background] Forwarding ABORT_AI to offscreen...');
       chrome.runtime.sendMessage({ target: 'offscreen', type: 'ABORT_AI' }).catch(() => {});
       sendResponse({ success: true });
       return true;
@@ -208,7 +208,7 @@ export default defineBackground(() => {
         try {
           const isCloud = await CloudLLMDispatcher.isConfigured();
           if (isCloud) {
-            console.log('[ThreatShield:Background] Запит генерації репліки симулятора через Cloud LLM...');
+            console.log('[SOVA:Background] Запит генерації репліки симулятора через Cloud LLM...');
             const cloudResult = await CloudLLMDispatcher.generateChatReply(
               persona,
               history || [],
@@ -217,7 +217,7 @@ export default defineBackground(() => {
               customGoal
             );
             if (cloudResult && cloudResult.reply) {
-              console.log('[ThreatShield:Background] Cloud LLM згенерував відповідь:', cloudResult);
+              console.log('[SOVA:Background] Cloud LLM згенерував відповідь:', cloudResult);
               sendResponse({
                 reply: cloudResult.reply,
                 engine: cloudResult.engine,
@@ -227,7 +227,7 @@ export default defineBackground(() => {
             }
           }
         } catch (err) {
-          console.warn('[ThreatShield:Background] Cloud LLM simulation failed, falling back to local/rules:', err);
+          console.warn('[SOVA:Background] Cloud LLM simulation failed, falling back to local/rules:', err);
         }
 
         // 2. Фолбек на Offscreen Document (Локальна LLM або правила)
@@ -242,7 +242,7 @@ export default defineBackground(() => {
                 if (retries > 0) {
                   setTimeout(() => attemptSend(retries - 1), 200);
                 } else {
-                  console.error('[ThreatShield:Background] Offscreen failed to receive SIMULATE_CHAT_REPLY:', chrome.runtime.lastError.message);
+                  console.error('[SOVA:Background] Offscreen failed to receive SIMULATE_CHAT_REPLY:', chrome.runtime.lastError.message);
                   sendResponse({ reply: 'Доброго дня! Чим можу допомогти?', engine: 'error-fallback' });
                 }
                 return;
@@ -252,7 +252,7 @@ export default defineBackground(() => {
           };
           attemptSend(10);
         }).catch(e => {
-          console.error('[ThreatShield:Background] Failed to setup offscreen for simulation:', e);
+          console.error('[SOVA:Background] Failed to setup offscreen for simulation:', e);
           sendResponse({ reply: 'Доброго дня!', engine: 'error-fallback' });
         });
       })();
@@ -363,3 +363,4 @@ export default defineBackground(() => {
     }
   });
 });
+

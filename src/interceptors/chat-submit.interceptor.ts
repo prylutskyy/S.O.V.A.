@@ -158,7 +158,7 @@ export class ChatSubmitInterceptor {
     activeContext?: ActiveThreatContext | null
   ): boolean {
     if (inputElement.dataset.threatShieldApproved === 'true') {
-      console.log('[ThreatShield:Content] Відправка повідомлення дозволена (усвідомлене розблокування).');
+      console.log('[SOVA:Content] Відправка повідомлення дозволена (усвідомлене розблокування).');
       delete inputElement.dataset.threatShieldApproved;
       SessionOutboundMemory.recordSentMessage(inputElement.value || '');
       return false;
@@ -390,3 +390,4 @@ export class ChatSubmitInterceptor {
     this.options = null;
   }
 }
+

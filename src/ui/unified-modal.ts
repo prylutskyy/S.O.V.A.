@@ -41,7 +41,7 @@ interface DiagnosticItem {
 }
 
 /**
- * UnifiedFrictionModal: Jony Ive Design Carte Blanche
+ * UnifiedFrictionModal
  * Втілення філософії керованого захисного тертя (Security Friction):
  * 1. Оптичний скляний купол (Frosted Optical Float Glass) з м'якою дифракцією фону.
  * 2. Двоколонкова матриця смислового контрасту «Намір vs Прихована загроза» (250мс сприйняття).
@@ -501,7 +501,7 @@ export class UnifiedFrictionModal {
           ${options.vaultMatches && options.vaultMatches.some((m) => m.isDecoyAvailable && (options.vaultMatches?.some(v => v.matchType === 'VALUE_MATCH') ? m.matchType === 'VALUE_MATCH' : true)) ? `
             <button id="ts-decoy-btn" class="ts-btn-decoy">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="9 12 11 14 15 10"/></svg>
-              <span>Підставити маскувальні дані зі Сховища</span>
+              <span>Підставити маскувальні дані</span>
             </button>
           ` : ''}
 
@@ -566,8 +566,8 @@ export class UnifiedFrictionModal {
       isInspectorOpen = !isInspectorOpen;
       inspector.style.display = isInspectorOpen ? 'block' : 'none';
       btnInspect.innerHTML = isInspectorOpen
-        ? '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> <span>▴ Приховати діагностику</span>'
-        : '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg> <span>▾ Діагностичний звіт швейцарського механізму (XAI)</span>';
+        ? '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> <span>▴ Приховати аналітичний модуль XAI</span>'
+        : '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg> <span>▾ Аналітичний модуль XAI (Діагностика)</span>';
     });
 
     // Decoy button: підставляємо маскувальні дані ТІЛЬКИ в поля, де користувач реально ввів дані зі Сховища

@@ -35,8 +35,8 @@ export class OpenRouterDriver implements ICloudLLMDriver {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${request.apiKey}`,
-        'HTTP-Referer': 'https://sanctuary-prism.local',
-        'X-Title': 'Sanctuary Prism',
+        'HTTP-Referer': 'https://sova.defense.local',
+        'X-Title': 'С.О.В.А. (S.O.V.A.)',
       },
       body: JSON.stringify(body),
       signal: request.signal,
@@ -104,8 +104,8 @@ export class OpenRouterDriver implements ICloudLLMDriver {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${request.apiKey}`,
-        'HTTP-Referer': 'https://sanctuary-prism.local',
-        'X-Title': 'Sanctuary Prism',
+        'HTTP-Referer': 'https://sova.defense.local',
+        'X-Title': 'С.О.В.А. (S.O.V.A.)',
       },
       body: JSON.stringify(body),
       signal: request.signal,

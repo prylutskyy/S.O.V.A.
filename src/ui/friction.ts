@@ -265,7 +265,7 @@ export class SecurityFriction {
 
   /**
    * Проактивне сповіщення про нейтралізацію пастки автозаповнення:
-   * Sanctuary Focus Capsule (Jony Ive Apple HIG & Frosted Optical Glass)
+   * Sanctuary Focus Capsule (Frosted Optical Glass)
    */
   public static showHiddenFieldTrapBanner(scan: HiddenFieldScanResult, form?: HTMLFormElement): void {
     const root = ShadowHost.getRoot();
@@ -352,8 +352,8 @@ export class SecurityFriction {
       .join(', ');
 
     const vaultSubtitle = hasVaultProvenance
-      ? `Захищено дані Сховища (${vaultProvenanceLabels.join(', ')}) · Sanctuary Autofill Guard`
-      : 'Sanctuary Autofill Guard';
+      ? `Захищено дані Сховища (${vaultProvenanceLabels.join(', ')}) · Контроль автозаповнення С.О.В.А.`
+      : 'Контроль автозаповнення С.О.В.А.';
 
     const humanNarrative = hasVaultProvenance
       ? `Сайт намагався потайки зчитати реквізити вашого Сховища (<strong style="color: var(--sanctuary-ink-primary, #1D1D1F); font-weight: 600;">${vaultProvenanceLabels.join(', ')}</strong>) через автозаповнення браузера. Приховані поля заблоковано, реальні дані не передано.`
@@ -793,7 +793,7 @@ export class SecurityFriction {
 
           const badge = document.createElement('div');
           badge.className = 'ts-xray-badge';
-          badge.title = `Прихована пастка: ${fullLabel} (${technique}) · Заблоковано Sanctuary`;
+          badge.title = `Прихована пастка: ${fullLabel} (${technique}) · Заблоковано С.О.В.А.`;
           badge.style.cssText = `
             position: absolute !important;
             top: ${pillTop}px !important;

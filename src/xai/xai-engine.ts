@@ -109,7 +109,7 @@ export class XaiEngine {
   }
 
   /**
-   * Лаконічний вердикт одним реченням за формулою контрасту (Apple HIG / Jony Ive style)
+   * Лаконічний вердикт одним реченням за формулою контрасту
    */
   public static determineVerdict(scenario: ScenarioDetails): string {
     switch (scenario.attackCategory) {
