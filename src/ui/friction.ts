@@ -8,7 +8,6 @@ import { AIArbiterService } from '../ai/ai-arbiter.service';
 import { DESIGN_TOKENS_CSS } from './design-tokens';
 import { PersonalVaultManager } from '../core/personal-vault';
 import { UserWhitelistManager } from '../core/user-whitelist';
-import { ToastNotifier } from './toast-notifier';
 import { DebuggerOverlay } from './debugger-overlay';
 
 export class SecurityFriction {
@@ -251,11 +250,6 @@ export class SecurityFriction {
     if (existing) {
       ShadowHost.remove(existing as HTMLElement);
     }
-
-    const subtitle = customSubtitle || 'Посилений моніторинг форм';
-    const message = `Сайт «${context.sourcePlatform}»: ${subtitle}. Форми перебувають під посиленим наглядом.`;
-
-    ToastNotifier.show(message, 'warning', 8500);
   }
 
   /**

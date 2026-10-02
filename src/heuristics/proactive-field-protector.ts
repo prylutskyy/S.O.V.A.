@@ -1,6 +1,5 @@
 import { PersonalVaultManager } from '../core/personal-vault';
 import { VaultScanner } from './vault-scanner';
-import { ToastNotifier } from '../ui/toast-notifier';
 import { ShadowHost } from '../ui/shadow-host';
 import { isWhitelisted, isMonitoredPlatform } from '../core/whitelist';
 import { isAccreditedPaymentGateway } from '../core/payment-gateways';

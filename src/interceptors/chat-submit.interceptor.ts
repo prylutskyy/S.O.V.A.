@@ -1,6 +1,5 @@
 import { ActiveThreatContext } from '../types';
 import { SecurityFriction } from '../ui/friction';
-import { ToastNotifier } from '../ui/toast-notifier';
 import { DebuggerOverlay } from '../ui/debugger-overlay';
 import { SessionOutboundMemory } from '../heuristics/session-outbound-memory';
 import { HiddenFieldInspector } from '../heuristics/hidden-field-inspector';
@@ -328,19 +327,6 @@ export class ChatSubmitInterceptor {
 
         if (isCriticalLeak) {
           ChatLivePill.show(input, evaluation);
-
-          if (this.options?.getDebugMode && this.options.getDebugMode()) {
-            const now = Date.now();
-            const lastWarn = parseInt(input.dataset?.threatShieldLastCvvWarn || '0', 10);
-            if (now - lastWarn > 8000) {
-              input.dataset.threatShieldLastCvvWarn = now.toString();
-              ToastNotifier.show(
-                '⚠️ Зафіксовано спробу передачі номера картки та CVV-коду. Для отримання коштів CVV-код ніколи не потрібен!',
-                'error',
-                10000
-              );
-            }
-          }
         } else {
           ChatLivePill.hide();
         }

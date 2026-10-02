@@ -1,4 +1,3 @@
-import { ToastNotifier } from '../ui/toast-notifier';
 import { ChatLivePill } from '../ui/chat-live-pill';
 import { FieldLivePill } from '../ui/field-live-pill';
 import { ActiveThreatContext } from '../types';

@@ -4,7 +4,6 @@ import { UserWhitelistManager } from '../core/user-whitelist';
 import { XaiEngine } from '../xai/xai-engine';
 import { VaultScanner } from '../heuristics/vault-scanner';
 import { ShadowHost } from './shadow-host';
-import { ToastNotifier } from './toast-notifier';
 import { DebuggerOverlay } from './debugger-overlay';
 import { DESIGN_TOKENS_CSS } from './design-tokens';
 
@@ -582,17 +581,6 @@ export class UnifiedFrictionModal {
         );
         this.close();
         options.onCancel();
-        const pluralValues = ToastNotifier.formatPluralUkrainian(
-          count,
-          'безпечне маскувальне значення',
-          'безпечні маскувальні значення',
-          'безпечних маскувальних значень'
-        );
-        ToastNotifier.show(
-          `Підставлено ${pluralValues} замість справжніх даних. Справжні секрети вашого Сховища надійно захищено.`,
-          'info',
-          7500
-        );
       }
     });
 

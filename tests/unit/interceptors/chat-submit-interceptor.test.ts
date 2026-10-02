@@ -3,7 +3,6 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { ChatSubmitInterceptor } from '../../../src/interceptors/chat-submit.interceptor';
 import { SessionOutboundMemory } from '../../../src/heuristics/session-outbound-memory';
 import { SecurityFriction } from '../../../src/ui/friction';
-import { ToastNotifier } from '../../../src/ui/toast-notifier';
 import { DebuggerOverlay } from '../../../src/ui/debugger-overlay';
 import { ShadowHost } from '../../../src/ui/shadow-host';
 import { ChatLivePill } from '../../../src/ui/chat-live-pill';
@@ -121,9 +120,7 @@ describe('ChatSubmitInterceptor (TDD Suite)', () => {
       vi.useRealTimers();
     });
 
-    it('proactively shows toast warning and renders ChatLivePill in debugMode', () => {
-      const toastSpy = vi.spyOn(ToastNotifier, 'show').mockImplementation(() => {});
-
+    it('proactively renders ChatLivePill on sensitive leak in debugMode without popup toasts', () => {
       ChatSubmitInterceptor.init({
         getActiveContext: () => null,
         getDebugMode: () => true,
@@ -137,18 +134,17 @@ describe('ChatSubmitInterceptor (TDD Suite)', () => {
 
       vi.advanceTimersByTime(150);
 
-      expect(toastSpy).toHaveBeenCalled();
       const shadowRoot = ShadowHost.getRoot();
       const pill = shadowRoot.querySelector('.ts-chat-live-pill');
       expect(pill).not.toBeNull();
       expect(pill?.textContent).toContain('CVV');
       // Native outline remains pristine (no aggressive red border)
       expect(input.style.outline).toBe('');
+      // No popup toast container in Shadow DOM
+      expect(shadowRoot.querySelector('#threat-shield-toast-container')).toBeNull();
     });
 
     it('renders ChatLivePill without noisy toast and keeps input outline native when debugMode is false (Apple-grade Silence)', () => {
-      const toastSpy = vi.spyOn(ToastNotifier, 'show').mockImplementation(() => {});
-
       ChatSubmitInterceptor.init({
         getActiveContext: () => null,
         getDebugMode: () => false,
@@ -162,13 +158,13 @@ describe('ChatSubmitInterceptor (TDD Suite)', () => {
 
       vi.advanceTimersByTime(150);
 
-      // NO toast for normal users!
-      expect(toastSpy).not.toHaveBeenCalled();
+      // NO popup toast container
+      const shadowRoot = ShadowHost.getRoot();
+      expect(shadowRoot.querySelector('#threat-shield-toast-container')).toBeNull();
       // Native input frame is NOT corrupted with red outline
       expect(input.style.outline).toBe('');
 
       // Elegant pill in Shadow DOM is displayed
-      const shadowRoot = ShadowHost.getRoot();
       const pill = shadowRoot.querySelector('.ts-chat-live-pill');
       expect(pill).not.toBeNull();
       expect(pill?.textContent).toContain('CVV');

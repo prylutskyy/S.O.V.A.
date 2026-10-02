@@ -4,7 +4,6 @@ import { SessionOutboundMemory } from './session-outbound-memory';
 import { AILureVerifier } from './ai-verifier';
 import { ChromeBuiltinAIProvider } from './chrome-ai-provider';
 import { checkOutboundChatLeakage } from './input-detector';
-import { ToastNotifier } from '../ui/toast-notifier';
 import { GlobalInputInterceptor } from './input-interceptor';
 import { DebuggerOverlay } from '../ui/debugger-overlay';
 

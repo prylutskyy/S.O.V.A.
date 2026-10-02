@@ -14,7 +14,6 @@ import { ChatSubmitInterceptor } from '../src/interceptors/chat-submit.intercept
 import { ClipboardInterceptor } from '../src/interceptors/clipboard.interceptor';
 import { ProactiveFieldProtector } from '../src/heuristics/proactive-field-protector';
 import { AIArbiterService } from '../src/ai/ai-arbiter.service';
-import { ToastNotifier } from '../src/ui/toast-notifier';
 
 export default defineContentScript({
   matches: ['<all_urls>'],
@@ -331,7 +330,6 @@ export default defineContentScript({
               `Загрозу спростовано [${aiResult.provider || 'ШІ'}: ${aiResult.modelUsed || ''}]: безпечно — ${aiResult.reasoning} (${aiResult.confidence}%)`,
               '#22C55E'
             );
-            ToastNotifier.show(`ШІ-Арбітр перевірив діалог: безпечно (${aiResult.reasoning})`, 'success', 4000);
           }
 
           window.postMessage({ type: 'THREAT_SHIELD_CONTEXT_CLEARED' }, '*');
