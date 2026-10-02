@@ -24,6 +24,7 @@ export interface FieldLivePillRecord {
   vaultLabel?: string;
   isHovered: boolean;
   cleanups: Array<() => void>;
+  lastRenderedSignature?: string;
 }
 
 export class FieldLivePill {
@@ -128,9 +129,11 @@ export class FieldLivePill {
 
     const handleInput = () => {
       const val = (input.value || '').trim();
+      const hasText = val.length > 0;
 
       if (record.isVaultAlert) {
         // Якщо активна тривога Сховища: розгорнуто при <= 7 символах, згорнуто при > 7
+        this.updateCleanButtonVisibility(record, hasText);
         if (val.length <= 7) {
           if (!record.isExpanded) this.expandPill(input, record);
         } else {
@@ -143,27 +146,30 @@ export class FieldLivePill {
         // Поле очищено: повертаємо у початковий стан спокою
         record.isCaution = false;
         record.isRedAlert = false;
-        this.renderPillContent(record);
+        this.updateCleanButtonVisibility(record, false);
         if (record.isExpanded) {
           this.collapsePill(input, record);
+        } else {
+          this.renderPillContent(record);
         }
       } else if (val.length <= 7) {
         // Від 1 до 7 символів: застереження залишається РОЗГОРНУТИМ (людина встигає прочитати)
         record.isCaution = false;
         record.isRedAlert = false;
+        this.updateCleanButtonVisibility(record, true);
         if (!record.isExpanded) {
           this.expandPill(input, record);
-        } else {
-          this.renderPillContent(record);
         }
       } else {
         // Більше 7 символів: користувач свідомо продовжує введення.
         // Банер плавно згортається в компактну бурштинову пігулку (Warm Amber), звільняючи форму
+        const wasCaution = record.isCaution;
         record.isCaution = true;
         record.isRedAlert = false;
+        this.updateCleanButtonVisibility(record, true);
         if (record.isExpanded) {
           this.collapsePill(input, record);
-        } else {
+        } else if (!wasCaution) {
           this.renderPillContent(record);
         }
       }
@@ -397,6 +403,16 @@ export class FieldLivePill {
   }
 
   /**
+   * Оновлення видимості кнопки очищення без перезавантаження DOM дерева
+   */
+  private static updateCleanButtonVisibility(record: FieldLivePillRecord, hasText: boolean): void {
+    const cleanWrap = record.pillElement.querySelector('.ts-field-clean-wrap') as HTMLElement | null;
+    if (cleanWrap) {
+      cleanWrap.style.display = hasText ? 'flex' : 'none';
+    }
+  }
+
+  /**
    * Рендеринг вмісту пігулки залежно від поточного стану (Fluid Morphing)
    */
   private static renderPillContent(record: FieldLivePillRecord): void {
@@ -410,6 +426,15 @@ export class FieldLivePill {
     pill.classList.toggle('ts-pill-red', isVaultAlert);
     pill.classList.toggle('ts-pill-amber', isCaution && !isVaultAlert);
     pill.classList.toggle('ts-expanded', isExpanded);
+
+    const currentSignature = `${isVaultAlert ? '1' : '0'}_${record.vaultLabel || ''}_${isCaution ? '1' : '0'}_${isExpanded ? '1' : '0'}`;
+
+    if (record.lastRenderedSignature === currentSignature && pill.children.length > 0) {
+      this.updateCleanButtonVisibility(record, hasText);
+      return;
+    }
+
+    record.lastRenderedSignature = currentSignature;
 
     if (isVaultAlert) {
       // 1. ПІДТВЕРДЖЕНИЙ ЗБІГ ЗІ СХОВИЩЕМ (КРИТИЧНИЙ СТАН CRIMSON RED)
@@ -439,7 +464,7 @@ export class FieldLivePill {
                 </p>
               </div>
             </div>
-            <div style="display: flex; justify-content: flex-end; align-items: center; margin-top: 8px; padding-top: 6px; border-top: 1px solid rgba(220, 38, 38, 0.12);">
+            <div class="ts-field-clean-wrap" style="display: ${hasText ? 'flex' : 'none'}; justify-content: flex-end; align-items: center; margin-top: 8px; padding-top: 6px; border-top: 1px solid rgba(220, 38, 38, 0.12);">
               <button class="ts-pill-action-chip ts-field-clean-action">
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                 Очистити
@@ -484,7 +509,7 @@ export class FieldLivePill {
                 </p>
               </div>
             </div>
-            <div style="display: flex; justify-content: flex-end; align-items: center; margin-top: 8px; padding-top: 6px; border-top: 1px solid rgba(217, 119, 6, 0.15);">
+            <div class="ts-field-clean-wrap" style="display: ${hasText ? 'flex' : 'none'}; justify-content: flex-end; align-items: center; margin-top: 8px; padding-top: 6px; border-top: 1px solid rgba(217, 119, 6, 0.15);">
               <button class="ts-pill-action-chip ts-field-clean-action">
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                 Очистити
@@ -526,14 +551,12 @@ export class FieldLivePill {
                 </p>
               </div>
             </div>
-            ${hasText ? `
-              <div style="display: flex; justify-content: flex-end; align-items: center; margin-top: 8px; padding-top: 6px; border-top: 1px solid rgba(0, 113, 227, 0.10);">
-                <button class="ts-pill-action-chip ts-field-clean-action">
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                  Очистити
-                </button>
-              </div>
-            ` : ''}
+            <div class="ts-field-clean-wrap" style="display: ${hasText ? 'flex' : 'none'}; justify-content: flex-end; align-items: center; margin-top: 8px; padding-top: 6px; border-top: 1px solid rgba(0, 113, 227, 0.10);">
+              <button class="ts-pill-action-chip ts-field-clean-action">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                Очистити
+              </button>
+            </div>
           </div>
         `;
       } else {

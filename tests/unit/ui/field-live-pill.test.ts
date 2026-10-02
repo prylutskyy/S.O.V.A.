@@ -191,4 +191,59 @@ describe('FieldLivePill (Edge Micro-Pill & Unrolling Cognitive Banner)', () => {
     expect(taxPill.classList.contains('ts-expanded')).toBe(true);
     expect(taxPill.textContent).toContain('ІПН');
   });
+
+  it('does not re-render DOM or restart animations on keystrokes when typing into protected fields (anti-flicker guarantee)', () => {
+    FieldLivePill.attach(input, {
+      categoryLabel: 'Код безпеки (CVV)',
+      fieldType: 'PAYMENT_CVV',
+      isTierA: true,
+    });
+
+    const root = ShadowHost.getRoot();
+    const pill = root.querySelector('.ts-field-live-pill') as HTMLElement;
+
+    // Focus field -> expands smoothly
+    input.dispatchEvent(new Event('focus'));
+    expect(pill.classList.contains('ts-expanded')).toBe(true);
+
+    const innerBanner = pill.querySelector('.ts-field-pill-inner');
+    expect(innerBanner).not.toBeNull();
+
+    // Type characters 1 through 7 sequentially
+    for (let i = 1; i <= 7; i++) {
+      input.value = '1234567'.slice(0, i);
+      input.dispatchEvent(new Event('input'));
+
+      // Pill remains expanded
+      expect(pill.classList.contains('ts-expanded')).toBe(true);
+
+      // CRITICAL ANTI-FLICKER ASSERTION:
+      // The inner element MUST be the EXACT SAME DOM object (identity equality).
+      // If innerHTML was rewritten, querySelector would return a new object reference.
+      const currentInner = pill.querySelector('.ts-field-pill-inner');
+      expect(currentInner).toBe(innerBanner);
+
+      // Clean button wrapper becomes visible without DOM rebuild
+      const cleanWrap = pill.querySelector('.ts-field-clean-wrap') as HTMLElement;
+      expect(cleanWrap.style.display).toBe('flex');
+    }
+
+    // Type 8th character -> transitions once to collapsed amber caution
+    input.value = '12345678';
+    input.dispatchEvent(new Event('input'));
+    expect(pill.classList.contains('ts-expanded')).toBe(false);
+    expect(pill.classList.contains('ts-pill-amber')).toBe(true);
+
+    const collapsedChild = pill.firstElementChild;
+
+    // Type 9th and 10th characters -> remains collapsed amber without re-rendering child DOM
+    input.value = '123456789';
+    input.dispatchEvent(new Event('input'));
+    expect(pill.firstElementChild).toBe(collapsedChild);
+
+    input.value = '1234567890';
+    input.dispatchEvent(new Event('input'));
+    expect(pill.firstElementChild).toBe(collapsedChild);
+  });
 });
+
