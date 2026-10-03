@@ -54,11 +54,15 @@ export class GroqDriver implements ICloudLLMDriver {
     try {
       parsed = JSON.parse(rawReply);
     } catch {
-      const clean = rawReply.replace(/```json/gi, '').replace(/```/g, '').trim();
-      const first = clean.indexOf('{');
-      const last = clean.lastIndexOf('}');
-      if (first !== -1 && last !== -1) {
-        parsed = JSON.parse(clean.substring(first, last + 1));
+      try {
+        const clean = rawReply.replace(/```json/gi, '').replace(/```/g, '').trim();
+        const first = clean.indexOf('{');
+        const last = clean.lastIndexOf('}');
+        if (first !== -1 && last !== -1 && last > first) {
+          parsed = JSON.parse(clean.substring(first, last + 1));
+        }
+      } catch {
+        // Fallback when LLM output is truncated or non-JSON
       }
     }
 

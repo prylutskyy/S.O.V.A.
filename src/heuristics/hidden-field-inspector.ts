@@ -311,6 +311,17 @@ export class HiddenFieldInspector {
       return { isCloaked: true, reason: 'explicit zero dimensions (width/height: 0px)', cloakingTechnique: 'ZERO_DIMENSIONS' };
     }
 
+    // J. Font-size 0 / filter opacity 0
+    const fontSize = (style.fontSize || inlineStyle.fontSize || '').toLowerCase();
+    if (fontSize === '0px' || fontSize === '0') {
+      return { isCloaked: true, reason: 'font-size: 0px', cloakingTechnique: 'FONT_SIZE_ZERO' };
+    }
+
+    const filter = (style.filter || (style as any).webkitFilter || inlineStyle.filter || '').toLowerCase();
+    if (filter && (filter.includes('opacity(0') || filter.includes('opacity(0%)'))) {
+      return { isCloaked: true, reason: `filter: ${filter}`, cloakingTechnique: 'OPACITY_ZERO' };
+    }
+
     // J. getBoundingClientRect (у реальному браузері з активним лейаутом)
     const isMockDom = typeof navigator !== 'undefined' && (
       navigator.userAgent.includes('happy-dom') ||

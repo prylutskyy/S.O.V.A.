@@ -108,7 +108,7 @@ export class FuzzyMatcher {
    */
   public static canonicalFold(text: string): string {
     if (!text) return '';
-    const lower = text.trim().toLowerCase();
+    const lower = text.replace(/[\u200B-\u200D\uFEFF\u2060\u202A-\u202E\u00A0]/g, '').trim().toLowerCase();
 
     // 1. Заміна гомогліфів
     let unihomoglyph = '';

@@ -44,9 +44,9 @@ export class ContextManager {
       const now = Date.now();
       const elapsed = now - context.timestamp;
 
-      // Перевірка терміну життя (TTL)
-      if (elapsed > context.ttlMs) {
-        console.log(`[SOVA:Context] Термін дії контексту минув для вкладки ${tabId}, очищення...`);
+      // Перевірка терміну життя (TTL) та захист від часових аномалій (Clock Skew)
+      if (elapsed > context.ttlMs || elapsed < -60000) {
+        console.log(`[SOVA:Context] Термін дії контексту минув або виявлено зсув часу для вкладки ${tabId}, очищення...`);
         await this.clearTaintedContext(tabId);
         return null;
       }
@@ -70,6 +70,10 @@ export class ContextManager {
    * Копіювання контексту з батьківської вкладки у дочірню (Tab Lineage)
    */
   public async propagateContext(sourceTabId: number, targetTabId: number): Promise<boolean> {
+    if (sourceTabId === targetTabId) {
+      return false; // Запобігання самопоширенню (self-lineage loop)
+    }
+
     const sourceCtx = await this.getActiveTaintedContext(sourceTabId);
     if (!sourceCtx) return false;
 

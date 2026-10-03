@@ -37,8 +37,8 @@ export class TextNormalizer {
     let normalized = text.toLowerCase();
 
     // 2. Видалення пробілів, дефісів, крапок, ком, нижніх підкреслень 
-    // (які часто використовують шахраї для розділення літер)
-    normalized = normalized.replace(/[\s\-_.,!?'"~*^]/g, '');
+    // та невидимих/zero-width символів обфускації (U+200B-U+200D, U+FEFF, U+2060, RTLO тощо)
+    normalized = normalized.replace(/[\s\-_.,!?'"~*^\u200B-\u200D\uFEFF\u2060\u202A-\u202E\u00A0]/g, '');
 
     // 3. Заміна гомогліфів
     let result = '';
@@ -57,15 +57,19 @@ export class TextNormalizer {
   public static normalizeWords(text: string): string {
     if (!text) return '';
 
-    // 1. Попередня заміна гомогліфів та нижній регістр для всього тексту
+    // 1. Видалення zero-width/RTLO символів перед розбиттям по пробілах,
+    // оскільки \uFEFF розцінюється JS RegExp \s як пробіл
+    const cleaned = text.replace(/[\u200B-\u200D\uFEFF\u2060\u202A-\u202E\u00A0]/g, '');
+
+    // 2. Попередня заміна гомогліфів та нижній регістр для всього тексту
     let preNormalized = '';
-    const lower = text.toLowerCase();
+    const lower = cleaned.toLowerCase();
     for (let i = 0; i < lower.length; i++) {
       const char = lower[i];
       preNormalized += this.homoglyphMap[char] || char;
     }
 
-    // 2. Розбиваємо по пробілах, видаляємо пунктуацію
+    // 3. Розбиваємо по пробілах, видаляємо пунктуацію
     const tokens = preNormalized
       .split(/\s+/)
       .map(word => word.replace(/[\-_.,!?'"~*^]/g, ''))
