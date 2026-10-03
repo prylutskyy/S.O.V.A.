@@ -84,17 +84,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  // 5. Динамічне вирівнювання висоти попапу під обмеження вікна Chrome
-  const syncViewportHeight = () => {
-    const vh = window.innerHeight;
-    if (vh > 0 && vh < 560) {
-      document.documentElement.style.height = `${vh}px`;
-      document.body.style.height = `${vh}px`;
-    }
-  };
-  syncViewportHeight();
-  window.addEventListener('resize', syncViewportHeight);
-
   // За замовчуванням відкриваємо розділ ЗАХИСТУ САЙТУ
   await setActiveTab('shield');
 });

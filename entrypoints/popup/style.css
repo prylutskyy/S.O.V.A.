@@ -15,18 +15,12 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-html {
+html, body {
   color-scheme: light;
   width: 390px;
   height: 560px;
-  max-height: 100vh;
-}
-
-body {
-  color-scheme: light;
-  width: 100%;
-  height: 100%;
-  max-height: 100vh;
+  min-height: 560px;
+  max-height: 580px;
   background-color: var(--sanctuary-canvas);
   color: var(--sanctuary-ink-primary);
   font-size: 13px;
@@ -398,23 +392,112 @@ body {
 /* ==========================================================================
    5. TAINTED CONTEXT ELEVATED BANNER: APPLE HIG CONTEXT BRIDGE
    ========================================================================== */
-.tainted-banner {
-  background: var(--sanctuary-amber-bg);
-  border: 1px solid var(--sanctuary-amber-bd);
-  border-radius: 14px;
-  padding: 10px 12px;
+.tainted-container {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  box-shadow: 0 1px 3px rgba(255, 149, 0, 0.08), 0 4px 12px rgba(255, 149, 0, 0.04);
+  gap: 6px;
   animation: taintedSlideDown 0.25s var(--ease-apple-spring);
-  position: relative;
   flex-shrink: 0;
 }
 
 @keyframes taintedSlideDown {
   from { opacity: 0; transform: translateY(-6px); }
   to   { opacity: 1; transform: translateY(0); }
+}
+
+.tainted-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2px;
+}
+
+.tainted-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2.5px 7px;
+  border-radius: 6px;
+  background: rgba(255, 149, 0, 0.18);
+  border: 1px solid rgba(255, 149, 0, 0.3);
+  color: var(--sanctuary-amber-ink);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+
+.tainted-pulse-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: amberPulse 1.8s infinite ease-in-out;
+}
+
+@keyframes amberPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.45; transform: scale(0.85); }
+}
+
+.btn-tainted-reset {
+  height: 28px;
+  padding: 0 11px;
+  border-radius: 8px;
+  border: none;
+  background: var(--sanctuary-amber);
+  color: #FFFFFF;
+  font-size: 11.5px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(255, 149, 0, 0.35), 0 2px 6px rgba(255, 149, 0, 0.2);
+  transition: all 0.18s var(--ease-apple-spring);
+  font-family: var(--font-sanctuary);
+  text-decoration: none;
+  outline: none;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.btn-tainted-reset svg {
+  width: 13px;
+  height: 13px;
+  stroke: #FFFFFF;
+  color: #FFFFFF;
+  flex-shrink: 0;
+  transition: transform 0.3s var(--ease-apple-spring);
+}
+
+.btn-tainted-reset:hover {
+  background: var(--sanctuary-amber-hover);
+  box-shadow: 0 2px 8px rgba(255, 149, 0, 0.45);
+}
+
+.btn-tainted-reset:hover svg {
+  transform: rotate(-45deg);
+}
+
+.btn-tainted-reset:active {
+  transform: scale(0.97);
+}
+
+.btn-tainted-reset:focus-visible {
+  outline: 2px solid var(--sanctuary-amber);
+  outline-offset: 2px;
+}
+
+.tainted-card {
+  background: var(--sanctuary-amber-bg);
+  border: 1px solid var(--sanctuary-amber-bd);
+  border-radius: 12px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: 0 1px 3px rgba(255, 149, 0, 0.08);
 }
 
 .tainted-lead {
@@ -461,71 +544,6 @@ body {
   font-size: 10.5px;
   color: var(--sanctuary-ink-secondary);
   line-height: 1.2;
-}
-
-.tainted-header-actions {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-shrink: 0;
-}
-
-.tainted-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 2.5px 7px;
-  border-radius: 6px;
-  background: rgba(255, 149, 0, 0.18);
-  border: 1px solid rgba(255, 149, 0, 0.3);
-  color: var(--sanctuary-amber-ink);
-  font-size: 9.5px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  flex-shrink: 0;
-}
-
-.btn-tainted-close {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  border: 1px solid rgba(255, 149, 0, 0.28);
-  background: rgba(255, 149, 0, 0.12);
-  color: var(--sanctuary-amber-ink);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  padding: 0;
-  transition: all 0.15s var(--ease-apple-spring);
-  outline: none;
-}
-
-.btn-tainted-close:hover {
-  background: rgba(255, 149, 0, 0.24);
-  transform: scale(1.06);
-}
-
-.btn-tainted-close:active {
-  transform: scale(0.94);
-}
-
-.btn-tainted-close:focus-visible {
-  outline: 2px solid var(--sanctuary-amber);
-  outline-offset: 1px;
-}
-
-.tainted-pulse-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: currentColor;
-  animation: amberPulse 1.8s infinite ease-in-out;
-}
-
-@keyframes amberPulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.45; transform: scale(0.85); }
 }
 
 /* Visual Context Bridge Card */
@@ -588,65 +606,6 @@ body {
   padding: 0 1px;
   word-break: break-word;
   overflow-wrap: anywhere;
-}
-
-.tainted-actions {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  margin-top: 2px;
-}
-
-.btn-tainted-reset {
-  width: 100%;
-  height: 34px;
-  padding: 0 14px;
-  border-radius: 9px;
-  border: none;
-  background: var(--sanctuary-amber);
-  color: #FFFFFF;
-  font-size: 12px;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  cursor: pointer;
-  box-shadow: 0 1px 3px rgba(255, 149, 0, 0.35), 0 2px 8px rgba(255, 149, 0, 0.22);
-  transition: all 0.18s var(--ease-apple-spring);
-  font-family: var(--font-sanctuary);
-  text-decoration: none;
-  outline: none;
-  -webkit-appearance: none;
-  appearance: none;
-}
-
-.btn-tainted-reset svg {
-  width: 14px;
-  height: 14px;
-  stroke: #FFFFFF;
-  color: #FFFFFF;
-  flex-shrink: 0;
-  transition: transform 0.3s var(--ease-apple-spring);
-}
-
-.btn-tainted-reset:hover {
-  background: var(--sanctuary-amber-hover);
-  box-shadow: 0 3px 10px rgba(255, 149, 0, 0.45);
-}
-
-.btn-tainted-reset:hover svg {
-  transform: rotate(-45deg);
-}
-
-.btn-tainted-reset:active {
-  transform: scale(0.98);
-  box-shadow: 0 1px 3px rgba(255, 149, 0, 0.25);
-}
-
-.btn-tainted-reset:focus-visible {
-  outline: 2px solid var(--sanctuary-amber);
-  outline-offset: 2px;
 }
 
 /* ==========================================================================
