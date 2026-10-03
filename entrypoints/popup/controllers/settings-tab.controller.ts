@@ -20,6 +20,11 @@ export class SettingsTabController {
 
   // Cloud AI Controls (Groq Dedicated)
   private toggleCloudAi: HTMLInputElement | null;
+  private cloudAiSummaryRow: HTMLElement | null;
+  private cloudAiSummarySubtitle: HTMLElement | null;
+  private btnToggleCloudAiDetails: HTMLButtonElement | null;
+  private cloudAiSettingsArea: HTMLElement | null;
+  private btnCollapseCloudAi: HTMLButtonElement | null;
   private cloudAiProviderSelect: HTMLSelectElement | null;
   private cloudAiKeySavedPill: HTMLElement | null;
   private cloudAiKeyHint: HTMLElement | null;
@@ -65,6 +70,11 @@ export class SettingsTabController {
     this.toggleDebugMode = document.getElementById('toggleDebugMode') as HTMLInputElement;
 
     this.toggleCloudAi = document.getElementById('toggleCloudAi') as HTMLInputElement | null;
+    this.cloudAiSummaryRow = document.getElementById('cloudAiSummaryRow') as HTMLElement | null;
+    this.cloudAiSummarySubtitle = document.getElementById('cloudAiSummarySubtitle') as HTMLElement | null;
+    this.btnToggleCloudAiDetails = document.getElementById('btnToggleCloudAiDetails') as HTMLButtonElement | null;
+    this.cloudAiSettingsArea = document.getElementById('cloudAiSettingsArea') as HTMLElement | null;
+    this.btnCollapseCloudAi = document.getElementById('btnCollapseCloudAi') as HTMLButtonElement | null;
     this.cloudAiProviderSelect = document.getElementById('cloudAiProviderSelect') as HTMLSelectElement | null;
     this.cloudAiKeySavedPill = document.getElementById('cloudAiKeySavedPill') as HTMLElement | null;
     this.cloudAiKeyHint = document.getElementById('cloudAiKeyHint') as HTMLElement | null;
@@ -198,19 +208,16 @@ export class SettingsTabController {
           </div>
           <div class="empty-state-title">Немає довірених сайтів</div>
           <div class="empty-state-desc">Сайти зі списку винятків не скануються на загрози.</div>
-          <button type="button" class="btn-secondary" id="btnEmptyAdd" style="font-size: 11.5px; height: 30px;">+ Додати перший сайт</button>
         </li>
       `;
-
-      const btnEmptyAdd = this.whitelistUl.querySelector('#btnEmptyAdd') as HTMLButtonElement | null;
-      btnEmptyAdd?.addEventListener('click', () => {
-        if (this.manualAddRow) {
-          this.manualAddRow.classList.remove('hidden');
-          if (this.btnToggleManualAdd) this.btnToggleManualAdd.textContent = 'Закрити';
-          this.manualHostInput?.focus();
-        }
-      });
+      if (this.btnClearAllWhitelist) {
+        this.btnClearAllWhitelist.style.display = 'none';
+      }
       return;
+    }
+
+    if (this.btnClearAllWhitelist) {
+      this.btnClearAllWhitelist.style.display = '';
     }
 
     domains.sort().forEach((domain) => {
@@ -355,10 +362,49 @@ export class SettingsTabController {
     }
   }
 
+  public setCloudAiDrawer(open: boolean): void {
+    if (!this.cloudAiSettingsArea) return;
+    if (open) {
+      this.cloudAiSettingsArea.classList.remove('hidden');
+      this.btnToggleCloudAiDetails?.classList.add('rotated');
+      this.btnToggleCloudAiDetails?.setAttribute('aria-expanded', 'true');
+    } else {
+      this.cloudAiSettingsArea.classList.add('hidden');
+      this.btnToggleCloudAiDetails?.classList.remove('rotated');
+      this.btnToggleCloudAiDetails?.setAttribute('aria-expanded', 'false');
+    }
+  }
+
+  public toggleCloudAiDrawer(): void {
+    const isClosed = !this.cloudAiSettingsArea || this.cloudAiSettingsArea.classList.contains('hidden');
+    this.setCloudAiDrawer(isClosed);
+  }
+
+  private updateCloudAiSummary(key: string | null, config: { enabled?: boolean; model?: string }): void {
+    if (!this.cloudAiSummarySubtitle) return;
+    const isEnabled = !!config.enabled;
+    const model = config.model || 'qwen3.8-27b';
+
+    if (key) {
+      if (isEnabled) {
+        this.cloudAiSummarySubtitle.textContent = `Groq · ${model} (Активно)`;
+        this.cloudAiSummarySubtitle.style.color = 'var(--sanctuary-green-ink)';
+      } else {
+        this.cloudAiSummarySubtitle.textContent = 'Вимкнено (Groq налаштовано)';
+        this.cloudAiSummarySubtitle.style.color = 'var(--sanctuary-ink-secondary)';
+      }
+    } else {
+      this.cloudAiSummarySubtitle.textContent = 'Потрібно налаштувати ключ';
+      this.cloudAiSummarySubtitle.style.color = 'var(--sanctuary-amber-ink)';
+    }
+  }
+
   private async renderCloudAiState(): Promise<void> {
     const key = await SecureKeyStore.getApiKey('groq');
     const hint = await SecureKeyStore.getKeyHint('groq');
     const config = await SecureKeyStore.getConfig();
+
+    this.updateCloudAiSummary(key, config);
 
     if (key) {
       // 1. Стан: Ключ налаштовано
@@ -537,8 +583,34 @@ export class SettingsTabController {
     // Cloud AI Switch
     this.toggleCloudAi?.addEventListener('change', async (e) => {
       const isEnabled = (e.target as HTMLInputElement).checked;
+      const key = await SecureKeyStore.getApiKey('groq');
+      const config = await SecureKeyStore.getConfig();
+
+      if (isEnabled && !key) {
+        this.setCloudAiDrawer(true);
+        this.cloudAiKeyInput?.focus();
+        this.showToast('Введіть Groq API ключ для підключення');
+      }
+
       await SecureKeyStore.saveConfig({ enabled: isEnabled, provider: 'groq' });
+      this.updateCloudAiSummary(key, { ...config, enabled: isEnabled });
       this.showToast(isEnabled ? 'Хмарний арбітраж Groq активовано' : 'Хмарний арбітраж вимкнено');
+    });
+
+    // Cloud AI Drawer Toggles
+    this.btnToggleCloudAiDetails?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.toggleCloudAiDrawer();
+    });
+
+    this.cloudAiSummaryRow?.addEventListener('click', (e) => {
+      if ((e.target as HTMLElement).closest('.ios-switch')) return;
+      if ((e.target as HTMLElement).closest('.btn-disclosure')) return;
+      this.toggleCloudAiDrawer();
+    });
+
+    this.btnCollapseCloudAi?.addEventListener('click', () => {
+      this.setCloudAiDrawer(false);
     });
 
     // Refresh Models from Provider API (subtle header button)
@@ -583,6 +655,9 @@ export class SettingsTabController {
         await SecureKeyStore.saveConfig({ provider: 'groq', model: val });
         this.showToast(`Вибрано модель: ${val}`);
         this.showFeedback(`Активна модель: ${val}`, true);
+        const key = await SecureKeyStore.getApiKey('groq');
+        const config = await SecureKeyStore.getConfig();
+        this.updateCloudAiSummary(key, { ...config, model: val });
       }
     });
 
@@ -596,6 +671,9 @@ export class SettingsTabController {
       await SecureKeyStore.saveConfig({ provider: 'groq', model: customModel });
       this.showToast(`Вибрано модель: ${customModel}`);
       this.showFeedback(`Активна модель: ${customModel}`, true);
+      const key = await SecureKeyStore.getApiKey('groq');
+      const config = await SecureKeyStore.getConfig();
+      this.updateCloudAiSummary(key, { ...config, model: customModel });
     });
 
     // Save Groq API Key & Auto-connect (Unified "Підключити" action)

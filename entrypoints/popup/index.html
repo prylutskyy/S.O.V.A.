@@ -337,19 +337,33 @@
     <!-- 2. Cloud AI (Groq) Section: INTELLECT & ARBITRATION -->
     <div class="section-group">
       <div class="section-label">ХМАРНИЙ АРБІТРАЖ (GROQ CLOUD)</div>
-      <div class="sanctuary-card stack-col stack-col-10">
-        <div class="row-between">
-          <div class="inset-info">
-            <div class="inset-title">Нейроперевірка загроз</div>
-            <div class="inset-desc">Zero-Knowledge псевдонімізація перед відправкою</div>
+      <div class="sanctuary-card stack-col stack-col-10" id="cloudAiCard">
+        <div class="cloud-ai-summary-row interactive" id="cloudAiSummaryRow">
+          <div class="inset-lead">
+            <div class="inset-icon-box purple">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>
+              </svg>
+            </div>
+            <div class="inset-info">
+              <div class="inset-title">Нейроперевірка загроз</div>
+              <div class="inset-desc" id="cloudAiSummarySubtitle">Потрібно налаштувати ключ</div>
+            </div>
           </div>
-          <label class="ios-switch" title="Увімкнути/вимкнути хмарний ШІ">
-            <input type="checkbox" id="toggleCloudAi">
-            <span class="ios-slider"></span>
-          </label>
+          <div class="row-gap-6">
+            <label class="ios-switch" title="Увімкнути/вимкнути хмарний ШІ">
+              <input type="checkbox" id="toggleCloudAi">
+              <span class="ios-slider"></span>
+            </label>
+            <button type="button" class="btn-disclosure" id="btnToggleCloudAiDetails" aria-expanded="false" title="Налаштування ШІ" aria-label="Налаштування ШІ">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="disclosure-chevron">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+          </div>
         </div>
 
-        <div id="cloudAiSettingsArea" class="stack-col stack-col-8">
+        <div id="cloudAiSettingsArea" class="stack-col stack-col-8 cloud-ai-drawer hidden">
           <!-- Fact Note (Pure statement, zero excuses) -->
           <div class="apple-fact-note">
             <span>Потрібен API-ключ Groq. Стандарт перевірки — <strong>qwen3.8-27b</strong>.</span>
@@ -431,6 +445,10 @@
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="flex-shrink: 0;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
             <span>Ключ захищено AES-GCM 256 на цьому пристрої.</span>
           </div>
+
+          <button type="button" class="btn-subtle" id="btnCollapseCloudAi" style="align-self: center; font-size: 11px; margin-top: 2px;">
+            Згорнути налаштування
+          </button>
         </div>
       </div>
     </div>

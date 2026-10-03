@@ -68,25 +68,32 @@ function setupDOM() {
       </label>
     </div>
 
-    <input type="checkbox" id="toggleCloudAi" />
-    <select id="cloudAiProviderSelect"></select>
-    <div id="cloudAiKeySavedPill"></div>
-    <div id="cloudAiKeyHint"></div>
-    <button id="btnToggleChangeKey"></button>
-    <button id="btnDeleteCloudAiKey"></button>
-    <div id="cloudAiKeyInputWrapper"></div>
-    <div id="cloudAiKeyNotSet"></div>
-    <input id="cloudAiKeyInput" type="password" />
-    <button id="btnSaveCloudAiKey"></button>
-    <span id="btnSaveCloudAiKeyText"></span>
-    <div id="cloudAiModelContainer"></div>
-    <button id="btnRefreshModels"></button>
-    <select id="cloudAiModelSelect"></select>
-    <button id="btnApplyModel"></button>
-    <div id="customModelInputWrapper"></div>
-    <input id="cloudAiCustomModelInput" type="text" />
-    <button id="btnApplyCustomModel"></button>
-    <div id="cloudAiStatusFeedback"></div>
+    <div id="cloudAiSummaryRow">
+      <div id="cloudAiSummarySubtitle"></div>
+      <input type="checkbox" id="toggleCloudAi" />
+      <button id="btnToggleCloudAiDetails"></button>
+    </div>
+    <div id="cloudAiSettingsArea" class="hidden">
+      <select id="cloudAiProviderSelect"></select>
+      <div id="cloudAiKeySavedPill"></div>
+      <div id="cloudAiKeyHint"></div>
+      <button id="btnToggleChangeKey"></button>
+      <button id="btnDeleteCloudAiKey"></button>
+      <div id="cloudAiKeyInputWrapper"></div>
+      <div id="cloudAiKeyNotSet"></div>
+      <input id="cloudAiKeyInput" type="password" />
+      <button id="btnSaveCloudAiKey"></button>
+      <span id="btnSaveCloudAiKeyText"></span>
+      <div id="cloudAiModelContainer"></div>
+      <button id="btnRefreshModels"></button>
+      <select id="cloudAiModelSelect"></select>
+      <button id="btnApplyModel"></button>
+      <div id="customModelInputWrapper"></div>
+      <input id="cloudAiCustomModelInput" type="text" />
+      <button id="btnApplyCustomModel"></button>
+      <div id="cloudAiStatusFeedback"></div>
+      <button id="btnCollapseCloudAi"></button>
+    </div>
 
     <div id="confirmSheetBackdrop" class="hidden"></div>
     <div id="confirmSheetTitle"></div>
@@ -192,5 +199,108 @@ describe('SettingsTabController - Debugger Toggle & Synchronization', () => {
     await new Promise((r) => setTimeout(r, 10));
 
     expect(checkbox.checked).toBe(true);
+  });
+});
+
+describe('SettingsTabController - Whitelist UX & Empty State', () => {
+  beforeEach(async () => {
+    setupDOM();
+    for (const key of Object.keys(mockStorage)) delete mockStorage[key];
+    await UserWhitelistManager.init();
+    await UserWhitelistManager.clearAll();
+  });
+
+  it('renders clean empty state without redundant add button and hides clear-all button', async () => {
+    const ctrl = new SettingsTabController(vi.fn(), vi.fn());
+    await ctrl.renderWhitelist();
+
+    const whitelistUl = document.getElementById('whitelistUl') as HTMLUListElement;
+    const btnClearAll = document.getElementById('btnClearAllWhitelist') as HTMLButtonElement;
+
+    expect(whitelistUl.querySelector('.empty-state')).toBeTruthy();
+    expect(whitelistUl.querySelector('#btnEmptyAdd')).toBeNull();
+    expect(whitelistUl.textContent).toContain('Немає довірених сайтів');
+    expect(btnClearAll.style.display).toBe('none');
+  });
+
+  it('shows clear-all button and lists domains when whitelist is not empty', async () => {
+    await UserWhitelistManager.allowDomain('safe-bank.ua');
+    const ctrl = new SettingsTabController(vi.fn(), vi.fn());
+    await ctrl.renderWhitelist();
+
+    const whitelistUl = document.getElementById('whitelistUl') as HTMLUListElement;
+    const btnClearAll = document.getElementById('btnClearAllWhitelist') as HTMLButtonElement;
+
+    expect(whitelistUl.querySelector('.empty-state')).toBeNull();
+    expect(whitelistUl.querySelector('.domain-name')?.textContent).toBe('safe-bank.ua');
+    expect(btnClearAll.style.display).not.toBe('none');
+  });
+});
+
+describe('SettingsTabController - Cloud AI Progressive Disclosure Drawer', () => {
+  beforeEach(async () => {
+    setupDOM();
+    for (const key of Object.keys(mockStorage)) delete mockStorage[key];
+    await UserWhitelistManager.init();
+  });
+
+  it('toggles cloud AI drawer via disclosure button', () => {
+    new SettingsTabController(vi.fn(), vi.fn());
+    const drawer = document.getElementById('cloudAiSettingsArea') as HTMLElement;
+    const btnToggle = document.getElementById('btnToggleCloudAiDetails') as HTMLButtonElement;
+
+    expect(drawer.classList.contains('hidden')).toBe(true);
+
+    btnToggle.click();
+    expect(drawer.classList.contains('hidden')).toBe(false);
+    expect(btnToggle.classList.contains('rotated')).toBe(true);
+
+    btnToggle.click();
+    expect(drawer.classList.contains('hidden')).toBe(true);
+    expect(btnToggle.classList.contains('rotated')).toBe(false);
+  });
+
+  it('toggles cloud AI drawer via summary row click', () => {
+    new SettingsTabController(vi.fn(), vi.fn());
+    const drawer = document.getElementById('cloudAiSettingsArea') as HTMLElement;
+    const row = document.getElementById('cloudAiSummaryRow') as HTMLElement;
+
+    expect(drawer.classList.contains('hidden')).toBe(true);
+
+    row.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(drawer.classList.contains('hidden')).toBe(false);
+
+    row.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(drawer.classList.contains('hidden')).toBe(true);
+  });
+
+  it('collapses drawer via btnCollapseCloudAi button', () => {
+    const ctrl = new SettingsTabController(vi.fn(), vi.fn());
+    const drawer = document.getElementById('cloudAiSettingsArea') as HTMLElement;
+    const btnCollapse = document.getElementById('btnCollapseCloudAi') as HTMLButtonElement;
+
+    ctrl.setCloudAiDrawer(true);
+    expect(drawer.classList.contains('hidden')).toBe(false);
+
+    btnCollapse.click();
+    expect(drawer.classList.contains('hidden')).toBe(true);
+  });
+
+  it('auto-expands drawer when user toggles switch ON but no API key is saved', async () => {
+    const toastFn = vi.fn();
+    new SettingsTabController(toastFn, vi.fn());
+
+    const drawer = document.getElementById('cloudAiSettingsArea') as HTMLElement;
+    const checkbox = document.getElementById('toggleCloudAi') as HTMLInputElement;
+
+    expect(drawer.classList.contains('hidden')).toBe(true);
+
+    checkbox.checked = true;
+    checkbox.dispatchEvent(new Event('change'));
+
+    await new Promise((r) => setTimeout(r, 10));
+
+    expect(drawer.classList.contains('hidden')).toBe(false);
+    expect(toastFn).toHaveBeenCalledWith('Введіть Groq API ключ для підключення');
   });
 });
