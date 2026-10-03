@@ -275,11 +275,19 @@ export default defineContentScript({
         GlobalInputInterceptor.setHardLock(localContext);
       }
 
-      if (debugMode) {
-        SecurityFriction.showContextWarningBanner(localContext, bannerSubtitle, rawTextToScan, intentType, () => {
-          window.postMessage({ type: 'THREAT_SHIELD_CLEAR_CONTEXT' }, '*');
-        });
-      }
+      const clearThreat = () => {
+        window.postMessage({ type: 'THREAT_SHIELD_CLEAR_CONTEXT' }, '*');
+      };
+      
+      SecurityFriction.showContextWarningBanner(
+        localContext, 
+        bannerSubtitle, 
+        rawTextToScan, 
+        intentType, 
+        clearThreat, 
+        confidence, 
+        clearThreat
+      );
 
       try {
         chrome.runtime.sendMessage({

@@ -205,7 +205,77 @@ export class GlobalInputInterceptor {
     return { shouldBlock: false };
   }
 
+  private static isChatFrozen = false;
+
   public static init() {
+    // Проактивне заморожування вводу при виявленні ворожого вербування
+    window.addEventListener('message', (e) => {
+      if (e.data && e.data.type === 'THREAT_SHIELD_ENABLE_CHAT_FREEZE') {
+        this.isChatFrozen = true;
+        let style = document.getElementById('ts-chat-freeze-style');
+        if (!style) {
+          style = document.createElement('style');
+          style.id = 'ts-chat-freeze-style';
+          style.textContent = `
+            input:not([type="hidden"]), textarea, [contenteditable="true"], [role="textbox"] {
+              position: relative !important;
+              pointer-events: none !important;
+              opacity: 0.5 !important;
+              filter: grayscale(100%) blur(1px) !important;
+              cursor: not-allowed !important;
+              user-select: none !important;
+            }
+            body::after {
+              content: "";
+              position: fixed;
+              bottom: 0;
+              left: 0;
+              width: 100%;
+              height: 15vh;
+              background: rgba(28, 28, 30, 0.4);
+              backdrop-filter: blur(12px);
+              -webkit-backdrop-filter: blur(12px);
+              z-index: 2147483640;
+              pointer-events: auto;
+              cursor: not-allowed;
+            }
+          `;
+          document.head.appendChild(style);
+        }
+      }
+      if (e.data && e.data.type === 'THREAT_SHIELD_DISABLE_CHAT_FREEZE') {
+        this.isChatFrozen = false;
+        const style = document.getElementById('ts-chat-freeze-style');
+        if (style) style.remove();
+      }
+    });
+
+    const freezeHandler = (e: Event) => {
+      if (!this.isChatFrozen) return;
+      const target = e.target as HTMLElement;
+      if (!target) return;
+      
+      const isInput = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable || target.getAttribute('role') === 'textbox';
+      const isButton = target.tagName === 'BUTTON' || target.closest('button') || target.getAttribute('role') === 'button';
+      
+      if (target.closest('#threat-shield-context-banner') || target.closest('threat-shield-host')) return;
+
+      if (isInput || isButton) {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+      }
+    };
+
+    window.addEventListener('keydown', freezeHandler, true);
+    window.addEventListener('keypress', freezeHandler, true);
+    window.addEventListener('paste', freezeHandler, true);
+    window.addEventListener('drop', freezeHandler, true);
+    window.addEventListener('compositionstart', freezeHandler, true);
+    window.addEventListener('input', freezeHandler, true);
+    window.addEventListener('click', freezeHandler, true);
+    window.addEventListener('mousedown', freezeHandler, true);
+
     const intercept = (e: Event) => {
       const target = e.target as HTMLElement;
 

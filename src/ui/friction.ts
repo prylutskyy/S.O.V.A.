@@ -251,6 +251,116 @@ export class SecurityFriction {
     if (existing) {
       ShadowHost.remove(existing as HTMLElement);
     }
+
+    if (intentType !== 'MILITARY_SABOTAGE_RECRUITMENT' && intentType !== 'PAYMENT_CREDENTIAL_THEFT' && intentType !== 'IDENTITY_PROBING') {
+      return;
+    }
+
+    const isSabotage = intentType === 'MILITARY_SABOTAGE_RECRUITMENT';
+    const title = isSabotage ? 'С.О.В.А. · Виявлено ознаки ворожого вербування' : 'С.О.В.А. · Критична загроза фішингу';
+    const subtitle = isSabotage 
+      ? 'ст. 111-2, 113 ККУ (Вербування / Диверсія)'
+      : 'Співрозмовник випитує конфіденційні дані';
+      
+    const explanation = isSabotage
+      ? 'Співрозмовник збирає військові координати або схиляє до диверсій. Вступ у контакт тягне кримінальну відповідальність (аж до довічного позбавлення волі). <strong>Поле вводу чату тимчасово заблоковано.</strong>'
+      : 'Співрозмовник намагається виманити ваші платіжні дані. <strong>Поле вводу чату тимчасово заблоковано.</strong>';
+
+    const snippet = rawTextToScan && rawTextToScan.length > 3 ? (rawTextToScan.length > 100 ? rawTextToScan.substring(0, 100) + '...' : rawTextToScan) : '...';
+
+    const banner = document.createElement('div');
+    banner.id = 'threat-shield-context-banner';
+    banner.style.cssText = `
+      position: fixed; 
+      top: 16px; 
+      left: 50%; 
+      transform: translateX(-50%); 
+      z-index: 2147483647; 
+      background: rgba(28, 28, 30, 0.96); 
+      backdrop-filter: blur(24px); 
+      -webkit-backdrop-filter: blur(24px); 
+      border: 1px solid rgba(239, 68, 68, 0.35); 
+      border-radius: 16px; 
+      box-shadow: 0 16px 32px rgba(0,0,0,0.24); 
+      padding: 16px; 
+      width: 440px; 
+      color: #F5F5F7; 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+      display: flex; 
+      flex-direction: column; 
+      gap: 12px; 
+      pointer-events: auto;
+    `;
+
+    const iconSvg = isSabotage 
+      ? '<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>'
+      : '<path d="M2 12h20M12 2v20"/><circle cx="12" cy="12" r="7"/>';
+
+    banner.innerHTML = `
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <div style="flex-shrink: 0; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 8px; background: rgba(239, 68, 68, 0.15); color: #EF4444;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            ${iconSvg}
+          </svg>
+        </div>
+        <div style="flex-grow: 1;">
+          <div style="font-weight: 600; font-size: 14px; line-height: 1.2;">${title}</div>
+          <div style="font-size: 12px; color: #EF4444; margin-top: 2px; font-weight: 500;">${subtitle}</div>
+        </div>
+      </div>
+      
+      <div style="background: rgba(0, 0, 0, 0.2); border-radius: 8px; padding: 10px; border: 1px solid rgba(255, 255, 255, 0.05); font-size: 13px; font-style: italic; color: #D4D4D8; border-left: 3px solid #EF4444;">
+        «... ${snippet} ...»
+      </div>
+      
+      <div style="font-size: 13px; line-height: 1.4; color: #D4D4D8;">
+        ${explanation}
+      </div>
+      
+      <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 4px;">
+        ${isSabotage ? `
+          <button id="ts-btn-evorog" style="background: #0071E3; color: #FFF; border: none; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s; display: flex; justify-content: center; align-items: center;">
+            Повідомити СБУ (чат-бот єВорог)
+          </button>
+        ` : ''}
+        <button id="ts-btn-close-tab" style="background: rgba(255,255,255,0.1); color: #FFF; border: none; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; transition: background 0.2s;">
+          Закрити вкладку
+        </button>
+        <button id="ts-btn-unblock" style="background: transparent; color: #A1A1AA; border: none; padding: 6px; font-size: 12px; cursor: pointer; text-decoration: underline; margin-top: 4px;">
+          Це хибне спрацьовування (Розблокувати чат)
+        </button>
+      </div>
+    `;
+
+    const evorogBtn = banner.querySelector('#ts-btn-evorog');
+    if (evorogBtn) {
+      evorogBtn.addEventListener('click', () => {
+        window.open('https://t.me/evorog_bot', '_blank');
+      });
+      evorogBtn.addEventListener('mouseenter', () => (evorogBtn as HTMLElement).style.background = '#0077ED');
+      evorogBtn.addEventListener('mouseleave', () => (evorogBtn as HTMLElement).style.background = '#0071E3');
+    }
+
+    const closeTabBtn = banner.querySelector('#ts-btn-close-tab');
+    if (closeTabBtn) {
+      closeTabBtn.addEventListener('click', () => {
+        document.body.innerHTML = '<div style="display:flex;justify-content:center;align-items:center;height:100vh;background:#000;color:#FFF;font-family:sans-serif;">Вкладку закрито з міркувань безпеки. Ви можете закрити вікно.</div>';
+      });
+      closeTabBtn.addEventListener('mouseenter', () => (closeTabBtn as HTMLElement).style.background = 'rgba(255,255,255,0.15)');
+      closeTabBtn.addEventListener('mouseleave', () => (closeTabBtn as HTMLElement).style.background = 'rgba(255,255,255,0.1)');
+    }
+
+    const unblockBtn = banner.querySelector('#ts-btn-unblock');
+    if (unblockBtn) {
+      unblockBtn.addEventListener('click', () => {
+        ShadowHost.remove(banner);
+        if (onClearThreat) onClearThreat();
+        window.postMessage({ type: 'THREAT_SHIELD_DISABLE_CHAT_FREEZE' }, '*');
+      });
+    }
+
+    root.appendChild(banner);
+    window.postMessage({ type: 'THREAT_SHIELD_ENABLE_CHAT_FREEZE' }, '*');
   }
 
   /**
