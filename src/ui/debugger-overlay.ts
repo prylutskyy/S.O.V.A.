@@ -1681,16 +1681,8 @@ export class DebuggerOverlay {
         <!-- 1. Apple Precision Titlebar -->
         <div class="sc-titlebar" id="drag-handle">
           <div class="sc-brand-group">
-            <div class="sc-brand-icon" title="Sanctuary Prism">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="9" />
-                <circle cx="12" cy="12" r="5" stroke-opacity="0.75" />
-                <line x1="12" y1="2" x2="12" y2="4.5" />
-                <line x1="12" y1="19.5" x2="12" y2="22" />
-                <line x1="2" y1="12" x2="4.5" y2="12" />
-                <line x1="19.5" y1="12" x2="22" y2="12" />
-                <circle cx="12" cy="12" r="1.8" fill="#FFFFFF" />
-              </svg>
+            <div class="sc-brand-icon" title="С.О.В.А." style="background: transparent; padding: 0; overflow: hidden; border-radius: 4px;">
+              <img src="${chrome.runtime.getURL("logo.jpg")}" alt="Logo" style="width: 100%; height: 100%; object-fit: cover; display: block;" />
             </div>
             <div class="sc-brand-meta">
               <span class="sc-brand-name">С.О.В.А.</span>
