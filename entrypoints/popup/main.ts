@@ -3,8 +3,10 @@ import { PersonalVaultManager } from '../../src/core/personal-vault';
 import { ShieldTabController } from './controllers/shield-tab.controller';
 import { VaultTabController } from './controllers/vault-tab.controller';
 import { SettingsTabController } from './controllers/settings-tab.controller';
+import { i18n } from '../../src/core/i18n';
 
 document.addEventListener('DOMContentLoaded', async () => {
+  i18n.localizeHtml();
   const toastMessage = document.getElementById('toastMessage') as HTMLElement;
 
   const showToast = (msg: string) => {

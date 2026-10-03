@@ -219,7 +219,7 @@ describe('SettingsTabController - Whitelist UX & Empty State', () => {
 
     expect(whitelistUl.querySelector('.empty-state')).toBeTruthy();
     expect(whitelistUl.querySelector('#btnEmptyAdd')).toBeNull();
-    expect(whitelistUl.textContent).toContain('Немає довірених сайтів');
+    expect(whitelistUl.textContent).toContain('settingsEmptyWhitelistTitle');
     expect(btnClearAll.style.display).toBe('none');
   });
 

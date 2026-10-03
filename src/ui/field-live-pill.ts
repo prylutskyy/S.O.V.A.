@@ -1,3 +1,4 @@
+import { i18n } from '../core/i18n';
 import { ShadowHost } from './shadow-host';
 
 export interface FieldProtectionMetadata {
@@ -454,21 +455,21 @@ export class FieldLivePill {
               <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1;">
                 <div style="display: flex; align-items: center; justify-content: space-between; gap: 6px; width: 100%;">
                   <span style="font-size: 11.5px; font-weight: 700; color: #991B1B; letter-spacing: -0.01em; min-width: 0; word-break: break-word; line-height: 1.25;">
-                    Сховище: ${vaultLabel}
+                    ${i18n.getMessage('fieldPillVaultMatch')}: ${vaultLabel}
                   </span>
                   <span style="font-size: 9.5px; color: #DC2626; font-weight: 600; margin-left: auto; white-space: nowrap; flex-shrink: 0;">
-                    Особистий секрет
+                    ${i18n.getMessage('fieldPillPersonalSecret')}
                   </span>
                 </div>
                 <p style="font-size: 10.5px; line-height: 1.35; color: #7F1D1D; margin: 2px 0 0 0; word-break: break-word;">
-                  Виявлено збережений маркер безпеки. Не передавайте його стороннім ресурсам!
+                  ${i18n.getMessage('fieldPillDetectedWarning')}
                 </p>
               </div>
             </div>
             <div class="ts-field-clean-wrap" style="display: ${hasText ? 'flex' : 'none'}; justify-content: flex-end; align-items: center; margin-top: 8px; padding-top: 6px; border-top: 1px solid rgba(220, 38, 38, 0.12);">
               <button class="ts-pill-action-chip ts-field-clean-action">
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                Очистити
+                ${i18n.getMessage('fieldPillBtnClear')}
               </button>
             </div>
           </div>
@@ -481,7 +482,7 @@ export class FieldLivePill {
               <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
             </svg>
           </span>
-          <span class="ts-field-pill-label" style="color: #B91C1C; font-weight: 700;">Сховище: ${vaultLabel}</span>
+          <span class="ts-field-pill-label" style="color: #B91C1C; font-weight: 700;">${i18n.getMessage('fieldPillVaultMatch')}: ${vaultLabel}</span>
           <span style="font-size: 9px; color: #DC2626; opacity: 0.7;">•</span>
           <span style="font-size: 9.5px; color: #DC2626; font-weight: 600;">Маркер</span>
         `;
@@ -501,7 +502,7 @@ export class FieldLivePill {
                     ${displayLabel}
                   </span>
                   <span style="font-size: 9.5px; color: #D97706; font-weight: 600; margin-left: auto; white-space: nowrap; flex-shrink: 0;">
-                    Увага
+                    ${i18n.getMessage('fieldPillAttention')}
                   </span>
                 </div>
                 <p style="font-size: 10.5px; line-height: 1.35; color: #92400E; margin: 2px 0 0 0; word-break: break-word;">
@@ -512,7 +513,7 @@ export class FieldLivePill {
             <div class="ts-field-clean-wrap" style="display: ${hasText ? 'flex' : 'none'}; justify-content: flex-end; align-items: center; margin-top: 8px; padding-top: 6px; border-top: 1px solid rgba(217, 119, 6, 0.15);">
               <button class="ts-pill-action-chip ts-field-clean-action">
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                Очистити
+                ${i18n.getMessage('fieldPillBtnClear')}
               </button>
             </div>
           </div>
@@ -524,7 +525,7 @@ export class FieldLivePill {
           </span>
           <span class="ts-field-pill-label" style="color: #92400E; font-weight: 700;">${details.shortLabel}</span>
           <span style="font-size: 9px; color: #D97706; opacity: 0.7;">•</span>
-          <span style="font-size: 9.5px; color: #D97706; font-weight: 600;">Увага</span>
+          <span style="font-size: 9.5px; color: #D97706; font-weight: 600;">${i18n.getMessage('fieldPillAttention')}</span>
         `;
       }
     } else {
@@ -542,7 +543,7 @@ export class FieldLivePill {
                     ${displayLabel}
                   </span>
                   <span style="font-size: 9.5px; color: #0071E3; font-weight: 600; margin-left: auto; white-space: nowrap; flex-shrink: 0;">
-                    Захист поля
+                    ${i18n.getMessage('fieldPillProtection')}
                   </span>
                 </div>
                 <p style="font-size: 10.5px; line-height: 1.35; color: #515154; margin: 2px 0 0 0; word-break: break-word;">
@@ -553,7 +554,7 @@ export class FieldLivePill {
             <div class="ts-field-clean-wrap" style="display: ${hasText ? 'flex' : 'none'}; justify-content: flex-end; align-items: center; margin-top: 8px; padding-top: 6px; border-top: 1px solid rgba(0, 113, 227, 0.10);">
               <button class="ts-pill-action-chip ts-field-clean-action">
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                Очистити
+                ${i18n.getMessage('fieldPillBtnClear')}
               </button>
             </div>
           </div>
@@ -565,7 +566,7 @@ export class FieldLivePill {
           </span>
           <span class="ts-field-pill-label" style="color: #1D1D1F;">${details.shortLabel}</span>
           <span style="font-size: 9px; color: #86868B;">•</span>
-          <span style="font-size: 9.5px; color: #0071E3; font-weight: 500;">Захист</span>
+          <span style="font-size: 9.5px; color: #0071E3; font-weight: 500;">${i18n.getMessage('fieldPillProtection')}</span>
         `;
       }
     }
@@ -617,7 +618,7 @@ export class FieldLivePill {
         label: meta.categoryLabel || 'CVV',
         shortLabel: 'CVV',
         iconSvg: `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`,
-        bannerWarning: 'Для отримання коштів CVV-код ніколи не потрібен! Його запитують лише для списання.',
+        bannerWarning: i18n.getMessage('fieldPillCvvWarning'),
       };
     }
 
@@ -626,7 +627,7 @@ export class FieldLivePill {
         label: meta.categoryLabel || 'Термін дії',
         shortLabel: 'Термін дії',
         iconSvg: `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
-        bannerWarning: 'Термін дії картки потрібен лише для покупок, а не для зарахування коштів.',
+        bannerWarning: i18n.getMessage('fieldPillExpWarning'),
       };
     }
 
@@ -635,7 +636,7 @@ export class FieldLivePill {
         label: meta.categoryLabel || 'ПІН-код',
         shortLabel: 'ПІН-код',
         iconSvg: `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`,
-        bannerWarning: 'Категорично заборонено: введення ПІН-коду картки на вебсайтах!',
+        bannerWarning: i18n.getMessage('fieldPillPinWarning'),
       };
     }
 
@@ -644,7 +645,7 @@ export class FieldLivePill {
         label: meta.categoryLabel || 'ІПН / РНОКПП',
         shortLabel: 'ІПН / РНОКПП',
         iconSvg: `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>`,
-        bannerWarning: 'Перевірте одержувача: введення ІПН на сторонніх сайтах несе загрозу крадіжки особистих даних.',
+        bannerWarning: i18n.getMessage('fieldPillInnWarning'),
       };
     }
 
@@ -652,7 +653,7 @@ export class FieldLivePill {
       label: meta.categoryLabel,
       shortLabel: meta.categoryLabel,
       iconSvg: `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-1.5 1.5L12 11l-4-4-6 6 4 4 6-6 5.5-5.5M19 5l-2-2"/></svg>`,
-      bannerWarning: `Виявлено запит конфіденційного маркера безпеки: «${meta.categoryLabel}».`,
+      bannerWarning: i18n.getMessage('fieldPillGenericWarning', [meta.categoryLabel]),
     };
   }
 

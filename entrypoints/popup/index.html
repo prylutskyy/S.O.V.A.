@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>С.О.В.А. (S.O.V.A.) — Система Оперативного Виявлення Аномалій</title>
+  <title data-i18n="extensionName">S.O.V.A.</title>
   <link rel="stylesheet" href="./style.css">
 </head>
 <body>
@@ -24,12 +24,12 @@
         </svg>
       </div>
       <div class="brand-text">
-        <h1 class="brand-title">С.О.В.А. (S.O.V.A.)</h1>
-        <p class="brand-subtitle">Система Оперативного Виявлення Аномалій</p>
+        <h1 class="brand-title" data-i18n="headerTitle">С.О.В.А. (S.O.V.A.)</h1>
+        <p class="brand-subtitle" data-i18n="headerSubtitle">Система Оперативного Виявлення Аномалій</p>
       </div>
     </div>
     <div class="header-actions">
-      <button type="button" class="btn-icon-subtle" id="btnExpandTab" title="Розгорнути в окремій вкладці (macOS View)" aria-label="Розгорнути в окремій вкладці">
+      <button type="button" class="btn-icon-subtle" id="btnExpandTab" title="Розгорнути в окремій вкладці (macOS View)" aria-label="Розгорнути в окремій вкладці" data-i18n-title="headerBtnExpandTitle" data-i18n-aria-label="headerBtnExpandTitle">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
           <polyline points="15 3 21 3 21 9"></polyline>
@@ -50,21 +50,21 @@
           <circle cx="12" cy="12" r="4.5"/>
           <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
         </svg>
-        <span>С.О.В.А.</span>
+        <span data-i18n="tabShield">С.О.В.А.</span>
       </button>
       <button type="button" class="segment-btn" id="tabBtnVault" role="tab" aria-selected="false" aria-controls="tabContentVault">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
           <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
           <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
         </svg>
-        <span>Сховище</span>
+        <span data-i18n="tabVault">Сховище</span>
       </button>
       <button type="button" class="segment-btn" id="tabBtnSettings" role="tab" aria-selected="false" aria-controls="tabContentSettings">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="3"/>
           <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
         </svg>
-        <span>Опції</span>
+        <span data-i18n="tabSettings">Опції</span>
       </button>
     </nav>
   </div>
@@ -87,14 +87,14 @@
           </div>
         </div>
         <div class="site-hero-details">
-          <div class="site-domain" id="currentSiteDomain">Визначення домену...</div>
+          <div class="site-domain" id="currentSiteDomain" data-i18n="shieldSiteDomainFallback">Визначення домену...</div>
           <div class="site-status green" id="currentSiteStatus">
             <span class="status-pulse-dot"></span>
-            <span>Захист увімкнено для цього сайту</span>
+            <span data-i18n="shieldSiteStatusActive">Захист увімкнено для цього сайту</span>
           </div>
         </div>
       </div>
-      <label class="ios-switch" title="Увімкнути/вимкнути захист для цього сайту">
+      <label class="ios-switch" title="Увімкнути/вимкнути захист для цього сайту" data-i18n-title="shieldSiteToggleTitle">
         <input type="checkbox" id="currentSiteToggle" checked>
         <span class="ios-slider"></span>
       </label>
@@ -111,12 +111,12 @@
           </svg>
         </div>
         <div class="tainted-title-group">
-          <div class="tainted-headline">Підвищений рівень пильності</div>
-          <div class="tainted-status-sub">Скринінг форм посилено</div>
+          <div class="tainted-headline" data-i18n="shieldTaintedHeadline">Підвищений рівень пильності</div>
+          <div class="tainted-status-sub" data-i18n="shieldTaintedStatusSub">Скринінг форм посилено</div>
         </div>
         <div class="tainted-badge">
           <span class="tainted-pulse-dot"></span>
-          <span>АКТИВНО</span>
+          <span data-i18n="shieldTaintedBadge">АКТИВНО</span>
         </div>
       </div>
 
@@ -125,7 +125,7 @@
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
           </svg>
-          <span class="chain-node" id="chainSourceNode">Чат оголошень</span>
+          <span class="chain-node" id="chainSourceNode" data-i18n="shieldTaintedSourceNode">Чат оголошень</span>
         </div>
         <div class="bridge-arrow">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -138,11 +138,11 @@
             <line x1="2" y1="12" x2="22" y2="12"/>
             <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1 4-10z"/>
           </svg>
-          <span class="chain-node alert" id="chainTargetNode">Цільова сторінка</span>
+          <span class="chain-node alert" id="chainTargetNode" data-i18n="shieldTaintedTargetNode">Цільова сторінка</span>
         </div>
       </div>
 
-      <div class="tainted-body" id="taintedDescText">Зафіксовано перехід із чату оголошень. Скринінг форм максимально посилено.</div>
+      <div class="tainted-body" id="taintedDescText" data-i18n="shieldTaintedDescText">Зафіксовано перехід із чату оголошень. Скринінг форм максимально посилено.</div>
 
       <div class="tainted-actions">
         <button type="button" class="btn-tainted-reset" id="btnResetContextHome">
@@ -150,14 +150,14 @@
             <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
             <path d="M3 3v5h5"/>
           </svg>
-          <span>Скинути стан тривоги</span>
+          <span data-i18n="shieldTaintedBtnReset">Скинути стан тривоги</span>
         </button>
       </div>
     </div>
 
     <!-- Active Guarantees Group: Inset Grouped Card -->
     <div class="section-group">
-      <div class="section-label">ГАРАНТІЇ ЦИФРОВОГО СВЯТИЛИЩА</div>
+      <div class="section-label" data-i18n="shieldGuaranteesLabel">ГАРАНТІЇ ЦИФРОВОГО СВЯТИЛИЩА</div>
       <div class="inset-group">
         <!-- Guarantee 1: Payment Protection -->
         <div class="inset-row">
@@ -168,11 +168,11 @@
               </svg>
             </div>
             <div class="inset-info">
-              <div class="inset-title">Захист карток та CVV</div>
-              <div class="inset-desc" id="cardProtectionDesc">Фінансова недоторканність: блокування викрадення балансу</div>
+              <div class="inset-title" data-i18n="shieldCardProtTitle">Захист карток та CVV</div>
+              <div class="inset-desc" id="cardProtectionDesc" data-i18n="shieldCardProtDesc">Фінансова недоторканність: блокування викрадення балансу</div>
             </div>
           </div>
-          <span class="module-pill green" id="cardProtectionPill">Активно</span>
+          <span class="module-pill green" id="cardProtectionPill" data-i18n="shieldPillActive">Активно</span>
         </div>
 
         <!-- Guarantee 2: Hidden Forms Scanner -->
@@ -184,11 +184,11 @@
               </svg>
             </div>
             <div class="inset-info">
-              <div class="inset-title">Аудит прихованих форм</div>
-              <div class="inset-desc" id="hiddenFormsDesc">Оптична прозорість DOM: нейтралізація CSS-маскування</div>
+              <div class="inset-title" data-i18n="shieldHiddenFormsTitle">Аудит прихованих форм</div>
+              <div class="inset-desc" id="hiddenFormsDesc" data-i18n="shieldHiddenFormsDesc">Оптична прозорість DOM: нейтралізація CSS-маскування</div>
             </div>
           </div>
-          <span class="module-pill green" id="hiddenFormsPill">Активно</span>
+          <span class="module-pill green" id="hiddenFormsPill" data-i18n="shieldPillActive">Активно</span>
         </div>
 
         <!-- Module 3: Personal Vault DLP (Navigates to Vault) -->
@@ -202,12 +202,12 @@
               </svg>
             </div>
             <div class="inset-info">
-              <div class="inset-title">Personal Vault DLP</div>
-              <div class="inset-desc" id="vaultProtectionDesc">Захист конфіденційних маркерів та даних у чатах</div>
+              <div class="inset-title" data-i18n="shieldVaultProtTitle">Personal Vault DLP</div>
+              <div class="inset-desc" id="vaultProtectionDesc" data-i18n="shieldVaultProtDesc">Захист конфіденційних маркерів та даних у чатах</div>
             </div>
           </div>
           <div class="inset-end">
-            <span class="module-pill green" id="vaultStatusPill">Активно</span>
+            <span class="module-pill green" id="vaultStatusPill" data-i18n="shieldPillActive">Активно</span>
             <svg class="chevron-end" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><polyline points="9 18 15 12 9 6"/></svg>
           </div>
         </div>
@@ -222,11 +222,11 @@
               </svg>
             </div>
             <div class="inset-info">
-              <div class="inset-title">ШІ-арбітр (LLM)</div>
-              <div class="inset-desc" id="homeAiSubtext">Локальний аналіз фішингових сценаріїв та діалогів</div>
+              <div class="inset-title" data-i18n="shieldAiTitle">ШІ-арбітр (LLM)</div>
+              <div class="inset-desc" id="homeAiSubtext" data-i18n="shieldAiDesc">Локальний аналіз фішингових сценаріїв та діалогів</div>
             </div>
           </div>
-          <span class="module-pill green" id="homeAiPill">Активно</span>
+          <span class="module-pill green" id="homeAiPill" data-i18n="shieldPillActive">Активно</span>
         </div>
       </div>
     </div>
@@ -245,23 +245,23 @@
           <circle cx="12" cy="16" r="1.5" fill="currentColor"/>
         </svg>
       </div>
-      <h2 class="vault-state-title">Створіть Особисте Сховище</h2>
+      <h2 class="vault-state-title" data-i18n="vaultSetupTitle">Створіть Особисте Сховище</h2>
       <p class="vault-state-desc">
         Локальне криптографічне сховище за стандартом AES-GCM 256. Ваші чутливі маркери захищаються на рівні пристрою та автоматично підміняються при спробах фішингу.
       </p>
 
       <div class="form-group" style="width: 100%;">
-        <label class="form-label" for="vaultSetupPassword">Майстер-пароль</label>
-        <input type="password" class="sanctuary-input" id="vaultSetupPassword" placeholder="Мінімум 4 символи" autocomplete="new-password">
+        <label class="form-label" for="vaultSetupPassword" data-i18n="vaultSetupPassLabel">Майстер-пароль</label>
+        <input type="password" class="sanctuary-input" id="vaultSetupPassword" placeholder="Мінімум 4 символи" data-i18n-placeholder="vaultSetupPassPlaceholder" autocomplete="new-password">
       </div>
 
       <div class="form-group" style="width: 100%;">
-        <label class="form-label" for="vaultSetupConfirm">Підтвердження пароля</label>
-        <input type="password" class="sanctuary-input" id="vaultSetupConfirm" placeholder="Повторіть майстер-пароль" autocomplete="new-password">
+        <label class="form-label" for="vaultSetupConfirm" data-i18n="vaultSetupConfirmLabel">Підтвердження пароля</label>
+        <input type="password" class="sanctuary-input" id="vaultSetupConfirm" placeholder="Повторіть майстер-пароль" data-i18n-placeholder="vaultSetupConfirmPlaceholder" autocomplete="new-password">
       </div>
 
       <button type="button" class="btn-primary" id="btnSetupVault" style="width: 100%; margin-top: 4px;">
-        <span>Створити та захистити</span>
+        <span data-i18n="vaultSetupBtn">Створити та захистити</span>
       </button>
     </div>
 
@@ -269,7 +269,7 @@
     <div class="vault-state-card" id="vaultLockedState" style="display: none;">
       <div class="vault-daemon-status-banner" id="vaultDaemonBanner">
         <div class="pulse-dot"></div>
-        <span id="vaultLockedDaemonStatus">Фоновий захист активний: 7 рубежів на варті</span>
+        <span id="vaultLockedDaemonStatus" data-i18n="vaultDaemonStatus">Фоновий захист активний: 7 рубежів на варті</span>
       </div>
       <div class="vault-hero-emblem neutral">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -278,17 +278,17 @@
           <circle cx="12" cy="16" r="1.5" fill="currentColor"/>
         </svg>
       </div>
-      <h2 class="vault-state-title">Особисте сховище</h2>
-      <p class="vault-state-desc">
+      <h2 class="vault-state-title" data-i18n="vaultLockedTitle">Особисте сховище</h2>
+      <p class="vault-state-desc" data-i18n="vaultLockedDesc">
         Введіть пароль для активації повного In-Memory захисту: розпізнавання одруківок, транслітерації та опечаток в ІПН.
       </p>
 
       <div class="form-group" style="width: 100%;">
-        <input type="password" class="sanctuary-input" id="vaultUnlockPassword" placeholder="Майстер-пароль" autocomplete="current-password">
+        <input type="password" class="sanctuary-input" id="vaultUnlockPassword" placeholder="Майстер-пароль" data-i18n-placeholder="vaultUnlockPassPlaceholder" autocomplete="current-password">
       </div>
 
       <button type="button" class="btn-primary" id="btnUnlockVault" style="width: 100%; margin-top: 2px;">
-        <span>Розблокувати сховище</span>
+        <span data-i18n="vaultUnlockBtn">Розблокувати сховище</span>
       </button>
     </div>
 
@@ -299,11 +299,11 @@
         <div class="vault-health-top-bar">
           <div class="vault-enclave-badge">
             <span class="status-pulse-dot green"></span>
-            <span>In-Memory Enclave · Повний захист</span>
+            <span data-i18n="vaultEnclaveBadge">In-Memory Enclave · Повний захист</span>
           </div>
-          <button type="button" class="btn-lock-quick" id="btnQuickLock" title="Заблокувати екран сховища">
+          <button type="button" class="btn-lock-quick" id="btnQuickLock" title="Заблокувати екран сховища" data-i18n-title="vaultBtnQuickLockTitle">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-            <span>Замкнути</span>
+            <span data-i18n="vaultBtnQuickLockText">Замкнути</span>
           </button>
         </div>
         <div class="vault-health-section">
@@ -317,8 +317,8 @@
             </div>
           </div>
           <div class="vault-health-meta">
-            <div class="vault-health-headline" id="vaultActiveCountLabel">0 з 7 рубежів активовано</div>
-            <div class="vault-health-sub">Нечіткий пошук, транслітерація та автопідміна фантомом</div>
+            <div class="vault-health-headline" id="vaultActiveCountLabel" data-i18n="vaultHealthHeadline">0 з 7 рубежів активовано</div>
+            <div class="vault-health-sub" data-i18n="vaultHealthSub">Нечіткий пошук, транслітерація та автопідміна фантомом</div>
           </div>
         </div>
       </section>
@@ -328,9 +328,9 @@
 
       <!-- Footer Actions -->
       <div class="vault-footer-actions">
-        <button type="button" class="btn-subtle" id="btnLockVault" style="display: none;">Заблокувати</button>
+        <button type="button" class="btn-subtle" id="btnLockVault" style="display: none;" data-i18n="vaultBtnLock">Заблокувати</button>
         <button type="button" class="btn-subtle danger" id="btnResetVaultDefaults" style="font-size: 11px;">
-          Скинути сховище до початкового стану
+          <span data-i18n="vaultBtnReset">Скинути сховище до початкового стану</span>
         </button>
       </div>
     </div>
@@ -343,20 +343,20 @@
     <!-- 1. Whitelist Section: TRUST & EXCEPTIONS -->
     <div class="section-group">
       <div class="section-header-flex">
-        <span class="section-label" id="whitelistTitle">Довірені сайти (0)</span>
+        <span class="section-label" id="whitelistTitle" data-i18n="settingsWhitelistTitle">Довірені сайти (0)</span>
         <div class="row-gap-6">
-          <button type="button" class="btn-subtle" id="btnToggleManualAdd" title="Додати довірений сайт вручну">+ Додати</button>
-          <button type="button" class="btn-subtle danger" id="btnClearAllWhitelist">Очистити всі</button>
+          <button type="button" class="btn-subtle" id="btnToggleManualAdd" title="Додати довірений сайт вручну" data-i18n-title="settingsBtnToggleManualAdd" data-i18n="settingsBtnToggleManualAddText">+ Додати</button>
+          <button type="button" class="btn-subtle danger" id="btnClearAllWhitelist" data-i18n="settingsBtnClearAll">Очистити всі</button>
         </div>
       </div>
 
       <div class="sanctuary-card stack-col stack-col-8">
         <div class="manual-add-row hidden" id="manualAddRow">
           <div class="stack-col stack-col-6" style="flex: 1;">
-            <input type="text" class="sanctuary-input" id="manualHostInput" placeholder="наприклад: bank.gov.ua" autocomplete="off" spellcheck="false">
-            <div class="field-error hidden" id="manualHostError">Введіть коректну адресу сайту (наприклад: domain.ua)</div>
+            <input type="text" class="sanctuary-input" id="manualHostInput" placeholder="наприклад: bank.gov.ua" data-i18n-placeholder="settingsManualHostPlaceholder" autocomplete="off" spellcheck="false">
+            <div class="field-error hidden" id="manualHostError" data-i18n="settingsManualHostError">Введіть коректну адресу сайту (наприклад: domain.ua)</div>
           </div>
-          <button type="button" class="btn-primary compact" id="btnAddManual">Додати</button>
+          <button type="button" class="btn-primary compact" id="btnAddManual" data-i18n="settingsBtnAddManual">Додати</button>
         </div>
 
         <ul class="whitelist-ul" id="whitelistUl"></ul>
@@ -365,7 +365,7 @@
 
     <!-- 2. Cloud AI (Groq) Section: INTELLECT & ARBITRATION -->
     <div class="section-group">
-      <div class="section-label">ХМАРНИЙ АРБІТРАЖ (GROQ CLOUD)</div>
+      <div class="section-label" data-i18n="settingsCloudAiLabel">ХМАРНИЙ АРБІТРАЖ (GROQ CLOUD)</div>
       <div class="sanctuary-card stack-col stack-col-10" id="cloudAiCard">
         <div class="cloud-ai-summary-row interactive" id="cloudAiSummaryRow">
           <div class="inset-lead">
@@ -375,16 +375,16 @@
               </svg>
             </div>
             <div class="inset-info">
-              <div class="inset-title">Нейроперевірка загроз</div>
-              <div class="inset-desc" id="cloudAiSummarySubtitle">Потрібно налаштувати ключ</div>
+              <div class="inset-title" data-i18n="settingsCloudAiTitle">Нейроперевірка загроз</div>
+              <div class="inset-desc" id="cloudAiSummarySubtitle" data-i18n="settingsCloudAiSubtitle">Потрібно налаштувати ключ</div>
             </div>
           </div>
           <div class="row-gap-6">
-            <label class="ios-switch" title="Увімкнути/вимкнути хмарний ШІ">
+            <label class="ios-switch" title="Увімкнути/вимкнути хмарний ШІ" data-i18n-title="settingsToggleCloudAiTitle">
               <input type="checkbox" id="toggleCloudAi">
               <span class="ios-slider"></span>
             </label>
-            <button type="button" class="btn-disclosure" id="btnToggleCloudAiDetails" aria-expanded="false" title="Налаштування ШІ" aria-label="Налаштування ШІ">
+            <button type="button" class="btn-disclosure" id="btnToggleCloudAiDetails" aria-expanded="false" title="Налаштування ШІ" aria-label="Налаштування ШІ" data-i18n-title="settingsBtnToggleCloudAiDetailsTitle" data-i18n-aria-label="settingsBtnToggleCloudAiDetailsTitle">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="disclosure-chevron">
                 <polyline points="6 9 12 15 18 9"></polyline>
               </svg>
@@ -395,7 +395,7 @@
         <div id="cloudAiSettingsArea" class="stack-col stack-col-8 cloud-ai-drawer hidden">
           <!-- Fact Note (Pure statement, zero excuses) -->
           <div class="apple-fact-note">
-            <span>Потрібен API-ключ Groq. Стандарт перевірки — <strong>qwen3.8-27b</strong>.</span>
+            <span data-i18n="settingsCloudAiFactNote">Потрібен API-ключ Groq. Стандарт перевірки — <strong>qwen3.8-27b</strong>.</span>
           </div>
 
           <!-- Hidden fallback select for backward compatibility -->
@@ -409,12 +409,12 @@
             <div id="cloudAiKeySavedPill" class="groq-connected-bar hidden">
               <div class="groq-connected-meta">
                 <span class="status-pulse-dot green"></span>
-                <span>Groq підключено</span>
+                <span data-i18n="settingsGroqConnected">Groq підключено</span>
                 <span class="groq-key-hint" id="cloudAiKeyHint">gsk_••••••••</span>
               </div>
               <div class="groq-connected-actions">
-                <button type="button" class="btn-subtle" id="btnToggleChangeKey" title="Замінити API ключ">Змінити</button>
-                <button type="button" class="sc-tool-btn sc-tool-btn-close" id="btnDeleteCloudAiKey" title="Відключити Groq" aria-label="Відключити Groq">
+                <button type="button" class="btn-subtle" id="btnToggleChangeKey" title="Замінити API ключ" data-i18n-title="settingsBtnChangeKeyTitle" data-i18n="settingsBtnChangeKeyText">Змінити</button>
+                <button type="button" class="sc-tool-btn sc-tool-btn-close" id="btnDeleteCloudAiKey" title="Відключити Groq" aria-label="Відключити Groq" data-i18n-title="settingsBtnDeleteKeyTitle" data-i18n-aria-label="settingsBtnDeleteKeyTitle">
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="18" y1="6" x2="6" y2="18"></line>
                     <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -426,13 +426,13 @@
             <!-- Key Input Form (Shown when no key is saved or when editing) -->
             <div id="cloudAiKeyInputWrapper" class="stack-col stack-col-6">
               <div class="row-between">
-                <label class="inset-desc">Groq API Ключ</label>
-                <span id="cloudAiKeyNotSet" class="key-status-badge not-saved">Не підключено</span>
+                <label class="inset-desc" data-i18n="settingsGroqKeyLabel">Groq API Ключ</label>
+                <span id="cloudAiKeyNotSet" class="key-status-badge not-saved" data-i18n="settingsKeyNotSet">Не підключено</span>
               </div>
-              <input type="password" class="sanctuary-input" id="cloudAiKeyInput" placeholder="Вставте ключ (gsk_...)">
+              <input type="password" class="sanctuary-input" id="cloudAiKeyInput" placeholder="Вставте ключ (gsk_...)" data-i18n-placeholder="settingsKeyInputPlaceholder">
               <button type="button" class="btn-primary" id="btnSaveCloudAiKey" style="width: 100%;">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>
-                <span id="btnSaveCloudAiKeyText">Підключити</span>
+                <span id="btnSaveCloudAiKeyText" data-i18n="settingsBtnSaveKeyText">Підключити</span>
               </button>
             </div>
           </div>
@@ -440,18 +440,18 @@
           <!-- Model Management Area -->
           <div id="cloudAiModelContainer" class="stack-col stack-col-6 hidden">
             <div class="row-between">
-              <label class="inset-desc">Модель арбітражу</label>
-              <button type="button" id="btnRefreshModels" class="subtle-sync-btn" title="Оновити каталог моделей" aria-label="Оновити каталог">
+              <label class="inset-desc" data-i18n="settingsModelLabel">Модель арбітражу</label>
+              <button type="button" id="btnRefreshModels" class="subtle-sync-btn" title="Оновити каталог моделей" aria-label="Оновити каталог" data-i18n-title="settingsBtnRefreshModelsTitle" data-i18n-aria-label="settingsBtnRefreshModelsTitle">
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="sync-icon">
                   <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
                 </svg>
-                <span>Оновити список</span>
+                <span data-i18n="settingsBtnRefreshModelsText">Оновити список</span>
               </button>
             </div>
 
             <div class="row-gap-6">
               <select class="sanctuary-input" id="cloudAiModelSelect" style="flex: 1; cursor: pointer; font-size: 11.5px; height: 32px;">
-                <option value="qwen3.8-27b" selected>qwen3.8-27b (Стандарт)</option>
+                <option value="qwen3.8-27b" selected data-i18n="settingsModelStandard">qwen3.8-27b (Стандарт)</option>
               </select>
               <button type="button" class="btn-secondary" id="btnApplyModel" style="height: 32px; padding: 0 14px; font-size: 11.5px; white-space: nowrap; font-weight: 500;">
                 Вибрати
@@ -460,7 +460,7 @@
 
             <div id="customModelInputWrapper" class="hidden" style="margin-top: 2px;">
               <div class="row-gap-6">
-                <input type="text" class="sanctuary-input" id="cloudAiCustomModelInput" placeholder="Введіть назву моделі..." style="flex: 1; font-size: 11.5px; height: 32px;">
+                <input type="text" class="sanctuary-input" id="cloudAiCustomModelInput" placeholder="Введіть назву моделі..." data-i18n-placeholder="settingsCustomModelPlaceholder" style="flex: 1; font-size: 11.5px; height: 32px;">
                 <button type="button" class="btn-secondary" id="btnApplyCustomModel" style="height: 32px; padding: 0 14px; font-size: 11.5px; white-space: nowrap;">
                   Вибрати
                 </button>
@@ -472,19 +472,17 @@
 
           <div class="security-capsule-badge">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="flex-shrink: 0;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-            <span>Ключ захищено AES-GCM 256 на цьому пристрої.</span>
+            <span data-i18n="settingsKeyProtectedNote">Ключ захищено AES-GCM 256 на цьому пристрої.</span>
           </div>
 
-          <button type="button" class="btn-subtle" id="btnCollapseCloudAi" style="align-self: center; font-size: 11px; margin-top: 2px;">
-            Згорнути налаштування
-          </button>
+          <button type="button" class="btn-subtle" id="btnCollapseCloudAi" style="align-self: center; font-size: 11px; margin-top: 2px;" data-i18n="settingsBtnCollapseCloudAi">Згорнути налаштування</button>
         </div>
       </div>
     </div>
 
     <!-- 3. Diagnostics Settings: TRANSPARENCY & TELEMETRY -->
     <div class="section-group">
-      <div class="section-label">ПРОЗОРІСТЬ ТА ТЕЛЕМЕТРІЯ</div>
+      <div class="section-label" data-i18n="settingsDiagLabel">ПРОЗОРІСТЬ ТА ТЕЛЕМЕТРІЯ</div>
       <div class="inset-group">
         <div class="inset-row interactive" id="rowToggleDebugMode">
           <div class="inset-lead">
@@ -495,13 +493,13 @@
             </div>
             <div class="inset-info">
               <div class="inset-title">
-                Дебагер
+                <span data-i18n="settingsDebugTitle">Дебагер</span>
                 <span class="kbd-group"><kbd>Ctrl</kbd><span class="kbd-plus">+</span><kbd>Shift</kbd><span class="kbd-plus">+</span><kbd>D</kbd></span>
               </div>
-              <div class="inset-desc">Плаваючий оверлей налагодження на вебсторінках</div>
+              <div class="inset-desc" data-i18n="settingsDebugDesc">Плаваючий оверлей налагодження на вебсторінках</div>
             </div>
           </div>
-          <label class="ios-switch" for="toggleDebugMode" title="Увімкнути/вимкнути дебагер-оверлей">
+          <label class="ios-switch" for="toggleDebugMode" title="Увімкнути/вимкнути дебагер-оверлей" data-i18n-title="settingsToggleDebugTitle">
             <input type="checkbox" id="toggleDebugMode">
             <span class="ios-slider"></span>
           </label>
@@ -515,8 +513,8 @@
               </svg>
             </div>
             <div class="inset-info">
-              <div class="inset-title">Локальний нейромодуль</div>
-              <div class="inset-desc" id="aiStatusText">Перевірка стану...</div>
+              <div class="inset-title" data-i18n="settingsLocalAiTitle">Локальний нейромодуль</div>
+              <div class="inset-desc" id="aiStatusText" data-i18n="settingsLocalAiDesc">Перевірка стану...</div>
             </div>
           </div>
         </div>
@@ -525,7 +523,7 @@
 
     <!-- 4. System & About Section -->
     <div class="section-group">
-      <div class="section-label">СИСТЕМА ТА ДАНІ</div>
+      <div class="section-label" data-i18n="settingsSystemLabel">СИСТЕМА ТА ДАНІ</div>
       <div class="inset-group">
         <div class="inset-row about-inset-row">
           <div class="inset-lead">
@@ -538,7 +536,7 @@
             </div>
             <div class="inset-info">
               <div class="inset-title">С.О.В.А. (S.O.V.A.)</div>
-              <div class="inset-desc">Дипломний проєкт · Система оперативного захисту</div>
+              <div class="inset-desc" data-i18n="settingsSystemDesc">Дипломний проєкт · Система оперативного захисту</div>
             </div>
           </div>
           <span class="about-version">v1.0.0</span>
@@ -569,11 +567,11 @@
           <line x1="12" y1="17" x2="12.01" y2="17"/>
         </svg>
       </div>
-      <div class="confirm-sheet-title" id="confirmSheetTitle">Підтвердження</div>
-      <div class="confirm-sheet-body" id="confirmSheetBody">Ви впевнені, що бажаєте продовжити?</div>
+      <div class="confirm-sheet-title" id="confirmSheetTitle" data-i18n="confirmSheetTitle">Підтвердження</div>
+      <div class="confirm-sheet-body" id="confirmSheetBody" data-i18n="confirmSheetBody">Ви впевнені, що бажаєте продовжити?</div>
       <div class="confirm-sheet-actions">
-        <button type="button" class="btn-primary danger" id="btnConfirmAction">Підтвердити</button>
-        <button type="button" class="btn-cancel" id="btnCancelAction">Скасувати</button>
+        <button type="button" class="btn-primary danger" id="btnConfirmAction" data-i18n="confirmSheetBtnConfirm">Підтвердити</button>
+        <button type="button" class="btn-cancel" id="btnCancelAction" data-i18n="confirmSheetBtnCancel">Скасувати</button>
       </div>
     </div>
   </div>

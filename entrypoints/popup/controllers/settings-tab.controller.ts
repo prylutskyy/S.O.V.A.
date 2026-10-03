@@ -1,3 +1,4 @@
+import { i18n } from '../../../src/core/i18n';
 import { UserWhitelistManager } from '../../../src/core/user-whitelist';
 import { SecureKeyStore, LLMProviderType } from '../../../src/core/secure-key-store';
 
@@ -192,7 +193,7 @@ export class SettingsTabController {
   public async renderWhitelist(): Promise<void> {
     const domains = await UserWhitelistManager.getDomains();
     if (this.whitelistTitle) {
-      this.whitelistTitle.innerText = `Довірені сайти (${domains.length})`;
+      this.whitelistTitle.innerText = `${i18n.getMessage('settingsWhitelistBase')} (${domains.length})`;
     }
 
     if (!this.whitelistUl) return;
@@ -206,8 +207,8 @@ export class SettingsTabController {
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
             </svg>
           </div>
-          <div class="empty-state-title">Немає довірених сайтів</div>
-          <div class="empty-state-desc">Сайти зі списку винятків не скануються на загрози.</div>
+          <div class="empty-state-title">${i18n.getMessage('settingsEmptyWhitelistTitle')}</div>
+          <div class="empty-state-desc">${i18n.getMessage('settingsEmptyWhitelistDesc')}</div>
         </li>
       `;
       if (this.btnClearAllWhitelist) {
@@ -318,22 +319,20 @@ export class SettingsTabController {
         if (typeof provider.capabilities === 'function') {
           const caps = await provider.capabilities();
           this.aiStatusText.textContent =
-            caps?.available === 'no'
-              ? 'Підтримується, але модель ще завантажується'
-              : 'Активно (Локальна модель готова)';
+            caps?.available === 'no' ? i18n.getMessage('settingsAiStatusDownloading') : i18n.getMessage('settingsAiStatusActiveReady');
           this.aiStatusText.style.color = caps?.available === 'no' ? 'var(--sanctuary-amber-ink)' : 'var(--sanctuary-green-ink)';
         } else if (typeof provider.create === 'function') {
-          this.aiStatusText.textContent = 'Активно (Локальна модель готова)';
+          this.aiStatusText.textContent = i18n.getMessage('settingsAiStatusActiveReady');
           this.aiStatusText.style.color = 'var(--sanctuary-green-ink)';
         } else {
           throw new Error('No create method');
         }
       } catch {
-        this.aiStatusText.textContent = 'Доступно для Prompt API';
+        this.aiStatusText.textContent = i18n.getMessage('settingsAiStatusPromptApi');
         this.aiStatusText.style.color = 'var(--sanctuary-green-ink)';
       }
     } else {
-      this.aiStatusText.textContent = 'Евристичний режим (Вбудований ШІ не знайдено)';
+      this.aiStatusText.textContent = i18n.getMessage('settingsAiStatusHeuristic');
       this.aiStatusText.style.color = 'var(--sanctuary-amber-ink)';
     }
   }
@@ -387,14 +386,14 @@ export class SettingsTabController {
 
     if (key) {
       if (isEnabled) {
-        this.cloudAiSummarySubtitle.textContent = `Groq · ${model} (Активно)`;
+        this.cloudAiSummarySubtitle.textContent = i18n.getMessage('settingsCloudAiActiveWithModel', [model]);
         this.cloudAiSummarySubtitle.style.color = 'var(--sanctuary-green-ink)';
       } else {
-        this.cloudAiSummarySubtitle.textContent = 'Вимкнено (Groq налаштовано)';
+        this.cloudAiSummarySubtitle.textContent = i18n.getMessage('settingsCloudAiDisabledConfigured');
         this.cloudAiSummarySubtitle.style.color = 'var(--sanctuary-ink-secondary)';
       }
     } else {
-      this.cloudAiSummarySubtitle.textContent = 'Потрібно налаштувати ключ';
+      this.cloudAiSummarySubtitle.textContent = i18n.getMessage('settingsCloudAiNeedsKey');
       this.cloudAiSummarySubtitle.style.color = 'var(--sanctuary-amber-ink)';
     }
   }
@@ -786,7 +785,7 @@ export class SettingsTabController {
       }
 
       this.showConfirmDialog({
-        title: 'Очистити довірені сайти?',
+        title: i18n.getMessage('settingsClearWhitelistConfirmTitle'),
         body: `Цю дію неможливо скасувати. Всі ${domains.length} сайтів буде видалено зі списку винятків.`,
         confirmText: 'Очистити список',
         onConfirm: async () => {

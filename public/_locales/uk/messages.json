@@ -1,0 +1,598 @@
+{
+  "extensionName": {
+    "message": "С.О.В.А. (S.O.V.A.)",
+    "description": "Name of the extension"
+  },
+  "extensionDescription": {
+    "message": "Система Оперативного Виявлення Аномалій",
+    "description": "Description of the extension"
+  },
+  "tabShield": {
+    "message": "С.О.В.А."
+  },
+  "tabVault": {
+    "message": "Сховище"
+  },
+  "tabSettings": {
+    "message": "Опції"
+  },
+  "headerTitle": {
+    "message": "С.О.В.А. (S.O.V.A.)"
+  },
+  "headerSubtitle": {
+    "message": "Система Оперативного Виявлення Аномалій"
+  },
+  "headerBtnExpandTitle": {
+    "message": "Розгорнути в окремій вкладці (macOS View)"
+  },
+  "shieldSiteDomainFallback": {
+    "message": "Визначення домену..."
+  },
+  "shieldSiteStatusActive": {
+    "message": "Захист увімкнено для цього сайту"
+  },
+  "shieldSiteToggleTitle": {
+    "message": "Увімкнути/вимкнути захист для цього сайту"
+  },
+  "shieldTaintedHeadline": {
+    "message": "Підвищений рівень пильності"
+  },
+  "shieldTaintedStatusSub": {
+    "message": "Скринінг форм посилено"
+  },
+  "shieldTaintedBadge": {
+    "message": "АКТИВНО"
+  },
+  "shieldTaintedSourceNode": {
+    "message": "Чат оголошень"
+  },
+  "shieldTaintedTargetNode": {
+    "message": "Цільова сторінка"
+  },
+  "shieldTaintedDescText": {
+    "message": "Зафіксовано перехід із чату оголошень. Скринінг форм максимально посилено."
+  },
+  "shieldTaintedBtnReset": {
+    "message": "Скинути стан тривоги"
+  },
+  "shieldGuaranteesLabel": {
+    "message": "ГАРАНТІЇ ЦИФРОВОГО СВЯТИЛИЩА"
+  },
+  "shieldCardProtTitle": {
+    "message": "Захист карток та CVV"
+  },
+  "shieldCardProtDesc": {
+    "message": "Фінансова недоторканність: блокування викрадення балансу"
+  },
+  "shieldPillActive": {
+    "message": "Активно"
+  },
+  "shieldHiddenFormsTitle": {
+    "message": "Аудит прихованих форм"
+  },
+  "shieldHiddenFormsDesc": {
+    "message": "Оптична прозорість DOM: нейтралізація CSS-маскування"
+  },
+  "shieldVaultProtTitle": {
+    "message": "Personal Vault DLP"
+  },
+  "shieldVaultProtDesc": {
+    "message": "Захист конфіденційних маркерів та даних у чатах"
+  },
+  "shieldAiTitle": {
+    "message": "ШІ-арбітр (LLM)"
+  },
+  "shieldAiDesc": {
+    "message": "Локальний аналіз фішингових сценаріїв та діалогів"
+  },
+  "vaultSetupTitle": {
+    "message": "Створіть Особисте Сховище"
+  },
+  "vaultSetupDesc": {
+    "message": "Локальне криптографічне сховище за стандартом AES-GCM 256. Ваші чутливі маркери захищаються на рівні пристрою та автоматично підміняються при спробах фішингу."
+  },
+  "vaultSetupPassLabel": {
+    "message": "Майстер-пароль"
+  },
+  "vaultSetupPassPlaceholder": {
+    "message": "Мінімум 4 символи"
+  },
+  "vaultSetupConfirmLabel": {
+    "message": "Підтвердження пароля"
+  },
+  "vaultSetupConfirmPlaceholder": {
+    "message": "Повторіть майстер-пароль"
+  },
+  "vaultSetupBtn": {
+    "message": "Створити та захистити"
+  },
+  "vaultDaemonStatus": {
+    "message": "Фоновий захист активний: 7 рубежів на варті"
+  },
+  "vaultLockedTitle": {
+    "message": "Особисте сховище"
+  },
+  "vaultLockedDesc": {
+    "message": "Введіть пароль для активації повного In-Memory захисту: розпізнавання одруківок, транслітерації та опечаток в ІПН."
+  },
+  "vaultUnlockPassPlaceholder": {
+    "message": "Майстер-пароль"
+  },
+  "vaultUnlockBtn": {
+    "message": "Розблокувати сховище"
+  },
+  "vaultEnclaveBadge": {
+    "message": "In-Memory Enclave · Повний захист"
+  },
+  "vaultBtnQuickLockTitle": {
+    "message": "Заблокувати екран сховища"
+  },
+  "vaultBtnQuickLockText": {
+    "message": "Замкнути"
+  },
+  "vaultHealthHeadline": {
+    "message": "0 з 7 рубежів активовано"
+  },
+  "vaultHealthSub": {
+    "message": "Нечіткий пошук, транслітерація та автопідміна фантомом"
+  },
+  "vaultBtnLock": {
+    "message": "Заблокувати"
+  },
+  "vaultBtnReset": {
+    "message": "Скинути сховище до початкового стану"
+  },
+  "settingsWhitelistTitle": {
+    "message": "Довірені сайти (0)"
+  },
+  "settingsBtnToggleManualAdd": {
+    "message": "Додати довірений сайт вручну"
+  },
+  "settingsBtnToggleManualAddText": {
+    "message": "+ Додати"
+  },
+  "settingsBtnClearAll": {
+    "message": "Очистити всі"
+  },
+  "settingsManualHostPlaceholder": {
+    "message": "наприклад: bank.gov.ua"
+  },
+  "settingsManualHostError": {
+    "message": "Введіть коректну адресу сайту (наприклад: domain.ua)"
+  },
+  "settingsBtnAddManual": {
+    "message": "Додати"
+  },
+  "settingsCloudAiLabel": {
+    "message": "ХМАРНИЙ АРБІТРАЖ (GROQ CLOUD)"
+  },
+  "settingsCloudAiTitle": {
+    "message": "Нейроперевірка загроз"
+  },
+  "settingsCloudAiSubtitle": {
+    "message": "Потрібно налаштувати ключ"
+  },
+  "settingsToggleCloudAiTitle": {
+    "message": "Увімкнути/вимкнути хмарний ШІ"
+  },
+  "settingsBtnToggleCloudAiDetailsTitle": {
+    "message": "Налаштування ШІ"
+  },
+  "settingsCloudAiFactNote": {
+    "message": "Потрібен API-ключ Groq. Стандарт перевірки — qwen3.8-27b."
+  },
+  "settingsGroqConnected": {
+    "message": "Groq підключено"
+  },
+  "settingsBtnChangeKeyTitle": {
+    "message": "Замінити API ключ"
+  },
+  "settingsBtnChangeKeyText": {
+    "message": "Змінити"
+  },
+  "settingsBtnDeleteKeyTitle": {
+    "message": "Відключити Groq"
+  },
+  "settingsGroqKeyLabel": {
+    "message": "Groq API Ключ"
+  },
+  "settingsKeyNotSet": {
+    "message": "Не підключено"
+  },
+  "settingsKeyInputPlaceholder": {
+    "message": "Вставте ключ (gsk_...)"
+  },
+  "settingsBtnSaveKeyText": {
+    "message": "Підключити"
+  },
+  "settingsModelLabel": {
+    "message": "Модель арбітражу"
+  },
+  "settingsBtnRefreshModelsTitle": {
+    "message": "Оновити каталог моделей"
+  },
+  "settingsBtnRefreshModelsText": {
+    "message": "Оновити список"
+  },
+  "settingsModelStandard": {
+    "message": "qwen3.8-27b (Стандарт)"
+  },
+  "settingsBtnApplyModel": {
+    "message": "Вибрати"
+  },
+  "settingsCustomModelPlaceholder": {
+    "message": "Введіть назву моделі..."
+  },
+  "settingsBtnApplyCustomModel": {
+    "message": "Вибрати"
+  },
+  "settingsKeyProtectedNote": {
+    "message": "Ключ захищено AES-GCM 256 на цьому пристрої."
+  },
+  "settingsBtnCollapseCloudAi": {
+    "message": "Згорнути налаштування"
+  },
+  "settingsDiagLabel": {
+    "message": "ПРОЗОРІСТЬ ТА ТЕЛЕМЕТРІЯ"
+  },
+  "settingsDebugTitle": {
+    "message": "Дебагер"
+  },
+  "settingsDebugDesc": {
+    "message": "Плаваючий оверлей налагодження на вебсторінках"
+  },
+  "settingsToggleDebugTitle": {
+    "message": "Увімкнути/вимкнути дебагер-оверлей"
+  },
+  "settingsLocalAiTitle": {
+    "message": "Локальний нейромодуль"
+  },
+  "settingsLocalAiDesc": {
+    "message": "Перевірка стану..."
+  },
+  "settingsSystemLabel": {
+    "message": "СИСТЕМА ТА ДАНІ"
+  },
+  "settingsSystemDesc": {
+    "message": "Дипломний проєкт · Система оперативного захисту"
+  },
+  "confirmSheetTitle": {
+    "message": "Підтвердження"
+  },
+  "confirmSheetBody": {
+    "message": "Ви впевнені, що бажаєте продовжити?"
+  },
+  "confirmSheetBtnConfirm": {
+    "message": "Підтвердити"
+  },
+  "confirmSheetBtnCancel": {
+    "message": "Скасувати"
+  },
+  "vaultItemRealLabel": {
+    "message": "Справжнє значення (захищається та ховається)"
+  },
+  "vaultItemRealPlaceholder": {
+    "message": "Введіть таємне значення"
+  },
+  "vaultItemDecoyLabel": {
+    "message": "Фантомне значення (заміна при фішингу)"
+  },
+  "vaultItemDecoyHint": {
+    "message": "Система автоматично підмінятиме справжнє значення на фантомне під час витоку даних."
+  },
+  "vaultItemBtnSave": {
+    "message": "Зберегти"
+  },
+  "vaultItemBtnClear": {
+    "message": "Очистити"
+  },
+  "toastPasswordsMismatch": {
+    "message": "Паролі не співпадають!"
+  },
+  "toastPasswordTooShort": {
+    "message": "Пароль занадто короткий. Мінімум 4 символи."
+  },
+  "toastVaultCreated": {
+    "message": "Сховище створено та захищено"
+  },
+  "toastWrongPassword": {
+    "message": "Невірний пароль!"
+  },
+  "toastVaultUnlocked": {
+    "message": "Сховище розблоковано"
+  },
+  "toastVaultLocked": {
+    "message": "Сховище заблоковано. Секрети захищено."
+  },
+  "toastVaultReset": {
+    "message": "Сховище скинуто до початкових налаштувань"
+  },
+  "toastDataSaved": {
+    "message": "Збережено:"
+  },
+  "toastDataDeleted": {
+    "message": "Очищено:"
+  },
+  "confirmResetVaultTitle": {
+    "message": "Скидання сховища"
+  },
+  "confirmResetVaultBody": {
+    "message": "Ви дійсно хочете безповоротно видалити сховище та всі його дані?"
+  },
+  "confirmResetVaultBtn": {
+    "message": "Видалити назавжди"
+  },
+  "vaultCatFinancialTitle": {
+    "message": "Фінансові маркери"
+  },
+  "vaultCatIdentityTitle": {
+    "message": "Ідентифікаційні дані"
+  },
+  "vaultCatDigitalTitle": {
+    "message": "Цифрові ключі та профілі"
+  },
+  "vaultItemCardNumber": {
+    "message": "Номер банківської картки"
+  },
+  "vaultItemCardCvv": {
+    "message": "CVV2 код"
+  },
+  "vaultItemCardPin": {
+    "message": "PIN-код картки"
+  },
+  "vaultItemInn": {
+    "message": "ІПН (РНОКПП)"
+  },
+  "vaultItemPassportId": {
+    "message": "Номер паспорта / ID-картки"
+  },
+  "vaultItemDiyaSignature": {
+    "message": "Пароль Дія.Підпис"
+  },
+  "vaultItemCryptoSeed": {
+    "message": "Seed-фраза гаманця"
+  },
+  "vaultItemEmailPassword": {
+    "message": "Пароль від основної пошти"
+  },
+  "vaultItemSocialPassword": {
+    "message": "Пароль від соцмереж"
+  },
+  "shieldSiteStatusInactive": {
+    "message": "Захист вимкнено для цього сайту"
+  },
+  "toastProtectionEnabled": {
+    "message": "Захист увімкнено для сайту"
+  },
+  "toastProtectionDisabled": {
+    "message": "Захист вимкнено для сайту"
+  },
+  "toastAlertReset": {
+    "message": "Стан тривоги успішно скинуто"
+  },
+  "shieldTaintedDescDynamic": {
+    "message": "Зафіксовано перехід із $1. Скринінг форм максимально посилено."
+  },
+  "toastSiteAdded": {
+    "message": "Сайт додано до довірених"
+  },
+  "toastSiteRemoved": {
+    "message": "Сайт видалено з довірених"
+  },
+  "toastAllSitesRemoved": {
+    "message": "Усі сайти видалено"
+  },
+  "toastApiKeySaved": {
+    "message": "API ключ збережено!"
+  },
+  "toastApiKeyRemoved": {
+    "message": "API ключ видалено"
+  },
+  "toastModelApplied": {
+    "message": "Модель успішно застосовано"
+  },
+  "toastDebugEnabled": {
+    "message": "Дебагер увімкнено"
+  },
+  "toastDebugDisabled": {
+    "message": "Дебагер вимкнено"
+  },
+  "confirmClearWhitelistTitle": {
+    "message": "Очищення білого списку"
+  },
+  "confirmClearWhitelistBody": {
+    "message": "Ви дійсно хочете видалити всі довірені сайти?"
+  },
+  "confirmClearWhitelistBtn": {
+    "message": "Очистити"
+  },
+  "settingsAiStatusAvailable": {
+    "message": "Доступний"
+  },
+  "settingsAiStatusNeedsKey": {
+    "message": "Потрібен ключ API (Groq Cloud)"
+  },
+  "settingsAiStatusNotConfigured": {
+    "message": "Не налаштовано"
+  },
+  "shieldTabNoSite": {
+    "message": "Немає активного сайту"
+  },
+  "shieldTabOpenTab": {
+    "message": "Відкрийте вкладку для моніторингу"
+  },
+  "shieldTabTargetSite": {
+    "message": "Цільовий сайт"
+  },
+  "shieldTabPausedSite": {
+    "message": "Захист призупинено для цього сайту"
+  },
+  "shieldTabActiveSite": {
+    "message": "Захист увімкнено для цього сайту"
+  },
+  "shieldTabStatusActive": {
+    "message": "Активно"
+  },
+  "shieldTabStatusPaused": {
+    "message": "Зупинено"
+  },
+  "shieldTabLegitSource": {
+    "message": "Легітимне джерело"
+  },
+  "shieldTabSourceChat": {
+    "message": "Чат $1"
+  },
+  "shieldTabDescThreat": {
+    "message": "Зафіксовано спробу виведення на сторонній ресурс із чату $1. Скринінг форм максимально посилено."
+  },
+  "vaultStatsActiveWait": {
+    "message": "Фоновий захист активний: $1 на варті"
+  },
+  "vaultStatsBasicWait": {
+    "message": "Базовий моніторинг форм активний"
+  },
+  "vaultItemsCountActive": {
+    "message": "$1 з $2 рубежів активовано"
+  },
+  "vaultGroupBanking": {
+    "message": "Банківські дані"
+  },
+  "vaultGroupDocs": {
+    "message": "Особисті документи"
+  },
+  "vaultStatusNotSet": {
+    "message": "Не налаштовано"
+  },
+  "vaultStatusProtected": {
+    "message": "Захищено"
+  },
+  "vaultItemNotSetDesc": {
+    "message": "Маркер не налаштовано"
+  },
+  "vaultItemRealLabelDevice": {
+    "message": "Справжнє значення (зашифровано на пристрої)"
+  },
+  "vaultItemRealPlaceholderDevice": {
+    "message": "Введіть ваше справжнє значення"
+  },
+  "vaultItemDecoyLabelDevice": {
+    "message": "Цифровий двійник (Фантом для підміни)"
+  },
+  "vaultItemDecoyHintDevice": {
+    "message": "Система підставить цю безпечну приманку фішинговим формам замість ваших даних."
+  },
+  "toastVaultCreatedUnlocked": {
+    "message": "Сховище створено та розблоковано"
+  },
+  "toastVaultLockedBg": {
+    "message": "Сховище заблоковано. Фоновий захист активний."
+  },
+  "fieldPillVaultMatch": {
+    "message": "Сховище"
+  },
+  "fieldPillPersonalSecret": {
+    "message": "Особистий секрет"
+  },
+  "fieldPillDetectedWarning": {
+    "message": "Виявлено збережений маркер безпеки. Не передавайте його стороннім ресурсам!"
+  },
+  "fieldPillBtnClear": {
+    "message": "Очистити"
+  },
+  "fieldPillAttention": {
+    "message": "Увага"
+  },
+  "fieldPillProtection": {
+    "message": "Захист"
+  },
+  "fieldPillCvvWarning": {
+    "message": "Для отримання коштів CVV-код ніколи не потрібен! Його запитують лише для списання."
+  },
+  "fieldPillExpWarning": {
+    "message": "Термін дії картки потрібен лише для покупок, а не для зарахування коштів."
+  },
+  "fieldPillPinWarning": {
+    "message": "Категорично заборонено: введення ПІН-коду картки на вебсайтах!"
+  },
+  "fieldPillInnWarning": {
+    "message": "Перевірте одержувача: введення ІПН на сторонніх сайтах несе загрозу крадіжки особистих даних."
+  },
+  "fieldPillGenericWarning": {
+    "message": "Виявлено запит конфіденційного маркера безпеки: «$1»."
+  },
+  "settingsEmptyWhitelistTitle": {
+    "message": "Немає довірених сайтів"
+  },
+  "settingsEmptyWhitelistDesc": {
+    "message": "Сайти зі списку винятків не скануються на загрози."
+  },
+  "settingsWhitelistBase": {
+    "message": "Довірені сайти"
+  },
+  "settingsClearWhitelistConfirmTitle": {
+    "message": "Очистити довірені сайти?"
+  },
+  "settingsAiStatusActiveReady": {
+    "message": "Активно (Локальна модель готова)"
+  },
+  "settingsAiStatusDownloading": {
+    "message": "Підтримується, але модель ще завантажується"
+  },
+  "settingsAiStatusPromptApi": {
+    "message": "Доступно для Prompt API"
+  },
+  "settingsAiStatusHeuristic": {
+    "message": "Евристичний режим (Вбудований ШІ не знайдено)"
+  },
+  "settingsCloudAiActiveWithModel": {
+    "message": "Groq · $1 (Активно)"
+  },
+  "settingsCloudAiDisabledConfigured": {
+    "message": "Вимкнено (Groq налаштовано)"
+  },
+  "settingsCloudAiNeedsKey": {
+    "message": "Потрібно налаштувати ключ"
+  },
+  "vaultItemMotherMaiden": {
+    "message": "Дівоче прізвище матері"
+  },
+  "vaultItemTaxId": {
+    "message": "РНОКПП (ІПН / Податковий код)"
+  },
+  "vaultItemSecretWord": {
+    "message": "Секретне / Кодове слово банку"
+  },
+  "vaultItemDob": {
+    "message": "Дата народження"
+  },
+  "vaultItemFinancialPhone": {
+    "message": "Фінансовий номер телефону"
+  },
+  "vaultItemFatherName": {
+    "message": "Ім'я батька / По батькові"
+  },
+  "vaultExplainMotherMaiden": {
+    "message": "<strong>Чому це критично:</strong> Контрольний маркер у банківських системах. Жодна служба доставки чи покупець не має права запитувати дівоче прізвище матері для переказу коштів."
+  },
+  "vaultExplainTaxId": {
+    "message": "<strong>Чому це критично:</strong> Номер РНОКПП (ІПН) шахраї виманюють для оформлення онлайн-мікропозик та підробки кредитних договорів."
+  },
+  "vaultExplainSecretWord": {
+    "message": "<strong>Чому це критично:</strong> Кодове слово банку дає повний доступ до телефонного банкінгу та дозволяє шахраям скинути пароль до вашого кабінету."
+  },
+  "vaultExplainPassportId": {
+    "message": "<strong>Чому це критично:</strong> Серія та номер паспорта чи ID-картки запитуються зловмисниками для проходження фіктивної верифікації особи."
+  },
+  "vaultExplainDob": {
+    "message": "<strong>Чому це критично:</strong> Дата народження використовується як допоміжний верифікатор для зміни фінансових лімітів та карток."
+  },
+  "vaultExplainFinancialPhone": {
+    "message": "<strong>Чому це критично:</strong> На фінансовий номер надходять SMS-коди підтвердження платежів. Захист блокує спроби його викрадення."
+  },
+  "vaultExplainFatherName": {
+    "message": "<strong>Чому це критично:</strong> Ім'я батька / по батькові використовується банками для додаткової перевірки особи при відновленні доступу."
+  },
+  "vaultExplainCustom": {
+    "message": "<strong>Власний маркер:</strong> Конфіденційна комбінація символів, яку ви захищаєте від витоку."
+  }
+}

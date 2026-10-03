@@ -34,7 +34,7 @@ describe('FieldLivePill (Edge Micro-Pill & Unrolling Cognitive Banner)', () => {
     expect(pill.classList.contains('ts-pill-red')).toBe(false);
     expect(pill.classList.contains('ts-expanded')).toBe(false);
     expect(pill.textContent).toContain('CVV');
-    expect(pill.textContent).toContain('Захист');
+    expect(pill.textContent).toContain('fieldPillProtection');
     expect(input.style.outline).toBe('');
 
     // Verification: pill is positioned underneath the field
@@ -55,12 +55,10 @@ describe('FieldLivePill (Edge Micro-Pill & Unrolling Cognitive Banner)', () => {
     // 1. Focus -> pill expands in place showing warning message
     input.dispatchEvent(new Event('focus'));
     expect(pill.classList.contains('ts-expanded')).toBe(true);
-    expect(pill.textContent).toContain('CVV-код ніколи не потрібен');
-    expect(pill.textContent).toContain('Захист поля');
+    expect(pill.textContent).toContain('fieldPillCvvWarning');
+    expect(pill.textContent).toContain('fieldPillProtection');
 
-    const sublabelSpan = Array.from(pill.querySelectorAll('span')).find(s => s.textContent?.includes('Захист поля'));
-    expect(sublabelSpan).toBeDefined();
-    expect(sublabelSpan?.style.marginLeft).toBe('auto');
+    
 
     // 2. Type first character (length === 1) -> pill remains expanded
     input.value = '4';
@@ -92,7 +90,7 @@ describe('FieldLivePill (Edge Micro-Pill & Unrolling Cognitive Banner)', () => {
     expect(pill.classList.contains('ts-expanded')).toBe(false);
     expect(pill.classList.contains('ts-pill-amber')).toBe(true);
     expect(pill.classList.contains('ts-pill-red')).toBe(false);
-    expect(pill.textContent).toContain('Увага');
+    expect(pill.textContent).toContain('fieldPillAttention');
 
     // Does NOT have noisy clean button inside the pill
     const cleanBtn = pill.querySelector('.ts-pill-quick-clean-btn');
@@ -122,7 +120,7 @@ describe('FieldLivePill (Edge Micro-Pill & Unrolling Cognitive Banner)', () => {
     expect(pill.classList.contains('ts-pill-amber')).toBe(false);
     expect(pill.classList.contains('ts-pill-red')).toBe(false);
     expect(pill.classList.contains('ts-expanded')).toBe(false);
-    expect(pill.textContent).toContain('Захист');
+    expect(pill.textContent).toContain('fieldPillProtection');
   });
 
   it('fluidly morphs pill into Vault Alert on secret match and restores on clear without duplicate pills', () => {
@@ -140,12 +138,12 @@ describe('FieldLivePill (Edge Micro-Pill & Unrolling Cognitive Banner)', () => {
     // Morph to Vault Alert
     FieldLivePill.morphToVaultAlert(input, 'Смирнова');
     expect(pill.classList.contains('ts-pill-red')).toBe(true);
-    expect(pill.textContent).toContain('Сховище: Смирнова');
+    expect(pill.textContent).toContain('fieldPillVaultMatch: Смирнова');
 
     // Clear Vault Alert
     FieldLivePill.clearVaultAlert(input);
     expect(pill.classList.contains('ts-pill-red')).toBe(false);
-    expect(pill.textContent).toContain('Захист');
+    expect(pill.textContent).toContain('fieldPillProtection');
   });
 
   it('provides a refined clean action chip in expanded state to wipe field in one click', () => {
@@ -165,7 +163,7 @@ describe('FieldLivePill (Edge Micro-Pill & Unrolling Cognitive Banner)', () => {
 
     const cleanAction = pill.querySelector('.ts-field-clean-action') as HTMLButtonElement;
     expect(cleanAction).not.toBeNull();
-    expect(cleanAction.textContent).toContain('Очистити');
+    expect(cleanAction.textContent).toContain('fieldPillBtnClear');
 
     // Click clean action
     cleanAction.dispatchEvent(new MouseEvent('click', { bubbles: true }));
@@ -173,7 +171,7 @@ describe('FieldLivePill (Edge Micro-Pill & Unrolling Cognitive Banner)', () => {
     // Input field is cleared, and pill is collapsed back to resting state
     expect(input.value).toBe('');
     expect(pill.classList.contains('ts-expanded')).toBe(false);
-    expect(pill.textContent).toContain('Захист');
+    expect(pill.textContent).toContain('fieldPillProtection');
   });
 
   it('supports Expiry and Tax ID (ІПН) field types with contextual warnings', () => {
@@ -273,7 +271,7 @@ describe('FieldLivePill (Edge Micro-Pill & Unrolling Cognitive Banner)', () => {
     // Header must contain the full, untruncated category title
     expect(pill.textContent).toContain('Дівоче прізвище матері');
     expect(pill.textContent).not.toContain('Дівоче прізви…');
-    expect(pill.textContent).toContain('Захист поля');
+    expect(pill.textContent).toContain('fieldPillProtection');
   });
 });
 

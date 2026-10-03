@@ -1,3 +1,4 @@
+import { i18n } from '../../../src/core/i18n';
 import { UserWhitelistManager } from '../../../src/core/user-whitelist';
 import { PersonalVaultManager } from '../../../src/core/personal-vault';
 
@@ -102,8 +103,8 @@ export class ShieldTabController {
 
   private updateSiteCard(): void {
     if (!this.currentTabHost) {
-      this.currentSiteDomain.innerText = 'Немає активного сайту';
-      this.currentSiteStatus.innerText = 'Відкрийте вкладку для моніторингу';
+      this.currentSiteDomain.innerText = i18n.getMessage('shieldTabNoSite');
+      this.currentSiteStatus.innerText = i18n.getMessage('shieldTabOpenTab');
       this.currentSiteStatus.className = 'site-status-text';
       this.currentSiteToggle.disabled = true;
       return;
@@ -115,15 +116,15 @@ export class ShieldTabController {
     const isWhitelisted = UserWhitelistManager.isDomainAllowedSync(this.currentTabHost);
 
     if (this.chainTargetNode) {
-      this.chainTargetNode.innerText = this.currentTabHost || 'Цільовий сайт';
+      this.chainTargetNode.innerText = this.currentTabHost || i18n.getMessage('shieldTabTargetSite');
     }
 
     // Описи типів захисту однакові і для активного, і для вимкненого захисту
     if (this.cardProtectionDesc) {
-      this.cardProtectionDesc.innerText = 'Фінансова недоторканність: блокування викрадення балансу';
+      this.cardProtectionDesc.innerText = i18n.getMessage('shieldCardProtDesc');
     }
     if (this.hiddenFormsDesc) {
-      this.hiddenFormsDesc.innerText = 'Оптична прозорість DOM: нейтралізація CSS-маскування';
+      this.hiddenFormsDesc.innerText = i18n.getMessage('shieldHiddenFormsDesc');
     }
 
     if (isWhitelisted) {
@@ -131,16 +132,16 @@ export class ShieldTabController {
       this.currentSiteToggle.checked = false;
       this.currentSiteCard.classList.add('whitelisted');
       this.siteIconBox.className = 'living-orb-box paused';
-      this.currentSiteStatus.innerHTML = `<span class="status-pulse-dot paused"></span><span>Захист призупинено для цього сайту</span>`;
+      this.currentSiteStatus.innerHTML = `<span class="status-pulse-dot paused"></span><span>${i18n.getMessage('shieldTabPausedSite')}</span>`;
       this.currentSiteStatus.className = 'site-status amber';
 
       if (this.cardProtectionPill) {
-        this.cardProtectionPill.innerText = 'Зупинено';
+        this.cardProtectionPill.innerText = i18n.getMessage('shieldTabStatusPaused');
         this.cardProtectionPill.className = 'module-pill amber';
       }
 
       if (this.hiddenFormsPill) {
-        this.hiddenFormsPill.innerText = 'Зупинено';
+        this.hiddenFormsPill.innerText = i18n.getMessage('shieldTabStatusPaused');
         this.hiddenFormsPill.className = 'module-pill amber';
       }
     } else {
@@ -148,16 +149,16 @@ export class ShieldTabController {
       this.currentSiteToggle.checked = true;
       this.currentSiteCard.classList.remove('whitelisted');
       this.siteIconBox.className = 'living-orb-box active';
-      this.currentSiteStatus.innerHTML = `<span class="status-pulse-dot active"></span><span>Захист увімкнено для цього сайту</span>`;
+      this.currentSiteStatus.innerHTML = `<span class="status-pulse-dot active"></span><span>${i18n.getMessage('shieldTabActiveSite')}</span>`;
       this.currentSiteStatus.className = 'site-status green';
 
       if (this.cardProtectionPill) {
-        this.cardProtectionPill.innerText = 'Активно';
+        this.cardProtectionPill.innerText = i18n.getMessage('shieldTabStatusActive');
         this.cardProtectionPill.className = 'module-pill green';
       }
 
       if (this.hiddenFormsPill) {
-        this.hiddenFormsPill.innerText = 'Активно';
+        this.hiddenFormsPill.innerText = i18n.getMessage('shieldTabStatusActive');
         this.hiddenFormsPill.className = 'module-pill green';
       }
     }
@@ -180,14 +181,14 @@ export class ShieldTabController {
       if (res && res.context) {
         this.taintedBanner.style.display = 'flex';
         const source = res.context.sourcePlatform || 'маркетплейсу';
-        this.taintedDescText.innerText = `Зафіксовано спробу виведення на сторонній ресурс із чату ${source}. Скринінг форм максимально посилено.`;
+        this.taintedDescText.innerText = i18n.getMessage('shieldTabDescThreat', [source]);
         if (this.chainSourceNode) {
-          this.chainSourceNode.innerText = `Чат ${source}`;
+          this.chainSourceNode.innerText = i18n.getMessage('shieldTabSourceChat', [source]);
         }
       } else {
         this.taintedBanner.style.display = 'none';
         if (this.chainSourceNode) {
-          this.chainSourceNode.innerText = 'Легітимне джерело';
+          this.chainSourceNode.innerText = i18n.getMessage('shieldTabLegitSource');
         }
       }
     } catch {
@@ -198,13 +199,13 @@ export class ShieldTabController {
   private async updateVaultStatus(): Promise<void> {
     const isOperational = PersonalVaultManager.hasOperationalProtection();
 
-    this.vaultProtectionDesc.innerText = 'Захист конфіденційних маркерів та даних у чатах';
+    this.vaultProtectionDesc.innerText = i18n.getMessage('shieldVaultProtDesc');
 
     if (isOperational) {
-      this.vaultStatusPill.innerText = 'Активно';
+      this.vaultStatusPill.innerText = i18n.getMessage('shieldTabStatusActive');
       this.vaultStatusPill.className = 'module-pill green';
     } else {
-      this.vaultStatusPill.innerText = 'Зупинено';
+      this.vaultStatusPill.innerText = i18n.getMessage('shieldTabStatusPaused');
       this.vaultStatusPill.className = 'module-pill amber';
     }
   }
@@ -212,11 +213,11 @@ export class ShieldTabController {
 
   private checkAiStatus(): void {
     if (this.homeAiPill) {
-      this.homeAiPill.innerText = 'Активно';
+      this.homeAiPill.innerText = i18n.getMessage('shieldTabStatusActive');
       this.homeAiPill.className = 'module-pill green';
     }
     if (this.homeAiSubtext) {
-      this.homeAiSubtext.innerText = 'Локальний аналіз фішингових сценаріїв та діалогів';
+      this.homeAiSubtext.innerText = i18n.getMessage('shieldAiDesc');
     }
   }
 
@@ -267,7 +268,7 @@ export class ShieldTabController {
         if (msg?.type === 'CONTEXT_CLEARED') {
           this.taintedBanner.style.display = 'none';
           if (this.chainSourceNode) {
-            this.chainSourceNode.innerText = 'Легітимне джерело';
+            this.chainSourceNode.innerText = i18n.getMessage('shieldTabLegitSource');
           }
         } else if (msg?.type === 'CONTEXT_UPDATED') {
           this.checkTaintedContext();

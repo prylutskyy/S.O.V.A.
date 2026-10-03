@@ -2,9 +2,9 @@ import { defineConfig } from 'wxt';
 
 export default defineConfig({
   manifest: {
-    name: 'С.О.В.А. (S.O.V.A.) — Система Оперативного Виявлення Аномалій',
-    description:
-      'Система Оперативного Виявлення Аномалій (С.О.В.А.): виявлення та нейтралізація ворожих вербувальників, пошуку коригувальників, зливу координат, соціальної інженерії та фішингу.',
+    name: '__MSG_extensionName__',
+    description: '__MSG_extensionDescription__',
+    default_locale: 'uk',
     version: '1.0.0',
     icons: {
       16: '/icon-16.png',
@@ -19,7 +19,7 @@ export default defineConfig({
         48: '/icon-48.png',
         128: '/icon-128.png',
       },
-      default_title: 'С.О.В.А. (S.O.V.A.) — Система Оперативного Виявлення Аномалій',
+      default_title: '__MSG_extensionName__',
     },
     permissions: ['storage', 'activeTab', 'scripting', 'tabs', 'offscreen'],
     host_permissions: ['<all_urls>'],

@@ -1,5 +1,6 @@
 import { PersonalVaultManager } from '../../../src/core/personal-vault';
 import { VaultItemCategory, VaultItem } from '../../../src/types/vault';
+import { i18n } from '../../../src/core/i18n';
 
 export type ConfirmDialogHandler = (options: {
   title: string;
@@ -66,13 +67,13 @@ export class VaultTabController {
   private getCategoryIconSvg(cat: VaultItemCategory): string {
     switch (cat) {
       case 'MOTHER_MAIDEN_NAME':
-        return '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
+        return '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>';
       case 'TAX_ID':
-        return '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>';
+        return '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="7" y1="8" x2="17" y2="8"/><line x1="7" y1="12" x2="13" y2="12"/><line x1="7" y1="16" x2="11" y2="16"/></svg>';
       case 'SECRET_WORD':
-        return '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/><circle cx="12" cy="16" r="1.5" fill="currentColor"/></svg>';
+        return '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
       case 'PASSPORT_ID':
-        return '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="7" y1="8" x2="17" y2="8"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="7" y1="16" x2="12" y2="16"/></svg>';
+        return '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="12" cy="10" r="3"/><path d="M7 17a5 5 0 0 1 10 0"/></svg>';
       case 'DATE_OF_BIRTH':
         return '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>';
       case 'FINANCIAL_PHONE':
@@ -84,24 +85,37 @@ export class VaultTabController {
     }
   }
 
+  private getCategoryTitle(cat: VaultItemCategory, defaultLabel: string): string {
+    switch (cat) {
+      case 'MOTHER_MAIDEN_NAME': return i18n.getMessage('vaultItemMotherMaiden');
+      case 'TAX_ID': return i18n.getMessage('vaultItemTaxId');
+      case 'SECRET_WORD': return i18n.getMessage('vaultItemSecretWord');
+      case 'PASSPORT_ID': return i18n.getMessage('vaultItemPassportId');
+      case 'DATE_OF_BIRTH': return i18n.getMessage('vaultItemDob');
+      case 'FINANCIAL_PHONE': return i18n.getMessage('vaultItemFinancialPhone');
+      case 'FATHER_NAME': return i18n.getMessage('vaultItemFatherName');
+      default: return defaultLabel;
+    }
+  }
+
   private getCategoryExplanation(cat: VaultItemCategory): string {
     switch (cat) {
       case 'MOTHER_MAIDEN_NAME':
-        return '<strong>Чому це критично:</strong> Контрольний маркер у банківських системах. Жодна служба доставки чи покупець не має права запитувати дівоче прізвище матері для переказу коштів.';
+        return i18n.getMessage('vaultExplainMotherMaiden');
       case 'TAX_ID':
-        return '<strong>Чому це критично:</strong> Номер РНОКПП (ІПН) шахраї виманюють для оформлення онлайн-мікропозик та підробки кредитних договорів.';
+        return i18n.getMessage('vaultExplainTaxId');
       case 'SECRET_WORD':
-        return '<strong>Чому це критично:</strong> Кодове слово банку дає повний доступ до телефонного банкінгу та дозволяє шахраям скинути пароль до вашого кабінету.';
+        return i18n.getMessage('vaultExplainSecretWord');
       case 'PASSPORT_ID':
-        return '<strong>Чому це критично:</strong> Серія та номер паспорта чи ID-картки запитуються зловмисниками для проходження фіктивної верифікації особи.';
+        return i18n.getMessage('vaultExplainPassportId');
       case 'DATE_OF_BIRTH':
-        return '<strong>Чому це критично:</strong> Дата народження використовується як допоміжний верифікатор для зміни фінансових лімітів та карток.';
+        return i18n.getMessage('vaultExplainDob');
       case 'FINANCIAL_PHONE':
-        return '<strong>Чому це критично:</strong> На фінансовий номер надходять SMS-коди підтвердження платежів. Захист блокує спроби його викрадення.';
+        return i18n.getMessage('vaultExplainFinancialPhone');
       case 'FATHER_NAME':
-        return "<strong>Чому це критично:</strong> Ім'я батька / по батькові використовується банками для додаткової перевірки особи при відновленні доступу.";
+        return i18n.getMessage('vaultExplainFatherName');
       default:
-        return '<strong>Власний маркер:</strong> Конфіденційна комбінація символів, яку ви захищаєте від витоку.';
+        return i18n.getMessage('vaultExplainCustom');
     }
   }
 
@@ -129,8 +143,8 @@ export class VaultTabController {
       const countText = activeCount > 0 ? `${activeCount} рубежів` : '7 рубежів';
       if (daemonStatusEl) {
         daemonStatusEl.innerText = hasSession
-          ? `Фоновий захист активний: ${countText} на варті`
-          : 'Базовий моніторинг форм активний';
+          ? i18n.getMessage('vaultStatsActiveWait', [countText])
+          : i18n.getMessage('vaultStatsBasicWait');
       }
       if (daemonBannerEl) {
         if (hasSession) {
@@ -159,7 +173,7 @@ export class VaultTabController {
     // 1. Оновлення Hero Health Ring
     const percent = items.length > 0 ? Math.round((activeCount / items.length) * 100) : 0;
     if (this.vaultActiveCountLabel) {
-      this.vaultActiveCountLabel.innerText = `${activeCount} з ${items.length} рубежів активовано`;
+      this.vaultActiveCountLabel.innerText = i18n.getMessage('vaultItemsCountActive', [activeCount.toString(), items.length.toString()]);
     }
     if (this.vaultRingPercent) {
       this.vaultRingPercent.innerText = `${percent}%`;
@@ -188,13 +202,13 @@ export class VaultTabController {
 
     // Рендер Групи 1 (Банківські дані)
     if (bankingItems.length > 0) {
-      const groupEl = this.createInsetGroup('Банківські дані', bankingItems);
+      const groupEl = this.createInsetGroup(i18n.getMessage('vaultGroupBanking'), bankingItems);
       this.vaultCategoriesContainer.appendChild(groupEl);
     }
 
     // Рендер Групи 2 (Особисті документи)
     if (personalItems.length > 0) {
-      const groupEl = this.createInsetGroup('Особисті документи', personalItems);
+      const groupEl = this.createInsetGroup(i18n.getMessage('vaultGroupDocs'), personalItems);
       this.vaultCategoriesContainer.appendChild(groupEl);
     }
   }
@@ -223,11 +237,11 @@ export class VaultTabController {
       const row = document.createElement('div');
       row.className = 'vault-item-row';
 
-      let statusCapsuleHtml = '<span class="vault-status-capsule empty">Не налаштовано</span>';
+      let statusCapsuleHtml = '<span class="vault-status-capsule empty">' + i18n.getMessage('vaultStatusNotSet') + '</span>';
       if (isEnabled) {
-        statusCapsuleHtml = '<span class="vault-status-capsule active"><span class="vault-dot"></span>Захищено</span>';
+        statusCapsuleHtml = '<span class="vault-status-capsule active"><span class="vault-dot"></span>' + i18n.getMessage('vaultStatusProtected') + '</span>';
       } else if (isFilled && !isEnabled) {
-        statusCapsuleHtml = '<span class="vault-status-capsule paused">Призупинено</span>';
+        statusCapsuleHtml = '<span class="vault-status-capsule paused">' + i18n.getMessage('shieldTabStatusPaused') + '</span>';
       }
 
       row.innerHTML = `
@@ -236,8 +250,8 @@ export class VaultTabController {
             ${this.getCategoryIconSvg(item.category)}
           </div>
           <div class="vault-row-info">
-            <div class="vault-row-title">${item.label}</div>
-            <div class="vault-row-meta">${isFilled ? '••••••••' : 'Маркер не налаштовано'}</div>
+            <div class="vault-row-title">${this.getCategoryTitle(item.category, item.label)}</div>
+            <div class="vault-row-meta">${isFilled ? '••••••••' : i18n.getMessage('vaultItemNotSetDesc')}</div>
           </div>
         </div>
         <div class="vault-row-end">
@@ -262,9 +276,9 @@ export class VaultTabController {
 
         panel.innerHTML = `
           <div class="vault-field-group">
-            <label class="vault-field-label">Справжнє значення (зашифровано на пристрої)</label>
+            <label class="vault-field-label">${i18n.getMessage('vaultItemRealLabelDevice')}</label>
             <div class="vault-input-wrap">
-              <input type="password" class="sanctuary-input mono vault-real-input" value="${item.realValue || ''}" placeholder="Введіть ваше справжнє значення">
+              <input type="password" class="sanctuary-input mono vault-real-input" value="${item.realValue || ''}" placeholder="${i18n.getMessage('vaultItemRealPlaceholderDevice')}">
               <button type="button" class="vault-eye-btn" title="Показати/приховати">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
               </button>
@@ -272,9 +286,9 @@ export class VaultTabController {
           </div>
 
           <div class="vault-field-group">
-            <label class="vault-field-label">Цифровий двійник (Фантом для підміни)</label>
+            <label class="vault-field-label">${i18n.getMessage('vaultItemDecoyLabelDevice')}</label>
             <input type="text" class="sanctuary-input mono vault-decoy-input" value="${item.decoyValue || ''}" placeholder="${PersonalVaultManager.generateDefaultDecoy(item.category)}">
-            <div class="vault-field-hint">Система підставить цю безпечну приманку фішинговим формам замість ваших даних.</div>
+            <div class="vault-field-hint">${i18n.getMessage('vaultItemDecoyHintDevice')}</div>
           </div>
 
           <div class="vault-help-box">
@@ -283,10 +297,10 @@ export class VaultTabController {
 
           <div class="vault-actions-row">
             <button type="button" class="btn-primary vault-save-btn">
-              <span>Зберегти</span>
+              <span>${i18n.getMessage('vaultItemBtnSave')}</span>
             </button>
             <button type="button" class="btn-subtle vault-clear-btn">
-              <span>Очистити</span>
+              <span>${i18n.getMessage('vaultItemBtnClear')}</span>
             </button>
           </div>
         `;
@@ -364,18 +378,18 @@ export class VaultTabController {
       const pw = this.vaultSetupPassword.value;
       const confirm = this.vaultSetupConfirm.value;
       if (!pw || pw.length < 4) {
-        alert('Пароль занадто короткий. Мінімум 4 символи.');
+        this.showToast(i18n.getMessage('toastPasswordTooShort') || '');
         return;
       }
       if (pw !== confirm) {
-        alert('Паролі не співпадають!');
+        this.showToast(i18n.getMessage('toastPasswordsMismatch') || '');
         return;
       }
 
       await PersonalVaultManager.setupMasterPassword(pw);
       this.vaultSetupPassword.value = '';
       this.vaultSetupConfirm.value = '';
-      this.showToast('Сховище створено та розблоковано');
+      this.showToast(i18n.getMessage('toastVaultCreatedUnlocked') || '');
       await this.renderSplitView();
       this.onStatsChanged();
     });
@@ -389,12 +403,12 @@ export class VaultTabController {
       if (success) {
         this.isUiLocked = false;
         this.vaultUnlockPassword.value = '';
-        this.showToast('Сховище розблоковано');
+        this.showToast(i18n.getMessage('toastVaultUnlocked') || '');
         await this.renderSplitView();
 
         this.onStatsChanged();
       } else {
-        alert('Невірний пароль!');
+        this.showToast(i18n.getMessage('toastWrongPassword') || '');
       }
     });
 
@@ -413,7 +427,7 @@ export class VaultTabController {
       if (this.vaultCategoriesContainer) {
         this.vaultCategoriesContainer.innerHTML = '';
       }
-      this.showToast('Сховище заблоковано. Фоновий захист активний.');
+      this.showToast(i18n.getMessage('toastVaultLockedBg') || '');
       await this.renderSplitView();
       this.onStatsChanged();
     };

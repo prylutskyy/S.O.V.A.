@@ -1,0 +1,598 @@
+{
+  "extensionName": {
+    "message": "S.O.V.A. (С.О.В.А.)",
+    "description": "Extension Name"
+  },
+  "extensionDescription": {
+    "message": "System for Operational Vulnerability Assessment",
+    "description": "Extension Description"
+  },
+  "tabShield": {
+    "message": "Shield"
+  },
+  "tabVault": {
+    "message": "Vault"
+  },
+  "tabSettings": {
+    "message": "Settings"
+  },
+  "headerTitle": {
+    "message": "S.O.V.A. (С.О.В.А.)"
+  },
+  "headerSubtitle": {
+    "message": "Operational Vulnerability Assessment System"
+  },
+  "headerBtnExpandTitle": {
+    "message": "Expand to separate tab (macOS View)"
+  },
+  "shieldSiteDomainFallback": {
+    "message": "Detecting domain..."
+  },
+  "shieldSiteStatusActive": {
+    "message": "Protection active for this site"
+  },
+  "shieldSiteToggleTitle": {
+    "message": "Toggle protection for this site"
+  },
+  "shieldTaintedHeadline": {
+    "message": "Heightened Vigilance"
+  },
+  "shieldTaintedStatusSub": {
+    "message": "Form screening intensified"
+  },
+  "shieldTaintedBadge": {
+    "message": "ACTIVE"
+  },
+  "shieldTaintedSourceNode": {
+    "message": "Classifieds Chat"
+  },
+  "shieldTaintedTargetNode": {
+    "message": "Target Page"
+  },
+  "shieldTaintedDescText": {
+    "message": "Transition from classifieds chat detected. Form screening maximally intensified."
+  },
+  "shieldTaintedBtnReset": {
+    "message": "Reset alert state"
+  },
+  "shieldGuaranteesLabel": {
+    "message": "DIGITAL SANCTUARY GUARANTEES"
+  },
+  "shieldCardProtTitle": {
+    "message": "Card & CVV Protection"
+  },
+  "shieldCardProtDesc": {
+    "message": "Financial inviolability: balance theft blocking"
+  },
+  "shieldPillActive": {
+    "message": "Active"
+  },
+  "shieldHiddenFormsTitle": {
+    "message": "Hidden Forms Audit"
+  },
+  "shieldHiddenFormsDesc": {
+    "message": "DOM optical transparency: CSS masking neutralization"
+  },
+  "shieldVaultProtTitle": {
+    "message": "Personal Vault DLP"
+  },
+  "shieldVaultProtDesc": {
+    "message": "Protection of sensitive tokens and data in chats"
+  },
+  "shieldAiTitle": {
+    "message": "AI Arbiter (LLM)"
+  },
+  "shieldAiDesc": {
+    "message": "Local analysis of phishing scenarios and dialogues"
+  },
+  "vaultSetupTitle": {
+    "message": "Create Personal Vault"
+  },
+  "vaultSetupDesc": {
+    "message": "Local cryptographic vault using AES-GCM 256 standard. Your sensitive tokens are protected on-device and automatically swapped during phishing attempts."
+  },
+  "vaultSetupPassLabel": {
+    "message": "Master Password"
+  },
+  "vaultSetupPassPlaceholder": {
+    "message": "Minimum 4 characters"
+  },
+  "vaultSetupConfirmLabel": {
+    "message": "Confirm Password"
+  },
+  "vaultSetupConfirmPlaceholder": {
+    "message": "Repeat master password"
+  },
+  "vaultSetupBtn": {
+    "message": "Create and Protect"
+  },
+  "vaultDaemonStatus": {
+    "message": "Background protection active: 7 perimeters on guard"
+  },
+  "vaultLockedTitle": {
+    "message": "Personal Vault"
+  },
+  "vaultLockedDesc": {
+    "message": "Enter password to activate full In-Memory protection: recognition of typos, transliteration, and INN obfuscation."
+  },
+  "vaultUnlockPassPlaceholder": {
+    "message": "Master Password"
+  },
+  "vaultUnlockBtn": {
+    "message": "Unlock Vault"
+  },
+  "vaultEnclaveBadge": {
+    "message": "In-Memory Enclave · Full Protection"
+  },
+  "vaultBtnQuickLockTitle": {
+    "message": "Lock vault screen"
+  },
+  "vaultBtnQuickLockText": {
+    "message": "Lock"
+  },
+  "vaultHealthHeadline": {
+    "message": "0 of 7 perimeters activated"
+  },
+  "vaultHealthSub": {
+    "message": "Fuzzy search, transliteration, and phantom auto-substitution"
+  },
+  "vaultBtnLock": {
+    "message": "Lock"
+  },
+  "vaultBtnReset": {
+    "message": "Reset vault to default state"
+  },
+  "settingsWhitelistTitle": {
+    "message": "Trusted Sites (0)"
+  },
+  "settingsBtnToggleManualAdd": {
+    "message": "Add trusted site manually"
+  },
+  "settingsBtnToggleManualAddText": {
+    "message": "+ Add"
+  },
+  "settingsBtnClearAll": {
+    "message": "Clear All"
+  },
+  "settingsManualHostPlaceholder": {
+    "message": "e.g.: bank.gov.ua"
+  },
+  "settingsManualHostError": {
+    "message": "Enter a valid site address (e.g.: domain.com)"
+  },
+  "settingsBtnAddManual": {
+    "message": "Add"
+  },
+  "settingsCloudAiLabel": {
+    "message": "CLOUD ARBITRATION (GROQ CLOUD)"
+  },
+  "settingsCloudAiTitle": {
+    "message": "Threat Neuro-verification"
+  },
+  "settingsCloudAiSubtitle": {
+    "message": "Key configuration required"
+  },
+  "settingsToggleCloudAiTitle": {
+    "message": "Toggle cloud AI"
+  },
+  "settingsBtnToggleCloudAiDetailsTitle": {
+    "message": "AI Settings"
+  },
+  "settingsCloudAiFactNote": {
+    "message": "Groq API key required. Verification standard — qwen3.8-27b."
+  },
+  "settingsGroqConnected": {
+    "message": "Groq connected"
+  },
+  "settingsBtnChangeKeyTitle": {
+    "message": "Change API key"
+  },
+  "settingsBtnChangeKeyText": {
+    "message": "Change"
+  },
+  "settingsBtnDeleteKeyTitle": {
+    "message": "Disconnect Groq"
+  },
+  "settingsGroqKeyLabel": {
+    "message": "Groq API Key"
+  },
+  "settingsKeyNotSet": {
+    "message": "Not connected"
+  },
+  "settingsKeyInputPlaceholder": {
+    "message": "Paste key (gsk_...)"
+  },
+  "settingsBtnSaveKeyText": {
+    "message": "Connect"
+  },
+  "settingsModelLabel": {
+    "message": "Arbitration Model"
+  },
+  "settingsBtnRefreshModelsTitle": {
+    "message": "Refresh models catalog"
+  },
+  "settingsBtnRefreshModelsText": {
+    "message": "Refresh list"
+  },
+  "settingsModelStandard": {
+    "message": "qwen3.8-27b (Standard)"
+  },
+  "settingsBtnApplyModel": {
+    "message": "Select"
+  },
+  "settingsCustomModelPlaceholder": {
+    "message": "Enter model name..."
+  },
+  "settingsBtnApplyCustomModel": {
+    "message": "Select"
+  },
+  "settingsKeyProtectedNote": {
+    "message": "Key protected by AES-GCM 256 on this device."
+  },
+  "settingsBtnCollapseCloudAi": {
+    "message": "Collapse settings"
+  },
+  "settingsDiagLabel": {
+    "message": "TRANSPARENCY & TELEMETRY"
+  },
+  "settingsDebugTitle": {
+    "message": "Debugger"
+  },
+  "settingsDebugDesc": {
+    "message": "Floating debug overlay on web pages"
+  },
+  "settingsToggleDebugTitle": {
+    "message": "Toggle debug overlay"
+  },
+  "settingsLocalAiTitle": {
+    "message": "Local Neuro-module"
+  },
+  "settingsLocalAiDesc": {
+    "message": "Checking status..."
+  },
+  "settingsSystemLabel": {
+    "message": "SYSTEM & DATA"
+  },
+  "settingsSystemDesc": {
+    "message": "Diploma Project · Operational Protection System"
+  },
+  "confirmSheetTitle": {
+    "message": "Confirmation"
+  },
+  "confirmSheetBody": {
+    "message": "Are you sure you want to proceed?"
+  },
+  "confirmSheetBtnConfirm": {
+    "message": "Confirm"
+  },
+  "confirmSheetBtnCancel": {
+    "message": "Cancel"
+  },
+  "vaultItemRealLabel": {
+    "message": "Real Value (protected & hidden)"
+  },
+  "vaultItemRealPlaceholder": {
+    "message": "Enter secret value"
+  },
+  "vaultItemDecoyLabel": {
+    "message": "Phantom Value (phishing replacement)"
+  },
+  "vaultItemDecoyHint": {
+    "message": "The system automatically substitutes the true value with the phantom during data leaks."
+  },
+  "vaultItemBtnSave": {
+    "message": "Save"
+  },
+  "vaultItemBtnClear": {
+    "message": "Clear"
+  },
+  "toastPasswordsMismatch": {
+    "message": "Passwords do not match"
+  },
+  "toastPasswordTooShort": {
+    "message": "Password is too short"
+  },
+  "toastVaultCreated": {
+    "message": "Vault created and protected"
+  },
+  "toastWrongPassword": {
+    "message": "Incorrect password"
+  },
+  "toastVaultUnlocked": {
+    "message": "Vault unlocked"
+  },
+  "toastVaultLocked": {
+    "message": "Vault locked. Secrets are protected."
+  },
+  "toastVaultReset": {
+    "message": "Vault reset to default settings"
+  },
+  "toastDataSaved": {
+    "message": "Saved:"
+  },
+  "toastDataDeleted": {
+    "message": "Cleared:"
+  },
+  "confirmResetVaultTitle": {
+    "message": "Vault Reset"
+  },
+  "confirmResetVaultBody": {
+    "message": "Are you sure you want to permanently delete the vault and all its data?"
+  },
+  "confirmResetVaultBtn": {
+    "message": "Delete Permanently"
+  },
+  "vaultCatFinancialTitle": {
+    "message": "Financial Tokens"
+  },
+  "vaultCatIdentityTitle": {
+    "message": "Identification Data"
+  },
+  "vaultCatDigitalTitle": {
+    "message": "Digital Keys & Profiles"
+  },
+  "vaultItemCardNumber": {
+    "message": "Credit Card Number"
+  },
+  "vaultItemCardCvv": {
+    "message": "CVV2 Code"
+  },
+  "vaultItemCardPin": {
+    "message": "Card PIN Code"
+  },
+  "vaultItemInn": {
+    "message": "TIN (Tax ID)"
+  },
+  "vaultItemPassportId": {
+    "message": "Passport / ID card number"
+  },
+  "vaultItemDiyaSignature": {
+    "message": "Diya.Signature Password"
+  },
+  "vaultItemCryptoSeed": {
+    "message": "Crypto Wallet Seed"
+  },
+  "vaultItemEmailPassword": {
+    "message": "Primary Email Password"
+  },
+  "vaultItemSocialPassword": {
+    "message": "Social Media Password"
+  },
+  "shieldSiteStatusInactive": {
+    "message": "Protection disabled for this site"
+  },
+  "toastProtectionEnabled": {
+    "message": "Protection enabled for site"
+  },
+  "toastProtectionDisabled": {
+    "message": "Protection disabled for site"
+  },
+  "toastAlertReset": {
+    "message": "Alert state successfully reset"
+  },
+  "shieldTaintedDescDynamic": {
+    "message": "Transition from $1 detected. Form screening maximally intensified."
+  },
+  "toastSiteAdded": {
+    "message": "Site added to trusted"
+  },
+  "toastSiteRemoved": {
+    "message": "Site removed from trusted"
+  },
+  "toastAllSitesRemoved": {
+    "message": "All sites removed"
+  },
+  "toastApiKeySaved": {
+    "message": "API key saved!"
+  },
+  "toastApiKeyRemoved": {
+    "message": "API key removed"
+  },
+  "toastModelApplied": {
+    "message": "Model successfully applied"
+  },
+  "toastDebugEnabled": {
+    "message": "Debugger enabled"
+  },
+  "toastDebugDisabled": {
+    "message": "Debugger disabled"
+  },
+  "confirmClearWhitelistTitle": {
+    "message": "Clear Whitelist"
+  },
+  "confirmClearWhitelistBody": {
+    "message": "Are you sure you want to remove all trusted sites?"
+  },
+  "confirmClearWhitelistBtn": {
+    "message": "Clear"
+  },
+  "settingsAiStatusAvailable": {
+    "message": "Available"
+  },
+  "settingsAiStatusNeedsKey": {
+    "message": "API Key required (Groq Cloud)"
+  },
+  "settingsAiStatusNotConfigured": {
+    "message": "Not configured"
+  },
+  "shieldTabNoSite": {
+    "message": "No active site"
+  },
+  "shieldTabOpenTab": {
+    "message": "Open a tab to monitor"
+  },
+  "shieldTabTargetSite": {
+    "message": "Target site"
+  },
+  "shieldTabPausedSite": {
+    "message": "Protection paused for this site"
+  },
+  "shieldTabActiveSite": {
+    "message": "Protection enabled for this site"
+  },
+  "shieldTabStatusActive": {
+    "message": "Active"
+  },
+  "shieldTabStatusPaused": {
+    "message": "Paused"
+  },
+  "shieldTabLegitSource": {
+    "message": "Legitimate Source"
+  },
+  "shieldTabSourceChat": {
+    "message": "Chat $1"
+  },
+  "shieldTabDescThreat": {
+    "message": "Detected attempt to redirect to an external resource from $1 chat. Form screening is maximally enhanced."
+  },
+  "vaultStatsActiveWait": {
+    "message": "Background protection active: $1 on guard"
+  },
+  "vaultStatsBasicWait": {
+    "message": "Basic form monitoring active"
+  },
+  "vaultItemsCountActive": {
+    "message": "$1 of $2 boundaries activated"
+  },
+  "vaultGroupBanking": {
+    "message": "Banking Data"
+  },
+  "vaultGroupDocs": {
+    "message": "Personal Documents"
+  },
+  "vaultStatusNotSet": {
+    "message": "Not Set"
+  },
+  "vaultStatusProtected": {
+    "message": "Protected"
+  },
+  "vaultItemNotSetDesc": {
+    "message": "Marker not set"
+  },
+  "vaultItemRealLabelDevice": {
+    "message": "Real Value (encrypted on device)"
+  },
+  "vaultItemRealPlaceholderDevice": {
+    "message": "Enter your true value"
+  },
+  "vaultItemDecoyLabelDevice": {
+    "message": "Digital Twin (Phantom for substitution)"
+  },
+  "vaultItemDecoyHintDevice": {
+    "message": "The system will substitute this safe bait into phishing forms instead of your data."
+  },
+  "toastVaultCreatedUnlocked": {
+    "message": "Vault created and unlocked"
+  },
+  "toastVaultLockedBg": {
+    "message": "Vault locked. Background protection active."
+  },
+  "fieldPillVaultMatch": {
+    "message": "Vault Match"
+  },
+  "fieldPillPersonalSecret": {
+    "message": "Personal Secret"
+  },
+  "fieldPillDetectedWarning": {
+    "message": "Saved security marker detected. Do not submit it to untrusted resources!"
+  },
+  "fieldPillBtnClear": {
+    "message": "Clear"
+  },
+  "fieldPillAttention": {
+    "message": "Attention"
+  },
+  "fieldPillProtection": {
+    "message": "Protection"
+  },
+  "fieldPillCvvWarning": {
+    "message": "CVV code is never required to receive funds! It is only asked for withdrawals."
+  },
+  "fieldPillExpWarning": {
+    "message": "Card expiry date is only required for purchases, not for receiving funds."
+  },
+  "fieldPillPinWarning": {
+    "message": "Strictly prohibited: entering card PIN code on websites!"
+  },
+  "fieldPillInnWarning": {
+    "message": "Check the recipient: entering TIN on third-party sites risks identity theft."
+  },
+  "fieldPillGenericWarning": {
+    "message": "Detected request for sensitive security marker: «$1»."
+  },
+  "settingsEmptyWhitelistTitle": {
+    "message": "No trusted sites"
+  },
+  "settingsEmptyWhitelistDesc": {
+    "message": "Sites from the exceptions list are not scanned for threats."
+  },
+  "settingsWhitelistBase": {
+    "message": "Trusted Sites"
+  },
+  "settingsClearWhitelistConfirmTitle": {
+    "message": "Clear trusted sites?"
+  },
+  "settingsAiStatusActiveReady": {
+    "message": "Active (Local model ready)"
+  },
+  "settingsAiStatusDownloading": {
+    "message": "Supported, but model is still downloading"
+  },
+  "settingsAiStatusPromptApi": {
+    "message": "Available for Prompt API"
+  },
+  "settingsAiStatusHeuristic": {
+    "message": "Heuristic mode (Built-in AI not found)"
+  },
+  "settingsCloudAiActiveWithModel": {
+    "message": "Groq · $1 (Active)"
+  },
+  "settingsCloudAiDisabledConfigured": {
+    "message": "Disabled (Groq configured)"
+  },
+  "settingsCloudAiNeedsKey": {
+    "message": "Key configuration needed"
+  },
+  "vaultItemMotherMaiden": {
+    "message": "Mother's maiden name"
+  },
+  "vaultItemTaxId": {
+    "message": "Taxpayer ID (TIN / Tax Code)"
+  },
+  "vaultItemSecretWord": {
+    "message": "Bank Secret / Codeword"
+  },
+  "vaultItemDob": {
+    "message": "Date of birth"
+  },
+  "vaultItemFinancialPhone": {
+    "message": "Financial phone number"
+  },
+  "vaultItemFatherName": {
+    "message": "Father's name / Middle name"
+  },
+  "vaultExplainMotherMaiden": {
+    "message": "<strong>Why this is critical:</strong> Security checkpoint in banking systems. No delivery service or buyer is authorized to ask for a mother's maiden name to transfer funds."
+  },
+  "vaultExplainTaxId": {
+    "message": "<strong>Why this is critical:</strong> Tax ID is lured by fraudsters to apply for unauthorized online micro-loans and forge loan agreements."
+  },
+  "vaultExplainSecretWord": {
+    "message": "<strong>Why this is critical:</strong> Bank codeword grants full telephone banking access and allows fraudsters to reset your account password."
+  },
+  "vaultExplainPassportId": {
+    "message": "<strong>Why this is critical:</strong> Passport or ID card number is requested by attackers for fraudulent identity verification."
+  },
+  "vaultExplainDob": {
+    "message": "<strong>Why this is critical:</strong> Date of birth is used as a secondary authenticator to modify card limits and account settings."
+  },
+  "vaultExplainFinancialPhone": {
+    "message": "<strong>Why this is critical:</strong> Financial phone receives payment authorization SMS codes. Protection blocks attempts to intercept it."
+  },
+  "vaultExplainFatherName": {
+    "message": "<strong>Why this is critical:</strong> Father's name / patronymic is used by banks for identity confirmation during account recovery."
+  },
+  "vaultExplainCustom": {
+    "message": "<strong>Custom marker:</strong> Confidential combination of characters you protect from leakage."
+  }
+}

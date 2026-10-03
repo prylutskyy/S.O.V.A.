@@ -139,7 +139,7 @@ describe('VaultTabController', () => {
     const lockedState = document.getElementById('vaultLockedState')!;
     expect(lockedState.style.display).toBe('flex');
     expect(unlockedState.style.display).toBe('none');
-    expect(showToastMock).toHaveBeenCalledWith('Сховище заблоковано. Фоновий захист активний.');
+    expect(showToastMock).toHaveBeenCalledWith('toastVaultLockedBg');
   });
 
   it('locks vault and switches to locked state when Footer Lock button is clicked', async () => {
@@ -201,7 +201,7 @@ describe('VaultTabController', () => {
     expect(PersonalVaultManager.isLocked()).toBe(false);
     const unlockedState = document.getElementById('vaultUnlockedState')!;
     expect(unlockedState.style.display).toBe('flex');
-    expect(showToastMock).toHaveBeenCalledWith('Сховище розблоковано');
+    expect(showToastMock).toHaveBeenCalledWith('toastVaultUnlocked');
   });
 
   it('does not lock vault when a secret is saved/updated while unlocked', async () => {

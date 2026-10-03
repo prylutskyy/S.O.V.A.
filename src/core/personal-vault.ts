@@ -1,3 +1,4 @@
+import { i18n } from './i18n';
 import { VaultItem, VaultItemCategory, VaultSensitivityTier, VaultBlindSignature } from '../types/vault';
 import { CryptoService } from './crypto-service';
 import { FuzzyMatcher } from '../heuristics/fuzzy-matcher';

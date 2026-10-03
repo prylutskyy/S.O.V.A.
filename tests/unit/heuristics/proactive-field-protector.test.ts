@@ -41,7 +41,7 @@ describe('ProactiveFieldProtector (Sanctuary Sealed Apertures)', () => {
     const shadowRoot = ShadowHost.getRoot();
     const pill = shadowRoot.querySelector('.ts-field-live-pill');
     expect(pill).not.toBeNull();
-    expect(pill?.textContent).toContain('Захист');
+    expect(pill?.textContent).toContain('fieldPillProtection');
   });
 
   it('proactively seals CVV / CVC field on untrusted origin', () => {
