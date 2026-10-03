@@ -207,7 +207,9 @@ export class SemanticTriggerEngine {
    * Комплексна семантична оцінка повідомлення або діалогу
    */
   public static evaluate(text: string, fullDialogueContext?: string): SemanticEvaluationResult {
-    const combinedText = fullDialogueContext ? `${fullDialogueContext}\n${text}` : text;
+    const combinedText = fullDialogueContext
+      ? (fullDialogueContext.includes(text) ? fullDialogueContext : `${fullDialogueContext}\n${text}`)
+      : text;
     const inputVector = this.vectorize(combinedText);
     const signals = this.extractBehavioralSignals(combinedText);
 
@@ -367,15 +369,15 @@ export class SemanticTriggerEngine {
       },
       vehicle: {
         weight: /авто|машин|бус|номер|піксель|хрест/i.test(text) ? 0.85 : 0.05,
-        tokens: Array.from(text.matchAll(/авто|машин[а-яіїє]*|бус[а-яіїє]*|номер[а-яіїє]*|піксель|хрест[а-яіїє]*/gi)).map(m => m[0]),
+        tokens: Array.from(new Set(Array.from(text.matchAll(/авто|машин[а-яіїє]*|бус[а-яіїє]*|номер[а-яіїє]*|піксель|хрест[а-яіїє]*/gi)).map(m => m[0]))),
       },
       media: {
         weight: /фото|відео|зніми|сфоткай|кадр|зйомк/i.test(text) ? 0.90 : 0.05,
-        tokens: Array.from(text.matchAll(/фото[а-яіїє]*|відео|знім[а-яіїє]*|сфотк[а-яіїє]*|кадр|зйомк[а-яіїє]*/gi)).map(m => m[0]),
+        tokens: Array.from(new Set(Array.from(text.matchAll(/фото[а-яіїє]*|відео|знім[а-яіїє]*|сфотк[а-яіїє]*|кадр|зйомк[а-яіїє]*/gi)).map(m => m[0]))),
       },
       sabotage: {
         weight: /підпал|розпалювач|коктейл|релейн|шаф|диверс/i.test(text) ? 0.95 : 0.05,
-        tokens: Array.from(text.matchAll(/підпал[а-яіїє]*|розпалювач|коктейл[а-яіїє]*|релейн[а-яіїє]*|шаф[а-яіїє]*|диверс[а-яіїє]*/gi)).map(m => m[0]),
+        tokens: Array.from(new Set(Array.from(text.matchAll(/підпал[а-яіїє]*|розпалювач|коктейл[а-яіїє]*|релейн[а-яіїє]*|шаф[а-яіїє]*|диверс[а-яіїє]*/gi)).map(m => m[0]))),
       },
       discretion: {
         weight: signals.hasDiscretionUrgency ? Math.min(1.0, 0.50 + signals.discretionMatches.length * 0.2) : 0.05,
@@ -383,15 +385,15 @@ export class SemanticTriggerEngine {
       },
       messenger: {
         weight: /телеграм|telegram|t\.me|вайбер|viber|wa\.me|whatsapp|чат-бот/i.test(text) ? 0.85 : 0.05,
-        tokens: Array.from(text.matchAll(/телеграм[а-яіїє]*|telegram|t\.me|вайбер|viber|wa\.me|whatsapp/gi)).map(m => m[0]),
+        tokens: Array.from(new Set(Array.from(text.matchAll(/телеграм[а-яіїє]*|telegram|t\.me|вайбер|viber|wa\.me|whatsapp/gi)).map(m => m[0]))),
       },
       escrow: {
         weight: /доставк|безпечна угода|получить|отримати кошти|оплачено|курєр/i.test(text) ? 0.90 : 0.05,
-        tokens: Array.from(text.matchAll(/доставк[а-яіїє]*|безпечна\s+угода|отримати\s+кошти|оплачен[а-яіїє]*|курєр[а-яіїє]*/gi)).map(m => m[0]),
+        tokens: Array.from(new Set(Array.from(text.matchAll(/доставк[а-яіїє]*|безпечна\s+угода|отримати\s+кошти|оплачен[а-яіїє]*|курєр[а-яіїє]*/gi)).map(m => m[0]))),
       },
       credential: {
         weight: /cvv|cvc|парол|смс|код|баланс|термін дії|номер карт/i.test(text) ? 0.95 : 0.05,
-        tokens: Array.from(text.matchAll(/cvv|cvc|парол[а-яіїє]*|смс|код|баланс|термін\s+дії|номер\s+карт[а-яіїє]*/gi)).map(m => m[0]),
+        tokens: Array.from(new Set(Array.from(text.matchAll(/cvv|cvc|парол[а-яіїє]*|смс|код|баланс|термін\s+дії|номер\s+карт[а-яіїє]*/gi)).map(m => m[0]))),
       },
     };
 
