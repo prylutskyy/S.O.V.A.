@@ -361,6 +361,9 @@ export class DebuggerOverlay {
   public static recordVectorTelemetry(telemetry: SemanticVectorTelemetry): void {
     if (!telemetry) return;
     this.state.vectorTelemetry = telemetry;
+    if (telemetry.topPrototypeId) {
+      this.state.selectedPrototypeId = telemetry.topPrototypeId;
+    }
     if (this.isVisible) {
       this.render();
     }
@@ -1068,8 +1071,23 @@ export class DebuggerOverlay {
       };
 
       const similarity = protoInfo.similarity !== undefined ? protoInfo.similarity : telemetry.cosineSimilarity;
-      const isDangerous = similarity >= 0.40;
+      const isIntentFormedForThis = Boolean(telemetry.hasFormedIntent && telemetry.intentType === protoInfo.id);
+      const isHighSimilarity = similarity >= 0.40;
+      const isDangerous = isIntentFormedForThis || isHighSimilarity;
       const similarityPercent = Math.round(similarity * 100);
+
+      let statusTitle = 'БЕЗПЕЧНА ДИВЕРГЕНЦІЯ НАМІРУ (SAFE)';
+      let statusSub = `Вектор повідомлення (${similarityPercent}%) знаходиться значно нижче порогового значення загрози (0.40)`;
+
+      if (isIntentFormedForThis) {
+        statusTitle = 'ВИЯВЛЕНО СЕМАНТИЧНИЙ РЕЗОНАНС ЗАГРОЗИ (MATCH)';
+        statusSub = telemetry.reason
+          ? `${telemetry.reason} (Оцінка ризику: ${telemetry.confidence || 75}%)`
+          : 'Прагматична матриця намірів зафіксувала критичну комбінацію: Винагорода + Дія + Ціль';
+      } else if (isHighSimilarity) {
+        statusTitle = 'ВИЯВЛЕНО СЕМАНТИЧНИЙ РЕЗОНАНС ЗАГРОЗИ (MATCH)';
+        statusSub = 'Вектор вхідного повідомлення має критичне накладання на еталонний вектор атаки (>= 0.40)';
+      }
 
       // Масив точок для 10 вимірів
       // Координати графіка: X від 45 до 495 (ширина 540), Y від 25 (значення 1.0) до 150 (значення 0.0)
@@ -1118,7 +1136,8 @@ export class DebuggerOverlay {
       const inputArea = `${inputCurve} L ${inputPoints[inputPoints.length - 1].x} ${originY} L ${inputPoints[0].x} ${originY} Z`;
       const protoArea = `${protoCurve} L ${protoPoints[protoPoints.length - 1].x} ${originY} L ${protoPoints[0].x} ${originY} Z`;
 
-      const thresholdY = Math.round(originY - (0.40 * usableHeight));
+      const effectiveThreshold = isIntentFormedForThis && protoInfo.id === 'MILITARY_SABOTAGE_RECRUITMENT' ? 0.30 : 0.40;
+      const thresholdY = Math.round(originY - (effectiveThreshold * usableHeight));
 
       return `
         <div class="sc-vectors-view">
@@ -1131,12 +1150,10 @@ export class DebuggerOverlay {
               </div>
               <div class="sc-vector-status-block">
                 <div class="sc-vector-status-title">
-                  ${isDangerous ? 'ВИЯВЛЕНО СЕМАНТИЧНИЙ РЕЗОНАНС ЗАГРОЗИ (MATCH)' : 'БЕЗПЕЧНА ДИВЕРГЕНЦІЯ НАМІРУ (SAFE)'}
+                  ${statusTitle}
                 </div>
                 <div class="sc-vector-status-sub">
-                  ${isDangerous
-                    ? 'Вектор вхідного повідомлення має критичне накладання на еталонний вектор атаки'
-                    : 'Вектор повідомлення знаходиться нижче порогового значення загрози (0.40)'}
+                  ${statusSub}
                 </div>
               </div>
             </div>
@@ -1145,12 +1162,20 @@ export class DebuggerOverlay {
             <div class="sc-proto-selector">
               <span class="sc-proto-label">Порівняти з еталоном загрози:</span>
               <div class="sc-proto-chips">
-                ${telemetry.allPrototypes.map((p) => `
-                  <button type="button" class="sc-chip sc-proto-chip ${p.id === currentSelectedProto ? 'active' : ''}" data-proto-id="${p.id}">
-                    <span>${p.labelUk.includes('Вербування') ? 'Вербування / Диверсія' : p.labelUk.includes('Імітація') ? 'Ескроу-доставка' : 'Викрадення CVV'}</span>
-                    <span class="sc-chip-sim">${Math.round((p.similarity || 0) * 100)}%</span>
-                  </button>
-                `).join('')}
+                ${telemetry.allPrototypes.map((p) => {
+                  const isThisTriggered = Boolean(telemetry.hasFormedIntent && telemetry.intentType === p.id);
+                  const shortName = p.labelUk.includes('Вербування')
+                    ? 'Вербування / Диверсія'
+                    : p.labelUk.includes('Імітація')
+                    ? 'Ескроу-доставка'
+                    : 'Викрадення CVV';
+                  return `
+                    <button type="button" class="sc-chip sc-proto-chip ${p.id === currentSelectedProto ? 'active' : ''} ${isThisTriggered ? 'sc-chip-danger' : ''}" data-proto-id="${p.id}">
+                      <span>${shortName}</span>
+                      <span class="sc-chip-sim">${Math.round((p.similarity || 0) * 100)}%${isThisTriggered ? ' [ТРИГЕР]' : ''}</span>
+                    </button>
+                  `;
+                }).join('')}
               </div>
             </div>
 
@@ -1752,6 +1777,16 @@ export class DebuggerOverlay {
           background: #0071E3;
           color: #FFFFFF;
           border-color: #0071E3;
+        }
+        .sc-chip.sc-chip-danger {
+          border-color: rgba(239, 68, 68, 0.35);
+          background: rgba(239, 68, 68, 0.08);
+          color: #D70015;
+        }
+        .sc-chip.sc-chip-danger.active {
+          background: #EF4444;
+          color: #FFFFFF;
+          border-color: #EF4444;
         }
 
         /* Events Timeline */

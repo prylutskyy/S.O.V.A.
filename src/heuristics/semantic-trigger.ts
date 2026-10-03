@@ -44,6 +44,10 @@ export interface SemanticVectorTelemetry {
     prototypeWeights: Record<string, number>;
   }[];
   timestamp: number;
+  hasFormedIntent?: boolean;
+  intentType?: string;
+  confidence?: number;
+  reason?: string;
 }
 
 export interface SemanticEvaluationResult {
@@ -284,7 +288,12 @@ export class SemanticTriggerEngine {
       ...signals.discretionMatches,
     ];
 
-    const telemetry = this.generateTelemetry(combinedText, signals, topMatch, matches);
+    const telemetry = this.generateTelemetry(combinedText, signals, topMatch, matches, {
+      hasFormedIntent,
+      intentType,
+      confidence,
+      reason,
+    });
 
     return {
       hasFormedIntent,
@@ -346,7 +355,13 @@ export class SemanticTriggerEngine {
     text: string,
     signals: SemanticSignalBreakdown,
     topMatch: SemanticVectorMatch,
-    allMatches: SemanticVectorMatch[]
+    allMatches: SemanticVectorMatch[],
+    evaluationMeta?: {
+      hasFormedIntent: boolean;
+      intentType: string;
+      confidence: number;
+      reason: string;
+    }
   ): SemanticVectorTelemetry {
     const activeProtoKey = topMatch.prototypeId in this.PROTOTYPE_PROFILES
       ? topMatch.prototypeId
@@ -433,6 +448,10 @@ export class SemanticTriggerEngine {
       dimensions,
       allPrototypes,
       timestamp: Date.now(),
+      hasFormedIntent: evaluationMeta?.hasFormedIntent ?? false,
+      intentType: evaluationMeta?.intentType,
+      confidence: evaluationMeta?.confidence,
+      reason: evaluationMeta?.reason,
     };
   }
 
@@ -451,6 +470,11 @@ export class SemanticTriggerEngine {
       topMatch,
       { prototypeId: 'ESCROW_DELIVERY_SCAM', similarity: 0.22, labelUk: 'Імітація фінансової угоди (Ескроу)' },
       { prototypeId: 'PAYMENT_CREDENTIAL_THEFT', similarity: 0.18, labelUk: 'Викрадення платіжних реквізитів' },
-    ]);
+    ], {
+      hasFormedIntent: true,
+      intentType: 'MILITARY_SABOTAGE_RECRUITMENT',
+      confidence: 84,
+      reason: 'Демонстраційний збіг за матрицею намірів (вербування / розвідка)',
+    });
   }
 }
