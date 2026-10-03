@@ -257,6 +257,11 @@ export class ShieldTabController {
       this.showToast('Стан підвищеної тривоги скинуто');
     });
 
+    const btnQuickDismiss = document.getElementById('btnQuickDismissContext');
+    btnQuickDismiss?.addEventListener('click', () => {
+      this.btnResetContextHome.click();
+    });
+
     // Клік по рядку Vault DLP веде на вкладку Сховища
     this.moduleVaultItem.addEventListener('click', () => {
       this.onNavigateToVault();

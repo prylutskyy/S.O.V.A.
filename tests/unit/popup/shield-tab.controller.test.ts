@@ -64,6 +64,7 @@ function setupShieldDOM() {
 
     <div id="taintedBanner" style="display: none;"></div>
     <div id="taintedDescText"></div>
+    <button id="btnQuickDismissContext"></button>
     <button id="btnResetContextHome"></button>
 
     <div id="vaultProtectionDesc"></div>
@@ -176,6 +177,33 @@ describe('ShieldTabController - Dedicated Unit Tests', () => {
     expect(banner.style.display).toBe('flex');
 
     btnReset.click();
+    await new Promise((r) => setTimeout(r, 10));
+
+    expect(mockRuntimeSendMsg).toHaveBeenCalledWith({
+      type: 'CLEAR_CONTEXT',
+      tabId: 101,
+    });
+    expect(banner.style.display).toBe('none');
+    expect(toastFn).toHaveBeenCalledWith('Стан підвищеної тривоги скинуто');
+  });
+
+  it('sends CLEAR_CONTEXT message when quick dismiss button is clicked', async () => {
+    mockRuntimeSendMsg.mockImplementation((msg, cb) => {
+      const res = msg.type === 'GET_ACTIVE_CONTEXT' ? { context: { sourcePlatform: 'olx.ua' } } : {};
+      if (typeof cb === 'function') cb(res);
+      return Promise.resolve(res);
+    });
+
+    const toastFn = vi.fn();
+    const controller = new ShieldTabController(toastFn, vi.fn());
+    await controller.updateDisplay();
+
+    const banner = document.getElementById('taintedBanner') as HTMLElement;
+    const btnQuick = document.getElementById('btnQuickDismissContext') as HTMLButtonElement;
+
+    expect(banner.style.display).toBe('flex');
+
+    btnQuick.click();
     await new Promise((r) => setTimeout(r, 10));
 
     expect(mockRuntimeSendMsg).toHaveBeenCalledWith({

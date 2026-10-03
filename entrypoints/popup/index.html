@@ -73,33 +73,6 @@
        3. TAB 1: SITE PROTECTION (S.O.V.A. HOME)
        ========================================================================= -->
   <main class="sanctuary-tab" id="tabContentShield" role="tabpanel" aria-labelledby="tabBtnShield">
-    <!-- Current Site Hero Card: Сенсор стану С.О.В.А. -->
-    <section class="sanctuary-card site-hero-card" id="currentSiteCard">
-      <div class="site-hero-content">
-        <div class="living-orb-box active" id="siteIconBox">
-          <div class="living-orb-glow"></div>
-          <div class="living-orb-core">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="9"/>
-              <circle cx="12" cy="12" r="4.5" stroke-dasharray="2 1.5"/>
-              <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
-            </svg>
-          </div>
-        </div>
-        <div class="site-hero-details">
-          <div class="site-domain" id="currentSiteDomain" data-i18n="shieldSiteDomainFallback">Визначення домену...</div>
-          <div class="site-status green" id="currentSiteStatus">
-            <span class="status-pulse-dot"></span>
-            <span data-i18n="shieldSiteStatusActive">Захист увімкнено для цього сайту</span>
-          </div>
-        </div>
-      </div>
-      <label class="ios-switch" title="Увімкнути/вимкнути захист для цього сайту" data-i18n-title="shieldSiteToggleTitle">
-        <input type="checkbox" id="currentSiteToggle" checked>
-        <span class="ios-slider"></span>
-      </label>
-    </section>
-
     <!-- Elevated Tainted Context Banner: Visual Context Bridge (Apple HIG) -->
     <div class="tainted-banner" id="taintedBanner" style="display: none;" role="region" aria-label="Підвищений рівень пильності">
       <div class="tainted-lead">
@@ -114,9 +87,17 @@
           <div class="tainted-headline" data-i18n="shieldTaintedHeadline">Підвищений рівень пильності</div>
           <div class="tainted-status-sub" data-i18n="shieldTaintedStatusSub">Скринінг форм посилено</div>
         </div>
-        <div class="tainted-badge">
-          <span class="tainted-pulse-dot"></span>
-          <span data-i18n="shieldTaintedBadge">АКТИВНО</span>
+        <div class="tainted-header-actions">
+          <div class="tainted-badge">
+            <span class="tainted-pulse-dot"></span>
+            <span data-i18n="shieldTaintedBadge">АКТИВНО</span>
+          </div>
+          <button type="button" class="btn-tainted-close" id="btnQuickDismissContext" title="Скинути стан тривоги" aria-label="Скинути стан тривоги">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
         </div>
       </div>
 
@@ -154,6 +135,33 @@
         </button>
       </div>
     </div>
+
+    <!-- Current Site Hero Card: Сенсор стану С.О.В.А. -->
+    <section class="sanctuary-card site-hero-card" id="currentSiteCard">
+      <div class="site-hero-content">
+        <div class="living-orb-box active" id="siteIconBox">
+          <div class="living-orb-glow"></div>
+          <div class="living-orb-core">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="9"/>
+              <circle cx="12" cy="12" r="4.5" stroke-dasharray="2 1.5"/>
+              <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
+            </svg>
+          </div>
+        </div>
+        <div class="site-hero-details">
+          <div class="site-domain" id="currentSiteDomain" data-i18n="shieldSiteDomainFallback">Визначення домену...</div>
+          <div class="site-status green" id="currentSiteStatus">
+            <span class="status-pulse-dot"></span>
+            <span data-i18n="shieldSiteStatusActive">Захист увімкнено для цього сайту</span>
+          </div>
+        </div>
+      </div>
+      <label class="ios-switch" title="Увімкнути/вимкнути захист для цього сайту" data-i18n-title="shieldSiteToggleTitle">
+        <input type="checkbox" id="currentSiteToggle" checked>
+        <span class="ios-slider"></span>
+      </label>
+    </section>
 
     <!-- Active Guarantees Group: Inset Grouped Card -->
     <div class="section-group">
