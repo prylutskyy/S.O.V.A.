@@ -390,30 +390,39 @@ html, body {
 }
 
 /* ==========================================================================
-   5. TAINTED CONTEXT ELEVATED BANNER: VISUAL CONTEXT BRIDGE
+   5. TAINTED CONTEXT ELEVATED BANNER: APPLE HIG CONTEXT BRIDGE
    ========================================================================== */
 .tainted-banner {
   background: var(--sanctuary-amber-bg);
   border: 1px solid var(--sanctuary-amber-bd);
-  border-radius: 12px;
-  padding: 10px 12px;
+  border-radius: 14px;
+  padding: 12px 14px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  box-shadow: 0 1px 3px rgba(255, 149, 0, 0.06);
+  gap: 10px;
+  box-shadow: 0 1px 3px rgba(255, 149, 0, 0.08), 0 4px 12px rgba(255, 149, 0, 0.04);
+  animation: taintedSlideDown 0.25s var(--ease-apple-spring);
+  position: relative;
+  overflow: hidden;
+}
+
+@keyframes taintedSlideDown {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .tainted-lead {
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: 10px;
 }
 
 .tainted-icon-box {
-  width: 26px;
-  height: 26px;
-  border-radius: 7px;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
   background: rgba(255, 149, 0, 0.16);
+  border: 1px solid rgba(255, 149, 0, 0.28);
   color: var(--sanctuary-amber-ink);
   display: flex;
   align-items: center;
@@ -426,68 +435,127 @@ html, body {
   height: 15px;
 }
 
-.tainted-text-col {
+.tainted-title-group {
   display: flex;
   flex-direction: column;
   gap: 1px;
   min-width: 0;
+  flex: 1;
 }
 
 .tainted-headline {
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 600;
   color: var(--sanctuary-amber-ink);
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+}
+
+.tainted-status-sub {
+  font-size: 10.5px;
+  color: var(--sanctuary-ink-secondary);
+  line-height: 1.2;
+}
+
+.tainted-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2.5px 7px;
+  border-radius: 6px;
+  background: rgba(255, 149, 0, 0.18);
+  border: 1px solid rgba(255, 149, 0, 0.3);
+  color: var(--sanctuary-amber-ink);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+
+.tainted-pulse-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: amberPulse 1.8s infinite ease-in-out;
+}
+
+@keyframes amberPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.45; transform: scale(0.85); }
+}
+
+/* Visual Context Bridge Card */
+.tainted-bridge-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: var(--sanctuary-surface);
+  border: 1px solid var(--sanctuary-amber-bd);
+  border-radius: 9px;
+  padding: 6px 10px;
+}
+
+.bridge-node {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  flex: 1;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--sanctuary-ink-primary);
+}
+
+.bridge-node.origin svg {
+  color: var(--sanctuary-amber-ink);
+  flex-shrink: 0;
+}
+
+.bridge-node.target svg {
+  color: var(--sanctuary-red-ink);
+  flex-shrink: 0;
+}
+
+.bridge-node .chain-node {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-/* Visual 2-Node Transition Chain */
-.context-chain-flow {
+.bridge-node.target .chain-node.alert {
+  font-weight: 600;
+  color: var(--sanctuary-red-ink);
+}
+
+.bridge-arrow {
+  color: var(--sanctuary-ink-tertiary);
   display: flex;
   align-items: center;
-  gap: 5px;
-}
-
-.chain-node {
-  font-size: 9.5px;
-  font-weight: 600;
-  padding: 1.5px 6px;
-  border-radius: var(--radius-pill);
-  background: rgba(255, 149, 0, 0.14);
-  color: var(--sanctuary-amber-ink);
-  font-family: var(--font-mono);
-}
-
-.chain-node.alert {
-  background: var(--sanctuary-surface);
-  border: 1px solid var(--sanctuary-amber-bd);
-}
-
-.chain-arrow {
-  color: var(--sanctuary-amber-ink);
-  opacity: 0.7;
+  flex-shrink: 0;
 }
 
 .tainted-body {
   font-size: 11.5px;
   color: var(--sanctuary-ink-primary);
-  line-height: 1.35;
+  line-height: 1.45;
+  padding: 0 1px;
 }
 
-.form-caption {
-  font-size: 10.5px;
-  color: var(--sanctuary-ink-secondary);
-  line-height: 1.35;
-  margin-top: 3px;
-  display: block;
+.tainted-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: 2px;
 }
 
 .btn-tainted-reset {
-  align-self: flex-start;
-  height: 26px;
-  padding: 0 10px;
-  border-radius: var(--radius-pill);
+  height: 28px;
+  padding: 0 11px;
+  border-radius: 8px;
   border: 1px solid var(--sanctuary-amber-bd);
   background: var(--sanctuary-surface);
   color: var(--sanctuary-amber-ink);
@@ -498,10 +566,15 @@ html, body {
   gap: 5px;
   cursor: pointer;
   transition: all 0.15s var(--ease-apple-spring);
+  font-family: var(--font-sanctuary);
 }
 
 .btn-tainted-reset:hover {
-  background: var(--sanctuary-amber-bg);
+  background: rgba(255, 149, 0, 0.14);
+}
+
+.btn-tainted-reset:active {
+  transform: scale(0.97);
 }
 
 /* ==========================================================================

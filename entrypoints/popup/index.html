@@ -100,30 +100,59 @@
       </label>
     </section>
 
-    <!-- Elevated Tainted Context Banner: Visual Context Bridge -->
-    <div class="tainted-banner" id="taintedBanner" style="display: none;">
+    <!-- Elevated Tainted Context Banner: Visual Context Bridge (Apple HIG) -->
+    <div class="tainted-banner" id="taintedBanner" style="display: none;" role="region" aria-label="Підвищений рівень пильності">
       <div class="tainted-lead">
         <div class="tainted-icon-box">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-            <line x1="12" y1="9" x2="12" y2="13"/>
-            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <path d="M12 8v4"/>
+            <path d="M12 16h.01"/>
           </svg>
         </div>
-        <div class="tainted-text-col">
+        <div class="tainted-title-group">
           <div class="tainted-headline">Підвищений рівень пильності</div>
-          <div class="context-chain-flow">
-            <span class="chain-node" id="chainSourceNode">Чат оголошень</span>
-            <svg class="chain-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
-            <span class="chain-node alert" id="chainTargetNode">Цільова сторінка</span>
-          </div>
+          <div class="tainted-status-sub">Скринінг форм посилено</div>
+        </div>
+        <div class="tainted-badge">
+          <span class="tainted-pulse-dot"></span>
+          <span>АКТИВНО</span>
         </div>
       </div>
+
+      <div class="tainted-bridge-card">
+        <div class="bridge-node origin">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+          <span class="chain-node" id="chainSourceNode">Чат оголошень</span>
+        </div>
+        <div class="bridge-arrow">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </div>
+        <div class="bridge-node target">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="2" y1="12" x2="22" y2="12"/>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1 4-10z"/>
+          </svg>
+          <span class="chain-node alert" id="chainTargetNode">Цільова сторінка</span>
+        </div>
+      </div>
+
       <div class="tainted-body" id="taintedDescText">Зафіксовано перехід із чату оголошень. Скринінг форм максимально посилено.</div>
-      <button type="button" class="btn-tainted-reset" id="btnResetContextHome">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-        <span>Скинути стан тривоги</span>
-      </button>
+
+      <div class="tainted-actions">
+        <button type="button" class="btn-tainted-reset" id="btnResetContextHome">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+            <path d="M3 3v5h5"/>
+          </svg>
+          <span>Скинути стан тривоги</span>
+        </button>
+      </div>
     </div>
 
     <!-- Active Guarantees Group: Inset Grouped Card -->
