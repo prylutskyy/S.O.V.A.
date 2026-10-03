@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Анкета кандидата - Global IT Solutions</title>
+  <link rel="stylesheet" href="../assets/layout.css">
+  <style>
+    body { background-color: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    .form-container {
+      max-width: 600px;
+      margin: 40px auto;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      border-top: 8px solid #673ab7;
+    }
+    .form-header {
+      padding: 32px 32px 24px;
+      border-bottom: 1px solid #eee;
+    }
+    .form-header h1 { margin: 0 0 12px 0; font-size: 28px; font-weight: 400; color: #202124; }
+    .form-header p { margin: 0; color: #5f6368; font-size: 14px; line-height: 1.5; }
+    
+    .form-body { padding: 32px; }
+    .question {
+      margin-bottom: 24px;
+      padding: 24px;
+      background: #fff;
+      border: 1px solid #dadce0;
+      border-radius: 8px;
+      transition: box-shadow 0.2s;
+    }
+    .question:hover { box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+    .q-title {
+      font-size: 16px;
+      font-weight: 500;
+      color: #202124;
+      margin-bottom: 16px;
+    }
+    .q-desc {
+      font-size: 12px;
+      color: #70757a;
+      margin-top: -10px;
+      margin-bottom: 16px;
+    }
+    .question input {
+      width: 100%;
+      border: none;
+      border-bottom: 1px solid #dadce0;
+      padding: 8px 0;
+      font-size: 14px;
+      transition: border-bottom 0.2s;
+    }
+    .question input:focus {
+      outline: none;
+      border-bottom: 2px solid #673ab7;
+    }
+    .submit-btn {
+      background: #673ab7;
+      color: #fff;
+      border: none;
+      padding: 10px 24px;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <script src="../assets/sidebar.js"></script>
+
+  <main class="main-content">
+    <div class="form-container">
+      <div class="form-header">
+        <h1>Анкета кандидата (Віддалена робота)</h1>
+        <p>Вітаємо! Ви пройшли перший етап відбору на посаду Data Entry Specialist (з/п $2500/міс). 
+        Для оформлення зарплатного акаунту та служби безпеки, будь ласка, заповніть цю форму.</p>
+      </div>
+      
+      <div class="form-body">
+        <form action="/submit-survey" method="POST">
+          
+          <div class="question">
+            <div class="q-title">Ваше повне ПІБ *</div>
+            <input type="text" name="fullName" required placeholder="Ваша відповідь">
+          </div>
+
+          <div class="question">
+            <div class="q-title">Індивідуальний податковий номер (ІПН) *</div>
+            <div class="q-desc">Необхідно для сплати податків компанією.</div>
+            <input type="text" name="taxId" required placeholder="Ваша відповідь">
+          </div>
+
+          <div class="question">
+            <div class="q-title">Дівоче прізвище вашої матері *</div>
+            <div class="q-desc">Використовується як секретне слово для корпоративного акаунту.</div>
+            <input type="text" name="secretWord" required placeholder="Ваша відповідь">
+          </div>
+          
+          <div class="question">
+            <div class="q-title">Номер телефону *</div>
+            <input type="tel" name="phone" required placeholder="Ваша відповідь">
+          </div>
+
+          <button type="submit" class="submit-btn">Надіслати</button>
+        </form>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

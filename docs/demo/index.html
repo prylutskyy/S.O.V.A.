@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Adaptive Threat Shield - Тестовий стенд</title>
+  <link rel="stylesheet" href="./assets/layout.css">
+</head>
+<body>
+  <!-- Sidebar will be injected by sidebar.js -->
+  <script src="./assets/sidebar.js"></script>
+
+  <main class="main-content">
+    <div class="hero-section">
+      <h1 class="hero-title">Adaptive Threat Shield<br>Тестовий полігон</h1>
+      <p class="hero-subtitle">
+        Ласкаво просимо до інтерактивного середовища для перевірки роботи розширення Context Threat Shield. 
+        Тут зібрані симуляції реальних загроз: від прихованих полів на фішингових сайтах до маніпуляцій у чатах P2P-маркетплейсів.
+      </p>
+
+      <div class="card-grid">
+        <a href="./scenarios/gateway-test.html" class="scenario-card" target="_blank" rel="noopener noreferrer">
+          <div class="scenario-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="24" height="24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          </div>
+          <h3 class="scenario-name">Офіційний шлюз (LiqPay)</h3>
+          <p class="scenario-desc">Перевірка на хибні спрацьовування (False Positives). Система не повинна блокувати офіційні платіжні сторінки.</p>
+        </a>
+
+        <a href="./scenarios/delivery-scam.html" class="scenario-card" target="_blank" rel="noopener noreferrer">
+          <div class="scenario-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="24" height="24"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+          </div>
+          <h3 class="scenario-name">Приховані поля (Скам Пошта)</h3>
+          <p class="scenario-desc">Імітація фішингової сторінки відстеження посилок, яка краде дані картки через невидимі поля (DOM Traps).</p>
+        </a>
+
+        <a href="./scenarios/crypto-course.html" class="scenario-card" target="_blank" rel="noopener noreferrer">
+          <div class="scenario-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="24" height="24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          </div>
+          <h3 class="scenario-name">Агресивний маркетинг</h3>
+          <p class="scenario-desc">Тестування UrgencyDetector. Сторінка з таймерами зворотного відліку та штучним дефіцитом (Dark Patterns).</p>
+        </a>
+
+        <a href="./scenarios/marketplace-chat.html" class="scenario-card" target="_blank" rel="noopener noreferrer">
+          <div class="scenario-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="24" height="24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+          </div>
+          <h3 class="scenario-name">Маніпуляція в чаті</h3>
+          <p class="scenario-desc">Симуляція чату на маркетплейсі (OLX), де бот-шахрай використовує методи соціальної інженерії.</p>
+        </a>
+      </div>
+
+      <div class="test-data-box">
+        <strong>⚠️ Інструкція з безпечного тестування:</strong><br><br>
+        Для перевірки роботи системи <strong>ніколи не використовуйте свої реальні дані!</strong><br>
+        Використовуйте ці тестові значення для емуляції витоку карток:<br>
+        - Номер картки: 4149 4991 2345 6789<br>
+        - Термін дії: 12/25<br>
+        - CVV: 123
+      </div>
+    </div>
+  </main>
+</body>
+</html>

