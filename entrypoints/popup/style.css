@@ -16,14 +16,14 @@
 }
 
 html, body {
-  width: 320px;
-  height: 360px;
-  min-height: 360px;
-  max-height: 360px;
+  width: 390px;
+  height: 560px;
+  min-height: 560px;
+  max-height: 580px;
   background-color: var(--sanctuary-canvas);
   color: var(--sanctuary-ink-primary);
-  font-size: 12px;
-  line-height: 1.35;
+  font-size: 13px;
+  line-height: 1.4;
   user-select: none;
   overflow: hidden;
   display: flex;
@@ -54,11 +54,11 @@ html, body {
   position: sticky;
   top: 0;
   z-index: 50;
-  height: 40px;
-  min-height: 40px;
+  height: 48px;
+  min-height: 48px;
   flex-shrink: 0;
   width: 100%;
-  padding: 0 12px;
+  padding: 0 16px;
   background: var(--sanctuary-glass-bg);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
@@ -72,19 +72,19 @@ html, body {
 .brand-group {
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 9px;
 }
 
 .brand-icon {
-  width: 22px;
-  height: 22px;
-  border-radius: 6px;
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
   background: var(--sanctuary-blue);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: 0 1px 3px rgba(0, 113, 227, 0.25);
+  box-shadow: 0 1px 4px rgba(0, 113, 227, 0.25);
 }
 
 .brand-text {
@@ -93,23 +93,23 @@ html, body {
 }
 
 .brand-title {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--sanctuary-ink-primary);
-  line-height: 1.15;
+  line-height: 1.2;
   letter-spacing: -0.015em;
 }
 
 .brand-subtitle {
-  font-size: 9.5px;
+  font-size: 10.5px;
   color: var(--sanctuary-ink-secondary);
-  line-height: 1.15;
+  line-height: 1.2;
 }
 
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 /* Status Pill */
@@ -160,34 +160,34 @@ html, body {
    2. CUPERTINO SEGMENTED CONTROL
    ========================================================================== */
 .nav-container {
-  padding: 4px 12px 4px;
+  padding: 6px 16px 4px;
   flex-shrink: 0;
   width: 100%;
 }
 
 .segmented-control {
-  padding: 2px;
+  padding: 2.5px;
   background: rgba(118, 118, 128, 0.12);
-  border-radius: 8px;
+  border-radius: 10px;
   display: flex;
   gap: 2px;
-  height: 28px;
+  height: 32px;
 }
 
 .segment-btn {
   flex: 1;
-  height: 24px;
+  height: 27px;
   border: none;
   background: transparent;
-  border-radius: 6px;
-  font-size: 11px;
+  border-radius: 7px;
+  font-size: 12px;
   font-weight: 500;
   color: var(--sanctuary-ink-secondary);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 5px;
+  gap: 6px;
   transition: all 0.15s cubic-bezier(0.25, 1, 0.5, 1);
   outline: none;
 }
@@ -225,10 +225,10 @@ html, body {
   overflow-y: auto;
   overflow-x: hidden;
   scrollbar-gutter: stable;
-  padding: 8px 10px 10px;
+  padding: 12px 16px 16px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
 }
 
 /* Pure Deterministic Visibility Control */
@@ -239,14 +239,14 @@ html, body {
 .section-group {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
 
 .section-label {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
   color: var(--sanctuary-ink-secondary);
   padding: 0 4px;
 }
@@ -263,10 +263,10 @@ html, body {
    ========================================================================== */
 .sanctuary-card {
   background: var(--sanctuary-surface);
-  border-radius: 10px;
+  border-radius: 12px;
   border: 1px solid var(--sanctuary-hairline);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
-  padding: 8px 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  padding: 12px 14px;
   transition: all 0.2s var(--ease-apple-spring);
 }
 
@@ -275,7 +275,7 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 10px;
+  padding: 12px 14px;
 }
 
 .site-hero-card.whitelisted {
@@ -286,16 +286,16 @@ html, body {
 .site-hero-content {
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: 12px;
   min-width: 0;
 }
 
 /* Apple Squircle Sensor Box */
 .living-orb-box {
   position: relative;
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
+  width: 38px;
+  height: 38px;
+  border-radius: 9px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -310,9 +310,9 @@ html, body {
 .living-orb-core {
   position: relative;
   z-index: 1;
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
+  width: 38px;
+  height: 38px;
+  border-radius: 9px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -320,8 +320,8 @@ html, body {
 }
 
 .living-orb-core svg {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
 }
 
 .living-orb-box.active .living-orb-core {
@@ -343,18 +343,18 @@ html, body {
 }
 
 .site-domain {
-  font-size: 13px;
+  font-size: 14.5px;
   font-weight: 600;
   color: var(--sanctuary-ink-primary);
   letter-spacing: -0.015em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 175px;
+  max-width: 215px;
 }
 
 .site-status {
-  font-size: 10.5px;
+  font-size: 11.5px;
   font-weight: 500;
   margin-top: 1px;
   display: flex;
@@ -373,11 +373,11 @@ html, body {
 }
 
 .status-pulse-dot {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   display: inline-block;
-  margin-right: 5px;
+  margin-right: 6px;
   flex-shrink: 0;
 }
 
@@ -395,24 +395,24 @@ html, body {
 .tainted-banner {
   background: var(--sanctuary-amber-bg);
   border: 1px solid var(--sanctuary-amber-bd);
-  border-radius: 10px;
-  padding: 6px 8px;
+  border-radius: 12px;
+  padding: 10px 12px;
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 8px;
   box-shadow: 0 1px 3px rgba(255, 149, 0, 0.06);
 }
 
 .tainted-lead {
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 9px;
 }
 
 .tainted-icon-box {
-  width: 22px;
-  height: 22px;
-  border-radius: 6px;
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
   background: rgba(255, 149, 0, 0.16);
   color: var(--sanctuary-amber-ink);
   display: flex;
@@ -422,8 +422,8 @@ html, body {
 }
 
 .tainted-icon-box svg {
-  width: 13px;
-  height: 13px;
+  width: 15px;
+  height: 15px;
 }
 
 .tainted-text-col {
@@ -434,7 +434,7 @@ html, body {
 }
 
 .tainted-headline {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--sanctuary-amber-ink);
   white-space: nowrap;
@@ -446,13 +446,13 @@ html, body {
 .context-chain-flow {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
 }
 
 .chain-node {
-  font-size: 8.5px;
+  font-size: 9.5px;
   font-weight: 600;
-  padding: 1px 5px;
+  padding: 1.5px 6px;
   border-radius: var(--radius-pill);
   background: rgba(255, 149, 0, 0.14);
   color: var(--sanctuary-amber-ink);
@@ -470,32 +470,32 @@ html, body {
 }
 
 .tainted-body {
-  font-size: 10px;
+  font-size: 11.5px;
   color: var(--sanctuary-ink-primary);
-  line-height: 1.25;
+  line-height: 1.35;
 }
 
 .form-caption {
-  font-size: 10px;
+  font-size: 10.5px;
   color: var(--sanctuary-ink-secondary);
-  line-height: 1.25;
-  margin-top: 2px;
+  line-height: 1.35;
+  margin-top: 3px;
   display: block;
 }
 
 .btn-tainted-reset {
   align-self: flex-start;
-  height: 22px;
-  padding: 0 8px;
+  height: 26px;
+  padding: 0 10px;
   border-radius: var(--radius-pill);
   border: 1px solid var(--sanctuary-amber-bd);
   background: var(--sanctuary-surface);
   color: var(--sanctuary-amber-ink);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   cursor: pointer;
   transition: all 0.15s var(--ease-apple-spring);
 }
@@ -509,15 +509,15 @@ html, body {
    ========================================================================== */
 .inset-group {
   background: var(--sanctuary-surface);
-  border-radius: 10px;
+  border-radius: 12px;
   border: 1px solid var(--sanctuary-hairline);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
   overflow: hidden;
 }
 
 .inset-row {
-  padding: 6px 10px;
-  min-height: 34px;
+  padding: 10px 14px;
+  min-height: 44px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -540,14 +540,14 @@ html, body {
 .inset-lead {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 11px;
   min-width: 0;
 }
 
 .inset-icon-box {
-  width: 24px;
-  height: 24px;
-  border-radius: 6px;
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -555,8 +555,8 @@ html, body {
 }
 
 .inset-icon-box svg {
-  width: 14px;
-  height: 14px;
+  width: 15px;
+  height: 15px;
 }
 
 .inset-icon-box.blue   { background: var(--sanctuary-blue-bg);   color: var(--sanctuary-blue); }
@@ -572,40 +572,40 @@ html, body {
 }
 
 .inset-title {
-  font-size: 11.5px;
+  font-size: 13px;
   font-weight: 500;
   color: var(--sanctuary-ink-primary);
-  line-height: 1.2;
+  line-height: 1.25;
 }
 
 .inset-desc {
-  font-size: 9.5px;
+  font-size: 11px;
   color: var(--sanctuary-ink-secondary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 165px;
-  line-height: 1.2;
+  max-width: 200px;
+  line-height: 1.25;
 }
 
 .inset-end {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
 }
 
 .chevron-end {
   stroke: var(--sanctuary-ink-secondary);
-  margin-left: 1px;
+  margin-left: 2px;
 }
 
 /* Module Badges */
 .module-pill {
   display: inline-flex;
   align-items: center;
-  padding: 1.5px 6px;
+  padding: 2.5px 8px;
   border-radius: var(--radius-pill);
-  font-size: 9.5px;
+  font-size: 11px;
   font-weight: 600;
   line-height: 1.2;
 }
@@ -634,8 +634,8 @@ html, body {
 .ios-switch {
   position: relative;
   display: inline-block;
-  width: 36px;
-  height: 20px;
+  width: 44px;
+  height: 26px;
   flex-shrink: 0;
 }
 
@@ -653,15 +653,15 @@ html, body {
   cursor: pointer;
   inset: 0;
   background-color: rgba(120, 120, 128, 0.16);
-  border-radius: 20px;
+  border-radius: 26px;
   transition: background-color 0.2s var(--ease-apple-spring);
 }
 
 .ios-slider::before {
   position: absolute;
   content: "";
-  height: 16px;
-  width: 16px;
+  height: 22px;
+  width: 22px;
   left: 2px;
   bottom: 2px;
   background-color: #FFFFFF;
@@ -675,7 +675,7 @@ html, body {
 }
 
 .ios-switch input:checked + .ios-slider::before {
-  transform: translateX(16px);
+  transform: translateX(18px);
 }
 
 .ios-switch input:disabled + .ios-slider {
@@ -688,29 +688,29 @@ html, body {
    ========================================================================== */
 .vault-state-card {
   background: var(--sanctuary-surface);
-  border-radius: 10px;
+  border-radius: 12px;
   border: 1px solid var(--sanctuary-hairline);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
-  padding: 14px 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  padding: 18px 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .vault-daemon-status-banner {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 3px 8px;
+  gap: 6px;
+  padding: 3.5px 10px;
   border-radius: var(--radius-pill);
   background: var(--sanctuary-green-bg);
   border: 1px solid var(--sanctuary-green-bd);
   color: var(--sanctuary-green-ink);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 500;
-  margin-bottom: 1px;
+  margin-bottom: 2px;
 }
 
 .vault-daemon-status-banner.paused {
@@ -720,13 +720,13 @@ html, body {
 }
 
 .vault-hero-emblem {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 1px;
+  margin-bottom: 2px;
 }
 
 .vault-hero-emblem.blue {
@@ -742,16 +742,16 @@ html, body {
 }
 
 .vault-state-title {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
   color: var(--sanctuary-ink-primary);
   letter-spacing: -0.015em;
 }
 
 .vault-state-desc {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--sanctuary-ink-secondary);
-  line-height: 1.35;
+  line-height: 1.4;
   margin-bottom: 4px;
 }
 
@@ -759,28 +759,28 @@ html, body {
 .vault-unlocked-container {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
 }
 
 /* Vault Health Hero Ring Card */
 .vault-health-card {
-  padding: 8px 10px;
+  padding: 12px 14px;
   background: var(--sanctuary-surface);
-  border-radius: 10px;
+  border-radius: 12px;
   border: 1px solid var(--sanctuary-hairline);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 .vault-health-section {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
 .vault-ring-container {
   position: relative;
-  width: 44px;
-  height: 44px;
+  width: 52px;
+  height: 52px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -788,21 +788,21 @@ html, body {
 }
 
 .vault-ring-svg {
-  width: 44px;
-  height: 44px;
+  width: 52px;
+  height: 52px;
   transform: rotate(-90deg);
 }
 
 .vault-ring-bg {
   fill: none;
   stroke: rgba(0, 0, 0, 0.06);
-  stroke-width: 5;
+  stroke-width: 5.5;
 }
 
 .vault-ring-progress {
   fill: none;
   stroke: var(--sanctuary-blue);
-  stroke-width: 5;
+  stroke-width: 5.5;
   stroke-linecap: round;
   transition: stroke-dashoffset 0.6s var(--ease-apple-spring), stroke 0.4s ease;
 }
@@ -816,7 +816,7 @@ html, body {
 }
 
 .vault-ring-percent {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: -0.02em;
   color: var(--sanctuary-ink-primary);
@@ -828,11 +828,11 @@ html, body {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
 }
 
 .vault-health-headline {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--sanctuary-ink-primary);
   letter-spacing: -0.01em;
@@ -842,11 +842,11 @@ html, body {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 9.5px;
+  font-size: 10px;
   font-weight: 600;
   color: var(--sanctuary-blue);
   background: var(--sanctuary-blue-bg);
-  padding: 1px 6px;
+  padding: 1.5px 7px;
   border-radius: var(--radius-pill);
   border: 1px solid var(--sanctuary-blue-bd);
   align-self: flex-start;
@@ -854,26 +854,26 @@ html, body {
 }
 
 .vault-health-sub {
-  font-size: 10px;
+  font-size: 11px;
   color: var(--sanctuary-ink-secondary);
-  line-height: 1.25;
+  line-height: 1.3;
 }
 
 /* Vault Apple Inset Groups */
 .vault-groups-flow {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
 }
 
 .vault-group-wrap {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
 }
 
 .vault-group-label {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -882,18 +882,18 @@ html, body {
 }
 
 .vault-group-desc {
-  font-size: 9.5px;
+  font-size: 10.5px;
   color: var(--sanctuary-ink-secondary);
   padding: 0 4px;
   margin-bottom: 2px;
-  line-height: 1.3;
+  line-height: 1.35;
 }
 
 .vault-inset-group {
   background: var(--sanctuary-surface);
-  border-radius: 10px;
+  border-radius: 12px;
   border: 1px solid var(--sanctuary-hairline);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
   overflow: hidden;
 }
 
@@ -913,14 +913,14 @@ html, body {
 
 /* Row Header */
 .vault-item-row {
-  padding: 6px 10px;
+  padding: 9px 12px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   cursor: pointer;
   user-select: none;
   transition: background-color 0.12s ease;
-  gap: 8px;
+  gap: 10px;
 }
 
 .vault-item-row:hover {
@@ -930,15 +930,15 @@ html, body {
 .vault-row-lead {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   min-width: 0;
   flex: 1;
 }
 
 .vault-row-icon {
-  width: 24px;
-  height: 24px;
-  border-radius: 6px;
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
   background: rgba(0, 0, 0, 0.04);
   border: 1px solid var(--sanctuary-hairline);
   color: var(--sanctuary-ink-secondary);
@@ -950,8 +950,8 @@ html, body {
 }
 
 .vault-row-icon svg {
-  width: 14px;
-  height: 14px;
+  width: 15px;
+  height: 15px;
 }
 
 .vault-row-icon.active {
@@ -967,20 +967,20 @@ html, body {
 }
 
 .vault-row-title {
-  font-size: 11.5px;
+  font-size: 12.5px;
   font-weight: 500;
   color: var(--sanctuary-ink-primary);
-  line-height: 1.25;
+  line-height: 1.3;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .vault-row-meta {
-  font-size: 9.5px;
+  font-size: 10.5px;
   color: var(--sanctuary-ink-secondary);
   margin-top: 1px;
-  line-height: 1.2;
+  line-height: 1.25;
 }
 
 .vault-dot {
@@ -993,19 +993,19 @@ html, body {
 .vault-row-end {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   flex-shrink: 0;
 }
 
 /* Tone-on-Tone Status Capsules */
 .vault-status-capsule {
-  font-size: 9.5px;
+  font-size: 10.5px;
   font-weight: 500;
-  padding: 1.5px 6px;
+  padding: 2px 7px;
   border-radius: var(--radius-pill);
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
 }
 
 .vault-status-capsule.active {
@@ -1038,12 +1038,12 @@ html, body {
 
 /* Accordion Expand Panel */
 .vault-accordion-panel {
-  padding: 8px 10px 10px;
+  padding: 10px 12px 12px;
   background: #FAFAFC;
   border-top: 1px solid var(--sanctuary-hairline);
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   animation: vaultPanelSlide 0.2s var(--ease-apple-spring);
 }
 
@@ -1061,11 +1061,11 @@ html, body {
 .vault-field-group {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 5px;
 }
 
 .vault-field-label {
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: 500;
   color: var(--sanctuary-ink-secondary);
 }
@@ -1077,14 +1077,14 @@ html, body {
 }
 
 .vault-input-wrap .sanctuary-input {
-  padding-right: 32px;
+  padding-right: 34px;
 }
 
 .vault-eye-btn {
   position: absolute;
-  right: 4px;
-  width: 24px;
-  height: 24px;
+  right: 5px;
+  width: 26px;
+  height: 26px;
   border: none;
   background: transparent;
   color: var(--sanctuary-ink-tertiary);
@@ -1101,19 +1101,19 @@ html, body {
 }
 
 .vault-field-hint {
-  font-size: 9.5px;
+  font-size: 10.5px;
   color: var(--sanctuary-ink-secondary);
-  line-height: 1.3;
+  line-height: 1.35;
 }
 
 .vault-help-box {
-  padding: 7px 9px;
+  padding: 8px 10px;
   background: rgba(0, 113, 227, 0.04);
   border: 1px solid rgba(0, 113, 227, 0.12);
   border-radius: var(--radius-nested);
-  font-size: 10px;
+  font-size: 10.5px;
   color: var(--sanctuary-ink-secondary);
-  line-height: 1.35;
+  line-height: 1.4;
 }
 
 .vault-help-box strong {
@@ -1124,20 +1124,20 @@ html, body {
 .vault-actions-row {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   margin-top: 2px;
 }
 
 .vault-actions-row .vault-save-btn {
   flex: 1;
-  height: 28px;
-  font-size: 11px;
+  height: 32px;
+  font-size: 12px;
 }
 
 .vault-actions-row .vault-clear-btn {
-  height: 28px;
-  font-size: 11px;
-  padding: 0 10px;
+  height: 32px;
+  font-size: 12px;
+  padding: 0 12px;
 }
 
 /* Vault Footer Actions */
@@ -1145,22 +1145,22 @@ html, body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  padding: 6px 0 10px;
+  gap: 6px;
+  padding: 8px 0 12px;
 }
 
 .vault-privacy-lock-btn {
-  height: 28px;
-  padding: 0 12px;
+  height: 30px;
+  padding: 0 14px;
   border-radius: var(--radius-pill);
   border: 1px solid var(--sanctuary-hairline);
   background: var(--sanctuary-surface);
   color: var(--sanctuary-ink-primary);
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 500;
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
   cursor: pointer;
   box-shadow: var(--shadow-sm);
   transition: all 0.15s ease;
@@ -1173,11 +1173,11 @@ html, body {
 }
 
 .vault-privacy-hint {
-  font-size: 9.5px;
+  font-size: 10.5px;
   color: var(--sanctuary-ink-secondary);
   text-align: center;
-  max-width: 280px;
-  line-height: 1.3;
+  max-width: 320px;
+  line-height: 1.35;
 }
 
 /* ==========================================================================
@@ -1187,37 +1187,37 @@ html, body {
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 5px;
 }
 
 .form-label {
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: 500;
   color: var(--sanctuary-ink-secondary);
 }
 
 .sanctuary-input {
   width: 100%;
-  height: 28px;
-  padding: 0 8px;
-  border-radius: 6px;
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 8px;
   border: 1px solid var(--sanctuary-hairline);
   background: var(--sanctuary-surface-subtle);
   color: var(--sanctuary-ink-primary);
-  font-size: 11.5px;
+  font-size: 12.5px;
   transition: all 0.15s var(--ease-apple-spring);
 }
 
 .sanctuary-input:focus {
   background: var(--sanctuary-surface);
   border-color: var(--sanctuary-blue);
-  box-shadow: 0 0 0 2.5px rgba(0, 113, 227, 0.18);
+  box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.18);
   outline: none;
 }
 
 .sanctuary-input.mono {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 11.5px;
 }
 
 .input-with-action {
@@ -1227,15 +1227,15 @@ html, body {
 }
 
 .input-with-action input {
-  padding-right: 28px;
+  padding-right: 32px;
 }
 
 .input-icon-btn {
   position: absolute;
-  right: 3px;
-  width: 22px;
-  height: 22px;
-  border-radius: 5px;
+  right: 4px;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
   border: none;
   background: transparent;
   color: var(--sanctuary-ink-tertiary);
@@ -1251,19 +1251,19 @@ html, body {
 
 /* Buttons */
 .btn-primary {
-  height: 28px;
-  padding: 0 10px;
-  border-radius: 6px;
+  height: 32px;
+  padding: 0 14px;
+  border-radius: 8px;
   border: none;
   background: var(--sanctuary-blue);
   color: #FFFFFF;
-  font-size: 11.5px;
+  font-size: 12px;
   font-weight: 600;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: 5px;
   transition: all 0.15s var(--ease-apple-spring);
 }
 
@@ -1276,18 +1276,18 @@ html, body {
 }
 
 .btn-primary.compact {
-  height: 28px;
+  height: 32px;
   flex-shrink: 0;
 }
 
 .btn-secondary {
-  height: 28px;
-  padding: 0 10px;
-  border-radius: 6px;
+  height: 32px;
+  padding: 0 14px;
+  border-radius: 8px;
   border: 1px solid var(--sanctuary-hairline);
   background: var(--sanctuary-surface-subtle);
   color: var(--sanctuary-ink-primary);
-  font-size: 11.5px;
+  font-size: 12px;
   font-weight: 500;
   cursor: pointer;
   display: inline-flex;
@@ -1301,17 +1301,17 @@ html, body {
 }
 
 .btn-subtle {
-  height: 24px;
-  padding: 0 6px;
-  border-radius: 5px;
+  height: 26px;
+  padding: 0 8px;
+  border-radius: 6px;
   border: none;
   background: transparent;
   color: var(--sanctuary-ink-secondary);
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: 500;
   display: inline-flex;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
   cursor: pointer;
   transition: all 0.15s;
 }
@@ -1330,9 +1330,9 @@ html, body {
 }
 
 .btn-icon-subtle {
-  width: 24px;
-  height: 24px;
-  border-radius: 6px;
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
   border: 1px solid transparent;
   background: transparent;
   color: var(--sanctuary-ink-secondary);
@@ -1358,16 +1358,16 @@ html, body {
    10. WHITELIST & SETTINGS TAB
    ========================================================================== */
 .card-caption {
-  font-size: 10.5px;
+  font-size: 11.5px;
   color: var(--sanctuary-ink-secondary);
-  line-height: 1.35;
-  margin-bottom: 8px;
+  line-height: 1.4;
+  margin-bottom: 10px;
 }
 
 .manual-add-row {
   display: flex;
-  gap: 6px;
-  margin-bottom: 8px;
+  gap: 8px;
+  margin-bottom: 10px;
   animation: springDrop 0.24s var(--ease-apple-spring);
 }
 
@@ -1384,28 +1384,28 @@ html, body {
 
 /* Provider Segmented Control */
 .provider-segmented-control {
-  padding: 2px;
+  padding: 2.5px;
   background: rgba(118, 118, 128, 0.08);
-  border-radius: 8px;
+  border-radius: 10px;
   display: flex;
-  gap: 2px;
+  gap: 2.5px;
   border: 1px solid var(--sanctuary-hairline);
 }
 
 .provider-segment-btn {
   flex: 1;
-  height: 26px;
+  height: 28px;
   border: none;
   background: transparent;
-  border-radius: 6px;
-  font-size: 10.5px;
+  border-radius: 7px;
+  font-size: 11px;
   font-weight: 500;
   color: var(--sanctuary-ink-secondary);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 3px;
+  gap: 4px;
   padding: 0 4px;
   white-space: nowrap;
   transition: all 0.18s var(--ease-apple-spring);
@@ -1433,13 +1433,13 @@ html, body {
   background: rgba(0, 113, 227, 0.05);
   border: 1px solid rgba(0, 113, 227, 0.12);
   border-radius: 8px;
-  padding: 6px 8px;
+  padding: 8px 10px;
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 10px;
+  gap: 8px;
+  font-size: 11px;
   color: var(--sanctuary-blue);
-  line-height: 1.3;
+  line-height: 1.35;
 }
 
 /* Subtle Sync Button (API Model Refresh) */
@@ -1450,10 +1450,10 @@ html, body {
   background: rgba(0, 0, 0, 0.03);
   border: 1px solid var(--sanctuary-hairline);
   color: var(--sanctuary-ink-secondary);
-  font-size: 9.5px;
+  font-size: 10px;
   font-weight: 500;
   cursor: pointer;
-  padding: 1.5px 6px;
+  padding: 2px 7px;
   border-radius: var(--radius-pill);
   transition: all 0.18s var(--ease-apple-spring);
   outline: none;
@@ -1492,10 +1492,10 @@ html, body {
 .key-status-badge {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  font-size: 9.5px;
+  gap: 5px;
+  font-size: 10px;
   font-weight: 500;
-  padding: 1.5px 6px;
+  padding: 2px 7px;
   border-radius: var(--radius-pill);
   transition: all 0.2s var(--ease-apple-spring);
   line-height: 1.2;
@@ -1559,17 +1559,17 @@ html, body {
   border: 1px solid var(--sanctuary-hairline-subtle);
   background: var(--sanctuary-surface-subtle);
   overflow: hidden;
-  max-height: 130px;
+  max-height: 150px;
   overflow-y: auto;
 }
 
 .list-entry {
-  padding: 6px 10px;
+  padding: 8px 12px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid var(--sanctuary-divider);
-  font-size: 11.5px;
+  font-size: 12px;
 }
 
 .list-entry:last-child {
@@ -1577,8 +1577,8 @@ html, body {
 }
 
 .btn-remove {
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   border: none;
   background: transparent;
@@ -1597,8 +1597,8 @@ html, body {
 
 .popup-footer {
   text-align: center;
-  padding: 8px 0 2px;
-  font-size: 9.5px;
+  padding: 10px 0 4px;
+  font-size: 10.5px;
   color: var(--sanctuary-ink-secondary);
   letter-spacing: 0.02em;
 }
@@ -1608,18 +1608,18 @@ html, body {
    ========================================================================== */
 .sanctuary-toast {
   position: fixed;
-  bottom: 12px;
-  left: 12px;
-  right: 12px;
+  bottom: 16px;
+  left: 16px;
+  right: 16px;
   z-index: 100;
   background: rgba(29, 29, 31, 0.92);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   color: #FFFFFF;
   border-radius: var(--radius-pill);
-  padding: 6px 12px;
+  padding: 8px 14px;
   text-align: center;
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 500;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
   animation: toastEntrance 0.25s var(--ease-apple-spring);
@@ -1639,8 +1639,8 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
-  padding-bottom: 6px;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
   border-bottom: 1px solid var(--sanctuary-hairline-subtle, rgba(0, 0, 0, 0.06));
 }
 
@@ -1648,19 +1648,19 @@ html, body {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 9.5px;
+  font-size: 10px;
   font-weight: 600;
   color: #1B5E20;
   background: rgba(52, 199, 89, 0.12);
-  padding: 1.5px 6px;
+  padding: 2px 7px;
   border-radius: var(--radius-pill);
   border: 1px solid rgba(52, 199, 89, 0.25);
   letter-spacing: 0.01em;
 }
 
 .status-pulse-dot {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   position: relative;
   flex-shrink: 0;
@@ -1677,9 +1677,9 @@ html, body {
   background: rgba(0, 0, 0, 0.04);
   border: 1px solid var(--sanctuary-hairline);
   color: var(--sanctuary-ink-secondary);
-  font-size: 9.5px;
+  font-size: 10px;
   font-weight: 500;
-  padding: 1.5px 7px;
+  padding: 2px 8px;
   border-radius: var(--radius-pill);
   cursor: pointer;
   transition: all 0.18s var(--ease-apple-spring);
@@ -1696,13 +1696,13 @@ html, body {
 
 /* Apple Fact Note */
 .apple-fact-note {
-  font-size: 10px;
+  font-size: 10.5px;
   color: var(--sanctuary-ink-secondary);
-  line-height: 1.35;
+  line-height: 1.4;
   background: rgba(0, 113, 227, 0.04);
   border: 1px solid rgba(0, 113, 227, 0.12);
   border-radius: 8px;
-  padding: 6px 8px;
+  padding: 7px 10px;
 }
 
 .apple-fact-note strong {
@@ -1717,22 +1717,22 @@ html, body {
   background: var(--sanctuary-green-bg);
   border: 1px solid var(--sanctuary-green-bd);
   border-radius: 8px;
-  padding: 5px 8px;
+  padding: 6px 10px;
   transition: all 0.2s var(--ease-apple-spring);
 }
 
 .groq-connected-meta {
   display: flex;
   align-items: center;
-  gap: 5px;
-  font-size: 10.5px;
+  gap: 6px;
+  font-size: 11px;
   font-weight: 500;
   color: var(--sanctuary-green-ink);
 }
 
 .groq-key-hint {
   font-family: var(--font-mono);
-  font-size: 9.5px;
+  font-size: 10px;
   opacity: 0.8;
   letter-spacing: 0.02em;
 }
