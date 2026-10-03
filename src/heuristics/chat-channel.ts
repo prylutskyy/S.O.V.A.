@@ -284,24 +284,36 @@ export class ChatChannelMonitor {
 
     // Використовуємо stateful-класифікатор, який пам'ятає попередні повідомлення
     const scan = ChatSessionState.addMessageAndEvaluate(text, 'inbound');
-      if (this.debugMode) {
-        // Безпечне логування: маскуємо сирий текст, щоб PII не зберігався в пам'яті Shadow DOM
-        const safePreview = text.length <= 20
-          ? text.replace(/\d{4,}/g, '****')
-          : text.substring(0, 20).replace(/\d{4,}/g, '****') + `... [${text.length} симв.]`;
-        DebuggerOverlay.log('Текст повідомлення', safePreview, '#9CA3AF');
-        
-        if (scan.normalizedText !== text) {
-          DebuggerOverlay.log('1. Нормалізація', `Нормалізовано (${scan.normalizedText.length} симв.)`, '#3B82F6');
-        }
-        
-        if (scan.clustersDetected.length > 0) {
-          DebuggerOverlay.log('2. Виявлені Кластери', scan.clustersDetected, '#EAB308');
-        }
-        
-        if (scan.clustersDetected.includes('semantic_trigger')) {
-          DebuggerOverlay.log('2s. Семантичний Вектор (Tier 1.5)', 'Активовано векторну матрицю намірів (Zero-Regex Match)', '#8B5CF6');
-        }
+    if (scan.telemetry) {
+      DebuggerOverlay.recordVectorTelemetry(scan.telemetry);
+    }
+
+    if (this.debugMode) {
+      // Безпечне логування: маскуємо сирий текст, щоб PII не зберігався в пам'яті Shadow DOM
+      const safePreview = text.length <= 20
+        ? text.replace(/\d{4,}/g, '****')
+        : text.substring(0, 20).replace(/\d{4,}/g, '****') + `... [${text.length} симв.]`;
+      DebuggerOverlay.log('Текст повідомлення', safePreview, '#9CA3AF');
+      
+      if (scan.normalizedText !== text) {
+        DebuggerOverlay.log('1. Нормалізація', `Нормалізовано (${scan.normalizedText.length} симв.)`, '#3B82F6');
+      }
+      
+      if (scan.clustersDetected.length > 0) {
+        DebuggerOverlay.log('2. Виявлені Кластери', scan.clustersDetected, '#EAB308');
+      }
+      
+      if (scan.clustersDetected.includes('semantic_trigger')) {
+        DebuggerOverlay.log('2s. Семантичний Вектор (Tier 1.5)', 'Активовано векторну матрицю намірів (Zero-Regex Match)', '#8B5CF6');
+      }
+
+      if (scan.telemetry) {
+        DebuggerOverlay.log(
+          '2v. Векторна Подібність cos(θ)',
+          `${scan.telemetry.cosineSimilarity.toFixed(2)} (${Math.round(scan.telemetry.cosineSimilarity * 100)}%) проти [${scan.telemetry.topPrototypeId}]`,
+          scan.telemetry.cosineSimilarity >= 0.40 ? '#EF4444' : '#0071E3'
+        );
+      }
         
         if (scan.matchedSpans && scan.matchedSpans.length > 0) {
           const triggerWords = scan.matchedSpans.map(s => s.text);

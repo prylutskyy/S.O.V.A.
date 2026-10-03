@@ -1,5 +1,6 @@
 import { UserWhitelistManager } from '../core/user-whitelist';
 import { DESIGN_TOKENS_CSS } from './design-tokens';
+import { SemanticTriggerEngine, SemanticVectorTelemetry } from '../heuristics/semantic-trigger';
 
 export interface LogItem {
   id: string;
@@ -26,7 +27,7 @@ export interface LogItem {
   expanded?: boolean;
 }
 
-export type NeuromonitorTab = 'overview' | 'events' | 'ai';
+export type NeuromonitorTab = 'overview' | 'events' | 'ai' | 'vectors';
 export type NeuromonitorCategoryFilter = 'ALL' | 'AI' | 'FORM' | 'RISK';
 
 const ICONS = {
@@ -96,6 +97,8 @@ export class DebuggerOverlay {
     filterCategory: 'ALL' as NeuromonitorCategoryFilter,
     filterSearch: '',
     isMinimized: false,
+    selectedPrototypeId: 'MILITARY_SABOTAGE_RECRUITMENT' as string,
+    vectorTelemetry: null as SemanticVectorTelemetry | null,
     logs: [] as LogItem[],
   };
 
@@ -353,6 +356,18 @@ export class DebuggerOverlay {
 
   public static isThreatMitigated(): boolean {
     return this.state.threatMitigated;
+  }
+
+  public static recordVectorTelemetry(telemetry: SemanticVectorTelemetry): void {
+    if (!telemetry) return;
+    this.state.vectorTelemetry = telemetry;
+    if (this.isVisible) {
+      this.render();
+    }
+  }
+
+  public static getVectorTelemetry(): SemanticVectorTelemetry | null {
+    return this.state.vectorTelemetry;
   }
 
   public static log(
@@ -659,6 +674,7 @@ export class DebuggerOverlay {
       severity: this.state.severity,
       score: this.state.score,
       falsePositiveAssessment: fpAssessment,
+      semanticVectorTelemetry: this.state.vectorTelemetry || null,
       logsSummary: this.state.logs.map((l) => ({
         time: l.time,
         stepKey: l.stepKey,
@@ -1039,10 +1055,246 @@ export class DebuggerOverlay {
       return `<div class="sc-ai-scroll">${aiDetailsHtml}</div>`;
     };
 
+    // Вкладка 4: Семантичний Векторний Спектр (Vector Spectrum)
+    const renderVectorsTab = () => {
+      const telemetry = this.state.vectorTelemetry || SemanticTriggerEngine.getDefaultTelemetry();
+      const currentSelectedProto = this.state.selectedPrototypeId || telemetry.topPrototypeId || 'MILITARY_SABOTAGE_RECRUITMENT';
+
+      const protoInfo = telemetry.allPrototypes.find((p) => p.id === currentSelectedProto) || telemetry.allPrototypes[0] || {
+        id: currentSelectedProto,
+        labelUk: 'ст. 111-2, 113 ККУ (Вербування / Диверсія)',
+        similarity: telemetry.cosineSimilarity,
+        prototypeWeights: {},
+      };
+
+      const similarity = protoInfo.similarity !== undefined ? protoInfo.similarity : telemetry.cosineSimilarity;
+      const isDangerous = similarity >= 0.40;
+      const similarityPercent = Math.round(similarity * 100);
+
+      // Масив точок для 10 вимірів
+      // Координати графіка: X від 45 до 495 (ширина 540), Y від 25 (значення 1.0) до 150 (значення 0.0)
+      const graphWidth = 540;
+      const graphHeight = 185;
+      const originX = 45;
+      const originY = 150;
+      const topY = 25;
+      const usableHeight = originY - topY; // 125px
+      const usableWidth = graphWidth - originX - 25; // 470px
+      const stepX = usableWidth / (telemetry.dimensions.length - 1);
+
+      // Розрахунок точок
+      const inputPoints: { x: number; y: number; val: number; key: string; label: string }[] = [];
+      const protoPoints: { x: number; y: number; val: number; key: string; label: string }[] = [];
+
+      telemetry.dimensions.forEach((dim, idx) => {
+        const x = Math.round(originX + idx * stepX);
+        const protoWeight = protoInfo.prototypeWeights[dim.key] !== undefined ? protoInfo.prototypeWeights[dim.key] : dim.prototypeWeight;
+        const inputY = Math.round(originY - (dim.inputWeight * usableHeight));
+        const protoY = Math.round(originY - (protoWeight * usableHeight));
+
+        inputPoints.push({ x, y: inputY, val: dim.inputWeight, key: dim.key, label: dim.labelUk });
+        protoPoints.push({ x, y: protoY, val: protoWeight, key: dim.key, label: dim.labelUk });
+      });
+
+      // Побудова SVG шляхів за методом кубічних кривих Безьє
+      const buildPath = (pts: { x: number; y: number }[]) => {
+        if (pts.length === 0) return '';
+        let d = `M ${pts[0].x} ${pts[0].y}`;
+        for (let i = 1; i < pts.length; i++) {
+          const prev = pts[i - 1];
+          const curr = pts[i];
+          const cp1x = prev.x + (curr.x - prev.x) / 2;
+          const cp1y = prev.y;
+          const cp2x = prev.x + (curr.x - prev.x) / 2;
+          const cp2y = curr.y;
+          d += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${curr.x} ${curr.y}`;
+        }
+        return d;
+      };
+
+      const inputCurve = buildPath(inputPoints);
+      const protoCurve = buildPath(protoPoints);
+
+      const inputArea = `${inputCurve} L ${inputPoints[inputPoints.length - 1].x} ${originY} L ${inputPoints[0].x} ${originY} Z`;
+      const protoArea = `${protoCurve} L ${protoPoints[protoPoints.length - 1].x} ${originY} L ${protoPoints[0].x} ${originY} Z`;
+
+      const thresholdY = Math.round(originY - (0.40 * usableHeight));
+
+      return `
+        <div class="sc-vectors-view">
+          <!-- 1. Hero Card: Метрика косинусної подібності та статус -->
+          <div class="sc-card sc-vector-hero">
+            <div class="sc-vector-hero-top">
+              <div class="sc-vector-sim-badge ${isDangerous ? 'sc-badge-red' : 'sc-badge-blue'}">
+                <span class="sc-sim-title">Косинусна подібність cos(θ)</span>
+                <span class="sc-sim-value">${similarity.toFixed(2)} (${similarityPercent}%)</span>
+              </div>
+              <div class="sc-vector-status-block">
+                <div class="sc-vector-status-title">
+                  ${isDangerous ? 'ВИЯВЛЕНО СЕМАНТИЧНИЙ РЕЗОНАНС ЗАГРОЗИ (MATCH)' : 'БЕЗПЕЧНА ДИВЕРГЕНЦІЯ НАМІРУ (SAFE)'}
+                </div>
+                <div class="sc-vector-status-sub">
+                  ${isDangerous
+                    ? 'Вектор вхідного повідомлення має критичне накладання на еталонний вектор атаки'
+                    : 'Вектор повідомлення знаходиться нижче порогового значення загрози (0.40)'}
+                </div>
+              </div>
+            </div>
+
+            <!-- Селектор еталонного вектора атаки -->
+            <div class="sc-proto-selector">
+              <span class="sc-proto-label">Порівняти з еталоном загрози:</span>
+              <div class="sc-proto-chips">
+                ${telemetry.allPrototypes.map((p) => `
+                  <button type="button" class="sc-chip sc-proto-chip ${p.id === currentSelectedProto ? 'active' : ''}" data-proto-id="${p.id}">
+                    <span>${p.labelUk.includes('Вербування') ? 'Вербування / Диверсія' : p.labelUk.includes('Імітація') ? 'Ескроу-доставка' : 'Викрадення CVV'}</span>
+                    <span class="sc-chip-sim">${Math.round((p.similarity || 0) * 100)}%</span>
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+
+            <!-- Контекст останнього відсканованого тексту -->
+            <div class="sc-vector-raw-box">
+              <span class="sc-vector-raw-label">Аналізоване повідомлення:</span>
+              <div class="sc-vector-raw-text">«${telemetry.rawText ? (telemetry.rawText.length > 140 ? telemetry.rawText.substring(0, 140) + '...' : telemetry.rawText) : 'Немає даних'}»</div>
+            </div>
+          </div>
+
+          <!-- 2. Візуальний SVG Графік Накладання Векторів -->
+          <div class="sc-card sc-vector-graph-card">
+            <div class="sc-graph-header">
+              <div class="sc-graph-title-group">
+                <span class="sc-card-title">Спектральне накладання векторів (10 осей)</span>
+                <span class="sc-graph-sub">Нормалізований простір ваг L2: [0.0 - 1.0]</span>
+              </div>
+              <div class="sc-graph-legend">
+                <div class="sc-legend-item">
+                  <span class="sc-legend-dot sc-dot-blue"></span>
+                  <span>Повідомлення співрозмовника</span>
+                </div>
+                <div class="sc-legend-item">
+                  <span class="sc-legend-dot sc-dot-red"></span>
+                  <span>Еталон загрози (${protoInfo.labelUk.includes('Вербування') ? 'Вербування' : protoInfo.labelUk.includes('Імітація') ? 'Ескроу' : 'CVV'})</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="sc-svg-wrapper">
+              <svg class="sc-vector-svg" viewBox="0 0 ${graphWidth} ${graphHeight}">
+                <defs>
+                  <!-- Градієнт для вхідного повідомлення (Блакитний) -->
+                  <linearGradient id="grad-input" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#0071E3" stop-opacity="0.30" />
+                    <stop offset="100%" stop-color="#0071E3" stop-opacity="0.02" />
+                  </linearGradient>
+                  <!-- Градієнт для еталона загрози (Червоний) -->
+                  <linearGradient id="grad-proto" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#EF4444" stop-opacity="0.22" />
+                    <stop offset="100%" stop-color="#EF4444" stop-opacity="0.02" />
+                  </linearGradient>
+                </defs>
+
+                <!-- Горизонтальні лінії сітки (Grid) -->
+                <line x1="${originX}" y1="${topY}" x2="${originX + usableWidth}" y2="${topY}" stroke="#E5E5EA" stroke-width="1" stroke-dasharray="2 3" />
+                <text x="${originX - 8}" y="${topY + 3}" fill="#86868B" font-size="8.5" text-anchor="end">1.0</text>
+
+                <line x1="${originX}" y1="${topY + usableHeight * 0.25}" x2="${originX + usableWidth}" y2="${topY + usableHeight * 0.25}" stroke="#E5E5EA" stroke-width="1" stroke-dasharray="2 3" />
+                <text x="${originX - 8}" y="${topY + usableHeight * 0.25 + 3}" fill="#86868B" font-size="8.5" text-anchor="end">0.75</text>
+
+                <line x1="${originX}" y1="${topY + usableHeight * 0.5}" x2="${originX + usableWidth}" y2="${topY + usableHeight * 0.5}" stroke="#E5E5EA" stroke-width="1" stroke-dasharray="2 3" />
+                <text x="${originX - 8}" y="${topY + usableHeight * 0.5 + 3}" fill="#86868B" font-size="8.5" text-anchor="end">0.5</text>
+
+                <line x1="${originX}" y1="${topY + usableHeight * 0.75}" x2="${originX + usableWidth}" y2="${topY + usableHeight * 0.75}" stroke="#E5E5EA" stroke-width="1" stroke-dasharray="2 3" />
+                <text x="${originX - 8}" y="${topY + usableHeight * 0.75 + 3}" fill="#86868B" font-size="8.5" text-anchor="end">0.25</text>
+
+                <!-- Лінія порогу небезпеки (Threshold = 0.40) -->
+                <line x1="${originX}" y1="${thresholdY}" x2="${originX + usableWidth}" y2="${thresholdY}" stroke="#FF453A" stroke-width="1.2" stroke-dasharray="4 3" opacity="0.8" />
+                <text x="${originX + usableWidth}" y="${thresholdY - 4}" fill="#FF453A" font-size="8" font-weight="600" text-anchor="end">Поріг тригеру (0.40)</text>
+
+                <!-- Базова лінія (Y = 0) -->
+                <line x1="${originX}" y1="${originY}" x2="${originX + usableWidth}" y2="${originY}" stroke="#C7C7CC" stroke-width="1" />
+                <text x="${originX - 8}" y="${originY + 3}" fill="#86868B" font-size="8.5" text-anchor="end">0.0</text>
+
+                <!-- Вертикальні напрямні та осі -->
+                ${inputPoints.map((pt) => `
+                  <line x1="${pt.x}" y1="${topY}" x2="${pt.x}" y2="${originY}" stroke="#F2F2F7" stroke-width="1" />
+                `).join('')}
+
+                <!-- Заливка площі еталона загрози -->
+                <path d="${protoArea}" fill="url(#grad-proto)" />
+                <!-- Лінія кривої еталона загрози -->
+                <path d="${protoCurve}" fill="none" stroke="#EF4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+
+                <!-- Заливка площі вхідного повідомлення -->
+                <path d="${inputArea}" fill="url(#grad-input)" />
+                <!-- Лінія кривої вхідного повідомлення -->
+                <path d="${inputCurve}" fill="none" stroke="#0071E3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+
+                <!-- Точки на графіку: Еталон загрози -->
+                ${protoPoints.map(pt => `
+                  <circle cx="${pt.x}" cy="${pt.y}" r="3" fill="#EF4444" stroke="#FFFFFF" stroke-width="1.2" />
+                `).join('')}
+
+                <!-- Точки на графіку: Вхідне повідомлення -->
+                ${inputPoints.map(pt => `
+                  <circle cx="${pt.x}" cy="${pt.y}" r="4" fill="#0071E3" stroke="#FFFFFF" stroke-width="1.8" />
+                  ${pt.val >= 0.25 ? `<text x="${pt.x}" y="${Math.max(12, pt.y - 6)}" fill="#0071E3" font-size="8" font-weight="700" text-anchor="middle">${Math.round(pt.val * 100)}%</text>` : ''}
+                `).join('')}
+
+                <!-- Підписи осей (X-Labels) -->
+                ${inputPoints.map((pt) => `
+                  <text x="${pt.x}" y="${originY + 14}" fill="#6E6E73" font-size="7.5" font-weight="500" text-anchor="middle">${pt.label}</text>
+                `).join('')}
+              </svg>
+            </div>
+          </div>
+
+          <!-- 3. Деталізація за факторами (Поелементна матриця ваг) -->
+          <div class="sc-card sc-dim-breakdown-card">
+            <span class="sc-card-title">Деталізація компонентів вектора за факторами</span>
+            <div class="sc-dim-grid">
+              ${telemetry.dimensions.map((dim) => {
+                const protoW = protoInfo.prototypeWeights[dim.key] !== undefined ? protoInfo.prototypeWeights[dim.key] : dim.prototypeWeight;
+                const isDimensionMatched = dim.inputWeight >= 0.35 && protoW >= 0.40;
+                return `
+                  <div class="sc-dim-row ${isDimensionMatched ? 'matched' : ''}">
+                    <div class="sc-dim-meta">
+                      <span class="sc-dim-name">${dim.labelUk}</span>
+                      <div class="sc-dim-weights">
+                        <span class="sc-val-in" title="Вхідне повідомлення">Вхід: ${(dim.inputWeight * 100).toFixed(0)}%</span>
+                        <span class="sc-val-proto" title="Еталон загрози">Еталон: ${(protoW * 100).toFixed(0)}%</span>
+                      </div>
+                    </div>
+                    <div class="sc-dim-bars">
+                      <!-- Bar 1: Input -->
+                      <div class="sc-bar-track">
+                        <div class="sc-bar-fill sc-bar-blue" style="width: ${dim.inputWeight * 100}%;"></div>
+                      </div>
+                      <!-- Bar 2: Prototype -->
+                      <div class="sc-bar-track">
+                        <div class="sc-bar-fill sc-bar-red" style="width: ${protoW * 100}%;"></div>
+                      </div>
+                    </div>
+                    ${dim.matchedTokens.length > 0 ? `
+                      <div class="sc-dim-tokens">
+                        ${dim.matchedTokens.map(t => `<span class="sc-dim-token-chip">${t}</span>`).join('')}
+                      </div>
+                    ` : ''}
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+    };
+
     let tabBody = '';
     if (activeTab === 'overview') tabBody = renderOverviewTab();
     else if (activeTab === 'events') tabBody = renderEventsTab();
     else if (activeTab === 'ai') tabBody = renderAiTab();
+    else if (activeTab === 'vectors') tabBody = renderVectorsTab();
 
     this.shadowRoot.innerHTML = `
       <style>
@@ -1675,6 +1927,254 @@ export class DebuggerOverlay {
           display: inline-block;
           animation: sc-spin 1.2s linear infinite;
         }
+
+        /* Vector Spectrum Tab Styles */
+        .sc-vectors-view {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          padding: 14px;
+          overflow-y: auto;
+          height: 100%;
+        }
+        .sc-vector-hero {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+        }
+        .sc-vector-hero-top {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+        .sc-vector-sim-badge {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 10px 14px;
+          border-radius: 12px;
+          flex-shrink: 0;
+          min-width: 140px;
+        }
+        .sc-sim-title {
+          font-size: 9.5px;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.04em;
+          opacity: 0.85;
+          margin-bottom: 2px;
+        }
+        .sc-sim-value {
+          font-size: 19px;
+          font-weight: 800;
+          font-family: var(--font-mono, monospace);
+        }
+        .sc-vector-status-block {
+          flex: 1;
+        }
+        .sc-vector-status-title {
+          font-size: 12px;
+          font-weight: 700;
+          color: #1D1D1F;
+          letter-spacing: -0.01em;
+          margin-bottom: 2px;
+        }
+        .sc-vector-status-sub {
+          font-size: 11px;
+          color: #6E6E73;
+          line-height: 1.35;
+        }
+        .sc-proto-selector {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+          margin-top: 2px;
+        }
+        .sc-proto-label {
+          font-size: 10px;
+          font-weight: 600;
+          color: #86868B;
+          text-transform: uppercase;
+          letter-spacing: 0.03em;
+        }
+        .sc-proto-chips {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 6px;
+        }
+        .sc-chip-sim {
+          font-size: 9.5px;
+          font-family: var(--font-mono, monospace);
+          font-weight: 700;
+          opacity: 0.9;
+          margin-left: 3px;
+        }
+        .sc-vector-raw-box {
+          background: #F5F5F7;
+          border: 1px solid rgba(0, 0, 0, 0.04);
+          border-radius: 8px;
+          padding: 8px 10px;
+        }
+        .sc-vector-raw-label {
+          font-size: 9.5px;
+          font-weight: 700;
+          color: #6E6E73;
+          text-transform: uppercase;
+          display: block;
+          margin-bottom: 2px;
+        }
+        .sc-vector-raw-text {
+          font-size: 11px;
+          font-style: italic;
+          color: #1D1D1F;
+          line-height: 1.4;
+        }
+
+        /* Vector Graph Card */
+        .sc-vector-graph-card {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+        }
+        .sc-graph-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          flex-wrap: wrap;
+          gap: 6px;
+        }
+        .sc-graph-title-group {
+          display: flex;
+          flex-direction: column;
+        }
+        .sc-graph-sub {
+          font-size: 10px;
+          color: #86868B;
+        }
+        .sc-graph-legend {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          font-size: 10px;
+          color: #515154;
+        }
+        .sc-legend-item {
+          display: flex;
+          align-items: center;
+          gap: 5px;
+        }
+        .sc-legend-dot {
+          width: 8px;
+          height: 8px;
+          border-radius: 9999px;
+        }
+        .sc-dot-blue {
+          background: #0071E3;
+          box-shadow: 0 0 4px rgba(0, 113, 227, 0.6);
+        }
+        .sc-dot-red {
+          background: #EF4444;
+          box-shadow: 0 0 4px rgba(239, 68, 68, 0.6);
+        }
+        .sc-svg-wrapper {
+          background: #FFFFFF;
+          border: 1px solid rgba(0, 0, 0, 0.06);
+          border-radius: 12px;
+          padding: 8px 4px;
+          box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.02);
+          overflow: hidden;
+        }
+        .sc-vector-svg {
+          width: 100%;
+          height: auto;
+          display: block;
+        }
+
+        /* Dimension Breakdown */
+        .sc-dim-breakdown-card {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+        .sc-dim-grid {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+        }
+        .sc-dim-row {
+          background: #FBFBFC;
+          border: 1px solid rgba(0, 0, 0, 0.05);
+          border-radius: 8px;
+          padding: 7px 10px;
+          transition: all 0.15s ease;
+        }
+        .sc-dim-row.matched {
+          background: rgba(239, 68, 68, 0.03);
+          border-color: rgba(239, 68, 68, 0.25);
+          border-left: 3px solid #EF4444;
+        }
+        .sc-dim-meta {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 4px;
+        }
+        .sc-dim-name {
+          font-size: 11px;
+          font-weight: 600;
+          color: #1D1D1F;
+        }
+        .sc-dim-weights {
+          display: flex;
+          gap: 8px;
+          font-size: 10px;
+          font-family: var(--font-mono, monospace);
+        }
+        .sc-val-in {
+          color: #0071E3;
+          font-weight: 600;
+        }
+        .sc-val-proto {
+          color: #EF4444;
+          font-weight: 600;
+        }
+        .sc-dim-bars {
+          display: flex;
+          flex-direction: column;
+          gap: 3px;
+        }
+        .sc-bar-track {
+          height: 4px;
+          background: rgba(0, 0, 0, 0.05);
+          border-radius: 9999px;
+          overflow: hidden;
+        }
+        .sc-bar-fill {
+          height: 100%;
+          border-radius: 9999px;
+          transition: width 0.3s ease;
+        }
+        .sc-bar-blue {
+          background: #0071E3;
+        }
+        .sc-bar-red {
+          background: #EF4444;
+        }
+        .sc-dim-tokens {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 4px;
+          margin-top: 5px;
+        }
+        .sc-dim-token-chip {
+          font-size: 9px;
+          padding: 1px 5px;
+          background: rgba(0, 113, 227, 0.08);
+          color: #0071E3;
+          border-radius: 4px;
+          border: 1px solid rgba(0, 113, 227, 0.15);
+        }
       </style>
 
       <div class="sc-window">
@@ -1719,6 +2219,11 @@ export class DebuggerOverlay {
           <button type="button" class="sc-tab-btn ${activeTab === 'ai' ? 'active' : ''}" data-tab="ai">
             ${ICONS.cpu(12)}
             <span>ШІ LLM (${aiCount})</span>
+          </button>
+          <button type="button" class="sc-tab-btn ${activeTab === 'vectors' ? 'active' : ''}" data-tab="vectors">
+            ${ICONS.activity(12)}
+            <span>Векторний спектр</span>
+            ${this.state.vectorTelemetry ? `<span class="sc-badge ${this.state.vectorTelemetry.cosineSimilarity >= 0.4 ? 'sc-badge-red' : 'sc-badge-blue'}" style="padding:1px 5px; font-size:8.5px;">${Math.round(this.state.vectorTelemetry.cosineSimilarity * 100)}%</span>` : ''}
           </button>
         </nav>
 
@@ -1942,6 +2447,16 @@ export class DebuggerOverlay {
         const cat = (chip as HTMLElement).dataset.cat as NeuromonitorCategoryFilter;
         if (cat) {
           this.state.filterCategory = cat;
+          this.render();
+        }
+      });
+    });
+
+    this.shadowRoot.querySelectorAll('.sc-proto-chip').forEach((protoBtn) => {
+      protoBtn.addEventListener('click', () => {
+        const protoId = (protoBtn as HTMLElement).dataset.protoId;
+        if (protoId) {
+          this.state.selectedPrototypeId = protoId;
           this.render();
         }
       });

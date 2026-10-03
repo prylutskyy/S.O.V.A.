@@ -126,10 +126,14 @@ export class ChatSessionState {
         isMixedLanguage,
         normalizedText,
         suspiciousUrls: heuristicResult.suspiciousUrls || [],
+        telemetry: semanticResult.telemetry,
       };
     }
 
-    return heuristicResult;
+    return {
+      ...heuristicResult,
+      telemetry: semanticResult.telemetry,
+    };
   }
 
   public static clear() {

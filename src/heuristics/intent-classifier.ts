@@ -33,6 +33,7 @@ export interface IntentClassificationResult {
   normalizedText: string;
   detectedLanguage?: SupportedLanguage;
   isMixedLanguage?: boolean;
+  telemetry?: any;
 }
 
 interface ClusterRule {

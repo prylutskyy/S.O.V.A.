@@ -23,6 +23,29 @@ export interface SemanticVectorMatch {
   labelUk: string;
 }
 
+export interface SemanticDimensionValue {
+  key: string;
+  labelUk: string;
+  inputWeight: number;     // 0.0 - 1.0 (вага у вхідному повідомленні)
+  prototypeWeight: number; // 0.0 - 1.0 (вага в еталонному векторі)
+  matchedTokens: string[];
+}
+
+export interface SemanticVectorTelemetry {
+  rawText: string;
+  topPrototypeId: string;
+  topPrototypeLabel: string;
+  cosineSimilarity: number;
+  dimensions: SemanticDimensionValue[];
+  allPrototypes: {
+    id: string;
+    labelUk: string;
+    similarity: number;
+    prototypeWeights: Record<string, number>;
+  }[];
+  timestamp: number;
+}
+
 export interface SemanticEvaluationResult {
   hasFormedIntent: boolean;
   intentType: string;
@@ -33,6 +56,7 @@ export interface SemanticEvaluationResult {
   matchedPrototypes: SemanticVectorMatch[];
   matchedKeywords: string[];
   reason: string;
+  telemetry: SemanticVectorTelemetry;
 }
 
 export class SemanticTriggerEngine {
@@ -258,6 +282,8 @@ export class SemanticTriggerEngine {
       ...signals.discretionMatches,
     ];
 
+    const telemetry = this.generateTelemetry(combinedText, signals, topMatch, matches);
+
     return {
       hasFormedIntent,
       intentType,
@@ -268,6 +294,161 @@ export class SemanticTriggerEngine {
       matchedPrototypes: matches,
       matchedKeywords: Array.from(new Set(matchedKeywords)),
       reason,
+      telemetry,
     };
+  }
+
+  private static readonly PROTOTYPE_PROFILES: Record<string, Record<string, number>> = {
+    MILITARY_SABOTAGE_RECRUITMENT: {
+      reward: 0.85,
+      action: 0.90,
+      target: 0.88,
+      vehicle: 0.82,
+      media: 0.78,
+      sabotage: 0.85,
+      discretion: 0.70,
+      messenger: 0.65,
+      escrow: 0.10,
+      credential: 0.15,
+    },
+    ESCROW_DELIVERY_SCAM: {
+      reward: 0.75,
+      action: 0.60,
+      target: 0.15,
+      vehicle: 0.10,
+      media: 0.05,
+      sabotage: 0.05,
+      discretion: 0.40,
+      messenger: 0.80,
+      escrow: 0.95,
+      credential: 0.85,
+    },
+    PAYMENT_CREDENTIAL_THEFT: {
+      reward: 0.40,
+      action: 0.70,
+      target: 0.10,
+      vehicle: 0.05,
+      media: 0.05,
+      sabotage: 0.05,
+      discretion: 0.50,
+      messenger: 0.55,
+      escrow: 0.60,
+      credential: 0.98,
+    },
+  };
+
+  /**
+   * Генерація 10-вимірної семантичної спектральної телеметрії для візуалізації в DebuggerOverlay
+   */
+  public static generateTelemetry(
+    text: string,
+    signals: SemanticSignalBreakdown,
+    topMatch: SemanticVectorMatch,
+    allMatches: SemanticVectorMatch[]
+  ): SemanticVectorTelemetry {
+    const activeProtoKey = topMatch.prototypeId in this.PROTOTYPE_PROFILES
+      ? topMatch.prototypeId
+      : 'MILITARY_SABOTAGE_RECRUITMENT';
+    
+    const activeProfile = this.PROTOTYPE_PROFILES[activeProtoKey];
+
+    const inputWeights: Record<string, { weight: number; tokens: string[] }> = {
+      reward: {
+        weight: signals.hasRewardIncentive ? Math.min(1.0, 0.45 + signals.rewardMatches.length * 0.2) : 0.05,
+        tokens: signals.rewardMatches,
+      },
+      action: {
+        weight: signals.hasActionDirective ? Math.min(1.0, 0.40 + signals.actionMatches.length * 0.2) : 0.05,
+        tokens: signals.actionMatches,
+      },
+      target: {
+        weight: signals.hasTargetFocus ? Math.min(1.0, 0.40 + signals.targetMatches.length * 0.2) : 0.05,
+        tokens: signals.targetMatches,
+      },
+      vehicle: {
+        weight: /авто|машин|бус|номер|піксель|хрест/i.test(text) ? 0.85 : 0.05,
+        tokens: Array.from(text.matchAll(/авто|машин[а-яіїє]*|бус[а-яіїє]*|номер[а-яіїє]*|піксель|хрест[а-яіїє]*/gi)).map(m => m[0]),
+      },
+      media: {
+        weight: /фото|відео|зніми|сфоткай|кадр|зйомк/i.test(text) ? 0.90 : 0.05,
+        tokens: Array.from(text.matchAll(/фото[а-яіїє]*|відео|знім[а-яіїє]*|сфотк[а-яіїє]*|кадр|зйомк[а-яіїє]*/gi)).map(m => m[0]),
+      },
+      sabotage: {
+        weight: /підпал|розпалювач|коктейл|релейн|шаф|диверс/i.test(text) ? 0.95 : 0.05,
+        tokens: Array.from(text.matchAll(/підпал[а-яіїє]*|розпалювач|коктейл[а-яіїє]*|релейн[а-яіїє]*|шаф[а-яіїє]*|диверс[а-яіїє]*/gi)).map(m => m[0]),
+      },
+      discretion: {
+        weight: signals.hasDiscretionUrgency ? Math.min(1.0, 0.50 + signals.discretionMatches.length * 0.2) : 0.05,
+        tokens: signals.discretionMatches,
+      },
+      messenger: {
+        weight: /телеграм|telegram|t\.me|вайбер|viber|wa\.me|whatsapp|чат-бот/i.test(text) ? 0.85 : 0.05,
+        tokens: Array.from(text.matchAll(/телеграм[а-яіїє]*|telegram|t\.me|вайбер|viber|wa\.me|whatsapp/gi)).map(m => m[0]),
+      },
+      escrow: {
+        weight: /доставк|безпечна угода|получить|отримати кошти|оплачено|курєр/i.test(text) ? 0.90 : 0.05,
+        tokens: Array.from(text.matchAll(/доставк[а-яіїє]*|безпечна\s+угода|отримати\s+кошти|оплачен[а-яіїє]*|курєр[а-яіїє]*/gi)).map(m => m[0]),
+      },
+      credential: {
+        weight: /cvv|cvc|парол|смс|код|баланс|термін дії|номер карт/i.test(text) ? 0.95 : 0.05,
+        tokens: Array.from(text.matchAll(/cvv|cvc|парол[а-яіїє]*|смс|код|баланс|термін\s+дії|номер\s+карт[а-яіїє]*/gi)).map(m => m[0]),
+      },
+    };
+
+    const DIMENSION_CONFIG: { key: string; labelUk: string }[] = [
+      { key: 'reward', labelUk: 'Винагорода' },
+      { key: 'action', labelUk: 'Дія / Завдання' },
+      { key: 'target', labelUk: 'Об’єкт / Будівлі' },
+      { key: 'vehicle', labelUk: 'Транспорт' },
+      { key: 'media', labelUk: 'Фото / Відео' },
+      { key: 'sabotage', labelUk: 'Диверсія' },
+      { key: 'discretion', labelUk: 'Таємність' },
+      { key: 'messenger', labelUk: 'Месенджер' },
+      { key: 'escrow', labelUk: 'Ескроу' },
+      { key: 'credential', labelUk: 'Реквізити' },
+    ];
+
+    const dimensions: SemanticDimensionValue[] = DIMENSION_CONFIG.map(({ key, labelUk }) => ({
+      key,
+      labelUk,
+      inputWeight: Math.round(inputWeights[key].weight * 100) / 100,
+      prototypeWeight: Math.round((activeProfile[key] || 0.1) * 100) / 100,
+      matchedTokens: inputWeights[key].tokens,
+    }));
+
+    const allPrototypes = allMatches.map(m => ({
+      id: m.prototypeId,
+      labelUk: m.labelUk,
+      similarity: m.similarity,
+      prototypeWeights: this.PROTOTYPE_PROFILES[m.prototypeId] || this.PROTOTYPE_PROFILES.MILITARY_SABOTAGE_RECRUITMENT,
+    }));
+
+    return {
+      rawText: text,
+      topPrototypeId: topMatch.prototypeId,
+      topPrototypeLabel: topMatch.labelUk,
+      cosineSimilarity: topMatch.similarity,
+      dimensions,
+      allPrototypes,
+      timestamp: Date.now(),
+    };
+  }
+
+  /**
+   * Демонстраційний еталонний стан телеметрії до першого вхідного повідомлення
+   */
+  public static getDefaultTelemetry(): SemanticVectorTelemetry {
+    const defaultText = 'Шукаємо кур’єрів-розвідників у Дніпрі, підійди за адресою і сфотографуй будівлю ТЦК та номери машин, плачу 500$ у крипті';
+    const signals = this.extractBehavioralSignals(defaultText);
+    const topMatch = {
+      prototypeId: 'MILITARY_SABOTAGE_RECRUITMENT',
+      similarity: 0.84,
+      labelUk: 'ст. 111-2, 113 ККУ (Вербування / Диверсія)',
+    };
+    return this.generateTelemetry(defaultText, signals, topMatch, [
+      topMatch,
+      { prototypeId: 'ESCROW_DELIVERY_SCAM', similarity: 0.22, labelUk: 'Імітація фінансової угоди (Ескроу)' },
+      { prototypeId: 'PAYMENT_CREDENTIAL_THEFT', similarity: 0.18, labelUk: 'Викрадення платіжних реквізитів' },
+    ]);
   }
 }
