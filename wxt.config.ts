@@ -7,21 +7,34 @@ export default defineConfig({
     default_locale: 'uk',
     version: '1.0.0',
     icons: {
-      16: '/logo.jpg',
-      32: '/logo.jpg',
-      48: '/logo.jpg',
-      128: '/logo.jpg',
+      16: 'icon-16.png',
+      32: 'icon-32.png',
+      48: 'icon-48.png',
+      128: 'icon-128.png',
     },
     action: {
       default_icon: {
-        16: '/logo.jpg',
-        32: '/logo.jpg',
-        48: '/logo.jpg',
-        128: '/logo.jpg',
+        16: 'icon-16.png',
+        32: 'icon-32.png',
+        48: 'icon-48.png',
+        128: 'icon-128.png',
       },
       default_title: '__MSG_extensionName__',
     },
     permissions: ['storage', 'activeTab', 'scripting', 'tabs', 'offscreen'],
     host_permissions: ['<all_urls>'],
+    web_accessible_resources: [
+      {
+        resources: [
+          'logo.png',
+          'logo.jpg',
+          'icon-16.png',
+          'icon-32.png',
+          'icon-48.png',
+          'icon-128.png',
+        ],
+        matches: ['<all_urls>'],
+      },
+    ],
   },
 });

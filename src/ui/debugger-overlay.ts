@@ -1681,8 +1681,8 @@ export class DebuggerOverlay {
         <!-- 1. Apple Precision Titlebar -->
         <div class="sc-titlebar" id="drag-handle">
           <div class="sc-brand-group">
-            <div class="sc-brand-icon" title="С.О.В.А." style="background: transparent; padding: 0; overflow: hidden; border-radius: 4px;">
-              <img src="${chrome.runtime.getURL("logo.jpg")}" alt="Logo" style="width: 100%; height: 100%; object-fit: cover; display: block;" />
+            <div class="sc-brand-icon" title="С.О.В.А." style="background: transparent; padding: 0; overflow: hidden; border-radius: 6px;">
+              <img src="${typeof chrome !== 'undefined' && chrome.runtime?.getURL ? chrome.runtime.getURL('logo.png') : '/logo.png'}" alt="Logo" style="width: 100%; height: 100%; object-fit: cover; display: block;" />
             </div>
             <div class="sc-brand-meta">
               <span class="sc-brand-name">С.О.В.А.</span>
