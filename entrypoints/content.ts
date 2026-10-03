@@ -359,7 +359,9 @@ export default defineContentScript({
     // 1. Моніторинг діалогових вікон та чатів
     ChatChannelMonitor.init(currentHost, (event) => {
       let subtitle = 'У повідомленні виявлено підозрілий вміст';
-      if (event.intentType === 'IDENTITY_PROBING') {
+      if (event.intentType === 'MILITARY_SABOTAGE_RECRUITMENT') {
+        subtitle = 'ст. 111-2, 113 ККУ (Вербування / Диверсія)';
+      } else if (event.intentType === 'IDENTITY_PROBING') {
         subtitle = 'Співрозмовник випитує персональні банківські маркери (ІПН / Дівоче прізвище)';
       } else if (event.intentType === 'PAYMENT_CREDENTIAL_THEFT') {
         subtitle = 'Співрозмовник запитує конфіденційні реквізити (CVV / SMS-пароль)';
