@@ -37,7 +37,7 @@ describe('ChatLivePill (Tactile Stack & Multi-Trigger Protection Deck)', () => {
     const pill = root.querySelector('.ts-chat-live-pill') as HTMLElement;
     expect(pill).not.toBeNull();
     expect(pill.classList.contains('ts-has-stack')).toBe(false);
-    expect(pill.textContent).toContain('Код безпеки (CVV)');
+    expect(pill.textContent).toContain('chatPillLabelCvv');
     expect(pill.querySelector('.ts-pill-counter')).toBeNull();
 
     // Hover single pill -> opens single-trigger popover
@@ -88,7 +88,7 @@ describe('ChatLivePill (Tactile Stack & Multi-Trigger Protection Deck)', () => {
     expect(counter?.textContent).toBe('+1');
 
     // Priority order: CVV (priority 3) is shown first ahead of Vault (priority 5)
-    expect(pill.textContent).toContain('Код безпеки (CVV)');
+    expect(pill.textContent).toContain('chatPillLabelCvv');
 
     // Hover -> opens multi-item Protection Deck
     pill.dispatchEvent(new MouseEvent('mouseenter'));
@@ -98,8 +98,8 @@ describe('ChatLivePill (Tactile Stack & Multi-Trigger Protection Deck)', () => {
 
     const rows = popover.querySelectorAll('.ts-deck-row');
     expect(rows.length).toBe(2);
-    expect(rows[0].textContent).toContain('Код безпеки (CVV)');
-    expect(rows[1].textContent).toContain('Сховище: Пароль Приват24');
+    expect(rows[0].textContent).toContain('chatPillLabelCvv');
+    expect(rows[1].textContent).toContain('fieldPillVaultMatch: Пароль Приват24');
   });
 
   it('renders multi-stacked layers (+2) with Sabotage taking first priority over GPS and CVV', () => {
@@ -131,7 +131,7 @@ describe('ChatLivePill (Tactile Stack & Multi-Trigger Protection Deck)', () => {
     expect(pill.classList.contains('ts-has-stack-multi')).toBe(true);
 
     // Primary label is Sabotage (highest priority: 1)
-    expect(pill.textContent).toContain('Маркери безпеки');
+    expect(pill.textContent).toContain('chatPillLabelSecurityMarkers');
     const counter = pill.querySelector('.ts-pill-counter');
     expect(counter?.textContent).toBe('+2');
 
@@ -140,9 +140,9 @@ describe('ChatLivePill (Tactile Stack & Multi-Trigger Protection Deck)', () => {
     const popover = root.querySelector('.ts-chat-live-popover') as HTMLElement;
     const rows = popover.querySelectorAll('.ts-deck-row');
     expect(rows.length).toBe(3);
-    expect(rows[0].textContent).toContain('Маркери безпеки');
-    expect(rows[1].textContent).toContain('Точні координати');
-    expect(rows[2].textContent).toContain('Код безпеки (CVV)');
+    expect(rows[0].textContent).toContain('chatPillLabelSecurityMarkers');
+    expect(rows[1].textContent).toContain('chatPillLabelGps');
+    expect(rows[2].textContent).toContain('chatPillLabelCvv');
   });
 
   it('cleans all sensitive triggers in one click via #ts-pill-clean-all-btn', () => {

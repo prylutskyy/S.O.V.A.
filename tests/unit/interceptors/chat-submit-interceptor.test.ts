@@ -137,7 +137,7 @@ describe('ChatSubmitInterceptor (TDD Suite)', () => {
       const shadowRoot = ShadowHost.getRoot();
       const pill = shadowRoot.querySelector('.ts-chat-live-pill');
       expect(pill).not.toBeNull();
-      expect(pill?.textContent).toContain('CVV');
+      expect(pill?.textContent).toContain('chatPillLabelCvv');
       // Native outline remains pristine (no aggressive red border)
       expect(input.style.outline).toBe('');
       // No popup toast container in Shadow DOM
@@ -167,7 +167,7 @@ describe('ChatSubmitInterceptor (TDD Suite)', () => {
       // Elegant pill in Shadow DOM is displayed
       const pill = shadowRoot.querySelector('.ts-chat-live-pill');
       expect(pill).not.toBeNull();
-      expect(pill?.textContent).toContain('CVV');
+      expect(pill?.textContent).toContain('chatPillLabelCvv');
     });
 
     it('shows popover on hover and strips sensitive CVV when action button is clicked', () => {
@@ -192,7 +192,7 @@ describe('ChatSubmitInterceptor (TDD Suite)', () => {
 
       const popover = shadowRoot.querySelector('.ts-chat-live-popover') as HTMLElement;
       expect(popover).not.toBeNull();
-      expect(popover.textContent).toContain('Для отримання коштів тризначний CVV/CVC-код ніколи не потрібен');
+      expect(popover.textContent).toContain('chatPillExplainCvv');
 
       // Click "Видалити з тексту"
       const cleanBtn = popover.querySelector('#ts-pill-clean-btn') as HTMLButtonElement;
@@ -249,7 +249,7 @@ describe('ChatSubmitInterceptor (TDD Suite)', () => {
       const shadowRoot = ShadowHost.getRoot();
       const pill = shadowRoot.querySelector('.ts-chat-live-pill');
       expect(pill).not.toBeNull();
-      expect(pill?.textContent).toContain('CVV');
+      expect(pill?.textContent).toContain('chatPillLabelCvv');
 
       vi.useRealTimers();
     });

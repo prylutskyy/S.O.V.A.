@@ -1,3 +1,4 @@
+import { i18n, getLocalizedVaultLabel } from '../core/i18n';
 import { ShadowHost } from './shadow-host';
 import { SessionOutboundEvaluation } from '../heuristics/session-outbound-memory';
 import { FieldLivePill } from './field-live-pill';
@@ -146,13 +147,13 @@ export class ChatLivePill {
       list.push({
         id: 'sabotage',
         iconSvg: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
-        label: 'Маркери безпеки',
-        sublabel: 'Державна безпека',
-        explanation: 'Текст містить маркери вербування до диверсій чи збору даних про захисників України (ст. 111-2, 113 КК України).',
+        label: i18n.getMessage('chatPillLabelSecurityMarkers'),
+        sublabel: i18n.getMessage('chatPillSubStateSecurity'),
+        explanation: i18n.getMessage('chatPillExplainSabotage'),
         stripType: 'SABOTAGE',
         isCivic: true,
         priority: 1,
-        buttonLabel: 'Очистити поле',
+        buttonLabel: i18n.getMessage('chatPillBtnClearField'),
       });
     }
 
@@ -160,13 +161,13 @@ export class ChatLivePill {
       list.push({
         id: 'gps',
         iconSvg: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>`,
-        label: 'Точні координати',
-        sublabel: 'Національний спротив',
-        explanation: 'Під час воєнного стану передача точних географічних координат або мап може нести загрозу коригування ворожих ударів.',
+        label: i18n.getMessage('chatPillLabelGps'),
+        sublabel: i18n.getMessage('chatPillSubNationalResistance'),
+        explanation: i18n.getMessage('chatPillExplainGps'),
         stripType: 'GPS',
         isCivic: true,
         priority: 2,
-        buttonLabel: 'Видалити координати',
+        buttonLabel: i18n.getMessage('chatPillBtnDeleteGps'),
       });
     }
 
@@ -174,13 +175,13 @@ export class ChatLivePill {
       list.push({
         id: 'cvv',
         iconSvg: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`,
-        label: 'Код безпеки (CVV)',
-        sublabel: 'Секретні реквізити',
-        explanation: 'Для отримання коштів тризначний CVV/CVC-код ніколи не потрібен. Його запитують лише для списання коштів з вашої картки.',
+        label: i18n.getMessage('chatPillLabelCvv'),
+        sublabel: i18n.getMessage('chatPillSubSecretDetails'),
+        explanation: i18n.getMessage('chatPillExplainCvv'),
         stripType: 'CVV',
         isCivic: false,
         priority: 3,
-        buttonLabel: 'Видалити CVV',
+        buttonLabel: i18n.getMessage('chatPillBtnDeleteCvv'),
       });
     }
 
@@ -188,13 +189,13 @@ export class ChatLivePill {
       list.push({
         id: 'otp',
         iconSvg: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>`,
-        label: 'SMS-код безпеки (OTP)',
-        sublabel: 'Одноразовий пароль',
-        explanation: 'Ніколи не передавайте коди підтвердження з SMS третім особам. Справжні сервіси їх не запитують.',
+        label: i18n.getMessage('chatPillLabelOtp'),
+        sublabel: i18n.getMessage('chatPillSubOtp'),
+        explanation: i18n.getMessage('chatPillExplainOtp'),
         stripType: 'OTP',
         isCivic: false,
         priority: 4,
-        buttonLabel: 'Видалити код',
+        buttonLabel: i18n.getMessage('chatPillBtnDeleteOtp'),
       });
     }
 
@@ -209,14 +210,14 @@ export class ChatLivePill {
         list.push({
           id: `vault_${item.label}_${itemVal}`,
           iconSvg: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`,
-          label: `Сховище: ${item.label}`,
-          sublabel: 'Особистий секрет',
-          explanation: `Ви ввели конфіденційний маркер зі свого Personal Vault («${item.label}»). Не передавайте його стороннім ресурсам.`,
+          label: `${i18n.getMessage('fieldPillVaultMatch')}: ${getLocalizedVaultLabel(item.label)}`,
+          sublabel: i18n.getMessage('fieldPillPersonalSecret'),
+          explanation: i18n.getMessage('chatPillExplainVault', [getLocalizedVaultLabel(item.label)]),
           stripType: 'VAULT',
           vaultValue: itemVal,
           isCivic: false,
           priority: 5,
-          buttonLabel: 'Видалити секрет',
+          buttonLabel: i18n.getMessage('chatPillBtnDeleteSecret'),
         });
       }
     }
@@ -344,8 +345,8 @@ export class ChatLivePill {
         : '';
 
       const hintText = isRed
-        ? (primary.stripType === 'VAULT' ? 'Секрет' : 'Увага')
-        : (primary.stripType === 'GPS' ? 'Координати' : 'Підказка');
+        ? (primary.stripType === 'VAULT' ? i18n.getMessage('chatPillHintSecret') : i18n.getMessage('chatPillHintAttention'))
+        : (primary.stripType === 'GPS' ? i18n.getMessage('chatPillHintCoordinates') : i18n.getMessage('chatPillHintTip'));
 
       pill.innerHTML = `
         <span class="ts-pill-icon" style="display: flex; align-items: center; justify-content: center; color: ${accentColor};">${primary.iconSvg}</span>
@@ -358,7 +359,7 @@ export class ChatLivePill {
       // ── РОЗГОРНУТИЙ СТАН IN-PLACE (Unrolled Protection Banner) ──────────
       if (count === 1) {
         // Одиночний тригер: елегантний банер із вбудованим чіпом-дією
-        const actionLabel = primary.buttonLabel || 'Вилучити';
+        const actionLabel = primary.buttonLabel || i18n.getMessage('chatPillBtnRemove');
         const borderDivider = isRed ? 'rgba(220, 38, 38, 0.12)' : (isCivic ? 'rgba(2, 132, 199, 0.12)' : 'rgba(0, 113, 227, 0.10)');
 
         pill.innerHTML = `
@@ -425,9 +426,7 @@ export class ChatLivePill {
                       <div style="font-size: 9.5px; color: #86868B;">${item.sublabel}</div>
                     </div>
                   </div>
-                  <button class="ts-pill-clean-single-btn ts-pill-btn-secondary" data-item-index="${idx}" data-strip-type="${item.stripType}" ${item.vaultValue ? `data-vault-value="${escapedVault}"` : ''}>
-                    Видалити
-                  </button>
+                  <button class="ts-pill-clean-single-btn ts-pill-btn-secondary" data-item-index="${idx}" data-strip-type="${item.stripType}" ${item.vaultValue ? `data-vault-value="${escapedVault}"` : ''}>${i18n.getMessage('chatPillBtnDelete')}</button>
                 </div>
                 <p style="font-size: 10px; line-height: 1.35; color: #515154; margin: 3px 0 0 18px;">
                   ${item.explanation}
@@ -442,14 +441,12 @@ export class ChatLivePill {
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid rgba(0, 0, 0, 0.07);">
               <div style="display: flex; align-items: center; gap: 6px;">
                 <span style="font-size: 11.5px; font-weight: 700; color: #1D1D1F; letter-spacing: -0.01em;">
-                  Виявлені маркери
+                  ${i18n.getMessage('chatPillDetectedMarkers')}
                 </span>
                 <span class="ts-pill-counter">${count}</span>
               </div>
               <button id="ts-pill-clean-all-btn" class="ts-pill-action-chip ts-pill-btn-primary">
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                Очистити всі
-              </button>
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>${i18n.getMessage('chatPillCleanAll')}</button>
             </div>
             <div class="ts-deck-body" style="max-height: 220px; overflow-y: auto; overflow-x: hidden; box-sizing: border-box;">
               ${rowsHtml}

@@ -196,7 +196,37 @@ export type I18nKey =
   | 'vaultExplainDob'
   | 'vaultExplainFinancialPhone'
   | 'vaultExplainFatherName'
-  | 'vaultExplainCustom';
+  | 'vaultExplainCustom'
+  | 'fieldPillExpiryLabel'
+  | 'fieldPillPinLabel'
+  | 'fieldPillTaxIdLabel'
+  | 'fieldPillMarkerBadge'
+  | 'chatPillLabelSecurityMarkers'
+  | 'chatPillSubStateSecurity'
+  | 'chatPillExplainSabotage'
+  | 'chatPillBtnClearField'
+  | 'chatPillLabelGps'
+  | 'chatPillSubNationalResistance'
+  | 'chatPillExplainGps'
+  | 'chatPillBtnDeleteGps'
+  | 'chatPillLabelCvv'
+  | 'chatPillSubSecretDetails'
+  | 'chatPillExplainCvv'
+  | 'chatPillBtnDeleteCvv'
+  | 'chatPillLabelOtp'
+  | 'chatPillSubOtp'
+  | 'chatPillExplainOtp'
+  | 'chatPillBtnDeleteOtp'
+  | 'chatPillExplainVault'
+  | 'chatPillBtnDeleteSecret'
+  | 'chatPillBtnRemove'
+  | 'chatPillBtnDelete'
+  | 'chatPillDetectedMarkers'
+  | 'chatPillCleanAll'
+  | 'chatPillHintSecret'
+  | 'chatPillHintAttention'
+  | 'chatPillHintCoordinates'
+  | 'chatPillHintTip';
 
 export const i18n = {
   getMessage(key: I18nKey, substitutions?: string | string[]): string {
@@ -235,3 +265,16 @@ export const i18n = {
     });
   }
 };
+
+export function getLocalizedVaultLabel(label: string): string {
+  if (!label) return '';
+  const lower = label.toLowerCase();
+  if (lower.includes('дівоче') || lower.includes('maiden')) return i18n.getMessage('vaultItemMotherMaiden');
+  if (lower.includes('рнокпп') || lower.includes('іпн') || lower.includes('tax')) return i18n.getMessage('vaultItemTaxId');
+  if (lower.includes('кодове') || lower.includes('секретне') || lower.includes('secret') || lower.includes('codeword')) return i18n.getMessage('vaultItemSecretWord');
+  if (lower.includes('паспорт') || lower.includes('passport')) return i18n.getMessage('vaultItemPassportId');
+  if (lower.includes('народження') || lower.includes('birth')) return i18n.getMessage('vaultItemDob');
+  if (lower.includes('фінансовий') || lower.includes('financial')) return i18n.getMessage('vaultItemFinancialPhone');
+  if (lower.includes('батьк') || lower.includes('father')) return i18n.getMessage('vaultItemFatherName');
+  return label;
+}

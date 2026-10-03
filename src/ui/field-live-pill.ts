@@ -1,4 +1,4 @@
-import { i18n } from '../core/i18n';
+import { i18n, getLocalizedVaultLabel } from '../core/i18n';
 import { ShadowHost } from './shadow-host';
 
 export interface FieldProtectionMetadata {
@@ -336,7 +336,7 @@ export class FieldLivePill {
 
     record.isVaultAlert = true;
     record.isRedAlert = true;
-    record.vaultLabel = vaultLabel;
+    record.vaultLabel = getLocalizedVaultLabel(vaultLabel);
 
     // Якщо в полі до 7 символів — розгортаємо детальне застереження Сховища
     if ((input.value || '').trim().length <= 7) {
@@ -484,7 +484,7 @@ export class FieldLivePill {
           </span>
           <span class="ts-field-pill-label" style="color: #B91C1C; font-weight: 700;">${i18n.getMessage('fieldPillVaultMatch')}: ${vaultLabel}</span>
           <span style="font-size: 9px; color: #DC2626; opacity: 0.7;">•</span>
-          <span style="font-size: 9.5px; color: #DC2626; font-weight: 600;">Маркер</span>
+          <span style="font-size: 9.5px; color: #DC2626; font-weight: 600;">${i18n.getMessage('fieldPillMarkerBadge')}</span>
         `;
       }
     } else if (isCaution) {
@@ -624,8 +624,8 @@ export class FieldLivePill {
 
     if (type === 'PAYMENT_EXPIRY' || labelLower.includes('термін') || labelLower.includes('срок') || labelLower.includes('exp')) {
       return {
-        label: meta.categoryLabel || 'Термін дії',
-        shortLabel: 'Термін дії',
+        label: getLocalizedVaultLabel(meta.categoryLabel) || i18n.getMessage('fieldPillExpiryLabel'),
+        shortLabel: i18n.getMessage('fieldPillExpiryLabel'),
         iconSvg: `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
         bannerWarning: i18n.getMessage('fieldPillExpWarning'),
       };
@@ -633,8 +633,8 @@ export class FieldLivePill {
 
     if (type === 'PAYMENT_PIN' || labelLower.includes('пін') || labelLower.includes('pin')) {
       return {
-        label: meta.categoryLabel || 'ПІН-код',
-        shortLabel: 'ПІН-код',
+        label: getLocalizedVaultLabel(meta.categoryLabel) || i18n.getMessage('fieldPillPinLabel'),
+        shortLabel: i18n.getMessage('fieldPillPinLabel'),
         iconSvg: `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`,
         bannerWarning: i18n.getMessage('fieldPillPinWarning'),
       };
@@ -642,16 +642,16 @@ export class FieldLivePill {
 
     if (type === 'TAX_ID' || labelLower.includes('іпн') || labelLower.includes('рнокпп') || labelLower.includes('податк')) {
       return {
-        label: meta.categoryLabel || 'ІПН / РНОКПП',
-        shortLabel: 'ІПН / РНОКПП',
+        label: getLocalizedVaultLabel(meta.categoryLabel) || i18n.getMessage('fieldPillTaxIdLabel'),
+        shortLabel: i18n.getMessage('fieldPillTaxIdLabel'),
         iconSvg: `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>`,
         bannerWarning: i18n.getMessage('fieldPillInnWarning'),
       };
     }
 
     return {
-      label: meta.categoryLabel,
-      shortLabel: meta.categoryLabel,
+      label: getLocalizedVaultLabel(meta.categoryLabel),
+      shortLabel: getLocalizedVaultLabel(meta.categoryLabel),
       iconSvg: `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-1.5 1.5L12 11l-4-4-6 6 4 4 6-6 5.5-5.5M19 5l-2-2"/></svg>`,
       bannerWarning: i18n.getMessage('fieldPillGenericWarning', [meta.categoryLabel]),
     };

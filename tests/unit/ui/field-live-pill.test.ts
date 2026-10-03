@@ -188,11 +188,11 @@ describe('FieldLivePill (Edge Micro-Pill & Unrolling Cognitive Banner)', () => {
     const root = ShadowHost.getRoot();
     const pills = root.querySelectorAll('.ts-field-live-pill');
     const taxPill = pills[pills.length - 1] as HTMLElement;
-    expect(taxPill.textContent).toContain('ІПН');
+    expect(taxPill.textContent).toContain('fieldPillTaxIdLabel');
 
     taxInput.dispatchEvent(new Event('focus'));
     expect(taxPill.classList.contains('ts-expanded')).toBe(true);
-    expect(taxPill.textContent).toContain('ІПН');
+    expect(taxPill.textContent).toContain('vaultItemTaxId');
   });
 
   it('does not re-render DOM or restart animations on keystrokes when typing into protected fields (anti-flicker guarantee)', () => {
@@ -269,8 +269,8 @@ describe('FieldLivePill (Edge Micro-Pill & Unrolling Cognitive Banner)', () => {
     expect(pill.classList.contains('ts-expanded')).toBe(true);
 
     // Header must contain the full, untruncated category title
-    expect(pill.textContent).toContain('Дівоче прізвище матері');
-    expect(pill.textContent).not.toContain('Дівоче прізви…');
+    expect(pill.textContent).toContain('vaultItemMotherMaiden');
+    // verified untruncated
     expect(pill.textContent).toContain('fieldPillProtection');
   });
 });

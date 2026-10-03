@@ -594,5 +594,95 @@
   },
   "vaultExplainCustom": {
     "message": "<strong>Custom marker:</strong> Confidential combination of characters you protect from leakage."
+  },
+  "fieldPillExpiryLabel": {
+    "message": "Card expiry date"
+  },
+  "fieldPillPinLabel": {
+    "message": "PIN code"
+  },
+  "fieldPillTaxIdLabel": {
+    "message": "TIN / Tax ID"
+  },
+  "fieldPillMarkerBadge": {
+    "message": "Marker"
+  },
+  "chatPillLabelSecurityMarkers": {
+    "message": "Security Markers"
+  },
+  "chatPillSubStateSecurity": {
+    "message": "State Security"
+  },
+  "chatPillExplainSabotage": {
+    "message": "Text contains markers of sabotage recruitment or data collection on defenders of Ukraine."
+  },
+  "chatPillBtnClearField": {
+    "message": "Clear field"
+  },
+  "chatPillLabelGps": {
+    "message": "Exact coordinates"
+  },
+  "chatPillSubNationalResistance": {
+    "message": "National Resistance"
+  },
+  "chatPillExplainGps": {
+    "message": "During martial law, sharing exact geographical coordinates or maps may aid enemy targeting."
+  },
+  "chatPillBtnDeleteGps": {
+    "message": "Delete coordinates"
+  },
+  "chatPillLabelCvv": {
+    "message": "Security code (CVV)"
+  },
+  "chatPillSubSecretDetails": {
+    "message": "Confidential details"
+  },
+  "chatPillExplainCvv": {
+    "message": "CVV/CVC code is never needed to receive funds. It is only asked for withdrawals."
+  },
+  "chatPillBtnDeleteCvv": {
+    "message": "Delete CVV"
+  },
+  "chatPillLabelOtp": {
+    "message": "SMS Security Code (OTP)"
+  },
+  "chatPillSubOtp": {
+    "message": "One-time password"
+  },
+  "chatPillExplainOtp": {
+    "message": "Never share SMS confirmation codes with third parties. Legitimate services will not ask for them."
+  },
+  "chatPillBtnDeleteOtp": {
+    "message": "Delete code"
+  },
+  "chatPillExplainVault": {
+    "message": "You entered a sensitive marker from your Personal Vault («$1»). Do not share it with third parties."
+  },
+  "chatPillBtnDeleteSecret": {
+    "message": "Delete secret"
+  },
+  "chatPillBtnRemove": {
+    "message": "Remove"
+  },
+  "chatPillBtnDelete": {
+    "message": "Delete"
+  },
+  "chatPillDetectedMarkers": {
+    "message": "Detected markers"
+  },
+  "chatPillCleanAll": {
+    "message": "Clear all"
+  },
+  "chatPillHintSecret": {
+    "message": "Secret"
+  },
+  "chatPillHintAttention": {
+    "message": "Attention"
+  },
+  "chatPillHintCoordinates": {
+    "message": "Coordinates"
+  },
+  "chatPillHintTip": {
+    "message": "Tip"
   }
 }

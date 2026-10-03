@@ -594,5 +594,95 @@
   },
   "vaultExplainCustom": {
     "message": "<strong>Власний маркер:</strong> Конфіденційна комбінація символів, яку ви захищаєте від витоку."
+  },
+  "fieldPillExpiryLabel": {
+    "message": "Термін дії"
+  },
+  "fieldPillPinLabel": {
+    "message": "ПІН-код"
+  },
+  "fieldPillTaxIdLabel": {
+    "message": "ІПН / РНОКПП"
+  },
+  "fieldPillMarkerBadge": {
+    "message": "Маркер"
+  },
+  "chatPillLabelSecurityMarkers": {
+    "message": "Маркери безпеки"
+  },
+  "chatPillSubStateSecurity": {
+    "message": "Державна безпека"
+  },
+  "chatPillExplainSabotage": {
+    "message": "Текст містить маркери вербування до диверсій чи збору даних про захисників України."
+  },
+  "chatPillBtnClearField": {
+    "message": "Очистити поле"
+  },
+  "chatPillLabelGps": {
+    "message": "Точні координати"
+  },
+  "chatPillSubNationalResistance": {
+    "message": "Національний спротив"
+  },
+  "chatPillExplainGps": {
+    "message": "Під час воєнного стану передача точних географічних координат або мап може нести загрозу коригування ворожих ударів."
+  },
+  "chatPillBtnDeleteGps": {
+    "message": "Видалити координати"
+  },
+  "chatPillLabelCvv": {
+    "message": "Код безпеки (CVV)"
+  },
+  "chatPillSubSecretDetails": {
+    "message": "Секретні реквізити"
+  },
+  "chatPillExplainCvv": {
+    "message": "Для отримання коштів тризначний CVV/CVC-код ніколи не потрібен. Його запитують лише для списання коштів з вашої картки."
+  },
+  "chatPillBtnDeleteCvv": {
+    "message": "Видалити CVV"
+  },
+  "chatPillLabelOtp": {
+    "message": "SMS-код безпеки (OTP)"
+  },
+  "chatPillSubOtp": {
+    "message": "Одноразовий пароль"
+  },
+  "chatPillExplainOtp": {
+    "message": "Ніколи не передавайте коди підтвердження з SMS третім особам. Справжні сервіси їх не запитують."
+  },
+  "chatPillBtnDeleteOtp": {
+    "message": "Видалити код"
+  },
+  "chatPillExplainVault": {
+    "message": "Ви ввели конфіденційний маркер зі свого Personal Vault («$1»). Не передавайте його стороннім ресурсам."
+  },
+  "chatPillBtnDeleteSecret": {
+    "message": "Видалити секрет"
+  },
+  "chatPillBtnRemove": {
+    "message": "Вилучити"
+  },
+  "chatPillBtnDelete": {
+    "message": "Видалити"
+  },
+  "chatPillDetectedMarkers": {
+    "message": "Виявлені маркери"
+  },
+  "chatPillCleanAll": {
+    "message": "Очистити всі"
+  },
+  "chatPillHintSecret": {
+    "message": "Секрет"
+  },
+  "chatPillHintAttention": {
+    "message": "Увага"
+  },
+  "chatPillHintCoordinates": {
+    "message": "Координати"
+  },
+  "chatPillHintTip": {
+    "message": "Підказка"
   }
 }
