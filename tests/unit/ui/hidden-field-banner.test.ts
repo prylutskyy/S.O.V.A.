@@ -68,10 +68,10 @@ describe('Floating Disarm Capsule (SecurityFriction.showHiddenFieldTrapBanner)',
     expect(banner).not.toBeNull();
 
     // Verify disarmed form copy
-    expect(banner?.innerHTML).toContain('Форму знешкоджено');
-    expect(banner?.innerHTML).toContain('Контроль автозаповнення С.О.В.А.');
-    expect(banner?.innerHTML).toContain('Захищено · 2 поля');
-    expect(banner?.innerHTML).toContain('Технічний аналіз пастки (2)');
+    expect(banner?.innerHTML).toContain('frictionTrapNeutralizedTitle');
+    expect(banner?.innerHTML).toContain('frictionTrapDescVault');
+    expect(banner?.innerHTML).toContain('frictionTrapProtectedLabel');
+    expect(banner?.innerHTML).toContain('frictionTrapTechAnalysis');
 
     // Verify NO red dashed outline
     expect(form.style.outline).not.toContain('#D70022');
@@ -84,7 +84,7 @@ describe('Floating Disarm Capsule (SecurityFriction.showHiddenFieldTrapBanner)',
     const telemetryRows = banner?.querySelectorAll('.ts-telemetry-row');
     expect(telemetryRows?.length).toBe(2);
     expect(banner?.querySelector('.ts-chevron')).not.toBeNull();
-    expect(banner?.innerHTML).toContain('Знешкоджено');
+    expect(banner?.innerHTML).toContain('frictionTrapNeutralizedBadge');
     expect(banner?.innerHTML).not.toContain('🔒'); // No emoji clutter
 
     // Verify action buttons
@@ -152,7 +152,7 @@ describe('Floating Disarm Capsule (SecurityFriction.showHiddenFieldTrapBanner)',
     // Verify X-ray badges were injected into Shadow DOM
     const xrayBadges = root.querySelectorAll('.ts-xray-badge');
     expect(xrayBadges.length).toBe(2);
-    expect(xrayBadges[0].innerHTML).toContain('Прихована пастка');
+    expect(xrayBadges[0].innerHTML).toContain('frictionXrayBlocked');
 
     // Fast forward 4 seconds
     vi.advanceTimersByTime(4100);

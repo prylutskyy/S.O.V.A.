@@ -684,5 +684,314 @@
   },
   "chatPillHintTip": {
     "message": "Tip"
+  },
+  "modalBtnCancelSending": {
+    "message": "Cancel sending"
+  },
+  "modalBtnReturnToSafety": {
+    "message": "Return to safety"
+  },
+  "modalDefaultUserIntent": {
+    "message": "Safe interaction with web service"
+  },
+  "modalTrustDomain": {
+    "message": "Trust domain $1"
+  },
+  "modalEvidenceLabel": {
+    "message": "Evidence:"
+  },
+  "modalIntendedActionTitle": {
+    "message": "YOUR INTENDED ACTION"
+  },
+  "modalHiddenThreatTitle": {
+    "message": "HIDDEN THREAT"
+  },
+  "modalBtnApplyDecoys": {
+    "message": "Substitute decoy data"
+  },
+  "modalHoldBtnTitle": {
+    "message": "Hold left mouse button for 2 seconds to proceed"
+  },
+  "modalHoldBtnDefault": {
+    "message": "Hold 2s to proceed at your own risk"
+  },
+  "modalHoldBtnProgress": {
+    "message": "Hold... ($1s)"
+  },
+  "modalHoldBtnGranted": {
+    "message": "Access granted"
+  },
+  "modalInspectDetails": {
+    "message": "Inspection Details (XAI)"
+  },
+  "modalHideDetails": {
+    "message": "Hide details"
+  },
+  "modalAiEngineDefault": {
+    "message": "XAI Analytical Engine"
+  },
+  "modalThreatScore": {
+    "message": "Threat Index: <strong>$1</strong>/100"
+  },
+  "modalFactorFormServer": {
+    "message": "Form & Server"
+  },
+  "modalFactorSessionContext": {
+    "message": "Session Context"
+  },
+  "modalFactorUserAction": {
+    "message": "User Action"
+  },
+  "modalDecoysAppliedToast": {
+    "message": "Disinformation decoy data applied (Decoys)"
+  },
+  "modalPatternSuspicious": {
+    "message": "Suspicious Pattern"
+  },
+  "modalBadgeCritical": {
+    "message": "Critical"
+  },
+  "modalBadgeWarning": {
+    "message": "Warning"
+  },
+  "modalTitleCardNumber": {
+    "message": "Credit card number"
+  },
+  "modalBadgePaymentData": {
+    "message": "Payment Data"
+  },
+  "modalDescCardLuhn": {
+    "message": "A valid card number passing Luhn algorithm was entered on an unaccredited page."
+  },
+  "modalEvidenceLuhn": {
+    "message": "Luhn algorithm: successfully validated"
+  },
+  "modalTitleAutofillTrap": {
+    "message": "Hidden autofill trap"
+  },
+  "modalBadgeDomTrap": {
+    "message": "DOM Trap"
+  },
+  "modalDescAutofillTrap": {
+    "message": "Page contains hidden fields (CSS cloaking) designed to intercept saved card data."
+  },
+  "modalTitleUnknownGateway": {
+    "message": "Unknown payment node"
+  },
+  "modalBadgeUntrustedServer": {
+    "message": "Untrusted server"
+  },
+  "modalDescUnknownGateway": {
+    "message": "Form data is sent to third-party server $1, which is not an accredited payment gateway."
+  },
+  "modalTitleCvv": {
+    "message": "Secret card code (CVV/CVC)"
+  },
+  "modalBadgeCriticalLeak": {
+    "message": "Critical Leak"
+  },
+  "modalDescCvv": {
+    "message": "Attempt to submit CVV code detected. Official services never ask for it to credit money."
+  },
+  "modalTitleUrgency": {
+    "message": "Artificial urgency pressure"
+  },
+  "modalDescUrgency": {
+    "message": "The page uses a fake countdown timer or psychological pressure to induce haste."
+  },
+  "modalEvidenceTimer": {
+    "message": "Countdown: $1"
+  },
+  "modalTitleVaultLeak": {
+    "message": "Bank security marker leak"
+  },
+  "modalTitleVaultRequest": {
+    "message": "Request for personal bank markers"
+  },
+  "modalBadgeVaultLeak": {
+    "message": "Critical leak"
+  },
+  "modalBadgeVaultRequest": {
+    "message": "Marker request"
+  },
+  "modalDescVaultLeak": {
+    "message": "A valid sensitive security marker from Private Vault was entered in the form."
+  },
+  "modalDescVaultRequest": {
+    "message": "Form is requesting sensitive banking identification markers."
+  },
+  "modalTitleGenericRisk": {
+    "message": "Detected risk factor"
+  },
+  "modalBadgeSessionStitch": {
+    "message": "Session Stitching"
+  },
+  "modalTitleSessionStitch": {
+    "message": "Contextual link to previous chat"
+  },
+  "modalDescSessionStitch": {
+    "message": "Transition detected following a message on \"$1\" ($2 min ago)."
+  },
+  "modalEvidenceKeyphrases": {
+    "message": "Key phrases: \"$1\""
+  },
+  "modalEvidenceSource": {
+    "message": "Source: $1"
+  },
+  "modalTitlePersonalMarkers": {
+    "message": "Personal marker protection"
+  },
+  "modalDescPersonalMarkers": {
+    "message": "Form is probing for protected banking recovery markers ($1)."
+  },
+  "modalEvidenceMarkers": {
+    "message": "Markers: $1"
+  },
+  "modalBadgeThreatEval": {
+    "message": "Threat Assessment"
+  },
+  "modalTitleSecurityRisk": {
+    "message": "Security risk detected"
+  },
+  "modalDescCoreWarning": {
+    "message": "This page requests sensitive data posing a direct threat to your funds."
+  },
+  "modalEvidenceServer": {
+    "message": "Server: $1"
+  },
+  "frictionTrapNeutralizedBadge": {
+    "message": "Neutralized"
+  },
+  "frictionTrapNeutralizedTitle": {
+    "message": "Form neutralized"
+  },
+  "frictionTrapProtectedLabel": {
+    "message": "Protected · $1"
+  },
+  "frictionTrapBtnClose": {
+    "message": "Close"
+  },
+  "frictionTrapTechAnalysis": {
+    "message": "Technical analysis of trap ($1)"
+  },
+  "frictionTrapOpticalAudit": {
+    "message": "Optical audit"
+  },
+  "frictionTrapBtnHighlight": {
+    "message": "Highlight on form"
+  },
+  "frictionTrapBtnHighlighted": {
+    "message": "● Highlighted on form (4s)"
+  },
+  "frictionTrapBtnOk": {
+    "message": "OK"
+  },
+  "frictionTrapBtnTrustDomain": {
+    "message": "Trust this site (if this is a false alarm)"
+  },
+  "frictionTrapDescVault": {
+    "message": "Protected Vault data ($1) · S.O.V.A. Autofill Control"
+  },
+  "frictionTrapDescGeneric": {
+    "message": "S.O.V.A. Autofill Control"
+  },
+  "frictionTrapBodyVault": {
+    "message": "The site attempted to stealthily read your Vault credentials ($1) via browser autofill. Hidden fields are blocked, no real data was sent."
+  },
+  "frictionTrapBodyGeneric": {
+    "message": "The site attempted to stealthily read your payment credentials ($1) via browser autofill. Invisible fields are blocked. No real data was sent."
+  },
+  "frictionModalChatCivicTitle": {
+    "message": "State security: protection against sensitive data transmission"
+  },
+  "frictionModalChatTitle": {
+    "message": "Sending paused in chat"
+  },
+  "frictionModalChatCivicBadge": {
+    "message": "CIVIC DEFENSE (CRITICAL)"
+  },
+  "frictionModalChatBadge": {
+    "message": "PAYMENT DATA LEAK (CRITICAL)"
+  },
+  "frictionModalContextLabel": {
+    "message": "Dialogue platform"
+  },
+  "frictionCloakOpacity": {
+    "message": "Hidden by site (zero opacity)"
+  },
+  "frictionCloakClip": {
+    "message": "Clipped with mask (clip-path)"
+  },
+  "frictionCloakMicro": {
+    "message": "Microscopic size (1×1 px)"
+  },
+  "frictionCloakOffscreen": {
+    "message": "Placed outside the screen"
+  },
+  "frictionCloakScale": {
+    "message": "Scaled to zero (scale 0)"
+  },
+  "frictionCloakVisibility": {
+    "message": "Hidden in page styles"
+  },
+  "frictionCloakHidden": {
+    "message": "Hidden from user"
+  },
+  "frictionFieldPassword": {
+    "message": "Account password"
+  },
+  "frictionFieldPin": {
+    "message": "Secret PIN code"
+  },
+  "frictionFieldOther": {
+    "message": "Confidential credentials"
+  },
+  "frictionModalFormTitle": {
+    "message": "Form submission paused"
+  },
+  "frictionModalFormBadge": {
+    "message": "RISK LEVEL: $1 ($2/100)"
+  },
+  "frictionModalTargetServer": {
+    "message": "Target server"
+  },
+  "frictionChatPlatformDefault": {
+    "message": "Marketplace open chat"
+  },
+  "frictionChatTriggerCrossMessage": {
+    "message": "Split transmission of payment details detected in conversation: card number and CVV are sent in separate messages! Together, this grants fraudsters direct access to your funds."
+  },
+  "frictionChatTriggerFullPayment": {
+    "message": "Full payment credentials detected in message text (card number + authorization secrets)!"
+  },
+  "frictionChatTriggerCvv": {
+    "message": "Secret card security code (CVV/CVC) detected. It is never needed to receive money!"
+  },
+  "frictionChatTriggerExpiry": {
+    "message": "Bank card expiration date detected (MM/YY)!"
+  },
+  "frictionChatTriggerOtp": {
+    "message": "One-time SMS security code / transaction confirmation password (OTP) detected!"
+  },
+  "frictionTagCard": {
+    "message": "CARD"
+  },
+  "frictionTagPassword": {
+    "message": "PASSWORD"
+  },
+  "frictionTagOther": {
+    "message": "DATA"
+  },
+  "frictionXrayBadgeTitle": {
+    "message": "Hidden trap: $1 ($2) · Blocked by S.O.V.A."
+  },
+  "frictionXrayBlocked": {
+    "message": "Hidden trap: $1 (blocked)"
+  },
+  "frictionFieldCountOne": {
+    "message": "1 field"
+  },
+  "frictionFieldCountMany": {
+    "message": "$1 fields"
   }
 }

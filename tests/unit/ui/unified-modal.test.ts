@@ -45,18 +45,18 @@ describe('UnifiedFrictionModal (Apple HIG & Sensory Hold)', () => {
     expect(modal).not.toBeNull();
 
     // Check contrast capsule presence
-    expect(modal?.innerHTML).toContain('Ваш очікуваний намір');
-    expect(modal?.innerHTML).toContain('ПРИХОВАНА ЗАГРОЗА');
+    expect(modal?.innerHTML).toContain('modalIntendedActionTitle');
+    expect(modal?.innerHTML).toContain('modalHiddenThreatTitle');
 
     // Check primary action
     const primaryBtn = modal?.querySelector('#ts-primary-btn') as HTMLButtonElement;
     expect(primaryBtn).not.toBeNull();
-    expect(primaryBtn.textContent).toContain('Повернутися до безпеки');
+    expect(primaryBtn.textContent).toContain('modalBtnReturnToSafety');
 
     // Check Hold-to-Unlock sensory element
     const holdBtn = modal?.querySelector('#ts-hold-btn') as HTMLElement;
     expect(holdBtn).not.toBeNull();
-    expect(holdBtn.textContent).toContain('Утримуйте 2с для переходу');
+    expect(holdBtn.textContent).toContain('modalHoldBtnDefault');
 
     // Click primary button -> should cancel and close
     primaryBtn.click();
@@ -134,26 +134,26 @@ describe('UnifiedFrictionModal (Apple HIG & Sensory Hold)', () => {
     expect(inspectBtn).not.toBeNull();
     expect(inspector).not.toBeNull();
     expect(inspector.style.display).toBe('none');
-    expect(inspectText.textContent).toBe('Деталі перевірки (XAI)');
+    expect(inspectText.textContent).toBe('modalInspectDetails');
 
     // Click to expand
     inspectBtn.click();
     expect(inspector.style.display).toBe('flex');
     expect(inspectBtn.classList.contains('expanded')).toBe(true);
     expect(inspectBtn.getAttribute('aria-expanded')).toBe('true');
-    expect(inspectText.textContent).toBe('Приховати деталі');
+    expect(inspectText.textContent).toBe('modalHideDetails');
 
     // Telemetry header
     const header = inspector.querySelector('.ts-xai-header');
     expect(header).not.toBeNull();
-    expect(header?.textContent).toContain('95');
+    expect(header?.textContent).toContain('modalThreatScore');
 
     // 3-factor telemetry grid
     const telemetry = inspector.querySelector('.ts-xai-telemetry');
     expect(telemetry).not.toBeNull();
-    expect(telemetry?.textContent).toContain('Форма та сервер');
-    expect(telemetry?.textContent).toContain('Контекст сесії');
-    expect(telemetry?.textContent).toContain('Дія користувача');
+    expect(telemetry?.textContent).toContain('modalFactorFormServer');
+    expect(telemetry?.textContent).toContain('modalFactorSessionContext');
+    expect(telemetry?.textContent).toContain('modalFactorUserAction');
 
     // Inset grouped list
     const list = inspector.querySelector('.ts-xai-list');
@@ -170,6 +170,6 @@ describe('UnifiedFrictionModal (Apple HIG & Sensory Hold)', () => {
     expect(inspector.style.display).toBe('none');
     expect(inspectBtn.classList.contains('expanded')).toBe(false);
     expect(inspectBtn.getAttribute('aria-expanded')).toBe('false');
-    expect(inspectText.textContent).toBe('Деталі перевірки (XAI)');
+    expect(inspectText.textContent).toBe('modalInspectDetails');
   });
 });

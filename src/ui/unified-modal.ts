@@ -1,3 +1,4 @@
+import { i18n, getLocalizedVaultLabel } from '../core/i18n';
 import { ActiveThreatContext, ThreatAssessment } from '../types';
 import { VaultItem, VaultMatchResult } from '../types/vault';
 import { UserWhitelistManager } from '../core/user-whitelist';
@@ -98,10 +99,10 @@ export class UnifiedFrictionModal {
     });
 
     const isCritical = fallbackAssessment.level === 'CRITICAL';
-    const primaryActionLabel = options.type === 'chat' ? 'Скасувати надсилання' : 'Повернутися до безпеки';
+    const primaryActionLabel = options.type === 'chat' ? i18n.getMessage('modalBtnCancelSending') : i18n.getMessage('modalBtnReturnToSafety');
     const diagnostics = this.buildDiagnosticFactors(options, xai);
 
-    const userIntent = xai.intentVsReality?.userIntent || 'Безпечна взаємодія з вебсервісом';
+    const userIntent = xai.intentVsReality?.userIntent || i18n.getMessage('modalDefaultUserIntent');
     const hiddenReality = xai.intentVsReality?.hiddenReality || xai.humanCoreWarning;
     const verdict = xai.intentVsReality?.verdict || xai.plainLanguageExplanation;
     const threatTitle = options.title || xai.intentVsReality?.threatName || xai.humanTitle;
@@ -128,7 +129,7 @@ export class UnifiedFrictionModal {
     const rememberCheckboxHtml = options.allowRememberDomain && options.domainToRemember ? `
       <label class="ts-remember-row" id="ts-remember-label">
         <input type="checkbox" id="ts-remember-domain" class="ts-checkbox">
-        <span>Довіряти домену <strong class="ts-mono-host">${options.domainToRemember}</strong></span>
+        <span>${i18n.getMessage('modalTrustDomain', [options.domainToRemember || ''])}</span>
       </label>
     ` : '';
 
@@ -151,7 +152,7 @@ export class UnifiedFrictionModal {
           <div class="ts-xai-item-desc">${d.description}</div>
           ${d.evidence ? `
             <div class="ts-xai-evidence">
-              <span class="ts-xai-evidence-label">Доказ:</span>
+              <span class="ts-xai-evidence-label">${i18n.getMessage('modalEvidenceLabel')}</span>
               <span class="ts-xai-evidence-code">${d.evidence}</span>
             </div>
           ` : ''}
@@ -836,14 +837,14 @@ export class UnifiedFrictionModal {
           <div class="ts-contrast-col-left">
             <span class="ts-contrast-header-left">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>
-              Ваш очікуваний намір
+              ${i18n.getMessage('modalIntendedActionTitle')}
             </span>
             <span class="ts-contrast-val-left">${userIntent}</span>
           </div>
           <div class="ts-contrast-col-right">
             <span class="ts-contrast-header-right">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-              ПРИХОВАНА ЗАГРОЗА
+              ${i18n.getMessage('modalHiddenThreatTitle')}
             </span>
             <span class="ts-contrast-val-right">${hiddenReality}</span>
           </div>
@@ -857,7 +858,7 @@ export class UnifiedFrictionModal {
           ${options.vaultMatches && options.vaultMatches.some((m) => m.isDecoyAvailable && (options.vaultMatches?.some(v => v.matchType === 'VALUE_MATCH') ? m.matchType === 'VALUE_MATCH' : true)) ? `
             <button id="ts-decoy-btn" class="ts-btn-decoy">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="9 12 11 14 15 10"/></svg>
-              <span>Підставити маскувальні дані</span>
+              <span>${i18n.getMessage('modalBtnApplyDecoys')}</span>
             </button>
           ` : ''}
 
@@ -870,9 +871,9 @@ export class UnifiedFrictionModal {
           ${rememberCheckboxHtml}
 
           <!-- SENSORY 2-SECOND HOLD-TO-UNLOCK -->
-          <div id="ts-hold-btn" class="ts-hold-btn" role="button" tabindex="0" title="Затисніть ліву кнопку миші на 2 секунди для переходу">
+          <div id="ts-hold-btn" class="ts-hold-btn" role="button" tabindex="0" title="${i18n.getMessage('modalHoldBtnTitle')}">
             <div id="ts-hold-fill" class="ts-hold-fill"></div>
-            <span id="ts-hold-label" class="ts-hold-label">Утримуйте 2с для переходу на власний ризик</span>
+            <span id="ts-hold-label" class="ts-hold-label">${i18n.getMessage('modalHoldBtnDefault')}</span>
           </div>
         </div>
 
@@ -881,7 +882,7 @@ export class UnifiedFrictionModal {
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>
           </svg>
-          <span id="ts-inspect-text">Деталі перевірки (XAI)</span>
+          <span id="ts-inspect-text">${i18n.getMessage('modalInspectDetails')}</span>
           <svg class="ts-inspect-chevron" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="6 9 12 15 18 9"/>
           </svg>
@@ -893,17 +894,17 @@ export class UnifiedFrictionModal {
           <div class="ts-xai-header">
             <div class="ts-xai-engine-tag">
               <span class="ts-xai-pulse-dot"></span>
-              <span>${xai.engineType === 'chrome-builtin-ai' ? 'Chrome Gemini Nano' : 'Аналітичний модуль XAI'}</span>
+              <span>${xai.engineType === 'chrome-builtin-ai' ? 'Chrome Gemini Nano' : i18n.getMessage('modalAiEngineDefault')}</span>
             </div>
             <div class="ts-xai-score-pill ${isCritical ? 'critical' : 'warning'}">
-              <span>Індекс загрози: <strong>${fallbackAssessment.score}</strong>/100</span>
+              <span>${i18n.getMessage('modalThreatScore', [String(fallbackAssessment.score)])}</span>
             </div>
           </div>
 
           <!-- 3-FACTOR RISK TELEMETRY (R_tech, C_env, A_user) -->
           <div class="ts-xai-telemetry">
             <div class="ts-xai-factor">
-              <span class="ts-xai-factor-name">Форма та сервер</span>
+              <span class="ts-xai-factor-name">${i18n.getMessage('modalFactorFormServer')}</span>
               <div class="ts-xai-factor-value">
                 <span>${breakdown.technical.score}</span>
                 <span class="ts-xai-factor-max">/${breakdown.technical.maxScore}</span>
@@ -914,7 +915,7 @@ export class UnifiedFrictionModal {
             </div>
 
             <div class="ts-xai-factor">
-              <span class="ts-xai-factor-name">Контекст сесії</span>
+              <span class="ts-xai-factor-name">${i18n.getMessage('modalFactorSessionContext')}</span>
               <div class="ts-xai-factor-value">
                 <span>${breakdown.contextual.score}</span>
                 <span class="ts-xai-factor-max">/${breakdown.contextual.maxScore}</span>
@@ -925,7 +926,7 @@ export class UnifiedFrictionModal {
             </div>
 
             <div class="ts-xai-factor">
-              <span class="ts-xai-factor-name">Дія користувача</span>
+              <span class="ts-xai-factor-name">${i18n.getMessage('modalFactorUserAction')}</span>
               <div class="ts-xai-factor-value">
                 <span>${breakdown.userAction.score}</span>
                 <span class="ts-xai-factor-max">/${breakdown.userAction.maxScore}</span>
@@ -977,7 +978,7 @@ export class UnifiedFrictionModal {
       btnInspect.classList.toggle('expanded', isInspectorOpen);
       btnInspect.setAttribute('aria-expanded', isInspectorOpen ? 'true' : 'false');
       if (inspectText) {
-        inspectText.textContent = isInspectorOpen ? 'Приховати деталі' : 'Деталі перевірки (XAI)';
+        inspectText.textContent = isInspectorOpen ? i18n.getMessage('modalHideDetails') : i18n.getMessage('modalInspectDetails');
       }
     });
 
@@ -986,7 +987,7 @@ export class UnifiedFrictionModal {
       if (options.vaultMatches && options.vaultMatches.length > 0) {
         VaultScanner.applyDecoys(options.vaultMatches, true);
         DebuggerOverlay.recordMitigation(
-          'Застосовано дезінформаційні фейкові дані (Decoys)',
+          i18n.getMessage('modalDecoysAppliedToast'),
           options.assessment?.score,
           options.assessment?.level
         );
@@ -1032,14 +1033,14 @@ export class UnifiedFrictionModal {
         holdFill.style.width = `${holdProgress}%`;
 
         const remainingSec = Math.max(0, (HOLD_DURATION_MS - elapsed) / 1000).toFixed(1);
-        holdLabel.textContent = `Утримуйте... (${remainingSec}с)`;
+        holdLabel.textContent = i18n.getMessage('modalHoldBtnProgress', [String(remainingSec)]);
 
         if (holdProgress >= 100) {
           if (this.holdInterval) {
             clearInterval(this.holdInterval);
             this.holdInterval = null;
           }
-          holdLabel.textContent = 'Доступ дозволено';
+          holdLabel.textContent = i18n.getMessage('modalHoldBtnGranted');
           holdBtn.classList.remove('holding');
           holdBtn.classList.add('unlocked');
 
@@ -1065,7 +1066,7 @@ export class UnifiedFrictionModal {
         holdBtn.classList.add('rebound');
         holdBtn.classList.remove('holding');
         holdFill.style.width = '0%';
-        holdLabel.textContent = 'Утримуйте 2с для переходу на власний ризик';
+        holdLabel.textContent = i18n.getMessage('modalHoldBtnDefault');
       }
     };
 
@@ -1147,63 +1148,63 @@ export class UnifiedFrictionModal {
       for (const t of options.triggers) {
         const rawMsg = t.message.replace(/[●✓✗]/g, '').trim();
         const lower = rawMsg.toLowerCase();
-        let title = 'Підозрілий патерн';
-        let badge = 'Критично';
+        let title = i18n.getMessage('modalPatternSuspicious');
+        let badge = i18n.getMessage('modalBadgeCritical');
         let badgeType: 'critical' | 'warning' | 'info' = 'critical';
         let icon: 'card' | 'cvv' | 'trap' | 'server' | 'timer' | 'vault' | 'chat' | 'alert' = 'alert';
         let description = rawMsg;
         let evidence: string | undefined;
 
-        if (lower.includes('лун') || lower.includes('номер банківськ') || lower.includes('номер картки')) {
-          title = 'Номер банківської картки';
-          badge = 'Платіжні дані';
+        if (lower.includes('лун') || lower.includes('номер банківськ') || lower.includes('номер картки') || lower.includes('luhn') || lower.includes('card number')) {
+          title = i18n.getMessage('modalTitleCardNumber');
+          badge = i18n.getMessage('modalBadgePaymentData');
           badgeType = 'critical';
           icon = 'card';
-          description = 'У формі введено коректний номер картки за алгоритмом Луна на неакредитованій сторінці.';
-          evidence = 'Алгоритм Луна: успішно валідовано';
-        } else if (lower.includes('прихован') || lower.includes('autofill') || lower.includes('автозаповнен')) {
-          title = 'Прихована пастка автозаповнення';
-          badge = 'DOM-пастка';
+          description = i18n.getMessage('modalDescCardLuhn');
+          evidence = i18n.getMessage('modalEvidenceLuhn');
+        } else if (lower.includes('прихован') || lower.includes('autofill') || lower.includes('автозаповнен') || lower.includes('hidden')) {
+          title = i18n.getMessage('modalTitleAutofillTrap');
+          badge = i18n.getMessage('modalBadgeDomTrap');
           badgeType = 'critical';
           icon = 'trap';
-          description = 'Сторінка містить приховані поля (CSS cloaking) для викрадення збережених карткових даних.';
+          description = i18n.getMessage('modalDescAutofillTrap');
           evidence = 'CSS Cloaking / Autofill Trap';
-        } else if (lower.includes('цільовий') || lower.includes('вузол') || lower.includes('хост') || lower.includes('невідповідн') || lower.includes('action')) {
-          title = 'Невідомий платіжний вузол';
-          badge = 'Недовірений сервер';
+        } else if (lower.includes('цільовий') || lower.includes('вузол') || lower.includes('хост') || lower.includes('невідповідн') || lower.includes('action') || lower.includes('target') || lower.includes('gateway') || lower.includes('server')) {
+          title = i18n.getMessage('modalTitleUnknownGateway');
+          badge = i18n.getMessage('modalBadgeUntrustedServer');
           badgeType = 'critical';
           icon = 'server';
-          description = `Дані форми відправляються на сторонній сервер ${options.contextValue}, який не є акредитованим шлюзом.`;
+          description = i18n.getMessage('modalDescUnknownGateway', [options.contextValue]);
           evidence = `action: ${options.contextValue}`;
         } else if (lower.includes('cvv') || lower.includes('cvc')) {
-          title = 'Секретний код картки (CVV/CVC)';
-          badge = 'Критичний витік';
+          title = i18n.getMessage('modalTitleCvv');
+          badge = i18n.getMessage('modalBadgeCriticalLeak');
           badgeType = 'critical';
           icon = 'cvv';
-          description = 'Виявлено спробу передачі CVV-коду. Офіційні служби ніколи не запитують його для зарахування грошей.';
+          description = i18n.getMessage('modalDescCvv');
           evidence = 'Card Verification Value';
-        } else if (t.name === 'urgency_scarcity_manipulation' || lower.includes('термінов') || lower.includes('таймер') || lower.includes('dark pattern')) {
-          title = 'Штучний тиск терміновості';
+        } else if (t.name === 'urgency_scarcity_manipulation' || lower.includes('термінов') || lower.includes('таймер') || lower.includes('dark pattern') || lower.includes('urgency') || lower.includes('scarcity')) {
+          title = i18n.getMessage('modalTitleUrgency');
           badge = 'Dark Pattern';
           badgeType = 'warning';
           icon = 'timer';
-          description = 'Сторінка застосовує фіктивний зворотний відлік або психологічний тиск, провокуючи поспіх.';
+          description = i18n.getMessage('modalDescUrgency');
           const timerText = (t.details as any)?.timerText;
-          evidence = timerText ? `Зворотний відлік: ${timerText}` : 'Urgency Manipulation';
-        } else if (t.name === 'vault_sensitive_data_exposure' || lower.includes('private vault') || lower.includes('маркерів відновлення') || lower.includes('випитує абсолютні банківські маркери')) {
+          evidence = timerText ? i18n.getMessage('modalEvidenceTimer', [timerText]) : 'Urgency Manipulation';
+        } else if (t.name === 'vault_sensitive_data_exposure' || lower.includes('private vault') || lower.includes('маркерів відновлення') || lower.includes('випитує абсолютні банківські маркери') || lower.includes('vault') || lower.includes('recovery markers')) {
           const hasValueLeak = (t.details as any)?.hasValueLeak;
-          title = hasValueLeak ? 'Витік банківського маркера безпеки' : 'Запит персональних банківських маркерів';
-          badge = hasValueLeak ? 'Критичний витік' : 'Запит маркерів';
+          title = hasValueLeak ? i18n.getMessage('modalTitleVaultLeak') : i18n.getMessage('modalTitleVaultRequest');
+          badge = hasValueLeak ? i18n.getMessage('modalBadgeVaultLeak') : i18n.getMessage('modalBadgeVaultRequest');
           badgeType = hasValueLeak ? 'critical' : 'warning';
           icon = 'vault';
           description = hasValueLeak
-            ? 'У формі введено дійсне значення конфіденційного маркера безпеки з Private Vault.'
-            : 'Форма запитує конфіденційні маркери банківської ідентифікації.';
+            ? i18n.getMessage('modalDescVaultLeak')
+            : i18n.getMessage('modalDescVaultRequest');
           const labels = (t.details as any)?.labels;
           evidence = labels && Array.isArray(labels) ? labels.join(', ') : 'Private Vault DLP';
         } else {
-          title = 'Виявлений фактор ризику';
-          badge = t.severity === 'CRITICAL' ? 'Критично' : 'Попередження';
+          title = i18n.getMessage('modalTitleGenericRisk');
+          badge = t.severity === 'CRITICAL' ? i18n.getMessage('modalBadgeCritical') : i18n.getMessage('modalBadgeWarning');
           badgeType = t.severity === 'CRITICAL' ? 'critical' : 'warning';
           icon = 'alert';
           description = rawMsg;
@@ -1216,12 +1217,12 @@ export class UnifiedFrictionModal {
       const minutesAgo = Math.max(1, Math.round((Date.now() - options.activeContext.timestamp) / 60000));
       const kws = options.activeContext.detectedKeywords || [];
       list.push({
-        badge: 'Зшивання сесій',
+        badge: i18n.getMessage('modalBadgeSessionStitch'),
         badgeType: 'warning',
-        title: "Контекстний зв'язок із попереднім чатом",
+        title: i18n.getMessage('modalTitleSessionStitch'),
         icon: 'chat',
-        description: `Зафіксовано перехід після повідомлення на платформі "${options.activeContext.sourcePlatform}" (${minutesAgo} хв тому).`,
-        evidence: kws.length > 0 ? `Ключові фрази: "${kws.slice(0, 3).join('", "')}"` : `Джерело: ${options.activeContext.sourcePlatform}`,
+        description: i18n.getMessage('modalDescSessionStitch', [options.activeContext.sourcePlatform, String(minutesAgo)]),
+        evidence: kws.length > 0 ? i18n.getMessage('modalEvidenceKeyphrases', [kws.slice(0, 3).join('", "')]) : i18n.getMessage('modalEvidenceSource', [options.activeContext.sourcePlatform]),
       });
     }
 
@@ -1231,21 +1232,21 @@ export class UnifiedFrictionModal {
       list.push({
         badge: 'Personal Vault',
         badgeType: 'critical',
-        title: 'Захист персональних маркерів',
+        title: i18n.getMessage('modalTitlePersonalMarkers'),
         icon: 'vault',
-        description: `Форма випитує захищені банківські маркери відновлення доступу (${labels}).`,
-        evidence: `Маркери: ${labels}`,
+        description: i18n.getMessage('modalDescPersonalMarkers', [labels]),
+        evidence: i18n.getMessage('modalEvidenceMarkers', [labels]),
       });
     }
 
     if (list.length === 0) {
       list.push({
-        badge: 'Оцінка загрози',
+        badge: i18n.getMessage('modalBadgeThreatEval'),
         badgeType: 'critical',
-        title: 'Виявлено ризик для безпеки',
+        title: i18n.getMessage('modalTitleSecurityRisk'),
         icon: 'alert',
-        description: xai?.humanCoreWarning || 'Ця сторінка запитує чутливі дані, що загрожують безпеці ваших коштів.',
-        evidence: `Сервер: ${options.contextValue}`,
+        description: xai?.humanCoreWarning || i18n.getMessage('modalDescCoreWarning'),
+        evidence: i18n.getMessage('modalEvidenceServer', [options.contextValue]),
       });
     }
 

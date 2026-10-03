@@ -1,3 +1,4 @@
+import { i18n } from '../core/i18n';
 import { ActiveThreatContext, ThreatAssessment } from '../types';
 import { UnifiedFrictionModal } from './unified-modal';
 import { ShadowHost } from './shadow-host';
@@ -82,10 +83,10 @@ export class SecurityFriction {
     // Чистий Дзен + Ізольований Shadow DOM: жодного втручання в інлайн-стилі форми
     UnifiedFrictionModal.show({
       type: 'form',
-      title: 'Призупинено відправку форми',
-      badgeText: `РІВЕНЬ РИЗИКУ: ${assessment.level} (${assessment.score}/100)`,
+      title: i18n.getMessage('frictionModalFormTitle'),
+      badgeText: i18n.getMessage('frictionModalFormBadge', [assessment.level, String(assessment.score)]),
       badgeLevel: assessment.level === 'CRITICAL' ? 'CRITICAL' : 'HIGH',
-      contextLabel: 'Цільовий сервер',
+      contextLabel: i18n.getMessage('frictionModalTargetServer'),
       contextValue: targetHost,
       triggers: assessment.triggers,
       assessment,
@@ -146,7 +147,7 @@ export class SecurityFriction {
     onCancel?: () => void,
     activeContext?: ActiveThreatContext | null
   ): void {
-    const currentPlatform = window.location.hostname || 'Відкритий чат маркетплейсу';
+    const currentPlatform = window.location.hostname || i18n.getMessage('frictionChatPlatformDefault');
     const detectedAmount = XaiEngine.extractFinancialAmount(chatInput) || undefined;
     const vaultScan = VaultScanner.scanTextSync(chatInput.value || '');
 
@@ -156,34 +157,34 @@ export class SecurityFriction {
     } else {
       if (leakage.isCrossMessage) {
         triggers.push({
-          message: 'У діалозі зафіксовано роздільну передачу платіжних реквізитів: номер картки та CVV-код відправляються різними повідомленнями! Разом це відкриває шахраям прямий доступ до ваших коштів.',
+          message: i18n.getMessage('frictionChatTriggerCrossMessage'),
           severity: 'CRITICAL',
         });
       }
       if (leakage.hasCard && (leakage.hasCvv || leakage.hasExpiry)) {
         triggers.push({
-          message: 'У тексті повідомлення виявлено повні платіжні реквізити (номер картки + секретні дані авторизації)!',
+          message: i18n.getMessage('frictionChatTriggerFullPayment'),
           severity: 'CRITICAL',
         });
       }
       if (leakage.hasCvv) {
         triggers.push({
-          message: 'Виявлено секретний тризначний код безпеки картки (CVV/CVC). Для отримання коштів він ніколи не потрібен!',
+          message: i18n.getMessage('frictionChatTriggerCvv'),
           severity: 'CRITICAL',
         });
       }
-    if (leakage.hasExpiry) {
-      triggers.push({
-        message: 'Виявлено термін дії банківської картки (MM/YY)!',
-        severity: 'HIGH',
-      });
-    }
-    if (leakage.hasOtp) {
-      triggers.push({
-        message: 'Виявлено одноразовий SMS-код безпеки / пароль підтвердження операції (OTP)!',
-        severity: 'CRITICAL',
-      });
-    }
+      if (leakage.hasExpiry) {
+        triggers.push({
+          message: i18n.getMessage('frictionChatTriggerExpiry'),
+          severity: 'HIGH',
+        });
+      }
+      if (leakage.hasOtp) {
+        triggers.push({
+          message: i18n.getMessage('frictionChatTriggerOtp'),
+          severity: 'CRITICAL',
+        });
+      }
     if (vaultScan.triggers.length > 0) {
       triggers.push(...vaultScan.triggers);
     }
@@ -197,15 +198,15 @@ export class SecurityFriction {
       t.message.toLowerCase().includes('підпал')
     );
 
-    const modalTitle = leakage.customTitle || (isCivicDefense ? 'Державна безпека: захист від передачі чутливих даних' : 'Призупинено надсилання в чаті');
-    const modalBadge = leakage.customBadgeText || (isCivicDefense ? 'ГРОМАДЯНСЬКИЙ ЗАХИСТ (CRITICAL)' : 'ВИТІК ПЛАТІЖНИХ ДАНИХ (CRITICAL)');
+    const modalTitle = leakage.customTitle || (isCivicDefense ? i18n.getMessage('frictionModalChatCivicTitle') : i18n.getMessage('frictionModalChatTitle'));
+    const modalBadge = leakage.customBadgeText || (isCivicDefense ? i18n.getMessage('frictionModalChatCivicBadge') : i18n.getMessage('frictionModalChatBadge'));
 
     UnifiedFrictionModal.show({
       type: 'chat',
       title: modalTitle,
       badgeText: modalBadge,
       badgeLevel: 'CRITICAL',
-      contextLabel: 'Платформа діалогу',
+      contextLabel: i18n.getMessage('frictionModalContextLabel'),
       contextValue: currentPlatform,
       triggers,
       activeContext,
@@ -309,13 +310,13 @@ export class SecurityFriction {
         const allVaultItems = PersonalVaultManager.getItemsSync();
         for (const type of scan.flaggedTypes) {
           if (type === 'CARD_NUMBER') {
-            const hasCard = allVaultItems.some((i) => i.category === 'CUSTOM' || i.label.toLowerCase().includes('картк'));
-            if (hasCard) vaultProvenanceLabels.push('Платіжна картка');
+            const hasCard = allVaultItems.some((i) => i.category === 'CUSTOM' || i.label.toLowerCase().includes('картк') || i.label.toLowerCase().includes('card'));
+            if (hasCard) vaultProvenanceLabels.push(i18n.getMessage('modalTitleCardNumber'));
           } else if (type === 'CVV') {
-            vaultProvenanceLabels.push('Код безпеки (CVV)');
+            vaultProvenanceLabels.push(i18n.getMessage('modalTitleCvv'));
           } else if (type === 'PASSWORD' || type === 'PIN') {
             const hasSecret = allVaultItems.some((i) => i.category === 'SECRET_WORD');
-            if (hasSecret) vaultProvenanceLabels.push('Секретний код');
+            if (hasSecret) vaultProvenanceLabels.push(i18n.getMessage('fieldPillPersonalSecret'));
           }
         }
       }
@@ -323,41 +324,41 @@ export class SecurityFriction {
 
     const hasVaultProvenance = vaultProvenanceLabels.length > 0;
     const count = scan.flaggedInputs.length;
-    const countLabel = count === 1 ? '1 поле' : count < 5 ? `${count} поля` : `${count} полів`;
+    const countLabel = count === 1 ? i18n.getMessage('frictionFieldCountOne') : i18n.getMessage('frictionFieldCountMany', [String(count)]);
 
-    const sensitiveFieldLabelsUa: Record<string, string> = {
-      CARD_NUMBER: 'Номер банківської картки',
-      CVV: 'Код безпеки картки (CVV/CVC)',
-      CARD_EXPIRY: 'Термін дії картки (MM/YY)',
-      PASSWORD: 'Пароль облікового запису',
-      PIN: 'Секретний PIN-код',
-      OTHER_SENSITIVE: 'Конфіденційні реквізити',
+    const sensitiveFieldLabels: Record<string, string> = {
+      CARD_NUMBER: i18n.getMessage('modalTitleCardNumber'),
+      CVV: i18n.getMessage('modalTitleCvv'),
+      CARD_EXPIRY: i18n.getMessage('fieldPillExpiryLabel'),
+      PASSWORD: i18n.getMessage('frictionFieldPassword'),
+      PIN: i18n.getMessage('frictionFieldPin'),
+      OTHER_SENSITIVE: i18n.getMessage('frictionFieldOther'),
     };
 
     const formatCloakingTechnique = (reason: string): string => {
       const r = (reason || '').toLowerCase();
-      if (r.includes('opacity')) return 'Сховано сайтом (нульова прозорість)';
-      if (r.includes('clip')) return 'Обрізано маскою (clip-path)';
-      if (r.includes('1px') || r.includes('dimension') || r.includes('size')) return 'Мікроскопічний розмір (1×1 px)';
+      if (r.includes('opacity')) return i18n.getMessage('frictionCloakOpacity');
+      if (r.includes('clip')) return i18n.getMessage('frictionCloakClip');
+      if (r.includes('1px') || r.includes('dimension') || r.includes('size')) return i18n.getMessage('frictionCloakMicro');
       if (r.includes('offscreen') || r.includes('left') || r.includes('top') || r.includes('position')) {
-        return 'Винесено за межі екрана';
+        return i18n.getMessage('frictionCloakOffscreen');
       }
-      if (r.includes('transform') || r.includes('scale')) return 'Масштабовано до нуля (scale 0)';
-      if (r.includes('visibility') || r.includes('hidden')) return 'Сховано у стилях сторінки';
-      return 'Приховано від користувача';
+      if (r.includes('transform') || r.includes('scale')) return i18n.getMessage('frictionCloakScale');
+      if (r.includes('visibility') || r.includes('hidden')) return i18n.getMessage('frictionCloakVisibility');
+      return i18n.getMessage('frictionCloakHidden');
     };
 
     const detectedTypesSummary = scan.flaggedTypes
-      .map((t) => sensitiveFieldLabelsUa[t] || t)
+      .map((t) => sensitiveFieldLabels[t] || t)
       .join(', ');
 
     const vaultSubtitle = hasVaultProvenance
-      ? `Захищено дані Сховища (${vaultProvenanceLabels.join(', ')}) · Контроль автозаповнення С.О.В.А.`
-      : 'Контроль автозаповнення С.О.В.А.';
+      ? i18n.getMessage('frictionTrapDescVault', [vaultProvenanceLabels.join(', ')])
+      : i18n.getMessage('frictionTrapDescGeneric');
 
     const humanNarrative = hasVaultProvenance
-      ? `Сайт намагався потайки зчитати реквізити вашого Сховища (<strong style="color: var(--sanctuary-ink-primary, #1D1D1F); font-weight: 600;">${vaultProvenanceLabels.join(', ')}</strong>) через автозаповнення браузера. Приховані поля заблоковано, реальні дані не передано.`
-      : `Сайт намагався приховано зчитати ваші платіжні реквізити (<strong style="color: var(--sanctuary-ink-primary, #1D1D1F); font-weight: 600;">${detectedTypesSummary}</strong>) через браузерне автозаповнення. Невидимі поля заблоковано. Реальні дані не передано.`;
+      ? i18n.getMessage('frictionTrapBodyVault', [`<strong style="color: var(--sanctuary-ink-primary, #1D1D1F); font-weight: 600;">${vaultProvenanceLabels.join(', ')}</strong>`])
+      : i18n.getMessage('frictionTrapBodyGeneric', [`<strong style="color: var(--sanctuary-ink-primary, #1D1D1F); font-weight: 600;">${detectedTypesSummary}</strong>`]);
 
     const banner = document.createElement('div');
     banner.id = 'threat-shield-hidden-field-banner';
@@ -388,7 +389,7 @@ export class SecurityFriction {
 
     const fieldsDetailsHtml = scan.flaggedInputs
       .map((input, idx, arr) => {
-        const label = sensitiveFieldLabelsUa[input.fieldType] || input.fieldType;
+        const label = sensitiveFieldLabels[input.fieldType] || input.fieldType;
         const technique = formatCloakingTechnique(input.cloakingReason);
         const isLast = idx === arr.length - 1;
 
@@ -427,7 +428,7 @@ export class SecurityFriction {
                 border-radius: 9999px;
               ">
                 <span style="width: 4px; height: 4px; border-radius: 50%; background: #34C759; display: inline-block;"></span>
-                <span>Знешкоджено</span>
+                <span>${i18n.getMessage('frictionTrapNeutralizedBadge')}</span>
               </div>
             </div>
           </div>
@@ -513,7 +514,7 @@ export class SecurityFriction {
           </div>
           <div style="display: flex; flex-direction: column; min-width: 0;">
             <div style="font-size: 13.5px; font-weight: 600; color: var(--sanctuary-ink-primary, #1D1D1F); letter-spacing: -0.015em; line-height: 1.2;">
-              Форму знешкоджено
+              ${i18n.getMessage('frictionTrapNeutralizedTitle')}
             </div>
             <div style="font-size: 11px; color: var(--sanctuary-ink-secondary, #6E6E73); line-height: 1.2; margin-top: 2px;">
               ${vaultSubtitle}
@@ -531,10 +532,10 @@ export class SecurityFriction {
             letter-spacing: -0.01em; display: inline-flex; align-items: center; gap: 4px;
           ">
             <span style="width: 5px; height: 5px; border-radius: 50%; background: #34C759; display: inline-block;"></span>
-            Захищено · ${countLabel}
+            ${i18n.getMessage('frictionTrapProtectedLabel', [countLabel])}
           </span>
 
-          <button id="threat-shield-close-trap-banner" type="button" title="Закрити" style="
+          <button id="threat-shield-close-trap-banner" type="button" title="${i18n.getMessage('frictionTrapBtnClose')}" style="
             width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--sanctuary-hairline, rgba(0, 0, 0, 0.07));
             background: var(--sanctuary-surface-subtle, #FAFAFC); color: var(--sanctuary-ink-tertiary, #8E8E93); cursor: pointer;
             display: flex; align-items: center; justify-content: center;
@@ -574,7 +575,7 @@ export class SecurityFriction {
               <line x1="19.5" y1="12" x2="22" y2="12"/>
               <circle cx="12" cy="12" r="1.8" fill="#0071E3"/>
             </svg>
-            <span style="font-size: 12px; font-weight: 600; letter-spacing: -0.01em;">Технічний аналіз пастки (${count})</span>
+            <span style="font-size: 12px; font-weight: 600; letter-spacing: -0.01em;">${i18n.getMessage('frictionTrapTechAnalysis', [String(count)])}</span>
           </span>
           <div style="display: flex; align-items: center; gap: 6px;">
             <span style="
@@ -586,7 +587,7 @@ export class SecurityFriction {
               background: rgba(0, 0, 0, 0.04);
               padding: 2px 6px;
               border-radius: 4px;
-            ">Оптичний аудит</span>
+            ">${i18n.getMessage('frictionTrapOpticalAudit')}</span>
             <svg class="ts-chevron" width="7" height="10" viewBox="0 0 8 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color: #6E6E73; transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);">
               <path d="M1.5 1.5L6 6L1.5 10.5"/>
             </svg>
@@ -620,7 +621,7 @@ export class SecurityFriction {
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
             </svg>
-            Підсвітити на формі
+            ${i18n.getMessage('frictionTrapBtnHighlight')}
           </button>
         `
             : ''
@@ -636,7 +637,7 @@ export class SecurityFriction {
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="20 6 9 17 4 12"/>
           </svg>
-          Окей
+          ${i18n.getMessage('frictionTrapBtnOk')}
         </button>
       </div>
       ${
@@ -649,7 +650,7 @@ export class SecurityFriction {
             display: inline-flex; align-items: center; gap: 4px;
             transition: color 0.15s;
           ">
-            <span>Довіряти цьому сайту (якщо це помилка)</span>
+            <span>${i18n.getMessage('frictionTrapBtnTrustDomain')}</span>
           </button>
         </div>
       `
@@ -700,13 +701,13 @@ export class SecurityFriction {
           }
         } catch {}
 
-        const compactFieldTagsUa: Record<string, string> = {
-          CARD_NUMBER: 'КАРТКА',
+        const compactFieldTags: Record<string, string> = {
+          CARD_NUMBER: i18n.getMessage('frictionTagCard'),
           CVV: 'CVV / CVC',
           CARD_EXPIRY: 'MM / YY',
-          PASSWORD: 'ПАРОЛЬ',
+          PASSWORD: i18n.getMessage('frictionTagPassword'),
           PIN: 'PIN',
-          OTHER_SENSITIVE: 'РЕКВІЗИТ',
+          OTHER_SENSITIVE: i18n.getMessage('frictionTagOther'),
         };
 
         const scrollY = typeof window !== 'undefined' ? window.scrollY || 0 : 0;
@@ -724,8 +725,8 @@ export class SecurityFriction {
             }
           } catch {}
 
-          const fullLabel = sensitiveFieldLabelsUa[flaggedInput.fieldType] || flaggedInput.fieldType;
-          const compactTag = compactFieldTagsUa[flaggedInput.fieldType] || flaggedInput.fieldType;
+          const fullLabel = sensitiveFieldLabels[flaggedInput.fieldType] || flaggedInput.fieldType;
+          const compactTag = compactFieldTags[flaggedInput.fieldType] || flaggedInput.fieldType;
           const technique = formatCloakingTechnique(flaggedInput.cloakingReason);
 
           const isOffscreenOrTiny = rect.left < 0 || rect.top < 0 || rect.width <= 2 || rect.height <= 2;
@@ -793,7 +794,7 @@ export class SecurityFriction {
 
           const badge = document.createElement('div');
           badge.className = 'ts-xray-badge';
-          badge.title = `Прихована пастка: ${fullLabel} (${technique}) · Заблоковано С.О.В.А.`;
+          badge.title = i18n.getMessage('frictionXrayBadgeTitle', [fullLabel, technique]);
           badge.style.cssText = `
             position: absolute !important;
             top: ${pillTop}px !important;
@@ -827,7 +828,7 @@ export class SecurityFriction {
               <line x1="6" y1="6" x2="18" y2="18"></line>
             </svg>
             <span>${compactTag}</span>
-            <span class="ts-xray-details" style="display: none;">Прихована пастка: ${fullLabel} (заблоковано)</span>
+            <span class="ts-xray-details" style="display: none;">${i18n.getMessage('frictionXrayBlocked', [fullLabel])}</span>
           `;
 
           badge.addEventListener('mouseenter', () => {
@@ -843,7 +844,7 @@ export class SecurityFriction {
           xrayBadges.push(badge);
         });
 
-        highlightBtn.textContent = '● Підсвічено на формі (4с)';
+        highlightBtn.textContent = i18n.getMessage('frictionTrapBtnHighlighted');
         highlightBtn.style.background = 'var(--sanctuary-blue-bg, rgba(0, 113, 227, 0.08))';
         highlightBtn.style.color = 'var(--sanctuary-blue, #0071E3)';
         highlightBtn.style.borderColor = 'var(--sanctuary-blue-bd, rgba(0, 113, 227, 0.20))';
@@ -863,7 +864,7 @@ export class SecurityFriction {
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
             </svg>
-            Підсвітити на формі
+            ${i18n.getMessage('frictionTrapBtnHighlight')}
           `;
           highlightBtn.style.background = 'var(--sanctuary-surface-subtle, #FAFAFC)';
           highlightBtn.style.color = 'var(--sanctuary-ink-primary, #1D1D1F)';

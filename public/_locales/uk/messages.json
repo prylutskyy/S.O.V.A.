@@ -684,5 +684,314 @@
   },
   "chatPillHintTip": {
     "message": "Підказка"
+  },
+  "modalBtnCancelSending": {
+    "message": "Скасувати надсилання"
+  },
+  "modalBtnReturnToSafety": {
+    "message": "Повернутися до безпеки"
+  },
+  "modalDefaultUserIntent": {
+    "message": "Безпечна взаємодія з вебсервісом"
+  },
+  "modalTrustDomain": {
+    "message": "Довіряти домену $1"
+  },
+  "modalEvidenceLabel": {
+    "message": "Доказ:"
+  },
+  "modalIntendedActionTitle": {
+    "message": "ВАШ ОЧІКУВАНИЙ НАМІР"
+  },
+  "modalHiddenThreatTitle": {
+    "message": "ПРИХОВАНА ЗАГРОЗА"
+  },
+  "modalBtnApplyDecoys": {
+    "message": "Підставити маскувальні дані"
+  },
+  "modalHoldBtnTitle": {
+    "message": "Затисніть ліву кнопку миші на 2 секунди для переходу"
+  },
+  "modalHoldBtnDefault": {
+    "message": "Утримуйте 2с для переходу на власний ризик"
+  },
+  "modalHoldBtnProgress": {
+    "message": "Утримуйте... ($1с)"
+  },
+  "modalHoldBtnGranted": {
+    "message": "Доступ дозволено"
+  },
+  "modalInspectDetails": {
+    "message": "Деталі перевірки (XAI)"
+  },
+  "modalHideDetails": {
+    "message": "Приховати деталі"
+  },
+  "modalAiEngineDefault": {
+    "message": "Аналітичний модуль XAI"
+  },
+  "modalThreatScore": {
+    "message": "Індекс загрози: <strong>$1</strong>/100"
+  },
+  "modalFactorFormServer": {
+    "message": "Форма та сервер"
+  },
+  "modalFactorSessionContext": {
+    "message": "Контекст сесії"
+  },
+  "modalFactorUserAction": {
+    "message": "Дія користувача"
+  },
+  "modalDecoysAppliedToast": {
+    "message": "Застосовано дезінформаційні фейкові дані (Decoys)"
+  },
+  "modalPatternSuspicious": {
+    "message": "Підозрілий патерн"
+  },
+  "modalBadgeCritical": {
+    "message": "Критично"
+  },
+  "modalBadgeWarning": {
+    "message": "Попередження"
+  },
+  "modalTitleCardNumber": {
+    "message": "Номер банківської картки"
+  },
+  "modalBadgePaymentData": {
+    "message": "Платіжні дані"
+  },
+  "modalDescCardLuhn": {
+    "message": "У формі введено коректний номер картки за алгоритмом Луна на неакредитованій сторінці."
+  },
+  "modalEvidenceLuhn": {
+    "message": "Алгоритм Луна: успішно валідовано"
+  },
+  "modalTitleAutofillTrap": {
+    "message": "Прихована пастка автозаповнення"
+  },
+  "modalBadgeDomTrap": {
+    "message": "DOM-пастка"
+  },
+  "modalDescAutofillTrap": {
+    "message": "Сторінка містить приховані поля (CSS cloaking) для викрадення збережених карткових даних."
+  },
+  "modalTitleUnknownGateway": {
+    "message": "Невідомий платіжний вузол"
+  },
+  "modalBadgeUntrustedServer": {
+    "message": "Недовірений сервер"
+  },
+  "modalDescUnknownGateway": {
+    "message": "Дані форми відправляються на сторонній сервер $1, який не є акредитованим шлюзом."
+  },
+  "modalTitleCvv": {
+    "message": "Секретний код картки (CVV/CVC)"
+  },
+  "modalBadgeCriticalLeak": {
+    "message": "Критичний витік"
+  },
+  "modalDescCvv": {
+    "message": "Виявлено спробу передачі CVV-коду. Офіційні служби ніколи не запитують його для зарахування грошей."
+  },
+  "modalTitleUrgency": {
+    "message": "Штучний тиск терміновості"
+  },
+  "modalDescUrgency": {
+    "message": "Сторінка застосовує фіктивний зворотний відлік або психологічний тиск, провокуючи поспіх."
+  },
+  "modalEvidenceTimer": {
+    "message": "Зворотний відлік: $1"
+  },
+  "modalTitleVaultLeak": {
+    "message": "Витік банківського маркера безпеки"
+  },
+  "modalTitleVaultRequest": {
+    "message": "Запит персональних банківських маркерів"
+  },
+  "modalBadgeVaultLeak": {
+    "message": "Критичний витік"
+  },
+  "modalBadgeVaultRequest": {
+    "message": "Запит маркерів"
+  },
+  "modalDescVaultLeak": {
+    "message": "У формі введено дійсне значення конфіденційного маркера безпеки з Private Vault."
+  },
+  "modalDescVaultRequest": {
+    "message": "Форма запитує конфіденційні маркери банківської ідентифікації."
+  },
+  "modalTitleGenericRisk": {
+    "message": "Виявлений фактор ризику"
+  },
+  "modalBadgeSessionStitch": {
+    "message": "Зшивання сесій"
+  },
+  "modalTitleSessionStitch": {
+    "message": "Контекстний зв'язок із попереднім чатом"
+  },
+  "modalDescSessionStitch": {
+    "message": "Зафіксовано перехід після повідомлення на платформі \"$1\" ($2 хв тому)."
+  },
+  "modalEvidenceKeyphrases": {
+    "message": "Ключові фрази: \"$1\""
+  },
+  "modalEvidenceSource": {
+    "message": "Джерело: $1"
+  },
+  "modalTitlePersonalMarkers": {
+    "message": "Захист персональних маркерів"
+  },
+  "modalDescPersonalMarkers": {
+    "message": "Форма випитує захищені банківські маркери відновлення доступу ($1)."
+  },
+  "modalEvidenceMarkers": {
+    "message": "Маркери: $1"
+  },
+  "modalBadgeThreatEval": {
+    "message": "Оцінка загрози"
+  },
+  "modalTitleSecurityRisk": {
+    "message": "Виявлено ризик для безпеки"
+  },
+  "modalDescCoreWarning": {
+    "message": "Ця сторінка запитує чутливі дані, що загрожують безпеці ваших коштів."
+  },
+  "modalEvidenceServer": {
+    "message": "Сервер: $1"
+  },
+  "frictionTrapNeutralizedBadge": {
+    "message": "Знешкоджено"
+  },
+  "frictionTrapNeutralizedTitle": {
+    "message": "Форму знешкоджено"
+  },
+  "frictionTrapProtectedLabel": {
+    "message": "Захищено · $1"
+  },
+  "frictionTrapBtnClose": {
+    "message": "Закрити"
+  },
+  "frictionTrapTechAnalysis": {
+    "message": "Технічний аналіз пастки ($1)"
+  },
+  "frictionTrapOpticalAudit": {
+    "message": "Оптичний аудит"
+  },
+  "frictionTrapBtnHighlight": {
+    "message": "Підсвітити на формі"
+  },
+  "frictionTrapBtnHighlighted": {
+    "message": "● Підсвічено на формі (4с)"
+  },
+  "frictionTrapBtnOk": {
+    "message": "Окей"
+  },
+  "frictionTrapBtnTrustDomain": {
+    "message": "Довіряти цьому сайту (якщо це помилка)"
+  },
+  "frictionTrapDescVault": {
+    "message": "Захищено дані Сховища ($1) · Контроль автозаповнення С.О.В.А."
+  },
+  "frictionTrapDescGeneric": {
+    "message": "Контроль автозаповнення С.О.В.А."
+  },
+  "frictionTrapBodyVault": {
+    "message": "Сайт намагався потайки зчитати реквізити вашого Сховища ($1) через автозаповнення браузера. Приховані поля заблоковано, реальні дані не передано."
+  },
+  "frictionTrapBodyGeneric": {
+    "message": "Сайт намагався приховано зчитати ваші платіжні реквізити ($1) через браузерне автозаповнення. Невидимі поля заблоковано. Реальні дані не передано."
+  },
+  "frictionModalChatCivicTitle": {
+    "message": "Державна безпека: захист від передачі чутливих даних"
+  },
+  "frictionModalChatTitle": {
+    "message": "Призупинено надсилання в чаті"
+  },
+  "frictionModalChatCivicBadge": {
+    "message": "ГРОМАДЯНСЬКИЙ ЗАХИСТ (CRITICAL)"
+  },
+  "frictionModalChatBadge": {
+    "message": "ВИТІК ПЛАТІЖНИХ ДАНИХ (CRITICAL)"
+  },
+  "frictionModalContextLabel": {
+    "message": "Платформа діалогу"
+  },
+  "frictionCloakOpacity": {
+    "message": "Сховано сайтом (нульова прозорість)"
+  },
+  "frictionCloakClip": {
+    "message": "Обрізано маскою (clip-path)"
+  },
+  "frictionCloakMicro": {
+    "message": "Мікроскопічний розмір (1×1 px)"
+  },
+  "frictionCloakOffscreen": {
+    "message": "Винесено за межі екрана"
+  },
+  "frictionCloakScale": {
+    "message": "Масштабовано до нуля (scale 0)"
+  },
+  "frictionCloakVisibility": {
+    "message": "Сховано у стилях сторінки"
+  },
+  "frictionCloakHidden": {
+    "message": "Приховано від користувача"
+  },
+  "frictionFieldPassword": {
+    "message": "Пароль облікового запису"
+  },
+  "frictionFieldPin": {
+    "message": "Секретний PIN-код"
+  },
+  "frictionFieldOther": {
+    "message": "Конфіденційні реквізити"
+  },
+  "frictionModalFormTitle": {
+    "message": "Призупинено відправку форми"
+  },
+  "frictionModalFormBadge": {
+    "message": "РІВЕНЬ РИЗИКУ: $1 ($2/100)"
+  },
+  "frictionModalTargetServer": {
+    "message": "Цільовий сервер"
+  },
+  "frictionChatPlatformDefault": {
+    "message": "Відкритий чат маркетплейсу"
+  },
+  "frictionChatTriggerCrossMessage": {
+    "message": "У діалозі зафіксовано роздільну передачу платіжних реквізитів: номер картки та CVV-код відправляються різними повідомленнями! Разом це відкриває шахраям прямий доступ до ваших коштів."
+  },
+  "frictionChatTriggerFullPayment": {
+    "message": "У тексті повідомлення виявлено повні платіжні реквізити (номер картки + секретні дані авторизації)!"
+  },
+  "frictionChatTriggerCvv": {
+    "message": "Виявлено секретний тризначний код безпеки картки (CVV/CVC). Для отримання коштів він ніколи не потрібен!"
+  },
+  "frictionChatTriggerExpiry": {
+    "message": "Виявлено термін дії банківської картки (MM/YY)!"
+  },
+  "frictionChatTriggerOtp": {
+    "message": "Виявлено одноразовий SMS-код безпеки / пароль підтвердження операції (OTP)!"
+  },
+  "frictionTagCard": {
+    "message": "КАРТКА"
+  },
+  "frictionTagPassword": {
+    "message": "ПАРОЛЬ"
+  },
+  "frictionTagOther": {
+    "message": "РЕКВІЗИТ"
+  },
+  "frictionXrayBadgeTitle": {
+    "message": "Прихована пастка: $1 ($2) · Заблоковано С.О.В.А."
+  },
+  "frictionXrayBlocked": {
+    "message": "Прихована пастка: $1 (заблоковано)"
+  },
+  "frictionFieldCountOne": {
+    "message": "1 поле"
+  },
+  "frictionFieldCountMany": {
+    "message": "$1 полів"
   }
 }
