@@ -1,4 +1,5 @@
 import { IntentMatchSpan, IntentClassifier, IntentClassificationResult } from './intent-classifier';
+import { SemanticTriggerEngine } from './semantic-trigger';
 
 export interface ChatMessageContext {
   id: string;
@@ -87,8 +88,8 @@ export class ChatSessionState {
 
     const activeClusters = Array.from(aggregatedClusterMap.keys());
 
-    // 4. Evaluate stateful intent
-    return IntentClassifier.evaluateStatefulIntent(
+    // 4. Evaluate stateful intent via heuristic clusters
+    const heuristicResult = IntentClassifier.evaluateStatefulIntent(
       activeClusters,
       aggregatedClusterMap,
       aggregatedSpans,
@@ -96,6 +97,39 @@ export class ChatSessionState {
       detectedLanguage,
       isMixedLanguage
     );
+
+    if (heuristicResult.hasFormedIntent) {
+      return heuristicResult;
+    }
+
+    // 5. Tier 1.5: Семантичний векторний аналіз (Semantic & Behavioral Intent Trigger)
+    // Якщо класичні регулярні вирази не вловили загрозу, перевіряємо через векторний простір та матрицю намірів
+    const fullDialogueContext = this.getDialogueHistory();
+    const semanticResult = SemanticTriggerEngine.evaluate(rawText, fullDialogueContext);
+
+    if (semanticResult.hasFormedIntent) {
+      const semanticSpans: IntentMatchSpan[] = semanticResult.matchedKeywords.map((kw) => ({
+        cluster: 'semantic_trigger',
+        text: kw,
+        startIndex: 0,
+        endIndex: kw.length,
+      }));
+
+      return {
+        hasFormedIntent: true,
+        intentType: semanticResult.intentType,
+        intentTitle: semanticResult.intentTitle,
+        confidence: semanticResult.confidence,
+        clustersDetected: ['semantic_trigger', ...activeClusters],
+        matchedSpans: semanticSpans.length > 0 ? semanticSpans : aggregatedSpans,
+        detectedLanguage: detectedLanguage || 'uk',
+        isMixedLanguage,
+        normalizedText,
+        suspiciousUrls: heuristicResult.suspiciousUrls || [],
+      };
+    }
+
+    return heuristicResult;
   }
 
   public static clear() {

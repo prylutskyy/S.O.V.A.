@@ -299,6 +299,10 @@ export class ChatChannelMonitor {
           DebuggerOverlay.log('2. Виявлені Кластери', scan.clustersDetected, '#EAB308');
         }
         
+        if (scan.clustersDetected.includes('semantic_trigger')) {
+          DebuggerOverlay.log('2s. Семантичний Вектор (Tier 1.5)', 'Активовано векторну матрицю намірів (Zero-Regex Match)', '#8B5CF6');
+        }
+        
         if (scan.matchedSpans && scan.matchedSpans.length > 0) {
           const triggerWords = scan.matchedSpans.map(s => s.text);
           DebuggerOverlay.log('2a. Тригерні Слова', triggerWords, '#F59E0B');

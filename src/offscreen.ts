@@ -1,6 +1,7 @@
 import { AILureVerifier } from './heuristics/ai-verifier';
 import { ChromeBuiltinAIProvider, getChromeAiLanguageModel, isGeminiAiAvailable, createAiSession } from './heuristics/chrome-ai-provider';
 import { ChatSimulatorEngine } from './heuristics/chat-simulator';
+import { getTransformersPipeline } from './heuristics/neural-embeddings';
 
 console.log('[SOVA:Offscreen] Offscreen document started for Gemini Nano API');
 
