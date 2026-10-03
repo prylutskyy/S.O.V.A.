@@ -426,15 +426,27 @@ export class VaultTabController {
     // Слухаємо блокування сховища з інших контекстів
     if (typeof chrome !== 'undefined' && chrome.storage?.onChanged) {
       chrome.storage.onChanged.addListener((changes, area) => {
-        if (area === 'session' && (changes['threat_shield_vault_decrypted'] || changes['threat_shield_vault_key_jwk'])) {
-          if (!changes['threat_shield_vault_key_jwk']?.newValue) {
-            this.isUiLocked = true;
-            this.expandedItemId = null;
-            if (this.vaultCategoriesContainer) {
-              this.vaultCategoriesContainer.innerHTML = '';
+        if (area === 'session') {
+          // Якщо ключ шифрування видалено із сесії — сховище заблоковано в іншому контексті
+          if ('threat_shield_vault_key_jwk' in changes) {
+            const hasNewKey = Boolean(changes['threat_shield_vault_key_jwk']?.newValue);
+            if (!hasNewKey) {
+              this.isUiLocked = true;
+              this.expandedItemId = null;
+              if (this.vaultCategoriesContainer) {
+                this.vaultCategoriesContainer.innerHTML = '';
+              }
+            } else {
+              this.isUiLocked = false;
+            }
+            this.renderSplitView().catch(() => {});
+          } else if ('threat_shield_vault_decrypted' in changes) {
+            // Оновилися маркери без зміни статусу ключа (збереження маркера) — не блокуємо UI
+            if (!this.isUiLocked && !PersonalVaultManager.isLocked()) {
+              this.renderVaultContent().catch(() => {});
+              this.onStatsChanged();
             }
           }
-          this.renderSplitView().catch(() => {});
         }
       });
     }

@@ -6,6 +6,8 @@ import { PersonalVaultManager } from '../../../src/core/personal-vault';
 const mockStorage: Record<string, any> = {};
 const mockSessionStorage: Record<string, any> = {};
 
+const storageChangeListeners: Array<(changes: Record<string, any>, area: string) => void> = [];
+
 vi.stubGlobal('chrome', {
   storage: {
     local: {
@@ -47,7 +49,9 @@ vi.stubGlobal('chrome', {
       }),
     },
     onChanged: {
-      addListener: vi.fn(),
+      addListener: vi.fn((fn) => {
+        storageChangeListeners.push(fn);
+      }),
     },
   },
 });
@@ -93,6 +97,7 @@ describe('VaultTabController', () => {
 
     showToastMock = vi.fn();
     onStatsChangedMock = vi.fn();
+    storageChangeListeners.length = 0;
     setupDOM();
   });
 
@@ -197,5 +202,69 @@ describe('VaultTabController', () => {
     const unlockedState = document.getElementById('vaultUnlockedState')!;
     expect(unlockedState.style.display).toBe('flex');
     expect(showToastMock).toHaveBeenCalledWith('Сховище розблоковано');
+  });
+
+  it('does not lock vault when a secret is saved/updated while unlocked', async () => {
+    await PersonalVaultManager.setupMasterPassword('secure-1234');
+    expect(PersonalVaultManager.isLocked()).toBe(false);
+
+    const controller = new VaultTabController(showToastMock, onStatsChangedMock);
+    await controller.renderSplitView();
+
+    const unlockedState = document.getElementById('vaultUnlockedState')!;
+    const lockedState = document.getElementById('vaultLockedState')!;
+    expect(unlockedState.style.display).toBe('flex');
+    expect(lockedState.style.display).toBe('none');
+
+    // Simulate item save which triggers chrome.storage.onChanged with only threat_shield_vault_decrypted
+    for (const listener of storageChangeListeners) {
+      listener(
+        {
+          threat_shield_vault_decrypted: {
+            oldValue: [],
+            newValue: [{ id: 'test-1', label: 'CVV', realValue: '123' }],
+          },
+        },
+        'session'
+      );
+    }
+
+    await new Promise((r) => setTimeout(r, 50));
+
+    // Vault MUST stay unlocked!
+    expect(PersonalVaultManager.isLocked()).toBe(false);
+    expect(unlockedState.style.display).toBe('flex');
+    expect(lockedState.style.display).toBe('none');
+  });
+
+  it('locks vault when threat_shield_vault_key_jwk is removed by another context', async () => {
+    await PersonalVaultManager.setupMasterPassword('secure-1234');
+    expect(PersonalVaultManager.isLocked()).toBe(false);
+
+    const controller = new VaultTabController(showToastMock, onStatsChangedMock);
+    await controller.renderSplitView();
+
+    const unlockedState = document.getElementById('vaultUnlockedState')!;
+    const lockedState = document.getElementById('vaultLockedState')!;
+    expect(unlockedState.style.display).toBe('flex');
+
+    // Simulate another context locking the vault (JWK removed from session)
+    for (const listener of storageChangeListeners) {
+      listener(
+        {
+          threat_shield_vault_key_jwk: {
+            oldValue: { kty: 'oct', k: 'secret' },
+            newValue: undefined,
+          },
+        },
+        'session'
+      );
+    }
+
+    await new Promise((r) => setTimeout(r, 50));
+
+    // Vault UI MUST be locked
+    expect(lockedState.style.display).toBe('flex');
+    expect(unlockedState.style.display).toBe('none');
   });
 });

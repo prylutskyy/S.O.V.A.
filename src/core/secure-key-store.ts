@@ -168,10 +168,8 @@ export class SecureKeyStore {
     if (!this.storageListenerAttached && typeof chrome !== 'undefined' && chrome.storage?.onChanged) {
       chrome.storage.onChanged.addListener((changes, area) => {
         if (area === 'session') {
-          if (changes['threat_shield_vault_key_jwk'] || changes['threat_shield_vault_decrypted']) {
-            if (!changes['threat_shield_vault_key_jwk']?.newValue) {
-              SecureKeyStore.purgeVaultKeys().catch(() => {});
-            }
+          if ('threat_shield_vault_key_jwk' in changes && !changes['threat_shield_vault_key_jwk']?.newValue) {
+            SecureKeyStore.purgeVaultKeys().catch(() => {});
           }
         }
       });
