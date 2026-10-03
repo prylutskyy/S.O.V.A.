@@ -61,8 +61,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   };
 
   shieldCtrl = new ShieldTabController(showToast, () => setActiveTab('vault'));
-  vaultCtrl = new VaultTabController(showToast, () => shieldCtrl.updateDisplay());
   settingsCtrl = new SettingsTabController(showToast, () => shieldCtrl.updateDisplay());
+  vaultCtrl = new VaultTabController(
+    showToast,
+    () => shieldCtrl.updateDisplay(),
+    (options) => settingsCtrl.showConfirmDialog(options)
+  );
 
   tabs.shield.btn.addEventListener('click', () => setActiveTab('shield'));
   tabs.vault.btn.addEventListener('click', () => setActiveTab('vault'));

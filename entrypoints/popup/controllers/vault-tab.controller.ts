@@ -1,6 +1,13 @@
 import { PersonalVaultManager } from '../../../src/core/personal-vault';
 import { VaultItemCategory, VaultItem } from '../../../src/types/vault';
 
+export type ConfirmDialogHandler = (options: {
+  title: string;
+  body: string;
+  confirmText?: string;
+  onConfirm: () => Promise<void> | void;
+}) => void;
+
 export class VaultTabController {
   private vaultSetupState: HTMLElement;
   private vaultLockedState: HTMLElement;
@@ -24,10 +31,16 @@ export class VaultTabController {
   private isUiLocked: boolean = false;
   private showToast: (msg: string) => void;
   private onStatsChanged: () => void;
+  private confirmDialog?: ConfirmDialogHandler;
 
-  constructor(showToast: (msg: string) => void, onStatsChanged: () => void) {
+  constructor(
+    showToast: (msg: string) => void,
+    onStatsChanged: () => void,
+    confirmDialog?: ConfirmDialogHandler
+  ) {
     this.showToast = showToast;
     this.onStatsChanged = onStatsChanged;
+    this.confirmDialog = confirmDialog;
 
     this.vaultSetupState = document.getElementById('vaultSetupState') as HTMLElement;
     this.vaultLockedState = document.getElementById('vaultLockedState') as HTMLElement;
@@ -428,12 +441,23 @@ export class VaultTabController {
 
     // 4. Скинути сховище до дефолту
     this.btnResetVaultDefaults?.addEventListener('click', async () => {
-      if (confirm('Скинути всі налаштовані маркери та очистити сховище?')) {
+      const doReset = async () => {
         await PersonalVaultManager.resetToDefaults();
         this.expandedItemId = null;
         this.showToast('Сховище скинуто до початкового стану');
         await this.renderVaultContent();
         this.onStatsChanged();
+      };
+
+      if (this.confirmDialog) {
+        this.confirmDialog({
+          title: 'Скинути сховище?',
+          body: 'Усі налаштовані маркери та персональні дані буде видалено та повернено до початкового стану.',
+          confirmText: 'Скинути',
+          onConfirm: doReset,
+        });
+      } else if (confirm('Скинути всі налаштовані маркери та очистити сховище?')) {
+        await doReset();
       }
     });
   }

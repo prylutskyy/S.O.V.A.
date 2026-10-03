@@ -125,26 +125,20 @@ export class UnifiedFrictionModal {
     `;
 
     const rememberCheckboxHtml = options.allowRememberDomain && options.domainToRemember ? `
-      <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--sanctuary-ink-secondary); margin-top: 14px; cursor: pointer; user-select: none;">
-        <input type="checkbox" id="ts-remember-domain" style="accent-color: var(--sanctuary-blue); width: 15px; height: 15px; cursor: pointer;">
-        <span>Довіряти домену <strong style="color: var(--sanctuary-ink-primary); font-family: var(--font-mono); font-size: 11px;">${options.domainToRemember}</strong></span>
+      <label class="ts-remember-row" id="ts-remember-label">
+        <input type="checkbox" id="ts-remember-domain" class="ts-checkbox">
+        <span>Довіряти домену <strong class="ts-mono-host">${options.domainToRemember}</strong></span>
       </label>
     ` : '';
 
     const diagnosticsHtml = diagnostics.map((d) => `
-      <div style="display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; background: var(--sanctuary-surface); border: 1px solid var(--sanctuary-hairline); border-radius: 10px; font-size: 11.5px;">
-        <div style="display: flex; align-items: center; justify-content: space-between; gap: 6px;">
-          <strong style="color: var(--sanctuary-ink-primary); font-weight: 600;">${d.title}</strong>
-          <span style="font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; padding: 2px 7px; border-radius: 4px; ${
-            d.badgeType === 'critical'
-              ? `background: var(--sanctuary-red-bg); color: var(--sanctuary-red-ink); border: 1px solid var(--sanctuary-red-bd);`
-              : d.badgeType === 'warning'
-              ? `background: var(--sanctuary-amber-bg); color: var(--sanctuary-amber-ink); border: 1px solid var(--sanctuary-amber-bd);`
-              : `background: var(--sanctuary-blue-bg); color: var(--sanctuary-blue); border: 1px solid var(--sanctuary-blue-bd);`
-          }">${d.badge}</span>
+      <div class="ts-diag-card">
+        <div class="ts-diag-top">
+          <strong class="ts-diag-title">${d.title}</strong>
+          <span class="ts-diag-badge ${d.badgeType}">${d.badge}</span>
         </div>
-        <div style="color: var(--sanctuary-ink-secondary); line-height: 1.45;">${d.description}</div>
-        ${d.evidence ? `<div style="font-family: var(--font-mono); font-size: 10.5px; color: var(--sanctuary-ink-secondary); background: var(--sanctuary-surface-subtle); padding: 4px 7px; border-radius: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${d.evidence}</div>` : ''}
+        <div class="ts-diag-desc">${d.description}</div>
+        ${d.evidence ? `<div class="ts-diag-evidence">${d.evidence}</div>` : ''}
       </div>
     `).join('');
 
@@ -157,52 +151,71 @@ export class UnifiedFrictionModal {
           to   { opacity: 1; }
         }
         @keyframes tsCardEnter {
-          from { opacity: 0; transform: scale(0.94) translateY(12px); }
+          from { opacity: 0; transform: scale(0.93) translateY(8px); }
           to   { opacity: 1; transform: scale(1) translateY(0); }
         }
 
         #ts-modal-card {
-          width: 480px;
+          width: 470px;
           max-width: 92vw;
-          background: rgba(255, 255, 255, 0.90);
-          backdrop-filter: blur(28px);
-          -webkit-backdrop-filter: blur(28px);
-          border-radius: var(--radius-modal, 22px);
-          border: 1px solid rgba(255, 255, 255, 0.65);
-          box-shadow: 0 24px 64px rgba(0, 0, 0, 0.16), 0 4px 16px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(255, 255, 255, 0.8) inset;
-          overflow: hidden;
+          max-height: 90vh;
+          overflow-y: auto;
+          background: rgba(255, 255, 255, 0.94);
+          backdrop-filter: blur(32px) saturate(190%);
+          -webkit-backdrop-filter: blur(32px) saturate(190%);
+          border-radius: 20px;
+          border: 1px solid rgba(255, 255, 255, 0.75);
+          box-shadow: 0 24px 64px rgba(0, 0, 0, 0.18), 0 4px 16px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(0, 0, 0, 0.05);
           font-family: var(--font-sanctuary);
-          animation: tsCardEnter 0.38s var(--ease-apple-spring);
+          animation: tsCardEnter 0.3s var(--ease-apple-spring);
           color: var(--sanctuary-ink-primary);
           display: flex;
           flex-direction: column;
           align-items: center;
           text-align: center;
-          padding: 30px 26px 22px;
+          padding: 28px 24px 22px;
           box-sizing: border-box;
           user-select: none;
         }
 
+        #ts-modal-card::-webkit-scrollbar {
+          width: 4px;
+        }
+        #ts-modal-card::-webkit-scrollbar-thumb {
+          background: rgba(0, 0, 0, 0.12);
+          border-radius: 4px;
+        }
+
         .ts-emblem-box {
-          width: 50px;
-          height: 50px;
-          border-radius: 14px;
-          background: ${isCritical ? 'var(--sanctuary-red-bg)' : 'var(--sanctuary-amber-bg)'};
-          border: 1px solid ${isCritical ? 'var(--sanctuary-red-bd)' : 'var(--sanctuary-amber-bd)'};
-          color: ${isCritical ? 'var(--sanctuary-red)' : 'var(--sanctuary-amber)'};
+          width: 52px;
+          height: 52px;
+          border-radius: 16px;
           display: flex;
           align-items: center;
           justify-content: center;
           margin-bottom: 14px;
-          box-shadow: 0 4px 12px ${isCritical ? 'rgba(255, 59, 48, 0.16)' : 'rgba(255, 149, 0, 0.16)'};
+        }
+
+        .ts-emblem-box.critical {
+          background: var(--sanctuary-red-bg);
+          border: 1px solid var(--sanctuary-red-bd);
+          color: var(--sanctuary-red);
+          box-shadow: 0 4px 14px rgba(255, 59, 48, 0.16);
+        }
+
+        .ts-emblem-box.warning {
+          background: var(--sanctuary-amber-bg);
+          border: 1px solid var(--sanctuary-amber-bd);
+          color: var(--sanctuary-amber);
+          box-shadow: 0 4px 14px rgba(255, 149, 0, 0.16);
         }
 
         .ts-title {
-          font-size: 19px;
+          font-size: 18px;
           font-weight: 600;
           color: var(--sanctuary-ink-primary);
-          letter-spacing: -0.02em;
-          line-height: 1.25;
+          letter-spacing: -0.015em;
+          line-height: 1.3;
           margin-bottom: 6px;
         }
 
@@ -212,7 +225,7 @@ export class UnifiedFrictionModal {
           gap: 6px;
           font-size: 11.5px;
           color: var(--sanctuary-ink-secondary);
-          margin-bottom: 18px;
+          margin-bottom: 16px;
         }
 
         .ts-context-tag {
@@ -221,7 +234,7 @@ export class UnifiedFrictionModal {
           color: var(--sanctuary-ink-primary);
           background: var(--sanctuary-surface-subtle);
           border: 1px solid var(--sanctuary-hairline);
-          padding: 2px 8px;
+          padding: 2.5px 8px;
           border-radius: 6px;
           max-width: 240px;
           overflow: hidden;
@@ -232,59 +245,65 @@ export class UnifiedFrictionModal {
         /* Two-Column Contrast Grid (Intent vs Reality) */
         .ts-contrast-grid {
           width: 100%;
-          margin-bottom: 16px;
+          margin-bottom: 14px;
           background: var(--sanctuary-surface);
-          border-radius: var(--radius-card, 14px);
+          border-radius: 12px;
           border: 1px solid var(--sanctuary-hairline);
           display: grid;
           grid-template-columns: 1fr 1fr;
           overflow: hidden;
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
           text-align: left;
         }
 
         .ts-contrast-col-left {
-          padding: 14px 16px;
-          background: rgba(0, 113, 227, 0.035);
+          padding: 12px 14px;
+          background: rgba(0, 113, 227, 0.03);
           border-right: 1px solid var(--sanctuary-divider);
           display: flex;
           flex-direction: column;
-          gap: 4px;
+          gap: 5px;
         }
 
         .ts-contrast-col-right {
-          padding: 14px 16px;
-          background: rgba(255, 59, 48, 0.04);
+          padding: 12px 14px;
+          background: rgba(255, 59, 48, 0.035);
           display: flex;
           flex-direction: column;
-          gap: 4px;
+          gap: 5px;
         }
 
         .ts-contrast-header-left {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
           font-size: 10px;
           font-weight: 700;
           color: var(--sanctuary-blue);
-          letter-spacing: 0.04em;
+          letter-spacing: 0.03em;
           text-transform: uppercase;
         }
 
         .ts-contrast-header-right {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
           font-size: 10px;
           font-weight: 700;
           color: var(--sanctuary-red);
-          letter-spacing: 0.04em;
+          letter-spacing: 0.03em;
           text-transform: uppercase;
         }
 
         .ts-contrast-val-left {
-          font-size: 12.5px;
+          font-size: 12px;
           font-weight: 500;
           color: var(--sanctuary-ink-primary);
           line-height: 1.4;
         }
 
         .ts-contrast-val-right {
-          font-size: 12.5px;
+          font-size: 12px;
           font-weight: 600;
           color: var(--sanctuary-red-ink);
           line-height: 1.4;
@@ -294,38 +313,63 @@ export class UnifiedFrictionModal {
           font-size: 12px;
           line-height: 1.5;
           color: var(--sanctuary-ink-secondary);
-          margin-bottom: 20px;
-          padding: 0 6px;
+          margin-bottom: 16px;
+          padding: 0 4px;
+        }
+
+        .ts-remember-row {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 7px;
+          font-size: 11.5px;
+          color: var(--sanctuary-ink-secondary);
+          margin-bottom: 4px;
+          cursor: pointer;
+          user-select: none;
+        }
+
+        .ts-remember-row input {
+          accent-color: var(--sanctuary-blue);
+          width: 14px;
+          height: 14px;
+          cursor: pointer;
+        }
+
+        .ts-remember-row .ts-mono-host {
+          color: var(--sanctuary-ink-primary);
+          font-family: var(--font-mono);
+          font-size: 11px;
         }
 
         .ts-actions-stack {
           width: 100%;
           display: flex;
           flex-direction: column;
-          gap: 10px;
+          gap: 8px;
         }
 
         .ts-btn-primary {
           width: 100%;
-          height: 44px;
-          background: var(--sanctuary-ink-primary);
+          height: 42px;
+          background: var(--sanctuary-blue);
           color: #FFFFFF;
           border: none;
-          border-radius: var(--radius-control, 10px);
-          font-size: 13px;
+          border-radius: 10px;
+          font-size: 12.5px;
           font-weight: 600;
           cursor: pointer;
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 7px;
-          transition: background 0.15s, transform 0.1s var(--ease-apple-press);
+          gap: 6px;
+          transition: all 0.15s var(--ease-apple-spring);
           font-family: var(--font-sanctuary);
-          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+          box-shadow: 0 1px 4px rgba(0, 113, 227, 0.25);
         }
 
         .ts-btn-primary:hover {
-          background: #000000;
+          background: var(--sanctuary-blue-hover);
         }
 
         .ts-btn-primary:active {
@@ -334,24 +378,24 @@ export class UnifiedFrictionModal {
 
         .ts-btn-decoy {
           width: 100%;
-          height: 40px;
+          height: 38px;
           background: var(--sanctuary-green-bg);
           color: var(--sanctuary-green-ink);
           border: 1px solid var(--sanctuary-green-bd);
-          border-radius: var(--radius-control, 10px);
-          font-size: 12.5px;
+          border-radius: 10px;
+          font-size: 12px;
           font-weight: 600;
           cursor: pointer;
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 7px;
+          gap: 6px;
           transition: all 0.15s;
           font-family: var(--font-sanctuary);
         }
 
         .ts-btn-decoy:hover {
-          background: rgba(52, 199, 89, 0.18);
+          background: rgba(52, 199, 89, 0.16);
         }
 
         .ts-btn-decoy:active {
@@ -362,10 +406,10 @@ export class UnifiedFrictionModal {
         .ts-hold-btn {
           position: relative;
           width: 100%;
-          height: 48px;
-          background: rgba(118, 118, 128, 0.10);
+          height: 42px;
+          background: rgba(118, 118, 128, 0.08);
           border: 1px solid var(--sanctuary-hairline);
-          border-radius: var(--radius-pill, 9999px);
+          border-radius: 9999px;
           overflow: hidden;
           display: flex;
           align-items: center;
@@ -379,7 +423,7 @@ export class UnifiedFrictionModal {
 
         .ts-hold-btn:hover {
           border-color: var(--sanctuary-ink-tertiary);
-          background: rgba(118, 118, 128, 0.14);
+          background: rgba(118, 118, 128, 0.12);
         }
 
         .ts-hold-fill {
@@ -388,7 +432,7 @@ export class UnifiedFrictionModal {
           top: 0;
           bottom: 0;
           width: 0%;
-          background: linear-gradient(90deg, #0071E3 0%, #34C759 100%);
+          background: rgba(0, 113, 227, 0.18);
           pointer-events: none;
           transition: width 0.05s linear;
         }
@@ -400,44 +444,43 @@ export class UnifiedFrictionModal {
         .ts-hold-label {
           position: relative;
           z-index: 2;
-          font-size: 12.5px;
-          font-weight: 600;
+          font-size: 12px;
+          font-weight: 500;
           color: var(--sanctuary-ink-secondary);
           pointer-events: none;
           transition: color 0.15s;
         }
 
         .ts-hold-btn.holding .ts-hold-label {
-          color: #FFFFFF;
-          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+          color: var(--sanctuary-ink-primary);
+          font-weight: 600;
         }
 
         .ts-hold-btn.unlocked {
           border-color: var(--sanctuary-green);
           background: var(--sanctuary-green-bg);
-          filter: brightness(1.08);
         }
 
         .ts-hold-btn.unlocked .ts-hold-label {
           color: var(--sanctuary-green-ink);
-          font-weight: 700;
+          font-weight: 600;
         }
 
         .ts-btn-inspect {
           background: transparent;
           border: none;
           color: var(--sanctuary-ink-secondary);
-          font-size: 12px;
+          font-size: 11.5px;
           font-weight: 500;
           cursor: pointer;
           display: inline-flex;
           align-items: center;
           gap: 5px;
           padding: 6px 10px;
-          border-radius: var(--radius-nested);
+          border-radius: 6px;
           transition: all 0.15s;
           font-family: var(--font-sanctuary);
-          margin-top: 10px;
+          margin-top: 8px;
         }
 
         .ts-btn-inspect:hover {
@@ -450,25 +493,89 @@ export class UnifiedFrictionModal {
           width: 100%;
           background: var(--sanctuary-surface-subtle);
           border: 1px solid var(--sanctuary-hairline);
-          border-radius: var(--radius-card, 14px);
-          padding: 14px;
-          margin-top: 12px;
+          border-radius: 12px;
+          padding: 12px 14px;
+          margin-top: 10px;
           animation: tsCardEnter 0.2s cubic-bezier(0.16, 1, 0.3, 1);
           text-align: left;
+          box-sizing: border-box;
+        }
+
+        .ts-diag-card {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          padding: 8px 10px;
+          background: var(--sanctuary-surface);
+          border: 1px solid var(--sanctuary-hairline);
+          border-radius: 8px;
+          font-size: 11.5px;
+        }
+
+        .ts-diag-top {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 6px;
+        }
+
+        .ts-diag-title {
+          color: var(--sanctuary-ink-primary);
+          font-weight: 600;
+        }
+
+        .ts-diag-badge {
+          font-size: 9.5px;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.04em;
+          padding: 2px 6px;
+          border-radius: 4px;
+        }
+
+        .ts-diag-badge.critical {
+          background: var(--sanctuary-red-bg);
+          color: var(--sanctuary-red-ink);
+          border: 1px solid var(--sanctuary-red-bd);
+        }
+
+        .ts-diag-badge.warning {
+          background: var(--sanctuary-amber-bg);
+          color: var(--sanctuary-amber-ink);
+          border: 1px solid var(--sanctuary-amber-bd);
+        }
+
+        .ts-diag-badge.info {
+          background: var(--sanctuary-blue-bg);
+          color: var(--sanctuary-blue);
+          border: 1px solid var(--sanctuary-blue-bd);
+        }
+
+        .ts-diag-desc {
+          color: var(--sanctuary-ink-secondary);
+          line-height: 1.4;
+        }
+
+        .ts-diag-evidence {
+          font-family: var(--font-mono);
+          font-size: 10px;
+          color: var(--sanctuary-ink-secondary);
+          background: var(--sanctuary-surface-subtle);
+          padding: 3px 6px;
+          border-radius: 4px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
       </style>
 
       <div id="ts-modal-card">
-        <!-- EMBLEM: CONCENTRIC SANCTUARY LENS (SWISS LOUPE) -->
-        <div class="ts-emblem-box">
+        <!-- AUTHENTIC SECURITY EMBLEM -->
+        <div class="ts-emblem-box ${isCritical ? 'critical' : 'warning'}">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="9"/>
-            <circle cx="12" cy="12" r="5" stroke-opacity="0.75"/>
-            <line x1="12" y1="2" x2="12" y2="4.5"/>
-            <line x1="12" y1="19.5" x2="12" y2="22"/>
-            <line x1="2" y1="12" x2="4.5" y2="12"/>
-            <line x1="19.5" y1="12" x2="22" y2="12"/>
-            <circle cx="12" cy="12" r="2" fill="currentColor"/>
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
           </svg>
         </div>
 
@@ -484,11 +591,17 @@ export class UnifiedFrictionModal {
         <!-- TWO-COLUMN INTENT VS REALITY CONTRAST MATRIX -->
         <div class="ts-contrast-grid">
           <div class="ts-contrast-col-left">
-            <span class="ts-contrast-header-left">Ваш очікуваний намір</span>
+            <span class="ts-contrast-header-left">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>
+              Ваш очікуваний намір
+            </span>
             <span class="ts-contrast-val-left">${userIntent}</span>
           </div>
           <div class="ts-contrast-col-right">
-            <span class="ts-contrast-header-right">ПРИХОВАНА ЗАГРОЗА</span>
+            <span class="ts-contrast-header-right">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              ПРИХОВАНА ЗАГРОЗА
+            </span>
             <span class="ts-contrast-val-right">${hiddenReality}</span>
           </div>
         </div>
@@ -500,16 +613,18 @@ export class UnifiedFrictionModal {
         <div class="ts-actions-stack">
           ${options.vaultMatches && options.vaultMatches.some((m) => m.isDecoyAvailable && (options.vaultMatches?.some(v => v.matchType === 'VALUE_MATCH') ? m.matchType === 'VALUE_MATCH' : true)) ? `
             <button id="ts-decoy-btn" class="ts-btn-decoy">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="9 12 11 14 15 10"/></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="9 12 11 14 15 10"/></svg>
               <span>Підставити маскувальні дані</span>
             </button>
           ` : ''}
 
           <!-- PRIMARY ACTION: Return to Safety -->
           <button id="ts-primary-btn" class="ts-btn-primary">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="9 12 11 14 15 10"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="9 12 11 14 15 10"/></svg>
             <span>${primaryActionLabel}</span>
           </button>
+
+          ${rememberCheckboxHtml}
 
           <!-- SENSORY 2-SECOND HOLD-TO-UNLOCK -->
           <div id="ts-hold-btn" class="ts-hold-btn" role="button" tabindex="0" title="Затисніть ліву кнопку миші на 2 секунди для переходу">
@@ -520,28 +635,26 @@ export class UnifiedFrictionModal {
 
         <!-- FOOTER: Inspector Toggle -->
         <button id="ts-inspect-btn" class="ts-btn-inspect">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-          <span>▾ Діагностичний звіт швейцарського механізму (XAI)</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          <span>Деталі перевірки (XAI)</span>
         </button>
 
-        <!-- SWISS-WATCH DIAGNOSTIC SHEET -->
+        <!-- DIAGNOSTIC SHEET -->
         <div id="ts-inspector" class="ts-inspector-sheet">
           <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid var(--sanctuary-hairline);">
-            <span style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--sanctuary-ink-secondary);">Формула оцінки загрози</span>
+            <span style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--sanctuary-ink-secondary);">Оцінка загрози</span>
             <span style="font-size: 11px; font-weight: 600; color: ${isCritical ? 'var(--sanctuary-red)' : 'var(--sanctuary-amber)'}; font-family: var(--font-mono);">
               RiskScore: ${fallbackAssessment.score}/100
             </span>
           </div>
 
-          <div style="font-size: 10.5px; font-family: var(--font-mono); color: var(--sanctuary-ink-secondary); background: var(--sanctuary-surface); border: 1px solid var(--sanctuary-hairline); border-radius: 6px; padding: 6px 8px; margin-bottom: 10px;">
+          <div style="font-size: 10px; font-family: var(--font-mono); color: var(--sanctuary-ink-secondary); background: var(--sanctuary-surface); border: 1px solid var(--sanctuary-hairline); border-radius: 6px; padding: 6px 8px; margin-bottom: 8px;">
             ${xai.breakdown.formula}
           </div>
 
           <div style="display: flex; flex-direction: column; gap: 6px; max-height: 180px; overflow-y: auto; padding-right: 2px;">
             ${diagnosticsHtml}
           </div>
-
-          ${rememberCheckboxHtml}
         </div>
       </div>
     `;
@@ -566,14 +679,14 @@ export class UnifiedFrictionModal {
       isInspectorOpen = !isInspectorOpen;
       inspector.style.display = isInspectorOpen ? 'block' : 'none';
       btnInspect.innerHTML = isInspectorOpen
-        ? '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> <span>▴ Приховати аналітичний модуль XAI</span>'
-        : '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg> <span>▾ Аналітичний модуль XAI (Діагностика)</span>';
+        ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg> <span>Приховати деталі перевірки</span>'
+        : '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg> <span>Деталі перевірки (XAI)</span>';
     });
 
     // Decoy button: підставляємо маскувальні дані ТІЛЬКИ в поля, де користувач реально ввів дані зі Сховища
     btnDecoy?.addEventListener('click', () => {
       if (options.vaultMatches && options.vaultMatches.length > 0) {
-        const count = VaultScanner.applyDecoys(options.vaultMatches, true);
+        VaultScanner.applyDecoys(options.vaultMatches, true);
         DebuggerOverlay.recordMitigation(
           'Застосовано дезінформаційні фейкові дані (Decoys)',
           options.assessment?.score,
@@ -594,6 +707,15 @@ export class UnifiedFrictionModal {
     modalRoot.addEventListener('click', (e) => {
       if (e.target === modalRoot) handleCancel();
     });
+
+    // Keyboard support: Escape cancels
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        handleCancel();
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    this.holdListeners.push(() => window.removeEventListener('keydown', onKeyDown));
 
     // 2000 ms Sensory Hold-to-Unlock Mechanics with Apple Spring Rebound
     let holdProgress = 0;
@@ -619,7 +741,7 @@ export class UnifiedFrictionModal {
             clearInterval(this.holdInterval);
             this.holdInterval = null;
           }
-          holdLabel.textContent = '✓ Доступ підтверджено';
+          holdLabel.textContent = 'Доступ дозволено';
           holdBtn.classList.remove('holding');
           holdBtn.classList.add('unlocked');
 

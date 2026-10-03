@@ -1985,11 +1985,13 @@ kbd {
   position: fixed;
   inset: 0;
   z-index: 200;
-  background: var(--sanctuary-backdrop);
+  background: rgba(0, 0, 0, 0.42);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: center;
-  padding: 16px;
+  padding: 24px 20px;
   animation: sheetBackdropIn 0.2s ease;
 }
 
@@ -2000,44 +2002,59 @@ kbd {
 
 .confirm-sheet {
   width: 100%;
-  max-width: 358px;
-  background: var(--sanctuary-glass-elevated);
-  backdrop-filter: blur(40px) saturate(180%);
-  -webkit-backdrop-filter: blur(40px) saturate(180%);
-  border-radius: var(--radius-modal);
-  box-shadow: var(--shadow-modal);
-  padding: 20px;
-  animation: sheetSlideUp 0.3s var(--ease-apple-sheet);
+  max-width: 320px;
+  background: var(--sanctuary-surface);
+  border: 1px solid var(--sanctuary-hairline);
+  border-radius: 18px;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.2), 0 2px 8px rgba(0, 0, 0, 0.06);
+  padding: 24px 20px 18px;
+  animation: sheetScaleIn 0.28s var(--ease-apple-spring);
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
 }
 
-@keyframes sheetSlideUp {
-  from { transform: translateY(20px) scale(0.96); opacity: 0; }
-  to   { transform: translateY(0) scale(1); opacity: 1; }
+@keyframes sheetScaleIn {
+  from { transform: scale(0.92); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+.confirm-sheet-emblem {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: var(--sanctuary-red-bg);
+  border: 1px solid var(--sanctuary-red-bd);
+  color: var(--sanctuary-red-ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2px;
 }
 
 .confirm-sheet-title {
-  font-size: 15px;
+  font-size: 15.5px;
   font-weight: 600;
   color: var(--sanctuary-ink-primary);
-  text-align: center;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.015em;
+  line-height: 1.25;
 }
 
 .confirm-sheet-body {
   font-size: 12.5px;
   color: var(--sanctuary-ink-secondary);
-  text-align: center;
-  line-height: 1.5;
+  line-height: 1.45;
+  padding: 0 4px;
 }
 
 .confirm-sheet-actions {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin-top: 2px;
+  width: 100%;
+  margin-top: 6px;
 }
 
 .confirm-sheet-actions .btn-primary.danger {
@@ -2046,33 +2063,40 @@ kbd {
   width: 100%;
   height: 38px;
   font-size: 13px;
-  border-radius: var(--radius-control);
+  font-weight: 600;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s var(--ease-apple-spring);
 }
 
 .confirm-sheet-actions .btn-primary.danger:hover {
-  background: #E0342B;
+  background: var(--sanctuary-red-hover);
 }
 
-.confirm-sheet-actions .btn-primary.danger:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
+.confirm-sheet-actions .btn-primary.danger:active {
+  transform: scale(0.98);
 }
 
 .confirm-sheet-actions .btn-cancel {
   width: 100%;
   height: 38px;
-  border: none;
-  background: rgba(118, 118, 128, 0.12);
-  color: var(--sanctuary-blue);
-  font-size: 13px;
-  font-weight: 600;
-  border-radius: var(--radius-control);
+  border: 1px solid var(--sanctuary-hairline);
+  background: var(--sanctuary-surface-subtle);
+  color: var(--sanctuary-ink-primary);
+  font-size: 12.5px;
+  font-weight: 500;
+  border-radius: 10px;
   cursor: pointer;
-  transition: background 0.15s var(--ease-apple-spring);
+  transition: background 0.15s ease;
 }
 
 .confirm-sheet-actions .btn-cancel:hover {
-  background: rgba(118, 118, 128, 0.18);
+  background: var(--sanctuary-surface-hover);
+}
+
+.confirm-sheet-actions .btn-cancel:active {
+  transform: scale(0.98);
 }
 
 /* ---- About Section (replaces footer) ---- */

@@ -63,4 +63,50 @@ describe('UnifiedFrictionModal (Apple HIG & Sensory Hold)', () => {
     expect(cancelCalled).toBe(true);
     expect(root.getElementById('threat-shield-unified-modal')).toBeNull();
   });
+
+  it('dismisses modal when Escape key is pressed', async () => {
+    let cancelCalled = false;
+    await UnifiedFrictionModal.show({
+      type: 'form',
+      title: 'Підробка доставки',
+      badgeText: 'CRITICAL',
+      contextLabel: 'Цільовий сервер',
+      contextValue: 'scam-delivery-portal.xyz',
+      triggers: mockAssessment.triggers,
+      assessment: mockAssessment,
+      onProceed: () => {},
+      onCancel: () => { cancelCalled = true; },
+    });
+
+    const root = ShadowHost.getRoot();
+    expect(root.getElementById('threat-shield-unified-modal')).not.toBeNull();
+
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+
+    expect(cancelCalled).toBe(true);
+    expect(root.getElementById('threat-shield-unified-modal')).toBeNull();
+  });
+
+  it('renders remember domain checkbox directly in action area when enabled', async () => {
+    await UnifiedFrictionModal.show({
+      type: 'form',
+      title: 'Підробка доставки',
+      badgeText: 'CRITICAL',
+      contextLabel: 'Цільовий сервер',
+      contextValue: 'scam-delivery-portal.xyz',
+      triggers: mockAssessment.triggers,
+      assessment: mockAssessment,
+      allowRememberDomain: true,
+      domainToRemember: 'scam-delivery-portal.xyz',
+      onProceed: () => {},
+      onCancel: () => {},
+    });
+
+    const root = ShadowHost.getRoot();
+    const modal = root.getElementById('threat-shield-unified-modal');
+    const checkbox = modal?.querySelector('#ts-remember-domain') as HTMLInputElement;
+
+    expect(checkbox).not.toBeNull();
+    expect(modal?.innerHTML).toContain('scam-delivery-portal.xyz');
+  });
 });

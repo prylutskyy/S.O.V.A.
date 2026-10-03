@@ -140,7 +140,7 @@ export class SettingsTabController {
     });
   }
 
-  private showConfirmDialog(options: {
+  public showConfirmDialog(options: {
     title: string;
     body: string;
     confirmText?: string;
