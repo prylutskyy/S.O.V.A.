@@ -182,4 +182,98 @@ describe('IntentClassifier', () => {
       expect(result.clustersDetected).toContain('password_theft');
     });
   });
+
+  describe('Multilingual Intent Detection (Stage 2: Russian & English Scams)', () => {
+    describe('Russian Fraud Patterns', () => {
+      it('detects Russian ESCROW_DELIVERY_SCAM and formats localized title/explanation', () => {
+        const text = 'Я уже оформил доставку, вот ссылка для получения средств';
+        const result = IntentClassifier.classify(text);
+
+        expect(result.hasFormedIntent).toBe(true);
+        expect(result.intentType).toBe('ESCROW_DELIVERY_SCAM');
+        expect(result.detectedLanguage).toBe('ru');
+        expect(result.intentTitle).toContain('Имитация финансовой сделки');
+      });
+
+      it('detects Russian VERIFICATION_PHISHING when asking for SMS code and redirecting to Telegram', () => {
+        const text = 'Для проверки профиля напишите в чат-бот телеграм и подтвердите пароль из смс';
+        const result = IntentClassifier.classify(text);
+
+        expect(result.hasFormedIntent).toBe(true);
+        expect(result.intentType).toBe('VERIFICATION_PHISHING');
+        expect(result.detectedLanguage).toBe('ru');
+        expect(result.intentTitle).toContain('Мошенническая «проверка профиля»');
+      });
+
+      it('detects Russian OFF_PLATFORM_REDIRECT', () => {
+        const text = 'Напишите мне в вайбер или телеграм для уточнения заказа';
+        const result = IntentClassifier.classify(text);
+
+        expect(result.hasFormedIntent).toBe(true);
+        expect(result.intentType).toBe('OFF_PLATFORM_REDIRECT');
+        expect(result.detectedLanguage).toBe('ru');
+        expect(result.intentTitle).toContain('увода диалога');
+      });
+
+      it('detects Russian IDENTITY_PROBING for mother maiden name', () => {
+        const text = 'Укажите ваш инн и девичья фамилия матери для перевода';
+        const result = IntentClassifier.classify(text);
+
+        expect(result.hasFormedIntent).toBe(true);
+        expect(result.intentType).toBe('IDENTITY_PROBING');
+        expect(result.detectedLanguage).toBe('ru');
+      });
+
+      it('detects Russian MILITARY_SABOTAGE_RECRUITMENT', () => {
+        const text = 'Плачу в крипте за поджог релейного шкафа на железной дороге';
+        const result = IntentClassifier.classify(text);
+
+        expect(result.hasFormedIntent).toBe(true);
+        expect(result.intentType).toBe('MILITARY_SABOTAGE_RECRUITMENT');
+        expect(result.detectedLanguage).toBe('ru');
+      });
+    });
+
+    describe('English Fraud Patterns', () => {
+      it('detects English ESCROW_DELIVERY_SCAM and formats localized English title', () => {
+        const text = 'I arranged courier delivery and money transfer, click here to receive payment';
+        const result = IntentClassifier.classify(text);
+
+        expect(result.hasFormedIntent).toBe(true);
+        expect(result.intentType).toBe('ESCROW_DELIVERY_SCAM');
+        expect(result.detectedLanguage).toBe('en');
+        expect(result.intentTitle).toContain('Escrow Delivery Scam');
+      });
+
+      it('detects English OFF_PLATFORM_REDIRECT to WhatsApp/Telegram', () => {
+        const text = 'Please write me on whatsapp or telegram for details';
+        const result = IntentClassifier.classify(text);
+
+        expect(result.hasFormedIntent).toBe(true);
+        expect(result.intentType).toBe('OFF_PLATFORM_REDIRECT');
+        expect(result.detectedLanguage).toBe('en');
+        expect(result.intentTitle).toContain('Off-Platform Redirection Attempt');
+      });
+
+      it('detects English CRYPTO_WALLET_COMPROMISE', () => {
+        const text = 'Please provide your seed phrase or 12 words to synchronize wallet';
+        const result = IntentClassifier.classify(text);
+
+        expect(result.hasFormedIntent).toBe(true);
+        expect(result.intentType).toBe('CRYPTO_WALLET_COMPROMISE');
+        expect(result.detectedLanguage).toBe('en');
+        expect(result.intentTitle).toContain('Crypto Wallet Compromise');
+      });
+
+      it('detects English IDENTITY_PROBING for maiden name', () => {
+        const text = 'Please tell me your mother maiden name and your tax id';
+        const result = IntentClassifier.classify(text);
+
+        expect(result.hasFormedIntent).toBe(true);
+        expect(result.intentType).toBe('IDENTITY_PROBING');
+        expect(result.detectedLanguage).toBe('en');
+      });
+    });
+  });
 });
+

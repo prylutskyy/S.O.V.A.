@@ -56,7 +56,7 @@ export class ChatSessionState {
     this.cleanExpired();
 
     // 1. Extract clusters for the current message
-    const { matchedSpans, detectedClusterMap, normalizedText } = IntentClassifier.extractClusters(rawText);
+    const { matchedSpans, detectedClusterMap, normalizedText, detectedLanguage, isMixedLanguage } = IntentClassifier.extractClusters(rawText);
 
     // 2. Save it to state
     this.messages.push({
@@ -92,7 +92,9 @@ export class ChatSessionState {
       activeClusters,
       aggregatedClusterMap,
       aggregatedSpans,
-      rawText
+      rawText,
+      detectedLanguage,
+      isMixedLanguage
     );
   }
 

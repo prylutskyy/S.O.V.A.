@@ -50,7 +50,7 @@ export function extractCardNumbersFromText(text: string): string[] {
   return [...new Set(validCards)];
 }
 
-export const CVV_IN_TEXT_REGEX = /(?:^|[^\p{L}\p{N}])(?:cvv|cvc|cvv2|cvc2|свв|свс|код\s*безпеки|код\s*картки|security\s*code)[\s:=_-]*([0-9]{3,4})(?:$|[^\p{L}\p{N}])/iu;
+export const CVV_IN_TEXT_REGEX = /(?:^|[^\p{L}\p{N}])(?:cvv|cvc|cvv2|cvc2|свв|свс|код\s*безпеки|код\s*безопасности|код\s*картки|код\s*карты|security\s*code|three\s*digits)[\s:=_-]*([0-9]{3,4})(?:$|[^\p{L}\p{N}])/iu;
 
 import { SensitiveAssetDetector } from './sensitive-asset-detector';
 

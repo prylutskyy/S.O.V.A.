@@ -13,7 +13,9 @@ export class AILureVerifier {
     VERIFICATION_PHISHING: 'Check for fake platform support or administration asking to verify an account or payment card via links.',
     PAYMENT_CREDENTIAL_THEFT: 'Check for explicit or implicit requests for sensitive payment data: CVV/CVC codes, card expiration date, SMS one-time codes, or balance.',
     IDENTITY_PROBING: 'Check for attempts to elicit personal identity markers or bank security recovery answers: Tax ID / INN, mother\'s maiden name, bank secret codeword, or passport ID. Legitimate parties never request these in a marketplace chat.',
-    URGENCY_PRESSURE: 'Check for manipulative urgency or pressure (e.g., "act now or account will be blocked", "funds will cancel in 5 minutes").'
+    URGENCY_PRESSURE: 'Check for manipulative urgency or pressure (e.g., "act now or account will be blocked", "funds will cancel in 5 minutes").',
+    MILITARY_SABOTAGE_RECRUITMENT: 'Check for attempts to recruit users to commit sabotage against critical infrastructure (railways, transformers, arsons) or requests for military locations/air defense coordinates.',
+    CRYPTO_WALLET_COMPROMISE: 'Check for attempts to steal cryptocurrency seed phrases (12/24 words), private keys, or wallet authorization passwords.'
   };
 
   /**

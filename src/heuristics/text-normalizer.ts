@@ -30,7 +30,7 @@ export class TextNormalizer {
    * Вона видаляє всі пробіли, тому результат — це суцільний рядок.
    * Використовувати тільки для перевірки через Regex/Fuzzy алгоритми!
    */
-  public static normalizeForMatching(text: string): string {
+  public static normalizeForMatching(text: string, lang?: 'uk' | 'en' | 'ru'): string {
     if (!text) return '';
 
     // 1. Нижній регістр
@@ -39,6 +39,11 @@ export class TextNormalizer {
     // 2. Видалення пробілів, дефісів, крапок, ком, нижніх підкреслень 
     // та невидимих/zero-width символів обфускації (U+200B-U+200D, U+FEFF, U+2060, RTLO тощо)
     normalized = normalized.replace(/[\s\-_.,!?'"~*^\u200B-\u200D\uFEFF\u2060\u202A-\u202E\u00A0]/g, '');
+
+    // Якщо вказана суто англійська мова, не замінюємо латиницю на кириличні гомогліфи
+    if (lang === 'en') {
+      return normalized;
+    }
 
     // 3. Заміна гомогліфів
     let result = '';
@@ -54,7 +59,7 @@ export class TextNormalizer {
    * Створює масив слів, де кожне слово нормалізоване (але пробіли між оригінальними словами збережені).
    * Автоматично "склеює" літери, якщо шахрай написав слово через пробіл (о п л а т а -> оплата).
    */
-  public static normalizeWords(text: string): string {
+  public static normalizeWords(text: string, lang?: 'uk' | 'en' | 'ru'): string {
     if (!text) return '';
 
     // 1. Видалення zero-width/RTLO символів перед розбиттям по пробілах,
@@ -64,9 +69,14 @@ export class TextNormalizer {
     // 2. Попередня заміна гомогліфів та нижній регістр для всього тексту
     let preNormalized = '';
     const lower = cleaned.toLowerCase();
-    for (let i = 0; i < lower.length; i++) {
-      const char = lower[i];
-      preNormalized += this.homoglyphMap[char] || char;
+
+    if (lang === 'en') {
+      preNormalized = lower;
+    } else {
+      for (let i = 0; i < lower.length; i++) {
+        const char = lower[i];
+        preNormalized += this.homoglyphMap[char] || char;
+      }
     }
 
     // 3. Розбиваємо по пробілах, видаляємо пунктуацію
