@@ -109,4 +109,67 @@ describe('UnifiedFrictionModal (Apple HIG & Sensory Hold)', () => {
     expect(checkbox).not.toBeNull();
     expect(modal?.innerHTML).toContain('scam-delivery-portal.xyz');
   });
+
+  it('renders redesigned Apple HIG XAI inspector with 3-factor telemetry and toggles visibility', async () => {
+    await UnifiedFrictionModal.show({
+      type: 'form',
+      title: 'Підробка доставки',
+      badgeText: 'CRITICAL',
+      contextLabel: 'Цільовий сервер',
+      contextValue: 'scam-delivery-portal.xyz',
+      triggers: mockAssessment.triggers,
+      assessment: mockAssessment,
+      onProceed: () => {},
+      onCancel: () => {},
+    });
+
+    const root = ShadowHost.getRoot();
+    const modal = root.getElementById('threat-shield-unified-modal');
+    expect(modal).not.toBeNull();
+
+    const inspectBtn = modal?.querySelector('#ts-inspect-btn') as HTMLButtonElement;
+    const inspector = modal?.querySelector('#ts-inspector') as HTMLElement;
+    const inspectText = modal?.querySelector('#ts-inspect-text') as HTMLElement;
+
+    expect(inspectBtn).not.toBeNull();
+    expect(inspector).not.toBeNull();
+    expect(inspector.style.display).toBe('none');
+    expect(inspectText.textContent).toBe('Деталі перевірки (XAI)');
+
+    // Click to expand
+    inspectBtn.click();
+    expect(inspector.style.display).toBe('flex');
+    expect(inspectBtn.classList.contains('expanded')).toBe(true);
+    expect(inspectBtn.getAttribute('aria-expanded')).toBe('true');
+    expect(inspectText.textContent).toBe('Приховати деталі');
+
+    // Telemetry header
+    const header = inspector.querySelector('.ts-xai-header');
+    expect(header).not.toBeNull();
+    expect(header?.textContent).toContain('95');
+
+    // 3-factor telemetry grid
+    const telemetry = inspector.querySelector('.ts-xai-telemetry');
+    expect(telemetry).not.toBeNull();
+    expect(telemetry?.textContent).toContain('Форма та сервер');
+    expect(telemetry?.textContent).toContain('Контекст сесії');
+    expect(telemetry?.textContent).toContain('Дія користувача');
+
+    // Inset grouped list
+    const list = inspector.querySelector('.ts-xai-list');
+    expect(list).not.toBeNull();
+    const items = list?.querySelectorAll('.ts-xai-item');
+    expect(items && items.length > 0).toBe(true);
+
+    const firstItem = items![0];
+    expect(firstItem.querySelector('.ts-xai-icon-box')).not.toBeNull();
+    expect(firstItem.querySelector('.ts-xai-item-title')).not.toBeNull();
+
+    // Click again to collapse
+    inspectBtn.click();
+    expect(inspector.style.display).toBe('none');
+    expect(inspectBtn.classList.contains('expanded')).toBe(false);
+    expect(inspectBtn.getAttribute('aria-expanded')).toBe('false');
+    expect(inspectText.textContent).toBe('Деталі перевірки (XAI)');
+  });
 });
