@@ -274,6 +274,32 @@ describe('IntentClassifier', () => {
         expect(result.detectedLanguage).toBe('en');
       });
     });
+
+    describe('Realistic Ukrainian Sabotage Recruitment Scenarios (ст. 111-2, 113 КК)', () => {
+      it('detects recruitment for scout couriers', () => {
+        const text = 'Шукаємо кур’єрів-розвідників для швидкої роботи від 500$';
+        const result = IntentClassifier.classify(text);
+
+        expect(result.hasFormedIntent).toBe(true);
+        expect(result.intentType).toBe('MILITARY_SABOTAGE_RECRUITMENT');
+      });
+
+      it('detects reconnaissance request to photograph TCC and military pixel vehicles', () => {
+        const text = 'підійди за адресою і сфотографуй будівлю ТЦК та машини поруч з зеленими хрестами або пікселем';
+        const result = IntentClassifier.classify(text);
+
+        expect(result.hasFormedIntent).toBe(true);
+        expect(result.intentType).toBe('MILITARY_SABOTAGE_RECRUITMENT');
+      });
+
+      it('detects arson solicitations targeting TCC bus and tires using lighter fluid', () => {
+        const text = 'Стоїть бус ТЦК на стоянці. Купуєш розпалювач, підпалюєш колесо, знімаєш відео';
+        const result = IntentClassifier.classify(text);
+
+        expect(result.hasFormedIntent).toBe(true);
+        expect(result.intentType).toBe('MILITARY_SABOTAGE_RECRUITMENT');
+      });
+    });
   });
 });
 

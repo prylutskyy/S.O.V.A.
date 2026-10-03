@@ -82,7 +82,7 @@ export class TextNormalizer {
     // 3. Розбиваємо по пробілах, видаляємо пунктуацію
     const tokens = preNormalized
       .split(/\s+/)
-      .map(word => word.replace(/[\-_.,!?'"~*^]/g, ''))
+      .map(word => word.replace(/[\-_.,!?'"~*^\u2018\u2019\u02BC]/g, ''))
       .filter(w => w.length > 0);
 
     // 3. Склеювання поодиноких літер (о п л а т а -> оплата)

@@ -350,6 +350,26 @@ export default defineContentScript({
               '#EF4444'
             );
           }
+
+          // Динамічна ескалація: якщо ШІ виявив ознаки ворожого вербування чи диверсії
+          const isMilitarySabotage =
+            aiResult.scamType === 'MILITARY_SABOTAGE_RECRUITMENT' ||
+            (aiResult.reasoning && /диверс|вербув|тцк|підпал|військов/i.test(aiResult.reasoning));
+
+          if (isMilitarySabotage) {
+            localContext.scenario = 'MILITARY_SABOTAGE_RECRUITMENT';
+            localContext.threatLevel = 'HIGH';
+            GlobalInputInterceptor.setHardLock(localContext);
+            SecurityFriction.showContextWarningBanner(
+              localContext,
+              'ст. 111-2, 113 ККУ (Вербування / Диверсія)',
+              rawTextToScan,
+              'MILITARY_SABOTAGE_RECRUITMENT',
+              clearThreat,
+              aiResult.confidence || 95,
+              clearThreat
+            );
+          }
         }
       }).catch((err) => {
         console.warn('[SOVA:Content] Помилка фонового ШІ-арбітражу:', err);
