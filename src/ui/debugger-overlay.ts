@@ -333,12 +333,16 @@ export class DebuggerOverlay {
     this.state.liveSeverity = 'LOW';
     this.state.threatMitigated = false;
     this.state.mitigationReason = '';
+    this.state.vectorTelemetry = null;
+    this.state.selectedPrototypeId = null;
     this.state.logs = this.state.logs.filter(
       (l) =>
         !l.stepKey.includes('Ризик') &&
         !l.stepKey.includes('Тригери') &&
         !l.stepKey.includes('Trap') &&
         !l.stepKey.includes('СКАМ') &&
+        !l.stepKey.includes('Векторн') &&
+        !l.stepKey.includes('Семантичн') &&
         l.color !== '#FF3B30' &&
         l.color !== '#FF453A' &&
         l.color !== '#EF4444'
@@ -1181,8 +1185,8 @@ export class DebuggerOverlay {
 
             <!-- Контекст останнього відсканованого тексту -->
             <div class="sc-vector-raw-box">
-              <span class="sc-vector-raw-label">Аналізоване повідомлення:</span>
-              <div class="sc-vector-raw-text">«${telemetry.rawText ? (telemetry.rawText.length > 140 ? telemetry.rawText.substring(0, 140) + '...' : telemetry.rawText) : 'Немає даних'}»</div>
+              <span class="sc-vector-raw-label">Останнє проаналізоване повідомлення:</span>
+              <div class="sc-vector-raw-text">«${telemetry.latestMessage ? (telemetry.latestMessage.length > 200 ? telemetry.latestMessage.substring(0, 200) + '...' : telemetry.latestMessage) : (telemetry.rawText ? (telemetry.rawText.length > 200 ? telemetry.rawText.substring(0, 200) + '...' : telemetry.rawText) : 'Немає даних')}»</div>
             </div>
           </div>
 

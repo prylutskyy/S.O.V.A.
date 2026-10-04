@@ -48,6 +48,7 @@ export interface SemanticVectorTelemetry {
   intentType?: string;
   confidence?: number;
   reason?: string;
+  latestMessage?: string;
 }
 
 export interface SemanticEvaluationResult {
@@ -293,6 +294,7 @@ export class SemanticTriggerEngine {
       intentType,
       confidence,
       reason,
+      latestMessage: text,
     });
 
     return {
@@ -361,6 +363,7 @@ export class SemanticTriggerEngine {
       intentType: string;
       confidence: number;
       reason: string;
+      latestMessage?: string;
     }
   ): SemanticVectorTelemetry {
     const activeProtoKey = topMatch.prototypeId in this.PROTOTYPE_PROFILES
@@ -442,6 +445,7 @@ export class SemanticTriggerEngine {
 
     return {
       rawText: text,
+      latestMessage: evaluationMeta?.latestMessage || text,
       topPrototypeId: topMatch.prototypeId,
       topPrototypeLabel: topMatch.labelUk,
       cosineSimilarity: topMatch.similarity,
@@ -475,6 +479,7 @@ export class SemanticTriggerEngine {
       intentType: 'MILITARY_SABOTAGE_RECRUITMENT',
       confidence: 84,
       reason: 'Демонстраційний збіг за матрицею намірів (вербування / розвідка)',
+      latestMessage: defaultText,
     });
   }
 }

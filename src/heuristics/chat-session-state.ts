@@ -98,14 +98,17 @@ export class ChatSessionState {
       isMixedLanguage
     );
 
-    if (heuristicResult.hasFormedIntent) {
-      return heuristicResult;
-    }
-
     // 5. Tier 1.5: Семантичний векторний аналіз (Semantic & Behavioral Intent Trigger)
-    // Якщо класичні регулярні вирази не вловили загрозу, перевіряємо через векторний простір та матрицю намірів
+    // Завжди обчислюємо векторний спектр для кожного повідомлення для актуальної телеметрії
     const fullDialogueContext = this.getDialogueHistory();
     const semanticResult = SemanticTriggerEngine.evaluate(rawText, fullDialogueContext);
+
+    if (heuristicResult.hasFormedIntent) {
+      return {
+        ...heuristicResult,
+        telemetry: semanticResult.telemetry,
+      };
+    }
 
     if (semanticResult.hasFormedIntent) {
       const semanticSpans: IntentMatchSpan[] = semanticResult.matchedKeywords.map((kw) => ({
