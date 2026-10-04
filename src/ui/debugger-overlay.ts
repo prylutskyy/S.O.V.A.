@@ -1168,11 +1168,14 @@ export class DebuggerOverlay {
               <div class="sc-proto-chips">
                 ${telemetry.allPrototypes.map((p) => {
                   const isThisTriggered = Boolean(telemetry.hasFormedIntent && telemetry.intentType === p.id);
-                  const shortName = p.labelUk.includes('Вербування')
-                    ? 'Вербування / Диверсія'
-                    : p.labelUk.includes('Імітація')
-                    ? 'Ескроу-доставка'
-                    : 'Викрадення CVV';
+                  let shortName = p.labelUk;
+                  if (p.id === 'MILITARY_SABOTAGE_RECRUITMENT' || /вербуван|диверс|розвід/i.test(p.labelUk)) {
+                    shortName = 'Вербування / Диверсія';
+                  } else if (p.id === 'ESCROW_DELIVERY_SCAM' || /ескроу|доставк|імітац/i.test(p.labelUk)) {
+                    shortName = 'Ескроу-доставка';
+                  } else if (p.id === 'PAYMENT_CREDENTIAL_THEFT' || /cvv|реквізит|платіжн|виманюван/i.test(p.labelUk)) {
+                    shortName = 'Викрадення CVV';
+                  }
                   return `
                     <button type="button" class="sc-chip sc-proto-chip ${p.id === currentSelectedProto ? 'active' : ''} ${isThisTriggered ? 'sc-chip-danger' : ''}" data-proto-id="${p.id}">
                       <span>${shortName}</span>
@@ -1204,7 +1207,13 @@ export class DebuggerOverlay {
                 </div>
                 <div class="sc-legend-item">
                   <span class="sc-legend-dot sc-dot-red"></span>
-                  <span>Еталон загрози (${protoInfo.labelUk.includes('Вербування') ? 'Вербування' : protoInfo.labelUk.includes('Імітація') ? 'Ескроу' : 'CVV'})</span>
+                  <span>Еталон загрози (${
+                    protoInfo.id === 'MILITARY_SABOTAGE_RECRUITMENT' || /вербуван|диверс|розвід/i.test(protoInfo.labelUk)
+                      ? 'Вербування'
+                      : protoInfo.id === 'ESCROW_DELIVERY_SCAM' || /ескроу|доставк|імітац/i.test(protoInfo.labelUk)
+                      ? 'Ескроу'
+                      : 'CVV'
+                  })</span>
                 </div>
               </div>
             </div>

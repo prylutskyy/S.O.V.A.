@@ -67,4 +67,69 @@ describe('DebuggerOverlay Lifecycle & Visibility Guard (Swiss Loupe)', () => {
     expect(DebuggerOverlay.isOpen()).toBe(false);
     expect(container?.style.display).toBe('none');
   });
+
+  it('renders correct prototype chip names in vectors tab without mislabeling sabotage as CVV theft', () => {
+    DebuggerOverlay.show();
+
+    DebuggerOverlay.recordVectorTelemetry({
+      rawText: 'Поджог военного бусика за 1800 USDT',
+      latestMessage: 'Поджог военного бусика за 1800 USDT',
+      topPrototypeId: 'MILITARY_SABOTAGE_RECRUITMENT',
+      topPrototypeLabel: 'Ознаки ворожого вербування або розвідувально-диверсійної діяльності',
+      cosineSimilarity: 0.90,
+      hasFormedIntent: true,
+      intentType: 'MILITARY_SABOTAGE_RECRUITMENT',
+      confidence: 90,
+      reason: 'Семантичний збіг: диверсія',
+      dimensions: [
+        { key: 'reward', labelUk: 'Винагорода', inputWeight: 0.9, prototypeWeight: 0.85, matchedTokens: ['1800 USDT'] },
+        { key: 'action', labelUk: 'Дія / Завдання', inputWeight: 0.8, prototypeWeight: 0.9, matchedTokens: ['Поджог'] },
+      ],
+      allPrototypes: [
+        {
+          id: 'MILITARY_SABOTAGE_RECRUITMENT',
+          labelUk: 'Ознаки ворожого вербування або розвідувально-диверсійної діяльності',
+          similarity: 0.90,
+          prototypeWeights: { reward: 0.85, action: 0.9 },
+        },
+        {
+          id: 'ESCROW_DELIVERY_SCAM',
+          labelUk: 'Імітація фінансової угоди або фейкова курєрська доставка',
+          similarity: 0.36,
+          prototypeWeights: { reward: 0.75, action: 0.6 },
+        },
+        {
+          id: 'PAYMENT_CREDENTIAL_THEFT',
+          labelUk: 'Виманювання платіжних реквізитів або кодів авторизації',
+          similarity: 0.31,
+          prototypeWeights: { reward: 0.4, action: 0.7 },
+        },
+      ],
+      timestamp: Date.now(),
+    });
+
+    DebuggerOverlay['state'].activeTab = 'vectors';
+    DebuggerOverlay['render']();
+
+    const shadowRoot = DebuggerOverlay['shadowRoot'];
+    expect(shadowRoot).not.toBeNull();
+
+    const chips = shadowRoot!.querySelectorAll('.sc-proto-chip');
+    expect(chips.length).toBe(3);
+
+    const chipTexts = Array.from(chips).map((c) => c.textContent?.trim() || '');
+
+    // Chip 1 must be Recruitment / Sabotage, NOT CVV
+    expect(chipTexts[0]).toContain('Вербування / Диверсія');
+    expect(chipTexts[0]).toContain('90% [ТРИГЕР]');
+    expect(chipTexts[0]).not.toContain('Викрадення CVV');
+
+    // Chip 2 must be Escrow
+    expect(chipTexts[1]).toContain('Ескроу-доставка');
+    expect(chipTexts[1]).toContain('36%');
+
+    // Chip 3 must be CVV theft
+    expect(chipTexts[2]).toContain('Викрадення CVV');
+    expect(chipTexts[2]).toContain('31%');
+  });
 });
