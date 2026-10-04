@@ -14,6 +14,7 @@ import { ChatSubmitInterceptor } from '../src/interceptors/chat-submit.intercept
 import { ClipboardInterceptor } from '../src/interceptors/clipboard.interceptor';
 import { ProactiveFieldProtector } from '../src/heuristics/proactive-field-protector';
 import { AIArbiterService } from '../src/ai/ai-arbiter.service';
+import { SpaNavigationDetector } from '../src/core/spa-navigation';
 
 export default defineContentScript({
   matches: ['<all_urls>'],
@@ -311,6 +312,13 @@ export default defineContentScript({
       }).then((aiResult) => {
         if (!aiResult) return;
 
+        // Захист від гонитви (Race Condition / SPA Route Switch):
+        // Якщо користувач перейшов в інший чат, поки тривав аналіз, скасовуємо застарілий вердикт
+        if (!activeContext || activeContext.sessionId !== localContext.sessionId) {
+          console.log('[SOVA:Content] ШІ-Арбітр відповів, але діалог вже змінено/очищено в SPA. Вердикт відхилено.');
+          return;
+        }
+
         if (!aiResult.isScam && (aiResult.confidence === undefined || aiResult.confidence >= 50)) {
           // Якщо ШІ переконливо спростував загрозу (False Positive Mitigation):
           console.log('[SOVA:Content] ШІ-Арбітр спростував евристичну загрозу:', aiResult.reasoning);
@@ -400,6 +408,31 @@ export default defineContentScript({
         event.intentType || 'UNKNOWN',
         event.confidence
       );
+    });
+
+    // 1b. Автоматична ізоляція чатів та семантичних векторів при зміні роуту в SPA (Telegram, OLX, WhatsApp)
+    SpaNavigationDetector.init((changeEvent) => {
+      console.log('[SOVA:Content] Виявлено зміну роуту/діалогу в SPA:', changeEvent);
+      activeContext = null;
+      GlobalInputInterceptor.setHardLock(null);
+      ChatChannelMonitor.reset();
+      FormSubmitInterceptor.resetAuditState();
+      DebuggerOverlay.resetSessionRisk();
+      SecurityFriction.removeContextWarningBanner();
+      
+      try {
+        if (typeof chrome !== 'undefined' && chrome.runtime) {
+          chrome.runtime.sendMessage({ type: 'CLEAR_CONTEXT' });
+        }
+      } catch {}
+
+      if (debugMode) {
+        DebuggerOverlay.log(
+          'SPA: Зміна Діалогу (Ізоляція)',
+          `Маршрут змінено (${changeEvent.trigger}): вектори та пам'ять чату обнулено для нового співрозмовника`,
+          '#3B82F6'
+        );
+      }
     });
 
     // 2. Проактивний сканер прихованих полів (Autofill Phishing Traps)
