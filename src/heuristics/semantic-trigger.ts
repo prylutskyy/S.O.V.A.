@@ -393,19 +393,36 @@ export class SemanticTriggerEngine {
       signals.hasTargetFocus &&
       signals.hasActionDirective;
 
-    const isSabotagePragmatic =
-      (signals.hasRewardIncentive && signals.hasActionDirective && signals.hasTargetFocus) ||
-      (signals.hasRewardIncentive && signals.hasActionDirective && signals.hasDiscretionUrgency) ||
+    const hasSabotageKeywords = /(?:підпал|поджог|розпалювач|розжиг|подожги|сожги|коктейл|релейн|шаф|диверс)/i.test(combinedText);
+
+    // Саботаж або ворожа розвідка ОБОВ'ЯЗКОВО вимагають фізичного об'єкта, розвідки, диверсії або кур'єрського вербування
+    const hasPhysicalTargetOrSabotage =
+      signals.hasTargetFocus ||
+      hasSabotageKeywords ||
       hasCourierScoutRecruitment ||
-      isHostileReconnaissance ||
-      isIdeologicalRecruitment ||
-      (signals.hasActionDirective && /(?:підпал|поджог|розпалювач|розжиг|подожги|сожги|коктейл|релейн|шаф|диверс)/i.test(combinedText));
+      hasReconProbing ||
+      hasIdeologyCover;
+
+    const isSabotagePragmatic =
+      signals.hasActionDirective &&
+      hasPhysicalTargetOrSabotage &&
+      (
+        (signals.hasRewardIncentive && signals.hasTargetFocus) ||
+        (signals.hasRewardIncentive && signals.hasDiscretionUrgency) ||
+        hasCourierScoutRecruitment ||
+        isHostileReconnaissance ||
+        isIdeologicalRecruitment ||
+        hasSabotageKeywords
+      );
 
     const isHighVectorSabotage =
       topMatch.prototypeId === 'MILITARY_SABOTAGE_RECRUITMENT' &&
       signals.hasActionDirective &&
-      ((topMatch.similarity >= 0.40 && (signals.hasTargetFocus || signals.hasRewardIncentive)) ||
-       topMatch.similarity >= 0.65);
+      hasPhysicalTargetOrSabotage &&
+      (
+        (topMatch.similarity >= 0.40 && signals.hasTargetFocus) ||
+        topMatch.similarity >= 0.70
+      );
 
     const isCredentialPragmatic =
       topMatch.prototypeId === 'PAYMENT_CREDENTIAL_THEFT' &&

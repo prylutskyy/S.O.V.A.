@@ -198,5 +198,19 @@ describe('SemanticTriggerEngine (Vector Embeddings & Pragmatic Matrix)', () => {
       expect(result.hasFormedIntent).toBe(false);
       expect(result.intentType).not.toBe('MILITARY_SABOTAGE_RECRUITMENT');
     });
+
+    it('does NOT trigger military sabotage recruitment on full multi-turn car accident dialogue with urgent card transfer request', () => {
+      const dialogueContext = `[Співрозмовник]: Братуха, здоров! Ти на зв'язку? Дуже виручити треба, просто край
+[Ви]: Здорово. Та на зв'язку, що трапилося?
+[Співрозмовник]: Коротше, повна дупа... В'їхав щойно в чувака на перехресті, моя вина. Він копи викликати хоче, а в мене страховка прострочена на два тижні, я взагалі забув за неї. Домовилися на місці розійтися за 12 тисяч, а в мене на моно тільки 4 лишилося. Можеш перекинути 8к до завтра вечора? Зарплата зайде — одразу поверну до копійки, зуб даю.
+[Ви]: Ого, сам цілий? Давай наберу тебе зараз, обговоримо`;
+
+      const urgentCardRequest = `Ні, не дзвони зараз, благаю! Я з типом стою тру, він нервовий капець, орати починає, якщо на телефон відволікаюся. Кинь просто на банку або карту швидше, я йому перекину і роз'їдемося.`;
+
+      const result = SemanticTriggerEngine.evaluate(urgentCardRequest, dialogueContext);
+
+      expect(result.hasFormedIntent).toBe(false);
+      expect(result.intentType).not.toBe('MILITARY_SABOTAGE_RECRUITMENT');
+    });
   });
 });

@@ -252,23 +252,6 @@ export class SecurityFriction {
       ShadowHost.remove(existing as HTMLElement);
     }
 
-    const supportedIntents = [
-      'MILITARY_SABOTAGE_RECRUITMENT',
-      'ESCROW_DELIVERY_SCAM',
-      'PAYMENT_CREDENTIAL_THEFT',
-      'IDENTITY_PROBING',
-      'SEED_PHRASE_THEFT',
-      'CRYPTO_WALLET_COMPROMISE',
-      'OFF_PLATFORM_REDIRECT',
-      'VERIFICATION_PHISHING',
-      'URGENCY_PRESSURE',
-      'UNKNOWN',
-    ];
-
-    if (intentType && !supportedIntents.includes(intentType)) {
-      return;
-    }
-
     const isSabotage = intentType === 'MILITARY_SABOTAGE_RECRUITMENT';
     const isEscrow = intentType === 'ESCROW_DELIVERY_SCAM';
     const isCredential = intentType === 'PAYMENT_CREDENTIAL_THEFT';
@@ -276,6 +259,7 @@ export class SecurityFriction {
     const isSeed = intentType === 'SEED_PHRASE_THEFT' || intentType === 'CRYPTO_WALLET_COMPROMISE';
     const isOffPlatform = intentType === 'OFF_PLATFORM_REDIRECT';
     const isVerification = intentType === 'VERIFICATION_PHISHING';
+    const isSuspiciousLure = intentType === 'SUSPICIOUS_LURE';
 
     const isCritical = isSabotage || isSeed;
 
@@ -331,6 +315,11 @@ export class SecurityFriction {
       subtitle = 'Спроба фейкової перевірки або підтвердження особи';
       explanation = 'Співрозмовник або ресурс схиляє до проходження «верифікації» з метою перехоплення доступу до облікового запису.';
       iconSvg = '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 11 12 14 22 4"/>';
+    } else if (isSuspiciousLure) {
+      title = 'С.О.В.А. · Підозра на шахрайство';
+      subtitle = customSubtitle || 'У листуванні виявлено ознаки соціальної інженерії';
+      explanation = customSubtitle ? `ШІ-Арбітр виявив загрозу: ${customSubtitle}` : 'Співрозмовник демонструє маніпулятивні патерни або схиляє до термінового переказу коштів чи передачі даних. Зберігайте пильність та не здійснюйте переказів без перевірки.';
+      iconSvg = '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>';
     }
 
     const snippet = rawTextToScan && rawTextToScan.length > 3
@@ -489,6 +478,9 @@ export class SecurityFriction {
     const existing = root.getElementById('threat-shield-context-banner');
     if (existing) {
       ShadowHost.remove(existing as HTMLElement);
+    }
+    if (typeof window !== 'undefined') {
+      window.postMessage({ type: 'THREAT_SHIELD_DISABLE_CHAT_FREEZE' }, '*');
     }
   }
 

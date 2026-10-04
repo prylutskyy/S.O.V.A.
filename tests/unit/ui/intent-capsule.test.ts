@@ -220,7 +220,8 @@ describe('Sanctuary Dynamic Intent Capsule (SecurityFriction.showContextWarningB
     expect(banners[0].textContent).toContain('С.О.В.А. · Застереження: фішинг доставки');
   });
 
-  it('removes banner on SecurityFriction.removeContextWarningBanner()', () => {
+  it('removes banner on SecurityFriction.removeContextWarningBanner() and broadcasts unfreeze', () => {
+    const postMessageSpy = vi.spyOn(window, 'postMessage');
     SecurityFriction.showContextWarningBanner(
       dummyContext,
       'Підзаголовок',
@@ -231,5 +232,10 @@ describe('Sanctuary Dynamic Intent Capsule (SecurityFriction.showContextWarningB
     expect(ShadowHost.getRoot().getElementById('threat-shield-context-banner')).not.toBeNull();
     SecurityFriction.removeContextWarningBanner();
     expect(ShadowHost.getRoot().getElementById('threat-shield-context-banner')).toBeNull();
+    expect(postMessageSpy).toHaveBeenCalledWith(
+      { type: 'THREAT_SHIELD_DISABLE_CHAT_FREEZE' },
+      '*'
+    );
   });
 });
+

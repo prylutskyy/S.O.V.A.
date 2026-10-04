@@ -43,13 +43,13 @@ export default defineBackground(() => {
         return false;
       }
       
-      const { sessionId, sourcePlatform, keywords, offPlatformLure, suspiciousUrl } = message.payload;
+      const { sessionId, sourcePlatform, scenario, keywords, offPlatformLure, suspiciousUrl } = message.payload;
       console.warn(`[SOVA:Background] Отримано сигнал небезпеки на вкладці ${tabId}:`, message.payload);
 
       contextManager.setTaintedContext(tabId, {
         sessionId,
         sourcePlatform: sourcePlatform || (sender.tab?.url ? new URL(sender.tab.url).hostname : 'unknown'),
-        scenario: 'UNKNOWN',
+        scenario: scenario || 'UNKNOWN',
         threatLevel: 'HIGH',
         detectedKeywords: keywords || [],
         offPlatformLure: !!offPlatformLure,
@@ -60,6 +60,9 @@ export default defineBackground(() => {
           chrome.action.setBadgeBackgroundColor({ color: '#ea580c', tabId });
         }
         chrome.tabs.sendMessage(tabId, { type: 'CONTEXT_UPDATED', payload: ctx }).catch(() => {});
+        try {
+          chrome.runtime.sendMessage({ type: 'CONTEXT_UPDATED', payload: ctx }).catch(() => {});
+        } catch {}
         sendResponse({ success: true });
       });
       return true; // Keep channel open for async

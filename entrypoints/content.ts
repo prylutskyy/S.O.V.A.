@@ -145,8 +145,8 @@ export default defineContentScript({
           }
         } else if (msg && msg.type === 'SET_DEBUG_MODE') {
           syncDebugMode(!!msg.enabled);
-        } else if (msg && msg.type === 'CONTEXT_UPDATED' && msg.context) {
-          applyContext(msg.context as ActiveThreatContext);
+        } else if (msg && msg.type === 'CONTEXT_UPDATED' && (msg.payload || msg.context)) {
+          applyContext((msg.payload || msg.context) as ActiveThreatContext);
         } else if (msg && msg.type === 'RECEIVE_BROADCAST_LOG' && debugMode) {
           const { stepKey, data, customColor, isAi, aiContext, logId } = msg.payload;
           DebuggerOverlay.log(stepKey, data, customColor, false, isAi, aiContext, logId);
@@ -251,7 +251,8 @@ export default defineContentScript({
       intentType: string = 'UNKNOWN',
       confidence?: number
     ) => {
-      const sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
+      const sessionId = activeContext?.sessionId || ('session_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7));
+      const requestUrl = typeof window !== 'undefined' && window.location ? window.location.href : '';
 
       const localContext: ActiveThreatContext = {
         sessionId,
@@ -269,44 +270,56 @@ export default defineContentScript({
 
       if (debugMode) {
         DebuggerOverlay.setSession(sessionId, 'HIGH');
-        DebuggerOverlay.log('Чат: Аналіз Намірів (NLP)', `Виявлено: ${intentType}`, '#EF4444');
-      }
-
-      const isCriticalThreat =
-        intentType === 'MILITARY_SABOTAGE_RECRUITMENT' ||
-        intentType === 'SEED_PHRASE_THEFT' ||
-        intentType === 'CRYPTO_WALLET_COMPROMISE';
-
-      if (isCriticalThreat && confidence && confidence >= 50) {
-        GlobalInputInterceptor.setHardLock(localContext);
+        DebuggerOverlay.log(
+          'Чат: Аналіз Намірів (NLP)',
+          `Попередня евристика: ${intentType} (${confidence || 50}%). Запит до ШІ-Арбітра...`,
+          '#F59E0B'
+        );
       }
 
       const clearThreat = () => {
         window.postMessage({ type: 'THREAT_SHIELD_CLEAR_CONTEXT' }, '*');
       };
-      
-      SecurityFriction.showContextWarningBanner(
-        localContext, 
-        bannerSubtitle, 
-        rawTextToScan, 
-        intentType, 
-        clearThreat, 
-        confidence, 
-        clearThreat
-      );
 
-      try {
-        chrome.runtime.sendMessage({
-          type: 'LURE_DETECTED',
-          payload: {
-            sessionId,
-            sourcePlatform: currentHost,
-            keywords,
-            offPlatformLure,
-            suspiciousUrl,
-          },
-        });
-      } catch {}
+      const displayThreatAlert = (
+        context: ActiveThreatContext,
+        subtitle: string,
+        threatIntent: ScamIntentType,
+        threatScore: number
+      ) => {
+        const isCritical =
+          threatIntent === 'MILITARY_SABOTAGE_RECRUITMENT' ||
+          threatIntent === 'SEED_PHRASE_THEFT' ||
+          threatIntent === 'CRYPTO_WALLET_COMPROMISE';
+
+        if (isCritical) {
+          GlobalInputInterceptor.setHardLock(context);
+        }
+
+        SecurityFriction.showContextWarningBanner(
+          context,
+          subtitle,
+          rawTextToScan,
+          threatIntent,
+          clearThreat,
+          threatScore,
+          clearThreat
+        );
+
+        try {
+          chrome.runtime.sendMessage({
+            type: 'LURE_DETECTED',
+            payload: {
+              sessionId: context.sessionId,
+              sourcePlatform: currentHost,
+              scenario: context.scenario || threatIntent,
+              keywords: context.detectedKeywords || [],
+              offPlatformLure: context.offPlatformLure,
+              suspiciousUrl: context.targetSuspiciousUrl,
+            },
+          });
+        } catch {}
+      };
 
       // ── TIER 2: АСИНХРОННИЙ АРБІТРАЖ ШТУЧНОГО ІНТЕЛЕКТУ (LLM ARBITER) ──
       AIArbiterService.verify({
@@ -315,12 +328,32 @@ export default defineContentScript({
         intentType,
         confidence,
       }).then((aiResult) => {
-        if (!aiResult) return;
+        if (!aiResult) {
+          // Якщо ШІ недоступний (offline / відсутній ключ / збій):
+          // Застосовуємо евристичний захист лише при високому рівні впевненості (>= 75%)
+          if (confidence && confidence >= 75) {
+            displayThreatAlert(
+              localContext,
+              bannerSubtitle,
+              intentType as ScamIntentType,
+              confidence
+            );
+          } else {
+            // При помірній впевненості не турбуємо користувача банером без підтвердження
+            activeContext = null;
+          }
+          return;
+        }
 
         // Захист від гонитви (Race Condition / SPA Route Switch):
-        // Якщо користувач перейшов в інший чат, поки тривав аналіз, скасовуємо застарілий вердикт
-        if (!activeContext || activeContext.sessionId !== localContext.sessionId) {
-          console.log('[SOVA:Content] ШІ-Арбітр відповів, але діалог вже змінено/очищено в SPA. Вердикт відхилено.');
+        // Якщо користувач перейшов в інший чат / змінив URL, або контекст було скинуто:
+        const currentUrl = typeof window !== 'undefined' && window.location ? window.location.href : '';
+        if (requestUrl && currentUrl !== requestUrl) {
+          console.log('[SOVA:Content] ШІ-Арбітр відповів, але діалог/роут уже змінено в SPA. Вердикт відхилено.');
+          return;
+        }
+        if (!activeContext) {
+          console.log('[SOVA:Content] ШІ-Арбітр відповів, але контекст уже скинуто. Вердикт відхилено.');
           return;
         }
 
@@ -364,7 +397,7 @@ export default defineContentScript({
             );
           }
 
-          // Динамічна ескалація: якщо ШІ виявив ознаки ворожого вербування чи диверсії
+          // Динамічна ескалація або корекція за вердиктом ШІ
           const isMilitarySabotage =
             aiResult.scamType === 'MILITARY_SABOTAGE_RECRUITMENT' ||
             (aiResult.reasoning && /диверс|вербув|тцк|підпал|військов/i.test(aiResult.reasoning));
@@ -372,20 +405,46 @@ export default defineContentScript({
           if (isMilitarySabotage) {
             localContext.scenario = 'MILITARY_SABOTAGE_RECRUITMENT';
             localContext.threatLevel = 'HIGH';
-            GlobalInputInterceptor.setHardLock(localContext);
-            SecurityFriction.showContextWarningBanner(
+            displayThreatAlert(
               localContext,
               'ст. 111-2, 113 ККУ (Вербування / Диверсія)',
-              rawTextToScan,
               'MILITARY_SABOTAGE_RECRUITMENT',
-              clearThreat,
-              aiResult.confidence || 95,
-              clearThreat
+              aiResult.confidence || 95
+            );
+          } else if (intentType === 'MILITARY_SABOTAGE_RECRUITMENT') {
+            // ШІ підтвердив шахрайство, але спростував вербування/диверсію (наприклад, побутовий фінансовий тиск)
+            localContext.scenario = 'SUSPICIOUS_LURE';
+            localContext.threatLevel = 'HIGH';
+            displayThreatAlert(
+              localContext,
+              aiResult.reasoning || 'Підозра на шахрайство (соціальна інженерія)',
+              'SUSPICIOUS_LURE',
+              aiResult.confidence || 90
+            );
+          } else {
+            const confirmedScenario = (aiResult.scamType as ScamIntentType) || (intentType !== 'UNKNOWN' ? (intentType as ScamIntentType) : 'SUSPICIOUS_LURE');
+            localContext.scenario = confirmedScenario;
+            localContext.threatLevel = 'HIGH';
+            displayThreatAlert(
+              localContext,
+              aiResult.reasoning || bannerSubtitle || 'Виявлено ознаки шахрайства',
+              confirmedScenario,
+              aiResult.confidence || confidence || 90
             );
           }
         }
       }).catch((err) => {
         console.warn('[SOVA:Content] Помилка фонового ШІ-арбітражу:', err);
+        if (confidence && confidence >= 75) {
+          displayThreatAlert(
+            localContext,
+            bannerSubtitle,
+            intentType as ScamIntentType,
+            confidence
+          );
+        } else {
+          activeContext = null;
+        }
       });
     };
 

@@ -23,6 +23,17 @@ export class GlobalInputInterceptor {
    */
   public static setHardLock(context: ActiveThreatContext | null) {
     this.hardLockContext = context;
+    if (!context) {
+      this.unfreezeChat();
+    }
+  }
+
+  public static unfreezeChat() {
+    this.isChatFrozen = false;
+    if (typeof document !== 'undefined') {
+      const style = document.getElementById('ts-chat-freeze-style');
+      if (style) style.remove();
+    }
   }
 
   /**
