@@ -198,5 +198,13 @@ describe('SemanticTriggerEngine (Vector Embeddings & Pragmatic Matrix)', () => {
 
       expect(result.hasFormedIntent).toBe(false);
     });
+
+    it('does NOT trigger military sabotage recruitment on domestic car accident or borrowing money request', () => {
+      const text = "Коротше, повна дупа... В'їхав щойно в чувака на перехресті, моя вина. Він копи викликати хоче, а в мене страховка прострочена на два тижні, я взагалі забув за неї. Домовилися на місці розійтися за 12 тисяч, а в мене на моно тільки 4 лишилося. Можеш перекинути 8к до завтра вечора? Зарплата зайде — одразу поверну до копійки, зуб даю.";
+      const result = SemanticTriggerEngine.evaluate(text);
+
+      expect(result.hasFormedIntent).toBe(false);
+      expect(result.intentType).not.toBe('MILITARY_SABOTAGE_RECRUITMENT');
+    });
   });
 });
