@@ -62,16 +62,104 @@ describe('SemanticTriggerEngine (Vector Embeddings & Pragmatic Matrix)', () => {
     });
   });
 
+  describe('Russian Language & Bilingual Threat Detection', () => {
+    it('detects Russian military recruitment and reconnaissance proposal', () => {
+      const text = 'Привет, есть легкая подработка. Подойди по адресу и сфотографируй здание военкомата и машины с крестами, заплачу 100 USDT на кошелек';
+      const result = SemanticTriggerEngine.evaluate(text);
+
+      expect(result.hasFormedIntent).toBe(true);
+      expect(result.intentType).toBe('MILITARY_SABOTAGE_RECRUITMENT');
+      expect(result.signals.hasRewardIncentive).toBe(true);
+      expect(result.signals.hasActionDirective).toBe(true);
+      expect(result.signals.hasTargetFocus).toBe(true);
+      expect(result.telemetry.topPrototypeId).toBe('MILITARY_SABOTAGE_RECRUITMENT');
+    });
+
+    it('detects Russian arson and railway sabotage directives', () => {
+      const text = 'Стоит бус ВСУ на парковке. Купи жидкость для розжига, подожги колесо, плачу 1500 долларов на крипту';
+      const result = SemanticTriggerEngine.evaluate(text);
+
+      expect(result.hasFormedIntent).toBe(true);
+      expect(result.intentType).toBe('MILITARY_SABOTAGE_RECRUITMENT');
+      expect(result.confidence).toBeGreaterThanOrEqual(75);
+    });
+
+    it('detects Russian courier/scout recruitment for simple tasks', () => {
+      const text = 'Ищем людей на простую подработку курьером, оплата в крипте от 500$ в неделю за простые задания в Одессе';
+      const result = SemanticTriggerEngine.evaluate(text);
+
+      expect(result.hasFormedIntent).toBe(true);
+      expect(result.intentType).toBe('MILITARY_SABOTAGE_RECRUITMENT');
+      expect(result.signals.hasRewardIncentive).toBe(true);
+      expect(result.signals.hasActionDirective).toBe(true);
+    });
+
+    it('detects Russian railway relay cabinet sabotage proposal', () => {
+      const text = 'Подойди к релейному шкафу на жд перегоне, сделай видеосъемку, получишь 300 баксов';
+      const result = SemanticTriggerEngine.evaluate(text);
+
+      expect(result.hasFormedIntent).toBe(true);
+      expect(result.intentType).toBe('MILITARY_SABOTAGE_RECRUITMENT');
+    });
+
+    it('detects Russian escrow delivery scam', () => {
+      const text = 'Я уже оформил доставку и оплатил товар. Вот ссылка для получения средств: https://olx-delivery-ua.site/pay/9284, подтвердите получение денег на карту';
+      const result = SemanticTriggerEngine.evaluate(text);
+
+      expect(result.hasFormedIntent).toBe(true);
+      expect(result.intentType).toBe('ESCROW_DELIVERY_SCAM');
+    });
+
+    it('detects Russian bank credential theft and CVV extraction', () => {
+      const text = 'Для подтверждения перевода укажите номер карты, срок действия, cvv код и смс пароль от банка';
+      const result = SemanticTriggerEngine.evaluate(text);
+
+      expect(result.hasFormedIntent).toBe(true);
+      expect(result.intentType).toBe('PAYMENT_CREDENTIAL_THEFT');
+    });
+
+    it('detects Russian multi-turn dialogue leading to sabotage', () => {
+      const context = 'Собеседник: Привет! Ищешь работу? Платим в крипте на кошелек\nВы: Да, а что делать?\nСобеседник: Простые задания в городе';
+      const latestMessage = 'Подойди по адресу, сними на видео военкомат и парковку с машинами';
+
+      const result = SemanticTriggerEngine.evaluate(latestMessage, context);
+
+      expect(result.hasFormedIntent).toBe(true);
+      expect(result.intentType).toBe('MILITARY_SABOTAGE_RECRUITMENT');
+    });
+  });
+
   describe('False Positive Protection', () => {
-    it('does NOT trigger on innocent delivery questions', () => {
+    it('does NOT trigger on innocent delivery questions (Ukrainian)', () => {
       const text = 'Доброго дня, ви можете відправити товар Новою Поштою? Яка вартість?';
       const result = SemanticTriggerEngine.evaluate(text);
 
       expect(result.hasFormedIntent).toBe(false);
     });
 
-    it('does NOT trigger on casual friendly chat', () => {
+    it('does NOT trigger on casual friendly chat (Ukrainian)', () => {
       const text = 'Привіт! Як справи? Коли зустрінемося випити кави?';
+      const result = SemanticTriggerEngine.evaluate(text);
+
+      expect(result.hasFormedIntent).toBe(false);
+    });
+
+    it('does NOT trigger on innocent delivery questions (Russian)', () => {
+      const text = 'Здравствуйте, вы можете отправить посылку Новой Почтой в Киев? Сколько стоит доставка?';
+      const result = SemanticTriggerEngine.evaluate(text);
+
+      expect(result.hasFormedIntent).toBe(false);
+    });
+
+    it('does NOT trigger on casual friendly chat (Russian)', () => {
+      const text = 'Привет! Как дела? Пойдем сегодня в кино или попьем кофе вечером?';
+      const result = SemanticTriggerEngine.evaluate(text);
+
+      expect(result.hasFormedIntent).toBe(false);
+    });
+
+    it('does NOT trigger on innocent mention of buildings or cars (Russian)', () => {
+      const text = 'Я сегодня проходил мимо здания администрации, там очень красиво отремонтировали фасад. Купил новую машину, припарковал на стоянке.';
       const result = SemanticTriggerEngine.evaluate(text);
 
       expect(result.hasFormedIntent).toBe(false);
