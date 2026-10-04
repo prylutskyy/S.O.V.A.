@@ -252,115 +252,233 @@ export class SecurityFriction {
       ShadowHost.remove(existing as HTMLElement);
     }
 
-    if (intentType !== 'MILITARY_SABOTAGE_RECRUITMENT' && intentType !== 'PAYMENT_CREDENTIAL_THEFT' && intentType !== 'IDENTITY_PROBING') {
+    const supportedIntents = [
+      'MILITARY_SABOTAGE_RECRUITMENT',
+      'ESCROW_DELIVERY_SCAM',
+      'PAYMENT_CREDENTIAL_THEFT',
+      'IDENTITY_PROBING',
+      'SEED_PHRASE_THEFT',
+      'CRYPTO_WALLET_COMPROMISE',
+      'OFF_PLATFORM_REDIRECT',
+      'VERIFICATION_PHISHING',
+      'URGENCY_PRESSURE',
+      'UNKNOWN',
+    ];
+
+    if (intentType && !supportedIntents.includes(intentType)) {
       return;
     }
 
     const isSabotage = intentType === 'MILITARY_SABOTAGE_RECRUITMENT';
-    const title = isSabotage ? 'С.О.В.А. · Виявлено ознаки ворожого вербування' : 'С.О.В.А. · Критична загроза фішингу';
-    const subtitle = isSabotage 
-      ? 'ст. 111-2, 113 ККУ (Вербування / Диверсія)'
-      : 'Співрозмовник випитує конфіденційні дані';
-      
-    const explanation = isSabotage
-      ? 'Співрозмовник збирає військові координати або схиляє до диверсій. Вступ у контакт тягне кримінальну відповідальність (аж до довічного позбавлення волі). <strong>Поле вводу чату тимчасово заблоковано.</strong>'
-      : 'Співрозмовник намагається виманити ваші платіжні дані. <strong>Поле вводу чату тимчасово заблоковано.</strong>';
+    const isEscrow = intentType === 'ESCROW_DELIVERY_SCAM';
+    const isCredential = intentType === 'PAYMENT_CREDENTIAL_THEFT';
+    const isIdentity = intentType === 'IDENTITY_PROBING';
+    const isSeed = intentType === 'SEED_PHRASE_THEFT' || intentType === 'CRYPTO_WALLET_COMPROMISE';
+    const isOffPlatform = intentType === 'OFF_PLATFORM_REDIRECT';
+    const isVerification = intentType === 'VERIFICATION_PHISHING';
 
-    const snippet = rawTextToScan && rawTextToScan.length > 3 ? (rawTextToScan.length > 100 ? rawTextToScan.substring(0, 100) + '...' : rawTextToScan) : '...';
+    const isCritical = isSabotage || isSeed;
+
+    let themeColor = '#FF9F0A'; // Apple Amber
+    let themeBg = 'rgba(255, 159, 10, 0.16)';
+    let themeBorder = 'rgba(255, 159, 10, 0.38)';
+    let themeGlow = '0 12px 36px rgba(0, 0, 0, 0.40), 0 0 24px rgba(255, 159, 10, 0.16)';
+
+    if (isCritical) {
+      themeColor = '#FF453A'; // Apple Crimson Red
+      themeBg = 'rgba(255, 69, 58, 0.18)';
+      themeBorder = 'rgba(255, 69, 58, 0.42)';
+      themeGlow = '0 12px 40px rgba(0, 0, 0, 0.52), 0 0 28px rgba(255, 69, 58, 0.24)';
+    }
+
+    let title = 'С.О.В.А. · Застереження безпеки';
+    let subtitle = customSubtitle || 'У листуванні виявлено підозрілий намір';
+    let explanation = 'Співрозмовник демонструє поведінкові маркери соціальної інженерії. Будьте уважні та уникайте переходу за сумнівними посиланнями чи введення конфіденційних реквізитів.';
+    let iconSvg = '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>';
+
+    if (isSabotage) {
+      title = 'С.О.В.А. · Ознаки ворожого вербування або диверсії';
+      subtitle = 'ст. 111-2, 113 ККУ (Державна зрада / Диверсія)';
+      explanation = 'Співрозмовник схиляє до збору координат, фотографування військових об’єктів чи підпалів за винагороду. Контакт тягне кримінальну відповідальність (аж до довічного позбавлення волі). <strong>Поле вводу заблоковано для вашого захисту.</strong>';
+      iconSvg = '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>';
+    } else if (isEscrow) {
+      title = 'С.О.В.А. · Застереження: фішинг доставки';
+      subtitle = 'Імітація фінансової угоди або фейкової виплати на картку';
+      explanation = 'Співрозмовник намагається переконати вас відкрити зовнішнє посилання для «отримання» коштів. Справжні платформи (OLX, Prom) ніколи не вимагають переходу за сторонніми посиланнями та введення реквізитів картки чи CVV для зарахування оплати.';
+      iconSvg = '<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>';
+    } else if (isCredential) {
+      title = 'С.О.В.А. · Спроба викрадення платіжних даних';
+      subtitle = 'Запит конфіденційного CVV-коду або SMS-пароля';
+      explanation = 'Співрозмовник просить вказати CVV/CVC-код зі звороту картки або одноразовий SMS-пароль. Ці реквізити потрібні виключно для списання коштів з рахунку і ніколи не передаються стороннім особам.';
+      iconSvg = '<rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/><line x1="15" y1="15" x2="19" y2="15"/>';
+    } else if (isIdentity) {
+      title = 'С.О.В.А. · Випитування особистих даних';
+      subtitle = 'Збір банківських та персональних маркерів';
+      explanation = 'Співрозмовник збирає персональні маркери (ІПН, дівоче прізвище матері, секретні коди) для компрометації вашого банкінгу через службу підтримки.';
+      iconSvg = '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>';
+    } else if (isSeed) {
+      title = 'С.О.В.А. · Спроба викрадення криптогаманця';
+      subtitle = 'Запит Secret Recovery / Seed-фрази або ключів';
+      explanation = 'Співрозмовник намагається отримати доступ до вашої мнемонічної фрази (12/24 слів). Розголошення призведе до безповоротної втрати активів. <strong>Поле вводу заблоковано.</strong>';
+      iconSvg = '<path d="M21 2l-2 2m-1.5 1.5L16 7l-1.5-1.5L13 7l-1.5-1.5L10 7M7 10a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/>';
+    } else if (isOffPlatform) {
+      title = 'С.О.В.А. · Перехід у сторонній месенджер';
+      subtitle = 'Спроба виведення комунікації за межі платформи';
+      explanation = 'Співрозмовник намагається перевести діалог у сторонній месенджер (Telegram, WhatsApp, Viber), де не діють гарантії безпеки платформи. Залишайтеся в офіційному чаті.';
+      iconSvg = '<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>';
+    } else if (isVerification) {
+      title = 'С.О.В.А. · Фішинг верифікації акаунту';
+      subtitle = 'Спроба фейкової перевірки або підтвердження особи';
+      explanation = 'Співрозмовник або ресурс схиляє до проходження «верифікації» з метою перехоплення доступу до облікового запису.';
+      iconSvg = '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 11 12 14 22 4"/>';
+    }
+
+    const snippet = rawTextToScan && rawTextToScan.length > 3
+      ? (rawTextToScan.length > 100 ? rawTextToScan.substring(0, 100) + '…' : rawTextToScan)
+      : '';
 
     const banner = document.createElement('div');
     banner.id = 'threat-shield-context-banner';
     banner.style.cssText = `
       position: fixed; 
-      top: 16px; 
+      top: 18px; 
       left: 50%; 
       transform: translateX(-50%); 
       z-index: 2147483647; 
-      background: rgba(28, 28, 30, 0.96); 
-      backdrop-filter: blur(24px); 
-      -webkit-backdrop-filter: blur(24px); 
-      border: 1px solid rgba(239, 68, 68, 0.35); 
-      border-radius: 16px; 
-      box-shadow: 0 16px 32px rgba(0,0,0,0.24); 
-      padding: 16px; 
-      width: 440px; 
-      color: #F5F5F7; 
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+      background: rgba(16, 16, 22, 0.90); 
+      backdrop-filter: blur(28px) saturate(190%); 
+      -webkit-backdrop-filter: blur(28px) saturate(190%); 
+      border: 1px solid ${themeBorder}; 
+      border-radius: 18px; 
+      box-shadow: ${themeGlow}; 
+      padding: 12px 16px; 
+      width: fit-content;
+      min-width: 380px;
+      max-width: 560px; 
+      color: #FFFFFF; 
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, sans-serif; 
       display: flex; 
       flex-direction: column; 
-      gap: 12px; 
+      gap: 10px; 
       pointer-events: auto;
+      user-select: none;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
     `;
-
-    const iconSvg = isSabotage 
-      ? '<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>'
-      : '<path d="M2 12h20M12 2v20"/><circle cx="12" cy="12" r="7"/>';
 
     banner.innerHTML = `
-      <div style="display: flex; align-items: center; gap: 10px;">
-        <div style="flex-shrink: 0; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 8px; background: rgba(239, 68, 68, 0.15); color: #EF4444;">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            ${iconSvg}
-          </svg>
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+        <div style="display: flex; align-items: center; gap: 10px; flex-grow: 1; min-width: 0;">
+          <div style="flex-shrink: 0; display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 8px; background: ${themeBg}; color: ${themeColor};">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              ${iconSvg}
+            </svg>
+          </div>
+          <div style="min-width: 0;">
+            <div style="font-weight: 600; font-size: 13px; line-height: 1.25; color: #FFFFFF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${title}</div>
+            <div style="font-size: 11px; color: ${themeColor}; margin-top: 1px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${subtitle}</div>
+          </div>
         </div>
-        <div style="flex-grow: 1;">
-          <div style="font-weight: 600; font-size: 14px; line-height: 1.2;">${title}</div>
-          <div style="font-size: 12px; color: #EF4444; margin-top: 2px; font-weight: 500;">${subtitle}</div>
-        </div>
-      </div>
-      
-      <div style="background: rgba(0, 0, 0, 0.2); border-radius: 8px; padding: 10px; border: 1px solid rgba(255, 255, 255, 0.05); font-size: 13px; font-style: italic; color: #D4D4D8; border-left: 3px solid #EF4444;">
-        «... ${snippet} ...»
-      </div>
-      
-      <div style="font-size: 13px; line-height: 1.4; color: #D4D4D8;">
-        ${explanation}
-      </div>
-      
-      <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 4px;">
-        ${isSabotage ? `
-          <button id="ts-btn-evorog" style="background: #0071E3; color: #FFF; border: none; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s; display: flex; justify-content: center; align-items: center;">
-            Повідомити СБУ (чат-бот єВорог)
+        <div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
+          <button id="ts-capsule-toggle" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.08); color: #E4E4E7; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 500; cursor: pointer; transition: all 0.2s;">
+            Згорнути ▴
           </button>
+          <button id="ts-capsule-close" title="Закрити" style="background: transparent; border: none; color: rgba(255, 255, 255, 0.5); font-size: 16px; line-height: 1; cursor: pointer; padding: 4px 6px; border-radius: 6px; transition: all 0.2s;">
+            ✕
+          </button>
+        </div>
+      </div>
+
+      <div id="ts-capsule-drawer" style="display: flex; flex-direction: column; gap: 8px; padding-top: 2px;">
+        ${snippet ? `
+          <div style="background: rgba(0, 0, 0, 0.25); border-radius: 8px; padding: 8px 10px; border: 1px solid rgba(255, 255, 255, 0.05); font-size: 12px; font-style: italic; color: #D4D4D8; border-left: 3px solid ${themeColor}; line-height: 1.35;">
+            «${snippet}»
+          </div>
         ` : ''}
-        <button id="ts-btn-close-tab" style="background: rgba(255,255,255,0.1); color: #FFF; border: none; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; transition: background 0.2s;">
-          Закрити вкладку
-        </button>
-        <button id="ts-btn-unblock" style="background: transparent; color: #A1A1AA; border: none; padding: 6px; font-size: 12px; cursor: pointer; text-decoration: underline; margin-top: 4px;">
-          Це хибне спрацьовування (Розблокувати чат)
-        </button>
+
+        <div style="font-size: 12px; line-height: 1.4; color: rgba(255, 255, 255, 0.82);">
+          ${explanation}
+        </div>
+
+        <div style="display: flex; align-items: center; justify-content: flex-end; gap: 8px; margin-top: 2px;">
+          ${isSabotage ? `
+            <button id="ts-btn-evorog" style="background: #0071E3; color: #FFF; border: none; padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; gap: 6px;">
+              Повідомити СБУ (єВорог)
+            </button>
+          ` : ''}
+          ${isCritical ? `
+            <button id="ts-btn-unblock" style="background: transparent; color: rgba(255, 255, 255, 0.5); border: none; padding: 6px 10px; font-size: 11px; cursor: pointer; text-decoration: underline;">
+              Це помилка (Розблокувати чат)
+            </button>
+          ` : `
+            <button id="ts-btn-ack" style="background: rgba(255, 255, 255, 0.12); color: #FFF; border: 1px solid rgba(255, 255, 255, 0.12); padding: 5px 14px; border-radius: 8px; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.2s;">
+              Зрозуміло
+            </button>
+          `}
+        </div>
       </div>
     `;
 
-    const evorogBtn = banner.querySelector('#ts-btn-evorog');
+    const drawer = banner.querySelector('#ts-capsule-drawer') as HTMLElement;
+    const toggleBtn = banner.querySelector('#ts-capsule-toggle') as HTMLElement;
+    const closeBtn = banner.querySelector('#ts-capsule-close') as HTMLElement;
+    const ackBtn = banner.querySelector('#ts-btn-ack') as HTMLElement;
+    const evorogBtn = banner.querySelector('#ts-btn-evorog') as HTMLElement;
+    const unblockBtn = banner.querySelector('#ts-btn-unblock') as HTMLElement;
+
+    let isExpanded = true;
+    if (toggleBtn && drawer) {
+      toggleBtn.addEventListener('click', () => {
+        isExpanded = !isExpanded;
+        drawer.style.display = isExpanded ? 'flex' : 'none';
+        toggleBtn.textContent = isExpanded ? 'Згорнути ▴' : 'Деталі ▾';
+      });
+      toggleBtn.addEventListener('mouseenter', () => (toggleBtn.style.background = 'rgba(255, 255, 255, 0.14)'));
+      toggleBtn.addEventListener('mouseleave', () => (toggleBtn.style.background = 'rgba(255, 255, 255, 0.08)'));
+    }
+
+    const dismissCapsule = () => {
+      ShadowHost.remove(banner);
+      if (onClose) onClose();
+      if (!isCritical && onClearThreat) {
+        onClearThreat();
+      }
+    };
+
+    if (closeBtn) {
+      closeBtn.addEventListener('click', dismissCapsule);
+      closeBtn.addEventListener('mouseenter', () => (closeBtn.style.color = '#FFFFFF'));
+      closeBtn.addEventListener('mouseleave', () => (closeBtn.style.color = 'rgba(255, 255, 255, 0.5)'));
+    }
+
+    if (ackBtn) {
+      ackBtn.addEventListener('click', dismissCapsule);
+      ackBtn.addEventListener('mouseenter', () => (ackBtn.style.background = 'rgba(255, 255, 255, 0.20)'));
+      ackBtn.addEventListener('mouseleave', () => (ackBtn.style.background = 'rgba(255, 255, 255, 0.12)'));
+    }
+
     if (evorogBtn) {
       evorogBtn.addEventListener('click', () => {
         window.open('https://t.me/evorog_bot', '_blank');
       });
-      evorogBtn.addEventListener('mouseenter', () => (evorogBtn as HTMLElement).style.background = '#0077ED');
-      evorogBtn.addEventListener('mouseleave', () => (evorogBtn as HTMLElement).style.background = '#0071E3');
+      evorogBtn.addEventListener('mouseenter', () => (evorogBtn.style.background = '#0077ED'));
+      evorogBtn.addEventListener('mouseleave', () => (evorogBtn.style.background = '#0071E3'));
     }
 
-    const closeTabBtn = banner.querySelector('#ts-btn-close-tab');
-    if (closeTabBtn) {
-      closeTabBtn.addEventListener('click', () => {
-        document.body.innerHTML = '<div style="display:flex;justify-content:center;align-items:center;height:100vh;background:#000;color:#FFF;font-family:sans-serif;">Вкладку закрито з міркувань безпеки. Ви можете закрити вікно.</div>';
-      });
-      closeTabBtn.addEventListener('mouseenter', () => (closeTabBtn as HTMLElement).style.background = 'rgba(255,255,255,0.15)');
-      closeTabBtn.addEventListener('mouseleave', () => (closeTabBtn as HTMLElement).style.background = 'rgba(255,255,255,0.1)');
-    }
-
-    const unblockBtn = banner.querySelector('#ts-btn-unblock');
     if (unblockBtn) {
       unblockBtn.addEventListener('click', () => {
         ShadowHost.remove(banner);
         if (onClearThreat) onClearThreat();
         window.postMessage({ type: 'THREAT_SHIELD_DISABLE_CHAT_FREEZE' }, '*');
       });
+      unblockBtn.addEventListener('mouseenter', () => (unblockBtn.style.color = '#FFFFFF'));
+      unblockBtn.addEventListener('mouseleave', () => (unblockBtn.style.color = 'rgba(255, 255, 255, 0.5)'));
     }
 
     root.appendChild(banner);
-    window.postMessage({ type: 'THREAT_SHIELD_ENABLE_CHAT_FREEZE' }, '*');
+
+    if (isCritical) {
+      window.postMessage({ type: 'THREAT_SHIELD_ENABLE_CHAT_FREEZE' }, '*');
+    }
   }
 
   /**

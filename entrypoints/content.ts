@@ -272,7 +272,12 @@ export default defineContentScript({
         DebuggerOverlay.log('Чат: Аналіз Намірів (NLP)', `Виявлено: ${intentType}`, '#EF4444');
       }
 
-      if (confidence && confidence >= 50) {
+      const isCriticalThreat =
+        intentType === 'MILITARY_SABOTAGE_RECRUITMENT' ||
+        intentType === 'SEED_PHRASE_THEFT' ||
+        intentType === 'CRYPTO_WALLET_COMPROMISE';
+
+      if (isCriticalThreat && confidence && confidence >= 50) {
         GlobalInputInterceptor.setHardLock(localContext);
       }
 
@@ -389,11 +394,15 @@ export default defineContentScript({
       let subtitle = 'У повідомленні виявлено підозрілий вміст';
       if (event.intentType === 'MILITARY_SABOTAGE_RECRUITMENT') {
         subtitle = 'ст. 111-2, 113 ККУ (Вербування / Диверсія)';
+      } else if (event.intentType === 'SEED_PHRASE_THEFT' || event.intentType === 'CRYPTO_WALLET_COMPROMISE') {
+        subtitle = 'Спроба викрадення мнемонічної seed-фрази або криптогаманця';
+      } else if (event.intentType === 'ESCROW_DELIVERY_SCAM') {
+        subtitle = 'Імітація фінансової угоди або фейкової кур’єрської виплати';
       } else if (event.intentType === 'IDENTITY_PROBING') {
         subtitle = 'Співрозмовник випитує персональні банківські маркери (ІПН / Дівоче прізвище)';
       } else if (event.intentType === 'PAYMENT_CREDENTIAL_THEFT') {
         subtitle = 'Співрозмовник запитує конфіденційні реквізити (CVV / SMS-пароль)';
-      } else if (event.isOffPlatformLure) {
+      } else if (event.isOffPlatformLure || event.intentType === 'OFF_PLATFORM_REDIRECT') {
         subtitle = 'У повідомленні виявлено перенаправлення на інший месенджер';
       } else if (event.suspiciousUrls && event.suspiciousUrls.length > 0) {
         subtitle = 'У повідомленні виявлено підозріле посилання';
