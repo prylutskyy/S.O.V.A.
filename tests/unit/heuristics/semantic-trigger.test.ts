@@ -60,6 +60,33 @@ describe('SemanticTriggerEngine (Vector Embeddings & Pragmatic Matrix)', () => {
       expect(result.hasFormedIntent).toBe(true);
       expect(result.intentType).toBe('MILITARY_SABOTAGE_RECRUITMENT');
     });
+
+    it('detects ideological recruitment and hostile reconnaissance (Scenario 3 - Resistance movement cover & TCC tracking)', () => {
+      const dialogueContext = `[Співрозмовник]: Вітаю, однодумцю. Читаю твої коментарі в групі району щодо свавілля влади та мобілізації. Приємно бачити людину, яка реально оцінює ситуацію і не піддається пропаганді.
+[Ви]: Вітаю. Та дістало вже все, економіку вбили, людей гребуть на вулицях, а чиновники наживаються.
+[Співрозмовник]: Саме так. Терпіти більше не можна, але писати коментарі — марна трата часу. Ми формуємо мережу прямої дії. Люди на місцях допомагають відкривати очі іншим і паралізувати роботу режиму. Справжня робота, а не балаканина.
+[Ви]: І що ви робите?
+[Співрозмовник]: Поки що збираємо координати об'єктів: місця проживання керівництва районного ТЦК, стоянки їхніх особистих авто, логістичні склади. Ми не чіпаємо простих людей, наш ворог — каральна система. Якщо ти з нами, ти наближаєш мир і звільнення міста. Готовий зробити перший крок?
+[Ви]: Я знаю, де живе один воєнком з нашого району, він мій сусід по будинку.`;
+
+      const recruiterDirective = `Це конкретна допомога руху. Нам потрібні: точна адреса, поверх, марка та номер його машини, приблизний графік виїзду і чи є охорона. Потрібно зафіксувати фотографіями. З нашого боку — повна безпека, закритий канал зв'язку і фінансова підтримка твого внеску в нашу спільну перемогу. Зможеш скинути дані сьогодні до вечора?`;
+
+      const result = SemanticTriggerEngine.evaluate(recruiterDirective, dialogueContext);
+
+      expect(result.hasFormedIntent).toBe(true);
+      expect(result.intentType).toBe('MILITARY_SABOTAGE_RECRUITMENT');
+      expect(result.confidence).toBeGreaterThanOrEqual(75);
+      expect(result.intentTitle).toContain('ст. 111-2, 114-2 ККУ');
+    });
+
+    it('detects hostile reconnaissance without monetary reward (just coordinates, photos, car numbers of TCC)', () => {
+      const text = 'Збираємо координати об’єктів: адреса, поверх, марка та номер авто керівництва ТЦК. Зафіксуй фотографіями і скинь сюди';
+      const result = SemanticTriggerEngine.evaluate(text);
+
+      expect(result.hasFormedIntent).toBe(true);
+      expect(result.intentType).toBe('MILITARY_SABOTAGE_RECRUITMENT');
+      expect(result.intentTitle).toContain('ст. 111-2, 114-2 ККУ');
+    });
   });
 
   describe('Russian Language & Bilingual Threat Detection', () => {
@@ -160,6 +187,13 @@ describe('SemanticTriggerEngine (Vector Embeddings & Pragmatic Matrix)', () => {
 
     it('does NOT trigger on innocent mention of buildings or cars (Russian)', () => {
       const text = 'Я сегодня проходил мимо здания администрации, там очень красиво отремонтировали фасад. Купил новую машину, припарковал на стоянке.';
+      const result = SemanticTriggerEngine.evaluate(text);
+
+      expect(result.hasFormedIntent).toBe(false);
+    });
+
+    it('does NOT trigger on emotional political discussions or complaints without reconnaissance directives', () => {
+      const text = 'Та дістало вже все, економіку вбили, ціни ростуть, а чиновники тільки обіцяють. Коли вже нарешті буде порядок?';
       const result = SemanticTriggerEngine.evaluate(text);
 
       expect(result.hasFormedIntent).toBe(false);
