@@ -129,14 +129,6 @@ describe('SemanticTriggerEngine (Vector Embeddings & Pragmatic Matrix)', () => {
       expect(result.intentType).toBe('MILITARY_SABOTAGE_RECRUITMENT');
     });
 
-    it('detects Russian escrow delivery scam', () => {
-      const text = 'Я уже оформил доставку и оплатил товар. Вот ссылка для получения средств: https://olx-delivery-ua.site/pay/9284, подтвердите получение денег на карту';
-      const result = SemanticTriggerEngine.evaluate(text);
-
-      expect(result.hasFormedIntent).toBe(true);
-      expect(result.intentType).toBe('ESCROW_DELIVERY_SCAM');
-    });
-
     it('detects Russian bank credential theft and CVV extraction', () => {
       const text = 'Для подтверждения перевода укажите номер карты, срок действия, cvv код и смс пароль от банка';
       const result = SemanticTriggerEngine.evaluate(text);

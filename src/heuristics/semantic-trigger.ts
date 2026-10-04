@@ -86,18 +86,6 @@ export class SemanticTriggerEngine {
       ]
     },
     {
-      id: 'ESCROW_DELIVERY_SCAM',
-      labelUk: 'Імітація фінансової угоди або фейкова курєрська доставка',
-      texts: [
-        'я вже оформив доставку і сплатив кошти, перейдіть за посиланням для отримання грошей на карту',
-        'оформіть безпечну угоду на сайті та підтвердіть зарахування коштів за посиланням',
-        'я оплатил товар через курьерскую доставку, вот ссылка для получения средств на вашу банковскую карту',
-        'я оформил олх доставку и оплатил товар, перейдите по ссылке чтобы получить деньги на карту',
-        'безопасная сделка оформлена, вот ссылка на получение средств, подтвердите перевод на карту',
-        'средства зарезервированы службой доставки, откройте ссылку и введите реквизиты для зачисления оплаты'
-      ]
-    },
-    {
       id: 'PAYMENT_CREDENTIAL_THEFT',
       labelUk: 'Виманювання платіжних реквізитів або кодів авторизації',
       texts: [
@@ -111,7 +99,7 @@ export class SemanticTriggerEngine {
   ];
 
   private static readonly REWARD_REGEX = /(?:\$|€|usd|usdt|uah|грн|крипт|биткоин|біткоїн|оплат|заплат|плачу|платим|платимо|тариф|(?<![\p{L}\p{N}])ставк|грош|деньг|бакс|сотк|тысяч|тисяч|тыщ|заробіт|заработ|доход|дохід|заробити|заработать|підробіт|подработ|на карту|на гаманець|на кошелек|на кошелёк|(?<![\p{L}\p{N}])(?:рубл|руб(?![а-яіїєё]))|\b\d+\s*(?:\$|€|usdt|usd|грн|руб|бакс)|фінанс|винагород|підтримк|кошт|компенсац|премі|бонус|матеріал)/iu;
-  private static readonly ACTION_REGEX = /(?:робот|работ|підробіт|подработ|підійди|підійдіть|подойди|подойдите|сходи|пойди|сфоткай|сфотографуй|сфотографируй|зроби\s+фото|сделай\s+фото|зніми\s+відео|сними\s+видео|зафільмуй|засними|оглянь|подивись|посмотри|глянь|перевір|проверь|надішли|отправь|скинь|скинеш|скинешь|скинуть|кинь|(?<![\p{L}\p{N}])(?:купи|купіть|купити|купуй|купуйте|купишь|купите)(?![\p{L}\p{N}])|розпали|підпали|підпалюєш|подожги|сожги|подж[её]г|закинь|віднеси|отнеси|поклади|положи|прикріпи|прикрепи|курєр|курьер|розвідник|разведчик|розвідк|разведк|завдання|задани|тестов|збираєм|собираем|зафіксуй|зафіксувати|зафиксируй|зафиксировать)/iu;
+  private static readonly ACTION_REGEX = /(?:робот|работ|підробіт|подработ|підійди|підійдіть|подойди|подойдите|сходи|пойди|сфоткай|сфотографуй|сфотографируй|зроби\s+фото|сделай\s+фото|зніми\s+відео|сними\s+видео|зафільмуй|засними|оглянь|подивись|посмотри|глянь|перевір|проверь|надішли|отправь|скинь|скинеш|скинешь|скинуть|кинь|(?<![\p{L}\p{N}])(?:купи|купіть|купити|купуй|купуйте|купишь|купите)(?![\p{L}\p{N}])|розпали|підпали|підпалюєш|подожги|сожги|подж[её]г|закинь|віднеси|отнеси|поклади|положи|прикріпи|прикрепи|курєр|курьер|розвідник|разведчик|розвідк|разведк|завдання|задани|тестов|збираєм|собираем|зафіксуй|зафіксувати|зафиксируй|зафиксировать|введіть|введи|введите|укажите|вкажіть|продиктуй|назвіть|назови|дай|дайте)/iu;
   private static readonly TARGET_REGEX = /(?:будівл|здани|споруд|сооружени|обєкт|объект|адміністрац|администрац|стоянц|парковк|стоян|авто|машин|транспорт|бус|номер|(?<!пере)(?<![\p{L}\p{N}])(?:хрест|крест)[а-яіїєё]*(?![\p{L}\p{N}])|піксель|пиксель|паркан|забор|колі[яї]|рельс|пут[еий]|ж\/?д|перегон|релейн|шаф|дріт|провод|веж|вышк|міст|мост|військов|военн|всу|тцк|воєнкомат|военкомат|воєнком|военком|частин|част[иь]|блокпост|патрул|адрес|вулиц|улиц|локац|координат|поверх|склад)/iu;
   private static readonly DISCRETION_REGEX = /(?:швидк|быстр|тишк|тихо|втихую|тихар|анонім|аноним|конфіденційн|конфиденциальн|секрет|видали|удали|очисти|безпечно|безопасно|безпек|легко|не бійся|не бойся|ніхто не взнає|ніхто не побачить|никто не узнает|никто не увидит|перевірен|проверен|прямо зараз|прямо сейчас|закрит[а-яіїєё]*\s+канал|таємн|тайн)/iu;
   private static readonly RECON_REGEX = /(?:координат|точна\s+адрес|поверх|марк[а-яіїєё]*\s+т?а?\s*номер|номер\s+машин|номер\s+авто|графік\s+виїзд|графік\s+рух|чи\s+є\s+охорон|наявніст[ья]\s+охорон|зафіксувати\s+фото|зробити\s+фото|відеозвіт|фотозвіт|розвіддан|збір\s+даних|розвідк|розвідник)/iu;
@@ -236,18 +224,6 @@ export class SemanticTriggerEngine {
       messenger: 0.65,
       escrow: 0.10,
       credential: 0.15,
-    },
-    ESCROW_DELIVERY_SCAM: {
-      reward: 0.75,
-      action: 0.60,
-      target: 0.15,
-      vehicle: 0.10,
-      media: 0.05,
-      sabotage: 0.05,
-      discretion: 0.40,
-      messenger: 0.80,
-      escrow: 0.95,
-      credential: 0.85,
     },
     PAYMENT_CREDENTIAL_THEFT: {
       reward: 0.40,
@@ -415,7 +391,7 @@ export class SemanticTriggerEngine {
     const isIdeologicalRecruitment =
       hasIdeologyCover &&
       signals.hasTargetFocus &&
-      (signals.hasActionDirective || hasReconProbing);
+      signals.hasActionDirective;
 
     const isSabotagePragmatic =
       (signals.hasRewardIncentive && signals.hasActionDirective && signals.hasTargetFocus) ||
@@ -431,15 +407,9 @@ export class SemanticTriggerEngine {
       ((topMatch.similarity >= 0.40 && (signals.hasTargetFocus || signals.hasRewardIncentive)) ||
        topMatch.similarity >= 0.65);
 
-    const isEscrowPragmatic =
-      topMatch.prototypeId === 'ESCROW_DELIVERY_SCAM' &&
-      (topMatch.similarity >= 0.42 ||
-        (topMatch.similarity >= 0.28 &&
-          signals.hasRewardIncentive &&
-          /посилан|ссылк|перейдіть|перейдите|получить|отримати|зачислени/i.test(combinedText)));
-
     const isCredentialPragmatic =
       topMatch.prototypeId === 'PAYMENT_CREDENTIAL_THEFT' &&
+      signals.hasActionDirective &&
       (topMatch.similarity >= 0.45 || (topMatch.similarity >= 0.38 && /cvv|cvc|срок\s+действия|термін\s+дії|номер\s+карт|парол|смс/i.test(combinedText)));
 
     let hasFormedIntent = false;
@@ -448,30 +418,27 @@ export class SemanticTriggerEngine {
     let confidence = 0;
     let reason = '';
 
-    if (isSabotagePragmatic || isHighVectorSabotage) {
-      hasFormedIntent = true;
-      intentType = 'MILITARY_SABOTAGE_RECRUITMENT';
-      intentTitle = isHostileReconnaissance || isIdeologicalRecruitment
-        ? 'ст. 111-2, 114-2 ККУ (Ворожа розвідка / Шпигунство)'
-        : 'ст. 111-2, 113 ККУ (Вербування / Диверсія)';
-      confidence = Math.min(95, Math.round(Math.max(topMatch.similarity * 100, 75)));
-      reason = isIdeologicalRecruitment
-        ? 'Семантичний збіг: вербування під прикриттям руху опору та збір військових координат'
-        : isHostileReconnaissance
-          ? 'Семантичний збіг: несанкціонований збір координат військових об’єктів чи транспорту (ст. 114-2 ККУ)'
-          : 'Семантичний матричний збіг: пропозиція винагороди за розвідувальні чи диверсійні дії';
-    } else if (isEscrowPragmatic) {
-      hasFormedIntent = true;
-      intentType = 'ESCROW_DELIVERY_SCAM';
-      intentTitle = 'Імітація фінансової угоди (Ескроу-шахрайство)';
-      confidence = Math.min(90, Math.round(topMatch.similarity * 100));
-      reason = 'Семантичний векторний збіг з шаблонами фішингу доставки';
-    } else if (isCredentialPragmatic) {
-      hasFormedIntent = true;
-      intentType = 'PAYMENT_CREDENTIAL_THEFT';
-      intentTitle = 'Викрадення платіжних реквізитів';
-      confidence = Math.min(90, Math.round(topMatch.similarity * 100));
-      reason = 'Семантичний векторний збіг з шаблонами викрадення реквізитів';
+    // Жорсткий прагматичний гейт (Action Directive Blocker)
+    if (signals.hasActionDirective) {
+      if (isSabotagePragmatic || isHighVectorSabotage) {
+        hasFormedIntent = true;
+        intentType = 'MILITARY_SABOTAGE_RECRUITMENT';
+        intentTitle = isHostileReconnaissance || isIdeologicalRecruitment
+          ? 'ст. 111-2, 114-2 ККУ (Ворожа розвідка / Шпигунство)'
+          : 'ст. 111-2, 113 ККУ (Вербування / Диверсія)';
+        confidence = Math.min(95, Math.round(Math.max(topMatch.similarity * 100, 75)));
+        reason = isIdeologicalRecruitment
+          ? 'Семантичний збіг: вербування під прикриттям руху опору та збір військових координат'
+          : isHostileReconnaissance
+            ? 'Семантичний збіг: несанкціонований збір координат військових об’єктів чи транспорту (ст. 114-2 ККУ)'
+            : 'Семантичний матричний збіг: пропозиція винагороди за розвідувальні чи диверсійні дії';
+      } else if (isCredentialPragmatic) {
+        hasFormedIntent = true;
+        intentType = 'PAYMENT_CREDENTIAL_THEFT';
+        intentTitle = 'Викрадення платіжних реквізитів';
+        confidence = Math.min(90, Math.round(topMatch.similarity * 100));
+        reason = 'Семантичний векторний збіг з шаблонами викрадення реквізитів';
+      }
     }
 
     const reconMatches = Array.from(new Set(Array.from(combinedText.matchAll(new RegExp(this.RECON_REGEX.source, 'gi'))).map(m => m[0])));
@@ -596,7 +563,6 @@ export class SemanticTriggerEngine {
     };
     return this.generateTelemetry(defaultText, signals, topMatch, [
       topMatch,
-      { prototypeId: 'ESCROW_DELIVERY_SCAM', similarity: 0.22, labelUk: 'Імітація фінансової угоди (Ескроу)' },
       { prototypeId: 'PAYMENT_CREDENTIAL_THEFT', similarity: 0.18, labelUk: 'Викрадення платіжних реквізитів' },
     ], {
       hasFormedIntent: true,

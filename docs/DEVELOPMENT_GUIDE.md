@@ -112,6 +112,7 @@ Implements the Chain of Responsibility pattern for inspecting HTML forms:
 ### 2.3. `src/heuristics/` (Threat Scanners and Linguistic Engines)
 DOM-aware and text-based heuristic analyzers operating synchronously in the content script:
 - `intent-classifier.ts`: Semantic NLP classifier matching 8 threat categories without relying on broken `\b` word boundaries for Cyrillic scripts.
+- `semantic-trigger.ts`: Tier 1.5 Subword N-Gram and 10D Concept Cosine Vectorizer. High-speed local engine operating with a rigid Action Directive Blocker, focusing strictly on orthogonal vectors (Military Sabotage Recruitment and Payment Credential Theft).
 - `fuzzy-matcher.ts`: Linguistic engine providing homoglyph canonical folding, phonetic vowel normalization, sliding n-grams ($n=2..4$), Damerau-Levenshtein distance, and typo-tolerant tax ID checking.
 - `proactive-field-protector.ts`: Sanctuary Sealed Apertures. Proactively seals sensitive inputs (`readOnly = true`) on unaccredited sites before user input occurs.
 - `chat-channel.ts` and `chat-session-state.ts`: Passive `MutationObserver` inspecting web chats, buffering fragmented messages, and tracking conversation immunity.
@@ -205,7 +206,7 @@ All visual elements injected into third-party web pages must reside inside the S
 
 ---
 
-## 4. Two-Tier Detection Pipeline (Tier 1 and Tier 2)
+## 4. Multi-Tier Detection Pipeline (Tier 1 -> Tier 1.5 -> Tier 2)
 
 ```text
 [User Interaction: Form Input / Chat Message]
@@ -231,6 +232,12 @@ All visual elements injected into third-party web pages must reside inside the S
         ├── Scam confirmed ──> Keep Hard Lock, update XAI reasoning
         └── False positive ──> Clear lock, broadcast CONTEXT_CLEARED, restore form
 ```
+
+### Binary UI Decision Model:
+To eliminate warning fatigue and false alarms in daily browsing, the system uses a strictly binary UI state model:
+1. **Never show yellow/blue intermediate warnings:** Ambiguous heuristic states do not disrupt the user. Tier 1.5 remains completely silent in the UI, functioning purely as a local pre-filter.
+2. **Red Hard Lock (`CONFIRMED_THREAT`):** Presented ONLY when local heuristics and Tier 2 LLM Arbiter form a solid consensus on malicious intent, or when hardcoded critical form rules trigger.
+3. **Green Clean (`CLEAN`):** Standard operational state for safe sites, low background scores, and LLM-disproved false positives. User-mitigated threats (e.g., cleared inputs) safely display "БЕЗПЕЧНО (ВВЕДЕННЯ СКАСОВАНО)".
 
 ### Golden Rules of Asynchronous Execution:
 1. **Never block the content script thread:** The synchronous flow of `entrypoints/content.ts` must never await `chrome.runtime.sendMessage` or LLM API calls before allowing basic navigation on safe sites. Always use callbacks, non-blocking promises, or optimistic UI locks.

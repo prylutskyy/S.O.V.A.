@@ -146,10 +146,9 @@ describe('FormSubmitInterceptor', () => {
       DebuggerOverlay.setAssessment(0, 'LOW');
 
       const fpAssessment = DebuggerOverlay['assessFalsePositive']();
-      expect(fpAssessment.status).toBe('THREAT_MITIGATED');
-      expect(fpAssessment.badgeText).toContain('ЗАГРОЗУ ВІДВЕРНУТО');
+      expect(fpAssessment.status).toBe('CLEAN');
+      expect(fpAssessment.badgeText).toContain('БЕЗПЕЧНО (ВВЕДЕННЯ СКАСОВАНО)');
       expect(fpAssessment.heuristicVerdict).toContain('75/100');
-      expect(fpAssessment.heuristicVerdict).toContain('Чернетка: 0/100');
     });
 
     it('records mitigation when user blocks submission or applies decoys', () => {
@@ -158,7 +157,7 @@ describe('FormSubmitInterceptor', () => {
       expect(DebuggerOverlay.isThreatMitigated()).toBe(true);
 
       const fpAssessment = DebuggerOverlay['assessFalsePositive']();
-      expect(fpAssessment.status).toBe('THREAT_MITIGATED');
+      expect(fpAssessment.status).toBe('CLEAN');
       expect(fpAssessment.recommendation).toContain('Decoys');
     });
   });

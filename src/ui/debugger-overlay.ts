@@ -97,7 +97,7 @@ export class DebuggerOverlay {
     filterCategory: 'ALL' as NeuromonitorCategoryFilter,
     filterSearch: '',
     isMinimized: false,
-    selectedPrototypeId: 'MILITARY_SABOTAGE_RECRUITMENT' as string,
+    selectedPrototypeId: 'MILITARY_SABOTAGE_RECRUITMENT' as string | null,
     vectorTelemetry: null as SemanticVectorTelemetry | null,
     logs: [] as LogItem[],
   };
@@ -538,7 +538,7 @@ export class DebuggerOverlay {
     }
   }
 
-  // Оцінка консенсусу (Евристика vs LLM)
+  // Оцінка консенсусу (Евристика vs LLM) - Бінарна логіка
   private static assessFalsePositive() {
     const { score, severity, logs, threatMitigated, peakScore, liveScore, mitigationReason } = this.state;
     const isHeuristicRisk = score >= 40 || severity === 'HIGH' || severity === 'CRITICAL';
@@ -584,89 +584,50 @@ export class DebuggerOverlay {
       }
     });
 
-    const isAiDisproved = lastAiVerdict !== null && !lastAiVerdict.isScam;
     const isAiConfirmed = lastAiVerdict !== null && lastAiVerdict.isScam;
 
-    // 1. Сценарій: Ризик нейтралізовано користувачем (скасовано введення / очищено форму / застосовано decoys)
+    // Якщо загрозу відвернуто
     if (threatMitigated && peakScore >= 35) {
-      return {
-        status: 'THREAT_MITIGATED',
-        badgeIcon: ICONS.shieldCheck(12, '#B25900'),
-        badgeText: 'ЗАГРОЗУ ВІДВЕРНУТО (ВВЕДЕННЯ СКАСОВАНО)',
-        badgeClass: 'sc-badge-amber',
-        explanation: `Система зафіксувала піковий ризик ${peakScore}/100 через спробу передачі чутливих даних. Користувач вчасно зупинив відправку або очистив поле. Безпосередню загрозу витоку нейтралізовано, але сесійний рівень загрози збережено для аудиту.`,
-        recommendation:
-          mitigationReason ||
-          'Чутливі дані вилучено з форми. Уникайте повторного введення секретної інформації на цій сторінці.',
-        heuristicVerdict: `Пік: ${peakScore}/100 (${severity}) · Чернетка: ${liveScore}/100 (Очищено)`,
-        aiVerdict: lastAiVerdict ? (lastAiVerdict.isScam ? 'ШІ: СКАМ (Відвернуто)' : 'ШІ: Безпечно') : 'Захищено користувачем',
-        triggers: triggers.length > 0 ? triggers : ['Витік персональних маркерів (відвернуто)'],
-      };
-    }
-
-    if (isHeuristicRisk && isAiDisproved) {
-      return {
-        status: 'FP_CANDIDATE',
-        badgeIcon: ICONS.alertTriangle(12, '#B25900'),
-        badgeText: 'РОЗБІЖНІСТЬ: ЙМОВІРНИЙ FALSE POSITIVE',
-        badgeClass: 'sc-badge-amber',
-        explanation: `Евристика зафіксувала ${score}/100 балів, але ШІ-арбітр (LLM) підтвердив безпечність (${lastAiVerdict?.confidence}% впевненості). Рекомендується довірити або уточнити статус сторінки.`,
-        recommendation: 'Можливе надмірне спрацювання на легітимній формі.',
-        heuristicVerdict: `Ризик ${score}/100 (${severity})`,
-        aiVerdict: `Безпечно (${lastAiVerdict?.confidence}%)`,
-        triggers,
-      };
-    } else if (isHeuristicRisk && isAiConfirmed) {
-      return {
-        status: 'CONFIRMED_THREAT',
-        badgeIcon: ICONS.alertCircle(12, '#D70015'),
-        badgeText: 'ПІДТВЕРДЖЕНА ЗАГРОЗА (TRUE POSITIVE)',
-        badgeClass: 'sc-badge-red',
-        explanation: `Консенсус безпеки: евристика (${score} балів) та ШІ-арбітр LLM (${lastAiVerdict?.confidence}%) підтвердили зловмисний намір або фішинг.`,
-        recommendation: 'Захисне блокування та переривання введення повністю виправдані.',
-        heuristicVerdict: `Ризик ${score}/100 (${severity})`,
-        aiVerdict: `СКАМ (${lastAiVerdict?.confidence}%)`,
-        triggers,
-      };
-    } else if (isHeuristicRisk && !lastAiVerdict) {
-      return {
-        status: 'HEURISTIC_ONLY',
-        badgeIcon: ICONS.zap(12, '#B25900'),
-        badgeText: 'ЕВРИСТИЧНЕ СПРАЦЮВАННЯ',
-        badgeClass: 'sc-badge-amber',
-        explanation: `Спрацювали анатомічні фільтри форм (${score} балів). ШІ-арбітраж ще триває або форма заблокована жорстким правилом.`,
-        recommendation: 'Перевірте виявлені підозрілі поля у списку тригерів нижче.',
-        heuristicVerdict: `Ризик ${score}/100 (${severity})`,
-        aiVerdict: 'Очікується аналіз',
-        triggers,
-      };
-    } else if (triggers.length > 0) {
-      return {
-        status: 'LOW_ACTIVITY',
-        badgeIcon: ICONS.info(12, '#0071E3'),
-        badgeText: 'ПОМІРНА АКТИВНІСТЬ (НИЗЬКИЙ РИЗИК)',
-        badgeClass: 'sc-badge-blue',
-        explanation:
-          'Зафіксовано окремі інформаційні тригери, проте інтегральний ризик форми знаходиться в межах безпечної норми.',
-        recommendation: 'Система продовжує пасивний моніторинг полів вводу.',
-        heuristicVerdict: `Низький ризик (${score}/100)`,
-        aiVerdict: lastAiVerdict ? 'Безпечно' : 'У нормі',
-        triggers,
-      };
-    } else {
       return {
         status: 'CLEAN',
         badgeIcon: ICONS.shieldCheck(12, '#248A3D'),
-        badgeText: 'НОРМА: АНОМАЛІЙ НЕ ВИЯВЛЕНО',
+        badgeText: 'БЕЗПЕЧНО (ВВЕДЕННЯ СКАСОВАНО)',
         badgeClass: 'sc-badge-green',
-        explanation:
-          'Форми та комунікації на цій сторінці відповідають стандартам безпеки. Ознак фішингу, прихованих полів або викрадення балансу немає.',
-        recommendation: 'Система функціонує у фоновому пасивному режимі.',
-        heuristicVerdict: `Безпечно (${score}/100)`,
-        aiVerdict: lastAiVerdict ? 'Безпечно' : 'У нормі',
-        triggers: ['Тригери відсутні'],
+        explanation: 'Спроба передачі чутливих даних була вчасно скасована користувачем.',
+        recommendation: mitigationReason || 'Загрозу витоку нейтралізовано.',
+        heuristicVerdict: `Пік: ${peakScore}/100`,
+        aiVerdict: 'Захищено користувачем',
+        triggers: triggers.length > 0 ? triggers : ['Витік відвернуто'],
       };
     }
+
+    // ЄДИНИЙ ЧЕРВОНИЙ СТАН: Тільки якщо ШІ підтвердив загрозу, або якщо ризик критичний і ШІ ще не відповів (можливо, жорстке правило)
+    if (isHeuristicRisk && (isAiConfirmed || (score >= 90 && !lastAiVerdict))) {
+      return {
+        status: 'CONFIRMED_THREAT',
+        badgeIcon: ICONS.alertCircle(12, '#D70015'),
+        badgeText: 'ПІДТВЕРДЖЕНА ЗАГРОЗА (КРИТИЧНИЙ РИЗИК)',
+        badgeClass: 'sc-badge-red',
+        explanation: `Консенсус безпеки: виявлено підтверджені ознаки соціальної інженерії.`,
+        recommendation: 'Захисне блокування та переривання введення повністю виправдані.',
+        heuristicVerdict: `Ризик ${score}/100 (${severity})`,
+        aiVerdict: lastAiVerdict ? `СКАМ (${lastAiVerdict.confidence}%)` : 'Жорстке правило / Очікується аналіз',
+        triggers,
+      };
+    }
+
+    // У всіх інших випадках (ШІ відхилив, або евристика спрацювала але ШІ ще мовчить, або тригерів мало) - система мовчить (зелена/сіра)
+    return {
+      status: 'CLEAN',
+      badgeIcon: ICONS.shieldCheck(12, '#248A3D'),
+      badgeText: 'БЕЗПЕЧНО: ЗАГРОЗ НЕ ВИЯВЛЕНО',
+      badgeClass: 'sc-badge-green',
+      explanation: 'Моніторинг працює у фоновому режимі.',
+      recommendation: 'Система функціонує штатно.',
+      heuristicVerdict: `Поточний фон: ${score}/100`,
+      aiVerdict: lastAiVerdict ? (lastAiVerdict.isScam ? 'СКАМ (Ігнорується)' : 'Безпечно') : 'У нормі',
+      triggers: triggers.length > 0 ? triggers : ['Тригери відсутні'],
+    };
   }
 
   // Генерація діагностичного звіту у форматі JSON
