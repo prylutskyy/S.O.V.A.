@@ -164,20 +164,21 @@ describe('Sanctuary Dynamic Intent Capsule (SecurityFriction.showContextWarningB
     const chevron = root.getElementById('chevron-indicator');
 
     expect(toggleBtn).not.toBeNull();
-    expect(drawer?.style.display).not.toBe('none');
-    expect(pill?.classList.contains('is-expanded')).toBe(true);
-
-    // Collapse drawer
-    toggleBtn?.click();
+    // Банер стартує у ЗГОРНУТОМУ стані
     expect(drawer?.style.display).toBe('none');
     expect(pill?.classList.contains('is-expanded')).toBe(false);
-    expect(chevron?.style.transform).toBe('rotate(0deg)');
 
-    // Expand drawer again
+    // Перший клік — розгортаємо
     toggleBtn?.click();
     expect(drawer?.style.display).toBe('flex');
     expect(pill?.classList.contains('is-expanded')).toBe(true);
     expect(chevron?.style.transform).toBe('rotate(180deg)');
+
+    // Другий клік — згортаємо знову
+    toggleBtn?.click();
+    expect(drawer?.style.display).toBe('none');
+    expect(pill?.classList.contains('is-expanded')).toBe(false);
+    expect(chevron?.style.transform).toBe('rotate(0deg)');
   });
 
   it('dismisses capsule when close button is clicked without clearing threat context', () => {

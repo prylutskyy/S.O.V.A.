@@ -790,7 +790,7 @@ export class SecurityFriction {
       <!-- 2. FOREGROUND CRISP OPTICAL STAGE -->
       <div class="crisp-foreground-layer">
         <!-- Main Pill -->
-        <div id="crisp-info-pill" class="crisp-info-pill liquid-glass-shell is-expanded" role="alert" tabindex="0" aria-expanded="true" style="display: flex; flex-direction: column;">
+        <div id="crisp-info-pill" class="crisp-info-pill liquid-glass-shell" role="alert" tabindex="0" aria-expanded="false" style="display: flex; flex-direction: column;">
           <!-- 56px Header Bar -->
           <div id="ts-pill-header" style="height: 56px; padding: 0 14px; display: flex; align-items: center; justify-content: space-between; width: 100%; box-sizing: border-box; cursor: pointer;">
             <div style="display: flex; align-items: center; min-width: 0; flex: 1; margin-right: 8px; pointer-events: none;">
@@ -818,7 +818,7 @@ export class SecurityFriction {
             <!-- Minimalist Circular Chevron Micro-Button (Original Apple Liquid Glass Chevron) -->
             <div style="display: flex; align-items: center; flex-shrink: 0; padding-left: 4px;">
               <button id="ts-capsule-toggle" class="ts-btn-capsule-toggle" aria-label="Згорнути або розгорнути деталі" style="width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #F3F4F6; border: 1.5px solid #CBD5E1; transition: all 0.2s; cursor: pointer; padding: 0; outline: none;">
-                <svg id="chevron-indicator" style="width: 14px; height: 14px; color: #4B5563; transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1); transform: rotate(180deg);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg id="chevron-indicator" style="width: 14px; height: 14px; color: #4B5563; transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1); transform: rotate(0deg);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4" d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
@@ -826,7 +826,7 @@ export class SecurityFriction {
           </div>
 
           <!-- Organic Accordion Drawer -->
-          <div id="ts-capsule-drawer" class="expandable-grid" style="display: flex; flex-direction: column;">
+          <div id="ts-capsule-drawer" class="expandable-grid" style="display: none;">
             <div class="grid-inner">
               <div id="banner-expanded-content" class="reveal-content" style="padding: 4px 20px 20px 20px; border-top: 1.5px solid #E5E7EB; color: #374151;">
                 ${isSabotage ? sabotageExpandedHtml : scamExpandedHtml}
@@ -905,7 +905,7 @@ export class SecurityFriction {
     const unblockBtn = banner.querySelector('#ts-btn-unblock') as HTMLElement;
 
     let isTorn = false;
-    let isExpanded = true;
+    let isExpanded = false;
 
     const triggerTear = () => {
       if (isTorn) return;
