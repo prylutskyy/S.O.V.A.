@@ -117,7 +117,11 @@ export default defineContentScript({
       }
 
       if (debugMode && shouldDisplayContextBanner(ctx)) {
-        SecurityFriction.showContextWarningBanner(ctx);
+        const subtitle =
+          ctx.scenario === 'MILITARY_SABOTAGE_RECRUITMENT'
+            ? 'ст. 111-2, 113 ККУ (Вербування / Диверсія)'
+            : undefined;
+        SecurityFriction.showContextWarningBanner(ctx, subtitle, undefined, ctx.scenario);
       }
     };
 
@@ -406,9 +410,29 @@ export default defineContentScript({
           }
 
           // Динамічна ескалація або корекція за вердиктом ШІ
+          const reasoningText = (aiResult.reasoning || '').toLowerCase();
+          const rawTextLower = (rawTextToScan || '').toLowerCase();
+          const detectedKeywordsList = (localContext.detectedKeywords || []).map((k) => k.toLowerCase());
+
+          // Ознаки диверсії/вербування в поясненні ШІ або в самому повідомленні
+          const sabotagePattern =
+            /диверс|верб|розвід|шпигун|куратор|підпал|релейн|військов|зсу|тцк|координат|ппо|ворож|спецслужб|фсб|гру|держзрад|111|113|114|небезпечн.*діяльн/i;
+
+          const isAiReasoningSabotage = sabotagePattern.test(reasoningText);
+          const isRawTextSabotage =
+            sabotagePattern.test(rawTextLower) ||
+            detectedKeywordsList.some((k) => sabotagePattern.test(k));
+          const isAiTypeSabotage = /MILITARY_SABOTAGE|RECRUITMENT|SABOTAGE|SPY/i.test(aiResult.scamType || '');
+
+          const isAiOtherType =
+            aiResult.scamType &&
+            ['PAYMENT_CREDENTIAL_THEFT', 'ESCROW_DELIVERY_SCAM', 'SEED_PHRASE_THEFT', 'IDENTITY_PROBING'].includes(aiResult.scamType);
+
           const isMilitarySabotage =
-            aiResult.scamType === 'MILITARY_SABOTAGE_RECRUITMENT' ||
-            (aiResult.reasoning && /диверс|вербув|тцк|підпал|військов/i.test(aiResult.reasoning));
+            isAiTypeSabotage ||
+            isAiReasoningSabotage ||
+            isRawTextSabotage ||
+            (intentType === 'MILITARY_SABOTAGE_RECRUITMENT' && !isAiOtherType);
 
           if (isMilitarySabotage) {
             localContext.scenario = 'MILITARY_SABOTAGE_RECRUITMENT';
@@ -418,16 +442,6 @@ export default defineContentScript({
               'ст. 111-2, 113 ККУ (Вербування / Диверсія)',
               'MILITARY_SABOTAGE_RECRUITMENT',
               aiResult.confidence || 95
-            );
-          } else if (intentType === 'MILITARY_SABOTAGE_RECRUITMENT') {
-            // ШІ підтвердив шахрайство, але спростував вербування/диверсію (наприклад, побутовий фінансовий тиск)
-            localContext.scenario = 'SUSPICIOUS_LURE';
-            localContext.threatLevel = 'HIGH';
-            displayThreatAlert(
-              localContext,
-              aiResult.reasoning || 'Підозра на шахрайство (соціальна інженерія)',
-              'SUSPICIOUS_LURE',
-              aiResult.confidence || 90
             );
           } else {
             const confirmedScenario = (aiResult.scamType as ScamIntentType) || (intentType !== 'UNKNOWN' ? (intentType as ScamIntentType) : 'SUSPICIOUS_LURE');

@@ -64,7 +64,11 @@ export class OpenAIDriver implements ICloudLLMDriver {
 
     const isScam = !!(parsed?.isScam ?? parsed?.is_scam ?? false);
     const confidence = typeof parsed?.confidence === 'number' ? parsed.confidence : (isScam ? 90 : 15);
-    const scamType = parsed?.scamType || parsed?.scam_type || (isScam ? 'SUSPICIOUS_LURE' : undefined);
+    const rawScamType = String(parsed?.scamType || parsed?.scam_type || '').trim();
+    let scamType = rawScamType || (isScam ? 'SUSPICIOUS_LURE' : undefined);
+    if (/military|sabotage|recruitment|диверс|верб/i.test(rawScamType)) {
+      scamType = 'MILITARY_SABOTAGE_RECRUITMENT';
+    }
     const reasoning = parsed?.reasoning || (isScam ? 'Виявлено ознаки шахрайства' : 'Ознак загрози не виявлено');
 
     return {

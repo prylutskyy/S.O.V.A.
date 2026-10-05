@@ -14,7 +14,43 @@ import { DebuggerOverlay } from './debugger-overlay';
 export class SecurityFriction {
   private static autoTearTimer: any = null;
   private static circuitKeyHandler: ((e: KeyboardEvent) => void) | null = null;
+  private static veilResizeHandler: (() => void) | null = null;
   private static isChatFreezeActive = false;
+
+  public static positionVeilElement(veil: HTMLElement): void {
+    if (typeof document === 'undefined') return;
+    const candidates = Array.from(document.querySelectorAll<HTMLElement>(
+      'textarea:not([aria-hidden="true"]), [contenteditable="true"]:not([aria-hidden="true"]), [role="textbox"], input[type="text"]:not([aria-hidden="true"]), input:not([type]):not([aria-hidden="true"])'
+    )).filter((el) => {
+      if (el.closest('threat-shield-host') || el.closest('#threat-shield-context-banner')) return false;
+      const r = el.getBoundingClientRect();
+      return r.width > 40 && r.height > 15;
+    });
+
+    const targetInput = candidates[candidates.length - 1];
+    if (targetInput) {
+      const container = (targetInput.closest('form, [class*="composer"], [class*="input-container"], [class*="chat-input"], [class*="message-input"], footer') as HTMLElement) || targetInput;
+      const rect = container.getBoundingClientRect();
+      const pad = container === targetInput ? 4 : 0;
+      veil.style.position = 'fixed';
+      veil.style.top = `${Math.max(8, rect.top - pad)}px`;
+      veil.style.left = `${Math.max(8, rect.left - pad)}px`;
+      veil.style.width = `${Math.min(window.innerWidth - 16, Math.max(280, rect.width + pad * 2))}px`;
+      veil.style.height = `${Math.max(48, rect.height + pad * 2)}px`;
+      veil.style.bottom = 'auto';
+      veil.style.transform = 'none';
+      veil.style.borderRadius = '16px';
+    } else {
+      veil.style.position = 'fixed';
+      veil.style.bottom = '24px';
+      veil.style.top = 'auto';
+      veil.style.left = '50%';
+      veil.style.transform = 'translateX(-50%)';
+      veil.style.width = 'min(580px, calc(100vw - 32px))';
+      veil.style.height = '56px';
+      veil.style.borderRadius = '16px';
+    }
+  }
 
   private static activeDisarmedForm: {
     form: HTMLFormElement;
@@ -271,14 +307,15 @@ export class SecurityFriction {
       ShadowHost.remove(existing as HTMLElement);
     }
 
-    const isSabotage = intentType === 'MILITARY_SABOTAGE_RECRUITMENT';
-    const isEscrow = intentType === 'ESCROW_DELIVERY_SCAM';
-    const isCredential = intentType === 'PAYMENT_CREDENTIAL_THEFT';
-    const isIdentity = intentType === 'IDENTITY_PROBING';
-    const isSeed = intentType === 'SEED_PHRASE_THEFT' || intentType === 'CRYPTO_WALLET_COMPROMISE';
-    const isOffPlatform = intentType === 'OFF_PLATFORM_REDIRECT';
-    const isVerification = intentType === 'VERIFICATION_PHISHING';
-    const isSuspiciousLure = intentType === 'SUSPICIOUS_LURE';
+    const effectiveIntent = (intentType || context?.scenario || 'UNKNOWN').toUpperCase();
+    const isSabotage = effectiveIntent === 'MILITARY_SABOTAGE_RECRUITMENT';
+    const isEscrow = effectiveIntent === 'ESCROW_DELIVERY_SCAM';
+    const isCredential = effectiveIntent === 'PAYMENT_CREDENTIAL_THEFT';
+    const isIdentity = effectiveIntent === 'IDENTITY_PROBING';
+    const isSeed = effectiveIntent === 'SEED_PHRASE_THEFT' || effectiveIntent === 'CRYPTO_WALLET_COMPROMISE';
+    const isOffPlatform = effectiveIntent === 'OFF_PLATFORM_REDIRECT';
+    const isVerification = effectiveIntent === 'VERIFICATION_PHISHING';
+    const isSuspiciousLure = effectiveIntent === 'SUSPICIOUS_LURE';
 
     const isCritical = isSabotage || isSeed;
 
@@ -697,20 +734,21 @@ export class SecurityFriction {
 
         .circuit-breaker-veil {
           position: fixed;
-          bottom: 24px;
-          left: 50%;
-          transform: translateX(-50%);
           z-index: 2147483646;
           background: #FFFFFF;
-          border: 1.5px solid #CBD5E1;
-          border-radius: 9999px;
-          box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.18), 0 4px 12px rgba(0, 0, 0, 0.06);
-          transition: all 0.35s ease;
+          border: 1.5px solid #FCA5A5;
+          border-radius: 16px;
+          box-shadow: 0 12px 32px -4px rgba(239, 68, 68, 0.16), 0 2px 8px rgba(0, 0, 0, 0.05);
+          transition: opacity 0.35s ease, transform 0.2s ease, border-color 0.25s ease;
           cursor: not-allowed;
           user-select: none;
-          padding: 6px 14px;
+          padding: 8px 16px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
           font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", sans-serif;
           pointer-events: auto;
+          box-sizing: border-box;
         }
 
         @keyframes prism-wave {
@@ -722,17 +760,17 @@ export class SecurityFriction {
           background-image: linear-gradient(
             90deg, 
             rgba(255, 255, 255, 0) 0%, 
-            rgba(255, 59, 48, 0.20) 40%, 
-            rgba(255, 255, 255, 0.6) 50%, 
-            rgba(255, 59, 48, 0.20) 60%, 
+            rgba(255, 59, 48, 0.18) 40%, 
+            rgba(255, 255, 255, 0.5) 50%, 
+            rgba(255, 59, 48, 0.18) 60%, 
             rgba(255, 255, 255, 0) 100%
-          );
-          background-size: 200% 100%;
-          animation: prism-wave 0.65s ease-out;
+          ) !important;
+          background-size: 200% 100% !important;
+          animation: prism-wave 0.65s ease-out !important;
         }
 
         .micro-shake {
-          animation: shake-anim 0.3s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+          animation: shake-anim 0.3s cubic-bezier(0.36, 0.07, 0.19, 0.97) both !important;
         }
         @keyframes shake-anim {
           10%, 90% { transform: translate3d(-1px, 0, 0); }
@@ -922,12 +960,24 @@ export class SecurityFriction {
         window.removeEventListener('keydown', SecurityFriction.circuitKeyHandler, true);
         SecurityFriction.circuitKeyHandler = null;
       }
+      if (SecurityFriction.veilResizeHandler && typeof window !== 'undefined') {
+        window.removeEventListener('resize', SecurityFriction.veilResizeHandler);
+        window.removeEventListener('scroll', SecurityFriction.veilResizeHandler);
+        SecurityFriction.veilResizeHandler = null;
+      }
       SecurityFriction.isChatFreezeActive = false;
       const activeVeil = root.getElementById('threat-shield-circuit-breaker-veil');
       if (activeVeil) {
         ShadowHost.remove(activeVeil as HTMLElement);
       }
       ShadowHost.remove(banner);
+      if (typeof document !== 'undefined') {
+        document.querySelectorAll<HTMLElement>('[data-ts-ambient-amber="true"]').forEach((el) => {
+          el.removeAttribute('data-ts-ambient-amber');
+          el.style.boxShadow = '';
+          el.style.borderColor = '';
+        });
+      }
       if (onClose) onClose();
       if (shouldClearThreat && !isCritical && onClearThreat) {
         onClearThreat();
@@ -964,12 +1014,24 @@ export class SecurityFriction {
           window.removeEventListener('keydown', SecurityFriction.circuitKeyHandler, true);
           SecurityFriction.circuitKeyHandler = null;
         }
+        if (SecurityFriction.veilResizeHandler && typeof window !== 'undefined') {
+          window.removeEventListener('resize', SecurityFriction.veilResizeHandler);
+          window.removeEventListener('scroll', SecurityFriction.veilResizeHandler);
+          SecurityFriction.veilResizeHandler = null;
+        }
         SecurityFriction.isChatFreezeActive = false;
         const activeVeil = root.getElementById('threat-shield-circuit-breaker-veil');
         if (activeVeil) {
           ShadowHost.remove(activeVeil as HTMLElement);
         }
         ShadowHost.remove(banner);
+        if (typeof document !== 'undefined') {
+          document.querySelectorAll<HTMLElement>('[data-ts-ambient-amber="true"]').forEach((el) => {
+            el.removeAttribute('data-ts-ambient-amber');
+            el.style.boxShadow = '';
+            el.style.borderColor = '';
+          });
+        }
         if (onClearThreat) onClearThreat();
         if (typeof window !== 'undefined') {
           window.postMessage({ type: 'THREAT_SHIELD_DISABLE_CHAT_FREEZE' }, '*');
@@ -985,21 +1047,34 @@ export class SecurityFriction {
       veil.id = 'threat-shield-circuit-breaker-veil';
       veil.className = 'circuit-breaker-veil';
       veil.innerHTML = `
-        <div id="circuit-badge" style="display: flex; align-items: center; gap: 10px; padding: 8px 16px; border-radius: 9999px; background: #FFFFFF; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border: 1.5px solid #EF4444; transition: transform 0.2s;">
-          <div style="width: 22px; height: 22px; border-radius: 50%; background: #FEE2E2; border: 1.5px solid #FCA5A5; display: flex; align-items: center; justify-content: center; color: #DC2626; flex-shrink: 0;">
+        <div id="circuit-badge" style="display: flex; align-items: center; gap: 10px; padding: 7px 16px; border-radius: 9999px; background: #FFFFFF; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08); border: 1.5px solid #FCA5A5; transition: transform 0.2s;">
+          <div style="width: 20px; height: 20px; border-radius: 50%; background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.2); display: flex; align-items: center; justify-content: center; color: #DC2626; flex-shrink: 0;">
             <svg style="width: 14px; height: 14px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
           </div>
           <div style="text-align: left;">
-            <p style="font-size: 11.5px; font-weight: 600; color: #111827; margin: 0; line-height: 1.2;">Ввід заблоковано контррозвідкою</p>
-            <p id="circuit-hint-text" style="font-size: 10px; color: #6B7280; margin: 0; line-height: 1.2;">Enter / Ctrl+C / копіювання вимкнено для безпеки</p>
+            <p style="font-size: 11.5px; font-weight: 600; color: #111827; margin: 0; line-height: 1.25;">Ввід заблоковано контррозвідкою</p>
+            <p id="circuit-hint-text" style="font-size: 10px; color: #6B7280; margin: 0; line-height: 1.25;">Enter / Ctrl+C / копіювання вимкнено для безпеки</p>
           </div>
         </div>
       `;
       root.appendChild(veil);
+      SecurityFriction.positionVeilElement(veil);
 
       SecurityFriction.isChatFreezeActive = true;
+
+      SecurityFriction.veilResizeHandler = () => {
+        const activeVeil = root.getElementById('threat-shield-circuit-breaker-veil');
+        if (activeVeil) {
+          SecurityFriction.positionVeilElement(activeVeil as HTMLElement);
+        }
+      };
+
+      if (typeof window !== 'undefined') {
+        window.addEventListener('resize', SecurityFriction.veilResizeHandler);
+        window.addEventListener('scroll', SecurityFriction.veilResizeHandler, { passive: true });
+      }
 
       const flashCircuitInterception = () => {
         const activeVeil = root.getElementById('threat-shield-circuit-breaker-veil');
@@ -1053,6 +1128,23 @@ export class SecurityFriction {
         window.addEventListener('keydown', SecurityFriction.circuitKeyHandler, true);
         window.postMessage({ type: 'THREAT_SHIELD_ENABLE_CHAT_FREEZE' }, '*');
       }
+    } else {
+      if (typeof document !== 'undefined') {
+        const candidates = Array.from(document.querySelectorAll<HTMLElement>(
+          'textarea:not([aria-hidden="true"]), [contenteditable="true"]:not([aria-hidden="true"]), [role="textbox"], input[type="text"]:not([aria-hidden="true"]), input:not([type]):not([aria-hidden="true"])'
+        )).filter((el) => {
+          if (el.closest('threat-shield-host') || el.closest('#threat-shield-context-banner')) return false;
+          const r = el.getBoundingClientRect();
+          return r.width > 40 && r.height > 15;
+        });
+        const targetInput = candidates[candidates.length - 1];
+        if (targetInput) {
+          const container = (targetInput.closest('form, [class*="composer"], [class*="input-container"], [class*="chat-input"], [class*="message-input"]') as HTMLElement) || targetInput;
+          container.setAttribute('data-ts-ambient-amber', 'true');
+          container.style.boxShadow = '0 0 0 2px rgba(255, 149, 0, 0.35), 0 12px 30px -8px rgba(255, 149, 0, 0.15)';
+          container.style.borderColor = 'rgba(255, 149, 0, 0.5)';
+        }
+      }
     }
   }
 
@@ -1069,6 +1161,11 @@ export class SecurityFriction {
       window.removeEventListener('keydown', this.circuitKeyHandler, true);
       this.circuitKeyHandler = null;
     }
+    if (this.veilResizeHandler && typeof window !== 'undefined') {
+      window.removeEventListener('resize', this.veilResizeHandler);
+      window.removeEventListener('scroll', this.veilResizeHandler);
+      this.veilResizeHandler = null;
+    }
     this.isChatFreezeActive = false;
 
     const veil = root.getElementById('threat-shield-circuit-breaker-veil');
@@ -1078,6 +1175,13 @@ export class SecurityFriction {
     const existing = root.getElementById('threat-shield-context-banner');
     if (existing) {
       ShadowHost.remove(existing as HTMLElement);
+    }
+    if (typeof document !== 'undefined') {
+      document.querySelectorAll<HTMLElement>('[data-ts-ambient-amber="true"]').forEach((el) => {
+        el.removeAttribute('data-ts-ambient-amber');
+        el.style.boxShadow = '';
+        el.style.borderColor = '';
+      });
     }
     if (typeof window !== 'undefined') {
       window.postMessage({ type: 'THREAT_SHIELD_DISABLE_CHAT_FREEZE' }, '*');

@@ -284,6 +284,86 @@ describe('Sanctuary Dynamic Intent Capsule (SecurityFriction.showContextWarningB
     banner?.dispatchEvent(new MouseEvent('mouseenter'));
     expect(banner?.classList.contains('is-torn')).toBe(true);
   });
+
+  it('infers sabotage scenario from context.scenario when intentType argument is omitted', () => {
+    const sabotageContext: ActiveThreatContext = {
+      ...dummyContext,
+      scenario: 'MILITARY_SABOTAGE_RECRUITMENT',
+    };
+
+    SecurityFriction.showContextWarningBanner(sabotageContext);
+
+    const root = ShadowHost.getRoot();
+    const banner = root.getElementById('threat-shield-context-banner');
+    expect(banner?.textContent).toContain('Державна безпека');
+    expect(banner?.textContent).toContain('Контррозвідка СБУ');
+    expect(banner?.textContent).toContain('Загроза вербування');
+    expect(root.getElementById('ts-btn-evorog')).not.toBeNull();
+    expect(root.getElementById('threat-shield-circuit-breaker-veil')).not.toBeNull();
+  });
+
+  it('positions Circuit Breaker veil over detected chat composer in DOM', () => {
+    const chatInput = document.createElement('textarea');
+    chatInput.getBoundingClientRect = vi.fn(() => ({
+      width: 400,
+      height: 60,
+      top: 500,
+      bottom: 560,
+      left: 100,
+      right: 500,
+      x: 100,
+      y: 500,
+      toJSON: () => {},
+    }));
+    document.body.appendChild(chatInput);
+
+    SecurityFriction.showContextWarningBanner(
+      dummyContext,
+      undefined,
+      undefined,
+      'MILITARY_SABOTAGE_RECRUITMENT'
+    );
+
+    const root = ShadowHost.getRoot();
+    const veil = root.getElementById('threat-shield-circuit-breaker-veil') as HTMLElement;
+    expect(veil).not.toBeNull();
+    expect(veil.style.position).toBe('fixed');
+    expect(veil.style.top).toBe('496px');
+    expect(veil.style.left).toBe('96px');
+    expect(veil.style.width).toBe('408px');
+    chatInput.remove();
+  });
+
+  it('applies ambient amber glow in Scenario B and clears it on dismiss', () => {
+    const chatInput = document.createElement('textarea');
+    chatInput.getBoundingClientRect = vi.fn(() => ({
+      width: 400,
+      height: 60,
+      top: 500,
+      bottom: 560,
+      left: 100,
+      right: 500,
+      x: 100,
+      y: 500,
+      toJSON: () => {},
+    }));
+    document.body.appendChild(chatInput);
+
+    SecurityFriction.showContextWarningBanner(
+      dummyContext,
+      undefined,
+      'Оплатіть за посиланням',
+      'PAYMENT_CREDENTIAL_THEFT'
+    );
+
+    expect(chatInput.getAttribute('data-ts-ambient-amber')).toBe('true');
+    expect(chatInput.style.borderColor).toContain('rgba(255, 149, 0');
+
+    SecurityFriction.removeContextWarningBanner();
+    expect(chatInput.getAttribute('data-ts-ambient-amber')).toBeNull();
+    expect(chatInput.style.borderColor).toBe('');
+    chatInput.remove();
+  });
 });
 
 

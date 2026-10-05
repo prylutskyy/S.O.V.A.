@@ -146,6 +146,33 @@ describe('GroqDriver - Dedicated Unit Tests', () => {
       expect(res.provider).toBe('groq');
       expect(res.latencyMs).toBeGreaterThanOrEqual(0);
     });
+
+    it('normalizes recruitment or sabotage scamType to MILITARY_SABOTAGE_RECRUITMENT', async () => {
+      const mockReply = JSON.stringify({
+        isScam: true,
+        confidence: 98,
+        scamType: 'recruitment',
+        reasoning: 'Співрозмовник активно вербує [Ви] на небезпечну діяльність під виглядом підробітку.',
+      });
+
+      // @ts-ignore
+      globalThis.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          choices: [{ message: { content: mockReply } }],
+        }),
+      });
+
+      const res = await driver.verifyThreat({
+        provider: 'groq',
+        apiKey: 'gsk_test',
+        sanitizedPrompt: 'test prompt',
+      });
+
+      expect(res.isScam).toBe(true);
+      expect(res.scamType).toBe('MILITARY_SABOTAGE_RECRUITMENT');
+      expect(res.reasoning).toContain('активно вербує');
+    });
   });
 
   describe('listModels', () => {

@@ -229,26 +229,9 @@ export class GlobalInputInterceptor {
           style.id = 'ts-chat-freeze-style';
           style.textContent = `
             input:not([type="hidden"]), textarea, [contenteditable="true"], [role="textbox"] {
-              position: relative !important;
               pointer-events: none !important;
-              opacity: 0.5 !important;
-              filter: grayscale(100%) blur(1px) !important;
               cursor: not-allowed !important;
               user-select: none !important;
-            }
-            body::after {
-              content: "";
-              position: fixed;
-              bottom: 0;
-              left: 0;
-              width: 100%;
-              height: 15vh;
-              background: rgba(28, 28, 30, 0.4);
-              backdrop-filter: blur(12px);
-              -webkit-backdrop-filter: blur(12px);
-              z-index: 2147483640;
-              pointer-events: auto;
-              cursor: not-allowed;
             }
           `;
           document.head.appendChild(style);
