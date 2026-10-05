@@ -160,19 +160,24 @@ describe('Sanctuary Dynamic Intent Capsule (SecurityFriction.showContextWarningB
     const root = ShadowHost.getRoot();
     const toggleBtn = root.getElementById('ts-capsule-toggle');
     const drawer = root.getElementById('ts-capsule-drawer');
+    const pill = root.getElementById('crisp-info-pill');
+    const chevron = root.getElementById('chevron-indicator');
 
-    expect(toggleBtn?.textContent?.trim()).toBe('Згорнути ▴');
+    expect(toggleBtn).not.toBeNull();
     expect(drawer?.style.display).not.toBe('none');
+    expect(pill?.classList.contains('is-expanded')).toBe(true);
 
     // Collapse drawer
     toggleBtn?.click();
     expect(drawer?.style.display).toBe('none');
-    expect(toggleBtn?.textContent?.trim()).toBe('Деталі ▾');
+    expect(pill?.classList.contains('is-expanded')).toBe(false);
+    expect(chevron?.style.transform).toBe('rotate(0deg)');
 
     // Expand drawer again
     toggleBtn?.click();
     expect(drawer?.style.display).toBe('flex');
-    expect(toggleBtn?.textContent?.trim()).toBe('Згорнути ▴');
+    expect(pill?.classList.contains('is-expanded')).toBe(true);
+    expect(chevron?.style.transform).toBe('rotate(180deg)');
   });
 
   it('dismisses capsule when close button is clicked', () => {
@@ -237,5 +242,47 @@ describe('Sanctuary Dynamic Intent Capsule (SecurityFriction.showContextWarningB
       '*'
     );
   });
+
+  it('renders Circuit Breaker veil on critical threats and intercepts blocked keys', () => {
+    SecurityFriction.showContextWarningBanner(
+      dummyContext,
+      'Диверсія',
+      'Завдання підпалу релейної шафи',
+      'MILITARY_SABOTAGE_RECRUITMENT'
+    );
+
+    const root = ShadowHost.getRoot();
+    const veil = root.getElementById('threat-shield-circuit-breaker-veil');
+    expect(veil).not.toBeNull();
+    expect(veil?.textContent).toContain('Ввід заблоковано контррозвідкою');
+
+    // Simulate keydown event for Enter
+    const enterEvent = new KeyboardEvent('keydown', { key: 'Enter', cancelable: true });
+    const preventDefaultSpy = vi.spyOn(enterEvent, 'preventDefault');
+    window.dispatchEvent(enterEvent);
+    expect(preventDefaultSpy).toHaveBeenCalled();
+
+    // Verify unblock removes veil
+    const unblockBtn = root.getElementById('ts-btn-unblock');
+    unblockBtn?.click();
+    expect(root.getElementById('threat-shield-circuit-breaker-veil')).toBeNull();
+  });
+
+  it('adds is-torn class upon mouseenter or interaction', () => {
+    SecurityFriction.showContextWarningBanner(
+      dummyContext,
+      'Застереження',
+      'Опис загрози',
+      'ESCROW_DELIVERY_SCAM'
+    );
+
+    const root = ShadowHost.getRoot();
+    const banner = root.getElementById('threat-shield-context-banner');
+    expect(banner?.classList.contains('is-torn')).toBe(false);
+
+    banner?.dispatchEvent(new MouseEvent('mouseenter'));
+    expect(banner?.classList.contains('is-torn')).toBe(true);
+  });
 });
+
 

@@ -12,6 +12,10 @@ import { UserWhitelistManager } from '../core/user-whitelist';
 import { DebuggerOverlay } from './debugger-overlay';
 
 export class SecurityFriction {
+  private static autoTearTimer: any = null;
+  private static circuitKeyHandler: ((e: KeyboardEvent) => void) | null = null;
+  private static isChatFreezeActive = false;
+
   private static activeDisarmedForm: {
     form: HTMLFormElement;
     originalBoxShadow: string;
@@ -247,6 +251,21 @@ export class SecurityFriction {
     onClearThreat?: () => void
   ): void {
     const root = ShadowHost.getRoot();
+
+    if (this.autoTearTimer) {
+      clearTimeout(this.autoTearTimer);
+      this.autoTearTimer = null;
+    }
+    if (this.circuitKeyHandler && typeof window !== 'undefined') {
+      window.removeEventListener('keydown', this.circuitKeyHandler, true);
+      this.circuitKeyHandler = null;
+    }
+    this.isChatFreezeActive = false;
+
+    const existingVeil = root.getElementById('threat-shield-circuit-breaker-veil');
+    if (existingVeil) {
+      ShadowHost.remove(existingVeil as HTMLElement);
+    }
     const existing = root.getElementById('threat-shield-context-banner');
     if (existing) {
       ShadowHost.remove(existing as HTMLElement);
@@ -263,169 +282,651 @@ export class SecurityFriction {
 
     const isCritical = isSabotage || isSeed;
 
-    let themeColor = '#FF9F0A'; // Apple Amber
-    let themeBg = 'rgba(255, 159, 10, 0.16)';
-    let themeBorder = 'rgba(255, 159, 10, 0.38)';
-    let themeGlow = '0 12px 36px rgba(0, 0, 0, 0.40), 0 0 24px rgba(255, 159, 10, 0.16)';
-
-    if (isCritical) {
-      themeColor = '#FF453A'; // Apple Crimson Red
-      themeBg = 'rgba(255, 69, 58, 0.18)';
-      themeBorder = 'rgba(255, 69, 58, 0.42)';
-      themeGlow = '0 12px 40px rgba(0, 0, 0, 0.52), 0 0 28px rgba(255, 69, 58, 0.24)';
-    }
-
+    let tag = 'Кібербезпека';
+    let subtag = customSubtitle ? 'ШІ-Арбітр' : 'Соціальна інженерія';
     let title = 'С.О.В.А. · Застереження безпеки';
-    let subtitle = customSubtitle || 'У листуванні виявлено підозрілий намір';
-    let explanation = 'Співрозмовник демонструє поведінкові маркери соціальної інженерії. Будьте уважні та уникайте переходу за сумнівними посиланнями чи введення конфіденційних реквізитів.';
-    let iconSvg = '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>';
+    let heading = 'С.О.В.А. · Підозра на шахрайство';
+    let tagColor = '#D97706';
+    let emblemBg = 'linear-gradient(180deg, #F59E0B 0%, #D97706 100%)';
+    let radarClass = 'radar-pulse-amber';
+    let iconSvg = '<svg style="width: 20px; height: 20px; color: #FFF;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>';
 
     if (isSabotage) {
+      tag = 'Державна безпека';
+      subtag = 'Контррозвідка СБУ';
+      tagColor = '#EF4444';
+      emblemBg = 'linear-gradient(180deg, #EF4444 0%, #E11D48 100%)';
+      radarClass = 'radar-pulse-red';
       title = 'С.О.В.А. · Ознаки ворожого вербування або диверсії';
-      subtitle = 'ст. 111-2, 113 ККУ (Державна зрада / Диверсія)';
-      explanation = 'Співрозмовник схиляє до збору координат, фотографування військових об’єктів чи підпалів за винагороду. Контакт тягне кримінальну відповідальність (аж до довічного позбавлення волі). <strong>Поле вводу заблоковано для вашого захисту.</strong>';
-      iconSvg = '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>';
+      heading = 'С.О.В.А. · Загроза вербування (Ознаки ворожого вербування або диверсії)';
+      iconSvg = '<svg style="width: 20px; height: 20px; color: #FFF;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>';
     } else if (isEscrow) {
+      tag = 'Кібербезпека';
+      subtag = 'Фішинг доставки';
+      tagColor = '#D97706';
       title = 'С.О.В.А. · Застереження: фішинг доставки';
-      subtitle = 'Імітація фінансової угоди або фейкової виплати на картку';
-      explanation = 'Співрозмовник намагається переконати вас відкрити зовнішнє посилання для «отримання» коштів. Справжні платформи (OLX, Prom) ніколи не вимагають переходу за сторонніми посиланнями та введення реквізитів картки чи CVV для зарахування оплати.';
-      iconSvg = '<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>';
+      heading = 'С.О.В.А. · Застереження: фішинг доставки';
     } else if (isCredential) {
+      tag = 'Кібербезпека';
+      subtag = 'Викрадення реквізитів';
+      tagColor = '#D97706';
       title = 'С.О.В.А. · Спроба викрадення платіжних даних';
-      subtitle = 'Запит конфіденційного CVV-коду або SMS-пароля';
-      explanation = 'Співрозмовник просить вказати CVV/CVC-код зі звороту картки або одноразовий SMS-пароль. Ці реквізити потрібні виключно для списання коштів з рахунку і ніколи не передаються стороннім особам.';
-      iconSvg = '<rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/><line x1="15" y1="15" x2="19" y2="15"/>';
+      heading = 'С.О.В.А. · Спроба викрадення платіжних даних';
     } else if (isIdentity) {
+      tag = 'Кібербезпека';
+      subtag = 'Персональні дані';
+      tagColor = '#D97706';
       title = 'С.О.В.А. · Випитування особистих даних';
-      subtitle = 'Збір банківських та персональних маркерів';
-      explanation = 'Співрозмовник збирає персональні маркери (ІПН, дівоче прізвище матері, секретні коди) для компрометації вашого банкінгу через службу підтримки.';
-      iconSvg = '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>';
+      heading = 'С.О.В.А. · Випитування особистих даних';
     } else if (isSeed) {
+      tag = 'Кібербезпека';
+      subtag = 'Криптозахист';
+      tagColor = '#EF4444';
+      emblemBg = 'linear-gradient(180deg, #EF4444 0%, #E11D48 100%)';
+      radarClass = 'radar-pulse-red';
       title = 'С.О.В.А. · Спроба викрадення криптогаманця';
-      subtitle = 'Запит Secret Recovery / Seed-фрази або ключів';
-      explanation = 'Співрозмовник намагається отримати доступ до вашої мнемонічної фрази (12/24 слів). Розголошення призведе до безповоротної втрати активів. <strong>Поле вводу заблоковано.</strong>';
-      iconSvg = '<path d="M21 2l-2 2m-1.5 1.5L16 7l-1.5-1.5L13 7l-1.5-1.5L10 7M7 10a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/>';
+      heading = 'С.О.В.А. · Спроба викрадення криптогаманця';
     } else if (isOffPlatform) {
+      tag = 'Кібербезпека';
+      subtag = 'Виведення в месенджер';
+      tagColor = '#D97706';
       title = 'С.О.В.А. · Перехід у сторонній месенджер';
-      subtitle = 'Спроба виведення комунікації за межі платформи';
-      explanation = 'Співрозмовник намагається перевести діалог у сторонній месенджер (Telegram, WhatsApp, Viber), де не діють гарантії безпеки платформи. Залишайтеся в офіційному чаті.';
-      iconSvg = '<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>';
+      heading = 'С.О.В.А. · Перехід у сторонній месенджер';
     } else if (isVerification) {
+      tag = 'Кібербезпека';
+      subtag = 'Фейкова верифікація';
+      tagColor = '#D97706';
       title = 'С.О.В.А. · Фішинг верифікації акаунту';
-      subtitle = 'Спроба фейкової перевірки або підтвердження особи';
-      explanation = 'Співрозмовник або ресурс схиляє до проходження «верифікації» з метою перехоплення доступу до облікового запису.';
-      iconSvg = '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 11 12 14 22 4"/>';
+      heading = 'С.О.В.А. · Фішинг верифікації акаунту';
     } else if (isSuspiciousLure) {
+      tag = 'Кібербезпека';
+      subtag = customSubtitle ? 'ШІ-Арбітр' : 'Соціальна інженерія';
+      tagColor = '#D97706';
       title = 'С.О.В.А. · Підозра на шахрайство';
-      subtitle = customSubtitle || 'У листуванні виявлено ознаки соціальної інженерії';
-      explanation = customSubtitle ? `ШІ-Арбітр виявив загрозу: ${customSubtitle}` : 'Співрозмовник демонструє маніпулятивні патерни або схиляє до термінового переказу коштів чи передачі даних. Зберігайте пильність та не здійснюйте переказів без перевірки.';
-      iconSvg = '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>';
+      heading = 'С.О.В.А. · Підозра на шахрайство';
     }
 
     const snippet = rawTextToScan && rawTextToScan.length > 3
-      ? (rawTextToScan.length > 100 ? rawTextToScan.substring(0, 100) + '…' : rawTextToScan)
+      ? (rawTextToScan.length > 120 ? rawTextToScan.substring(0, 120) + '…' : rawTextToScan)
       : '';
 
-    const banner = document.createElement('div');
-    banner.id = 'threat-shield-context-banner';
-    banner.style.cssText = `
-      position: fixed; 
-      top: 18px; 
-      left: 50%; 
-      transform: translateX(-50%); 
-      z-index: 2147483647; 
-      background: rgba(16, 16, 22, 0.90); 
-      backdrop-filter: blur(28px) saturate(190%); 
-      -webkit-backdrop-filter: blur(28px) saturate(190%); 
-      border: 1px solid ${themeBorder}; 
-      border-radius: 18px; 
-      box-shadow: ${themeGlow}; 
-      padding: 12px 16px; 
-      width: fit-content;
-      min-width: 380px;
-      max-width: 560px; 
-      color: #FFFFFF; 
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, sans-serif; 
-      display: flex; 
-      flex-direction: column; 
-      gap: 10px; 
-      pointer-events: auto;
-      user-select: none;
-      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-    `;
+    const sabotageExpandedHtml = `
+      <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 10px;">
+        <div style="padding: 12px 14px; border-radius: 14px; background: #FEF2F2; border: 1.5px solid #FCA5A5; font-size: 12px; color: #1F2937; line-height: 1.45; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+          <div style="display: flex; align-items: center; gap: 6px; font-weight: 600; color: #DC2626; margin-bottom: 4px;">
+            <span style="width: 6px; height: 6px; border-radius: 50%; background: #DC2626; display: inline-block;"></span>
+            <span>Схеми ворожого вербування через соцмережі</span>
+          </div>
+          Російські спецслужби (ФСБ, ГРУ) вербують громадян України через Telegram-канали та чати пошуку роботи. Під виглядом «кур’єрських завдань» чи «швидкого заробітку за криптовалюту (USDT)» куратори пропонують підпалювати <strong>релейні шафи Укрзалізниці</strong>, службові <strong>автомобілі ЗСУ</strong> або знімати координати розташування систем ППО та блокпостів.
+        </div>
 
-    banner.innerHTML = `
-      <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
-        <div style="display: flex; align-items: center; gap: 10px; flex-grow: 1; min-width: 0;">
-          <div style="flex-shrink: 0; display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 8px; background: ${themeBg}; color: ${themeColor};">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              ${iconSvg}
+        <div style="padding: 12px 14px; border-radius: 14px; background: #111827; border: 1.5px solid #374151; color: #FFFFFF; font-size: 11.5px; line-height: 1.45; box-shadow: 0 1px 3px rgba(0,0,0,0.06);">
+          <div style="display: flex; align-items: center; justify-content: space-between; font-weight: 600; color: #F87171; margin-bottom: 4px;">
+            <span style="display: flex; align-items: center; gap: 6px;">
+              <svg style="width: 14px; height: 14px; color: #EF4444;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              Кримінальна відповідальність: ст. 111 та 113 ККУ
+            </span>
+            <span style="font-size: 10px; color: #FCA5A5; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">Довічне ув'язнення</span>
+          </div>
+          Дії кваліфікуються за статтями 111 (Державна зрада) та 113 (Диверсія) Кримінального кодексу України в умовах воєнного стану. Покарання — <strong>від 15 років до довічного позбавлення волі</strong> з повною конфіскацією належного майна.
+        </div>
+
+        <div style="padding: 12px 14px; border-radius: 14px; background: #FFFFFF; border: 1.5px solid #CBD5E1; font-size: 11.5px; line-height: 1.45; color: #4B5563; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+          <span style="font-weight: 600; color: #111827; display: block; margin-bottom: 6px;">Покроковий протокол безпеки:</span>
+          <ol style="margin: 0; padding-left: 18px; line-height: 1.5; color: #4B5563; font-size: 11px;">
+            <li><strong>Збережіть докази:</strong> зробіть чіткі скріншоти повідомлень, профілю куратора та його ID. <strong>Нічого не видаляйте</strong> з листування.</li>
+            <li><strong>Негайно припиніть</strong> будь-яку комунікацію та не виконуйте жодних інструкцій.</li>
+            <li><strong>Надішліть інформацію</strong> до офіційного чат-бота <strong>«єВорог»</strong> (@evorog_bot) або до Служби безпеки України (чат-бот @sbu_help_bot або тел. 0-800-501-482).</li>
+          </ol>
+        </div>
+
+        <div style="padding: 12px 14px; border-radius: 14px; background: #ECFDF5; border: 1.5px solid #6EE7B7; font-size: 11.5px; line-height: 1.45; color: #064E3B; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+          <div style="display: flex; align-items: center; gap: 6px; font-weight: 600; color: #065F46; margin-bottom: 4px;">
+            <svg style="width: 14px; height: 14px; color: #059669;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
+            <span>Звільнення від відповідальності: ч. 3 ст. 111 КК України</span>
           </div>
-          <div style="min-width: 0;">
-            <div style="font-weight: 600; font-size: 13px; line-height: 1.25; color: #FFFFFF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${title}</div>
-            <div style="font-size: 11px; color: ${themeColor}; margin-top: 1px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${subtitle}</div>
-          </div>
+          Громадянин України, який не вчинив жодних дій на шкоду суверенітету та <strong>добровільно повідомив органи державної влади</strong> про отримане завдання та зв'язок з іноземними спецслужбами, згідно із законом <strong>повністю звільняється від кримінальної відповідальності</strong>.
         </div>
-        <div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
-          <button id="ts-capsule-toggle" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.08); color: #E4E4E7; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 500; cursor: pointer; transition: all 0.2s;">
-            Згорнути ▴
-          </button>
-          <button id="ts-capsule-close" title="Закрити" style="background: transparent; border: none; color: rgba(255, 255, 255, 0.5); font-size: 16px; line-height: 1; cursor: pointer; padding: 4px 6px; border-radius: 6px; transition: all 0.2s;">
-            ✕
-          </button>
-        </div>
-      </div>
 
-      <div id="ts-capsule-drawer" style="display: flex; flex-direction: column; gap: 8px; padding-top: 2px;">
         ${snippet ? `
-          <div style="background: rgba(0, 0, 0, 0.25); border-radius: 8px; padding: 8px 10px; border: 1px solid rgba(255, 255, 255, 0.05); font-size: 12px; font-style: italic; color: #D4D4D8; border-left: 3px solid ${themeColor}; line-height: 1.35;">
+          <div class="ts-capsule-snippet" style="padding: 10px 12px; border-radius: 12px; background: #F9FAFB; border: 1.5px solid #CBD5E1; border-left: 3.5px solid #EF4444; font-size: 12px; font-style: italic; color: #374151; line-height: 1.4;">
             «${snippet}»
           </div>
         ` : ''}
-
-        <div style="font-size: 12px; line-height: 1.4; color: rgba(255, 255, 255, 0.82);">
-          ${explanation}
-        </div>
-
-        <div style="display: flex; align-items: center; justify-content: flex-end; gap: 8px; margin-top: 2px;">
-          ${isSabotage ? `
-            <button id="ts-btn-evorog" style="background: #0071E3; color: #FFF; border: none; padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; gap: 6px;">
-              Повідомити СБУ (єВорог)
-            </button>
-          ` : ''}
-          ${isCritical ? `
-            <button id="ts-btn-unblock" style="background: transparent; color: rgba(255, 255, 255, 0.5); border: none; padding: 6px 10px; font-size: 11px; cursor: pointer; text-decoration: underline;">
-              Це помилка (Розблокувати чат)
-            </button>
-          ` : `
-            <button id="ts-btn-ack" style="background: rgba(255, 255, 255, 0.12); color: #FFF; border: 1px solid rgba(255, 255, 255, 0.12); padding: 5px 14px; border-radius: 8px; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.2s;">
-              Зрозуміло
-            </button>
-          `}
-        </div>
       </div>
     `;
 
+    const scamExpandedHtml = `
+      <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 10px;">
+        <div style="padding: 12px 14px; border-radius: 14px; background: #FFFBEB; border: 1.5px solid #FCD34D; font-size: 12px; color: #1F2937; line-height: 1.45; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+          <div style="display: flex; align-items: center; gap: 6px; font-weight: 600; color: #B45309; margin-bottom: 4px;">
+            <span style="width: 6px; height: 6px; border-radius: 50%; background: #F59E0B; display: inline-block;"></span>
+            <span>Ознаки соціальної інженерії</span>
+          </div>
+          ${customSubtitle ? `<div style="margin-bottom: 6px;"><strong>Вердикт ШІ-Арбітра:</strong> ${customSubtitle}</div>` : ''}
+          Співрозмовник демонструє маніпулятивні патерни, створює штучне відчуття терміновості та схиляє до переходу за сторонніми посиланнями або передачі платіжних реквізитів.
+        </div>
+
+        <div style="padding: 12px 14px; border-radius: 14px; background: #FFFFFF; border: 1.5px solid #CBD5E1; font-size: 11.5px; line-height: 1.45; color: #374151; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+          <span style="font-weight: 600; color: #111827; display: block; margin-bottom: 6px;">3 залізні правила цифрової безпеки:</span>
+          <ul style="margin: 0; padding-left: 18px; line-height: 1.5; color: #4B5563; font-size: 11px;">
+            <li style="margin-bottom: 4px;"><strong>Справжні сервіси ніколи не запитують CVV2</strong>, термін дії картки чи SMS-паролі. Співробітники банку бачать статус операцій без конфіденційних реквізитів.</li>
+            <li style="margin-bottom: 4px;"><strong>Банки та служби доставки не ведуть переписку в особистих чатах</strong> Telegram з неофіційних номерів.</li>
+            <li>Якщо є сумнів — <strong>закрийте чат</strong> і самостійно відкрийте офіційний застосунок банку або зателефонуйте на гарячу лінію підтримки.</li>
+          </ul>
+        </div>
+
+        ${snippet ? `
+          <div class="ts-capsule-snippet" style="padding: 10px 12px; border-radius: 12px; background: #F9FAFB; border: 1.5px solid #CBD5E1; border-left: 3.5px solid #F59E0B; font-size: 12px; font-style: italic; color: #374151; line-height: 1.4;">
+            «${snippet}»
+          </div>
+        ` : ''}
+      </div>
+    `;
+
+    const banner = document.createElement('div');
+    banner.id = 'threat-shield-context-banner';
+    banner.className = 'dynamic-island-anchor summoning';
+
+    banner.innerHTML = `
+      <svg class="sr-only" width="0" height="0" style="position: absolute; width: 0; height: 0; pointer-events: none;">
+        <defs>
+          <filter id="apple-liquid-tearing-filter" color-interpolation-filters="sRGB">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="6.5" result="blur" />
+            <feColorMatrix in="blur" mode="matrix" 
+              values="1 0 0 0 0  
+                      0 1 0 0 0  
+                      0 0 1 0 0  
+                      0 0 0 25 -12" result="goo" />
+            <feComposite in="SourceGraphic" in2="goo" operator="atop" />
+          </filter>
+        </defs>
+      </svg>
+
+      <style>
+        ${DESIGN_TOKENS_CSS}
+
+        #threat-shield-context-banner.dynamic-island-anchor {
+          --banner-width: 620px;
+          --banner-height: 56px;
+          --btn-size: 56px;
+          --gap: 12px;
+          --shrunk-pill-width: 484px;
+          --spring-snap: cubic-bezier(0.34, 1.32, 0.44, 1);
+          --spring-morph: cubic-bezier(0.16, 1.25, 0.28, 1);
+          --ease-apple: cubic-bezier(0.2, 0.85, 0.25, 1);
+
+          position: fixed;
+          top: 24px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: var(--banner-width);
+          max-width: calc(100vw - 32px);
+          z-index: 2147483647;
+          isolation: isolate;
+          transition: transform 0.6s var(--spring-morph), opacity 0.5s ease;
+          font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", sans-serif;
+          user-select: none;
+          box-sizing: border-box;
+        }
+
+        .liquid-glass-shell {
+          background: #FFFFFF;
+          border: 1.5px solid #CBD5E1;
+          box-shadow: 
+            0 20px 42px -12px rgba(0, 0, 0, 0.14),
+            0 4px 14px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .specular-rim {
+          border: 1.5px solid #CBD5E1;
+        }
+
+        .liquid-membrane-layer {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: var(--banner-height);
+          pointer-events: none;
+          filter: url(#apple-liquid-tearing-filter);
+          z-index: 10;
+          contain: paint layout;
+        }
+
+        .membrane-pill {
+          position: absolute;
+          left: 0;
+          top: 0;
+          height: var(--banner-height);
+          width: 100%;
+          background: #FFFFFF;
+          border-radius: 28px;
+          transition: width 0.65s var(--spring-snap);
+          transform: translateZ(0);
+          will-change: width;
+        }
+
+        .membrane-droplet {
+          position: absolute;
+          top: 0;
+          width: var(--btn-size);
+          height: var(--btn-size);
+          background: #FFFFFF;
+          border-radius: 50%;
+          left: calc(var(--banner-width) - var(--btn-size) - 2px);
+          transition: transform 0.65s var(--spring-snap);
+          transform: translateZ(0);
+          will-change: transform;
+        }
+
+        .crisp-foreground-layer {
+          position: relative;
+          z-index: 20;
+          width: 100%;
+          isolation: isolate;
+        }
+
+        .crisp-info-pill {
+          width: 100%;
+          min-height: var(--banner-height);
+          border-radius: 28px;
+          background: #FFFFFF;
+          border: 1.5px solid #CBD5E1;
+          transition: width 0.65s var(--spring-snap),
+                      border-radius 0.45s ease,
+                      box-shadow 0.4s ease,
+                      border-color 0.25s ease;
+          cursor: pointer;
+          position: relative;
+          overflow: hidden;
+          transform: translateZ(0);
+          box-sizing: border-box;
+        }
+
+        .crisp-info-pill:hover {
+          border-color: #94A3B8;
+          box-shadow: 
+            0 26px 50px -10px rgba(0, 0, 0, 0.16),
+            0 6px 18px -2px rgba(0, 0, 0, 0.06);
+        }
+
+        .crisp-circular-button {
+          position: absolute;
+          top: 0;
+          width: var(--btn-size);
+          height: var(--btn-size);
+          border-radius: 50%;
+          background: #FFFFFF;
+          border: 1.5px solid #CBD5E1;
+          box-shadow: 0 10px 24px -4px rgba(0, 0, 0, 0.14), 0 2px 6px rgba(0, 0, 0, 0.05);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          opacity: 0;
+          pointer-events: none;
+          transform: scale(0.65) translateX(-26px);
+          transition: transform 0.62s var(--spring-snap), 
+                      opacity 0.28s var(--ease-apple),
+                      box-shadow 0.25s ease,
+                      border-color 0.25s ease;
+          transform-origin: center center;
+          z-index: 30;
+          text-decoration: none;
+          cursor: pointer;
+          box-sizing: border-box;
+          outline: none;
+        }
+
+        .crisp-circular-button:hover {
+          border-color: #94A3B8;
+          box-shadow: 0 14px 30px -4px rgba(0, 0, 0, 0.18), 0 4px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        #threat-shield-context-banner.is-torn .membrane-pill,
+        #threat-shield-context-banner.is-torn .crisp-info-pill {
+          width: var(--shrunk-pill-width);
+        }
+
+        #threat-shield-context-banner.is-torn .droplet-action-1 {
+          transform: translateX(calc(var(--shrunk-pill-width) + var(--gap) - (var(--banner-width) - var(--btn-size) - 2px)));
+        }
+
+        #threat-shield-context-banner.is-torn .droplet-action-2 {
+          transform: translateX(calc(var(--shrunk-pill-width) + var(--gap) + var(--btn-size) + var(--gap) - (var(--banner-width) - var(--btn-size) - 2px)));
+        }
+
+        #threat-shield-context-banner.is-torn .btn-action-1 {
+          opacity: 1;
+          pointer-events: auto;
+          left: calc(var(--shrunk-pill-width) + var(--gap));
+          transform: scale(1) translateX(0);
+          transition-delay: 0.04s;
+        }
+
+        #threat-shield-context-banner.is-torn .btn-action-2 {
+          opacity: 1;
+          pointer-events: auto;
+          left: calc(var(--shrunk-pill-width) + var(--gap) + var(--btn-size) + var(--gap));
+          transform: scale(1) translateX(0);
+          transition-delay: 0.08s;
+        }
+
+        .expandable-grid {
+          display: grid;
+          grid-template-rows: 1fr;
+          transition: grid-template-rows 0.58s var(--spring-morph);
+        }
+
+        .expandable-grid > .grid-inner {
+          overflow: hidden;
+        }
+
+        .crisp-info-pill.is-expanded {
+          border-radius: 28px;
+          background: #FFFFFF;
+          border: 1.5px solid #CBD5E1;
+          box-shadow: 
+            0 36px 70px -14px rgba(0, 0, 0, 0.16),
+            0 8px 24px -4px rgba(0, 0, 0, 0.06);
+        }
+
+        .crisp-info-pill:not(.is-expanded) .expandable-grid {
+          grid-template-rows: 0fr;
+        }
+
+        .crisp-info-pill .reveal-content {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+          filter: blur(0px);
+          transition: opacity 0.4s var(--ease-apple), transform 0.5s var(--spring-morph), filter 0.4s ease;
+        }
+
+        .crisp-info-pill:not(.is-expanded) .reveal-content {
+          opacity: 0;
+          transform: translateY(-8px) scale(0.98);
+          filter: blur(4px);
+        }
+
+        @keyframes alert-pulse-red {
+          0%, 100% { transform: scale(1); opacity: 0.85; }
+          50% { transform: scale(1.18); opacity: 0.4; }
+        }
+        .radar-pulse-red {
+          animation: alert-pulse-red 2.6s ease-in-out infinite;
+        }
+
+        @keyframes alert-pulse-amber {
+          0%, 100% { transform: scale(1); opacity: 0.85; }
+          50% { transform: scale(1.18); opacity: 0.45; }
+        }
+        .radar-pulse-amber {
+          animation: alert-pulse-amber 3s ease-in-out infinite;
+        }
+
+        .summoning {
+          animation: dynamic-island-drop 0.65s var(--spring-morph) forwards;
+        }
+
+        @keyframes dynamic-island-drop {
+          0% {
+            transform: translateX(-50%) translateY(-40px) scale(0.92);
+            opacity: 0;
+            filter: blur(12px);
+          }
+          100% {
+            transform: translateX(-50%) translateY(0) scale(1);
+            opacity: 1;
+            filter: blur(0px);
+          }
+        }
+
+        .dismissing {
+          transition: transform 0.52s cubic-bezier(0.4, 0, 0.2, 1), 
+                      opacity 0.42s ease, 
+                      filter 0.42s ease !important;
+          transform: translateX(-50%) translateY(-36px) scale(0.92) !important;
+          opacity: 0 !important;
+          filter: blur(10px) !important;
+          pointer-events: none !important;
+        }
+
+        .circuit-breaker-veil {
+          position: fixed;
+          bottom: 24px;
+          left: 50%;
+          transform: translateX(-50%);
+          z-index: 2147483646;
+          background: #FFFFFF;
+          border: 1.5px solid #CBD5E1;
+          border-radius: 9999px;
+          box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.18), 0 4px 12px rgba(0, 0, 0, 0.06);
+          transition: all 0.35s ease;
+          cursor: not-allowed;
+          user-select: none;
+          padding: 6px 14px;
+          font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", sans-serif;
+          pointer-events: auto;
+        }
+
+        @keyframes prism-wave {
+          0% { background-position: -200% 0; }
+          100% { background-position: 200% 0; }
+        }
+
+        .shimmer-active {
+          background-image: linear-gradient(
+            90deg, 
+            rgba(255, 255, 255, 0) 0%, 
+            rgba(255, 59, 48, 0.20) 40%, 
+            rgba(255, 255, 255, 0.6) 50%, 
+            rgba(255, 59, 48, 0.20) 60%, 
+            rgba(255, 255, 255, 0) 100%
+          );
+          background-size: 200% 100%;
+          animation: prism-wave 0.65s ease-out;
+        }
+
+        .micro-shake {
+          animation: shake-anim 0.3s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+        }
+        @keyframes shake-anim {
+          10%, 90% { transform: translate3d(-1px, 0, 0); }
+          20%, 80% { transform: translate3d(2px, 0, 0); }
+          30%, 50%, 70% { transform: translate3d(-3px, 0, 0); }
+          40%, 60% { transform: translate3d(3px, 0, 0); }
+        }
+      </style>
+
+      <!-- 1. BACKSTAGE VISCOUS MEMBRANE LAYER -->
+      <div class="liquid-membrane-layer" aria-hidden="true">
+        <div class="membrane-pill"></div>
+        <div class="membrane-droplet droplet-action-1"></div>
+        <div class="membrane-droplet droplet-action-2"></div>
+      </div>
+
+      <!-- 2. FOREGROUND CRISP OPTICAL STAGE -->
+      <div class="crisp-foreground-layer">
+        <!-- Main Pill -->
+        <div id="crisp-info-pill" class="crisp-info-pill liquid-glass-shell is-expanded" role="alert" tabindex="0" aria-expanded="true" style="display: flex; flex-direction: column;">
+          <!-- 56px Header Bar -->
+          <div id="ts-pill-header" style="height: 56px; padding: 0 14px; display: flex; align-items: center; justify-content: space-between; width: 100%; box-sizing: border-box; cursor: pointer;">
+            <div style="display: flex; align-items: center; min-width: 0; flex: 1; margin-right: 8px; pointer-events: none;">
+              <!-- Emblem -->
+              <div id="banner-emblem" style="width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; position: relative; margin-right: 12px; background: ${emblemBg}; border: 1.5px solid rgba(0, 0, 0, 0.08);">
+                <div id="banner-radar-ring" class="${radarClass}" style="position: absolute; inset: 0; border-radius: 50%; background: ${isSabotage ? 'rgba(239, 68, 68, 0.35)' : 'rgba(245, 158, 11, 0.35)'};"></div>
+                <div style="position: relative; z-index: 10; display: flex; align-items: center; justify-content: center;">
+                  ${iconSvg}
+                </div>
+              </div>
+
+              <!-- Narrative typography -->
+              <div style="min-width: 0; flex: 1; padding-right: 4px;">
+                <div style="display: flex; align-items: center; gap: 6px; line-height: 1;">
+                  <span style="font-size: 10px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: ${tagColor};">${tag}</span>
+                  <span style="color: #D1D5DB; font-size: 10px;">•</span>
+                  <span style="font-size: 10px; color: #9CA3AF; font-weight: 500;">${subtag}</span>
+                </div>
+                <h2 style="font-size: 13.5px; font-weight: 600; color: #111827; letter-spacing: -0.015em; line-height: 1.3; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 0;">
+                  ${heading}
+                </h2>
+              </div>
+            </div>
+
+            <!-- Minimalist Circular Chevron Micro-Button (Original Apple Liquid Glass Chevron) -->
+            <div style="display: flex; align-items: center; flex-shrink: 0; padding-left: 4px;">
+              <button id="ts-capsule-toggle" class="ts-btn-capsule-toggle" aria-label="Згорнути або розгорнути деталі" style="width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #F3F4F6; border: 1.5px solid #CBD5E1; transition: all 0.2s; cursor: pointer; padding: 0; outline: none;">
+                <svg id="chevron-indicator" style="width: 14px; height: 14px; color: #4B5563; transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1); transform: rotate(180deg);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4" d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Organic Accordion Drawer -->
+          <div id="ts-capsule-drawer" class="expandable-grid" style="display: flex; flex-direction: column;">
+            <div class="grid-inner">
+              <div id="banner-expanded-content" class="reveal-content" style="padding: 4px 20px 20px 20px; border-top: 1.5px solid #E5E7EB; color: #374151;">
+                ${isSabotage ? sabotageExpandedHtml : scamExpandedHtml}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Droplets (Buttons) -->
+        ${isSabotage ? `
+          <a id="ts-btn-evorog" href="https://t.me/evorog_bot" target="_blank" rel="noopener noreferrer" class="crisp-circular-button btn-action-1 liquid-glass-shell" title="Перейти в офіційний чат-бот оборони України «єВорог» (@evorog_bot)">
+            <div style="width: 100%; height: 100%; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #FFFFFF; transition: background 0.2s;">
+              <svg style="width: 20px; height: 20px; color: #111827;" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.75-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .37z"/>
+              </svg>
+              <span style="font-size: 8px; font-weight: 700; letter-spacing: -0.02em; text-transform: uppercase; color: #1F2937; margin-top: 2px;">єВорог</span>
+            </div>
+          </a>
+
+          <button id="ts-btn-unblock" class="crisp-circular-button btn-action-2 liquid-glass-shell" title="Розблокувати ввід та зняти сповіщення">
+            <div style="width: 100%; height: 100%; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #6B7280; background: #FFFFFF; transition: all 0.2s;">
+              <svg style="width: 16px; height: 16px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+              <span style="font-size: 7.5px; font-weight: 600; text-transform: uppercase; margin-top: 2px; letter-spacing: -0.02em;">Зняти</span>
+            </div>
+          </button>
+        ` : (isCritical ? `
+          <button id="ts-btn-ack" class="crisp-circular-button btn-action-1 liquid-glass-shell" title="Зрозуміло">
+            <div style="width: 100%; height: 100%; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #FFFFFF; transition: background 0.2s;">
+              <svg style="width: 18px; height: 18px; color: #B45309;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+              <span style="font-size: 8px; font-weight: 700; letter-spacing: -0.02em; text-transform: uppercase; color: #1F2937; margin-top: 2px;">Зрозуміло</span>
+            </div>
+          </button>
+
+          <button id="ts-btn-unblock" class="crisp-circular-button btn-action-2 liquid-glass-shell" title="Розблокувати ввід та зняти сповіщення">
+            <div style="width: 100%; height: 100%; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #6B7280; background: #FFFFFF; transition: all 0.2s;">
+              <svg style="width: 16px; height: 16px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+              <span style="font-size: 7.5px; font-weight: 600; text-transform: uppercase; margin-top: 2px; letter-spacing: -0.02em;">Зняти</span>
+            </div>
+          </button>
+        ` : `
+          <button id="ts-btn-ack" class="crisp-circular-button btn-action-1 liquid-glass-shell" title="Зрозуміло">
+            <div style="width: 100%; height: 100%; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #FFFFFF; transition: background 0.2s;">
+              <svg style="width: 18px; height: 18px; color: #B45309;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+              <span style="font-size: 8px; font-weight: 700; letter-spacing: -0.02em; text-transform: uppercase; color: #1F2937; margin-top: 2px;">Зрозуміло</span>
+            </div>
+          </button>
+
+          <button id="ts-capsule-close" class="crisp-circular-button btn-action-2 liquid-glass-shell" title="Закрити сповіщення">
+            <div style="width: 100%; height: 100%; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #6B7280; background: #FFFFFF; transition: all 0.2s;">
+              <svg style="width: 16px; height: 16px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+              <span style="font-size: 7.5px; font-weight: 600; text-transform: uppercase; margin-top: 2px; letter-spacing: -0.02em;">Закрити</span>
+            </div>
+          </button>
+        `)}
+      </div>
+    `;
+
+    const pill = banner.querySelector('#crisp-info-pill') as HTMLElement;
+    const headerBar = banner.querySelector('#ts-pill-header') as HTMLElement;
     const drawer = banner.querySelector('#ts-capsule-drawer') as HTMLElement;
     const toggleBtn = banner.querySelector('#ts-capsule-toggle') as HTMLElement;
+    const chevron = banner.querySelector('#chevron-indicator') as HTMLElement;
     const closeBtn = banner.querySelector('#ts-capsule-close') as HTMLElement;
     const ackBtn = banner.querySelector('#ts-btn-ack') as HTMLElement;
     const evorogBtn = banner.querySelector('#ts-btn-evorog') as HTMLElement;
     const unblockBtn = banner.querySelector('#ts-btn-unblock') as HTMLElement;
 
+    let isTorn = false;
     let isExpanded = true;
-    if (toggleBtn && drawer) {
-      toggleBtn.addEventListener('click', () => {
-        isExpanded = !isExpanded;
+
+    const triggerTear = () => {
+      if (isTorn) return;
+      isTorn = true;
+      banner.classList.add('is-torn');
+      if (SecurityFriction.autoTearTimer) {
+        clearTimeout(SecurityFriction.autoTearTimer);
+        SecurityFriction.autoTearTimer = null;
+      }
+    };
+
+    SecurityFriction.autoTearTimer = setTimeout(() => {
+      triggerTear();
+    }, 2000);
+
+    banner.addEventListener('mouseenter', triggerTear);
+    banner.addEventListener('touchstart', triggerTear, { passive: true });
+
+    const toggleAccordion = (e?: Event) => {
+      if (e) e.stopPropagation();
+      triggerTear();
+      isExpanded = !isExpanded;
+      if (drawer) {
         drawer.style.display = isExpanded ? 'flex' : 'none';
-        toggleBtn.textContent = isExpanded ? 'Згорнути ▴' : 'Деталі ▾';
+      }
+      if (pill) {
+        pill.classList.toggle('is-expanded', isExpanded);
+        pill.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
+      }
+      if (chevron) {
+        chevron.style.transform = isExpanded ? 'rotate(180deg)' : 'rotate(0deg)';
+      }
+    };
+
+    if (toggleBtn) {
+      toggleBtn.addEventListener('click', toggleAccordion);
+    }
+    if (headerBar) {
+      headerBar.addEventListener('click', (e) => {
+        if (e.target !== toggleBtn && !toggleBtn.contains(e.target as Node)) {
+          toggleAccordion();
+        }
       });
-      toggleBtn.addEventListener('mouseenter', () => (toggleBtn.style.background = 'rgba(255, 255, 255, 0.14)'));
-      toggleBtn.addEventListener('mouseleave', () => (toggleBtn.style.background = 'rgba(255, 255, 255, 0.08)'));
     }
 
     const dismissCapsule = () => {
+      if (SecurityFriction.autoTearTimer) {
+        clearTimeout(SecurityFriction.autoTearTimer);
+        SecurityFriction.autoTearTimer = null;
+      }
+      if (SecurityFriction.circuitKeyHandler && typeof window !== 'undefined') {
+        window.removeEventListener('keydown', SecurityFriction.circuitKeyHandler, true);
+        SecurityFriction.circuitKeyHandler = null;
+      }
+      SecurityFriction.isChatFreezeActive = false;
+      const activeVeil = root.getElementById('threat-shield-circuit-breaker-veil');
+      if (activeVeil) {
+        ShadowHost.remove(activeVeil as HTMLElement);
+      }
       ShadowHost.remove(banner);
       if (onClose) onClose();
       if (!isCritical && onClearThreat) {
@@ -434,39 +935,122 @@ export class SecurityFriction {
     };
 
     if (closeBtn) {
-      closeBtn.addEventListener('click', dismissCapsule);
-      closeBtn.addEventListener('mouseenter', () => (closeBtn.style.color = '#FFFFFF'));
-      closeBtn.addEventListener('mouseleave', () => (closeBtn.style.color = 'rgba(255, 255, 255, 0.5)'));
+      closeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dismissCapsule();
+      });
     }
 
     if (ackBtn) {
-      ackBtn.addEventListener('click', dismissCapsule);
-      ackBtn.addEventListener('mouseenter', () => (ackBtn.style.background = 'rgba(255, 255, 255, 0.20)'));
-      ackBtn.addEventListener('mouseleave', () => (ackBtn.style.background = 'rgba(255, 255, 255, 0.12)'));
+      ackBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dismissCapsule();
+      });
     }
 
     if (evorogBtn) {
-      evorogBtn.addEventListener('click', () => {
+      evorogBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
         window.open('https://t.me/evorog_bot', '_blank');
       });
-      evorogBtn.addEventListener('mouseenter', () => (evorogBtn.style.background = '#0077ED'));
-      evorogBtn.addEventListener('mouseleave', () => (evorogBtn.style.background = '#0071E3'));
     }
 
     if (unblockBtn) {
-      unblockBtn.addEventListener('click', () => {
+      unblockBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (SecurityFriction.circuitKeyHandler && typeof window !== 'undefined') {
+          window.removeEventListener('keydown', SecurityFriction.circuitKeyHandler, true);
+          SecurityFriction.circuitKeyHandler = null;
+        }
+        SecurityFriction.isChatFreezeActive = false;
+        const activeVeil = root.getElementById('threat-shield-circuit-breaker-veil');
+        if (activeVeil) {
+          ShadowHost.remove(activeVeil as HTMLElement);
+        }
         ShadowHost.remove(banner);
         if (onClearThreat) onClearThreat();
-        window.postMessage({ type: 'THREAT_SHIELD_DISABLE_CHAT_FREEZE' }, '*');
+        if (typeof window !== 'undefined') {
+          window.postMessage({ type: 'THREAT_SHIELD_DISABLE_CHAT_FREEZE' }, '*');
+        }
       });
-      unblockBtn.addEventListener('mouseenter', () => (unblockBtn.style.color = '#FFFFFF'));
-      unblockBtn.addEventListener('mouseleave', () => (unblockBtn.style.color = 'rgba(255, 255, 255, 0.5)'));
     }
 
     root.appendChild(banner);
 
+    // CIRCUIT BREAKER KEYBOARD INTERCEPTION
     if (isCritical) {
-      window.postMessage({ type: 'THREAT_SHIELD_ENABLE_CHAT_FREEZE' }, '*');
+      const veil = document.createElement('div');
+      veil.id = 'threat-shield-circuit-breaker-veil';
+      veil.className = 'circuit-breaker-veil';
+      veil.innerHTML = `
+        <div id="circuit-badge" style="display: flex; align-items: center; gap: 10px; padding: 8px 16px; border-radius: 9999px; background: #FFFFFF; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border: 1.5px solid #EF4444; transition: transform 0.2s;">
+          <div style="width: 22px; height: 22px; border-radius: 50%; background: #FEE2E2; border: 1.5px solid #FCA5A5; display: flex; align-items: center; justify-content: center; color: #DC2626; flex-shrink: 0;">
+            <svg style="width: 14px; height: 14px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+          </div>
+          <div style="text-align: left;">
+            <p style="font-size: 11.5px; font-weight: 600; color: #111827; margin: 0; line-height: 1.2;">Ввід заблоковано контррозвідкою</p>
+            <p id="circuit-hint-text" style="font-size: 10px; color: #6B7280; margin: 0; line-height: 1.2;">Enter / Ctrl+C / копіювання вимкнено для безпеки</p>
+          </div>
+        </div>
+      `;
+      root.appendChild(veil);
+
+      SecurityFriction.isChatFreezeActive = true;
+
+      const flashCircuitInterception = () => {
+        const activeVeil = root.getElementById('threat-shield-circuit-breaker-veil');
+        const badge = root.getElementById('circuit-badge');
+        const hint = root.getElementById('circuit-hint-text');
+        if (activeVeil) {
+          activeVeil.classList.remove('shimmer-active');
+          void activeVeil.offsetWidth;
+          activeVeil.classList.add('shimmer-active');
+        }
+        if (badge) {
+          badge.classList.remove('micro-shake');
+          void badge.offsetWidth;
+          badge.classList.add('micro-shake');
+        }
+        if (hint) {
+          hint.textContent = 'Натисніть кнопку «Зняти» вгорі для розблокування';
+          hint.style.color = '#EF4444';
+          hint.style.fontWeight = 'bold';
+          setTimeout(() => {
+            if (hint) {
+              hint.textContent = 'Enter / Ctrl+C / копіювання вимкнено для безпеки';
+              hint.style.color = '#6B7280';
+              hint.style.fontWeight = 'normal';
+            }
+          }, 2000);
+        }
+      };
+
+      veil.addEventListener('click', flashCircuitInterception);
+
+      SecurityFriction.circuitKeyHandler = (e: KeyboardEvent) => {
+        if (!SecurityFriction.isChatFreezeActive) return;
+        const target = e.target as HTMLElement | null;
+        if (target && typeof target.closest === 'function' && (target.closest('#threat-shield-context-banner') || target.closest('threat-shield-host'))) {
+          return;
+        }
+        if (
+          e.key === 'Enter' ||
+          ((e.ctrlKey || e.metaKey) && (e.key === 'c' || e.key === 'v' || e.key === 'x')) ||
+          (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey)
+        ) {
+          e.preventDefault();
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+          flashCircuitInterception();
+        }
+      };
+
+      if (typeof window !== 'undefined') {
+        window.addEventListener('keydown', SecurityFriction.circuitKeyHandler, true);
+        window.postMessage({ type: 'THREAT_SHIELD_ENABLE_CHAT_FREEZE' }, '*');
+      }
     }
   }
 
@@ -475,6 +1059,20 @@ export class SecurityFriction {
    */
   public static removeContextWarningBanner(): void {
     const root = ShadowHost.getRoot();
+    if (this.autoTearTimer) {
+      clearTimeout(this.autoTearTimer);
+      this.autoTearTimer = null;
+    }
+    if (this.circuitKeyHandler && typeof window !== 'undefined') {
+      window.removeEventListener('keydown', this.circuitKeyHandler, true);
+      this.circuitKeyHandler = null;
+    }
+    this.isChatFreezeActive = false;
+
+    const veil = root.getElementById('threat-shield-circuit-breaker-veil');
+    if (veil) {
+      ShadowHost.remove(veil as HTMLElement);
+    }
     const existing = root.getElementById('threat-shield-context-banner');
     if (existing) {
       ShadowHost.remove(existing as HTMLElement);
@@ -484,10 +1082,6 @@ export class SecurityFriction {
     }
   }
 
-  /**
-   * Проактивне сповіщення про нейтралізацію пастки автозаповнення:
-   * Sanctuary Focus Capsule (Frosted Optical Glass)
-   */
   public static showHiddenFieldTrapBanner(scan: HiddenFieldScanResult, form?: HTMLFormElement): void {
     const root = ShadowHost.getRoot();
     const existing = root.getElementById('threat-shield-hidden-field-banner');
