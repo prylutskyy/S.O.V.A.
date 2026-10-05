@@ -180,7 +180,7 @@ describe('Sanctuary Dynamic Intent Capsule (SecurityFriction.showContextWarningB
     expect(chevron?.style.transform).toBe('rotate(180deg)');
   });
 
-  it('dismisses capsule when close button is clicked', () => {
+  it('dismisses capsule when close button is clicked without clearing threat context', () => {
     const onClose = vi.fn();
     const onClearThreat = vi.fn();
 
@@ -200,7 +200,8 @@ describe('Sanctuary Dynamic Intent Capsule (SecurityFriction.showContextWarningB
 
     closeBtn?.click();
     expect(onClose).toHaveBeenCalled();
-    expect(onClearThreat).toHaveBeenCalled();
+    // Dismissing/closing the banner must NOT reset the threat level
+    expect(onClearThreat).not.toHaveBeenCalled();
     expect(root.getElementById('threat-shield-context-banner')).toBeNull();
   });
 

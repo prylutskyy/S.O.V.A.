@@ -301,7 +301,15 @@ export default defineContentScript({
           subtitle,
           rawTextToScan,
           threatIntent,
-          clearThreat,
+          () => {
+            if (debugMode) {
+              DebuggerOverlay.log(
+                'Банер безпеки',
+                'Сповіщення приховано користувачем (контекст загрози зберігається у фоні)',
+                '#6B7280'
+              );
+            }
+          },
           threatScore,
           clearThreat
         );

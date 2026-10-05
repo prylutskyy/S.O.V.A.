@@ -913,7 +913,7 @@ export class SecurityFriction {
       });
     }
 
-    const dismissCapsule = () => {
+    const dismissCapsule = (shouldClearThreat: boolean = false) => {
       if (SecurityFriction.autoTearTimer) {
         clearTimeout(SecurityFriction.autoTearTimer);
         SecurityFriction.autoTearTimer = null;
@@ -929,7 +929,7 @@ export class SecurityFriction {
       }
       ShadowHost.remove(banner);
       if (onClose) onClose();
-      if (!isCritical && onClearThreat) {
+      if (shouldClearThreat && !isCritical && onClearThreat) {
         onClearThreat();
       }
     };
@@ -937,14 +937,16 @@ export class SecurityFriction {
     if (closeBtn) {
       closeBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        dismissCapsule();
+        // Просто закриття банера (✕) - приховуємо інтерфейс, але НЕ скидаємо рівень загрози
+        dismissCapsule(false);
       });
     }
 
     if (ackBtn) {
       ackBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        dismissCapsule();
+        // Користувач ознайомився («Зрозуміло») - підтверджує перегляд застереження
+        dismissCapsule(true);
       });
     }
 
