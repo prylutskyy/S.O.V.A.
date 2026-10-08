@@ -11,6 +11,7 @@ export type ScamIntentType =
   | 'IDENTITY_PROBING'
   | 'URGENCY_PRESSURE'
   | 'MILITARY_SABOTAGE_RECRUITMENT'
+  | 'SEED_PHRASE_THEFT'
   | 'CRYPTO_WALLET_COMPROMISE';
 
 export interface IntentMatchSpan {

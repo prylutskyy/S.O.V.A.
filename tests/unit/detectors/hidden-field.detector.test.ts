@@ -83,7 +83,7 @@ describe('HiddenFieldDetector - Dedicated Unit Tests', () => {
     expect(results[0].triggered).toBe(true);
     expect(results[0].severity).toBe('CRITICAL');
     expect(results[0].scoreContribution).toBe(60);
-    expect(results[0].details?.cloakingTechniques[0]).toContain('offscreen');
+    expect((results[0].details?.cloakingTechniques as string[])[0]).toContain('offscreen');
   });
 
   it('detects transparent cloaked input using opacity: 0', () => {
@@ -96,6 +96,6 @@ describe('HiddenFieldDetector - Dedicated Unit Tests', () => {
     const results = detector.scan(form, dummyContext);
     expect(results).toHaveLength(1);
     expect(results[0].triggered).toBe(true);
-    expect(results[0].details?.cloakingTechniques[0]).toContain('opacity');
+    expect((results[0].details?.cloakingTechniques as string[])[0]).toContain('opacity');
   });
 });

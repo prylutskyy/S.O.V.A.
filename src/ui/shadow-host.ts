@@ -42,6 +42,10 @@ export class ShadowHost {
       }
     }
 
+    if (!this.shadowRoot) {
+      throw new Error('Unable to initialize the S.O.V.A. Shadow DOM host.');
+    }
+
     return this.shadowRoot;
   }
 

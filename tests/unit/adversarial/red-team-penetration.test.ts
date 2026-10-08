@@ -140,10 +140,12 @@ describe('Phase 5: Red Teaming & Adversarial Penetration Stress Testing', () => 
     it('intercepts URL-encoded form body exfiltration of valid credit card data', () => {
       const urlEncodedBody = 'user_id=1024&card_num=4149439012345678&exp=1228&cvv=456';
       vi.spyOn(VaultScanner, 'scanTextSync').mockReturnValue({
-        matches: [{ type: 'CARD', value: '4149439012345678', label: 'Bank Card', source: 'Vault' }],
-        matchedItems: [],
+        matchedItems: [{
+          id: 'card-1', category: 'CUSTOM', label: 'Bank Card', realValue: '4149439012345678',
+          decoyValue: '', keywords: [], createdAt: Date.now(),
+        }],
         triggers: [],
-      } as any);
+      });
 
       // Destination is hostile exfiltration server
       const wasBlocked = dispatchNetEvent(
@@ -161,10 +163,12 @@ describe('Phase 5: Red Teaming & Adversarial Penetration Stress Testing', () => 
         card: '4149-4390-1234-5678',
       });
       vi.spyOn(VaultScanner, 'scanTextSync').mockReturnValue({
-        matches: [{ type: 'CARD', value: '4149439012345678', label: 'Bank Card', source: 'Vault' }],
-        matchedItems: [],
+        matchedItems: [{
+          id: 'card-1', category: 'CUSTOM', label: 'Bank Card', realValue: '4149439012345678',
+          decoyValue: '', keywords: [], createdAt: Date.now(),
+        }],
         triggers: [],
-      } as any);
+      });
 
       const wasBlocked = dispatchNetEvent(
         'https://phishing-endpoint.xyz/sink',
@@ -178,10 +182,12 @@ describe('Phase 5: Red Teaming & Adversarial Penetration Stress Testing', () => 
     it('never interferes with accredited payment processors (Stripe, LiqPay, Portmone)', () => {
       const validPayload = JSON.stringify({ pan: '4149439012345678' });
       vi.spyOn(VaultScanner, 'scanTextSync').mockReturnValue({
-        matches: [{ type: 'CARD', value: '4149439012345678', label: 'Bank Card', source: 'Vault' }],
-        matchedItems: [],
+        matchedItems: [{
+          id: 'card-1', category: 'CUSTOM', label: 'Bank Card', realValue: '4149439012345678',
+          decoyValue: '', keywords: [], createdAt: Date.now(),
+        }],
         triggers: [],
-      } as any);
+      });
 
       // Whitelisted payment processors are never intercepted
       expect(dispatchNetEvent('https://api.stripe.com/v1/tokens', validPayload)).toBe(false);

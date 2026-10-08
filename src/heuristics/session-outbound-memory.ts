@@ -138,8 +138,8 @@ export class SessionOutboundMemory {
     const vaultScan = VaultScanner.scanTextSync(trimmed);
     let textForCardCvv = trimmed;
     for (const item of (vaultScan?.matchedItems || [])) {
-      if (item.value) {
-        textForCardCvv = textForCardCvv.replace(item.value, ' ');
+      if (item.realValue) {
+        textForCardCvv = textForCardCvv.replace(item.realValue, ' ');
       }
     }
 

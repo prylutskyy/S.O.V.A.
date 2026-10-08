@@ -8,6 +8,8 @@ import { VaultScanner } from './vault-scanner';
 import { isAccreditedPaymentGateway } from '../core/payment-gateways';
 import { UserWhitelistManager } from '../core/user-whitelist';
 import { isWhitelisted, isMonitoredPlatform } from '../core/whitelist';
+import { HeuristicResult } from '../types';
+import { VaultItem } from '../types/vault';
 
 export class GlobalInputInterceptor {
   private static isSoftLocked = false;
@@ -81,7 +83,7 @@ export class GlobalInputInterceptor {
     if (!items || items.length === 0) return;
 
     // Якщо тексту немає або він занадто короткий, одразу вважаємо, що збігів немає
-    let vaultScan = { matchedItems: [] as any[], triggers: [] as string[] };
+    let vaultScan: { matchedItems: VaultItem[]; triggers: HeuristicResult[] } = { matchedItems: [], triggers: [] };
     if (text && text.trim().length >= 2) {
       vaultScan = VaultScanner.scanTextSync(text);
     }
@@ -128,7 +130,11 @@ export class GlobalInputInterceptor {
         reason: `Виявлено введення конфіденційного маркера: «${firstLabel}».`,
         riskLevel: 'CRITICAL',
         score: 85,
-        triggers: vaultScan.triggers,
+        triggers: vaultScan.triggers.map(({ message, severity, scoreContribution }) => ({
+          message,
+          severity,
+          scoreContribution,
+        })),
         leakage: {
           hasCard: false,
           hasCvv: false,

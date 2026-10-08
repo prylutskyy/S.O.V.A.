@@ -16,6 +16,7 @@ import { ClipboardInterceptor } from '../src/interceptors/clipboard.interceptor'
 import { ProactiveFieldProtector } from '../src/heuristics/proactive-field-protector';
 import { AIArbiterService } from '../src/ai/ai-arbiter.service';
 import { SpaNavigationDetector } from '../src/core/spa-navigation';
+import { ScamIntentType } from '../src/heuristics/intent-classifier';
 
 export default defineContentScript({
   matches: ['<all_urls>'],
@@ -30,7 +31,14 @@ export default defineContentScript({
 
     let debugMode = false;
     let activeContext: ActiveThreatContext | null = null;
+    let threatRequestGeneration = 0;
     const formPipeline = new FormAnalysisPipeline();
+
+    const invalidateThreatAnalysis = () => {
+      threatRequestGeneration += 1;
+      AIArbiterService.cancelPending();
+      SecurityFriction.hideLatencyVeil();
+    };
 
     const syncDebugMode = (enabled: boolean) => {
       debugMode = enabled;
@@ -103,6 +111,9 @@ export default defineContentScript({
     };
 
     const applyContext = (ctx: ActiveThreatContext) => {
+      if (activeContext && activeContext !== ctx) {
+        invalidateThreatAnalysis();
+      }
       activeContext = ctx;
       GlobalInputInterceptor.setHardLock(ctx);
       console.log('[SOVA:Content] Отримано спадковий контекст загрози:', ctx);
@@ -137,6 +148,7 @@ export default defineContentScript({
     if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.onMessage) {
       chrome.runtime.onMessage.addListener((msg) => {
         if (msg && msg.type === 'CONTEXT_CLEARED') {
+          invalidateThreatAnalysis();
           activeContext = null;
           GlobalInputInterceptor.setHardLock(null);
           ChatChannelMonitor.reset();
@@ -177,6 +189,7 @@ export default defineContentScript({
       }
 
       if (event.data.type === 'THREAT_SHIELD_CLEAR_CONTEXT') {
+        invalidateThreatAnalysis();
         try {
           if (typeof chrome !== 'undefined' && chrome.runtime) {
             await chrome.runtime.sendMessage({ type: 'CLEAR_CONTEXT' });
@@ -271,6 +284,12 @@ export default defineContentScript({
         targetSuspiciousUrl: suspiciousUrl,
       };
 
+      const requestGeneration = ++threatRequestGeneration;
+      const isCurrentRequest = () => {
+        const currentUrl = typeof window !== 'undefined' && window.location ? window.location.href : '';
+        return requestGeneration === threatRequestGeneration && activeContext === localContext && (!requestUrl || currentUrl === requestUrl);
+      };
+
       activeContext = localContext;
 
       if (debugMode) {
@@ -342,6 +361,11 @@ export default defineContentScript({
         intentType,
         confidence,
       }).then((aiResult) => {
+        if (!isCurrentRequest()) {
+          // Не дозволяємо фолбеку чи пізній відповіді змінити стан нового чату.
+          if (requestGeneration === threatRequestGeneration) invalidateThreatAnalysis();
+          return;
+        }
         SecurityFriction.hideLatencyVeil();
         if (!aiResult) {
           // Якщо ШІ недоступний (offline / відсутній ключ / збій):
@@ -356,19 +380,8 @@ export default defineContentScript({
           } else {
             // При помірній впевненості не турбуємо користувача банером без підтвердження
             activeContext = null;
+            invalidateThreatAnalysis();
           }
-          return;
-        }
-
-        // Захист від гонитви (Race Condition / SPA Route Switch):
-        // Якщо користувач перейшов в інший чат / змінив URL, або контекст було скинуто:
-        const currentUrl = typeof window !== 'undefined' && window.location ? window.location.href : '';
-        if (requestUrl && currentUrl !== requestUrl) {
-          console.log('[SOVA:Content] ШІ-Арбітр відповів, але діалог/роут уже змінено в SPA. Вердикт відхилено.');
-          return;
-        }
-        if (!activeContext) {
-          console.log('[SOVA:Content] ШІ-Арбітр відповів, але контекст уже скинуто. Вердикт відхилено.');
           return;
         }
 
@@ -376,6 +389,7 @@ export default defineContentScript({
           // Якщо ШІ переконливо спростував загрозу (False Positive Mitigation):
           console.log('[SOVA:Content] ШІ-Арбітр спростував евристичну загрозу:', aiResult.reasoning);
           activeContext = null;
+          invalidateThreatAnalysis();
           GlobalInputInterceptor.setHardLock(null);
           SecurityFriction.removeContextWarningBanner();
           ChatChannelMonitor.reset();
@@ -459,6 +473,10 @@ export default defineContentScript({
           }
         }
       }).catch((err) => {
+        if (!isCurrentRequest()) {
+          if (requestGeneration === threatRequestGeneration) invalidateThreatAnalysis();
+          return;
+        }
         SecurityFriction.hideLatencyVeil();
         console.warn('[SOVA:Content] Помилка фонового ШІ-арбітражу:', err);
         if (confidence && confidence >= 75) {
@@ -470,6 +488,7 @@ export default defineContentScript({
           );
         } else {
           activeContext = null;
+          invalidateThreatAnalysis();
         }
       });
     };
@@ -507,6 +526,7 @@ export default defineContentScript({
     // 1b. Автоматична ізоляція чатів та семантичних векторів при зміні роуту в SPA (Telegram, OLX, WhatsApp)
     SpaNavigationDetector.init((changeEvent) => {
       console.log('[SOVA:Content] Виявлено зміну роуту/діалогу в SPA:', changeEvent);
+      invalidateThreatAnalysis();
       activeContext = null;
       GlobalInputInterceptor.setHardLock(null);
       ChatChannelMonitor.reset();

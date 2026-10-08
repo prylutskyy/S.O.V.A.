@@ -15,6 +15,7 @@ export class AILureVerifier {
     IDENTITY_PROBING: 'Check for attempts to elicit personal identity markers or bank security recovery answers: Tax ID / INN, mother\'s maiden name, bank secret codeword, or passport ID. Legitimate parties never request these in a marketplace chat.',
     URGENCY_PRESSURE: 'Check for manipulative urgency or pressure (e.g., "act now or account will be blocked", "funds will cancel in 5 minutes").',
     MILITARY_SABOTAGE_RECRUITMENT: 'Check for attempts to recruit users to commit sabotage against critical infrastructure (railways, transformers, arsons) or requests for military locations/air defense coordinates.',
+    SEED_PHRASE_THEFT: 'Check for requests to disclose a cryptocurrency wallet seed or recovery phrase, including 12- or 24-word phrases.',
     CRYPTO_WALLET_COMPROMISE: 'Check for attempts to steal cryptocurrency seed phrases (12/24 words), private keys, or wallet authorization passwords.'
   };
 

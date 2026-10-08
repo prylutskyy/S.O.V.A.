@@ -3,6 +3,7 @@ import { isWhitelisted } from '../src/core/whitelist';
 import { AILureVerifier } from '../src/heuristics/ai-verifier';
 import { ChromeBuiltinAIProvider } from '../src/heuristics/chrome-ai-provider';
 import { CloudLLMDispatcher } from '../src/ai/cloud/cloud-llm-dispatcher';
+import { SecureKeyStore } from '../src/core/secure-key-store';
 
 export default defineBackground(() => {
   console.log('[SOVA:Background] Service Worker активовано');

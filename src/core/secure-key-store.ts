@@ -330,13 +330,14 @@ export class SecureKeyStore {
     if (typeof chrome !== 'undefined' && chrome.storage?.local) {
       const res = await chrome.storage.local.get(LLM_CONFIG_STORAGE_KEY);
       if (res && res[LLM_CONFIG_STORAGE_KEY]) {
-        this.cachedConfig = { ...DEFAULT_LLM_CONFIG, ...res[LLM_CONFIG_STORAGE_KEY] };
+        const config: LLMConfig = { ...DEFAULT_LLM_CONFIG, ...res[LLM_CONFIG_STORAGE_KEY] };
         // Автоматична міграція застарілих/депрекейтованих Google моделей
-        if (this.cachedConfig.provider === 'gemini' && (this.cachedConfig.model === 'gemini-2.5-flash' || !this.cachedConfig.model)) {
-          this.cachedConfig.model = 'gemini-3.8-flash';
-          chrome.storage.local.set({ [LLM_CONFIG_STORAGE_KEY]: this.cachedConfig }).catch(() => {});
+        if (config.provider === 'gemini' && (config.model === 'gemini-2.5-flash' || !config.model)) {
+          config.model = 'gemini-3.8-flash';
+          chrome.storage.local.set({ [LLM_CONFIG_STORAGE_KEY]: config }).catch(() => {});
         }
-        return { ...this.cachedConfig };
+        this.cachedConfig = config;
+        return { ...config };
       }
     }
 
@@ -350,7 +351,15 @@ export class SecureKeyStore {
    */
   public static async saveConfig(partial: Partial<LLMConfig>): Promise<LLMConfig> {
     const current = await this.getConfig();
-    const updated: LLMConfig = { ...current, ...partial };
+    const updated: LLMConfig = {
+      ...current,
+      ...partial,
+      provider: partial.provider ?? current.provider,
+      model: partial.model ?? current.model,
+      timeoutMs: partial.timeoutMs ?? current.timeoutMs,
+      enabled: partial.enabled ?? current.enabled,
+      storageMode: partial.storageMode ?? current.storageMode,
+    };
     this.cachedConfig = updated;
 
     if (typeof chrome !== 'undefined' && chrome.storage?.local) {
@@ -371,7 +380,7 @@ export class SecureKeyStore {
         const providers: LLMProviderType[] = ['gemini', 'openai', 'claude', 'groq', 'custom_openai', 'openrouter'];
         if (chrome.storage?.local) {
           const keys = providers.map((p) => `${LLM_ENCRYPTED_KEYS_PREFIX}${p}`);
-          const records = await chrome.storage.local.get(keys).catch(() => ({}));
+          const records = (await chrome.storage.local.get(keys).catch(() => ({}))) as Record<string, EncryptedApiKeyRecord | undefined>;
           for (const p of providers) {
             const rec = records?.[`${LLM_ENCRYPTED_KEYS_PREFIX}${p}`] as EncryptedApiKeyRecord | undefined;
             if (rec?.storageMode === 'vault_encrypted') {

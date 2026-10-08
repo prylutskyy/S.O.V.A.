@@ -217,10 +217,8 @@ export class CryptoService {
    * Розшифровує payload назад у текст
    */
   public static async decryptText(payload: CryptoPayload, key: CryptoKey): Promise<string> {
-    const rawIv = payload.iv;
-    const rawCipher = payload.ciphertext;
-    const iv = rawIv instanceof Uint8Array ? rawIv : new Uint8Array(Array.isArray(rawIv) ? rawIv : Object.values(rawIv || {}));
-    const ciphertext = rawCipher instanceof Uint8Array ? rawCipher : new Uint8Array(Array.isArray(rawCipher) ? rawCipher : Object.values(rawCipher || {}));
+    const iv = Uint8Array.from(payload.iv);
+    const ciphertext = Uint8Array.from(payload.ciphertext);
 
     const decryptedBuffer = await globalThis.crypto.subtle.decrypt(
       {

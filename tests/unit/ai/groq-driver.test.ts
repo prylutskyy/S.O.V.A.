@@ -137,6 +137,7 @@ describe('GroqDriver - Dedicated Unit Tests', () => {
       });
 
       const res = await driver.generateText({
+        provider: 'groq',
         apiKey: 'gsk_key',
         systemPrompt: 'You are a seller assistant',
         userPrompt: 'Hello',

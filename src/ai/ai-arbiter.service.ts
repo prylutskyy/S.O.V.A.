@@ -60,9 +60,19 @@ export class AIArbiterService {
    */
   public static clearCache(): void {
     this.cache.clear();
+    this.cancelPending();
+  }
+
+  /**
+   * Скасовує інференс, пов'язаний із контекстом, який більше не активний.
+   * Збільшення лічильника також відкидає відповідь, якщо провайдер не встиг
+   * коректно перервати мережевий запит.
+   */
+  public static cancelPending(): void {
     if (this.inflightRequest) {
       this.inflightRequest.abortController.abort();
       this.inflightRequest = null;
+      this.requestCounter += 1;
     }
   }
 

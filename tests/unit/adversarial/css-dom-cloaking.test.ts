@@ -8,7 +8,7 @@ describe('Adversarial Suite: CSS & DOM Cloaking Evasion Resistance', () => {
   let form: HTMLFormElement;
   const dummyContext: FormDetectorContext = {
     currentHost: 'checkout.target.ua',
-    whitelistedDomains: [],
+    targetHost: 'checkout.target.ua',
   };
 
   beforeEach(() => {

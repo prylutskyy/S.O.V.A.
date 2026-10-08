@@ -1,4 +1,5 @@
 import { VaultScanner } from '../heuristics/vault-scanner';
+import { PersonalVaultManager } from '../core/personal-vault';
 import { isWhitelisted } from '../core/whitelist';
 import { isAccreditedPaymentGateway } from '../core/payment-gateways';
 import { UserWhitelistManager } from '../core/user-whitelist';
@@ -138,8 +139,16 @@ export class NetworkExfiltrationInterceptor {
         return;
       }
 
-      const scanResult = VaultScanner.scanTextSync(body, targetHost);
-      if (scanResult.matches && scanResult.matches.length > 0) {
+      const scanResult = VaultScanner.scanTextSync(body);
+      const matchedItems = scanResult?.matchedItems ?? [];
+      if (matchedItems.length > 0) {
+        const vaultMatches = matchedItems.map((matchedItem) => ({
+          matchedItem,
+          detectedFieldLabel: matchedItem.label,
+          matchType: 'VALUE_MATCH' as const,
+          isDecoyAvailable: Boolean(matchedItem.decoyValue),
+          tier: PersonalVaultManager.getCategoryTier(matchedItem.category),
+        }));
         e.preventDefault(); 
         
         if (this.options?.getDebugMode()) {
@@ -156,6 +165,7 @@ export class NetworkExfiltrationInterceptor {
           triggers: [
             {
               name: 'stealth_data_exfiltration',
+              triggered: true,
               message: 'Виявлено фонову передачу чутливих даних через API/WebSockets без відома користувача',
               severity: 'CRITICAL',
               scoreContribution: 95
@@ -174,7 +184,7 @@ export class NetworkExfiltrationInterceptor {
           triggers: assessment.triggers,
           assessment,
           activeContext: this.options?.getActiveContext(),
-          vaultMatches: scanResult.matches,
+          vaultMatches,
           rawTextToScan: body,
           onProceed: async (rememberDomain) => {
              if (rememberDomain) {

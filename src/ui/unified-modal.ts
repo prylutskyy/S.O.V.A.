@@ -6,6 +6,7 @@ import { XaiEngine } from '../xai/xai-engine';
 import { VaultScanner } from '../heuristics/vault-scanner';
 import { ShadowHost } from './shadow-host';
 import { DESIGN_TOKENS_CSS, getSovaLogoUrl } from './design-tokens';
+import { DebuggerOverlay } from './debugger-overlay';
 
 export interface UnifiedModalOptions {
   type: 'form' | 'chat';

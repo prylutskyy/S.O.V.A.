@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi, type Mock } from 'vitest';
 import { VaultTabController } from '../../../entrypoints/popup/controllers/vault-tab.controller';
 import { PersonalVaultManager } from '../../../src/core/personal-vault';
 
@@ -81,8 +81,8 @@ function setupDOM() {
 }
 
 describe('VaultTabController', () => {
-  let showToastMock: ReturnType<typeof vi.fn>;
-  let onStatsChangedMock: ReturnType<typeof vi.fn>;
+  let showToastMock: Mock<(msg: string) => void>;
+  let onStatsChangedMock: Mock<() => void>;
 
   beforeEach(() => {
     for (const key in mockStorage) delete mockStorage[key];
@@ -95,8 +95,8 @@ describe('VaultTabController', () => {
     PersonalVaultManager['blindSalt'] = null;
     PersonalVaultManager['blindSignatures'] = [];
 
-    showToastMock = vi.fn();
-    onStatsChangedMock = vi.fn();
+    showToastMock = vi.fn<(msg: string) => void>();
+    onStatsChangedMock = vi.fn<() => void>();
     storageChangeListeners.length = 0;
     setupDOM();
   });

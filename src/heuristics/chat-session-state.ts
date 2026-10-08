@@ -1,4 +1,4 @@
-import { IntentMatchSpan, IntentClassifier, IntentClassificationResult } from './intent-classifier';
+import { IntentMatchSpan, IntentClassifier, IntentClassificationResult, ScamIntentType } from './intent-classifier';
 import { SemanticTriggerEngine } from './semantic-trigger';
 
 export interface ChatMessageContext {
@@ -114,13 +114,13 @@ export class ChatSessionState {
       const semanticSpans: IntentMatchSpan[] = semanticResult.matchedKeywords.map((kw) => ({
         cluster: 'semantic_trigger',
         text: kw,
-        startIndex: 0,
-        endIndex: kw.length,
+        start: 0,
+        end: kw.length,
       }));
 
       return {
         hasFormedIntent: true,
-        intentType: semanticResult.intentType,
+        intentType: semanticResult.intentType as ScamIntentType,
         intentTitle: semanticResult.intentTitle,
         confidence: semanticResult.confidence,
         clustersDetected: ['semantic_trigger', ...activeClusters],
