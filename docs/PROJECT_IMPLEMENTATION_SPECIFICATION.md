@@ -628,7 +628,7 @@ sequenceDiagram
 export class GroqDriver implements ICloudLLMDriver {
   public async verifyThreat(request: CloudVerificationRequest): Promise<CloudVerificationResponse> {
     const startTime = performance.now();
-    const model = request.model || 'qwen3.8-27b';
+    const model = request.model || 'qwen/qwen3.8-27b';
     const endpoint = 'https://api.groq.com/openai/v1/chat/completions';
 
     const body = {

@@ -179,7 +179,7 @@
     "message": "Налаштування ШІ"
   },
   "settingsCloudAiFactNote": {
-    "message": "Потрібен API-ключ Groq. Стандарт перевірки — qwen3.8-27b."
+    "message": "Потрібен API-ключ Groq. Стандарт перевірки — qwen/qwen3.8-27b."
   },
   "settingsGroqConnected": {
     "message": "Groq підключено"
@@ -215,7 +215,7 @@
     "message": "Оновити список"
   },
   "settingsModelStandard": {
-    "message": "qwen3.8-27b (Стандарт)"
+    "message": "qwen/qwen3.8-27b (Стандарт)"
   },
   "settingsBtnApplyModel": {
     "message": "Вибрати"

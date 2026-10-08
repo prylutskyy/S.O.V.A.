@@ -178,7 +178,7 @@ export class CloudLLMDispatcher {
     try {
       const defaultModel =
         provider === 'groq'
-          ? 'llama-3.3-70b-versatile'
+          ? 'qwen/qwen3.8-27b'
           : provider === 'openrouter'
             ? 'google/gemini-2.0-flash-exp:free'
             : 'gpt-4o-mini';

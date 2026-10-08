@@ -179,7 +179,7 @@
     "message": "AI Settings"
   },
   "settingsCloudAiFactNote": {
-    "message": "Groq API key required. Verification standard — qwen3.8-27b."
+    "message": "Groq API key required. Verification standard — qwen/qwen3.8-27b."
   },
   "settingsGroqConnected": {
     "message": "Groq connected"
@@ -215,7 +215,7 @@
     "message": "Refresh list"
   },
   "settingsModelStandard": {
-    "message": "qwen3.8-27b (Standard)"
+    "message": "qwen/qwen3.8-27b (Standard)"
   },
   "settingsBtnApplyModel": {
     "message": "Select"

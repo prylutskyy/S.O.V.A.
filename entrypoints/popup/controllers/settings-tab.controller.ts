@@ -382,7 +382,7 @@ export class SettingsTabController {
   private updateCloudAiSummary(key: string | null, config: { enabled?: boolean; model?: string }): void {
     if (!this.cloudAiSummarySubtitle) return;
     const isEnabled = !!config.enabled;
-    const model = config.model || 'qwen3.8-27b';
+    const model = config.model || 'qwen/qwen3.8-27b';
 
     if (key) {
       if (isEnabled) {
@@ -416,7 +416,7 @@ export class SettingsTabController {
       if (this.cloudAiModelContainer) this.cloudAiModelContainer.classList.remove('hidden');
 
       const dynamicModels = this.cachedDynamicModels['groq'] || [];
-      this.populateModelsSelect(dynamicModels, config.model || 'qwen3.8-27b');
+      this.populateModelsSelect(dynamicModels, config.model || 'qwen/qwen3.8-27b');
     } else {
       // 2. Стан: Ключ ще не введено (початковий мінімалістичний стан)
       if (this.cloudAiKeySavedPill) this.cloudAiKeySavedPill.classList.add('hidden');
@@ -431,10 +431,10 @@ export class SettingsTabController {
     if (!this.cloudAiModelSelect) return;
     this.cloudAiModelSelect.innerHTML = '';
 
-    const standardModelId = 'qwen3.8-27b';
+    const standardModelId = 'qwen/qwen3.8-27b';
     const targetModel = selectedModel || standardModelId;
 
-    // Створюємо робочий масив моделей з обов'язковою наявністю qwen3.8-27b на початку
+    // Створюємо робочий масив моделей з обов'язковою наявністю qwen/qwen3.8-27b на початку
     const list = [...models];
     const qwenIndex = list.findIndex((m) => m.id === standardModelId || m.id.toLowerCase().includes('qwen3.8'));
 
@@ -534,7 +534,7 @@ export class SettingsTabController {
         const config = await SecureKeyStore.getConfig();
         let chosenModel = config.model;
         if (!chosenModel || chosenModel === 'llama-3.3-70b-versatile') {
-          chosenModel = 'qwen3.8-27b';
+          chosenModel = 'qwen/qwen3.8-27b';
           await SecureKeyStore.saveConfig({ provider: 'groq', model: chosenModel });
         }
 
@@ -687,11 +687,11 @@ export class SettingsTabController {
       this.setSaveButtonState('loading');
       try {
         await SecureKeyStore.saveApiKey('groq', val, 'device_encrypted');
-        await SecureKeyStore.saveConfig({ provider: 'groq', model: 'qwen3.8-27b', enabled: true });
+        await SecureKeyStore.saveConfig({ provider: 'groq', model: 'qwen/qwen3.8-27b', enabled: true });
         if (this.toggleCloudAi) this.toggleCloudAi.checked = true;
 
         if (this.cloudAiKeyInput) this.cloudAiKeyInput.value = '';
-        this.showToast('Groq підключено · Модель qwen3.8-27b');
+        this.showToast('Groq підключено · Модель qwen/qwen3.8-27b');
 
         const success = await this.refreshModelsFromApi(val);
         this.setSaveButtonState(success ? 'success' : 'idle');

@@ -10,7 +10,7 @@ import {
 export class GroqDriver implements ICloudLLMDriver {
   public async verifyThreat(request: CloudVerificationRequest): Promise<CloudVerificationResponse> {
     const startTime = performance.now();
-    const model = request.model || 'qwen3.8-27b';
+    const model = request.model || 'qwen/qwen3.8-27b';
     const endpoint = 'https://api.groq.com/openai/v1/chat/completions';
 
     const body = {
@@ -89,7 +89,7 @@ export class GroqDriver implements ICloudLLMDriver {
 
   public async generateText(request: CloudTextGenerationRequest): Promise<CloudTextGenerationResponse> {
     const startTime = performance.now();
-    const model = request.model || 'qwen3.8-27b';
+    const model = request.model || 'qwen/qwen3.8-27b';
     const endpoint = 'https://api.groq.com/openai/v1/chat/completions';
 
     const messages: any[] = [];
