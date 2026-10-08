@@ -867,7 +867,7 @@ export class UnifiedFrictionModal {
 
       <div id="ts-modal-card">
         <!-- AUTHENTIC S.O.V.A. LOGO EMBLEM -->
-        <div class="ts-emblem-box ${isCritical ? 'critical' : 'warning'}">
+        <div class="ts-emblem-box">
           <div style="width: 42px; height: 42px; border-radius: 12px; overflow: hidden; background: #000000; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);">
             <img class="ts-sova-logo-img" src="${getSovaLogoUrl()}" alt="С.О.В.А." style="width: 100%; height: 100%; object-fit: cover; display: block;" />
           </div>
@@ -1060,16 +1060,12 @@ export class UnifiedFrictionModal {
           options.assessment?.score,
           options.assessment?.level
         );
-        this.close();
-        options.onCancel();
+        this.close(); options.onProceed(false);
       }
     });
 
     // Primary action: Return to Safety / Block Contact
-    const handleCancel = () => {
-      this.close();
-      options.onCancel();
-    };
+    const handleCancel = () => { this.close(); options.onCancel(); };
 
     btnPrimary.addEventListener('click', handleCancel);
     modalRoot.addEventListener('click', (e) => {
@@ -1324,3 +1320,6 @@ export class UnifiedFrictionModal {
     return list;
   }
 }
+
+
+

@@ -141,16 +141,7 @@ export class SecurityFriction {
         console.log('[ThreatShield] Користувач усвідомлено розблокував відправку форми');
         form.dataset.threatShieldApproved = 'true';
 
-        if (onProceedCallback) {
-          onProceedCallback();
-        } else {
-          // Повторне легітимне відправлення форми
-          if (typeof form.requestSubmit === 'function') {
-            form.requestSubmit();
-          } else {
-            form.submit();
-          }
-        }
+        if (onProceedCallback) { onProceedCallback(); }
       },
       onCancel: () => {
         console.log('[ThreatShield] Користувач скасував відправку підозрілої форми');
@@ -1762,4 +1753,5 @@ export class SecurityFriction {
     }
   }
 }
+
 
