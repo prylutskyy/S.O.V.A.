@@ -1,3 +1,4 @@
+import { ApprovalRegistry } from '../core/approval-registry';
 import { i18n } from '../core/i18n';
 import { ActiveThreatContext, ThreatAssessment } from '../types';
 import { UnifiedFrictionModal } from './unified-modal';
@@ -139,7 +140,7 @@ export class SecurityFriction {
       domainToRemember: targetHost,
       onProceed: () => {
         console.log('[ThreatShield] Користувач усвідомлено розблокував відправку форми');
-        form.dataset.threatShieldApproved = 'true';
+        ApprovalRegistry.approve(form);
 
         if (onProceedCallback) { onProceedCallback(); }
       },
@@ -248,7 +249,7 @@ export class SecurityFriction {
       allowRememberDomain: false,
       onProceed: () => {
         console.log('[ThreatShield] Користувач свідомо розблокував відправку повідомлення в чаті');
-        chatInput.dataset.threatShieldApproved = 'true';
+        ApprovalRegistry.approve(chatInput);
         onProceed();
       },
       onCancel: () => {
@@ -1753,5 +1754,7 @@ export class SecurityFriction {
     }
   }
 }
+
+
 
 

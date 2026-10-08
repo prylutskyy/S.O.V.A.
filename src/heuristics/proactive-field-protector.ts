@@ -1,3 +1,4 @@
+import { ApprovalRegistry } from '../core/approval-registry';
 import { PersonalVaultManager } from '../core/personal-vault';
 import { VaultScanner } from './vault-scanner';
 import { ShadowHost } from '../ui/shadow-host';
@@ -110,7 +111,7 @@ export class ProactiveFieldProtector {
 
     for (const input of inputs) {
       if (
-        input.dataset?.threatShieldApproved === 'true' ||
+        ApprovalRegistry.isApproved(input) ||
         input.dataset?.sanctuaryApproved === 'true' ||
         input.dataset?.sanctuaryUnsealed === 'true'
       ) {
@@ -664,7 +665,7 @@ export class ProactiveFieldProtector {
       const target = e.target as HTMLElement | null;
       if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) {
         const inp = target as HTMLInputElement | HTMLTextAreaElement;
-        if (!inp.dataset?.sanctuarySealed && !inp.dataset?.sanctuaryUnsealed && !inp.dataset?.threatShieldApproved) {
+        if (!inp.dataset?.sanctuarySealed && !inp.dataset?.sanctuaryUnsealed && !ApprovalRegistry.isApproved(inp)) {
           const match = this.evaluateField(inp);
           if (match) {
             this.sealField(inp, match);
@@ -674,3 +675,4 @@ export class ProactiveFieldProtector {
     }, true);
   }
 }
+

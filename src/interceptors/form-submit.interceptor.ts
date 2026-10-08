@@ -1,3 +1,4 @@
+import { ApprovalRegistry } from '../core/approval-registry';
 import { FormAnalysisPipeline, FormAnalysisResult } from '../detectors/form-analysis-pipeline';
 import { ActiveThreatContext, ThreatAssessment } from '../types';
 import { FormSensitiveState } from '../heuristics/input-detector';
@@ -23,6 +24,7 @@ export class FormSubmitInterceptor {
   private static realtimeDebounceTimer: any = null;
   private static lastReportedScore: number | null = null;
   private static lastReportedTriggers: string = '';
+  
 
   public static init(options: FormSubmitInterceptorOptions): void {
     this.options = options;
@@ -169,7 +171,7 @@ export class FormSubmitInterceptor {
         if (form) {
           const currentHost = this.options.getCurrentHost();
           if (this.isFormWhitelisted(form, currentHost)) return;
-          if (form.dataset.threatShieldApproved === 'true') return;
+          if (ApprovalRegistry.isApproved(form)) return;
 
           const { assessment, formState, targetHost } = this.handleFormAnalysis(form);
           if (this.shouldBlock(assessment, formState, targetHost, currentHost)) {
@@ -193,7 +195,7 @@ export class FormSubmitInterceptor {
           if (form) {
             const currentHost = this.options.getCurrentHost();
             if (this.isFormWhitelisted(form, currentHost)) return;
-            if (form.dataset.threatShieldApproved === 'true') return;
+            if (ApprovalRegistry.isApproved(form)) return;
 
             const { assessment, formState, targetHost } = this.handleFormAnalysis(form);
             if (this.shouldBlock(assessment, formState, targetHost, currentHost)) {
@@ -214,7 +216,7 @@ export class FormSubmitInterceptor {
 
       const currentHost = this.options.getCurrentHost();
       if (this.isFormWhitelisted(form, currentHost)) return;
-      if (form.dataset.threatShieldApproved === 'true') return;
+      if (ApprovalRegistry.isApproved(form)) return;
 
       const { assessment, formState, targetHost } = this.handleFormAnalysis(form);
       if (this.shouldBlock(assessment, formState, targetHost, currentHost)) {
@@ -251,3 +253,6 @@ export class FormSubmitInterceptor {
     this.options = null;
   }
 }
+
+
+

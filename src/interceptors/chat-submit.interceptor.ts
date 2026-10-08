@@ -1,3 +1,4 @@
+import { ApprovalRegistry } from '../core/approval-registry';
 import { ActiveThreatContext } from '../types';
 import { SecurityFriction } from '../ui/friction';
 import { DebuggerOverlay } from '../ui/debugger-overlay';
@@ -157,9 +158,9 @@ export class ChatSubmitInterceptor {
     event: Event,
     activeContext?: ActiveThreatContext | null
   ): boolean {
-    if (inputElement.dataset.threatShieldApproved === 'true') {
+    if (ApprovalRegistry.isApproved(inputElement)) {
       console.log('[SOVA:Content] Відправка повідомлення дозволена (усвідомлене розблокування).');
-      delete inputElement.dataset.threatShieldApproved;
+      ApprovalRegistry.revoke(inputElement);
       SessionOutboundMemory.recordSentMessage(inputElement.value || '');
       return false;
     }
@@ -215,7 +216,7 @@ export class ChatSubmitInterceptor {
    * Реалізує принцип прямої маніпуляції Apple: дія в модалці безпосередньо завершує намір відправки.
    */
   public static dispatchApprovedSend(inputElement: HTMLInputElement | HTMLTextAreaElement): void {
-    inputElement.dataset.threatShieldApproved = 'true';
+    ApprovalRegistry.approve(inputElement);
     SessionOutboundMemory.recordSentMessage(inputElement.value || '');
 
     // 1. Пошук асоційованої кнопки відправки в межах форми або чат-контейнера
@@ -269,7 +270,7 @@ export class ChatSubmitInterceptor {
     // і текст залишився в полі — повертаємо фокус користувачеві без шумного тосту в кутку
     setTimeout(() => {
       const stillHasValue = (inputElement.value || inputElement.innerText || '').trim().length > 0;
-      if (stillHasValue && inputElement.dataset.threatShieldApproved === 'true') {
+      if (stillHasValue && ApprovalRegistry.isApproved(inputElement)) {
         inputElement.focus();
       } else {
         ChatLivePill.hide();
@@ -390,4 +391,5 @@ export class ChatSubmitInterceptor {
     this.options = null;
   }
 }
+
 

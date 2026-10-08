@@ -1,3 +1,4 @@
+import { ApprovalRegistry } from '../core/approval-registry';
 import { ChatLivePill } from '../ui/chat-live-pill';
 import { FieldLivePill } from '../ui/field-live-pill';
 import { ActiveThreatContext } from '../types';
@@ -74,7 +75,7 @@ export class GlobalInputInterceptor {
    */
   private static checkRealtimeVaultLeakage(target: HTMLElement, text: string): void {
     if (this.isCurrentHostImmune()) return;
-    if (target.dataset?.threatShieldApproved === 'true') return;
+    if (ApprovalRegistry.isApproved(target as HTMLElement)) return;
 
     const items = PersonalVaultManager.getItemsSync();
     if (!items || items.length === 0) return;
@@ -279,7 +280,7 @@ export class GlobalInputInterceptor {
 
       // Пропуск, якщо користувач вже свідомо надав дозвіл цьому елементу чи формі
       const closestForm = target.closest('form');
-      if (target.dataset?.threatShieldApproved === 'true' || (closestForm && closestForm.dataset?.threatShieldApproved === 'true')) {
+      if (ApprovalRegistry.isApproved(target as HTMLElement) || (closestForm && ApprovalRegistry.isApproved(closestForm))) {
         return;
       }
 
@@ -377,7 +378,7 @@ export class GlobalInputInterceptor {
     window.addEventListener('keydown', intercept, true);
     window.addEventListener('submit', (e) => {
       const form = e.target as HTMLFormElement;
-      if (form && form.dataset?.threatShieldApproved === 'true') {
+      if (form && ApprovalRegistry.isApproved(form)) {
         return; // Дозволити схвалені форми
       }
       if (this.isSoftLocked) {
@@ -429,10 +430,10 @@ export class GlobalInputInterceptor {
         ],
         activeContext: this.hardLockContext,
         onProceed: () => {
-          targetElement.dataset.threatShieldApproved = 'true';
+          ApprovalRegistry.approve(targetElement);
           const closestForm = targetElement.closest('form');
           if (closestForm) {
-            closestForm.dataset.threatShieldApproved = 'true';
+            ApprovalRegistry.approve(closestForm);
             try {
               closestForm.submit();
             } catch {}
@@ -455,3 +456,4 @@ export class GlobalInputInterceptor {
     });
   }
 }
+
