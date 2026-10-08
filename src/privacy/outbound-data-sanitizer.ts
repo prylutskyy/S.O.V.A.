@@ -384,7 +384,7 @@ CRITICAL EVALUATION RULES:
    - "isScam": true ONLY if [Ви] is the intended victim being deceived or defrauded in this chat.
    - "isScam": false if [Ви] is NOT the target victim (including benign chat, bargaining, quoting/discussing scam methods, or sharing scam templates without targeting [Ви]).
    - "confidence": number (0-100).
-   - "scamType": string (e.g. "military_sabotage_recruitment", "escrow_fraud", "credential_theft", "phishing", or "none").
+   - "scamType": string (must be one of: PAYMENT_CREDENTIAL_THEFT, IDENTITY_PROBING, ESCROW_DELIVERY_SCAM, OFF_PLATFORM_REDIRECT, VERIFICATION_PHISHING, URGENCY_PRESSURE, MILITARY_SABOTAGE_RECRUITMENT, CRYPTO_WALLET_COMPROMISE, SUSPICIOUS_LURE, or UNKNOWN).
    - "reasoning": string in Ukrainian (max 35 words), explaining concisely why [Ви] is or is not at risk.
 
 Respond ONLY with valid JSON with keys: "isScam" (boolean), "confidence" (number 0-100), "scamType" (string), "reasoning" (string in Ukrainian).`;

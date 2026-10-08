@@ -17,6 +17,7 @@ export interface AIArbiterVerifyResult {
   isScam: boolean;
   confidence: number;
   reasoning: string;
+  scamType?: string;
   rawResponse?: string;
   provider?: string;
   modelUsed?: string;
@@ -189,6 +190,7 @@ IMPORTANT RULES:
 1. Respond ONLY with a valid JSON object. Do NOT include markdown blocks or any conversational text.
 2. JSON keys MUST strictly be: "isScam", "confidence", "scamType", "reasoning".
 3. Write "reasoning" in Ukrainian: concise, direct explanation (max 35 words).
+4. "scamType" must be one of: PAYMENT_CREDENTIAL_THEFT, IDENTITY_PROBING, ESCROW_DELIVERY_SCAM, OFF_PLATFORM_REDIRECT, VERIFICATION_PHISHING, URGENCY_PRESSURE, MILITARY_SABOTAGE_RECRUITMENT, CRYPTO_WALLET_COMPROMISE, or SUSPICIOUS_LURE.
 
 Required JSON schema:
 {

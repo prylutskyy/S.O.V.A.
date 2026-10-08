@@ -88,21 +88,23 @@ export class ChromeBuiltinAIProvider implements IAIProvider {
 
 IMPORTANT RULES:
 1. Respond ONLY with a valid JSON object. Do NOT include markdown blocks or any conversational text.
-2. JSON keys MUST strictly be: "isScam", "confidence", "reasoning".
+2. JSON keys MUST strictly be: "isScam", "confidence", "scamType", "reasoning".
 3. Write "reasoning" in English: concise, direct explanation (1-2 sentences, max 30 words).
+4. "scamType" must be one of: PAYMENT_CREDENTIAL_THEFT, IDENTITY_PROBING, ESCROW_DELIVERY_SCAM, OFF_PLATFORM_REDIRECT, VERIFICATION_PHISHING, URGENCY_PRESSURE, MILITARY_SABOTAGE_RECRUITMENT, CRYPTO_WALLET_COMPROMISE, or SUSPICIOUS_LURE.
 
 Required JSON schema:
 {
   "isScam": boolean,
   "confidence": number (0-100),
+  "scamType": string,
   "reasoning": string (concise explanation in English)
 }
 
 Example 1 (Malicious):
-{"isScam": true, "confidence": 95, "reasoning": "Phishing lure impersonating marketplace delivery to steal payment card credentials."}
+{"isScam": true, "confidence": 95, "scamType": "ESCROW_DELIVERY_SCAM", "reasoning": "Phishing lure impersonating marketplace delivery to steal payment card credentials."}
 
 Example 2 (Safe):
-{"isScam": false, "confidence": 90, "reasoning": "Legitimate communication without malicious links, manipulation, or credential requests."}`;
+{"isScam": false, "confidence": 90, "scamType": "UNKNOWN", "reasoning": "Legitimate communication without malicious links, manipulation, or credential requests."}`;
 
       try {
         session = await createAiSession(systemPrompt, 0.05, this.abortSignal);
@@ -193,7 +195,7 @@ Text / action data to analyze:
 ${truncatedText}
 """
 
-Respond ONLY with valid JSON. Keys: "isScam", "confidence", "reasoning". Language: English.`;
+Respond ONLY with valid JSON. Keys: "isScam", "confidence", "scamType", "reasoning". Language: English.`;
 
       let responseText = '';
       try {
@@ -367,10 +369,25 @@ Respond ONLY with valid JSON. Keys: "isScam", "confidence", "reasoning". Languag
           : 'No significant indicators of phishing or social engineering detected.';
       }
 
+      let scamType = 'UNKNOWN';
+      if (parsed && typeof parsed === 'object') {
+        if (typeof parsed.scamType === 'string') {
+          scamType = parsed.scamType.trim().toUpperCase();
+        }
+      }
+      if (scamType === 'UNKNOWN') {
+        const typeRegex = /"scamType"\s*[:=]\s*["']?([^"',}\n\s]+)/i;
+        const typeMatch = cleanText.match(typeRegex);
+        if (typeMatch && typeMatch[1]) {
+          scamType = typeMatch[1].trim().toUpperCase();
+        }
+      }
+
       return {
         isScam,
         confidence,
         reasoning,
+        scamType,
         rawResponse: responseText
       };
 
