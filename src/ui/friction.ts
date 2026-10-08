@@ -382,42 +382,42 @@ export class SecurityFriction {
       : '';
 
     const sabotageExpandedHtml = `
-      <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 8px; font-family: var(--font-sanctuary);">
-        <!-- Sanctuary Insight Card -->
-        <div style="padding: 14px 16px; border-radius: var(--radius-card); background: var(--sanctuary-surface); border: 1px solid var(--sanctuary-hairline); box-shadow: var(--shadow-sm);">
-          <div style="display: flex; align-items: center; gap: 7px; margin-bottom: 6px;">
-            <span style="width: 7px; height: 7px; border-radius: 50%; background: var(--sanctuary-red); display: inline-block;"></span>
-            <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--sanctuary-red-ink);">Спроба ворожого вербування та диверсії</span>
+      <div style="margin-top: 4px; display: flex; flex-direction: column; gap: 10px; font-family: var(--font-sanctuary);">
+        <!-- Insight Card -->
+        <div style="padding: 16px; border-radius: var(--radius-card); background: var(--sanctuary-surface); border: 1px solid var(--sanctuary-hairline); box-shadow: var(--shadow-sm);">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+            <span style="width: 8px; height: 8px; border-radius: 2px; background: var(--sanctuary-red); display: inline-block;"></span>
+            <span style="font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--sanctuary-red-ink);">Критична загроза</span>
           </div>
-          <p style="font-size: 12px; color: var(--sanctuary-ink-primary); line-height: 1.5; margin: 0 0 10px 0;">
-            Спецслужби противника використовують соцмережі для залучення громадян до диверсій під виглядом «простих завдань за криптовалюту» (підпали авто ЗСУ, релейних шаф чи збір координат сил ППО).
+          <p style="font-size: 13px; color: var(--sanctuary-ink-primary); line-height: 1.45; margin: 0 0 14px 0; font-weight: 500;">
+            Ворог використовує соціальні платформи для вербування. Під виглядом швидкого заробітку вас намагаються втягнути у диверсійну діяльність. Це несе пряму загрозу національній безпеці та вашому життю.
           </p>
 
-          <!-- Legal Sanctuary Pill -->
-          <div style="padding: 10px 12px; border-radius: var(--radius-control); background: var(--sanctuary-green-bg); border: 1px solid var(--sanctuary-green-bd); margin-bottom: 10px;">
-            <div style="display: flex; align-items: center; gap: 6px; font-weight: 600; color: var(--sanctuary-green-ink); font-size: 11.5px; margin-bottom: 2px;">
-              <svg style="width: 13px; height: 13px; color: var(--sanctuary-green);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span>Ви під захистом закону (ч. 3 ст. 111 КК України)</span>
+          <!-- Legal Shield -->
+          <div style="padding: 12px 14px; border-radius: 10px; background: var(--sanctuary-green-bg); border: 1px solid var(--sanctuary-green-bd); margin-bottom: 12px; display: flex; gap: 10px;">
+            <svg style="width: 16px; height: 16px; color: var(--sanctuary-green-ink); flex-shrink: 0; margin-top: 1px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div>
+              <div style="font-weight: 600; color: var(--sanctuary-green-ink); font-size: 12px; margin-bottom: 2px;">Закон на вашому боці (ч. 3 ст. 111 ККУ)</div>
+              <p style="font-size: 11.5px; color: var(--sanctuary-green-ink); line-height: 1.4; margin: 0; opacity: 0.9;">
+                Добровільне повідомлення органів влади про спробу вербування повністю звільняє вас від відповідальності.
+              </p>
             </div>
-            <p style="font-size: 11px; color: var(--sanctuary-green-ink); line-height: 1.45; margin: 0;">
-              Громадянин, який добровільно повідомив правоохоронні органи та не вчинив дій на шкоду суверенітету, <strong>повністю звільняється від кримінальної відповідальності</strong>.
-            </p>
           </div>
 
-          <!-- Calm 2-Step Protocol -->
-          <div style="padding: 10px 12px; border-radius: var(--radius-control); background: var(--sanctuary-surface-subtle); border: 1px solid var(--sanctuary-hairline);">
-            <span style="font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; color: var(--sanctuary-ink-secondary); display: block; margin-bottom: 4px;">Що зробити просто зараз:</span>
-            <div style="display: flex; flex-direction: column; gap: 4px; font-size: 11.5px; color: var(--sanctuary-ink-primary); line-height: 1.45;">
-              <div><strong>1. Припинити спілкування:</strong> ввід тексту вже заблоковано, не надсилайте жодних відповідей куратору.</div>
-              <div><strong>2. Повідомити органи безпеки:</strong> передайте докази в офіційний чат-бот <strong>«єВорог»</strong> (@evorog_bot) або СБУ.</div>
+          <!-- Action Protocol -->
+          <div style="padding: 12px 14px; border-radius: 10px; background: var(--sanctuary-surface-subtle); border: 1px solid var(--sanctuary-hairline);">
+            <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--sanctuary-ink-secondary); margin-bottom: 6px;">Рекомендації</div>
+            <div style="display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: var(--sanctuary-ink-primary); line-height: 1.4;">
+              <div style="display: flex; gap: 8px;"><span style="color: var(--sanctuary-ink-tertiary);">1.</span> <span>Не відповідайте. Ваші можливості вводу тексту заблоковані для безпеки.</span></div>
+              <div style="display: flex; gap: 8px;"><span style="color: var(--sanctuary-ink-tertiary);">2.</span> <span>Передайте інформацію до офіційного бота <strong>«єВорог»</strong>.</span></div>
             </div>
           </div>
         </div>
 
         ${snippet ? `
-          <div class="ts-capsule-snippet" style="padding: 10px 14px; border-radius: var(--radius-card); background: var(--sanctuary-surface-subtle); border: 1px solid var(--sanctuary-hairline); border-left: 3px solid var(--sanctuary-red); font-size: 12px; font-style: italic; color: var(--sanctuary-ink-secondary); line-height: 1.4;">
+          <div class="ts-capsule-snippet" style="padding: 12px 16px; border-radius: var(--radius-card); background: var(--sanctuary-surface-subtle); border: 1px solid var(--sanctuary-hairline); border-left: 3px solid var(--sanctuary-red); font-size: 12.5px; font-style: italic; color: var(--sanctuary-ink-secondary); line-height: 1.45;">
             «${snippet}»
           </div>
         ` : ''}
@@ -425,27 +425,31 @@ export class SecurityFriction {
     `;
 
     const scamExpandedHtml = `
-      <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 10px; font-family: var(--font-sanctuary);">
-        <div style="padding: 12px 14px; border-radius: var(--radius-card); background: var(--sanctuary-amber-bg); border: 1.5px solid var(--sanctuary-amber-bd); font-size: 12px; color: var(--sanctuary-ink-primary); line-height: 1.45; box-shadow: var(--shadow-sm);">
-          <div style="display: flex; align-items: center; gap: 6px; font-weight: 600; color: var(--sanctuary-amber-ink); margin-bottom: 4px;">
-            <span style="width: 6px; height: 6px; border-radius: 50%; background: var(--sanctuary-amber); display: inline-block;"></span>
-            <span>Ознаки соціальної інженерії</span>
+      <div style="margin-top: 4px; display: flex; flex-direction: column; gap: 10px; font-family: var(--font-sanctuary);">
+        <!-- Insight Card -->
+        <div style="padding: 16px; border-radius: var(--radius-card); background: var(--sanctuary-surface); border: 1px solid var(--sanctuary-hairline); box-shadow: var(--shadow-sm);">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+            <span style="width: 8px; height: 8px; border-radius: 2px; background: var(--sanctuary-amber); display: inline-block;"></span>
+            <span style="font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--sanctuary-amber-ink);">Ознаки маніпуляції</span>
           </div>
-          ${customSubtitle ? `<div style="margin-bottom: 6px;"><strong>Вердикт ШІ-Арбітра:</strong> ${customSubtitle}</div>` : ''}
-          Співрозмовник демонструє маніпулятивні патерни, створює штучне відчуття терміновості та схиляє до переходу за сторонніми посиланнями або передачі платіжних реквізитів.
+          ${customSubtitle ? `<div style="font-size: 12px; color: var(--sanctuary-ink-secondary); margin-bottom: 8px;">Вердикт: <strong>${customSubtitle}</strong></div>` : ''}
+          <p style="font-size: 13px; color: var(--sanctuary-ink-primary); line-height: 1.45; margin: 0; font-weight: 500;">
+            Виявлено психологічний тиск та спробу створення штучної терміновості. Мета співрозмовника — змусити вас розкрити конфіденційні дані або перейти за небезпечним посиланням.
+          </p>
         </div>
 
-        <div style="padding: 12px 14px; border-radius: var(--radius-card); background: var(--sanctuary-surface); border: 1.5px solid var(--sanctuary-hairline); font-size: 11.5px; line-height: 1.45; color: var(--sanctuary-ink-primary); box-shadow: var(--shadow-sm);">
-          <span style="font-weight: 600; color: var(--sanctuary-ink-primary); display: block; margin-bottom: 6px;">3 залізні правила цифрової безпеки:</span>
-          <ul style="margin: 0; padding-left: 18px; line-height: 1.5; color: var(--sanctuary-ink-secondary); font-size: 11px;">
-            <li style="margin-bottom: 4px;"><strong>Справжні сервіси ніколи не запитують CVV2</strong>, термін дії картки чи SMS-паролі. Співробітники банку бачать статус операцій без конфіденційних реквізитів.</li>
-            <li style="margin-bottom: 4px;"><strong>Банки та служби доставки не ведуть переписку в особистих чатах</strong> Telegram з неофіційних номерів.</li>
-            <li>Якщо є сумнів — <strong>закрийте чат</strong> і самостійно відкрийте офіційний застосунок банку або зателефонуйте на гарячу лінію підтримки.</li>
-          </ul>
+        <!-- Rules -->
+        <div style="padding: 14px 16px; border-radius: var(--radius-card); background: var(--sanctuary-surface-subtle); border: 1px solid var(--sanctuary-hairline); box-shadow: var(--shadow-sm);">
+          <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--sanctuary-ink-secondary); margin-bottom: 8px;">Золоті правила безпеки</div>
+          <div style="display: flex; flex-direction: column; gap: 8px; font-size: 12px; color: var(--sanctuary-ink-primary); line-height: 1.4;">
+            <div style="display: flex; gap: 8px;"><span style="color: var(--sanctuary-amber-ink);">•</span> <span>Офіційні сервіси ніколи не запитують CVV2 або SMS-коди.</span></div>
+            <div style="display: flex; gap: 8px;"><span style="color: var(--sanctuary-amber-ink);">•</span> <span>Справжні служби доставки не спілкуються в особистих чатах.</span></div>
+            <div style="display: flex; gap: 8px;"><span style="color: var(--sanctuary-amber-ink);">•</span> <span>При найменших сумнівах зупиніть комунікацію.</span></div>
+          </div>
         </div>
 
         ${snippet ? `
-          <div class="ts-capsule-snippet" style="padding: 10px 12px; border-radius: var(--radius-card); background: var(--sanctuary-surface-subtle); border: 1.5px solid var(--sanctuary-hairline); border-left: 3.5px solid var(--sanctuary-amber); font-size: 12px; font-style: italic; color: var(--sanctuary-ink-secondary); line-height: 1.4;">
+          <div class="ts-capsule-snippet" style="padding: 12px 16px; border-radius: var(--radius-card); background: var(--sanctuary-surface-subtle); border: 1px solid var(--sanctuary-hairline); border-left: 3px solid var(--sanctuary-amber); font-size: 12.5px; font-style: italic; color: var(--sanctuary-ink-secondary); line-height: 1.45;">
             «${snippet}»
           </div>
         ` : ''}
@@ -514,44 +518,6 @@ export class SecurityFriction {
           border: 1px solid var(--sanctuary-hairline, rgba(0, 0, 0, 0.07));
         }
 
-        .liquid-membrane-layer {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: var(--banner-height);
-          pointer-events: none;
-          filter: url(#apple-liquid-tearing-filter);
-          z-index: 10;
-          contain: paint layout;
-        }
-
-        .membrane-pill {
-          position: absolute;
-          left: 0;
-          top: 0;
-          height: var(--banner-height);
-          width: 100%;
-          background: var(--sanctuary-glass-elevated, rgba(255, 255, 255, 0.92));
-          border-radius: var(--radius-pill, 9999px);
-          transition: width 0.65s var(--spring-snap);
-          transform: translateZ(0);
-          will-change: width;
-        }
-
-        .membrane-droplet {
-          position: absolute;
-          top: 0;
-          width: var(--btn-size);
-          height: var(--btn-size);
-          background: var(--sanctuary-glass-elevated, rgba(255, 255, 255, 0.92));
-          border-radius: 50%;
-          left: calc(var(--banner-width) - var(--btn-size) - 2px);
-          transition: transform 0.65s var(--spring-snap);
-          transform: translateZ(0);
-          will-change: transform;
-        }
-
         .crisp-foreground-layer {
           position: relative;
           z-index: 20;
@@ -562,7 +528,7 @@ export class SecurityFriction {
         .crisp-info-pill {
           width: 100%;
           min-height: var(--banner-height);
-          border-radius: 28px;
+          border-radius: var(--radius-modal, 22px);
           background: var(--sanctuary-glass-elevated, rgba(255, 255, 255, 0.92));
           backdrop-filter: blur(20px);
           -webkit-backdrop-filter: blur(20px);
@@ -580,15 +546,14 @@ export class SecurityFriction {
 
         .crisp-info-pill:hover {
           border-color: var(--sanctuary-hairline-subtle, rgba(0, 0, 0, 0.04));
-          box-shadow: var(--shadow-elevated, 0 8px 24px rgba(0, 0, 0, 0.08));
+          
         }
 
-        .crisp-circular-button {
+        .ts-action-btn {
           position: absolute;
           top: 0;
-          width: var(--btn-size);
           height: var(--btn-size);
-          border-radius: 50%;
+          border-radius: 16px;
           background: var(--sanctuary-glass-elevated, rgba(255, 255, 255, 0.92));
           backdrop-filter: blur(20px);
           -webkit-backdrop-filter: blur(20px);
@@ -597,37 +562,31 @@ export class SecurityFriction {
           display: flex;
           align-items: center;
           justify-content: center;
+          gap: 6px;
+          padding: 0 16px;
           opacity: 0;
           pointer-events: none;
-          transform: scale(0.65) translateX(-26px);
+          transform: scale(0.95) translateX(-10px);
           transition: transform 0.62s var(--spring-snap), 
                       opacity 0.28s var(--ease-apple),
                       box-shadow 0.25s ease,
                       border-color 0.25s ease;
-          transform-origin: center center;
-          z-index: 30;
+          z-index: 10;
           text-decoration: none;
           cursor: pointer;
           box-sizing: border-box;
           outline: none;
+          color: var(--sanctuary-ink-primary);
         }
 
-        .crisp-circular-button:hover {
+        .ts-action-btn:hover {
+          background: var(--sanctuary-surface, #FFFFFF);
           border-color: var(--sanctuary-hairline-subtle, rgba(0, 0, 0, 0.04));
-          box-shadow: var(--shadow-elevated, 0 8px 24px rgba(0, 0, 0, 0.08));
+          
         }
 
-        #threat-shield-context-banner.is-torn .membrane-pill,
         #threat-shield-context-banner.is-torn .crisp-info-pill {
           width: var(--shrunk-pill-width);
-        }
-
-        #threat-shield-context-banner.is-torn .droplet-action-1 {
-          transform: translateX(calc(var(--shrunk-pill-width) + var(--gap) - (var(--banner-width) - var(--btn-size) - 2px)));
-        }
-
-        #threat-shield-context-banner.is-torn .droplet-action-2 {
-          transform: translateX(calc(var(--shrunk-pill-width) + var(--gap) + var(--btn-size) + var(--gap) - (var(--banner-width) - var(--btn-size) - 2px)));
         }
 
         #threat-shield-context-banner.is-torn .btn-action-1 {
@@ -641,7 +600,7 @@ export class SecurityFriction {
         #threat-shield-context-banner.is-torn .btn-action-2 {
           opacity: 1;
           pointer-events: auto;
-          left: calc(var(--shrunk-pill-width) + var(--gap) + var(--btn-size) + var(--gap));
+          left: calc(var(--shrunk-pill-width) + var(--gap) + 110px + var(--gap));
           transform: scale(1) translateX(0);
           transition-delay: 0.08s;
         }
@@ -660,7 +619,7 @@ export class SecurityFriction {
           border-radius: var(--radius-modal, 22px);
           background: var(--sanctuary-surface, #FFFFFF);
           border: 1px solid var(--sanctuary-hairline, rgba(0, 0, 0, 0.07));
-          box-shadow: var(--shadow-elevated, 0 8px 24px rgba(0, 0, 0, 0.08));
+          
         }
 
         .crisp-info-pill:not(.is-expanded) .expandable-grid {
@@ -713,9 +672,9 @@ export class SecurityFriction {
           background: var(--sanctuary-glass-elevated, rgba(255, 255, 255, 0.92));
           backdrop-filter: blur(20px);
           -webkit-backdrop-filter: blur(20px);
-          border: 1px solid var(--sanctuary-divider, rgba(0, 0, 0, 0.05));
-          border-radius: 0 !important;
-          box-shadow: var(--shadow-elevated, 0 8px 24px rgba(0, 0, 0, 0.08));
+          
+          
+          
           transition: border-color 0.4s ease, box-shadow 0.4s ease;
           cursor: not-allowed;
           user-select: none;
@@ -738,7 +697,14 @@ export class SecurityFriction {
         }
 
         @keyframes apple-refusal-glint {
-          0% { filter: brightness(1); }
+          0% { transform: translateX(0); filter: brightness(1); }
+          15% { transform: translateX(-4px); filter: brightness(0.96); }
+          30% { transform: translateX(4px); }
+          45% { transform: translateX(-2.5px); }
+          60% { transform: translateX(2.5px); }
+          75% { transform: translateX(-1px); }
+          100% { transform: translateX(0); filter: brightness(1); }
+        }
           30% { filter: brightness(0.96); transform: scale(0.998); }
           100% { filter: brightness(1); transform: scale(1); }
         }
@@ -802,7 +768,7 @@ export class SecurityFriction {
           <div id="ts-pill-header" style="height: var(--banner-height, 56px); padding: 0 14px; display: flex; align-items: center; justify-content: space-between; width: 100%; box-sizing: border-box; cursor: pointer;">
             <div style="display: flex; align-items: center; min-width: 0; flex: 1; margin-right: 8px; pointer-events: none;">
               <!-- Emblem -->
-              <div id="banner-emblem" style="width: 36px; height: 36px; border-radius: 50%; overflow: hidden; flex-shrink: 0; display: flex; align-items: center; justify-content: center; position: relative; margin-right: 12px; background: var(--sanctuary-surface, #FFFFFF); border: 1px solid var(--sanctuary-hairline, rgba(0, 0, 0, 0.12)); box-shadow: var(--shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.08));">
+              <div id="banner-emblem" style="width: 36px; height: 36px; border-radius: 8px; overflow: hidden; flex-shrink: 0; display: flex; align-items: center; justify-content: center; position: relative; margin-right: 12px; background: var(--sanctuary-surface, #FFFFFF); border: 1px solid var(--sanctuary-hairline, rgba(0, 0, 0, 0.12)); box-shadow: var(--shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.08));">
                 <img class="ts-sova-logo-img" src="${getSovaLogoUrl()}" alt="С.О.В.А." style="width: 100%; height: 100%; object-fit: cover; display: block;" />
               </div>
 
@@ -839,51 +805,41 @@ export class SecurityFriction {
           </div>
         </div>
 
-        <!-- Action Droplets (Buttons) -->
+        <!-- Action Buttons -->
         ${isSabotage ? `
-          <a id="ts-btn-evorog" href="https://t.me/evorog_bot" target="_blank" rel="noopener noreferrer" class="crisp-circular-button btn-action-1 liquid-glass-shell" title="Повідомити в офіційний чат-бот оборони України «єВорог» (@evorog_bot)">
-            <div style="width: 100%; height: 100%; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #FFFFFF; transition: background 0.2s;">
-              <svg style="width: 20px; height: 20px; color: #111827;" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.75-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .37z"/>
-              </svg>
-              <span style="font-size: 8px; font-weight: 700; letter-spacing: -0.02em; text-transform: uppercase; color: #1F2937; margin-top: 2px;">єВорог</span>
-            </div>
+          <a id="ts-btn-evorog" href="https://t.me/evorog_bot" target="_blank" rel="noopener noreferrer" class="ts-action-btn btn-action-1" style="width: 110px;" title="Повідомити в офіційний чат-бот оборони України «єВорог»">
+            <svg style="width: 18px; height: 18px;" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.75-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .37z"/>
+            </svg>
+            <span style="font-size: 11px; font-weight: 600; letter-spacing: -0.01em;">єВорог</span>
           </a>
         ` : (isCritical ? `
-          <button id="ts-btn-ack" class="crisp-circular-button btn-action-1 liquid-glass-shell" title="Зрозуміло">
-            <div style="width: 100%; height: 100%; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #FFFFFF; transition: background 0.2s;">
-              <svg style="width: 18px; height: 18px; color: #B45309;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-              </svg>
-              <span style="font-size: 8px; font-weight: 700; letter-spacing: -0.02em; text-transform: uppercase; color: #1F2937; margin-top: 2px;">Зрозуміло</span>
-            </div>
+          <button id="ts-btn-ack" class="ts-action-btn btn-action-1" style="width: 110px; color: var(--sanctuary-amber-ink);" title="Зрозуміло">
+            <svg style="width: 16px; height: 16px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+            <span style="font-size: 11px; font-weight: 600; letter-spacing: -0.01em;">Зрозуміло</span>
           </button>
 
-          <button id="ts-btn-unblock" class="crisp-circular-button btn-action-2 liquid-glass-shell" title="Розблокувати ввід та зняти сповіщення">
-            <div style="width: 100%; height: 100%; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #6B7280; background: #FFFFFF; transition: all 0.2s;">
-              <svg style="width: 16px; height: 16px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-              <span style="font-size: 7.5px; font-weight: 600; text-transform: uppercase; margin-top: 2px; letter-spacing: -0.02em;">Зняти</span>
-            </div>
+          <button id="ts-btn-unblock" class="ts-action-btn btn-action-2" style="width: 110px;" title="Розблокувати ввід та зняти сповіщення">
+            <svg style="width: 16px; height: 16px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+            <span style="font-size: 11px; font-weight: 600; letter-spacing: -0.01em;">Зняти</span>
           </button>
         ` : `
-          <button id="ts-btn-ack" class="crisp-circular-button btn-action-1 liquid-glass-shell" title="Зрозуміло">
-            <div style="width: 100%; height: 100%; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #FFFFFF; transition: background 0.2s;">
-              <svg style="width: 18px; height: 18px; color: #B45309;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-              </svg>
-              <span style="font-size: 8px; font-weight: 700; letter-spacing: -0.02em; text-transform: uppercase; color: #1F2937; margin-top: 2px;">Зрозуміло</span>
-            </div>
+          <button id="ts-btn-ack" class="ts-action-btn btn-action-1" style="width: 110px; color: var(--sanctuary-amber-ink);" title="Зрозуміло">
+            <svg style="width: 16px; height: 16px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+            <span style="font-size: 11px; font-weight: 600; letter-spacing: -0.01em;">Зрозуміло</span>
           </button>
 
-          <button id="ts-capsule-close" class="crisp-circular-button btn-action-2 liquid-glass-shell" title="Закрити сповіщення">
-            <div style="width: 100%; height: 100%; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #6B7280; background: #FFFFFF; transition: all 0.2s;">
-              <svg style="width: 16px; height: 16px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-              <span style="font-size: 7.5px; font-weight: 600; text-transform: uppercase; margin-top: 2px; letter-spacing: -0.02em;">Закрити</span>
-            </div>
+          <button id="ts-capsule-close" class="ts-action-btn btn-action-2" style="width: 110px;" title="Закрити сповіщення">
+            <svg style="width: 16px; height: 16px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+            <span style="font-size: 11px; font-weight: 600; letter-spacing: -0.01em;">Закрити</span>
           </button>
         `)}
       </div>
@@ -1043,7 +999,7 @@ export class SecurityFriction {
       veil.className = 'circuit-breaker-veil';
       veil.innerHTML = `
         <div id="circuit-badge" class="circuit-badge">
-          <div id="circuit-owl-box" style="width: 22px; height: 22px; border-radius: 50%; overflow: hidden; background: var(--sanctuary-surface, #FFFFFF); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: var(--shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.12)); transition: transform 0.25s var(--ease-apple-press, cubic-bezier(0.25, 1, 0.5, 1));">
+          <div id="circuit-owl-box" style="width: 22px; height: 22px; border-radius: 5px; overflow: hidden; background: var(--sanctuary-surface, #FFFFFF); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: var(--shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.12)); transition: transform 0.25s var(--ease-apple-press, cubic-bezier(0.25, 1, 0.5, 1));">
             <img class="ts-sova-logo-img" src="${getSovaLogoUrl()}" alt="С.О.В.А." style="width: 100%; height: 100%; object-fit: cover; display: block;" />
           </div>
           <div style="text-align: left;">
