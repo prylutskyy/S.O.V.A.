@@ -9,6 +9,7 @@
     "zip": "wxt zip",
     "compile": "tsc --noEmit",
     "test": "vitest run",
+    "test:corpus": "vitest run tests/evaluation/corpus.evaluation.test.ts",
     "test:watch": "vitest"
   },
   "devDependencies": {

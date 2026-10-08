@@ -17,6 +17,7 @@ import { ProactiveFieldProtector } from '../src/heuristics/proactive-field-prote
 import { AIArbiterService } from '../src/ai/ai-arbiter.service';
 import { SpaNavigationDetector } from '../src/core/spa-navigation';
 import { ScamIntentType } from '../src/heuristics/intent-classifier';
+import { getThreatMitigationAction } from '../src/heuristics/threat-mitigation-policy';
 
 export default defineContentScript({
   matches: ['<all_urls>'],
@@ -311,10 +312,7 @@ export default defineContentScript({
         threatIntent: ScamIntentType,
         threatScore: number
       ) => {
-        const isCritical =
-          threatIntent === 'MILITARY_SABOTAGE_RECRUITMENT' ||
-          threatIntent === 'SEED_PHRASE_THEFT' ||
-          threatIntent === 'CRYPTO_WALLET_COMPROMISE';
+        const isCritical = getThreatMitigationAction(true, threatIntent) === 'LOCK_INPUT';
 
         if (isCritical) {
           GlobalInputInterceptor.setHardLock(context);
