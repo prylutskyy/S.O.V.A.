@@ -38,7 +38,7 @@ export class SecurityFriction {
       veil.style.height = `${Math.max(48, rect.height + pad * 2)}px`;
       veil.style.bottom = 'auto';
       veil.style.transform = 'none';
-      veil.style.borderRadius = '16px';
+      veil.style.borderRadius = '0px';
     } else {
       veil.style.position = 'fixed';
       veil.style.bottom = '24px';
@@ -47,7 +47,7 @@ export class SecurityFriction {
       veil.style.transform = 'translateX(-50%)';
       veil.style.width = 'min(580px, calc(100vw - 32px))';
       veil.style.height = '56px';
-      veil.style.borderRadius = '16px';
+      veil.style.borderRadius = '0px';
     }
   }
 
@@ -717,12 +717,15 @@ export class SecurityFriction {
           position: fixed;
           z-index: 2147483646;
           background: rgba(255, 255, 255, 0.94);
-          backdrop-filter: blur(24px) saturate(180%);
-          -webkit-backdrop-filter: blur(24px) saturate(180%);
-          border: 1px solid rgba(0, 0, 0, 0.08);
-          border-radius: 16px;
-          box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.10), 0 2px 8px rgba(0, 0, 0, 0.04);
-          transition: opacity 0.35s ease, transform 0.2s ease, border-color 0.25s ease;
+          backdrop-filter: blur(28px) saturate(190%);
+          -webkit-backdrop-filter: blur(28px) saturate(190%);
+          border-top: 1px solid rgba(0, 0, 0, 0.10);
+          border-bottom: 1px solid rgba(0, 0, 0, 0.10);
+          border-left: 1px solid rgba(0, 0, 0, 0.06);
+          border-right: 1px solid rgba(0, 0, 0, 0.06);
+          border-radius: 0 !important;
+          box-shadow: 0 10px 30px -4px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.85);
+          transition: border-color 0.4s ease, box-shadow 0.4s ease;
           cursor: not-allowed;
           user-select: none;
           padding: 8px 16px;
@@ -732,34 +735,176 @@ export class SecurityFriction {
           font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", sans-serif;
           pointer-events: auto;
           box-sizing: border-box;
+          overflow: hidden;
         }
 
-        @keyframes prism-wave {
-          0% { background-position: -200% 0; }
-          100% { background-position: 200% 0; }
+        /* Ambient Apple specular caustic wave slowly gliding across the frosted planar glass */
+        .circuit-breaker-veil::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -160%;
+          width: 140%;
+          height: 100%;
+          background: linear-gradient(
+            90deg,
+            transparent 0%,
+            rgba(255, 255, 255, 0) 25%,
+            rgba(255, 255, 255, 0.42) 50%,
+            rgba(255, 255, 255, 0) 75%,
+            transparent 100%
+          );
+          transform: skewX(-20deg);
+          animation: apple-ambient-caustic 7s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+          pointer-events: none;
         }
 
-        .shimmer-active {
-          background-image: linear-gradient(
-            90deg, 
-            rgba(255, 255, 255, 0) 0%, 
-            rgba(255, 59, 48, 0.18) 40%, 
-            rgba(255, 255, 255, 0.5) 50%, 
-            rgba(255, 59, 48, 0.18) 60%, 
-            rgba(255, 255, 255, 0) 100%
-          ) !important;
-          background-size: 200% 100% !important;
-          animation: prism-wave 0.65s ease-out !important;
+        @keyframes apple-ambient-caustic {
+          0% {
+            transform: translateX(0) skewX(-20deg);
+            opacity: 0;
+          }
+          15% {
+            opacity: 0.65;
+          }
+          40% {
+            transform: translateX(250%) skewX(-20deg);
+            opacity: 0;
+          }
+          100% {
+            transform: translateX(250%) skewX(-20deg);
+            opacity: 0;
+          }
         }
 
+        /* Dignified instant specular glint upon refusal / click / keystroke */
+        .circuit-breaker-veil.glint-active,
+        .circuit-breaker-veil.shimmer-active {
+          border-color: rgba(30, 41, 59, 0.24) !important;
+          box-shadow: 0 14px 38px -4px rgba(0, 0, 0, 0.12), inset 0 0 24px rgba(255, 255, 255, 0.95) !important;
+          animation: apple-refusal-glint 0.52s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+
+        .circuit-breaker-veil.glint-active::after,
+        .circuit-breaker-veil.shimmer-active::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(
+            90deg,
+            transparent 0%,
+            rgba(255, 255, 255, 0) 25%,
+            rgba(255, 255, 255, 0.6) 50%,
+            rgba(255, 255, 255, 0) 75%,
+            transparent 100%
+          );
+          animation: apple-specular-flash 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          pointer-events: none;
+        }
+
+        @keyframes apple-specular-flash {
+          0% {
+            transform: translateX(0);
+            opacity: 0.9;
+          }
+          100% {
+            transform: translateX(230%);
+            opacity: 0;
+          }
+        }
+
+        @keyframes apple-refusal-glint {
+          0% {
+            filter: brightness(1);
+          }
+          30% {
+            filter: brightness(1.08) contrast(1.02);
+          }
+          100% {
+            filter: brightness(1);
+          }
+        }
+
+        /* Central indicator badge with subtle breathing seal */
+        .circuit-badge {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          padding: 6px 16px;
+          border-radius: 9999px;
+          background: rgba(0, 0, 0, 0.035);
+          border: 1px solid rgba(0, 0, 0, 0.07);
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 2px 6px rgba(0, 0, 0, 0.03);
+          transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), background-color 0.3s ease, border-color 0.3s ease;
+          animation: apple-badge-breath 6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        }
+
+        @keyframes apple-badge-breath {
+          0%, 100% {
+            border-color: rgba(0, 0, 0, 0.06);
+            background: rgba(0, 0, 0, 0.03);
+          }
+          50% {
+            border-color: rgba(0, 0, 0, 0.12);
+            background: rgba(0, 0, 0, 0.05);
+          }
+        }
+
+        /* SOVA emblem micro-pulse on refusal */
+        .circuit-badge-refusal #circuit-owl-box,
+        .micro-shake #circuit-owl-box {
+          animation: apple-owl-refusal 0.46s cubic-bezier(0.25, 1, 0.5, 1) both;
+        }
+
+        @keyframes apple-owl-refusal {
+          0% {
+            transform: scale(1);
+          }
+          20% {
+            transform: scale(0.92);
+          }
+          48% {
+            transform: scale(1.06);
+          }
+          75% {
+            transform: scale(0.98);
+          }
+          100% {
+            transform: scale(1);
+          }
+        }
+
+        /* Noble Apple damped spring refusal */
+        .circuit-badge-refusal,
         .micro-shake {
-          animation: shake-anim 0.3s cubic-bezier(0.36, 0.07, 0.19, 0.97) both !important;
+          animation: apple-spring-refusal 0.46s cubic-bezier(0.25, 1, 0.5, 1) both !important;
         }
-        @keyframes shake-anim {
-          10%, 90% { transform: translate3d(-1px, 0, 0); }
-          20%, 80% { transform: translate3d(2px, 0, 0); }
-          30%, 50%, 70% { transform: translate3d(-3px, 0, 0); }
-          40%, 60% { transform: translate3d(3px, 0, 0); }
+
+        @keyframes apple-spring-refusal {
+          0% {
+            transform: scale(1) translate3d(0, 0, 0);
+          }
+          16% {
+            transform: scale(0.968) translate3d(-7px, 0, 0);
+          }
+          34% {
+            transform: scale(0.985) translate3d(5.5px, 0, 0);
+          }
+          54% {
+            transform: scale(0.995) translate3d(-3px, 0, 0);
+          }
+          74% {
+            transform: scale(0.998) translate3d(1.2px, 0, 0);
+          }
+          90% {
+            transform: scale(1) translate3d(-0.4px, 0, 0);
+          }
+          100% {
+            transform: scale(1) translate3d(0, 0, 0);
+          }
         }
       </style>
 
@@ -1018,13 +1163,13 @@ export class SecurityFriction {
       veil.id = 'threat-shield-circuit-breaker-veil';
       veil.className = 'circuit-breaker-veil';
       veil.innerHTML = `
-        <div id="circuit-badge" style="display: flex; align-items: center; gap: 10px; padding: 6px 14px; border-radius: 9999px; background: rgba(0, 0, 0, 0.03); border: 1px solid rgba(0, 0, 0, 0.06); transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);">
-          <div style="width: 22px; height: 22px; border-radius: 50%; overflow: hidden; background: #000000; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);">
+        <div id="circuit-badge" class="circuit-badge">
+          <div id="circuit-owl-box" style="width: 22px; height: 22px; border-radius: 50%; overflow: hidden; background: #000000; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12); transition: transform 0.25s cubic-bezier(0.25, 1, 0.5, 1);">
             <img class="ts-sova-logo-img" src="${getSovaLogoUrl()}" alt="С.О.В.А." style="width: 100%; height: 100%; object-fit: cover; display: block;" />
           </div>
           <div style="text-align: left;">
-            <p style="font-size: 11.5px; font-weight: 600; color: #111827; margin: 0; line-height: 1.25;">Поле захищено · Ввід заблоковано контррозвідкою</p>
-            <p id="circuit-hint-text" style="font-size: 10px; color: #6B7280; margin: 0; line-height: 1.25;">Enter / Ctrl+C / копіювання вимкнено для безпеки</p>
+            <p style="font-size: 11.5px; font-weight: 600; color: #111827; margin: 0; line-height: 1.25;">Поле захищено · Ввід заблоковано С.О.В.А.</p>
+            <p id="circuit-hint-text" style="font-size: 10px; color: #6B7280; margin: 0; line-height: 1.25; transition: color 0.3s cubic-bezier(0.25, 1, 0.5, 1), transform 0.25s cubic-bezier(0.25, 1, 0.5, 1), font-weight 0.2s ease;">Enter / Ctrl+C / копіювання вимкнено для безпеки</p>
           </div>
         </div>
       `;
@@ -1050,20 +1195,20 @@ export class SecurityFriction {
         const badge = root.getElementById('circuit-badge');
         const hint = root.getElementById('circuit-hint-text');
         if (activeVeil) {
-          activeVeil.classList.remove('shimmer-active');
+          activeVeil.classList.remove('glint-active', 'shimmer-active');
           void activeVeil.offsetWidth;
-          activeVeil.classList.add('shimmer-active');
+          activeVeil.classList.add('glint-active');
         }
         if (badge) {
-          badge.classList.remove('micro-shake');
+          badge.classList.remove('circuit-badge-refusal', 'micro-shake');
           void badge.offsetWidth;
-          badge.classList.add('micro-shake');
+          badge.classList.add('circuit-badge-refusal');
         }
         if (hint) {
           hint.textContent = isSabotage
-            ? 'Співрозмовника визнано загрозою. Скористайтеся панеллю дій у верхній частині'
-            : 'Введення призупинено для захисту даних. Скористайтеся панеллю дій вгорі';
-          hint.style.color = '#EF4444';
+            ? 'Дію відхилено · Ввід повідомлень заблоковано С.О.В.А.'
+            : 'Дію відхилено · Ввід заблоковано системою С.О.В.А.';
+          hint.style.color = '#991B1B';
           hint.style.fontWeight = '600';
           setTimeout(() => {
             if (hint) {

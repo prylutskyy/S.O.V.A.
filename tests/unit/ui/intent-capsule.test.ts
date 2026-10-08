@@ -246,15 +246,19 @@ describe('Sanctuary Dynamic Intent Capsule (SecurityFriction.showContextWarningB
     );
 
     const root = ShadowHost.getRoot();
-    const veil = root.getElementById('threat-shield-circuit-breaker-veil');
+    const veil = root.getElementById('threat-shield-circuit-breaker-veil') as HTMLElement;
     expect(veil).not.toBeNull();
     expect(veil?.textContent).toContain('Поле захищено');
+    expect(veil?.style.borderRadius).toBe('0px');
 
     // Simulate keydown event for Enter
     const enterEvent = new KeyboardEvent('keydown', { key: 'Enter', cancelable: true });
     const preventDefaultSpy = vi.spyOn(enterEvent, 'preventDefault');
     window.dispatchEvent(enterEvent);
     expect(preventDefaultSpy).toHaveBeenCalled();
+    expect(veil?.classList.contains('glint-active')).toBe(true);
+    const badge = root.getElementById('circuit-badge');
+    expect(badge?.classList.contains('circuit-badge-refusal')).toBe(true);
 
     // Verify unblock removes veil
     const unblockBtn = root.getElementById('ts-btn-unblock');
