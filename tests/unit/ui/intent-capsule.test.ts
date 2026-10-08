@@ -110,21 +110,13 @@ describe('Sanctuary Dynamic Intent Capsule (SecurityFriction.showContextWarningB
     const ackBtn = root.getElementById('ts-btn-ack');
 
     expect(evorogBtn).not.toBeNull();
-    expect(unblockBtn).not.toBeNull();
+    // In hostile recruitment/sabotage, unblocking is strictly forbidden and absent
+    expect(unblockBtn).toBeNull();
     expect(ackBtn).toBeNull();
 
     // Click єВорог bot link
     evorogBtn?.click();
     expect(windowOpenSpy).toHaveBeenCalledWith('https://t.me/evorog_bot', '_blank');
-
-    // Click unblock button
-    unblockBtn?.click();
-    expect(onClearThreat).toHaveBeenCalled();
-    expect(postMessageSpy).toHaveBeenCalledWith(
-      { type: 'THREAT_SHIELD_DISABLE_CHAT_FREEZE' },
-      '*'
-    );
-    expect(root.getElementById('threat-shield-context-banner')).toBeNull();
   });
 
   it('handles seed phrase theft as critical threat with chat freeze', () => {
@@ -248,15 +240,15 @@ describe('Sanctuary Dynamic Intent Capsule (SecurityFriction.showContextWarningB
   it('renders Circuit Breaker veil on critical threats and intercepts blocked keys', () => {
     SecurityFriction.showContextWarningBanner(
       dummyContext,
-      'Диверсія',
-      'Завдання підпалу релейної шафи',
-      'MILITARY_SABOTAGE_RECRUITMENT'
+      'Криптозахист',
+      'Введіть 12 слів вашої seed-фрази',
+      'SEED_PHRASE_THEFT'
     );
 
     const root = ShadowHost.getRoot();
     const veil = root.getElementById('threat-shield-circuit-breaker-veil');
     expect(veil).not.toBeNull();
-    expect(veil?.textContent).toContain('Ввід заблоковано контррозвідкою');
+    expect(veil?.textContent).toContain('Поле захищено');
 
     // Simulate keydown event for Enter
     const enterEvent = new KeyboardEvent('keydown', { key: 'Enter', cancelable: true });
@@ -266,8 +258,22 @@ describe('Sanctuary Dynamic Intent Capsule (SecurityFriction.showContextWarningB
 
     // Verify unblock removes veil
     const unblockBtn = root.getElementById('ts-btn-unblock');
+    expect(unblockBtn).not.toBeNull();
     unblockBtn?.click();
     expect(root.getElementById('threat-shield-circuit-breaker-veil')).toBeNull();
+  });
+
+  it('strictly forbids unblock button when military sabotage recruitment is detected', () => {
+    SecurityFriction.showContextWarningBanner(
+      dummyContext,
+      'Диверсія',
+      'Завдання підпалу релейної шафи',
+      'MILITARY_SABOTAGE_RECRUITMENT'
+    );
+
+    const root = ShadowHost.getRoot();
+    expect(root.getElementById('ts-btn-unblock')).toBeNull();
+    expect(root.getElementById('ts-btn-evorog')).not.toBeNull();
   });
 
   it('adds is-torn class upon mouseenter or interaction', () => {
@@ -335,7 +341,7 @@ describe('Sanctuary Dynamic Intent Capsule (SecurityFriction.showContextWarningB
     chatInput.remove();
   });
 
-  it('applies ambient amber glow in Scenario B and clears it on dismiss', () => {
+  it('does NOT outline or modify the chat input field when social engineering / scam is detected', () => {
     const chatInput = document.createElement('textarea');
     chatInput.getBoundingClientRect = vi.fn(() => ({
       width: 400,
@@ -357,12 +363,12 @@ describe('Sanctuary Dynamic Intent Capsule (SecurityFriction.showContextWarningB
       'PAYMENT_CREDENTIAL_THEFT'
     );
 
-    expect(chatInput.getAttribute('data-ts-ambient-amber')).toBe('true');
-    expect(chatInput.style.borderColor).toContain('rgba(255, 149, 0');
-
-    SecurityFriction.removeContextWarningBanner();
+    // The input field must NOT receive custom outline or ambient border
     expect(chatInput.getAttribute('data-ts-ambient-amber')).toBeNull();
     expect(chatInput.style.borderColor).toBe('');
+    expect(chatInput.style.boxShadow).toBe('');
+
+    SecurityFriction.removeContextWarningBanner();
     chatInput.remove();
   });
 });

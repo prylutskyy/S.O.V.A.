@@ -172,4 +172,56 @@ describe('UnifiedFrictionModal (Apple HIG & Sensory Hold)', () => {
     expect(inspectBtn.getAttribute('aria-expanded')).toBe('false');
     expect(inspectText.textContent).toBe('modalInspectDetails');
   });
+
+  it('renders civic defense / sabotage recruitment modal with official action and without hold slider', async () => {
+    let cancelCalled = false;
+    const windowOpenSpy = vi.spyOn(window, 'open').mockImplementation(() => null);
+
+    await UnifiedFrictionModal.show({
+      type: 'chat',
+      title: 'Спроба ворожого вербування або диверсії',
+      badgeText: 'CRITICAL',
+      contextLabel: 'Платформа',
+      contextValue: 'telegram.org',
+      triggers: [
+        {
+          name: 'military_sabotage_recruitment',
+          severity: 'CRITICAL',
+          message: 'Спроба вербування до диверсій на залізниці',
+        },
+      ],
+      intentType: 'MILITARY_SABOTAGE_RECRUITMENT',
+      onProceed: () => {},
+      onCancel: () => { cancelCalled = true; },
+    });
+
+    const root = ShadowHost.getRoot();
+    const modal = root.getElementById('threat-shield-unified-modal');
+    expect(modal).not.toBeNull();
+
+    // Primary action button should be civic-themed
+    const primaryBtn = modal?.querySelector('#ts-primary-btn') as HTMLButtonElement;
+    expect(primaryBtn).not.toBeNull();
+    expect(primaryBtn.classList.contains('civic')).toBe(true);
+    expect(primaryBtn.textContent).toContain('Обірвати зв\'язок та заблокувати');
+
+    // Official єВорог button must be present
+    const evorogBtn = modal?.querySelector('#ts-evorog-modal-btn') as HTMLButtonElement;
+    expect(evorogBtn).not.toBeNull();
+    expect(evorogBtn.textContent).toContain('Повідомити в СБУ (єВорог)');
+
+    // Hold-to-unlock button and remember-domain checkbox must NOT be present
+    expect(modal?.querySelector('#ts-hold-btn')).toBeNull();
+    expect(modal?.querySelector('#ts-remember-domain')).toBeNull();
+
+    // Click official reporting button
+    evorogBtn.click();
+    expect(windowOpenSpy).toHaveBeenCalledWith('https://t.me/evorog_bot', '_blank');
+
+    // Click primary button
+    primaryBtn.click();
+    expect(cancelCalled).toBe(true);
+    expect(root.getElementById('threat-shield-unified-modal')).toBeNull();
+  });
 });
+

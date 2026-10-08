@@ -5,8 +5,7 @@ import { UserWhitelistManager } from '../core/user-whitelist';
 import { XaiEngine } from '../xai/xai-engine';
 import { VaultScanner } from '../heuristics/vault-scanner';
 import { ShadowHost } from './shadow-host';
-import { DebuggerOverlay } from './debugger-overlay';
-import { DESIGN_TOKENS_CSS } from './design-tokens';
+import { DESIGN_TOKENS_CSS, getSovaLogoUrl } from './design-tokens';
 
 export interface UnifiedModalOptions {
   type: 'form' | 'chat';
@@ -99,7 +98,23 @@ export class UnifiedFrictionModal {
     });
 
     const isCritical = fallbackAssessment.level === 'CRITICAL';
-    const primaryActionLabel = options.type === 'chat' ? i18n.getMessage('modalBtnCancelSending') : i18n.getMessage('modalBtnReturnToSafety');
+    const isCivicDefense =
+      options.intentType === 'MILITARY_SABOTAGE_RECRUITMENT' ||
+      options.activeContext?.scenario === 'MILITARY_SABOTAGE_RECRUITMENT' ||
+      Boolean(options.title?.toLowerCase().includes('диверсі')) ||
+      Boolean(options.title?.toLowerCase().includes('вербуванн')) ||
+      options.triggers?.some((t) =>
+        t.message.toLowerCase().includes('диверсій') ||
+        t.message.toLowerCase().includes('вербуванн') ||
+        t.message.toLowerCase().includes('геолокац') ||
+        t.message.toLowerCase().includes('ппо') ||
+        t.message.toLowerCase().includes('координат') ||
+        t.message.toLowerCase().includes('підпал')
+      );
+
+    const primaryActionLabel = isCivicDefense
+      ? 'Обірвати зв\'язок та заблокувати'
+      : (options.type === 'chat' ? i18n.getMessage('modalBtnCancelSending') : i18n.getMessage('modalBtnReturnToSafety'));
     const diagnostics = this.buildDiagnosticFactors(options, xai);
 
     const userIntent = xai.intentVsReality?.userIntent || i18n.getMessage('modalDefaultUserIntent');
@@ -218,14 +233,14 @@ export class UnifiedFrictionModal {
           background: var(--sanctuary-red-bg);
           border: 1px solid var(--sanctuary-red-bd);
           color: var(--sanctuary-red);
-          box-shadow: 0 4px 14px rgba(255, 59, 48, 0.16);
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
         }
 
         .ts-emblem-box.warning {
           background: var(--sanctuary-amber-bg);
           border: 1px solid var(--sanctuary-amber-bd);
           color: var(--sanctuary-amber);
-          box-shadow: 0 4px 14px rgba(255, 149, 0, 0.16);
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
         }
 
         .ts-title {
@@ -390,7 +405,44 @@ export class UnifiedFrictionModal {
           background: var(--sanctuary-blue-hover);
         }
 
+        .ts-btn-primary.civic {
+          background: var(--sanctuary-red);
+          box-shadow: 0 1px 4px rgba(255, 59, 48, 0.28);
+        }
+
+        .ts-btn-primary.civic:hover {
+          background: var(--sanctuary-red-hover);
+        }
+
         .ts-btn-primary:active {
+          transform: scale(0.985);
+        }
+
+        .ts-btn-secondary-official {
+          width: 100%;
+          height: 42px;
+          background: rgba(0, 0, 0, 0.04);
+          color: var(--sanctuary-ink-primary);
+          border: 1px solid var(--sanctuary-hairline);
+          border-radius: 10px;
+          font-size: 12.5px;
+          font-weight: 600;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 7px;
+          transition: all 0.15s var(--ease-apple-spring);
+          font-family: var(--font-sanctuary);
+          box-sizing: border-box;
+        }
+
+        .ts-btn-secondary-official:hover {
+          background: rgba(0, 0, 0, 0.07);
+          border-color: rgba(0, 0, 0, 0.14);
+        }
+
+        .ts-btn-secondary-official:active {
           transform: scale(0.985);
         }
 
@@ -814,13 +866,11 @@ export class UnifiedFrictionModal {
       </style>
 
       <div id="ts-modal-card">
-        <!-- AUTHENTIC SECURITY EMBLEM -->
+        <!-- AUTHENTIC S.O.V.A. LOGO EMBLEM -->
         <div class="ts-emblem-box ${isCritical ? 'critical' : 'warning'}">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-            <line x1="12" y1="8" x2="12" y2="12"/>
-            <line x1="12" y1="16" x2="12.01" y2="16"/>
-          </svg>
+          <div style="width: 42px; height: 42px; border-radius: 12px; overflow: hidden; background: #000000; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);">
+            <img class="ts-sova-logo-img" src="${getSovaLogoUrl()}" alt="С.О.В.А." style="width: 100%; height: 100%; object-fit: cover; display: block;" />
+          </div>
         </div>
 
         <!-- HEADLINE -->
@@ -862,19 +912,29 @@ export class UnifiedFrictionModal {
             </button>
           ` : ''}
 
-          <!-- PRIMARY ACTION: Return to Safety -->
-          <button id="ts-primary-btn" class="ts-btn-primary">
+          <!-- PRIMARY ACTION: Return to Safety / Block Contact -->
+          <button id="ts-primary-btn" class="ts-btn-primary ${isCivicDefense ? 'civic' : ''}">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="9 12 11 14 15 10"/></svg>
             <span>${primaryActionLabel}</span>
           </button>
 
-          ${rememberCheckboxHtml}
+          ${isCivicDefense ? `
+            <!-- CIVIC DEFENSE SECONDARY ACTION: Official SBU/evorog report -->
+            <button id="ts-evorog-modal-btn" class="ts-btn-secondary-official" type="button">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.75-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .37z"/>
+              </svg>
+              <span>Повідомити в СБУ (єВорог)</span>
+            </button>
+          ` : `
+            ${rememberCheckboxHtml}
 
-          <!-- SENSORY 2-SECOND HOLD-TO-UNLOCK -->
-          <div id="ts-hold-btn" class="ts-hold-btn" role="button" tabindex="0" title="${i18n.getMessage('modalHoldBtnTitle')}">
-            <div id="ts-hold-fill" class="ts-hold-fill"></div>
-            <span id="ts-hold-label" class="ts-hold-label">${i18n.getMessage('modalHoldBtnDefault')}</span>
-          </div>
+            <!-- SENSORY 2-SECOND HOLD-TO-UNLOCK -->
+            <div id="ts-hold-btn" class="ts-hold-btn" role="button" tabindex="0" title="${i18n.getMessage('modalHoldBtnTitle')}">
+              <div id="ts-hold-fill" class="ts-hold-fill"></div>
+              <span id="ts-hold-label" class="ts-hold-label">${i18n.getMessage('modalHoldBtnDefault')}</span>
+            </div>
+          `}
         </div>
 
         <!-- FOOTER: Inspector Toggle (Apple Disclosure Capsule) -->
@@ -965,9 +1025,18 @@ export class UnifiedFrictionModal {
     const inspector     = modalRoot.querySelector('#ts-inspector') as HTMLElement;
     const checkRemember = modalRoot.querySelector('#ts-remember-domain') as HTMLInputElement | null;
 
-    const holdBtn       = modalRoot.querySelector('#ts-hold-btn') as HTMLElement;
-    const holdFill      = modalRoot.querySelector('#ts-hold-fill') as HTMLElement;
-    const holdLabel     = modalRoot.querySelector('#ts-hold-label') as HTMLElement;
+    const holdBtn       = modalRoot.querySelector('#ts-hold-btn') as HTMLElement | null;
+    const holdFill      = modalRoot.querySelector('#ts-hold-fill') as HTMLElement | null;
+    const holdLabel     = modalRoot.querySelector('#ts-hold-label') as HTMLElement | null;
+    const btnEvorog     = modalRoot.querySelector('#ts-evorog-modal-btn') as HTMLElement | null;
+
+    if (btnEvorog) {
+      btnEvorog.addEventListener('click', () => {
+        if (typeof window !== 'undefined') {
+          window.open('https://t.me/evorog_bot', '_blank');
+        }
+      });
+    }
 
     // Inspector toggle
     let isInspectorOpen = false;
@@ -996,7 +1065,7 @@ export class UnifiedFrictionModal {
       }
     });
 
-    // Primary action: Return to Safety
+    // Primary action: Return to Safety / Block Contact
     const handleCancel = () => {
       this.close();
       options.onCancel();
@@ -1016,81 +1085,83 @@ export class UnifiedFrictionModal {
     window.addEventListener('keydown', onKeyDown);
     this.holdListeners.push(() => window.removeEventListener('keydown', onKeyDown));
 
-    // 2000 ms Sensory Hold-to-Unlock Mechanics with Apple Spring Rebound
-    let holdProgress = 0;
-    const HOLD_DURATION_MS = 2000;
-    const HOLD_STEP_MS = 25;
+    // 2000 ms Sensory Hold-to-Unlock Mechanics with Apple Spring Rebound (Only for non-civic threats)
+    if (holdBtn && holdFill && holdLabel) {
+      let holdProgress = 0;
+      const HOLD_DURATION_MS = 2000;
+      const HOLD_STEP_MS = 25;
 
-    const startHold = () => {
-      if (this.holdInterval) clearInterval(this.holdInterval);
-      holdBtn.classList.remove('rebound');
-      holdBtn.classList.add('holding');
-      const startTime = Date.now();
+      const startHold = () => {
+        if (this.holdInterval) clearInterval(this.holdInterval);
+        holdBtn.classList.remove('rebound');
+        holdBtn.classList.add('holding');
+        const startTime = Date.now();
 
-      this.holdInterval = window.setInterval(() => {
-        const elapsed = Date.now() - startTime;
-        holdProgress = Math.min(100, (elapsed / HOLD_DURATION_MS) * 100);
-        holdFill.style.width = `${holdProgress}%`;
+        this.holdInterval = window.setInterval(() => {
+          const elapsed = Date.now() - startTime;
+          holdProgress = Math.min(100, (elapsed / HOLD_DURATION_MS) * 100);
+          holdFill.style.width = `${holdProgress}%`;
 
-        const remainingSec = Math.max(0, (HOLD_DURATION_MS - elapsed) / 1000).toFixed(1);
-        holdLabel.textContent = i18n.getMessage('modalHoldBtnProgress', [String(remainingSec)]);
+          const remainingSec = Math.max(0, (HOLD_DURATION_MS - elapsed) / 1000).toFixed(1);
+          holdLabel.textContent = i18n.getMessage('modalHoldBtnProgress', [String(remainingSec)]);
 
-        if (holdProgress >= 100) {
-          if (this.holdInterval) {
-            clearInterval(this.holdInterval);
-            this.holdInterval = null;
-          }
-          holdLabel.textContent = i18n.getMessage('modalHoldBtnGranted');
-          holdBtn.classList.remove('holding');
-          holdBtn.classList.add('unlocked');
-
-          setTimeout(async () => {
-            const remember = checkRemember?.checked || false;
-            if (remember && options.domainToRemember) {
-              await UserWhitelistManager.allowDomain(options.domainToRemember);
+          if (holdProgress >= 100) {
+            if (this.holdInterval) {
+              clearInterval(this.holdInterval);
+              this.holdInterval = null;
             }
-            UnifiedFrictionModal.close();
-            options.onProceed(remember);
-          }, 180);
+            holdLabel.textContent = i18n.getMessage('modalHoldBtnGranted');
+            holdBtn.classList.remove('holding');
+            holdBtn.classList.add('unlocked');
+
+            setTimeout(async () => {
+              const remember = checkRemember?.checked || false;
+              if (remember && options.domainToRemember) {
+                await UserWhitelistManager.allowDomain(options.domainToRemember);
+              }
+              UnifiedFrictionModal.close();
+              options.onProceed(remember);
+            }, 180);
+          }
+        }, HOLD_STEP_MS);
+      };
+
+      const cancelHold = () => {
+        if (this.holdInterval) {
+          clearInterval(this.holdInterval);
+          this.holdInterval = null;
         }
-      }, HOLD_STEP_MS);
-    };
+        if (holdProgress < 100) {
+          holdProgress = 0;
+          holdBtn.classList.add('rebound');
+          holdBtn.classList.remove('holding');
+          holdFill.style.width = '0%';
+          holdLabel.textContent = i18n.getMessage('modalHoldBtnDefault');
+        }
+      };
 
-    const cancelHold = () => {
-      if (this.holdInterval) {
-        clearInterval(this.holdInterval);
-        this.holdInterval = null;
-      }
-      if (holdProgress < 100) {
-        holdProgress = 0;
-        holdBtn.classList.add('rebound');
-        holdBtn.classList.remove('holding');
-        holdFill.style.width = '0%';
-        holdLabel.textContent = i18n.getMessage('modalHoldBtnDefault');
-      }
-    };
+      holdBtn.addEventListener('mousedown', (e) => {
+        if (e.button === 0) startHold();
+      });
+      holdBtn.addEventListener('mouseleave', cancelHold);
 
-    holdBtn.addEventListener('mousedown', (e) => {
-      if (e.button === 0) startHold();
-    });
-    holdBtn.addEventListener('mouseleave', cancelHold);
+      const onMouseUp = () => cancelHold();
+      window.addEventListener('mouseup', onMouseUp);
+      this.holdListeners.push(() => window.removeEventListener('mouseup', onMouseUp));
 
-    const onMouseUp = () => cancelHold();
-    window.addEventListener('mouseup', onMouseUp);
-    this.holdListeners.push(() => window.removeEventListener('mouseup', onMouseUp));
+      holdBtn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        startHold();
+      }, { passive: false });
 
-    holdBtn.addEventListener('touchstart', (e) => {
-      e.preventDefault();
-      startHold();
-    }, { passive: false });
-
-    const onTouchEnd = () => cancelHold();
-    window.addEventListener('touchend', onTouchEnd);
-    window.addEventListener('touchcancel', onTouchEnd);
-    this.holdListeners.push(() => {
-      window.removeEventListener('touchend', onTouchEnd);
-      window.removeEventListener('touchcancel', onTouchEnd);
-    });
+      const onTouchEnd = () => cancelHold();
+      window.addEventListener('touchend', onTouchEnd);
+      window.addEventListener('touchcancel', onTouchEnd);
+      this.holdListeners.push(() => {
+        window.removeEventListener('touchend', onTouchEnd);
+        window.removeEventListener('touchcancel', onTouchEnd);
+      });
+    }
   }
 
   public static close(): void {

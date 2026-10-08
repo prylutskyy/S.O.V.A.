@@ -5,8 +5,7 @@ import { ShadowHost } from './shadow-host';
 import { XaiEngine } from '../xai/xai-engine';
 import { VaultScanner } from '../heuristics/vault-scanner';
 import { HiddenFieldScanResult, HiddenFieldInspector } from '../heuristics/hidden-field-inspector';
-import { AIArbiterService } from '../ai/ai-arbiter.service';
-import { DESIGN_TOKENS_CSS } from './design-tokens';
+import { DESIGN_TOKENS_CSS, getSovaLogoUrl } from './design-tokens';
 import { PersonalVaultManager } from '../core/personal-vault';
 import { UserWhitelistManager } from '../core/user-whitelist';
 import { DebuggerOverlay } from './debugger-overlay';
@@ -324,19 +323,15 @@ export class SecurityFriction {
     let title = 'С.О.В.А. · Застереження безпеки';
     let heading = 'С.О.В.А. · Підозра на шахрайство';
     let tagColor = '#D97706';
-    let emblemBg = 'linear-gradient(180deg, #F59E0B 0%, #D97706 100%)';
-    let radarClass = 'radar-pulse-amber';
-    let iconSvg = '<svg style="width: 20px; height: 20px; color: #FFF;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>';
+    let emblemBg = 'linear-gradient(180deg, #D97706 0%, #B45309 100%)';
 
     if (isSabotage) {
       tag = 'Державна безпека';
       subtag = 'Контррозвідка СБУ';
       tagColor = '#EF4444';
-      emblemBg = 'linear-gradient(180deg, #EF4444 0%, #E11D48 100%)';
-      radarClass = 'radar-pulse-red';
+      emblemBg = 'linear-gradient(180deg, #DC2626 0%, #991B1B 100%)';
       title = 'С.О.В.А. · Ознаки ворожого вербування або диверсії';
       heading = 'С.О.В.А. · Загроза вербування (Ознаки ворожого вербування або диверсії)';
-      iconSvg = '<svg style="width: 20px; height: 20px; color: #FFF;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>';
     } else if (isEscrow) {
       tag = 'Кібербезпека';
       subtag = 'Фішинг доставки';
@@ -359,8 +354,7 @@ export class SecurityFriction {
       tag = 'Кібербезпека';
       subtag = 'Криптозахист';
       tagColor = '#EF4444';
-      emblemBg = 'linear-gradient(180deg, #EF4444 0%, #E11D48 100%)';
-      radarClass = 'radar-pulse-red';
+      emblemBg = 'linear-gradient(180deg, #DC2626 0%, #991B1B 100%)';
       title = 'С.О.В.А. · Спроба викрадення криптогаманця';
       heading = 'С.О.В.А. · Спроба викрадення криптогаманця';
     } else if (isOffPlatform) {
@@ -388,49 +382,42 @@ export class SecurityFriction {
       : '';
 
     const sabotageExpandedHtml = `
-      <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 10px;">
-        <div style="padding: 12px 14px; border-radius: 14px; background: #FEF2F2; border: 1.5px solid #FCA5A5; font-size: 12px; color: #1F2937; line-height: 1.45; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
-          <div style="display: flex; align-items: center; gap: 6px; font-weight: 600; color: #DC2626; margin-bottom: 4px;">
-            <span style="width: 6px; height: 6px; border-radius: 50%; background: #DC2626; display: inline-block;"></span>
-            <span>Схеми ворожого вербування через соцмережі</span>
+      <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 8px; font-family: var(--font-sanctuary);">
+        <!-- Sanctuary Insight Card -->
+        <div style="padding: 14px 16px; border-radius: 14px; background: rgba(255, 255, 255, 0.95); border: 1px solid rgba(0, 0, 0, 0.08); box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+          <div style="display: flex; align-items: center; gap: 7px; margin-bottom: 6px;">
+            <span style="width: 7px; height: 7px; border-radius: 50%; background: #EF4444; display: inline-block;"></span>
+            <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: #DC2626;">Спроба ворожого вербування та диверсії</span>
           </div>
-          Російські спецслужби (ФСБ, ГРУ) вербують громадян України через Telegram-канали та чати пошуку роботи. Під виглядом «кур’єрських завдань» чи «швидкого заробітку за криптовалюту (USDT)» куратори пропонують підпалювати <strong>релейні шафи Укрзалізниці</strong>, службові <strong>автомобілі ЗСУ</strong> або знімати координати розташування систем ППО та блокпостів.
-        </div>
+          <p style="font-size: 12px; color: #1F2937; line-height: 1.5; margin: 0 0 10px 0;">
+            Спецслужби противника використовують соцмережі для залучення громадян до диверсій під виглядом «простих завдань за криптовалюту» (підпали авто ЗСУ, релейних шаф чи збір координат сил ППО).
+          </p>
 
-        <div style="padding: 12px 14px; border-radius: 14px; background: #111827; border: 1.5px solid #374151; color: #FFFFFF; font-size: 11.5px; line-height: 1.45; box-shadow: 0 1px 3px rgba(0,0,0,0.06);">
-          <div style="display: flex; align-items: center; justify-content: space-between; font-weight: 600; color: #F87171; margin-bottom: 4px;">
-            <span style="display: flex; align-items: center; gap: 6px;">
-              <svg style="width: 14px; height: 14px; color: #EF4444;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          <!-- Legal Sanctuary Pill -->
+          <div style="padding: 10px 12px; border-radius: 10px; background: rgba(52, 199, 89, 0.08); border: 1px solid rgba(52, 199, 89, 0.22); margin-bottom: 10px;">
+            <div style="display: flex; align-items: center; gap: 6px; font-weight: 600; color: #15803D; font-size: 11.5px; margin-bottom: 2px;">
+              <svg style="width: 13px; height: 13px; color: #16A34A;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              Кримінальна відповідальність: ст. 111 та 113 ККУ
-            </span>
-            <span style="font-size: 10px; color: #FCA5A5; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">Довічне ув'язнення</span>
+              <span>Ви під захистом закону (ч. 3 ст. 111 КК України)</span>
+            </div>
+            <p style="font-size: 11px; color: #166534; line-height: 1.45; margin: 0;">
+              Громадянин, який добровільно повідомив правоохоронні органи та не вчинив дій на шкоду суверенітету, <strong>повністю звільняється від кримінальної відповідальності</strong>.
+            </p>
           </div>
-          Дії кваліфікуються за статтями 111 (Державна зрада) та 113 (Диверсія) Кримінального кодексу України в умовах воєнного стану. Покарання — <strong>від 15 років до довічного позбавлення волі</strong> з повною конфіскацією належного майна.
-        </div>
 
-        <div style="padding: 12px 14px; border-radius: 14px; background: #FFFFFF; border: 1.5px solid #CBD5E1; font-size: 11.5px; line-height: 1.45; color: #4B5563; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
-          <span style="font-weight: 600; color: #111827; display: block; margin-bottom: 6px;">Покроковий протокол безпеки:</span>
-          <ol style="margin: 0; padding-left: 18px; line-height: 1.5; color: #4B5563; font-size: 11px;">
-            <li><strong>Збережіть докази:</strong> зробіть чіткі скріншоти повідомлень, профілю куратора та його ID. <strong>Нічого не видаляйте</strong> з листування.</li>
-            <li><strong>Негайно припиніть</strong> будь-яку комунікацію та не виконуйте жодних інструкцій.</li>
-            <li><strong>Надішліть інформацію</strong> до офіційного чат-бота <strong>«єВорог»</strong> (@evorog_bot) або до Служби безпеки України (чат-бот @sbu_help_bot або тел. 0-800-501-482).</li>
-          </ol>
-        </div>
-
-        <div style="padding: 12px 14px; border-radius: 14px; background: #ECFDF5; border: 1.5px solid #6EE7B7; font-size: 11.5px; line-height: 1.45; color: #064E3B; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
-          <div style="display: flex; align-items: center; gap: 6px; font-weight: 600; color: #065F46; margin-bottom: 4px;">
-            <svg style="width: 14px; height: 14px; color: #059669;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span>Звільнення від відповідальності: ч. 3 ст. 111 КК України</span>
+          <!-- Calm 2-Step Protocol -->
+          <div style="padding: 10px 12px; border-radius: 10px; background: rgba(0, 0, 0, 0.025); border: 1px solid rgba(0, 0, 0, 0.05);">
+            <span style="font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; color: #6B7280; display: block; margin-bottom: 4px;">Що зробити просто зараз:</span>
+            <div style="display: flex; flex-direction: column; gap: 4px; font-size: 11.5px; color: #374151; line-height: 1.45;">
+              <div><strong>1. Припинити спілкування:</strong> ввід тексту вже заблоковано, не надсилайте жодних відповідей куратору.</div>
+              <div><strong>2. Повідомити органи безпеки:</strong> передайте докази в офіційний чат-бот <strong>«єВорог»</strong> (@evorog_bot) або СБУ.</div>
+            </div>
           </div>
-          Громадянин України, який не вчинив жодних дій на шкоду суверенітету та <strong>добровільно повідомив органи державної влади</strong> про отримане завдання та зв'язок з іноземними спецслужбами, згідно із законом <strong>повністю звільняється від кримінальної відповідальності</strong>.
         </div>
 
         ${snippet ? `
-          <div class="ts-capsule-snippet" style="padding: 10px 12px; border-radius: 12px; background: #F9FAFB; border: 1.5px solid #CBD5E1; border-left: 3.5px solid #EF4444; font-size: 12px; font-style: italic; color: #374151; line-height: 1.4;">
+          <div class="ts-capsule-snippet" style="padding: 10px 14px; border-radius: 12px; background: rgba(0, 0, 0, 0.02); border: 1px solid rgba(0, 0, 0, 0.06); border-left: 3px solid #EF4444; font-size: 12px; font-style: italic; color: #4B5563; line-height: 1.4;">
             «${snippet}»
           </div>
         ` : ''}
@@ -467,7 +454,7 @@ export class SecurityFriction {
 
     const banner = document.createElement('div');
     banner.id = 'threat-shield-context-banner';
-    banner.className = 'dynamic-island-anchor summoning';
+    banner.className = `dynamic-island-anchor summoning${isSabotage ? ' single-action' : ''}`;
 
     banner.innerHTML = `
       <svg class="sr-only" width="0" height="0" style="position: absolute; width: 0; height: 0; pointer-events: none;">
@@ -511,16 +498,22 @@ export class SecurityFriction {
           box-sizing: border-box;
         }
 
+        #threat-shield-context-banner.single-action {
+          --shrunk-pill-width: calc(var(--banner-width) - var(--btn-size) - var(--gap));
+        }
+
         .liquid-glass-shell {
-          background: #FFFFFF;
-          border: 1.5px solid #CBD5E1;
+          background: rgba(255, 255, 255, 0.94);
+          backdrop-filter: blur(28px) saturate(190%);
+          -webkit-backdrop-filter: blur(28px) saturate(190%);
+          border: 1px solid rgba(0, 0, 0, 0.08);
           box-shadow: 
-            0 20px 42px -12px rgba(0, 0, 0, 0.14),
-            0 4px 14px -1px rgba(0, 0, 0, 0.05);
+            0 18px 44px -10px rgba(0, 0, 0, 0.12),
+            0 3px 12px -1px rgba(0, 0, 0, 0.04);
         }
 
         .specular-rim {
-          border: 1.5px solid #CBD5E1;
+          border: 1px solid rgba(0, 0, 0, 0.08);
         }
 
         .liquid-membrane-layer {
@@ -541,7 +534,7 @@ export class SecurityFriction {
           top: 0;
           height: var(--banner-height);
           width: 100%;
-          background: #FFFFFF;
+          background: rgba(255, 255, 255, 0.94);
           border-radius: 28px;
           transition: width 0.65s var(--spring-snap);
           transform: translateZ(0);
@@ -553,7 +546,7 @@ export class SecurityFriction {
           top: 0;
           width: var(--btn-size);
           height: var(--btn-size);
-          background: #FFFFFF;
+          background: rgba(255, 255, 255, 0.94);
           border-radius: 50%;
           left: calc(var(--banner-width) - var(--btn-size) - 2px);
           transition: transform 0.65s var(--spring-snap);
@@ -572,8 +565,10 @@ export class SecurityFriction {
           width: 100%;
           min-height: var(--banner-height);
           border-radius: 28px;
-          background: #FFFFFF;
-          border: 1.5px solid #CBD5E1;
+          background: rgba(255, 255, 255, 0.94);
+          backdrop-filter: blur(28px) saturate(190%);
+          -webkit-backdrop-filter: blur(28px) saturate(190%);
+          border: 1px solid rgba(0, 0, 0, 0.08);
           transition: width 0.65s var(--spring-snap),
                       border-radius 0.45s ease,
                       box-shadow 0.4s ease,
@@ -586,10 +581,10 @@ export class SecurityFriction {
         }
 
         .crisp-info-pill:hover {
-          border-color: #94A3B8;
+          border-color: rgba(0, 0, 0, 0.16);
           box-shadow: 
-            0 26px 50px -10px rgba(0, 0, 0, 0.16),
-            0 6px 18px -2px rgba(0, 0, 0, 0.06);
+            0 24px 50px -10px rgba(0, 0, 0, 0.14),
+            0 6px 18px -2px rgba(0, 0, 0, 0.05);
         }
 
         .crisp-circular-button {
@@ -598,9 +593,11 @@ export class SecurityFriction {
           width: var(--btn-size);
           height: var(--btn-size);
           border-radius: 50%;
-          background: #FFFFFF;
-          border: 1.5px solid #CBD5E1;
-          box-shadow: 0 10px 24px -4px rgba(0, 0, 0, 0.14), 0 2px 6px rgba(0, 0, 0, 0.05);
+          background: rgba(255, 255, 255, 0.94);
+          backdrop-filter: blur(28px) saturate(190%);
+          -webkit-backdrop-filter: blur(28px) saturate(190%);
+          border: 1px solid rgba(0, 0, 0, 0.08);
+          box-shadow: 0 10px 24px -4px rgba(0, 0, 0, 0.10), 0 2px 6px rgba(0, 0, 0, 0.04);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -620,8 +617,8 @@ export class SecurityFriction {
         }
 
         .crisp-circular-button:hover {
-          border-color: #94A3B8;
-          box-shadow: 0 14px 30px -4px rgba(0, 0, 0, 0.18), 0 4px 10px rgba(0, 0, 0, 0.08);
+          border-color: rgba(0, 0, 0, 0.16);
+          box-shadow: 0 14px 30px -4px rgba(0, 0, 0, 0.14), 0 4px 10px rgba(0, 0, 0, 0.06);
         }
 
         #threat-shield-context-banner.is-torn .membrane-pill,
@@ -666,10 +663,10 @@ export class SecurityFriction {
         .crisp-info-pill.is-expanded {
           border-radius: 28px;
           background: #FFFFFF;
-          border: 1.5px solid #CBD5E1;
+          border: 1px solid rgba(0, 0, 0, 0.10);
           box-shadow: 
-            0 36px 70px -14px rgba(0, 0, 0, 0.16),
-            0 8px 24px -4px rgba(0, 0, 0, 0.06);
+            0 32px 64px -14px rgba(0, 0, 0, 0.14),
+            0 8px 24px -4px rgba(0, 0, 0, 0.05);
         }
 
         .crisp-info-pill:not(.is-expanded) .expandable-grid {
@@ -687,22 +684,6 @@ export class SecurityFriction {
           opacity: 0;
           transform: translateY(-8px) scale(0.98);
           filter: blur(4px);
-        }
-
-        @keyframes alert-pulse-red {
-          0%, 100% { transform: scale(1); opacity: 0.85; }
-          50% { transform: scale(1.18); opacity: 0.4; }
-        }
-        .radar-pulse-red {
-          animation: alert-pulse-red 2.6s ease-in-out infinite;
-        }
-
-        @keyframes alert-pulse-amber {
-          0%, 100% { transform: scale(1); opacity: 0.85; }
-          50% { transform: scale(1.18); opacity: 0.45; }
-        }
-        .radar-pulse-amber {
-          animation: alert-pulse-amber 3s ease-in-out infinite;
         }
 
         .summoning {
@@ -735,10 +716,12 @@ export class SecurityFriction {
         .circuit-breaker-veil {
           position: fixed;
           z-index: 2147483646;
-          background: #FFFFFF;
-          border: 1.5px solid #FCA5A5;
+          background: rgba(255, 255, 255, 0.94);
+          backdrop-filter: blur(24px) saturate(180%);
+          -webkit-backdrop-filter: blur(24px) saturate(180%);
+          border: 1px solid rgba(0, 0, 0, 0.08);
           border-radius: 16px;
-          box-shadow: 0 12px 32px -4px rgba(239, 68, 68, 0.16), 0 2px 8px rgba(0, 0, 0, 0.05);
+          box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.10), 0 2px 8px rgba(0, 0, 0, 0.04);
           transition: opacity 0.35s ease, transform 0.2s ease, border-color 0.25s ease;
           cursor: not-allowed;
           user-select: none;
@@ -784,7 +767,7 @@ export class SecurityFriction {
       <div class="liquid-membrane-layer" aria-hidden="true">
         <div class="membrane-pill"></div>
         <div class="membrane-droplet droplet-action-1"></div>
-        <div class="membrane-droplet droplet-action-2"></div>
+        ${!isSabotage ? '<div class="membrane-droplet droplet-action-2"></div>' : ''}
       </div>
 
       <!-- 2. FOREGROUND CRISP OPTICAL STAGE -->
@@ -795,11 +778,8 @@ export class SecurityFriction {
           <div id="ts-pill-header" style="height: 56px; padding: 0 14px; display: flex; align-items: center; justify-content: space-between; width: 100%; box-sizing: border-box; cursor: pointer;">
             <div style="display: flex; align-items: center; min-width: 0; flex: 1; margin-right: 8px; pointer-events: none;">
               <!-- Emblem -->
-              <div id="banner-emblem" style="width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; position: relative; margin-right: 12px; background: ${emblemBg}; border: 1.5px solid rgba(0, 0, 0, 0.08);">
-                <div id="banner-radar-ring" class="${radarClass}" style="position: absolute; inset: 0; border-radius: 50%; background: ${isSabotage ? 'rgba(239, 68, 68, 0.35)' : 'rgba(245, 158, 11, 0.35)'};"></div>
-                <div style="position: relative; z-index: 10; display: flex; align-items: center; justify-content: center;">
-                  ${iconSvg}
-                </div>
+              <div id="banner-emblem" style="width: 36px; height: 36px; border-radius: 50%; overflow: hidden; flex-shrink: 0; display: flex; align-items: center; justify-content: center; position: relative; margin-right: 12px; background: #000000; border: 1px solid rgba(0, 0, 0, 0.12); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);">
+                <img class="ts-sova-logo-img" src="${getSovaLogoUrl()}" alt="С.О.В.А." style="width: 100%; height: 100%; object-fit: cover; display: block;" />
               </div>
 
               <!-- Narrative typography -->
@@ -815,9 +795,9 @@ export class SecurityFriction {
               </div>
             </div>
 
-            <!-- Minimalist Circular Chevron Micro-Button (Original Apple Liquid Glass Chevron) -->
+            <!-- Minimalist Circular Chevron Micro-Button (Apple Liquid Glass Chevron) -->
             <div style="display: flex; align-items: center; flex-shrink: 0; padding-left: 4px;">
-              <button id="ts-capsule-toggle" class="ts-btn-capsule-toggle" aria-label="Згорнути або розгорнути деталі" style="width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #F3F4F6; border: 1.5px solid #CBD5E1; transition: all 0.2s; cursor: pointer; padding: 0; outline: none;">
+              <button id="ts-capsule-toggle" class="ts-btn-capsule-toggle" aria-label="Згорнути або розгорнути деталі" style="width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.04); border: 1px solid rgba(0, 0, 0, 0.08); transition: all 0.2s; cursor: pointer; padding: 0; outline: none;">
                 <svg id="chevron-indicator" style="width: 14px; height: 14px; color: #4B5563; transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1); transform: rotate(0deg);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4" d="M19 9l-7 7-7-7" />
                 </svg>
@@ -828,7 +808,7 @@ export class SecurityFriction {
           <!-- Organic Accordion Drawer -->
           <div id="ts-capsule-drawer" class="expandable-grid" style="display: none;">
             <div class="grid-inner">
-              <div id="banner-expanded-content" class="reveal-content" style="padding: 4px 20px 20px 20px; border-top: 1.5px solid #E5E7EB; color: #374151;">
+              <div id="banner-expanded-content" class="reveal-content" style="padding: 4px 20px 20px 20px; border-top: 1px solid rgba(0, 0, 0, 0.06); color: #374151;">
                 ${isSabotage ? sabotageExpandedHtml : scamExpandedHtml}
               </div>
             </div>
@@ -837,7 +817,7 @@ export class SecurityFriction {
 
         <!-- Action Droplets (Buttons) -->
         ${isSabotage ? `
-          <a id="ts-btn-evorog" href="https://t.me/evorog_bot" target="_blank" rel="noopener noreferrer" class="crisp-circular-button btn-action-1 liquid-glass-shell" title="Перейти в офіційний чат-бот оборони України «єВорог» (@evorog_bot)">
+          <a id="ts-btn-evorog" href="https://t.me/evorog_bot" target="_blank" rel="noopener noreferrer" class="crisp-circular-button btn-action-1 liquid-glass-shell" title="Повідомити в офіційний чат-бот оборони України «єВорог» (@evorog_bot)">
             <div style="width: 100%; height: 100%; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #FFFFFF; transition: background 0.2s;">
               <svg style="width: 20px; height: 20px; color: #111827;" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.75-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .37z"/>
@@ -845,15 +825,6 @@ export class SecurityFriction {
               <span style="font-size: 8px; font-weight: 700; letter-spacing: -0.02em; text-transform: uppercase; color: #1F2937; margin-top: 2px;">єВорог</span>
             </div>
           </a>
-
-          <button id="ts-btn-unblock" class="crisp-circular-button btn-action-2 liquid-glass-shell" title="Розблокувати ввід та зняти сповіщення">
-            <div style="width: 100%; height: 100%; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #6B7280; background: #FFFFFF; transition: all 0.2s;">
-              <svg style="width: 16px; height: 16px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-              <span style="font-size: 7.5px; font-weight: 600; text-transform: uppercase; margin-top: 2px; letter-spacing: -0.02em;">Зняти</span>
-            </div>
-          </button>
         ` : (isCritical ? `
           <button id="ts-btn-ack" class="crisp-circular-button btn-action-1 liquid-glass-shell" title="Зрозуміло">
             <div style="width: 100%; height: 100%; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #FFFFFF; transition: background 0.2s;">
@@ -1047,14 +1018,12 @@ export class SecurityFriction {
       veil.id = 'threat-shield-circuit-breaker-veil';
       veil.className = 'circuit-breaker-veil';
       veil.innerHTML = `
-        <div id="circuit-badge" style="display: flex; align-items: center; gap: 10px; padding: 7px 16px; border-radius: 9999px; background: #FFFFFF; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08); border: 1.5px solid #FCA5A5; transition: transform 0.2s;">
-          <div style="width: 20px; height: 20px; border-radius: 50%; background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.2); display: flex; align-items: center; justify-content: center; color: #DC2626; flex-shrink: 0;">
-            <svg style="width: 14px; height: 14px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-            </svg>
+        <div id="circuit-badge" style="display: flex; align-items: center; gap: 10px; padding: 6px 14px; border-radius: 9999px; background: rgba(0, 0, 0, 0.03); border: 1px solid rgba(0, 0, 0, 0.06); transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);">
+          <div style="width: 22px; height: 22px; border-radius: 50%; overflow: hidden; background: #000000; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);">
+            <img class="ts-sova-logo-img" src="${getSovaLogoUrl()}" alt="С.О.В.А." style="width: 100%; height: 100%; object-fit: cover; display: block;" />
           </div>
           <div style="text-align: left;">
-            <p style="font-size: 11.5px; font-weight: 600; color: #111827; margin: 0; line-height: 1.25;">Ввід заблоковано контррозвідкою</p>
+            <p style="font-size: 11.5px; font-weight: 600; color: #111827; margin: 0; line-height: 1.25;">Поле захищено · Ввід заблоковано контррозвідкою</p>
             <p id="circuit-hint-text" style="font-size: 10px; color: #6B7280; margin: 0; line-height: 1.25;">Enter / Ctrl+C / копіювання вимкнено для безпеки</p>
           </div>
         </div>
@@ -1091,16 +1060,18 @@ export class SecurityFriction {
           badge.classList.add('micro-shake');
         }
         if (hint) {
-          hint.textContent = 'Натисніть кнопку «Зняти» вгорі для розблокування';
+          hint.textContent = isSabotage
+            ? 'Співрозмовника визнано загрозою. Скористайтеся панеллю дій у верхній частині'
+            : 'Введення призупинено для захисту даних. Скористайтеся панеллю дій вгорі';
           hint.style.color = '#EF4444';
-          hint.style.fontWeight = 'bold';
+          hint.style.fontWeight = '600';
           setTimeout(() => {
             if (hint) {
               hint.textContent = 'Enter / Ctrl+C / копіювання вимкнено для безпеки';
               hint.style.color = '#6B7280';
               hint.style.fontWeight = 'normal';
             }
-          }, 2000);
+          }, 2400);
         }
       };
 
@@ -1127,23 +1098,6 @@ export class SecurityFriction {
       if (typeof window !== 'undefined') {
         window.addEventListener('keydown', SecurityFriction.circuitKeyHandler, true);
         window.postMessage({ type: 'THREAT_SHIELD_ENABLE_CHAT_FREEZE' }, '*');
-      }
-    } else {
-      if (typeof document !== 'undefined') {
-        const candidates = Array.from(document.querySelectorAll<HTMLElement>(
-          'textarea:not([aria-hidden="true"]), [contenteditable="true"]:not([aria-hidden="true"]), [role="textbox"], input[type="text"]:not([aria-hidden="true"]), input:not([type]):not([aria-hidden="true"])'
-        )).filter((el) => {
-          if (el.closest('threat-shield-host') || el.closest('#threat-shield-context-banner')) return false;
-          const r = el.getBoundingClientRect();
-          return r.width > 40 && r.height > 15;
-        });
-        const targetInput = candidates[candidates.length - 1];
-        if (targetInput) {
-          const container = (targetInput.closest('form, [class*="composer"], [class*="input-container"], [class*="chat-input"], [class*="message-input"]') as HTMLElement) || targetInput;
-          container.setAttribute('data-ts-ambient-amber', 'true');
-          container.style.boxShadow = '0 0 0 2px rgba(255, 149, 0, 0.35), 0 12px 30px -8px rgba(255, 149, 0, 0.15)';
-          container.style.borderColor = 'rgba(255, 149, 0, 0.5)';
-        }
       }
     }
   }
