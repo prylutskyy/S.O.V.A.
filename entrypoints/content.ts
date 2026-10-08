@@ -1,3 +1,4 @@
+import { NetworkExfiltrationInterceptor } from '../src/interceptors/network-exfiltration.interceptor';
 import { isWhitelisted, isMonitoredPlatform } from '../src/core/whitelist';
 import { isAccreditedPaymentGateway } from '../src/core/payment-gateways';
 import { UserWhitelistManager } from '../src/core/user-whitelist';
@@ -556,6 +557,11 @@ export default defineContentScript({
     ProactiveFieldProtector.init(currentHost);
 
     // 4. Модульні перехоплювачі форм, чатів та буфера обміну
+    NetworkExfiltrationInterceptor.init({
+      getActiveContext: () => activeContext,
+      getDebugMode: () => debugMode,
+    });
+
     FormSubmitInterceptor.init({
       pipeline: formPipeline,
       getCurrentHost: () => currentHost,
@@ -597,4 +603,5 @@ export default defineContentScript({
     }, true);
   },
 });
+
 
