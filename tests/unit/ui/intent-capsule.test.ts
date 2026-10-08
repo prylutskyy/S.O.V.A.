@@ -248,7 +248,7 @@ describe('Sanctuary Dynamic Intent Capsule (SecurityFriction.showContextWarningB
     const root = ShadowHost.getRoot();
     const veil = root.getElementById('threat-shield-circuit-breaker-veil') as HTMLElement;
     expect(veil).not.toBeNull();
-    expect(veil?.textContent).toContain('Поле захищено');
+    expect(veil?.textContent).toContain('заблоковано С.О.В.А.');
     expect(veil?.style.borderRadius).toBe('0px');
 
     // Simulate keydown event for Enter

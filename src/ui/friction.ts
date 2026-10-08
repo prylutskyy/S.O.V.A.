@@ -417,8 +417,9 @@ export class SecurityFriction {
         </div>
 
         ${snippet ? `
-          <div class="ts-capsule-snippet" style="padding: 12px 16px; border-radius: var(--radius-card); background: var(--sanctuary-surface-subtle); border: 1px solid var(--sanctuary-hairline); border-left: 3px solid var(--sanctuary-red); font-size: 12.5px; font-style: italic; color: var(--sanctuary-ink-secondary); line-height: 1.45;">
-            «${snippet}»
+          <div class="ts-capsule-snippet" style="padding: 12px 14px; border-radius: 10px; background: var(--sanctuary-surface-subtle); border: 1px solid var(--sanctuary-hairline); display: flex; flex-direction: column; gap: 6px;">
+            <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--sanctuary-ink-secondary);">Перехоплений фрагмент</div>
+            <div style="font-size: 12.5px; font-style: italic; color: var(--sanctuary-ink-primary); line-height: 1.45;">«${snippet}»</div>
           </div>
         ` : ''}
       </div>
@@ -449,8 +450,9 @@ export class SecurityFriction {
         </div>
 
         ${snippet ? `
-          <div class="ts-capsule-snippet" style="padding: 12px 16px; border-radius: var(--radius-card); background: var(--sanctuary-surface-subtle); border: 1px solid var(--sanctuary-hairline); border-left: 3px solid var(--sanctuary-amber); font-size: 12.5px; font-style: italic; color: var(--sanctuary-ink-secondary); line-height: 1.45;">
-            «${snippet}»
+          <div class="ts-capsule-snippet" style="padding: 12px 14px; border-radius: 10px; background: var(--sanctuary-surface-subtle); border: 1px solid var(--sanctuary-hairline); display: flex; flex-direction: column; gap: 6px;">
+            <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--sanctuary-ink-secondary);">Перехоплений фрагмент</div>
+            <div style="font-size: 12.5px; font-style: italic; color: var(--sanctuary-ink-primary); line-height: 1.45;">«${snippet}»</div>
           </div>
         ` : ''}
       </div>
@@ -678,10 +680,10 @@ export class SecurityFriction {
           transition: border-color 0.4s ease, box-shadow 0.4s ease;
           cursor: not-allowed;
           user-select: none;
-          padding: 8px 16px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
+          padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
           font-family: var(--font-sanctuary, -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", sans-serif);
           pointer-events: auto;
           box-sizing: border-box;
@@ -998,17 +1000,17 @@ export class SecurityFriction {
       veil.id = 'threat-shield-circuit-breaker-veil';
       veil.className = 'circuit-breaker-veil';
       veil.innerHTML = `
-        <div id="circuit-badge" class="circuit-badge">
-          <div id="circuit-owl-box" style="width: 22px; height: 22px; border-radius: 5px; overflow: hidden; background: var(--sanctuary-surface, #FFFFFF); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: var(--shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.12)); transition: transform 0.25s var(--ease-apple-press, cubic-bezier(0.25, 1, 0.5, 1));">
-            <img class="ts-sova-logo-img" src="${getSovaLogoUrl()}" alt="С.О.В.А." style="width: 100%; height: 100%; object-fit: cover; display: block;" />
+          <div id="circuit-badge" style="display: flex; align-items: center; gap: 12px; width: 100%; height: 100%; box-sizing: border-box; padding: 0 16px;">
+            <div id="circuit-owl-box" style="width: 24px; height: 24px; border-radius: 6px; overflow: hidden; background: var(--sanctuary-surface, #FFFFFF); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: var(--shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.12)); transition: transform 0.25s var(--ease-apple-press, cubic-bezier(0.25, 1, 0.5, 1));">
+              <img class="ts-sova-logo-img" src="${getSovaLogoUrl()}" style="width: 100%; height: 100%; object-fit: cover; display: block;" />
+            </div>
+            <div style="display: flex; flex-direction: column; justify-content: center; text-align: left; min-width: 0; flex: 1;">
+              <p style="font-size: 12px; font-weight: 600; color: var(--sanctuary-ink-primary, #1D1D1F); margin: 0 0 2px 0; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Дію відхилено · Ввід заблоковано С.О.В.А.</p>
+              <p id="circuit-hint-text" style="font-size: 10.5px; color: var(--sanctuary-ink-secondary, #6E6E73); margin: 0; line-height: 1.25; transition: color 0.3s var(--ease-apple-press), transform 0.25s var(--ease-apple-press), font-weight 0.2s ease; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Enter / Ctrl+C / копіювання вимкнено для безпеки</p>
+            </div>
           </div>
-          <div style="text-align: left;">
-            <p style="font-size: 11.5px; font-weight: 600; color: var(--sanctuary-ink-primary, #1D1D1F); margin: 0; line-height: 1.25;">Поле захищено · Ввід заблоковано С.О.В.А.</p>
-            <p id="circuit-hint-text" style="font-size: 10px; color: var(--sanctuary-ink-secondary, #6E6E73); margin: 0; line-height: 1.25; transition: color 0.3s var(--ease-apple-press), transform 0.25s var(--ease-apple-press), font-weight 0.2s ease;">Enter / Ctrl+C / копіювання вимкнено для безпеки</p>
-          </div>
-        </div>
-      `;
-      root.appendChild(veil);
+        `;
+        root.appendChild(veil);
       SecurityFriction.positionVeilElement(veil);
 
       SecurityFriction.isChatFreezeActive = true;
