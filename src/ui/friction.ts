@@ -322,57 +322,57 @@ export class SecurityFriction {
     let subtag = customSubtitle ? 'ШІ-Арбітр' : 'Соціальна інженерія';
     let title = 'С.О.В.А. · Застереження безпеки';
     let heading = 'С.О.В.А. · Підозра на шахрайство';
-    let tagColor = '#D97706';
-    let emblemBg = 'linear-gradient(180deg, #D97706 0%, #B45309 100%)';
+    let tagColor = 'var(--sanctuary-amber-ink)';
+    let emblemBg = 'var(--sanctuary-amber-bg)';
 
     if (isSabotage) {
       tag = 'Державна безпека';
       subtag = 'Контррозвідка СБУ';
-      tagColor = '#EF4444';
-      emblemBg = 'linear-gradient(180deg, #DC2626 0%, #991B1B 100%)';
+      tagColor = 'var(--sanctuary-red-ink)';
+      emblemBg = 'var(--sanctuary-red-bg)';
       title = 'С.О.В.А. · Ознаки ворожого вербування або диверсії';
       heading = 'С.О.В.А. · Загроза вербування (Ознаки ворожого вербування або диверсії)';
     } else if (isEscrow) {
       tag = 'Кібербезпека';
       subtag = 'Фішинг доставки';
-      tagColor = '#D97706';
+      tagColor = 'var(--sanctuary-amber-ink)';
       title = 'С.О.В.А. · Застереження: фішинг доставки';
       heading = 'С.О.В.А. · Застереження: фішинг доставки';
     } else if (isCredential) {
       tag = 'Кібербезпека';
       subtag = 'Викрадення реквізитів';
-      tagColor = '#D97706';
+      tagColor = 'var(--sanctuary-amber-ink)';
       title = 'С.О.В.А. · Спроба викрадення платіжних даних';
       heading = 'С.О.В.А. · Спроба викрадення платіжних даних';
     } else if (isIdentity) {
       tag = 'Кібербезпека';
       subtag = 'Персональні дані';
-      tagColor = '#D97706';
+      tagColor = 'var(--sanctuary-amber-ink)';
       title = 'С.О.В.А. · Випитування особистих даних';
       heading = 'С.О.В.А. · Випитування особистих даних';
     } else if (isSeed) {
       tag = 'Кібербезпека';
       subtag = 'Криптозахист';
-      tagColor = '#EF4444';
-      emblemBg = 'linear-gradient(180deg, #DC2626 0%, #991B1B 100%)';
+      tagColor = 'var(--sanctuary-red-ink)';
+      emblemBg = 'var(--sanctuary-red-bg)';
       title = 'С.О.В.А. · Спроба викрадення криптогаманця';
       heading = 'С.О.В.А. · Спроба викрадення криптогаманця';
     } else if (isOffPlatform) {
       tag = 'Кібербезпека';
       subtag = 'Виведення в месенджер';
-      tagColor = '#D97706';
+      tagColor = 'var(--sanctuary-amber-ink)';
       title = 'С.О.В.А. · Перехід у сторонній месенджер';
       heading = 'С.О.В.А. · Перехід у сторонній месенджер';
     } else if (isVerification) {
       tag = 'Кібербезпека';
       subtag = 'Фейкова верифікація';
-      tagColor = '#D97706';
+      tagColor = 'var(--sanctuary-amber-ink)';
       title = 'С.О.В.А. · Фішинг верифікації акаунту';
       heading = 'С.О.В.А. · Фішинг верифікації акаунту';
     } else if (isSuspiciousLure) {
       tag = 'Кібербезпека';
       subtag = customSubtitle ? 'ШІ-Арбітр' : 'Соціальна інженерія';
-      tagColor = '#D97706';
+      tagColor = 'var(--sanctuary-amber-ink)';
       title = 'С.О.В.А. · Підозра на шахрайство';
       heading = 'С.О.В.А. · Підозра на шахрайство';
     }
@@ -384,32 +384,32 @@ export class SecurityFriction {
     const sabotageExpandedHtml = `
       <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 8px; font-family: var(--font-sanctuary);">
         <!-- Sanctuary Insight Card -->
-        <div style="padding: 14px 16px; border-radius: 14px; background: rgba(255, 255, 255, 0.95); border: 1px solid rgba(0, 0, 0, 0.08); box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+        <div style="padding: 14px 16px; border-radius: var(--radius-card); background: var(--sanctuary-surface); border: 1px solid var(--sanctuary-hairline); box-shadow: var(--shadow-sm);">
           <div style="display: flex; align-items: center; gap: 7px; margin-bottom: 6px;">
-            <span style="width: 7px; height: 7px; border-radius: 50%; background: #EF4444; display: inline-block;"></span>
-            <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: #DC2626;">Спроба ворожого вербування та диверсії</span>
+            <span style="width: 7px; height: 7px; border-radius: 50%; background: var(--sanctuary-red); display: inline-block;"></span>
+            <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--sanctuary-red-ink);">Спроба ворожого вербування та диверсії</span>
           </div>
-          <p style="font-size: 12px; color: #1F2937; line-height: 1.5; margin: 0 0 10px 0;">
+          <p style="font-size: 12px; color: var(--sanctuary-ink-primary); line-height: 1.5; margin: 0 0 10px 0;">
             Спецслужби противника використовують соцмережі для залучення громадян до диверсій під виглядом «простих завдань за криптовалюту» (підпали авто ЗСУ, релейних шаф чи збір координат сил ППО).
           </p>
 
           <!-- Legal Sanctuary Pill -->
-          <div style="padding: 10px 12px; border-radius: 10px; background: rgba(52, 199, 89, 0.08); border: 1px solid rgba(52, 199, 89, 0.22); margin-bottom: 10px;">
-            <div style="display: flex; align-items: center; gap: 6px; font-weight: 600; color: #15803D; font-size: 11.5px; margin-bottom: 2px;">
-              <svg style="width: 13px; height: 13px; color: #16A34A;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div style="padding: 10px 12px; border-radius: var(--radius-control); background: var(--sanctuary-green-bg); border: 1px solid var(--sanctuary-green-bd); margin-bottom: 10px;">
+            <div style="display: flex; align-items: center; gap: 6px; font-weight: 600; color: var(--sanctuary-green-ink); font-size: 11.5px; margin-bottom: 2px;">
+              <svg style="width: 13px; height: 13px; color: var(--sanctuary-green);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <span>Ви під захистом закону (ч. 3 ст. 111 КК України)</span>
             </div>
-            <p style="font-size: 11px; color: #166534; line-height: 1.45; margin: 0;">
+            <p style="font-size: 11px; color: var(--sanctuary-green-ink); line-height: 1.45; margin: 0;">
               Громадянин, який добровільно повідомив правоохоронні органи та не вчинив дій на шкоду суверенітету, <strong>повністю звільняється від кримінальної відповідальності</strong>.
             </p>
           </div>
 
           <!-- Calm 2-Step Protocol -->
-          <div style="padding: 10px 12px; border-radius: 10px; background: rgba(0, 0, 0, 0.025); border: 1px solid rgba(0, 0, 0, 0.05);">
-            <span style="font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; color: #6B7280; display: block; margin-bottom: 4px;">Що зробити просто зараз:</span>
-            <div style="display: flex; flex-direction: column; gap: 4px; font-size: 11.5px; color: #374151; line-height: 1.45;">
+          <div style="padding: 10px 12px; border-radius: var(--radius-control); background: var(--sanctuary-surface-subtle); border: 1px solid var(--sanctuary-hairline);">
+            <span style="font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; color: var(--sanctuary-ink-secondary); display: block; margin-bottom: 4px;">Що зробити просто зараз:</span>
+            <div style="display: flex; flex-direction: column; gap: 4px; font-size: 11.5px; color: var(--sanctuary-ink-primary); line-height: 1.45;">
               <div><strong>1. Припинити спілкування:</strong> ввід тексту вже заблоковано, не надсилайте жодних відповідей куратору.</div>
               <div><strong>2. Повідомити органи безпеки:</strong> передайте докази в офіційний чат-бот <strong>«єВорог»</strong> (@evorog_bot) або СБУ.</div>
             </div>
@@ -417,7 +417,7 @@ export class SecurityFriction {
         </div>
 
         ${snippet ? `
-          <div class="ts-capsule-snippet" style="padding: 10px 14px; border-radius: 12px; background: rgba(0, 0, 0, 0.02); border: 1px solid rgba(0, 0, 0, 0.06); border-left: 3px solid #EF4444; font-size: 12px; font-style: italic; color: #4B5563; line-height: 1.4;">
+          <div class="ts-capsule-snippet" style="padding: 10px 14px; border-radius: var(--radius-card); background: var(--sanctuary-surface-subtle); border: 1px solid var(--sanctuary-hairline); border-left: 3px solid var(--sanctuary-red); font-size: 12px; font-style: italic; color: var(--sanctuary-ink-secondary); line-height: 1.4;">
             «${snippet}»
           </div>
         ` : ''}
@@ -425,19 +425,19 @@ export class SecurityFriction {
     `;
 
     const scamExpandedHtml = `
-      <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 10px;">
-        <div style="padding: 12px 14px; border-radius: 14px; background: #FFFBEB; border: 1.5px solid #FCD34D; font-size: 12px; color: #1F2937; line-height: 1.45; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
-          <div style="display: flex; align-items: center; gap: 6px; font-weight: 600; color: #B45309; margin-bottom: 4px;">
-            <span style="width: 6px; height: 6px; border-radius: 50%; background: #F59E0B; display: inline-block;"></span>
+      <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 10px; font-family: var(--font-sanctuary);">
+        <div style="padding: 12px 14px; border-radius: var(--radius-card); background: var(--sanctuary-amber-bg); border: 1.5px solid var(--sanctuary-amber-bd); font-size: 12px; color: var(--sanctuary-ink-primary); line-height: 1.45; box-shadow: var(--shadow-sm);">
+          <div style="display: flex; align-items: center; gap: 6px; font-weight: 600; color: var(--sanctuary-amber-ink); margin-bottom: 4px;">
+            <span style="width: 6px; height: 6px; border-radius: 50%; background: var(--sanctuary-amber); display: inline-block;"></span>
             <span>Ознаки соціальної інженерії</span>
           </div>
           ${customSubtitle ? `<div style="margin-bottom: 6px;"><strong>Вердикт ШІ-Арбітра:</strong> ${customSubtitle}</div>` : ''}
           Співрозмовник демонструє маніпулятивні патерни, створює штучне відчуття терміновості та схиляє до переходу за сторонніми посиланнями або передачі платіжних реквізитів.
         </div>
 
-        <div style="padding: 12px 14px; border-radius: 14px; background: #FFFFFF; border: 1.5px solid #CBD5E1; font-size: 11.5px; line-height: 1.45; color: #374151; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
-          <span style="font-weight: 600; color: #111827; display: block; margin-bottom: 6px;">3 залізні правила цифрової безпеки:</span>
-          <ul style="margin: 0; padding-left: 18px; line-height: 1.5; color: #4B5563; font-size: 11px;">
+        <div style="padding: 12px 14px; border-radius: var(--radius-card); background: var(--sanctuary-surface); border: 1.5px solid var(--sanctuary-hairline); font-size: 11.5px; line-height: 1.45; color: var(--sanctuary-ink-primary); box-shadow: var(--shadow-sm);">
+          <span style="font-weight: 600; color: var(--sanctuary-ink-primary); display: block; margin-bottom: 6px;">3 залізні правила цифрової безпеки:</span>
+          <ul style="margin: 0; padding-left: 18px; line-height: 1.5; color: var(--sanctuary-ink-secondary); font-size: 11px;">
             <li style="margin-bottom: 4px;"><strong>Справжні сервіси ніколи не запитують CVV2</strong>, термін дії картки чи SMS-паролі. Співробітники банку бачать статус операцій без конфіденційних реквізитів.</li>
             <li style="margin-bottom: 4px;"><strong>Банки та служби доставки не ведуть переписку в особистих чатах</strong> Telegram з неофіційних номерів.</li>
             <li>Якщо є сумнів — <strong>закрийте чат</strong> і самостійно відкрийте офіційний застосунок банку або зателефонуйте на гарячу лінію підтримки.</li>
@@ -445,7 +445,7 @@ export class SecurityFriction {
         </div>
 
         ${snippet ? `
-          <div class="ts-capsule-snippet" style="padding: 10px 12px; border-radius: 12px; background: #F9FAFB; border: 1.5px solid #CBD5E1; border-left: 3.5px solid #F59E0B; font-size: 12px; font-style: italic; color: #374151; line-height: 1.4;">
+          <div class="ts-capsule-snippet" style="padding: 10px 12px; border-radius: var(--radius-card); background: var(--sanctuary-surface-subtle); border: 1.5px solid var(--sanctuary-hairline); border-left: 3.5px solid var(--sanctuary-amber); font-size: 12px; font-style: italic; color: var(--sanctuary-ink-secondary); line-height: 1.4;">
             «${snippet}»
           </div>
         ` : ''}
@@ -480,9 +480,9 @@ export class SecurityFriction {
           --btn-size: 56px;
           --gap: 12px;
           --shrunk-pill-width: 484px;
-          --spring-snap: cubic-bezier(0.34, 1.32, 0.44, 1);
-          --spring-morph: cubic-bezier(0.16, 1.25, 0.28, 1);
-          --ease-apple: cubic-bezier(0.2, 0.85, 0.25, 1);
+          --spring-snap: var(--ease-apple-rebound, cubic-bezier(0.34, 1.56, 0.64, 1));
+          --spring-morph: var(--ease-apple-spring, cubic-bezier(0.16, 1, 0.3, 1));
+          --ease-apple: var(--ease-apple-press, cubic-bezier(0.25, 1, 0.5, 1));
 
           position: fixed;
           top: 24px;
@@ -493,7 +493,7 @@ export class SecurityFriction {
           z-index: 2147483647;
           isolation: isolate;
           transition: transform 0.6s var(--spring-morph), opacity 0.5s ease;
-          font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", sans-serif;
+          font-family: var(--font-sanctuary, -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", sans-serif);
           user-select: none;
           box-sizing: border-box;
         }
@@ -503,17 +503,15 @@ export class SecurityFriction {
         }
 
         .liquid-glass-shell {
-          background: rgba(255, 255, 255, 0.94);
-          backdrop-filter: blur(28px) saturate(190%);
-          -webkit-backdrop-filter: blur(28px) saturate(190%);
-          border: 1px solid rgba(0, 0, 0, 0.08);
-          box-shadow: 
-            0 18px 44px -10px rgba(0, 0, 0, 0.12),
-            0 3px 12px -1px rgba(0, 0, 0, 0.04);
+          background: var(--sanctuary-glass-elevated, rgba(255, 255, 255, 0.92));
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border: 1px solid var(--sanctuary-hairline, rgba(0, 0, 0, 0.07));
+          box-shadow: var(--shadow-modal, 0 8px 24px rgba(0, 0, 0, 0.08));
         }
 
         .specular-rim {
-          border: 1px solid rgba(0, 0, 0, 0.08);
+          border: 1px solid var(--sanctuary-hairline, rgba(0, 0, 0, 0.07));
         }
 
         .liquid-membrane-layer {
@@ -534,8 +532,8 @@ export class SecurityFriction {
           top: 0;
           height: var(--banner-height);
           width: 100%;
-          background: rgba(255, 255, 255, 0.94);
-          border-radius: 28px;
+          background: var(--sanctuary-glass-elevated, rgba(255, 255, 255, 0.92));
+          border-radius: var(--radius-pill, 9999px);
           transition: width 0.65s var(--spring-snap);
           transform: translateZ(0);
           will-change: width;
@@ -546,7 +544,7 @@ export class SecurityFriction {
           top: 0;
           width: var(--btn-size);
           height: var(--btn-size);
-          background: rgba(255, 255, 255, 0.94);
+          background: var(--sanctuary-glass-elevated, rgba(255, 255, 255, 0.92));
           border-radius: 50%;
           left: calc(var(--banner-width) - var(--btn-size) - 2px);
           transition: transform 0.65s var(--spring-snap);
@@ -565,10 +563,10 @@ export class SecurityFriction {
           width: 100%;
           min-height: var(--banner-height);
           border-radius: 28px;
-          background: rgba(255, 255, 255, 0.94);
-          backdrop-filter: blur(28px) saturate(190%);
-          -webkit-backdrop-filter: blur(28px) saturate(190%);
-          border: 1px solid rgba(0, 0, 0, 0.08);
+          background: var(--sanctuary-glass-elevated, rgba(255, 255, 255, 0.92));
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border: 1px solid var(--sanctuary-hairline, rgba(0, 0, 0, 0.07));
           transition: width 0.65s var(--spring-snap),
                       border-radius 0.45s ease,
                       box-shadow 0.4s ease,
@@ -581,10 +579,8 @@ export class SecurityFriction {
         }
 
         .crisp-info-pill:hover {
-          border-color: rgba(0, 0, 0, 0.16);
-          box-shadow: 
-            0 24px 50px -10px rgba(0, 0, 0, 0.14),
-            0 6px 18px -2px rgba(0, 0, 0, 0.05);
+          border-color: var(--sanctuary-hairline-subtle, rgba(0, 0, 0, 0.04));
+          box-shadow: var(--shadow-elevated, 0 8px 24px rgba(0, 0, 0, 0.08));
         }
 
         .crisp-circular-button {
@@ -593,11 +589,11 @@ export class SecurityFriction {
           width: var(--btn-size);
           height: var(--btn-size);
           border-radius: 50%;
-          background: rgba(255, 255, 255, 0.94);
-          backdrop-filter: blur(28px) saturate(190%);
-          -webkit-backdrop-filter: blur(28px) saturate(190%);
-          border: 1px solid rgba(0, 0, 0, 0.08);
-          box-shadow: 0 10px 24px -4px rgba(0, 0, 0, 0.10), 0 2px 6px rgba(0, 0, 0, 0.04);
+          background: var(--sanctuary-glass-elevated, rgba(255, 255, 255, 0.92));
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border: 1px solid var(--sanctuary-hairline, rgba(0, 0, 0, 0.07));
+          box-shadow: var(--shadow-knob, 0 2px 5px rgba(0, 0, 0, 0.16));
           display: flex;
           align-items: center;
           justify-content: center;
@@ -617,8 +613,8 @@ export class SecurityFriction {
         }
 
         .crisp-circular-button:hover {
-          border-color: rgba(0, 0, 0, 0.16);
-          box-shadow: 0 14px 30px -4px rgba(0, 0, 0, 0.14), 0 4px 10px rgba(0, 0, 0, 0.06);
+          border-color: var(--sanctuary-hairline-subtle, rgba(0, 0, 0, 0.04));
+          box-shadow: var(--shadow-elevated, 0 8px 24px rgba(0, 0, 0, 0.08));
         }
 
         #threat-shield-context-banner.is-torn .membrane-pill,
@@ -661,12 +657,10 @@ export class SecurityFriction {
         }
 
         .crisp-info-pill.is-expanded {
-          border-radius: 28px;
-          background: #FFFFFF;
-          border: 1px solid rgba(0, 0, 0, 0.10);
-          box-shadow: 
-            0 32px 64px -14px rgba(0, 0, 0, 0.14),
-            0 8px 24px -4px rgba(0, 0, 0, 0.05);
+          border-radius: var(--radius-modal, 22px);
+          background: var(--sanctuary-surface, #FFFFFF);
+          border: 1px solid var(--sanctuary-hairline, rgba(0, 0, 0, 0.07));
+          box-shadow: var(--shadow-elevated, 0 8px 24px rgba(0, 0, 0, 0.08));
         }
 
         .crisp-info-pill:not(.is-expanded) .expandable-grid {
@@ -716,15 +710,12 @@ export class SecurityFriction {
         .circuit-breaker-veil {
           position: fixed;
           z-index: 2147483646;
-          background: rgba(255, 255, 255, 0.94);
-          backdrop-filter: blur(28px) saturate(190%);
-          -webkit-backdrop-filter: blur(28px) saturate(190%);
-          border-top: 1px solid rgba(0, 0, 0, 0.10);
-          border-bottom: 1px solid rgba(0, 0, 0, 0.10);
-          border-left: 1px solid rgba(0, 0, 0, 0.06);
-          border-right: 1px solid rgba(0, 0, 0, 0.06);
+          background: var(--sanctuary-glass-elevated, rgba(255, 255, 255, 0.92));
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border: 1px solid var(--sanctuary-divider, rgba(0, 0, 0, 0.05));
           border-radius: 0 !important;
-          box-shadow: 0 10px 30px -4px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.85);
+          box-shadow: var(--shadow-elevated, 0 8px 24px rgba(0, 0, 0, 0.08));
           transition: border-color 0.4s ease, box-shadow 0.4s ease;
           cursor: not-allowed;
           user-select: none;
@@ -732,100 +723,24 @@ export class SecurityFriction {
           display: flex;
           align-items: center;
           justify-content: center;
-          font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", sans-serif;
+          font-family: var(--font-sanctuary, -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", sans-serif);
           pointer-events: auto;
           box-sizing: border-box;
           overflow: hidden;
         }
 
-        /* Ambient Apple specular caustic wave slowly gliding across the frosted planar glass */
-        .circuit-breaker-veil::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: -160%;
-          width: 140%;
-          height: 100%;
-          background: linear-gradient(
-            90deg,
-            transparent 0%,
-            rgba(255, 255, 255, 0) 25%,
-            rgba(255, 255, 255, 0.42) 50%,
-            rgba(255, 255, 255, 0) 75%,
-            transparent 100%
-          );
-          transform: skewX(-20deg);
-          animation: apple-ambient-caustic 7s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-          pointer-events: none;
-        }
-
-        @keyframes apple-ambient-caustic {
-          0% {
-            transform: translateX(0) skewX(-20deg);
-            opacity: 0;
-          }
-          15% {
-            opacity: 0.65;
-          }
-          40% {
-            transform: translateX(250%) skewX(-20deg);
-            opacity: 0;
-          }
-          100% {
-            transform: translateX(250%) skewX(-20deg);
-            opacity: 0;
-          }
-        }
-
         /* Dignified instant specular glint upon refusal / click / keystroke */
         .circuit-breaker-veil.glint-active,
         .circuit-breaker-veil.shimmer-active {
-          border-color: rgba(30, 41, 59, 0.24) !important;
-          box-shadow: 0 14px 38px -4px rgba(0, 0, 0, 0.12), inset 0 0 24px rgba(255, 255, 255, 0.95) !important;
-          animation: apple-refusal-glint 0.52s cubic-bezier(0.16, 1, 0.3, 1) !important;
-        }
-
-        .circuit-breaker-veil.glint-active::after,
-        .circuit-breaker-veil.shimmer-active::after {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: -100%;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(
-            90deg,
-            transparent 0%,
-            rgba(255, 255, 255, 0) 25%,
-            rgba(255, 255, 255, 0.6) 50%,
-            rgba(255, 255, 255, 0) 75%,
-            transparent 100%
-          );
-          animation: apple-specular-flash 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-          pointer-events: none;
-        }
-
-        @keyframes apple-specular-flash {
-          0% {
-            transform: translateX(0);
-            opacity: 0.9;
-          }
-          100% {
-            transform: translateX(230%);
-            opacity: 0;
-          }
+          background: var(--sanctuary-surface-subtle, #FAFAFC) !important;
+          border-color: var(--sanctuary-hairline, rgba(0, 0, 0, 0.07)) !important;
+          animation: apple-refusal-glint 0.52s var(--ease-apple-spring, cubic-bezier(0.16, 1, 0.3, 1)) !important;
         }
 
         @keyframes apple-refusal-glint {
-          0% {
-            filter: brightness(1);
-          }
-          30% {
-            filter: brightness(1.08) contrast(1.02);
-          }
-          100% {
-            filter: brightness(1);
-          }
+          0% { filter: brightness(1); }
+          30% { filter: brightness(0.96); transform: scale(0.998); }
+          100% { filter: brightness(1); transform: scale(1); }
         }
 
         /* Central indicator badge with subtle breathing seal */
@@ -834,77 +749,41 @@ export class SecurityFriction {
           align-items: center;
           gap: 10px;
           padding: 6px 16px;
-          border-radius: 9999px;
-          background: rgba(0, 0, 0, 0.035);
-          border: 1px solid rgba(0, 0, 0, 0.07);
-          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 2px 6px rgba(0, 0, 0, 0.03);
-          transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), background-color 0.3s ease, border-color 0.3s ease;
-          animation: apple-badge-breath 6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-        }
-
-        @keyframes apple-badge-breath {
-          0%, 100% {
-            border-color: rgba(0, 0, 0, 0.06);
-            background: rgba(0, 0, 0, 0.03);
-          }
-          50% {
-            border-color: rgba(0, 0, 0, 0.12);
-            background: rgba(0, 0, 0, 0.05);
-          }
+          border-radius: var(--radius-pill, 9999px);
+          background: var(--sanctuary-surface-subtle, #FAFAFC);
+          border: 1px solid var(--sanctuary-hairline, rgba(0, 0, 0, 0.07));
+          box-shadow: var(--shadow-sm, 0 1px 2px rgba(0, 0, 0, 0.03));
+          transition: transform 0.3s var(--ease-apple-press, cubic-bezier(0.25, 1, 0.5, 1)), background-color 0.3s ease, border-color 0.3s ease;
         }
 
         /* SOVA emblem micro-pulse on refusal */
         .circuit-badge-refusal #circuit-owl-box,
         .micro-shake #circuit-owl-box {
-          animation: apple-owl-refusal 0.46s cubic-bezier(0.25, 1, 0.5, 1) both;
+          animation: apple-owl-refusal 0.46s var(--ease-apple-press, cubic-bezier(0.25, 1, 0.5, 1)) both;
         }
 
         @keyframes apple-owl-refusal {
-          0% {
-            transform: scale(1);
-          }
-          20% {
-            transform: scale(0.92);
-          }
-          48% {
-            transform: scale(1.06);
-          }
-          75% {
-            transform: scale(0.98);
-          }
-          100% {
-            transform: scale(1);
-          }
+          0% { transform: scale(1); }
+          20% { transform: scale(0.92); }
+          48% { transform: scale(1.06); }
+          75% { transform: scale(0.98); }
+          100% { transform: scale(1); }
         }
 
         /* Noble Apple damped spring refusal */
         .circuit-badge-refusal,
         .micro-shake {
-          animation: apple-spring-refusal 0.46s cubic-bezier(0.25, 1, 0.5, 1) both !important;
+          animation: apple-spring-refusal 0.46s var(--ease-apple-press, cubic-bezier(0.25, 1, 0.5, 1)) both !important;
         }
 
         @keyframes apple-spring-refusal {
-          0% {
-            transform: scale(1) translate3d(0, 0, 0);
-          }
-          16% {
-            transform: scale(0.968) translate3d(-7px, 0, 0);
-          }
-          34% {
-            transform: scale(0.985) translate3d(5.5px, 0, 0);
-          }
-          54% {
-            transform: scale(0.995) translate3d(-3px, 0, 0);
-          }
-          74% {
-            transform: scale(0.998) translate3d(1.2px, 0, 0);
-          }
-          90% {
-            transform: scale(1) translate3d(-0.4px, 0, 0);
-          }
-          100% {
-            transform: scale(1) translate3d(0, 0, 0);
-          }
+          0% { transform: scale(1) translate3d(0, 0, 0); }
+          16% { transform: scale(0.968) translate3d(-7px, 0, 0); }
+          34% { transform: scale(0.985) translate3d(5.5px, 0, 0); }
+          54% { transform: scale(0.995) translate3d(-3px, 0, 0); }
+          74% { transform: scale(0.998) translate3d(1.2px, 0, 0); }
+          90% { transform: scale(1) translate3d(-0.4px, 0, 0); }
+          100% { transform: scale(1) translate3d(0, 0, 0); }
         }
       </style>
 
@@ -920,10 +799,10 @@ export class SecurityFriction {
         <!-- Main Pill -->
         <div id="crisp-info-pill" class="crisp-info-pill liquid-glass-shell" role="alert" tabindex="0" aria-expanded="false" style="display: flex; flex-direction: column;">
           <!-- 56px Header Bar -->
-          <div id="ts-pill-header" style="height: 56px; padding: 0 14px; display: flex; align-items: center; justify-content: space-between; width: 100%; box-sizing: border-box; cursor: pointer;">
+          <div id="ts-pill-header" style="height: var(--banner-height, 56px); padding: 0 14px; display: flex; align-items: center; justify-content: space-between; width: 100%; box-sizing: border-box; cursor: pointer;">
             <div style="display: flex; align-items: center; min-width: 0; flex: 1; margin-right: 8px; pointer-events: none;">
               <!-- Emblem -->
-              <div id="banner-emblem" style="width: 36px; height: 36px; border-radius: 50%; overflow: hidden; flex-shrink: 0; display: flex; align-items: center; justify-content: center; position: relative; margin-right: 12px; background: #000000; border: 1px solid rgba(0, 0, 0, 0.12); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);">
+              <div id="banner-emblem" style="width: 36px; height: 36px; border-radius: 50%; overflow: hidden; flex-shrink: 0; display: flex; align-items: center; justify-content: center; position: relative; margin-right: 12px; background: var(--sanctuary-surface, #FFFFFF); border: 1px solid var(--sanctuary-hairline, rgba(0, 0, 0, 0.12)); box-shadow: var(--shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.08));">
                 <img class="ts-sova-logo-img" src="${getSovaLogoUrl()}" alt="С.О.В.А." style="width: 100%; height: 100%; object-fit: cover; display: block;" />
               </div>
 
@@ -931,10 +810,10 @@ export class SecurityFriction {
               <div style="min-width: 0; flex: 1; padding-right: 4px;">
                 <div style="display: flex; align-items: center; gap: 6px; line-height: 1;">
                   <span style="font-size: 10px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: ${tagColor};">${tag}</span>
-                  <span style="color: #D1D5DB; font-size: 10px;">•</span>
-                  <span style="font-size: 10px; color: #9CA3AF; font-weight: 500;">${subtag}</span>
+                  <span style="color: var(--sanctuary-hairline-glass, #D1D5DB); font-size: 10px;">•</span>
+                  <span style="font-size: 10px; color: var(--sanctuary-ink-tertiary, #86868B); font-weight: 500;">${subtag}</span>
                 </div>
-                <h2 style="font-size: 13.5px; font-weight: 600; color: #111827; letter-spacing: -0.015em; line-height: 1.3; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 0;">
+                <h2 style="font-size: 13.5px; font-weight: 600; color: var(--sanctuary-ink-primary, #1D1D1F); letter-spacing: -0.015em; line-height: 1.3; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 0;">
                   ${heading}
                 </h2>
               </div>
@@ -942,8 +821,8 @@ export class SecurityFriction {
 
             <!-- Minimalist Circular Chevron Micro-Button (Apple Liquid Glass Chevron) -->
             <div style="display: flex; align-items: center; flex-shrink: 0; padding-left: 4px;">
-              <button id="ts-capsule-toggle" class="ts-btn-capsule-toggle" aria-label="Згорнути або розгорнути деталі" style="width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.04); border: 1px solid rgba(0, 0, 0, 0.08); transition: all 0.2s; cursor: pointer; padding: 0; outline: none;">
-                <svg id="chevron-indicator" style="width: 14px; height: 14px; color: #4B5563; transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1); transform: rotate(0deg);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <button id="ts-capsule-toggle" class="ts-btn-capsule-toggle" aria-label="Згорнути або розгорнути деталі" style="width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--sanctuary-surface-subtle, rgba(0, 0, 0, 0.04)); border: 1px solid var(--sanctuary-hairline, rgba(0, 0, 0, 0.08)); transition: all 0.2s var(--ease-apple-spring); cursor: pointer; padding: 0; outline: none;">
+                <svg id="chevron-indicator" style="width: 14px; height: 14px; color: var(--sanctuary-ink-secondary, #6E6E73); transition: transform 0.5s var(--ease-apple-spring); transform: rotate(0deg);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4" d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
@@ -1164,12 +1043,12 @@ export class SecurityFriction {
       veil.className = 'circuit-breaker-veil';
       veil.innerHTML = `
         <div id="circuit-badge" class="circuit-badge">
-          <div id="circuit-owl-box" style="width: 22px; height: 22px; border-radius: 50%; overflow: hidden; background: #000000; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12); transition: transform 0.25s cubic-bezier(0.25, 1, 0.5, 1);">
+          <div id="circuit-owl-box" style="width: 22px; height: 22px; border-radius: 50%; overflow: hidden; background: var(--sanctuary-surface, #FFFFFF); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: var(--shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.12)); transition: transform 0.25s var(--ease-apple-press, cubic-bezier(0.25, 1, 0.5, 1));">
             <img class="ts-sova-logo-img" src="${getSovaLogoUrl()}" alt="С.О.В.А." style="width: 100%; height: 100%; object-fit: cover; display: block;" />
           </div>
           <div style="text-align: left;">
-            <p style="font-size: 11.5px; font-weight: 600; color: #111827; margin: 0; line-height: 1.25;">Поле захищено · Ввід заблоковано С.О.В.А.</p>
-            <p id="circuit-hint-text" style="font-size: 10px; color: #6B7280; margin: 0; line-height: 1.25; transition: color 0.3s cubic-bezier(0.25, 1, 0.5, 1), transform 0.25s cubic-bezier(0.25, 1, 0.5, 1), font-weight 0.2s ease;">Enter / Ctrl+C / копіювання вимкнено для безпеки</p>
+            <p style="font-size: 11.5px; font-weight: 600; color: var(--sanctuary-ink-primary, #1D1D1F); margin: 0; line-height: 1.25;">Поле захищено · Ввід заблоковано С.О.В.А.</p>
+            <p id="circuit-hint-text" style="font-size: 10px; color: var(--sanctuary-ink-secondary, #6E6E73); margin: 0; line-height: 1.25; transition: color 0.3s var(--ease-apple-press), transform 0.25s var(--ease-apple-press), font-weight 0.2s ease;">Enter / Ctrl+C / копіювання вимкнено для безпеки</p>
           </div>
         </div>
       `;
