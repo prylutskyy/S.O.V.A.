@@ -1,5 +1,6 @@
 import { VaultScanner } from '../heuristics/vault-scanner';
 import { isWhitelisted } from '../core/whitelist';
+import { isAccreditedPaymentGateway } from '../core/payment-gateways';
 import { UserWhitelistManager } from '../core/user-whitelist';
 import { ActiveThreatContext, ThreatAssessment } from '../types';
 import { UnifiedFrictionModal } from '../ui/unified-modal';
@@ -127,7 +128,13 @@ export class NetworkExfiltrationInterceptor {
         targetHost = url;
       }
 
-      if (!targetHost || targetHost === window.location.hostname || isWhitelisted(targetHost) || UserWhitelistManager.isDomainAllowedSync(targetHost)) {
+      if (
+        !targetHost ||
+        targetHost === window.location.hostname ||
+        isWhitelisted(targetHost) ||
+        isAccreditedPaymentGateway(targetHost) ||
+        UserWhitelistManager.isDomainAllowedSync(targetHost)
+      ) {
         return;
       }
 

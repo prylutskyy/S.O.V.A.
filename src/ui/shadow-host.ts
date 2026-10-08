@@ -31,12 +31,15 @@ export class ShadowHost {
 
     this.hostElement = host;
 
-    // Створення ShadowRoot (mode: 'open' для надійного доступу внутрішніх UI модулів розширення)
-    if (!host.shadowRoot) {
-      this.shadowRoot = host.attachShadow({ mode: 'open' });
-      this.injectBaseStyles(this.shadowRoot);
-    } else {
-      this.shadowRoot = host.shadowRoot;
+    // Створення ізольованого закритого ShadowRoot (mode: 'closed')
+    // Сторонній JS веб-сайту отримує null при спробі прочитати host.shadowRoot
+    if (!this.shadowRoot) {
+      try {
+        this.shadowRoot = host.attachShadow({ mode: 'closed' });
+        this.injectBaseStyles(this.shadowRoot);
+      } catch {
+        this.shadowRoot = host.shadowRoot || this.shadowRoot;
+      }
     }
 
     return this.shadowRoot;

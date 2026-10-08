@@ -99,7 +99,7 @@ export class SessionOutboundMemory {
     if (expRes.detected && expRes.match) this.sentExpiryDates.add(expRes.match);
     if (otpRes.detected && otpRes.match) this.sentOtpCodes.add(otpRes.match);
 
-    vaultScan.matchedItems.forEach((item) => {
+    (vaultScan?.matchedItems || []).forEach((item) => {
       this.sentVaultItemCategories.add(item.category);
       this.sentVaultItemLabels.add(item.label);
     });
@@ -137,7 +137,7 @@ export class SessionOutboundMemory {
 
     const vaultScan = VaultScanner.scanTextSync(trimmed);
     let textForCardCvv = trimmed;
-    for (const item of vaultScan.matchedItems) {
+    for (const item of (vaultScan?.matchedItems || [])) {
       if (item.value) {
         textForCardCvv = textForCardCvv.replace(item.value, ' ');
       }
@@ -245,7 +245,7 @@ export class SessionOutboundMemory {
     }
 
     // ── СЦЕНАРІЙ 4: Маркери Сховища (Vault Secrets) ──────────────────────────
-    if (vaultScan.matchedItems.length > 0) {
+    if (vaultScan?.matchedItems && vaultScan.matchedItems.length > 0) {
       shouldBlock = true;
       score += 80;
       const labels = vaultScan.matchedItems.map((m) => m.label).join(', ');

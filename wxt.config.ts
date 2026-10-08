@@ -1,6 +1,17 @@
 import { defineConfig } from 'wxt';
 
 export default defineConfig({
+  vite: (env) => ({
+    esbuild: {
+      drop: env.mode === 'production' ? ['debugger'] : [],
+      pure: env.mode === 'production' ? ['console.log', 'console.debug'] : [],
+    },
+    build: {
+      target: 'esnext',
+      sourcemap: env.mode !== 'production',
+      minify: 'esbuild',
+    },
+  }),
   manifest: {
     name: '__MSG_extensionName__',
     description: '__MSG_extensionDescription__',
