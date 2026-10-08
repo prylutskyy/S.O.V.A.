@@ -52,23 +52,91 @@ export class SecurityFriction {
     }
   }
 
-  private static activeDisarmedForm: {
-    form: HTMLFormElement;
-    originalBoxShadow: string;
-    originalTransition: string;
-  } | null = null;
+  private static latencyVeilEl: HTMLElement | null = null;
 
-  private static restoreDisarmedFormStyle(): void {
-    if (this.activeDisarmedForm) {
-      const { form, originalBoxShadow, originalTransition } = this.activeDisarmedForm;
-      form.style.boxShadow = originalBoxShadow;
-      form.style.transition = originalTransition;
-      this.activeDisarmedForm = null;
-    }
+  public static isLatencyVeilActive(): boolean {
+    return this.latencyVeilEl !== null;
   }
-  /**
-   * Застосування адаптивного тертя (Security Friction) через центроване універсальне модальне вікно
-   */
+
+  public static showLatencyVeil(targetElement?: HTMLElement): HTMLElement {
+    this.hideLatencyVeil();
+    const root = ShadowHost.getRoot();
+    const veil = document.createElement('div');
+    veil.className = 'ts-latency-veil circuit-breaker-veil';
+    veil.id = 'ts-latency-veil';
+    veil.setAttribute('role', 'status');
+    veil.setAttribute('aria-live', 'polite');
+    veil.setAttribute('aria-label', 'С.О.В.А. аналізує повідомлення...');
+    veil.innerHTML = `
+      <style>
+        .ts-latency-veil {
+          position: fixed;
+          z-index: 2147483646;
+          background: rgba(255, 255, 255, 0.88) !important;
+          backdrop-filter: blur(24px) saturate(190%) !important;
+          -webkit-backdrop-filter: blur(24px) saturate(190%) !important;
+          border: 1px solid rgba(0, 0, 0, 0.08) !important;
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08) !important;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          gap: 12px !important;
+          padding: 0 16px !important;
+          box-sizing: border-box !important;
+          animation: tsFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+          pointer-events: auto !important;
+          font-family: var(--font-sanctuary, -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif) !important;
+        }
+        .ts-pulsing-owl {
+          width: 32px;
+          height: 32px;
+          border-radius: 9px;
+          background: #000000;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          animation: tsOwlPulse 1.4s infinite cubic-bezier(0.34, 1.56, 0.64, 1) alternate;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+          flex-shrink: 0;
+        }
+        .ts-latency-label {
+          font-size: 13px;
+          font-weight: 500;
+          color: #1D1D1F;
+          letter-spacing: -0.01em;
+          white-space: nowrap;
+        }
+        .ts-latency-sublabel {
+          font-size: 11px;
+          color: #86868B;
+          letter-spacing: 0.02em;
+        }
+        @keyframes tsFadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+        @keyframes tsOwlPulse { 0% { transform: scale(0.94); opacity: 0.85; } 100% { transform: scale(1.06); opacity: 1; } }
+      </style>
+      <div class="ts-pulsing-owl">
+        <img src="${getSovaLogoUrl()}" alt="С.О.В.А." style="width: 100%; height: 100%; object-fit: cover; border-radius: 9px; display: block;" />
+      </div>
+      <div style="display: flex; flex-direction: column; align-items: flex-start; justify-content: center; line-height: 1.2;">
+        <span class="ts-latency-label">С.О.В.А. · Інтелектуальний аналіз</span>
+        <span class="ts-latency-sublabel">Захист від соціальної інженерії…</span>
+      </div>
+    `;
+    root.appendChild(veil);
+    this.latencyVeilEl = veil;
+    this.positionVeilElement(veil);
+    return veil;
+  }
+
+  public static hideLatencyVeil(): void {
+    if (this.latencyVeilEl && this.latencyVeilEl.parentNode) {
+      this.latencyVeilEl.parentNode.removeChild(this.latencyVeilEl);
+    }
+    this.latencyVeilEl = null;
+  }
+
+  private static activeDisarmedForm: { form: HTMLFormElement; originalBoxShadow: string; originalTransition: string; } | null = null;
+  private static restoreDisarmedFormStyle(): void { if (this.activeDisarmedForm) { const { form, originalBoxShadow, originalTransition } = this.activeDisarmedForm; form.style.boxShadow = originalBoxShadow; form.style.transition = originalTransition; this.activeDisarmedForm = null; } }
   public static apply(
     form: HTMLFormElement,
     assessment: ThreatAssessment,

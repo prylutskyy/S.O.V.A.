@@ -335,12 +335,14 @@ export default defineContentScript({
       };
 
       // ── TIER 2: АСИНХРОННИЙ АРБІТРАЖ ШТУЧНОГО ІНТЕЛЕКТУ (LLM ARBITER) ──
+      SecurityFriction.showLatencyVeil();
       AIArbiterService.verify({
         context: localContext,
         rawTextToScan,
         intentType,
         confidence,
       }).then((aiResult) => {
+        SecurityFriction.hideLatencyVeil();
         if (!aiResult) {
           // Якщо ШІ недоступний (offline / відсутній ключ / збій):
           // Застосовуємо евристичний захист лише при високому рівні впевненості (>= 75%)
@@ -457,6 +459,7 @@ export default defineContentScript({
           }
         }
       }).catch((err) => {
+        SecurityFriction.hideLatencyVeil();
         console.warn('[SOVA:Content] Помилка фонового ШІ-арбітражу:', err);
         if (confidence && confidence >= 75) {
           displayThreatAlert(
