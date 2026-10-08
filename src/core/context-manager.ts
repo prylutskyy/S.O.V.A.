@@ -67,7 +67,15 @@ export class ContextManager {
   }
 
   /**
-   * Копіювання контексту з батьківської вкладки у дочірню (Tab Lineage)
+   * Копіювання контексту з батьківської вкладки у дочірню (Tab Lineage).
+   *
+   * Зшивання сесій виконується ЛИШЕ для соціально-інженерних сценаріїв виманювання
+   * платіжних реквізитів (ESCROW_DELIVERY_SCAM, PAYMENT_CREDENTIAL_THEFT тощо),
+   * де жертва переходить із чату на фішинговий сайт для введення даних.
+   *
+   * Для MILITARY_SABOTAGE_RECRUITMENT (вербування / держзрада) зшивання заблоковано:
+   * загроза зафіксована на поточній вкладці, поширення на Telegram-бот або
+   * будь-які наступні вкладки призводить до хибних спрацьовувань.
    */
   public async propagateContext(sourceTabId: number, targetTabId: number): Promise<boolean> {
     if (sourceTabId === targetTabId) {
@@ -76,6 +84,12 @@ export class ContextManager {
 
     const sourceCtx = await this.getActiveTaintedContext(sourceTabId);
     if (!sourceCtx) return false;
+
+    // Сценарії держзради та вербування не зшиваються між вкладками
+    if (sourceCtx.scenario === 'MILITARY_SABOTAGE_RECRUITMENT') {
+      console.log(`[SOVA:Context] propagateContext заблоковано (${sourceTabId}→${targetTabId}): scenario=MILITARY_SABOTAGE_RECRUITMENT.`);
+      return false;
+    }
 
     // Reset TTL for the new tab so the clock starts ticking fresh
     const { timestamp, ttlMs, ...ctxWithoutTime } = sourceCtx;

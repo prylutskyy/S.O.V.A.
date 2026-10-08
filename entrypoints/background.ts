@@ -395,9 +395,19 @@ export default defineBackground(() => {
     }
   });
 
-  // Tab Lineage: поширюємо контекст на нові вкладки, відкриті з фішингової
+  // Tab Lineage: поширюємо контекст на нові вкладки, відкриті з фішингової.
+  // ВИНЯТОК: для сценаріїв державної зради / вербування (MILITARY_SABOTAGE_RECRUITMENT)
+  // зшивання сесій НЕ виконується — загроза вже зафіксована на вкладці-джерелі,
+  // а поширення на дочірні вкладки (Telegram-бот, будь-який інший сайт) спричиняє
+  // хибні спрацьовування. Зшивання потрібне лише для соц-інженерних атак на
+  // виманювання платіжних реквізитів, де жертва переходить на фішинговий сайт.
   chrome.tabs.onCreated.addListener(async (tab) => {
     if (tab.id && tab.openerTabId) {
+      const sourceCtx = await contextManager.getActiveTaintedContext(tab.openerTabId);
+      if (sourceCtx && sourceCtx.scenario === 'MILITARY_SABOTAGE_RECRUITMENT') {
+        console.log(`[SOVA:Context] Tab Lineage заблоковано (${tab.openerTabId}→${tab.id}): сценарій держзради/вербування не зшивається.`);
+        return;
+      }
       await contextManager.propagateContext(tab.openerTabId, tab.id);
     }
   });
