@@ -443,7 +443,16 @@ export default defineContentScript({
 
           const isAiOtherType =
             aiResult.scamType &&
-            ['PAYMENT_CREDENTIAL_THEFT', 'ESCROW_DELIVERY_SCAM', 'SEED_PHRASE_THEFT', 'IDENTITY_PROBING'].includes(aiResult.scamType);
+            [
+              'PAYMENT_CREDENTIAL_THEFT',
+              'ESCROW_DELIVERY_SCAM',
+              'SEED_PHRASE_THEFT',
+              'IDENTITY_PROBING',
+              'OFF_PLATFORM_REDIRECT',
+              'VERIFICATION_PHISHING',
+              'URGENCY_PRESSURE',
+              'CRYPTO_WALLET_COMPROMISE',
+            ].includes(aiResult.scamType);
 
           const isMilitarySabotage =
             isAiTypeSabotage ||

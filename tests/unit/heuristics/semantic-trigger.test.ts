@@ -212,5 +212,13 @@ describe('SemanticTriggerEngine (Vector Embeddings & Pragmatic Matrix)', () => {
       expect(result.hasFormedIntent).toBe(false);
       expect(result.intentType).not.toBe('MILITARY_SABOTAGE_RECRUITMENT');
     });
+
+    it('does NOT classify an off-platform phone-number request as hostile recruitment', () => {
+      const text = 'Мабуть, технічний збій у додатку, тому просиму лише надіслати ваш номер телефону, щоб я міг одразу зателефонувати та домовитися про зустріч.';
+      const result = SemanticTriggerEngine.evaluate(text);
+
+      expect(result.hasFormedIntent).toBe(false);
+      expect(result.intentType).not.toBe('MILITARY_SABOTAGE_RECRUITMENT');
+    });
   });
 });

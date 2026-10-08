@@ -419,10 +419,12 @@ export class SemanticTriggerEngine {
       topMatch.prototypeId === 'MILITARY_SABOTAGE_RECRUITMENT' &&
       signals.hasActionDirective &&
       hasPhysicalTargetOrSabotage &&
-      (
-        topMatch.similarity >= 0.40 ||
-        topMatch.similarity >= 0.70
-      );
+      // Generic words such as "номер" or "надіслати" can create a deceptively
+      // high vector score. Require independent evidence tied to reconnaissance,
+      // a protected target, sabotage, or recruitment before using the vector fallback.
+      (hasReconProbing || hasIdeologyCover || hasSabotageKeywords || hasCourierScoutRecruitment ||
+        /(?:військов|воєнком|тцк|зсу|всу|релейн|диверс|координат|графік\s+руху)/iu.test(combinedText)) &&
+      topMatch.similarity >= 0.40;
 
     // Чистий векторний тригер (Pure Vector Trigger): спрацьовує при дуже високій
     // косинусній подібності (>= 0.55) навіть за відсутності явного Action Directive.
