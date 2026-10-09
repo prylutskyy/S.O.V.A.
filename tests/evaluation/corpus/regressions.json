@@ -1,4 +1,1635 @@
 {
   "schemaVersion": 1,
-  "cases": []
+  "cases": [
+    {
+      "id": "reg-phone-number-call-001",
+      "tags": [
+        "uk",
+        "regression",
+        "phone-number",
+        "false-positive"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Мабуть, технічний збій у додатку, тому просиму лише надіслати ваш номер телефону, щоб я міг одразу зателефонувати та домовитися про зустріч."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Реальний кейс: локальний семантичний аналіз не повинен класифікувати загальний номер телефону як військове вербування. Хмарний арбітр оцінюється окремо."
+    },
+    {
+      "id": "reg-delivery-phone-001",
+      "tags": [
+        "uk",
+        "regression",
+        "benign",
+        "phone-number"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Залиште номер телефону для кур’єра після оформлення замовлення в застосунку."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Телефон потрібен для звичайної доставки, немає переходу в сторонній чат або вимоги реквізитів."
+    },
+    {
+      "id": "reg-order-status-001",
+      "tags": [
+        "uk",
+        "regression",
+        "benign",
+        "order"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Ваше замовлення вже передано перевізнику. Перевірте статус у застосунку."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Звичайне повідомлення про статус замовлення без платіжного посилання."
+    },
+    {
+      "id": "reg-courier-meeting-001",
+      "tags": [
+        "uk",
+        "regression",
+        "benign",
+        "meeting"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Можемо зустрітися біля поштового відділення о шостій, щоб передати товар."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечна особиста передача товару без запиту секретних даних."
+    },
+    {
+      "id": "reg-safe-card-transfer-001",
+      "tags": [
+        "uk",
+        "regression",
+        "benign",
+        "payment"
+      ],
+      "messages": [
+        {
+          "speaker": "user",
+          "text": "Я можу переказати оплату на офіційному сайті магазину через банківський застосунок."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Користувач описує безпечну оплату через офіційний сайт; реквізити не запитують."
+    },
+    {
+      "id": "reg-delivery-price-001",
+      "tags": [
+        "uk",
+        "regression",
+        "benign",
+        "delivery"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Скільки коштує доставка Новою поштою до Львова?"
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Невинне питання про ціну доставки."
+    },
+    {
+      "id": "reg-safe-contact-001",
+      "tags": [
+        "uk",
+        "regression",
+        "benign",
+        "contact"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я залишатимуся у вбудованому чаті платформи. Напишіть, коли відправите посилку."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Згадка чату використана в безпечному контексті; перехід назовні не пропонується."
+    },
+    {
+      "id": "reg-safe-refund-001",
+      "tags": [
+        "uk",
+        "regression",
+        "benign",
+        "refund"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Повернення коштів буде видно у вашому банківському застосунку. Не надсилайте нам SMS-коди чи CVV."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Захисне попередження про секретні коди, а не запит їх надати."
+    },
+    {
+      "id": "reg-offplatform-001",
+      "tags": [
+        "uk",
+        "regression",
+        "off-platform"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Щоб завершити покупку, напишіть мені у Telegram."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "OFF_PLATFORM_REDIRECT",
+        "action": "WARN"
+      },
+      "notes": "Перехід у месенджер нав’язується як умова угоди."
+    },
+    {
+      "id": "reg-offplatform-002",
+      "tags": [
+        "ru",
+        "regression",
+        "off-platform"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Давайте продолжим в WhatsApp, пришлите туда номер заказа."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "OFF_PLATFORM_REDIRECT",
+        "action": "WARN"
+      },
+      "notes": "Розмова про замовлення переводиться у WhatsApp."
+    },
+    {
+      "id": "reg-offplatform-003",
+      "tags": [
+        "en",
+        "regression",
+        "off-platform"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Contact me on Signal to arrange the payment."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "OFF_PLATFORM_REDIRECT",
+        "action": "WARN"
+      },
+      "notes": "Запрошення перейти у Signal для обговорення оплати."
+    },
+    {
+      "id": "reg-offplatform-004",
+      "tags": [
+        "uk",
+        "regression",
+        "off-platform",
+        "multi-turn"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "У чаті платформи не проходять фото."
+        },
+        {
+          "speaker": "user",
+          "text": "Тоді як надіслати вам знімки?"
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Напишіть у Viber, там усе відкриється."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "OFF_PLATFORM_REDIRECT",
+        "action": "WARN"
+      },
+      "notes": "Контекст показує використання технічної причини для переходу у Viber."
+    },
+    {
+      "id": "reg-verification-001",
+      "tags": [
+        "uk",
+        "regression",
+        "verification",
+        "off-platform"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Для перевірки картки надішліть CVV і перейдіть у наш Telegram-бот."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "VERIFICATION_PHISHING",
+        "action": "WARN"
+      },
+      "notes": "Запит платіжного секрету разом із переходом у сторонній бот."
+    },
+    {
+      "id": "reg-verification-002",
+      "tags": [
+        "ru",
+        "regression",
+        "verification",
+        "urgency"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Срочно подтвердите профиль: пришлите код из СМС, иначе выплата отменится."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "VERIFICATION_PHISHING",
+        "action": "WARN"
+      },
+      "notes": "SMS-код запитують під тиском терміновості."
+    },
+    {
+      "id": "reg-verification-003",
+      "tags": [
+        "en",
+        "regression",
+        "verification",
+        "link"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Verify your account by entering the one-time password on this link: https://example.invalid/verify"
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "VERIFICATION_PHISHING",
+        "action": "WARN"
+      },
+      "notes": "Одноразовий пароль вводиться на зовнішній сторінці."
+    },
+    {
+      "id": "reg-payment-001",
+      "tags": [
+        "uk",
+        "regression",
+        "payment-credentials"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Щоб отримати переказ, продиктуйте CVV-код і термін дії картки."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "PAYMENT_CREDENTIAL_THEFT",
+        "action": "WARN"
+      },
+      "notes": "Для нібито отримання переказу просять секретні карткові дані."
+    },
+    {
+      "id": "reg-payment-002",
+      "tags": [
+        "ru",
+        "regression",
+        "payment-credentials"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Назовите код безопасности карты и баланс для зачисления денег."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "PAYMENT_CREDENTIAL_THEFT",
+        "action": "WARN"
+      },
+      "notes": "Запит коду безпеки та балансу рахунку."
+    },
+    {
+      "id": "reg-identity-001",
+      "tags": [
+        "uk",
+        "regression",
+        "identity"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Назвіть кодове слово банку, щоб підтвердити власника рахунку."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "IDENTITY_PROBING",
+        "action": "WARN"
+      },
+      "notes": "Запит банківського контрольного слова."
+    },
+    {
+      "id": "reg-identity-002",
+      "tags": [
+        "ru",
+        "regression",
+        "identity"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Скажите девичью фамилию матери для проверки личности."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "IDENTITY_PROBING",
+        "action": "WARN"
+      },
+      "notes": "Виманювання контрольної відповіді для відновлення акаунта."
+    },
+    {
+      "id": "reg-identity-003",
+      "tags": [
+        "en",
+        "regression",
+        "identity"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Send your tax ID and date of birth to release the transfer."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "IDENTITY_PROBING",
+        "action": "WARN"
+      },
+      "notes": "Запит податкового номера й дати народження для переказу."
+    },
+    {
+      "id": "reg-escrow-001",
+      "tags": [
+        "uk",
+        "regression",
+        "escrow",
+        "link"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я вже оплатив товар через безпечну угоду, перейдіть за посиланням, щоб отримати кошти: https://example.invalid/payout"
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "ESCROW_DELIVERY_SCAM",
+        "action": "WARN"
+      },
+      "notes": "Імітація оплати та зовнішнє посилання для отримання грошей."
+    },
+    {
+      "id": "reg-escrow-002",
+      "tags": [
+        "ru",
+        "regression",
+        "escrow",
+        "off-platform"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я оформил безопасную сделку, напишите в Telegram для получения выплаты."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "ESCROW_DELIVERY_SCAM",
+        "action": "WARN"
+      },
+      "notes": "Фальшива безпечна угода з переведенням у Telegram."
+    },
+    {
+      "id": "reg-military-001",
+      "tags": [
+        "uk",
+        "regression",
+        "military",
+        "reconnaissance"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Сфотографуй будівлю ТЦК та машини поруч, за надіслані фото заплачу 200 доларів."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+        "action": "LOCK_INPUT"
+      },
+      "notes": "Винагорода за фото військово чутливого об’єкта й транспорту."
+    },
+    {
+      "id": "reg-military-002",
+      "tags": [
+        "uk",
+        "regression",
+        "military",
+        "sabotage"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Купи розпалювач і підпали колесо військового автомобіля."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+        "action": "LOCK_INPUT"
+      },
+      "notes": "Пряма інструкція щодо підпалу військового транспорту."
+    },
+    {
+      "id": "reg-military-003",
+      "tags": [
+        "ru",
+        "regression",
+        "military",
+        "reconnaissance"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Пришли координаты, где находится военный склад, за информацию заплачу."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+        "action": "LOCK_INPUT"
+      },
+      "notes": "Оплачуваний збір розташування військового складу."
+    },
+    {
+      "id": "reg-military-004",
+      "tags": [
+        "uk",
+        "regression",
+        "military",
+        "false-positive-control"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "У новинах пишуть, що біля ТЦК встановили нову зупинку."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Нейтральна згадка ТЦК у новинному контексті без директиви чи збору даних."
+    },
+    {
+      "id": "reg-crypto-001",
+      "tags": [
+        "uk",
+        "regression",
+        "crypto",
+        "seed-phrase"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Підтримка гаманця просить ввести вашу сід-фразу з 12 слів для відновлення."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "CRYPTO_WALLET_COMPROMISE",
+        "action": "LOCK_INPUT"
+      },
+      "notes": "Запит seed-фрази під приводом відновлення гаманця."
+    },
+    {
+      "id": "reg-crypto-002",
+      "tags": [
+        "ru",
+        "regression",
+        "crypto",
+        "password"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Введите ваш пароль от криптокошелька, чтобы синхронизировать баланс."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "CRYPTO_WALLET_COMPROMISE",
+        "action": "LOCK_INPUT"
+      },
+      "notes": "Запит пароля до криптогаманця."
+    },
+    {
+      "id": "reg-benign-001",
+      "tags": [
+        "uk",
+        "regression",
+        "benign",
+        "phone-number"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Кур’єр зателефонує за номером, який ви вказали під час оформлення."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Повідомлення про стандартний процес доставки без запиту номера."
+    },
+    {
+      "id": "reg-benign-002",
+      "tags": [
+        "uk",
+        "regression",
+        "benign",
+        "payment"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Оплатив замовлення на офіційному сайті. Підтвердження є в моєму банківському застосунку."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Користувач повідомляє про оплату, секретні дані не запитуються."
+    },
+    {
+      "id": "reg2-phone-001",
+      "tags": [
+        "uk",
+        "phone",
+        "social-engineering"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Напишіть мені у Telegram, там швидше обговоримо покупку."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "OFF_PLATFORM_REDIRECT",
+        "action": "WARN"
+      },
+      "notes": "Сценарій phone: очікується класифікація наміру та відповідна політика."
+    },
+    {
+      "id": "reg2-phone-002",
+      "tags": [
+        "uk",
+        "phone",
+        "social-engineering"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Залиште номер у чаті — надішлю деталі замовлення в Signal."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "OFF_PLATFORM_REDIRECT",
+        "action": "WARN"
+      },
+      "notes": "Сценарій phone: очікується класифікація наміру та відповідна політика."
+    },
+    {
+      "id": "reg2-phone-003",
+      "tags": [
+        "uk",
+        "phone",
+        "social-engineering"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Для продовження розмови перейдіть у WhatsApp, тут незручно."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "OFF_PLATFORM_REDIRECT",
+        "action": "WARN"
+      },
+      "notes": "Сценарій phone: очікується класифікація наміру та відповідна політика."
+    },
+    {
+      "id": "reg2-phone-004",
+      "tags": [
+        "uk",
+        "phone",
+        "social-engineering"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Давайте обміняємося контактами й домовимося поза майданчиком: Viber."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "OFF_PLATFORM_REDIRECT",
+        "action": "WARN"
+      },
+      "notes": "Сценарій phone: очікується класифікація наміру та відповідна політика."
+    },
+    {
+      "id": "reg2-phone-005",
+      "tags": [
+        "uk",
+        "phone",
+        "social-engineering"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Надішліть телефон, я зв’яжуся з вами у Telegram."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "OFF_PLATFORM_REDIRECT",
+        "action": "WARN"
+      },
+      "notes": "Сценарій phone: очікується класифікація наміру та відповідна політика."
+    },
+    {
+      "id": "reg2-phone-006",
+      "tags": [
+        "uk",
+        "phone",
+        "social-engineering"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Оплату та подробиці узгодимо в WhatsApp, напишіть мені туди."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "OFF_PLATFORM_REDIRECT",
+        "action": "WARN"
+      },
+      "notes": "Сценарій phone: очікується класифікація наміру та відповідна політика."
+    },
+    {
+      "id": "reg2-verification-001",
+      "tags": [
+        "uk",
+        "verification",
+        "social-engineering"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Для підтвердження замовлення введіть код із SMS у формі за посиланням https://verify.example.invalid."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "VERIFICATION_PHISHING",
+        "action": "WARN"
+      },
+      "notes": "Сценарій verification: очікується класифікація наміру та відповідна політика."
+    },
+    {
+      "id": "reg2-verification-002",
+      "tags": [
+        "uk",
+        "verification",
+        "social-engineering"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Надішліть код підтвердження, щоб ми перевірили ваш профіль."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "VERIFICATION_PHISHING",
+        "action": "WARN"
+      },
+      "notes": "Сценарій verification: очікується класифікація наміру та відповідна політика."
+    },
+    {
+      "id": "reg2-verification-003",
+      "tags": [
+        "uk",
+        "verification",
+        "social-engineering"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Ваш акаунт заблокують, якщо не підтвердите вхід за посиланням https://secure.example.invalid/check."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "VERIFICATION_PHISHING",
+        "action": "WARN"
+      },
+      "notes": "Сценарій verification: очікується класифікація наміру та відповідна політика."
+    },
+    {
+      "id": "reg2-verification-004",
+      "tags": [
+        "uk",
+        "verification",
+        "social-engineering"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Служба безпеки просить одноразовий код для скасування підозрілої операції."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "VERIFICATION_PHISHING",
+        "action": "WARN"
+      },
+      "notes": "Сценарій verification: очікується класифікація наміру та відповідна політика."
+    },
+    {
+      "id": "reg2-verification-005",
+      "tags": [
+        "uk",
+        "verification",
+        "social-engineering"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Введіть пароль на сторінці https://account.example.invalid/confirm, щоб відновити доступ до оголошення."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "VERIFICATION_PHISHING",
+        "action": "WARN"
+      },
+      "notes": "Сценарій verification: очікується класифікація наміру та відповідна політика."
+    },
+    {
+      "id": "reg2-verification-006",
+      "tags": [
+        "uk",
+        "verification",
+        "social-engineering"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Повідомте код із SMS оператору чату для завершення перевірки."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "VERIFICATION_PHISHING",
+        "action": "WARN"
+      },
+      "notes": "Сценарій verification: очікується класифікація наміру та відповідна політика."
+    },
+    {
+      "id": "reg2-payment-001",
+      "tags": [
+        "uk",
+        "payment",
+        "social-engineering"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Щоб отримати оплату, введіть номер картки та CVV на сторінці https://verify.example.invalid."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "PAYMENT_CREDENTIAL_THEFT",
+        "action": "WARN"
+      },
+      "notes": "Сценарій payment: очікується класифікація наміру та відповідна політика."
+    },
+    {
+      "id": "reg2-payment-002",
+      "tags": [
+        "uk",
+        "payment",
+        "social-engineering"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Надішліть фото картки з обох боків для зарахування коштів."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "PAYMENT_CREDENTIAL_THEFT",
+        "action": "WARN"
+      },
+      "notes": "Сценарій payment: очікується класифікація наміру та відповідна політика."
+    },
+    {
+      "id": "reg2-payment-003",
+      "tags": [
+        "uk",
+        "payment",
+        "social-engineering"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Для повернення коштів продиктуйте PIN-код банківської картки."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "PAYMENT_CREDENTIAL_THEFT",
+        "action": "WARN"
+      },
+      "notes": "Сценарій payment: очікується класифікація наміру та відповідна політика."
+    },
+    {
+      "id": "reg2-payment-004",
+      "tags": [
+        "uk",
+        "payment",
+        "social-engineering"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Введіть дані картки на https://pay.example.invalid, і виплата надійде за хвилину."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "PAYMENT_CREDENTIAL_THEFT",
+        "action": "WARN"
+      },
+      "notes": "Сценарій payment: очікується класифікація наміру та відповідна політика."
+    },
+    {
+      "id": "reg2-payment-005",
+      "tags": [
+        "uk",
+        "payment",
+        "social-engineering"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Надішліть код із банківського повідомлення для підтвердження переказу."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "PAYMENT_CREDENTIAL_THEFT",
+        "action": "WARN"
+      },
+      "notes": "Сценарій payment: очікується класифікація наміру та відповідна політика."
+    },
+    {
+      "id": "reg2-payment-006",
+      "tags": [
+        "uk",
+        "payment",
+        "social-engineering"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Щоб покупець оплатив доставку, авторизуйтеся в банку за https://wallet.example.invalid/restore."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "PAYMENT_CREDENTIAL_THEFT",
+        "action": "WARN"
+      },
+      "notes": "Сценарій payment: очікується класифікація наміру та відповідна політика."
+    },
+    {
+      "id": "reg2-identity-001",
+      "tags": [
+        "uk",
+        "identity",
+        "social-engineering"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Надішліть фото паспорта з обох боків для оформлення доставки."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "IDENTITY_PROBING",
+        "action": "WARN"
+      },
+      "notes": "Сценарій identity: очікується класифікація наміру та відповідна політика."
+    },
+    {
+      "id": "reg2-identity-002",
+      "tags": [
+        "uk",
+        "identity",
+        "social-engineering"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Напишіть свій податковий номер, щоб ми підтвердили особу."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "IDENTITY_PROBING",
+        "action": "WARN"
+      },
+      "notes": "Сценарій identity: очікується класифікація наміру та відповідна політика."
+    },
+    {
+      "id": "reg2-identity-003",
+      "tags": [
+        "uk",
+        "identity",
+        "social-engineering"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Для перевірки покупця потрібні дата народження та повне ім’я."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "IDENTITY_PROBING",
+        "action": "WARN"
+      },
+      "notes": "Сценарій identity: очікується класифікація наміру та відповідна політика."
+    },
+    {
+      "id": "reg2-identity-004",
+      "tags": [
+        "uk",
+        "identity",
+        "social-engineering"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Завантажте фото посвідчення особи у форму https://pay.example.invalid."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "IDENTITY_PROBING",
+        "action": "WARN"
+      },
+      "notes": "Сценарій identity: очікується класифікація наміру та відповідна політика."
+    },
+    {
+      "id": "reg2-identity-005",
+      "tags": [
+        "uk",
+        "identity",
+        "social-engineering"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Надішліть адресу проживання та номер документа для реєстрації виплати."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "IDENTITY_PROBING",
+        "action": "WARN"
+      },
+      "notes": "Сценарій identity: очікується класифікація наміру та відповідна політика."
+    },
+    {
+      "id": "reg2-identity-006",
+      "tags": [
+        "uk",
+        "identity",
+        "social-engineering"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Підтвердіть особу, повідомивши серію та номер паспорта."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "IDENTITY_PROBING",
+        "action": "WARN"
+      },
+      "notes": "Сценарій identity: очікується класифікація наміру та відповідна політика."
+    },
+    {
+      "id": "reg2-escrow-001",
+      "tags": [
+        "uk",
+        "escrow",
+        "social-engineering"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Оплатив доставку, заберіть кошти через https://verify.example.invalid."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "ESCROW_DELIVERY_SCAM",
+        "action": "WARN"
+      },
+      "notes": "Сценарій escrow: очікується класифікація наміру та відповідна політика."
+    },
+    {
+      "id": "reg2-escrow-002",
+      "tags": [
+        "uk",
+        "escrow",
+        "social-engineering"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Для отримання грошей за товар відкрийте форму перевізника https://parcel.example.invalid/claim."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "ESCROW_DELIVERY_SCAM",
+        "action": "WARN"
+      },
+      "notes": "Сценарій escrow: очікується класифікація наміру та відповідна політика."
+    },
+    {
+      "id": "reg2-escrow-003",
+      "tags": [
+        "uk",
+        "escrow",
+        "social-engineering"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Платформа зарезервувала оплату; введіть картку на https://secure.example.invalid/check для зарахування."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "ESCROW_DELIVERY_SCAM",
+        "action": "WARN"
+      },
+      "notes": "Сценарій escrow: очікується класифікація наміру та відповідна політика."
+    },
+    {
+      "id": "reg2-escrow-004",
+      "tags": [
+        "uk",
+        "escrow",
+        "social-engineering"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я вже оплатив замовлення, підтвердіть доставку за посиланням https://pay.example.invalid."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "ESCROW_DELIVERY_SCAM",
+        "action": "WARN"
+      },
+      "notes": "Сценарій escrow: очікується класифікація наміру та відповідна політика."
+    },
+    {
+      "id": "reg2-escrow-005",
+      "tags": [
+        "uk",
+        "escrow",
+        "social-engineering"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Кур’єр чекає підтвердження виплати на сторінці https://account.example.invalid/confirm."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "ESCROW_DELIVERY_SCAM",
+        "action": "WARN"
+      },
+      "notes": "Сценарій escrow: очікується класифікація наміру та відповідна політика."
+    },
+    {
+      "id": "reg2-escrow-006",
+      "tags": [
+        "uk",
+        "escrow",
+        "social-engineering"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Щоб отримати передоплату, пройдіть оформлення доставки на https://wallet.example.invalid/restore."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "ESCROW_DELIVERY_SCAM",
+        "action": "WARN"
+      },
+      "notes": "Сценарій escrow: очікується класифікація наміру та відповідна політика."
+    },
+    {
+      "id": "reg2-military-001",
+      "tags": [
+        "uk",
+        "military",
+        "adversarial"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "За винагороду сфотографуйте військовий об’єкт і надішліть знімок."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+        "action": "LOCK_INPUT"
+      },
+      "notes": "Сценарій military: очікується класифікація наміру та відповідна політика."
+    },
+    {
+      "id": "reg2-military-002",
+      "tags": [
+        "uk",
+        "military",
+        "adversarial"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Передайте координати блокпоста, за це заплатимо готівкою."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+        "action": "LOCK_INPUT"
+      },
+      "notes": "Сценарій military: очікується класифікація наміру та відповідна політика."
+    },
+    {
+      "id": "reg2-military-003",
+      "tags": [
+        "uk",
+        "military",
+        "adversarial"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Знайдіть графік переміщення техніки та передайте його нам."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+        "action": "LOCK_INPUT"
+      },
+      "notes": "Сценарій military: очікується класифікація наміру та відповідна політика."
+    },
+    {
+      "id": "reg2-military-004",
+      "tags": [
+        "uk",
+        "military",
+        "adversarial"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Потрібен кур’єр, щоб закласти пристрій біля військової будівлі."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+        "action": "LOCK_INPUT"
+      },
+      "notes": "Сценарій military: очікується класифікація наміру та відповідна політика."
+    },
+    {
+      "id": "reg2-military-005",
+      "tags": [
+        "uk",
+        "military",
+        "adversarial"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Зніміть на відео систему ППО та позначте місце на мапі."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+        "action": "LOCK_INPUT"
+      },
+      "notes": "Сценарій military: очікується класифікація наміру та відповідна політика."
+    },
+    {
+      "id": "reg2-military-006",
+      "tags": [
+        "uk",
+        "military",
+        "adversarial"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Допоможіть пошкодити військовий транспорт, витрати компенсуємо."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+        "action": "LOCK_INPUT"
+      },
+      "notes": "Сценарій military: очікується класифікація наміру та відповідна політика."
+    },
+    {
+      "id": "reg2-crypto-001",
+      "tags": [
+        "uk",
+        "crypto",
+        "adversarial"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Надішліть seed phrase з 12 слів для відновлення гаманця."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "CRYPTO_WALLET_COMPROMISE",
+        "action": "LOCK_INPUT"
+      },
+      "notes": "Сценарій crypto: очікується класифікація наміру та відповідна політика."
+    },
+    {
+      "id": "reg2-crypto-002",
+      "tags": [
+        "uk",
+        "crypto",
+        "adversarial"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Підтримка просить приватний ключ, щоб синхронізувати баланс."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "CRYPTO_WALLET_COMPROMISE",
+        "action": "LOCK_INPUT"
+      },
+      "notes": "Сценарій crypto: очікується класифікація наміру та відповідна політика."
+    },
+    {
+      "id": "reg2-crypto-003",
+      "tags": [
+        "uk",
+        "crypto",
+        "adversarial"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Введіть мнемонічну фразу на https://secure.example.invalid/check, і гаманець буде розблоковано."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "CRYPTO_WALLET_COMPROMISE",
+        "action": "LOCK_INPUT"
+      },
+      "notes": "Сценарій crypto: очікується класифікація наміру та відповідна політика."
+    },
+    {
+      "id": "reg2-crypto-004",
+      "tags": [
+        "uk",
+        "crypto",
+        "adversarial"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Скиньте пароль криптогаманця для перевірки транзакції."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "CRYPTO_WALLET_COMPROMISE",
+        "action": "LOCK_INPUT"
+      },
+      "notes": "Сценарій crypto: очікується класифікація наміру та відповідна політика."
+    },
+    {
+      "id": "reg2-crypto-005",
+      "tags": [
+        "uk",
+        "crypto",
+        "adversarial"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Надішліть резервну фразу з 24 слів нашому фахівцю."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "CRYPTO_WALLET_COMPROMISE",
+        "action": "LOCK_INPUT"
+      },
+      "notes": "Сценарій crypto: очікується класифікація наміру та відповідна політика."
+    },
+    {
+      "id": "reg2-crypto-006",
+      "tags": [
+        "uk",
+        "crypto",
+        "adversarial"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Для повернення токенів повідомте приватний ключ гаманця."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "CRYPTO_WALLET_COMPROMISE",
+        "action": "LOCK_INPUT"
+      },
+      "notes": "Сценарій crypto: очікується класифікація наміру та відповідна політика."
+    },
+    {
+      "id": "reg2-benign-001",
+      "tags": [
+        "uk",
+        "benign",
+        "false-positive-control"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Умови доставки доступні на офіційному сайті перевізника."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний контекстний контроль для перевірки хибнопозитивного спрацювання."
+    },
+    {
+      "id": "reg2-benign-002",
+      "tags": [
+        "en",
+        "benign",
+        "false-positive-control"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "The courier will call using the number already saved in your order."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний контекстний контроль для перевірки хибнопозитивного спрацювання."
+    },
+    {
+      "id": "reg2-benign-003",
+      "tags": [
+        "uk",
+        "benign",
+        "false-positive-control"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Код відділення перевізника — це не код підтвердження банку."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний контекстний контроль для перевірки хибнопозитивного спрацювання."
+    },
+    {
+      "id": "reg2-benign-004",
+      "tags": [
+        "uk",
+        "benign",
+        "false-positive-control"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "У новині згадали фішинг, але ніхто не просить переходити за посиланням."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний контекстний контроль для перевірки хибнопозитивного спрацювання."
+    },
+    {
+      "id": "reg2-benign-005",
+      "tags": [
+        "en",
+        "benign",
+        "false-positive-control"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "I prefer to keep our conversation and payment on this platform."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний контекстний контроль для перевірки хибнопозитивного спрацювання."
+    },
+    {
+      "id": "reg2-benign-006",
+      "tags": [
+        "uk",
+        "benign",
+        "false-positive-control"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Мій номер є в профілі, проте спілкуймося тут."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний контекстний контроль для перевірки хибнопозитивного спрацювання."
+    },
+    {
+      "id": "reg2-benign-007",
+      "tags": [
+        "uk",
+        "benign",
+        "false-positive-control"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Для оплати використовую офіційний застосунок банку самостійно."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний контекстний контроль для перевірки хибнопозитивного спрацювання."
+    },
+    {
+      "id": "reg2-benign-008",
+      "tags": [
+        "en",
+        "benign",
+        "false-positive-control"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "The article discusses military history without current locations or requests."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний контекстний контроль для перевірки хибнопозитивного спрацювання."
+    }
+  ]
 }

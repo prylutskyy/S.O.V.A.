@@ -123,6 +123,15 @@ function printMetrics(): void {
 
   console.info('\n[corpus] Classification metrics (intent detected vs not detected):');
   console.table(rows);
+  const mismatches = predictions.filter((entry) =>
+    entry.expectedDetected !== entry.actualDetected || entry.expectedType !== entry.actualType
+  );
+  if (mismatches.length > 0) {
+    console.info('[corpus] Cases that differ from the expected result:');
+    console.table(mismatches.map(({ id, expectedDetected, actualDetected, expectedType, actualType }) => ({
+      id, expectedDetected, actualDetected, expectedType, actualType,
+    })));
+  }
 }
 
 describe('Evaluation corpus structure', () => {
@@ -141,8 +150,11 @@ describe('Local threat-classification evaluation corpus', () => {
     it.skip('add labeled cases to the JSON corpus files to enable evaluation', () => {});
   }
 
-  for (const testCase of allCases) {
-    it(`${testCase.id} [${testCase.corpus}]`, () => {
+  if (allCases.length > 0) {
+    it('matches the expected output for every scenario (sequential state isolation)', () => {
+      const mismatches: Array<Record<string, unknown>> = [];
+
+      for (const testCase of allCases) {
       ChatSessionState.reset();
       let result: ReturnType<typeof ChatSessionState.addMessageAndEvaluate> | undefined;
 
@@ -166,18 +178,39 @@ describe('Local threat-classification evaluation corpus', () => {
         actualType,
       });
 
-      expect(result.hasFormedIntent, `${testCase.id}: detection result`).toBe(testCase.expected.detected);
-      expect(actualType, `${testCase.id}: classified intent`).toBe(testCase.expected.intentType);
-      expect(actualAction, `${testCase.id}: user-impact action`).toBe(testCase.expected.action);
+      if (
+        result.hasFormedIntent !== testCase.expected.detected ||
+        actualType !== testCase.expected.intentType ||
+        actualAction !== testCase.expected.action
+      ) {
+        mismatches.push({
+          id: testCase.id,
+          corpus: testCase.corpus,
+          expectedDetected: testCase.expected.detected,
+          actualDetected: result.hasFormedIntent,
+          expectedType: testCase.expected.intentType,
+          actualType,
+          expectedAction: testCase.expected.action,
+          actualAction,
+        });
+      }
 
       if (testCase.expected.minConfidence !== undefined) {
-        expect(result.confidence ?? 0, `${testCase.id}: confidence lower bound`)
-          .toBeGreaterThanOrEqual(testCase.expected.minConfidence);
+        if ((result.confidence ?? 0) < testCase.expected.minConfidence) {
+          mismatches.push({ id: testCase.id, field: 'minConfidence', expected: testCase.expected.minConfidence, actual: result.confidence ?? 0 });
+        }
       }
       if (testCase.expected.maxConfidence !== undefined) {
-        expect(result.confidence ?? 0, `${testCase.id}: confidence upper bound`)
-          .toBeLessThanOrEqual(testCase.expected.maxConfidence);
+        if ((result.confidence ?? 0) > testCase.expected.maxConfidence) {
+          mismatches.push({ id: testCase.id, field: 'maxConfidence', expected: testCase.expected.maxConfidence, actual: result.confidence ?? 0 });
+        }
       }
+
+      }
+
+      if (mismatches.length > 0) console.table(mismatches);
+      expect(mismatches.length, 'See mismatch table above for scenario IDs and expected/actual results')
+        .toBe(0);
     });
   }
 

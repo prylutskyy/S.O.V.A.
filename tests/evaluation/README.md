@@ -10,7 +10,7 @@ This directory contains human-labeled conversation scenarios for evaluating the 
 - `corpus.schema.json` — JSON Schema for the corpus files.
 - `corpus.evaluation.test.ts` — Vitest runner. It evaluates every turn in a conversation using `ChatSessionState`, then checks the final classification.
 
-All files start with an empty `cases` array. Add examples to the appropriate file using the schema. IDs must be unique across all files. Keep paraphrases and variants from the same underlying scenario in the same file/split to avoid leakage.
+The corpora contain labeled cases; check the JSON files for current counts. Add future examples to the appropriate file using the schema. IDs must be unique across all files. Keep paraphrases and variants from the same underlying scenario in the same file/split to avoid leakage.
 
 Example case to copy into a corpus file:
 
@@ -41,7 +41,7 @@ npm run test:corpus
 
 The runner reports true positives, false positives, false negatives, true negatives, precision, recall, and F1, both overall and by expected category. It also prints failed case IDs. Empty files are reported as skipped; they do not count as evaluated examples. The complete suite still runs with `npm test`.
 
-Expected labels describe the local heuristic pipeline, before a cloud LLM verdict. The corpus runner makes no network calls and does not require an API key. A model/API evaluation should be a separate opt-in layer with a pinned model, recorded prompt/version, repeated runs, and saved raw responses; never make ordinary unit or corpus runs depend on a live provider.
+Expected labels in this suite describe the local heuristic pipeline, before a cloud LLM verdict. The corpus runner makes no network calls and does not require an API key. Groq live integration is a separate opt-in run; see `../integration/README.md`. Never make ordinary unit or corpus runs depend on a live provider.
 
 ## Authoring rules
 
