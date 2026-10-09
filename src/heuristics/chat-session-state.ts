@@ -82,7 +82,7 @@ export class ChatSessionState {
       for (const span of msg.matchedSpans) {
         aggregatedSpans.push(span);
         const currentMax = aggregatedClusterMap.get(span.cluster) || 0;
-        aggregatedClusterMap.set(span.cluster, Math.max(currentMax, 35)); // Use default weight or real weight if available
+        aggregatedClusterMap.set(span.cluster, Math.max(currentMax, span.weight ?? 35));
       }
     }
 

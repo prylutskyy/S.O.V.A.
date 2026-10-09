@@ -19,6 +19,7 @@ export interface IntentMatchSpan {
   end: number;
   text: string;
   cluster: string;
+  weight?: number;
 }
 
 export interface IntentClassificationResult {
@@ -53,6 +54,8 @@ interface LocalizedIntentCopy {
 interface IntentDefinition {
   type: ScamIntentType;
   requiredClusters: string[][];
+  /** Clusters allowed to contribute evidence to this candidate's score. */
+  evidenceClusters: string[];
   minClusters: number;
   minScore: number;
   i18n: Record<SupportedLanguage, LocalizedIntentCopy>;
@@ -60,6 +63,7 @@ interface IntentDefinition {
 
 export class IntentClassifier {
   private static readonly OFF_PLATFORM_NEGATION = /(?:не|ніколи\s+не|не\s+(?:варто|треба|потрібно)|not|never|do\s+not|don['’]?t)\s+[^.!?\n]{0,35}$/iu;
+  private static readonly SENSITIVE_REQUEST_NEGATION = /(?:^|[\s,;:])(?:не(?:\s+(?:потрібно|треба|варто|слід|можна))?|ніколи\s+не|never|do\s+not|don['’]?t|should\s+not|shouldn['’]?t)\s*$/iu;
 
   /**
    * Семантичні словники кластерів слів з підтримкою динамічного перемикання мов:
@@ -280,6 +284,33 @@ export class IntentClassifier {
       ],
     },
 
+    // A verification/profile mention is not by itself a request to steal
+    // payment credentials. Keep explicit sensitive-data solicitation separate.
+    {
+      cluster: 'payment_credential_request',
+      weight: 60,
+      lang: 'universal',
+      patterns: [
+        /(?:надішліть|скиньте|вкажіть|введіть|повідомте|продиктуйте|напишіть|скажіть|дайте|потрібен|потрібно|треба)\s+(?=[^.!?\n]{0,80}(?:[cс]vv|[cс]v[cс]|код|смс|одноразов|баланс|картк|термін\s+дії|(?:16|іб)\s+цифр))[^.!?\n]{0,80}(?:[cс]vv|[cс]v[cс]|код\s+(?:з|із)\s*смс|смс[- ]код|одноразов(?:ий|ого)\s+код|код\s+безпеки|баланс(?:\s+картки)?|(?:номер|дані|реквізити)\s+(?:вашої\s+)?картк|термін\s+дії\s+картк|(?:16|іб)\s+цифр)/giu,
+      ],
+    },
+    {
+      cluster: 'payment_credential_request',
+      weight: 60,
+      lang: 'universal',
+      patterns: [
+        /(?:пришлите|скиньте|укажите|введите|сообщите|продиктуйте|напишите|скажите|дайте|нужен|нужно|надо)\s+(?=[^.!?\n]{0,80}(?:cvv|cvc|код|смс|одноразов|баланс|карт|срок\s+действия))[^.!?\n]{0,80}(?:cvv|cvc|код\s+(?:из|с)\s*смс|смс[- ]код|одноразов(?:ый|ого)\s+код|код\s+безопасности|баланс(?:\s+карты)?|(?:номер|данные|реквизиты)\s+(?:вашей\s+)?карт|срок\s+действия\s+карт|16\s+цифр)/giu,
+      ],
+    },
+    {
+      cluster: 'payment_credential_request',
+      weight: 60,
+      lang: 'universal',
+      patterns: [
+        /(?:send|share|provide|enter|tell|text|give|need|require)\s+(?=[^.!?\n]{0,80}(?:cvv|cvc|code|sms|otp|balance|card|expir))[^.!?\n]{0,80}(?:cvv|cvc|security\s+code|sms\s+(?:code|passcode)|one[- ]time\s+(?:code|password|passcode)|otp|card\s+(?:number|details|balance)|(?:number|details)\s+of\s+(?:your\s+)?card|expir(?:y|ation)\s+date)/giu,
+      ],
+    },
+
     // =========================================================================
     // 6. URGENCY PRESSURE (Штучний тиск терміновості / погрози анулювання)
     // =========================================================================
@@ -427,7 +458,6 @@ export class IntentClassifier {
       lang: 'universal',
       patterns: [
         /(?:напишіть|вкажіть|скиньте|скажіть|надайте|продиктуйте|введіть|дайте|напишите|укажите|скажите|предоставьте|введите|enter|provide|send|tell|give)\s+(?:ваш[уа]\s+|свою\s+|свой\s+|your\s+)?(?:сід[-_\s]?фраз[ауи]|сид[-_\s]?фраз[ауе]|s[еe]{2}d\s*[рp]hr[аa]s[еe]|seed\s*phrase|[1іi]2\s*сл[іиоа]в|[1іi]2\s*words|24\s*сл[оа]в[ау]?|24\s*words|s[еe][сc]r[еe]t\s*r[еe][сc][оo]v[еe]r[уy]|secret\s*recovery|мнемонічн[а-яіїє]*|мнемоническ[а-яё]*)/gi,
-        /сід[-_\s]?фраз[ауи]|сид[-_\s]?фраз[ауе]|s[еe]{2}d\s*[рp]hr[аa]s[еe]|seed\s*phrase|mnemonic\s*phrase|[1іi]2\s*слів|[1іi]2\s*слов|[1іi]2\s*words|24\s*слова|24\s*words/gi,
       ],
     },
     {
@@ -447,6 +477,7 @@ export class IntentClassifier {
   private static intentDefinitions: IntentDefinition[] = [
     {
       type: 'MILITARY_SABOTAGE_RECRUITMENT',
+      evidenceClusters: ['military_sabotage'],
       requiredClusters: [
         ['military_sabotage'],
       ],
@@ -478,6 +509,9 @@ export class IntentClassifier {
     },
     {
       type: 'VERIFICATION_PHISHING',
+      evidenceClusters: [
+        'verification_trap', 'off_platform', 'action_link', 'delivery_action', 'urgency_pressure',
+      ],
       requiredClusters: [
         ['verification_trap', 'off_platform'],
         ['verification_trap', 'action_link'],
@@ -512,6 +546,7 @@ export class IntentClassifier {
     },
     {
       type: 'ESCROW_DELIVERY_SCAM',
+      evidenceClusters: ['delivery_action', 'payment_claim', 'action_link', 'off_platform'],
       requiredClusters: [
         ['delivery_action', 'payment_claim'],
         ['delivery_action', 'action_link'],
@@ -546,6 +581,7 @@ export class IntentClassifier {
     },
     {
       type: 'OFF_PLATFORM_REDIRECT',
+      evidenceClusters: ['off_platform', 'off_platform_action'],
       requiredClusters: [
         ['off_platform', 'off_platform_action'],
       ],
@@ -577,8 +613,9 @@ export class IntentClassifier {
     },
     {
       type: 'PAYMENT_CREDENTIAL_THEFT',
+      evidenceClusters: ['payment_credential_request'],
       requiredClusters: [
-        ['verification_trap'],
+        ['payment_credential_request'],
       ],
       minClusters: 1,
       minScore: 40,
@@ -608,6 +645,7 @@ export class IntentClassifier {
     },
     {
       type: 'IDENTITY_PROBING',
+      evidenceClusters: ['identity_probing'],
       requiredClusters: [
         ['identity_probing'],
       ],
@@ -639,6 +677,7 @@ export class IntentClassifier {
     },
     {
       type: 'CRYPTO_WALLET_COMPROMISE',
+      evidenceClusters: ['crypto_phishing', 'password_theft'],
       requiredClusters: [
         ['crypto_phishing'],
         ['password_theft'],
@@ -709,11 +748,16 @@ export class IntentClassifier {
             const precedingText = text.slice(Math.max(0, match.index - 36), match.index);
             if (this.OFF_PLATFORM_NEGATION.test(precedingText)) continue;
           }
+          if (rule.cluster === 'payment_credential_request') {
+            const precedingText = text.slice(Math.max(0, match.index - 48), match.index);
+            if (this.SENSITIVE_REQUEST_NEGATION.test(precedingText)) continue;
+          }
           matchedSpans.push({
             start: match.index,
             end: match.index + match[0].length,
             text: match[0],
             cluster: rule.cluster,
+            weight: rule.weight,
           });
           const currentMax = detectedClusterMap.get(rule.cluster) || 0;
           detectedClusterMap.set(rule.cluster, Math.max(currentMax, rule.weight));
@@ -743,6 +787,7 @@ export class IntentClassifier {
                   end: kwIdx + kwClean.length,
                   text: text.slice(kwIdx, kwIdx + kwClean.length),
                   cluster: 'identity_probing',
+                  weight: 45,
                 });
                 const currentMax = detectedClusterMap.get('identity_probing') || 0;
                 detectedClusterMap.set('identity_probing', Math.max(currentMax, 45));
@@ -783,6 +828,13 @@ export class IntentClassifier {
       };
     }
 
+    const candidates: Array<{
+      definition: IntentDefinition;
+      score: number;
+      matchedClusters: string[];
+      requiredPattern: string[];
+    }> = [];
+
     for (const def of this.intentDefinitions) {
       if (
         def.type === 'OFF_PLATFORM_REDIRECT' &&
@@ -791,42 +843,59 @@ export class IntentClassifier {
         continue;
       }
 
-      const hasMinClusters = activeClusters.length >= def.minClusters;
+      const matchedClusters = def.evidenceClusters.filter((cluster) =>
+        activeClusters.includes(cluster)
+      );
+      if (matchedClusters.length < def.minClusters) continue;
 
-      let score = 0;
-      for (const c of activeClusters) {
-        score += detectedClusterMap.get(c) || 35;
-      }
-      const hasMinScore = score >= def.minScore;
+      const score = matchedClusters.reduce(
+        (total, cluster) => total + (detectedClusterMap.get(cluster) || 0),
+        0
+      );
+      if (score < def.minScore) continue;
 
-      let hasRequiredPattern = false;
-      for (const requiredSet of def.requiredClusters) {
-        if (requiredSet.every((c) => activeClusters.includes(c))) {
-          hasRequiredPattern = true;
-          break;
-        }
-      }
+      const requiredPattern = def.requiredClusters.find((requiredSet) =>
+        requiredSet.every((cluster) => matchedClusters.includes(cluster))
+      );
+      if (!requiredPattern) continue;
 
-      if (hasMinClusters && hasMinScore && hasRequiredPattern) {
-        const words = matchedSpans.map((s) => s.text);
-        const suspiciousUrls = UrlExtractor.extract(rawText);
-        const copy = def.i18n[detectedLang] || def.i18n.uk;
+      candidates.push({ definition: def, score, matchedClusters, requiredPattern });
+    }
 
-        return {
-          hasFormedIntent: true,
-          intentType: def.type,
-          intentTitle: copy.title,
-          confidence: Math.min(score, 100),
-          matchedSpans,
-          clustersDetected: activeClusters,
-          explanation: copy.explanation(words),
-          whereToBeCareful: copy.carefulAdvice,
-          suspiciousUrls,
-          normalizedText: rawText,
-          detectedLanguage: detectedLang,
-          isMixedLanguage
-        };
-      }
+    // Evaluate all matching definitions. Candidate-local evidence prevents an
+    // unrelated high-weight cluster from inflating every intent's confidence.
+    candidates.sort((left, right) =>
+      right.score - left.score ||
+      right.requiredPattern.length - left.requiredPattern.length ||
+      right.matchedClusters.length - left.matchedClusters.length ||
+      right.score / right.definition.minScore - left.score / left.definition.minScore ||
+      left.definition.type.localeCompare(right.definition.type)
+    );
+
+    const best = candidates[0];
+    if (best) {
+      const def = best.definition;
+      const candidateSpans = matchedSpans.filter((span) =>
+        def.evidenceClusters.includes(span.cluster)
+      );
+      const words = candidateSpans.map((span) => span.text);
+      const suspiciousUrls = UrlExtractor.extract(rawText);
+      const copy = def.i18n[detectedLang] || def.i18n.uk;
+
+      return {
+        hasFormedIntent: true,
+        intentType: def.type,
+        intentTitle: copy.title,
+        confidence: Math.min(best.score, 100),
+        matchedSpans: candidateSpans,
+        clustersDetected: activeClusters,
+        explanation: copy.explanation(words),
+        whereToBeCareful: copy.carefulAdvice,
+        suspiciousUrls,
+        normalizedText: rawText,
+        detectedLanguage: detectedLang,
+        isMixedLanguage
+      };
     }
 
     return {
