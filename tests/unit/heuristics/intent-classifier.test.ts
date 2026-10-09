@@ -34,6 +34,33 @@ describe('IntentClassifier', () => {
       // We expect it to either be formed or just find clusters
       expect(result.clustersDetected.length).toBeGreaterThanOrEqual(0);
     });
+
+    it.each([
+      'I arranged courier delivery. Click this link to receive your payment: https://example.invalid/claim',
+      'Оплатив доставку, заберіть кошти через https://verify.example.invalid.',
+      'Для отримання грошей за товар відкрийте форму перевізника https://parcel.example.invalid/claim.',
+      'Платформа зарезервувала оплату; введіть картку на https://secure.example.invalid/check для зарахування.',
+      'Я вже оплатив замовлення, підтвердіть доставку за посиланням https://pay.example.invalid.',
+      'Кур’єр чекає підтвердження виплати на сторінці https://account.example.invalid/confirm.',
+      'Щоб отримати передоплату, пройдіть оформлення доставки на https://wallet.example.invalid/restore.',
+    ])('classifies a delivery-related external payment request: %s', (text) => {
+      const result = IntentClassifier.classify(text);
+
+      expect(
+        { type: result.intentType ?? null, clusters: result.clustersDetected },
+        text,
+      ).toMatchObject({ type: 'ESCROW_DELIVERY_SCAM' });
+    });
+
+    it.each([
+      'Перевізник надіслав посилання для відстеження посилки: https://carrier.example.invalid/track.',
+      'Оплату за товар перевірю самостійно у внутрішньому кабінеті маркетплейсу.',
+      'Кур’єр доставить замовлення завтра; статус можна подивитися в офіційному застосунку.',
+    ])('allows a legitimate delivery or marketplace payment message: %s', (text) => {
+      const result = IntentClassifier.classify(text);
+
+      expect(result.hasFormedIntent).toBe(false);
+    });
   });
 
   describe('VERIFICATION_PHISHING', () => {

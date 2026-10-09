@@ -37,3 +37,28 @@ On the unchanged development and regression splits, binary detection improved:
 The remaining exact holdout result is 71/113 (62.8%). The corpus run still fails its aggregate exact-result assertion: 75 scenarios have a detection, threat-type, or action mismatch. There is one benign holdout false positive and no false input locks. Do not tune rules against these holdout cases; review them only as final evaluation evidence.
 
 The 2026-10-09 post-change corpus hash is `9319bb14b87430898ea9dc42f14cff7faa03aa37e215861612e633ab87442cde`. The machine-readable local report is written to `metrics/evaluation.json` when the corpus test runs with `SOVA_EVAL_REPORT=metrics/evaluation.json`.
+
+## 2026-10-09 — escrow delivery false-negative fixes
+
+### Changes
+
+- Expanded Ukrainian and English payout/payment-claim patterns used by `ESCROW_DELIVERY_SCAM`, including claims about receiving a payment, confirming a payout, collecting funds, and prepaid delivery.
+- Added recognition for `https` links whose Latin `p` was converted to Cyrillic `р` by homoglyph normalization. This fixed cases where a suspicious external payment link disappeared from the classifier's URL signal.
+- Added seven targeted positive unit examples for delivery/payment lures and three safe delivery/payment controls.
+- Kept the holdout split out of tuning; its five escrow misses remain evaluation findings, not rule-tuning examples.
+
+### Results
+
+The corpus hash is unchanged from the previous entry, so these overall figures are directly comparable:
+
+| Measure | Before escrow fixes | After escrow fixes |
+| --- | ---: | ---: |
+| Corpus scenarios | 326 | 326 |
+| Exact matches | 251 (77.0%) | 259 (79.4%) |
+| Precision | 99.2% | 99.3% |
+| Recall | 68.1% | 73.9% |
+| F1 | 80.8% | 84.8% |
+| False `LOCK_INPUT` actions | 0 | 0 |
+| Exact-result mismatches | 75 | 67 |
+
+All seven targeted development/regression escrow examples now pass. The corpus evaluation still fails its aggregate exact-result assertion because 67 scenarios have a detection, threat-type, or action mismatch. The single benign false positive remains `hold2-benign-007`; five escrow misses remain in holdout. The full non-Groq test run had 554 passing tests and this one failing aggregate corpus assertion. TypeScript compilation and the focused intent-classifier suite (48/48) pass. Local Vitest logs are kept under `tests/results/` and are not part of the tracked evaluation record.

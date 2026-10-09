@@ -80,6 +80,7 @@ export class IntentClassifier {
       patterns: [
         /(?:оlх|олх)[-_\s]?доставк[а-яіїє]*/gi,
         /(?:я\s+вже\s+)?оформи[ла-я]*(\s+замовлення)?/gi,
+        /(?:я\s+вже\s+)?оплатив\s+(?:доставк[а-яіїє]*|замовленн[а-яіїє]*)/giu,
         /безпечн[а-я]\s+угод[а-я]/gi,
         /перш[а-я]\s+угод[а-я]/gi,
         /оплат[а-я]\s+(внесен[а-я]|успішн[а-я]|списан[а-я])/gi,
@@ -120,6 +121,10 @@ export class IntentClassifier {
         /(?:до\s+)?отриманн[яі](\s*кошт[а-я]*|\s*грош[а-я]*)?/gi,
         /отримати\s+(кошт[а-я]*|грош[а-я]*)/gi,
         /підтвердити\s+виплату/gi,
+        /забер(?:іть|и)\s+(?:(?:свої|ваші)\s+)?(?:кошти|грош[а-яіїє]*)/giu,
+        /підтвердженн[яі]\s+(?:виплат[а-яіїє]*|зарахуванн[яі]\s+оплат[а-яіїє]*)/giu,
+        /зарезервува[а-яіїє]*\s+оплат[а-яіїє]*/giu,
+        /отримати\s+передоплат[а-яіїє]*/giu,
         /зарахуванн[яі]\s+кошт[а-я]*/gi,
       ],
     },
@@ -139,7 +144,7 @@ export class IntentClassifier {
       weight: 35,
       lang: 'en',
       patterns: [
-        /(?:to\s+)?(?:receive|collect|claim|accept|withdraw)\s+(?:funds|money|payment|payout)/gi,
+        /(?:to\s+)?(?:receive|collect|claim|accept|withdraw)\s+(?:your\s+)?(?:funds|money|payment|payout)/gi,
         /confirm\s+(?:payment|payout|transfer|disbursement)/gi,
         /funds?\s+(?:credited|ready\s+to\s+claim)/gi,
       ],
@@ -182,6 +187,7 @@ export class IntentClassifier {
       lang: 'universal',
       patterns: [
         /https?:\/\/[^\s]+/gi,
+        /htt[pр]s?:\/\/[^\s]+/giu,
       ],
     },
 
