@@ -28,9 +28,11 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
       - run: npm ci
+      - name: Generate WXT TypeScript configuration
+        run: npx wxt prepare
       - name: Type check
         run: npm run compile
       - name: Run non-integration tests and export corpus metrics
@@ -74,7 +76,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
       - uses: actions/download-artifact@v4
         with:
           name: evaluation-${{ github.sha }}
