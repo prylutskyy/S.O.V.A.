@@ -5,6 +5,18 @@
   <p><em>Ваш персональний ШІ-охоронець у браузері, який завжди напоготові.</em></p>
 </div>
 
+[![Evaluation workflow](https://github.com/prylutskyy/S.O.V.A./actions/workflows/evaluation.yml/badge.svg?branch=main)](https://github.com/prylutskyy/S.O.V.A./actions/workflows/evaluation.yml)
+[![Evaluation F1](https://prylutskyy.github.io/S.O.V.A./badges/f1.svg)](https://prylutskyy.github.io/S.O.V.A./)
+[![Evaluation recall](https://prylutskyy.github.io/S.O.V.A./badges/recall.svg)](https://prylutskyy.github.io/S.O.V.A./)
+
+### Ефективність детектора
+
+<a href="https://prylutskyy.github.io/S.O.V.A./">Переглянути актуальні метрики, результати за класами та історію прогонів →</a>
+
+Оцінювання запускається автоматично для змін у `main` і pull request. Графік містить precision, recall, F1 та точний збіг класифікації; звіт також показує false positives, false negatives, помилки дії та SHA-256 тестового корпусу. Це оцінка локального класифікатора на версійованих прикладах, а не гарантія точності в реальних чатах. Повідомлення з корпусу не публікуються.
+
+Щоб увімкнути публікацію dashboard у форку репозиторію, один раз виберіть **Settings → Pages → Build and deployment → Source: GitHub Actions**. CI-перевірка працюватиме і без Pages; без цього налаштування публічна сторінка та бейджі не оновлюватимуться.
+
 [Місце для скріншоту: Головний екран розширення, що показує статус "Захист увімкнено", з яскравим індикатором активного сканування та зеленим статусом безпеки.]
 
 ## Проблема: Інтернет стає занадто небезпечним
@@ -55,10 +67,11 @@
    npm install
    ```
 
-3. **Запуск автоматизованих тестів (Vitest, 53 сьюти / 485 тестів):**
+3. **Запуск автоматизованих тестів (Vitest):**
    ```bash
    npm test
    ```
+   Оцінити лише тестовий корпус: `npm run test:corpus`. Dashboard можна згенерувати локально після тесту, що створив `metrics/evaluation.json`: `npm run test:dashboard -- --report metrics/evaluation.json --out site`.
 
 4. **Запуск у режимі розробки (з автоматичним перезавантаженням):**
    ```bash

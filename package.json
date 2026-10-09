@@ -10,6 +10,7 @@
     "compile": "tsc --noEmit",
     "test": "vitest run",
     "test:corpus": "vitest run tests/evaluation/corpus.evaluation.test.ts",
+    "test:dashboard": "node scripts/evaluation/generate-dashboard.mjs",
     "test:groq": "vitest run tests/integration/groq.integration.test.ts",
     "test:watch": "vitest"
   },

@@ -41,6 +41,8 @@ npm run test:corpus
 
 The runner reports true positives, false positives, false negatives, true negatives, precision, recall, and F1, both overall and by expected category. It also prints failed case IDs. Empty files are reported as skipped; they do not count as evaluated examples. The complete suite still runs with `npm test`.
 
+Set `SOVA_EVAL_REPORT=metrics/evaluation.json` when running Vitest to write a machine-readable report. It contains commit/corpus hashes, aggregate metrics, category and split breakdowns, and mismatch IDs; message text is deliberately excluded. GitHub Actions stores historical metric summaries in the `metrics-history` branch and publishes a static dashboard to GitHub Pages. The dashboard compares runs by corpus hash so changes to the evaluation set are visible.
+
 Expected labels in this suite describe the local heuristic pipeline, before a cloud LLM verdict. The corpus runner makes no network calls and does not require an API key. Groq live integration is a separate opt-in run; see `../integration/README.md`. Never make ordinary unit or corpus runs depend on a live provider.
 
 ## Authoring rules
