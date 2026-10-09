@@ -173,12 +173,12 @@ describe('IntentClassifier', () => {
       expect(result.clustersDetected).toContain('crypto_phishing');
     });
 
-    it('should detect direct requests for a password', () => {
+    it('should classify an account-verification password request as phishing, not crypto theft', () => {
       const text = 'Для верифікації акаунту скажіть ваш пароль';
       const result = IntentClassifier.classify(text);
 
       expect(result.hasFormedIntent).toBe(true);
-      expect(result.intentType).toBe('CRYPTO_WALLET_COMPROMISE'); // Or whatever matches first if password_theft triggers it
+      expect(result.intentType).toBe('VERIFICATION_PHISHING');
       expect(result.clustersDetected).toContain('password_theft');
     });
   });

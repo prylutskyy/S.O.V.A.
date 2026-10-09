@@ -799,24 +799,25 @@
       "notes": "Сценарій verification: очікується класифікація наміру та відповідна політика."
     },
     {
-      "id": "hold2-verification-005",
+      "id": "hold2-safe-password-001",
       "tags": [
         "uk",
-        "verification",
-        "social-engineering"
+        "benign",
+        "password",
+        "safe-support"
       ],
       "messages": [
         {
           "speaker": "interlocutor",
-          "text": "Введіть пароль на сторінці https://account.example.invalid/confirm, щоб відновити доступ до оголошення."
+          "text": "Офіційна підтримка нагадала: пароль від акаунта не надсилають у чат; змініть його в налаштуваннях профілю."
         }
       ],
       "expected": {
-        "detected": true,
-        "intentType": "VERIFICATION_PHISHING",
-        "action": "WARN"
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
       },
-      "notes": "Сценарій verification: очікується класифікація наміру та відповідна політика."
+      "notes": "Безпечне попередження підтримки згадує пароль, але не просить його передати. Незалежний holdout-кейс замість дубліката з regressions."
     },
     {
       "id": "hold2-verification-006",

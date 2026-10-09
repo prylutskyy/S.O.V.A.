@@ -260,6 +260,8 @@ export class IntentClassifier {
         /верифікаці[а-я](\s*(профіл[а-я]|даних|картк[а-я]))?/gi,
         /номер\s+картки|код\s+безпеки|сvv|сvс|баланс\s+на\s+картці|залишок\s+коштів/gi,
         /пароль\s+з\s+смс|код\s+з\s+смс|підтвердження\s+банку/gi,
+        /(?:верифікаці[яї]|перевірк[а-яіїє]+)\s+(?:акаунт[а-яіїє]*|профіл[а-яіїє]*)[^.!?\n]{0,80}(?:парол|код)/giu,
+        /(?:введіть|надішліть|скиньте|вкажіть|надайте|введи|надішли)\s+(?:ваш\s+|свій\s+)?пароль\s+(?:на\s+сторінці|за\s+посиланням)[^!?\n]{0,140}(?:віднов\w*|підтвердж\w*|верифікац\w*|перевірк\w*)/giu,
       ],
     },
     {
@@ -271,6 +273,7 @@ export class IntentClassifier {
         /верификаци[яи]+(\s*(профил[яе]|данных|карт[ые]))?/gi,
         /номер\s+карты|код\s+безопасности|cvv|cvc|баланс\s+на\s+карте|остаток\s+средств/gi,
         /пароль\s+из\s+смс|код\s+из\s+смс|подтверждение\s+банка/gi,
+        /(?:введите|пришлите|скиньте|укажите|предоставьте)\s+(?:ваш\s+|свой\s+)?пароль\s+(?:на\s+странице|по\s+ссылке)[^!?\n]{0,140}(?:восстанов\w*|подтвержд\w*|верификац\w*|провер\w*)/giu,
       ],
     },
     {
@@ -281,6 +284,8 @@ export class IntentClassifier {
         /verif(?:y|ication)\s+(?:profile|account|card|data|identity)/gi,
         /card\s+number|security\s+code|cvv|cvc|card\s+balance|available\s+balance/gi,
         /sms\s+code|confirmation\s+code|bank\s+confirmation|one-time\s+password|otp/gi,
+        /(?:verify|verification)\s+(?:your\s+)?(?:account|profile)[^.!?\n]{0,80}(?:password|code)/giu,
+        /(?:enter|provide|send|share|type)\s+(?:your\s+)?password\s+(?:on\s+this\s+page|on\s+the\s+page|at\s+this\s+link)[^!?\n]{0,140}(?:restore|recover|confirm|verify|validate)/giu,
       ],
     },
 
@@ -458,6 +463,9 @@ export class IntentClassifier {
       lang: 'universal',
       patterns: [
         /(?:напишіть|вкажіть|скиньте|скажіть|надайте|продиктуйте|введіть|дайте|напишите|укажите|скажите|предоставьте|введите|enter|provide|send|tell|give)\s+(?:ваш[уа]\s+|свою\s+|свой\s+|your\s+)?(?:сід[-_\s]?фраз[ауи]|сид[-_\s]?фраз[ауе]|s[еe]{2}d\s*[рp]hr[аa]s[еe]|seed\s*phrase|[1іi]2\s*сл[іиоа]в|[1іi]2\s*words|24\s*сл[оа]в[ау]?|24\s*words|s[еe][сc]r[еe]t\s*r[еe][сc][оo]v[еe]r[уy]|secret\s*recovery|мнемонічн[а-яіїє]*|мнемоническ[а-яё]*)/gi,
+        /(?:надішліть|вкажіть|скиньте|скажіть|надайте|продиктуйте|введіть|дайте)\s+(?:ваш[ау]?\s+|свій\s+|свою\s+)?(?:пароль\s+(?:від\s+)?(?:крипто)?гаманц[яю]|(?:крипто)?гаманц[яю]\s+пароль)/giu,
+        /(?:пришлите|укажите|скиньте|скажите|предоставьте|введите|дайте)\s+(?:ваш[а-яё]*\s+|свой\s+|свою\s+)?(?:пароль\s+(?:от\s+)?(?:крипто)?кошельк[а-яё]*|(?:крипто)?кошельк[а-яё]*\s+пароль)/giu,
+        /(?:provide|send|share|enter|tell|give|need)\s+(?:your\s+)?(?:wallet\s+password|password\s+(?:for|of)\s+(?:your\s+)?wallet)/giu,
       ],
     },
     {
@@ -511,12 +519,14 @@ export class IntentClassifier {
       type: 'VERIFICATION_PHISHING',
       evidenceClusters: [
         'verification_trap', 'off_platform', 'action_link', 'delivery_action', 'urgency_pressure',
+        'password_theft',
       ],
       requiredClusters: [
         ['verification_trap', 'off_platform'],
         ['verification_trap', 'action_link'],
         ['verification_trap', 'delivery_action'],
         ['verification_trap', 'urgency_pressure'],
+        ['verification_trap', 'password_theft'],
       ],
       minClusters: 2,
       minScore: 45,
@@ -680,7 +690,6 @@ export class IntentClassifier {
       evidenceClusters: ['crypto_phishing', 'password_theft'],
       requiredClusters: [
         ['crypto_phishing'],
-        ['password_theft'],
       ],
       minClusters: 1,
       minScore: 40,
