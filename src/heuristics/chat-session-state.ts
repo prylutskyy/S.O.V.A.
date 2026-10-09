@@ -95,7 +95,8 @@ export class ChatSessionState {
       aggregatedSpans,
       rawText,
       detectedLanguage,
-      isMixedLanguage
+      isMixedLanguage,
+      Array.from(detectedClusterMap.keys())
     );
 
     // 5. Tier 1.5: Семантичний векторний аналіз (Semantic & Behavioral Intent Trigger)

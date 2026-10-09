@@ -59,6 +59,8 @@ interface IntentDefinition {
 }
 
 export class IntentClassifier {
+  private static readonly OFF_PLATFORM_NEGATION = /(?:не|ніколи\s+не|не\s+(?:варто|треба|потрібно)|not|never|do\s+not|don['’]?t)\s+[^.!?\n]{0,35}$/iu;
+
   /**
    * Семантичні словники кластерів слів з підтримкою динамічного перемикання мов:
    * 'uk' (Українська), 'ru' (Російська), 'en' (Англійська), 'universal' (Спільні/Технічні)
@@ -217,6 +219,30 @@ export class IntentClassifier {
         /wа\.mе\/[0-9]+/gi,
       ],
     },
+    {
+      cluster: 'off_platform_action',
+      weight: 25,
+      lang: 'uk',
+      patterns: [
+        /(?:переходь|переходьте|перейдіть|переходимо|перейдемо|продовжимо|продовжуймо|продовжуйте|напишіть|напиши|пишіть|пиши|зв['’ʼ]?яжіться|зв['’ʼ]?яжись|зв['’ʼ]?яжуся|зателефонуйте|зателефонуй|скиньте|скинь|надішліть|надішли|обміняймося|обміняємося|обміняйтеся|давайте\s+(?:перейдемо|продовжимо))/giu,
+      ],
+    },
+    {
+      cluster: 'off_platform_action',
+      weight: 25,
+      lang: 'ru',
+      patterns: [
+        /(?:переходите|перейдите|переходим|перейд[её]м|продолжим|продолжайте|напишите|пиши|свяжитесь|позвоните|скиньте|пришлите|давайте\s+перейд[её]м)/giu,
+      ],
+    },
+    {
+      cluster: 'off_platform_action',
+      weight: 25,
+      lang: 'en',
+      patterns: [
+        /\b(?:let['’]?s\s+(?:move|switch|continue)|(?:move|switch|continue)\s+(?:this\s+)?(?:conversation|chat)|(?:message|text|contact|call|write|send)\s+(?:me|us|your|the))\b/giu,
+      ],
+    },
 
     // =========================================================================
     // 5. VERIFICATION TRAP (Виманювання CVV, коду з SMS, балансу або верифікація)
@@ -306,7 +332,7 @@ export class IntentClassifier {
         /прізвище\s+матері/gi,
         /(?:кодове|секретне|контрольне)\s+слово(?:\s+банку)?/gi,
         /(?:назвіть|підтвердіть|скажіть|напишіть)\s+(?:кодове|секретне)\s+слово/gi,
-        /(?:напишіть|скиньте|вкажіть|номер|серія)\s+(?:паспорта|айді|id[-_\s]?картки|документа)/gi,
+        /(?:напишіть|скиньте|вкажіть|надайте|продиктуйте|введіть)\s+(?:(?:номер|серію)\s+(?:вашого\s+)?)?(?:паспорта|айді|id[-_\s]?картки|документа)/gi,
         /(?:дата|день|рік)\s+народження/gi,
       ],
     },
@@ -322,7 +348,7 @@ export class IntentClassifier {
         /фамили[яи]\s+матери/gi,
         /(?:кодовое|секретное|контрольное)\s+слово(?:\s+банка)?/gi,
         /(?:назовите|подтвердите|скажите|напишите)\s+(?:кодовое|секретное)\s+слово/gi,
-        /(?:напишите|скиньте|укажите|номер|серия)\s+(?:паспорта|айди|id[-_\s]?карт[ые]|документа)/gi,
+        /(?:напишите|скиньте|укажите|предоставьте|продиктуйте|введите)\s+(?:(?:номер|серию)\s+(?:вашего\s+)?)?(?:паспорта|айди|id[-_\s]?карт[ые]|документа)/gi,
         /(?:дата|день|год)\s+рождения/gi,
       ],
     },
@@ -337,7 +363,7 @@ export class IntentClassifier {
         /(?:tax\s+id|national\s+id|ssn|social\s+security\s+number)/gi,
         /(?:security|secret|control)\s+word(?:\s+for\s+bank)?/gi,
         /(?:provide|enter|send)\s+(?:bank\s+)?(?:security|secret)\s+word/gi,
-        /(?:passport\s+number|id\s+card|national\s+id)/gi,
+        /(?:provide|send|enter|tell|share)\s+(?:your\s+)?(?:passport\s+number|id\s+card|national\s+id)/gi,
         /(?:date\s+of\s+birth|dob|birth\s+date)/gi,
       ],
     },
@@ -521,10 +547,10 @@ export class IntentClassifier {
     {
       type: 'OFF_PLATFORM_REDIRECT',
       requiredClusters: [
-        ['off_platform'],
+        ['off_platform', 'off_platform_action'],
       ],
-      minClusters: 1,
-      minScore: 35,
+      minClusters: 2,
+      minScore: 50,
       i18n: {
         uk: {
           title: 'Спроба виведення діалогу за межі захищеного чату',
@@ -679,6 +705,10 @@ export class IntentClassifier {
         pattern.lastIndex = 0;
         let match;
         while ((match = pattern.exec(text)) !== null) {
+          if (rule.cluster === 'off_platform_action') {
+            const precedingText = text.slice(Math.max(0, match.index - 36), match.index);
+            if (this.OFF_PLATFORM_NEGATION.test(precedingText)) continue;
+          }
           matchedSpans.push({
             start: match.index,
             end: match.index + match[0].length,
@@ -738,7 +768,8 @@ export class IntentClassifier {
     matchedSpans: IntentMatchSpan[],
     rawText: string,
     detectedLang: SupportedLanguage = 'uk',
-    isMixedLanguage: boolean = false
+    isMixedLanguage: boolean = false,
+    currentClusters: string[] = activeClusters
   ): IntentClassificationResult {
     if (activeClusters.length === 0) {
       return {
@@ -753,6 +784,13 @@ export class IntentClassifier {
     }
 
     for (const def of this.intentDefinitions) {
+      if (
+        def.type === 'OFF_PLATFORM_REDIRECT' &&
+        (!currentClusters.includes('off_platform') || !currentClusters.includes('off_platform_action'))
+      ) {
+        continue;
+      }
+
       const hasMinClusters = activeClusters.length >= def.minClusters;
 
       let score = 0;
@@ -821,7 +859,8 @@ export class IntentClassifier {
       extracted.matchedSpans,
       rawText,
       extracted.detectedLanguage,
-      extracted.isMixedLanguage
+      extracted.isMixedLanguage,
+      activeClusters
     );
   }
 }
