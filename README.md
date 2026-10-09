@@ -6,8 +6,8 @@
 </div>
 
 [![Evaluation workflow](https://github.com/prylutskyy/S.O.V.A./actions/workflows/evaluation.yml/badge.svg?branch=main)](https://github.com/prylutskyy/S.O.V.A./actions/workflows/evaluation.yml)
-[![Evaluation F1](https://prylutskyy.github.io/S.O.V.A./badges/f1.svg?v=84c6d08470af)](https://prylutskyy.github.io/S.O.V.A./)
-[![Evaluation recall](https://prylutskyy.github.io/S.O.V.A./badges/recall.svg?v=84c6d08470af)](https://prylutskyy.github.io/S.O.V.A./)
+[![Evaluation F1](https://prylutskyy.github.io/S.O.V.A./badges/f1.svg?v=3c2931ff3540)](https://prylutskyy.github.io/S.O.V.A./)
+[![Evaluation recall](https://prylutskyy.github.io/S.O.V.A./badges/recall.svg?v=3c2931ff3540)](https://prylutskyy.github.io/S.O.V.A./)
 
 ### Ефективність детектора
 
