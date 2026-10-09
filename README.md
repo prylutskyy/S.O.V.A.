@@ -6,8 +6,8 @@
 
 <p align="center">
   <a href="https://github.com/prylutskyy/S.O.V.A./actions/workflows/evaluation.yml"><img src="https://github.com/prylutskyy/S.O.V.A./actions/workflows/evaluation.yml/badge.svg?branch=main" alt="Evaluation workflow" /></a>
-  <a href="https://prylutskyy.github.io/S.O.V.A./"><img src="https://prylutskyy.github.io/S.O.V.A./badges/f1.svg?v=3c2931ff3540" alt="Evaluation F1" /></a>
-  <a href="https://prylutskyy.github.io/S.O.V.A./"><img src="https://prylutskyy.github.io/S.O.V.A./badges/recall.svg?v=3c2931ff3540" alt="Evaluation recall" /></a>
+  <a href="https://prylutskyy.github.io/S.O.V.A./"><img src="https://prylutskyy.github.io/S.O.V.A./badges/f1.svg" alt="Evaluation F1" /></a>
+  <a href="https://prylutskyy.github.io/S.O.V.A./"><img src="https://prylutskyy.github.io/S.O.V.A./badges/recall.svg" alt="Evaluation recall" /></a>
 </p>
 
 S.O.V.A. — відкритий дослідницький проєкт браузерного розширення для виявлення фішингових форм, шахрайських сценаріїв у чатах і спроб виманити чутливу інформацію. Розширення поєднує локальні правила та аналіз контексту; за бажанням можна підключити зовнішнього ШІ-провайдера для додаткової перевірки.
