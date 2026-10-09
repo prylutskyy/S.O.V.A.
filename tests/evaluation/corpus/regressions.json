@@ -1630,6 +1630,732 @@
         "action": "ALLOW"
       },
       "notes": "Безпечний контекстний контроль для перевірки хибнопозитивного спрацювання."
+    },
+    {
+      "id": "safe2-reg-001",
+      "tags": [
+        "ru",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "phone"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Давайте общаться здесь, так безопаснее для сделки."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (phone); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-reg-002",
+      "tags": [
+        "uk",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "phone"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Покупець написав, що не користується Telegram, і продовжив обговорення на платформі."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (phone); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-reg-003",
+      "tags": [
+        "en",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "phone"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "The word WhatsApp appears in a comparison of messaging app privacy settings."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (phone); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-reg-004",
+      "tags": [
+        "uk",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "phone"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "У довідці сказано, що підтримка не просить телефон у приватному чаті."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (phone); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-reg-005",
+      "tags": [
+        "uk",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "phone"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Можна зателефонувати через кнопку дзвінка, яку надає сама платформа."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (phone); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-reg-006",
+      "tags": [
+        "en",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "phone"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "My contact details are hidden by the service until an order is confirmed."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (phone); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-reg-007",
+      "tags": [
+        "uk",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "phone"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я згадав Viber лише як приклад застосунку, а не пропоную перейти туди."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (phone); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-reg-008",
+      "tags": [
+        "uk",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "phone"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Покупець запитав, чи є у товару функція дзвінка; номерів не обмінювали."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (phone); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-reg-009",
+      "tags": [
+        "uk",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "identity"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "У формі перевізника ім’я одержувача вже підставлене з профілю."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (identity); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-reg-010",
+      "tags": [
+        "en",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "identity"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "The article recommends never posting passport photos in public chats."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (identity); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-reg-011",
+      "tags": [
+        "uk",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "identity"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я сам заповнюю адресу доставки у вбудованій формі платформи."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (identity); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-reg-012",
+      "tags": [
+        "uk",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "identity"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Покупець запитав, на яке ім’я оформити накладну, і не просив номер документа."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (identity); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-reg-013",
+      "tags": [
+        "ru",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "identity"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Для получения посылки покажите документ сотруднику отделения лично."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (identity); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-reg-014",
+      "tags": [
+        "uk",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "identity"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "У прикладі навчального курсу використано вигадані паспортні дані."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (identity); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-reg-015",
+      "tags": [
+        "en",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "identity"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "The profile displays only a public nickname, not a legal identity document."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (identity); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-reg-016",
+      "tags": [
+        "uk",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "identity"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Підтримка попросила описати проблему, але не запитувала адресу чи податковий номер."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (identity); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-reg-017",
+      "tags": [
+        "uk",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "identity"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "У цій дискусії порівнюють способи захисту персональних даних."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (identity); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-reg-018",
+      "tags": [
+        "en",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "identity"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "I removed my address from the public listing before publishing it."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (identity); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-reg-019",
+      "tags": [
+        "uk",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "crypto"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Seed-фразу слід зберігати офлайн; це попередження з довідника з безпеки."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (crypto); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-reg-020",
+      "tags": [
+        "en",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "crypto"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "A wallet provider should never ask a customer to reveal a private key."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (crypto); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-reg-021",
+      "tags": [
+        "uk",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "crypto"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я читаю документацію про резервне копіювання гаманця, жодних секретів не надсилаю."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (crypto); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-reg-022",
+      "tags": [
+        "ru",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "crypto"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "В статье объясняется, что мнемоническую фразу нельзя вводить на сторонних сайтах."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (crypto); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-reg-023",
+      "tags": [
+        "uk",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "crypto"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Публічна адреса гаманця призначена для отримання переказів і не є приватним ключем."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (crypto); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-reg-024",
+      "tags": [
+        "en",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "crypto"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "The tutorial uses a disposable test wallet with a fake recovery phrase."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (crypto); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-reg-025",
+      "tags": [
+        "uk",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "crypto"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Мій криптогаманець працює, тому відновлювати доступ не потрібно."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (crypto); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-reg-026",
+      "tags": [
+        "uk",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "crypto"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Підтримка відповіла, що ніколи не запитуватиме пароль чи seed phrase."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (crypto); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-reg-027",
+      "tags": [
+        "en",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "crypto"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "We are discussing the difference between a wallet address and a seed phrase."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (crypto); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-reg-028",
+      "tags": [
+        "uk",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "crypto"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Це навчальний приклад фішингового повідомлення, отримувачу нічого не пропонують вводити."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (crypto); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-reg-029",
+      "tags": [
+        "uk",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "crypto"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я створив новий тестовий гаманець локально для лабораторної роботи."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (crypto); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-reg-030",
+      "tags": [
+        "ru",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "crypto"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Публичный адрес можно сообщить для перевода, секретную фразу — нельзя."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (crypto); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-reg-031",
+      "tags": [
+        "uk",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "military"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "У новині повідомили про відкриття історичної виставки військової техніки."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (military); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-reg-032",
+      "tags": [
+        "en",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "military"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "The documentary discusses the history of radar without mentioning current sites."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (military); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-reg-033",
+      "tags": [
+        "uk",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "military"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "У підручнику описано принцип роботи ППО на загальному рівні."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (military); перевірка проти хибного спрацювання."
     }
   ]
 }

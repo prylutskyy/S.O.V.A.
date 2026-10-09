@@ -1597,6 +1597,732 @@
         "action": "ALLOW"
       },
       "notes": "Безпечний контекстний контроль для перевірки хибнопозитивного спрацювання."
+    },
+    {
+      "id": "safe2-hold-001",
+      "tags": [
+        "uk",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "military"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я побачив військову вантажівку на параді й не фотографував її розташування."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (military); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-hold-002",
+      "tags": [
+        "ru",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "military"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "В музее представлена техника времен Второй мировой войны."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (military); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-hold-003",
+      "tags": [
+        "uk",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "military"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Обговорюємо кібербезпеку критичної інфраструктури без координат чи інструкцій."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (military); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-hold-004",
+      "tags": [
+        "en",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "military"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "This fictional game mission is set in an imaginary country and has no real targets."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (military); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-hold-005",
+      "tags": [
+        "uk",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "military"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "У статті згадали ТЦК у контексті змін графіка прийому громадян."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (military); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-hold-006",
+      "tags": [
+        "uk",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "military"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Військова тематика в документальному фільмі не містить закликів щось збирати чи пошкоджувати."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (military); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-hold-007",
+      "tags": [
+        "en",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "military"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "The public museum lists its address and opening hours for visitors."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (military); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-hold-008",
+      "tags": [
+        "uk",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "military"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Питаю про загальну історію радіолокації для курсової роботи."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (military); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-hold-009",
+      "tags": [
+        "ru",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "military"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "В репортаже показали архивные кадры без геолокации современных объектов."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (military); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-hold-010",
+      "tags": [
+        "uk",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "phishing-meta"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Мені надіслали підозріле посилання; я не відкривав його і повідомив модераторів."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (phishing-meta); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-hold-011",
+      "tags": [
+        "en",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "phishing-meta"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "This message is a quoted example in a phishing-awareness lesson, not an instruction to the reader."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (phishing-meta); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-hold-012",
+      "tags": [
+        "uk",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "phishing-meta"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "У тестовому кейсі наведено вигадане SMS про блокування акаунта для навчання."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (phishing-meta); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-hold-013",
+      "tags": [
+        "ru",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "phishing-meta"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я пересказываю предупреждение о мошенниках, а не прошу перейти по ссылке."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (phishing-meta); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-hold-014",
+      "tags": [
+        "uk",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "phishing-meta"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Модератор видалив посилання на підроблений сайт і попередив користувачів."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (phishing-meta); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-hold-015",
+      "tags": [
+        "en",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "phishing-meta"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "The security report describes how urgency language is used in scams."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (phishing-meta); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-hold-016",
+      "tags": [
+        "uk",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "phishing-meta"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "У цій розмові ми аналізуємо фішинг як тему дипломного дослідження."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (phishing-meta); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-hold-017",
+      "tags": [
+        "uk",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "phishing-meta"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Приклад повідомлення містить фразу про перевірку, але це цитата з методички."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (phishing-meta); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-hold-018",
+      "tags": [
+        "en",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "phishing-meta"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "I reported the suspicious page through the browser safe-browsing tool."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (phishing-meta); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-hold-019",
+      "tags": [
+        "uk",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "phishing-meta"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Посилання веде на офіційну сторінку довідки, не просить авторизуватися чи вводити реквізити."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (phishing-meta); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-hold-020",
+      "tags": [
+        "uk",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "phishing-meta"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "У листі модерації пояснили, що підроблені форми можуть красти одноразові коди."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (phishing-meta); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-hold-021",
+      "tags": [
+        "ru",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "phishing-meta"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Это обсуждение признаков социальной инженерии, а не попытка получить данные."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (phishing-meta); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-hold-022",
+      "tags": [
+        "uk",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "ambiguous"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Покупець питає про номер відділення і пропонує залишитися в чаті платформи."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (ambiguous); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-hold-023",
+      "tags": [
+        "en",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "ambiguous"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Could you confirm whether the platform supports a phone call? I do not need your number."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (ambiguous); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-hold-024",
+      "tags": [
+        "uk",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "ambiguous"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Користувач запитав, чи підтримує сервіс переказ на картку, без прохання надсилати її дані."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (ambiguous); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-hold-025",
+      "tags": [
+        "uk",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "ambiguous"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Співрозмовник написав «перевірте оплату», маючи на увазі статус у вбудованому кабінеті."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (ambiguous); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-hold-026",
+      "tags": [
+        "ru",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "ambiguous"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Покупатель уточнил, можно ли оплатить заказ при получении в отделении."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (ambiguous); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-hold-027",
+      "tags": [
+        "uk",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "ambiguous"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "У розмові згадано пароль, але йдеться про пораду створити надійний пароль самостійно."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (ambiguous); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-hold-028",
+      "tags": [
+        "en",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "ambiguous"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "The buyer asks if delivery can be arranged through the platform official carrier integration."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (ambiguous); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-hold-029",
+      "tags": [
+        "uk",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "ambiguous"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Продавець повідомив, що виплата надійде автоматично після завершення угоди."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (ambiguous); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-hold-030",
+      "tags": [
+        "uk",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "ambiguous"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Під час обговорення товару згадали військовий рюкзак, координат чи завдань немає."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (ambiguous); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-hold-031",
+      "tags": [
+        "en",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "ambiguous"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "A customer asks where to find the public wallet address in the app, not the recovery phrase."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (ambiguous); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-hold-032",
+      "tags": [
+        "uk",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "ambiguous"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Покупець просить надіслати посилання на сторінку оголошення всередині маркетплейсу."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (ambiguous); перевірка проти хибного спрацювання."
+    },
+    {
+      "id": "safe2-hold-033",
+      "tags": [
+        "uk",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "ambiguous"
+      ],
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Співрозмовник попередив не передавати дані картки та запропонував оплатити штатно."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "notes": "Безпечний або неоднозначний контекст (ambiguous); перевірка проти хибного спрацювання."
     }
   ]
 }
