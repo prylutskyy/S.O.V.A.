@@ -123,5 +123,130 @@
     },
     "actionMismatches": 84,
     "falseLockInputs": 2
+  },
+  {
+    "schemaVersion": 1,
+    "generatedAt": "2026-10-09T10:48:10.595Z",
+    "commit": "b5525eb100d0edc7ea4a524e7c05c152bae89874",
+    "corpusSha256": "d5cbf098ab660b5985cbbd040a0df19a90c666668dea651e383f1600ccf4407b",
+    "totalCases": 326,
+    "exactMatches": 226,
+    "exactMatchRate": 0.6932515337423313,
+    "overall": {
+      "n": 326,
+      "tp": 108,
+      "fp": 0,
+      "fn": 81,
+      "tn": 137,
+      "precision": 1,
+      "recall": 0.5714285714285714,
+      "f1": 0.7272727272727273
+    },
+    "byCorpus": {
+      "development": {
+        "n": 100,
+        "tp": 42,
+        "fp": 0,
+        "fn": 17,
+        "tn": 41,
+        "precision": 1,
+        "recall": 0.711864406779661,
+        "f1": 0.8316831683168318
+      },
+      "regressions": {
+        "n": 113,
+        "tp": 30,
+        "fp": 0,
+        "fn": 31,
+        "tn": 52,
+        "precision": 1,
+        "recall": 0.4918032786885246,
+        "f1": 0.6593406593406593
+      },
+      "holdout": {
+        "n": 113,
+        "tp": 36,
+        "fp": 0,
+        "fn": 33,
+        "tn": 44,
+        "precision": 1,
+        "recall": 0.5217391304347826,
+        "f1": 0.6857142857142856
+      }
+    },
+    "byIntentType": {
+      "CRYPTO_WALLET_COMPROMISE": {
+        "n": 326,
+        "tp": 7,
+        "fp": 2,
+        "fn": 15,
+        "tn": 302,
+        "precision": 0.7777777777777778,
+        "recall": 0.3181818181818182,
+        "f1": 0.45161290322580644
+      },
+      "ESCROW_DELIVERY_SCAM": {
+        "n": 326,
+        "tp": 9,
+        "fp": 0,
+        "fn": 15,
+        "tn": 302,
+        "precision": 1,
+        "recall": 0.375,
+        "f1": 0.5454545454545454
+      },
+      "IDENTITY_PROBING": {
+        "n": 326,
+        "tp": 15,
+        "fp": 0,
+        "fn": 11,
+        "tn": 300,
+        "precision": 1,
+        "recall": 0.5769230769230769,
+        "f1": 0.7317073170731707
+      },
+      "MILITARY_SABOTAGE_RECRUITMENT": {
+        "n": 326,
+        "tp": 18,
+        "fp": 0,
+        "fn": 10,
+        "tn": 298,
+        "precision": 1,
+        "recall": 0.6428571428571429,
+        "f1": 0.782608695652174
+      },
+      "OFF_PLATFORM_REDIRECT": {
+        "n": 326,
+        "tp": 14,
+        "fp": 0,
+        "fn": 24,
+        "tn": 288,
+        "precision": 1,
+        "recall": 0.3684210526315789,
+        "f1": 0.5384615384615384
+      },
+      "PAYMENT_CREDENTIAL_THEFT": {
+        "n": 326,
+        "tp": 20,
+        "fp": 17,
+        "fn": 4,
+        "tn": 285,
+        "precision": 0.5405405405405406,
+        "recall": 0.8333333333333334,
+        "f1": 0.6557377049180328
+      },
+      "VERIFICATION_PHISHING": {
+        "n": 326,
+        "tp": 6,
+        "fp": 0,
+        "fn": 21,
+        "tn": 299,
+        "precision": 1,
+        "recall": 0.2222222222222222,
+        "f1": 0.3636363636363636
+      }
+    },
+    "actionMismatches": 84,
+    "falseLockInputs": 2
   }
 ]
