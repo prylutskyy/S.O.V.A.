@@ -57,6 +57,31 @@ describe('IntentClassifier', () => {
       expect(result.intentType).toBe('OFF_PLATFORM_REDIRECT');
       expect(result.clustersDetected).toContain('off_platform');
     });
+
+    it.each([
+      'Давайте продовжимо спілкування у Telegram, тут незручно.',
+      'Обговорімо умови продажу в Signal, напишіть мені туди.',
+      'Перейдіть до WhatsApp, щоб узгодити оплату за товар.',
+      'Залишаю посилання на мій профіль у Telegram: t.me/seller_contact.',
+      'Підтвердіть замовлення через наш чат-бот, він надішле інструкції.',
+      'Здесь неудобно, давайте перейдем в Telegram и договоримся о доставке.',
+      'Залиште номер у чаті — надішлю деталі замовлення в Signal.',
+    ])('detects a direct Ukrainian request to move chat: %s', (text) => {
+      const result = IntentClassifier.classify(text);
+
+      expect(result.hasFormedIntent).toBe(true);
+      expect(result.intentType).toBe('OFF_PLATFORM_REDIRECT');
+      expect(result.clustersDetected).toContain('off_platform');
+      expect(result.clustersDetected).toContain('off_platform_action');
+    });
+
+    it('does not trigger on a messenger name without a request to move the conversation', () => {
+      const result = IntentClassifier.classify(
+        'У Telegram є зручні наліпки, але продовжуємо спілкуватися тут.'
+      );
+
+      expect(result.hasFormedIntent).toBe(false);
+    });
   });
 
   describe('PAYMENT_CREDENTIAL_THEFT', () => {

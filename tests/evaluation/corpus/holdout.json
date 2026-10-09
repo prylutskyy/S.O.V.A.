@@ -608,7 +608,7 @@
       "messages": [
         {
           "speaker": "interlocutor",
-          "text": "Напишіть мені у Telegram, там швидше обговоримо покупку."
+          "text": "Коли зручно оглянути товар, напишіть мені в Telegram — надішлю адресу."
         }
       ],
       "expected": {
@@ -616,7 +616,7 @@
         "intentType": "OFF_PLATFORM_REDIRECT",
         "action": "WARN"
       },
-      "notes": "Сценарій phone: очікується класифікація наміру та відповідна політика."
+      "notes": "Незалежний holdout-сценарій для класу OFF_PLATFORM_REDIRECT; сформульований окремо від regression-прикладів."
     },
     {
       "id": "hold2-phone-002",
@@ -628,7 +628,7 @@
       "messages": [
         {
           "speaker": "interlocutor",
-          "text": "Залиште номер у чаті — надішлю деталі замовлення в Signal."
+          "text": "Можемо узгодити ціну у Signal; залиште контакт, і я вам відпишу."
         }
       ],
       "expected": {
@@ -636,7 +636,7 @@
         "intentType": "OFF_PLATFORM_REDIRECT",
         "action": "WARN"
       },
-      "notes": "Сценарій phone: очікується класифікація наміру та відповідна політика."
+      "notes": "Незалежний holdout-сценарій для класу OFF_PLATFORM_REDIRECT; сформульований окремо від regression-прикладів."
     },
     {
       "id": "hold2-phone-003",
@@ -648,7 +648,7 @@
       "messages": [
         {
           "speaker": "interlocutor",
-          "text": "Для продовження розмови перейдіть у WhatsApp, тут незручно."
+          "text": "У застосунку не бачу вкладень, тому давайте перейдемо у WhatsApp для фото."
         }
       ],
       "expected": {
@@ -656,7 +656,7 @@
         "intentType": "OFF_PLATFORM_REDIRECT",
         "action": "WARN"
       },
-      "notes": "Сценарій phone: очікується класифікація наміру та відповідна політика."
+      "notes": "Незалежний holdout-сценарій для класу OFF_PLATFORM_REDIRECT; сформульований окремо від regression-прикладів."
     },
     {
       "id": "hold2-phone-004",
@@ -668,7 +668,7 @@
       "messages": [
         {
           "speaker": "interlocutor",
-          "text": "Давайте обміняємося контактами й домовимося поза майданчиком: Viber."
+          "text": "Зустріч і оплату пропоную домовити у Viber, напишіть туди після обіду."
         }
       ],
       "expected": {
@@ -676,7 +676,7 @@
         "intentType": "OFF_PLATFORM_REDIRECT",
         "action": "WARN"
       },
-      "notes": "Сценарій phone: очікується класифікація наміру та відповідна політика."
+      "notes": "Незалежний holdout-сценарій для класу OFF_PLATFORM_REDIRECT; сформульований окремо від regression-прикладів."
     },
     {
       "id": "hold2-phone-005",
@@ -688,7 +688,7 @@
       "messages": [
         {
           "speaker": "interlocutor",
-          "text": "Надішліть телефон, я зв’яжуся з вами у Telegram."
+          "text": "Наберіть мене через Telegram, щоб я пояснив, як оформити замовлення."
         }
       ],
       "expected": {
@@ -696,7 +696,7 @@
         "intentType": "OFF_PLATFORM_REDIRECT",
         "action": "WARN"
       },
-      "notes": "Сценарій phone: очікується класифікація наміру та відповідна політика."
+      "notes": "Незалежний holdout-сценарій для класу OFF_PLATFORM_REDIRECT; сформульований окремо від regression-прикладів."
     },
     {
       "id": "hold2-phone-006",
@@ -708,7 +708,7 @@
       "messages": [
         {
           "speaker": "interlocutor",
-          "text": "Оплату та подробиці узгодимо в WhatsApp, напишіть мені туди."
+          "text": "Для швидшого погодження доставки зв’яжімося в Signal поза чатом майданчика."
         }
       ],
       "expected": {
@@ -716,7 +716,7 @@
         "intentType": "OFF_PLATFORM_REDIRECT",
         "action": "WARN"
       },
-      "notes": "Сценарій phone: очікується класифікація наміру та відповідна політика."
+      "notes": "Незалежний holdout-сценарій для класу OFF_PLATFORM_REDIRECT; сформульований окремо від regression-прикладів."
     },
     {
       "id": "hold2-verification-001",
@@ -728,7 +728,7 @@
       "messages": [
         {
           "speaker": "interlocutor",
-          "text": "Для підтвердження замовлення введіть код із SMS у формі за посиланням https://verify.example.invalid."
+          "text": "Щоб підтвердити покупку, введіть одноразовий код у формі за адресою https://order.example.invalid/approve."
         }
       ],
       "expected": {
@@ -736,7 +736,7 @@
         "intentType": "VERIFICATION_PHISHING",
         "action": "WARN"
       },
-      "notes": "Сценарій verification: очікується класифікація наміру та відповідна політика."
+      "notes": "Незалежний holdout-сценарій для класу VERIFICATION_PHISHING; сформульований окремо від regression-прикладів."
     },
     {
       "id": "hold2-verification-002",
@@ -748,7 +748,7 @@
       "messages": [
         {
           "speaker": "interlocutor",
-          "text": "Надішліть код підтвердження, щоб ми перевірили ваш профіль."
+          "text": "Продиктуйте код підтвердження з повідомлення, і я завершу перевірку вашого акаунта."
         }
       ],
       "expected": {
@@ -756,7 +756,7 @@
         "intentType": "VERIFICATION_PHISHING",
         "action": "WARN"
       },
-      "notes": "Сценарій verification: очікується класифікація наміру та відповідна політика."
+      "notes": "Незалежний holdout-сценарій для класу VERIFICATION_PHISHING; сформульований окремо від regression-прикладів."
     },
     {
       "id": "hold2-verification-003",
@@ -768,7 +768,7 @@
       "messages": [
         {
           "speaker": "interlocutor",
-          "text": "Ваш акаунт заблокують, якщо не підтвердите вхід за посиланням https://secure.example.invalid/check."
+          "text": "Необхідно негайно підтвердити особу на https://profile.example.invalid/login, інакше замовлення скасують."
         }
       ],
       "expected": {
@@ -776,7 +776,7 @@
         "intentType": "VERIFICATION_PHISHING",
         "action": "WARN"
       },
-      "notes": "Сценарій verification: очікується класифікація наміру та відповідна політика."
+      "notes": "Незалежний holdout-сценарій для класу VERIFICATION_PHISHING; сформульований окремо від regression-прикладів."
     },
     {
       "id": "hold2-verification-004",
@@ -788,7 +788,7 @@
       "messages": [
         {
           "speaker": "interlocutor",
-          "text": "Служба безпеки просить одноразовий код для скасування підозрілої операції."
+          "text": "Працівник безпеки просить надіслати код входу, щоб нібито зупинити переказ."
         }
       ],
       "expected": {
@@ -796,7 +796,7 @@
         "intentType": "VERIFICATION_PHISHING",
         "action": "WARN"
       },
-      "notes": "Сценарій verification: очікується класифікація наміру та відповідна політика."
+      "notes": "Незалежний holdout-сценарій для класу VERIFICATION_PHISHING; сформульований окремо від regression-прикладів."
     },
     {
       "id": "hold2-safe-password-001",
@@ -829,7 +829,7 @@
       "messages": [
         {
           "speaker": "interlocutor",
-          "text": "Повідомте код із SMS оператору чату для завершення перевірки."
+          "text": "Для розблокування профілю надішліть код, який щойно прийшов на ваш телефон."
         }
       ],
       "expected": {
@@ -837,7 +837,7 @@
         "intentType": "VERIFICATION_PHISHING",
         "action": "WARN"
       },
-      "notes": "Сценарій verification: очікується класифікація наміру та відповідна політика."
+      "notes": "Незалежний holdout-сценарій для класу VERIFICATION_PHISHING; сформульований окремо від regression-прикладів."
     },
     {
       "id": "hold2-payment-001",
@@ -849,7 +849,7 @@
       "messages": [
         {
           "speaker": "interlocutor",
-          "text": "Щоб отримати оплату, введіть номер картки та CVV на сторінці https://verify.example.invalid."
+          "text": "Впишіть термін дії картки та три цифри з її звороту у форму виплати https://cash.example.invalid."
         }
       ],
       "expected": {
@@ -857,7 +857,7 @@
         "intentType": "PAYMENT_CREDENTIAL_THEFT",
         "action": "WARN"
       },
-      "notes": "Сценарій payment: очікується класифікація наміру та відповідна політика."
+      "notes": "Незалежний holdout-сценарій для класу PAYMENT_CREDENTIAL_THEFT; сформульований окремо від regression-прикладів."
     },
     {
       "id": "hold2-payment-002",
@@ -869,7 +869,7 @@
       "messages": [
         {
           "speaker": "interlocutor",
-          "text": "Надішліть фото картки з обох боків для зарахування коштів."
+          "text": "Покажіть картку з лицьового й зворотного боку, щоб бухгалтерія зарахувала кошти."
         }
       ],
       "expected": {
@@ -877,7 +877,7 @@
         "intentType": "PAYMENT_CREDENTIAL_THEFT",
         "action": "WARN"
       },
-      "notes": "Сценарій payment: очікується класифікація наміру та відповідна політика."
+      "notes": "Незалежний holdout-сценарій для класу PAYMENT_CREDENTIAL_THEFT; сформульований окремо від regression-прикладів."
     },
     {
       "id": "hold2-payment-003",
@@ -889,7 +889,7 @@
       "messages": [
         {
           "speaker": "interlocutor",
-          "text": "Для повернення коштів продиктуйте PIN-код банківської картки."
+          "text": "Підтвердіть повернення: надішліть одноразовий банківський код та PIN-код картки."
         }
       ],
       "expected": {
@@ -897,7 +897,7 @@
         "intentType": "PAYMENT_CREDENTIAL_THEFT",
         "action": "WARN"
       },
-      "notes": "Сценарій payment: очікується класифікація наміру та відповідна політика."
+      "notes": "Незалежний holdout-сценарій для класу PAYMENT_CREDENTIAL_THEFT; сформульований окремо від regression-прикладів."
     },
     {
       "id": "hold2-payment-004",
@@ -909,7 +909,7 @@
       "messages": [
         {
           "speaker": "interlocutor",
-          "text": "Введіть дані картки на https://pay.example.invalid, і виплата надійде за хвилину."
+          "text": "Заповніть номер картки, дату завершення дії та CVV для отримання компенсації."
         }
       ],
       "expected": {
@@ -917,7 +917,7 @@
         "intentType": "PAYMENT_CREDENTIAL_THEFT",
         "action": "WARN"
       },
-      "notes": "Сценарій payment: очікується класифікація наміру та відповідна політика."
+      "notes": "Незалежний holdout-сценарій для класу PAYMENT_CREDENTIAL_THEFT; сформульований окремо від regression-прикладів."
     },
     {
       "id": "hold2-payment-005",
@@ -929,7 +929,7 @@
       "messages": [
         {
           "speaker": "interlocutor",
-          "text": "Надішліть код із банківського повідомлення для підтвердження переказу."
+          "text": "Оператор просить код із банківського SMS, аби завершити зарахування грошей."
         }
       ],
       "expected": {
@@ -937,7 +937,7 @@
         "intentType": "PAYMENT_CREDENTIAL_THEFT",
         "action": "WARN"
       },
-      "notes": "Сценарій payment: очікується класифікація наміру та відповідна політика."
+      "notes": "Незалежний holdout-сценарій для класу PAYMENT_CREDENTIAL_THEFT; сформульований окремо від regression-прикладів."
     },
     {
       "id": "hold2-payment-006",
@@ -949,7 +949,7 @@
       "messages": [
         {
           "speaker": "interlocutor",
-          "text": "Щоб покупець оплатив доставку, авторизуйтеся в банку за https://wallet.example.invalid/restore."
+          "text": "Відкрийте сторінку https://funds.example.invalid/card і додайте реквізити картки для виплати."
         }
       ],
       "expected": {
@@ -957,7 +957,7 @@
         "intentType": "PAYMENT_CREDENTIAL_THEFT",
         "action": "WARN"
       },
-      "notes": "Сценарій payment: очікується класифікація наміру та відповідна політика."
+      "notes": "Незалежний holdout-сценарій для класу PAYMENT_CREDENTIAL_THEFT; сформульований окремо від regression-прикладів."
     },
     {
       "id": "hold2-identity-001",
@@ -969,7 +969,7 @@
       "messages": [
         {
           "speaker": "interlocutor",
-          "text": "Надішліть фото паспорта з обох боків для оформлення доставки."
+          "text": "Для договору оренди надішліть скан паспорта та місце реєстрації."
         }
       ],
       "expected": {
@@ -977,7 +977,7 @@
         "intentType": "IDENTITY_PROBING",
         "action": "WARN"
       },
-      "notes": "Сценарій identity: очікується класифікація наміру та відповідна політика."
+      "notes": "Незалежний holdout-сценарій для класу IDENTITY_PROBING; сформульований окремо від regression-прикладів."
     },
     {
       "id": "hold2-identity-002",
@@ -989,7 +989,7 @@
       "messages": [
         {
           "speaker": "interlocutor",
-          "text": "Напишіть свій податковий номер, щоб ми підтвердили особу."
+          "text": "Вкажіть свій ІПН і повну дату народження для нібито підтвердження покупця."
         }
       ],
       "expected": {
@@ -997,7 +997,7 @@
         "intentType": "IDENTITY_PROBING",
         "action": "WARN"
       },
-      "notes": "Сценарій identity: очікується класифікація наміру та відповідна політика."
+      "notes": "Незалежний holdout-сценарій для класу IDENTITY_PROBING; сформульований окремо від regression-прикладів."
     },
     {
       "id": "hold2-identity-003",
@@ -1009,7 +1009,7 @@
       "messages": [
         {
           "speaker": "interlocutor",
-          "text": "Для перевірки покупця потрібні дата народження та повне ім’я."
+          "text": "Яке повне ім’я вказано у вашому документі та в якому місті ви народилися?"
         }
       ],
       "expected": {
@@ -1017,7 +1017,7 @@
         "intentType": "IDENTITY_PROBING",
         "action": "WARN"
       },
-      "notes": "Сценарій identity: очікується класифікація наміру та відповідна політика."
+      "notes": "Незалежний holdout-сценарій для класу IDENTITY_PROBING; сформульований окремо від regression-прикладів."
     },
     {
       "id": "hold2-identity-004",
@@ -1029,7 +1029,7 @@
       "messages": [
         {
           "speaker": "interlocutor",
-          "text": "Завантажте фото посвідчення особи у форму https://pay.example.invalid."
+          "text": "Завантажте посвідчення особи у форму перевірки https://id.example.invalid/upload."
         }
       ],
       "expected": {
@@ -1037,7 +1037,7 @@
         "intentType": "IDENTITY_PROBING",
         "action": "WARN"
       },
-      "notes": "Сценарій identity: очікується класифікація наміру та відповідна політика."
+      "notes": "Незалежний holdout-сценарій для класу IDENTITY_PROBING; сформульований окремо від regression-прикладів."
     },
     {
       "id": "hold2-identity-005",
@@ -1049,7 +1049,7 @@
       "messages": [
         {
           "speaker": "interlocutor",
-          "text": "Надішліть адресу проживання та номер документа для реєстрації виплати."
+          "text": "Перед оформленням компенсації повідомте адресу проживання та номер паспорта."
         }
       ],
       "expected": {
@@ -1057,7 +1057,7 @@
         "intentType": "IDENTITY_PROBING",
         "action": "WARN"
       },
-      "notes": "Сценарій identity: очікується класифікація наміру та відповідна політика."
+      "notes": "Незалежний holdout-сценарій для класу IDENTITY_PROBING; сформульований окремо від regression-прикладів."
     },
     {
       "id": "hold2-identity-006",
@@ -1069,7 +1069,7 @@
       "messages": [
         {
           "speaker": "interlocutor",
-          "text": "Підтвердіть особу, повідомивши серію та номер паспорта."
+          "text": "Для звірки профілю потрібні ваше прізвище при народженні та податковий номер."
         }
       ],
       "expected": {
@@ -1077,7 +1077,7 @@
         "intentType": "IDENTITY_PROBING",
         "action": "WARN"
       },
-      "notes": "Сценарій identity: очікується класифікація наміру та відповідна політика."
+      "notes": "Незалежний holdout-сценарій для класу IDENTITY_PROBING; сформульований окремо від regression-прикладів."
     },
     {
       "id": "hold2-escrow-001",
@@ -1089,7 +1089,7 @@
       "messages": [
         {
           "speaker": "interlocutor",
-          "text": "Оплатив доставку, заберіть кошти через https://verify.example.invalid."
+          "text": "Покупець уже оплатив доставку; заберіть кошти через форму https://parcel.example.invalid/payout."
         }
       ],
       "expected": {
@@ -1097,7 +1097,7 @@
         "intentType": "ESCROW_DELIVERY_SCAM",
         "action": "WARN"
       },
-      "notes": "Сценарій escrow: очікується класифікація наміру та відповідна політика."
+      "notes": "Незалежний holdout-сценарій для класу ESCROW_DELIVERY_SCAM; сформульований окремо від regression-прикладів."
     },
     {
       "id": "hold2-escrow-002",
@@ -1109,7 +1109,7 @@
       "messages": [
         {
           "speaker": "interlocutor",
-          "text": "Для отримання грошей за товар відкрийте форму перевізника https://parcel.example.invalid/claim."
+          "text": "Кур’єр приїде після того, як ви підтвердите отримання оплати на зовнішній сторінці."
         }
       ],
       "expected": {
@@ -1117,7 +1117,7 @@
         "intentType": "ESCROW_DELIVERY_SCAM",
         "action": "WARN"
       },
-      "notes": "Сценарій escrow: очікується класифікація наміру та відповідна політика."
+      "notes": "Незалежний holdout-сценарій для класу ESCROW_DELIVERY_SCAM; сформульований окремо від regression-прикладів."
     },
     {
       "id": "hold2-escrow-003",
@@ -1129,7 +1129,7 @@
       "messages": [
         {
           "speaker": "interlocutor",
-          "text": "Платформа зарезервувала оплату; введіть картку на https://secure.example.invalid/check для зарахування."
+          "text": "Сервіс угоди нібито зарезервував суму — відкрийте посилання для її виведення."
         }
       ],
       "expected": {
@@ -1137,7 +1137,7 @@
         "intentType": "ESCROW_DELIVERY_SCAM",
         "action": "WARN"
       },
-      "notes": "Сценарій escrow: очікується класифікація наміру та відповідна політика."
+      "notes": "Незалежний holdout-сценарій для класу ESCROW_DELIVERY_SCAM; сформульований окремо від regression-прикладів."
     },
     {
       "id": "hold2-escrow-004",
@@ -1149,7 +1149,7 @@
       "messages": [
         {
           "speaker": "interlocutor",
-          "text": "Я вже оплатив замовлення, підтвердіть доставку за посиланням https://pay.example.invalid."
+          "text": "Щоб кур’єр привіз посилку, оплатіть страховий збір через надіслану форму."
         }
       ],
       "expected": {
@@ -1157,7 +1157,7 @@
         "intentType": "ESCROW_DELIVERY_SCAM",
         "action": "WARN"
       },
-      "notes": "Сценарій escrow: очікується класифікація наміру та відповідна політика."
+      "notes": "Незалежний holdout-сценарій для класу ESCROW_DELIVERY_SCAM; сформульований окремо від regression-прикладів."
     },
     {
       "id": "hold2-escrow-005",
@@ -1169,7 +1169,7 @@
       "messages": [
         {
           "speaker": "interlocutor",
-          "text": "Кур’єр чекає підтвердження виплати на сторінці https://account.example.invalid/confirm."
+          "text": "Після продажу платформа має переказати гроші; авторизуйтеся для підтвердження виплати."
         }
       ],
       "expected": {
@@ -1177,7 +1177,7 @@
         "intentType": "ESCROW_DELIVERY_SCAM",
         "action": "WARN"
       },
-      "notes": "Сценарій escrow: очікується класифікація наміру та відповідна політика."
+      "notes": "Незалежний holdout-сценарій для класу ESCROW_DELIVERY_SCAM; сформульований окремо від regression-прикладів."
     },
     {
       "id": "hold2-escrow-006",
@@ -1189,7 +1189,7 @@
       "messages": [
         {
           "speaker": "interlocutor",
-          "text": "Щоб отримати передоплату, пройдіть оформлення доставки на https://wallet.example.invalid/restore."
+          "text": "Я створив заявку на кур’єра. Для зарахування вартості товару підтвердьте картку тут: https://ship.example.invalid/receive."
         }
       ],
       "expected": {
@@ -1197,7 +1197,7 @@
         "intentType": "ESCROW_DELIVERY_SCAM",
         "action": "WARN"
       },
-      "notes": "Сценарій escrow: очікується класифікація наміру та відповідна політика."
+      "notes": "Незалежний holdout-сценарій для класу ESCROW_DELIVERY_SCAM; сформульований окремо від regression-прикладів."
     },
     {
       "id": "hold2-military-001",
@@ -1209,7 +1209,7 @@
       "messages": [
         {
           "speaker": "interlocutor",
-          "text": "За винагороду сфотографуйте військовий об’єкт і надішліть знімок."
+          "text": "За гроші зробіть кілька фото військового ешелону й передайте їх замовнику."
         }
       ],
       "expected": {
@@ -1217,7 +1217,7 @@
         "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
         "action": "LOCK_INPUT"
       },
-      "notes": "Сценарій military: очікується класифікація наміру та відповідна політика."
+      "notes": "Незалежний holdout-сценарій для класу MILITARY_SABOTAGE_RECRUITMENT; сформульований окремо від regression-прикладів."
     },
     {
       "id": "hold2-military-002",
@@ -1229,7 +1229,7 @@
       "messages": [
         {
           "speaker": "interlocutor",
-          "text": "Передайте координати блокпоста, за це заплатимо готівкою."
+          "text": "З’ясуйте, коли змінюється варта на об’єкті, та надішліть розклад."
         }
       ],
       "expected": {
@@ -1237,7 +1237,7 @@
         "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
         "action": "LOCK_INPUT"
       },
-      "notes": "Сценарій military: очікується класифікація наміру та відповідна політика."
+      "notes": "Незалежний holdout-сценарій для класу MILITARY_SABOTAGE_RECRUITMENT; сформульований окремо від regression-прикладів."
     },
     {
       "id": "hold2-military-003",
@@ -1249,7 +1249,7 @@
       "messages": [
         {
           "speaker": "interlocutor",
-          "text": "Знайдіть графік переміщення техніки та передайте його нам."
+          "text": "Поставте позначку на мапі біля місця стоянки військової техніки й поділіться координатами."
         }
       ],
       "expected": {
@@ -1257,7 +1257,7 @@
         "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
         "action": "LOCK_INPUT"
       },
-      "notes": "Сценарій military: очікується класифікація наміру та відповідна політика."
+      "notes": "Незалежний holdout-сценарій для класу MILITARY_SABOTAGE_RECRUITMENT; сформульований окремо від regression-прикладів."
     },
     {
       "id": "hold2-military-004",
@@ -1269,7 +1269,7 @@
       "messages": [
         {
           "speaker": "interlocutor",
-          "text": "Потрібен кур’єр, щоб закласти пристрій біля військової будівлі."
+          "text": "Потрібно залишити запалювальну суміш біля складу; оплату переказую після фото."
         }
       ],
       "expected": {
@@ -1277,7 +1277,7 @@
         "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
         "action": "LOCK_INPUT"
       },
-      "notes": "Сценарій military: очікується класифікація наміру та відповідна політика."
+      "notes": "Незалежний holdout-сценарій для класу MILITARY_SABOTAGE_RECRUITMENT; сформульований окремо від regression-прикладів."
     },
     {
       "id": "hold2-military-005",
@@ -1289,7 +1289,7 @@
       "messages": [
         {
           "speaker": "interlocutor",
-          "text": "Зніміть на відео систему ППО та позначте місце на мапі."
+          "text": "Зніміть розташування блокпоста та надішліть відео з геолокацією."
         }
       ],
       "expected": {
@@ -1297,7 +1297,7 @@
         "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
         "action": "LOCK_INPUT"
       },
-      "notes": "Сценарій military: очікується класифікація наміру та відповідна політика."
+      "notes": "Незалежний holdout-сценарій для класу MILITARY_SABOTAGE_RECRUITMENT; сформульований окремо від regression-прикладів."
     },
     {
       "id": "hold2-military-006",
@@ -1309,7 +1309,7 @@
       "messages": [
         {
           "speaker": "interlocutor",
-          "text": "Допоможіть пошкодити військовий транспорт, витрати компенсуємо."
+          "text": "Допоможіть вивести з ладу службове авто біля військової частини за винагороду."
         }
       ],
       "expected": {
@@ -1317,7 +1317,7 @@
         "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
         "action": "LOCK_INPUT"
       },
-      "notes": "Сценарій military: очікується класифікація наміру та відповідна політика."
+      "notes": "Незалежний holdout-сценарій для класу MILITARY_SABOTAGE_RECRUITMENT; сформульований окремо від regression-прикладів."
     },
     {
       "id": "hold2-crypto-001",
@@ -1329,7 +1329,7 @@
       "messages": [
         {
           "speaker": "interlocutor",
-          "text": "Надішліть seed phrase з 12 слів для відновлення гаманця."
+          "text": "Для імпорту гаманця надішліть усі 12 секретних слів відновлення."
         }
       ],
       "expected": {
@@ -1337,7 +1337,7 @@
         "intentType": "CRYPTO_WALLET_COMPROMISE",
         "action": "LOCK_INPUT"
       },
-      "notes": "Сценарій crypto: очікується класифікація наміру та відповідна політика."
+      "notes": "Незалежний holdout-сценарій для класу CRYPTO_WALLET_COMPROMISE; сформульований окремо від regression-прикладів."
     },
     {
       "id": "hold2-crypto-002",
@@ -1349,7 +1349,7 @@
       "messages": [
         {
           "speaker": "interlocutor",
-          "text": "Підтримка просить приватний ключ, щоб синхронізувати баланс."
+          "text": "Щоб перевірити баланс, введіть приватний ключ криптогаманця у форму підтримки."
         }
       ],
       "expected": {
@@ -1357,7 +1357,7 @@
         "intentType": "CRYPTO_WALLET_COMPROMISE",
         "action": "LOCK_INPUT"
       },
-      "notes": "Сценарій crypto: очікується класифікація наміру та відповідна політика."
+      "notes": "Незалежний holdout-сценарій для класу CRYPTO_WALLET_COMPROMISE; сформульований окремо від regression-прикладів."
     },
     {
       "id": "hold2-crypto-003",
@@ -1369,7 +1369,7 @@
       "messages": [
         {
           "speaker": "interlocutor",
-          "text": "Введіть мнемонічну фразу на https://secure.example.invalid/check, і гаманець буде розблоковано."
+          "text": "Розблокуйте крипторахунок, передавши seed-фразу нашому консультанту."
         }
       ],
       "expected": {
@@ -1377,7 +1377,7 @@
         "intentType": "CRYPTO_WALLET_COMPROMISE",
         "action": "LOCK_INPUT"
       },
-      "notes": "Сценарій crypto: очікується класифікація наміру та відповідна політика."
+      "notes": "Незалежний holdout-сценарій для класу CRYPTO_WALLET_COMPROMISE; сформульований окремо від regression-прикладів."
     },
     {
       "id": "hold2-crypto-004",
@@ -1389,7 +1389,7 @@
       "messages": [
         {
           "speaker": "interlocutor",
-          "text": "Скиньте пароль криптогаманця для перевірки транзакції."
+          "text": "Служба безпеки біржі просить пароль від вашого криптогаманця для синхронізації."
         }
       ],
       "expected": {
@@ -1397,7 +1397,7 @@
         "intentType": "CRYPTO_WALLET_COMPROMISE",
         "action": "LOCK_INPUT"
       },
-      "notes": "Сценарій crypto: очікується класифікація наміру та відповідна політика."
+      "notes": "Незалежний holdout-сценарій для класу CRYPTO_WALLET_COMPROMISE; сформульований окремо від regression-прикладів."
     },
     {
       "id": "hold2-crypto-005",
@@ -1409,7 +1409,7 @@
       "messages": [
         {
           "speaker": "interlocutor",
-          "text": "Надішліть резервну фразу з 24 слів нашому фахівцю."
+          "text": "Надішліть 24 слова резервної фрази, і ми відновимо доступ до токенів."
         }
       ],
       "expected": {
@@ -1417,7 +1417,7 @@
         "intentType": "CRYPTO_WALLET_COMPROMISE",
         "action": "LOCK_INPUT"
       },
-      "notes": "Сценарій crypto: очікується класифікація наміру та відповідна політика."
+      "notes": "Незалежний holdout-сценарій для класу CRYPTO_WALLET_COMPROMISE; сформульований окремо від regression-прикладів."
     },
     {
       "id": "hold2-crypto-006",
@@ -1429,7 +1429,7 @@
       "messages": [
         {
           "speaker": "interlocutor",
-          "text": "Для повернення токенів повідомте приватний ключ гаманця."
+          "text": "Для повернення криптовалюти повідомте секретний ключ від гаманця."
         }
       ],
       "expected": {
@@ -1437,7 +1437,7 @@
         "intentType": "CRYPTO_WALLET_COMPROMISE",
         "action": "LOCK_INPUT"
       },
-      "notes": "Сценарій crypto: очікується класифікація наміру та відповідна політика."
+      "notes": "Незалежний holdout-сценарій для класу CRYPTO_WALLET_COMPROMISE; сформульований окремо від regression-прикладів."
     },
     {
       "id": "hold2-benign-001",
@@ -1449,7 +1449,7 @@
       "messages": [
         {
           "speaker": "interlocutor",
-          "text": "Умови доставки доступні на офіційному сайті перевізника."
+          "text": "Статус посилки можна перевірити самостійно в офіційному застосунку перевізника."
         }
       ],
       "expected": {
@@ -1457,7 +1457,7 @@
         "intentType": null,
         "action": "ALLOW"
       },
-      "notes": "Безпечний контекстний контроль для перевірки хибнопозитивного спрацювання."
+      "notes": "Незалежний holdout-сценарій для класу SAFE; сформульований окремо від regression-прикладів."
     },
     {
       "id": "hold2-benign-002",
@@ -1469,7 +1469,7 @@
       "messages": [
         {
           "speaker": "interlocutor",
-          "text": "The courier will call using the number already saved in your order."
+          "text": "The delivery driver will use the contact details you entered at checkout."
         }
       ],
       "expected": {
@@ -1477,7 +1477,7 @@
         "intentType": null,
         "action": "ALLOW"
       },
-      "notes": "Безпечний контекстний контроль для перевірки хибнопозитивного спрацювання."
+      "notes": "Незалежний holdout-сценарій для класу SAFE; сформульований окремо від regression-прикладів."
     },
     {
       "id": "hold2-benign-003",
@@ -1489,7 +1489,7 @@
       "messages": [
         {
           "speaker": "interlocutor",
-          "text": "Код відділення перевізника — це не код підтвердження банку."
+          "text": "Для отримання посилки потрібен номер відділення, а не банківський пароль чи код."
         }
       ],
       "expected": {
@@ -1497,7 +1497,7 @@
         "intentType": null,
         "action": "ALLOW"
       },
-      "notes": "Безпечний контекстний контроль для перевірки хибнопозитивного спрацювання."
+      "notes": "Незалежний holdout-сценарій для класу SAFE; сформульований окремо від regression-прикладів."
     },
     {
       "id": "hold2-benign-004",
@@ -1509,7 +1509,7 @@
       "messages": [
         {
           "speaker": "interlocutor",
-          "text": "У новині згадали фішинг, але ніхто не просить переходити за посиланням."
+          "text": "Стаття описує старі схеми фішингу як навчальний приклад і нікого не закликає вводити дані."
         }
       ],
       "expected": {
@@ -1517,7 +1517,7 @@
         "intentType": null,
         "action": "ALLOW"
       },
-      "notes": "Безпечний контекстний контроль для перевірки хибнопозитивного спрацювання."
+      "notes": "Незалежний holdout-сценарій для класу SAFE; сформульований окремо від regression-прикладів."
     },
     {
       "id": "hold2-benign-005",
@@ -1529,7 +1529,7 @@
       "messages": [
         {
           "speaker": "interlocutor",
-          "text": "I prefer to keep our conversation and payment on this platform."
+          "text": "Payment stays in the marketplace checkout, and I will keep replying in this chat."
         }
       ],
       "expected": {
@@ -1537,7 +1537,7 @@
         "intentType": null,
         "action": "ALLOW"
       },
-      "notes": "Безпечний контекстний контроль для перевірки хибнопозитивного спрацювання."
+      "notes": "Незалежний holdout-сценарій для класу SAFE; сформульований окремо від regression-прикладів."
     },
     {
       "id": "hold2-benign-006",
@@ -1549,7 +1549,7 @@
       "messages": [
         {
           "speaker": "interlocutor",
-          "text": "Мій номер є в профілі, проте спілкуймося тут."
+          "text": "Телефон у профілі вказаний лише для кур’єра; листування залишмо на платформі."
         }
       ],
       "expected": {
@@ -1557,7 +1557,7 @@
         "intentType": null,
         "action": "ALLOW"
       },
-      "notes": "Безпечний контекстний контроль для перевірки хибнопозитивного спрацювання."
+      "notes": "Незалежний holdout-сценарій для класу SAFE; сформульований окремо від regression-прикладів."
     },
     {
       "id": "hold2-benign-007",
@@ -1569,7 +1569,7 @@
       "messages": [
         {
           "speaker": "interlocutor",
-          "text": "Для оплати використовую офіційний застосунок банку самостійно."
+          "text": "Я сам відкрию застосунок банку, щоб перевірити надходження, і не передаватиму коди."
         }
       ],
       "expected": {
@@ -1577,7 +1577,7 @@
         "intentType": null,
         "action": "ALLOW"
       },
-      "notes": "Безпечний контекстний контроль для перевірки хибнопозитивного спрацювання."
+      "notes": "Незалежний holdout-сценарій для класу SAFE; сформульований окремо від regression-прикладів."
     },
     {
       "id": "hold2-benign-008",
@@ -1589,7 +1589,7 @@
       "messages": [
         {
           "speaker": "interlocutor",
-          "text": "The article discusses military history without current locations or requests."
+          "text": "The report is about historical military events and contains no request for current information."
         }
       ],
       "expected": {
@@ -1597,7 +1597,7 @@
         "intentType": null,
         "action": "ALLOW"
       },
-      "notes": "Безпечний контекстний контроль для перевірки хибнопозитивного спрацювання."
+      "notes": "Незалежний holdout-сценарій для класу SAFE; сформульований окремо від regression-прикладів."
     },
     {
       "id": "safe2-hold-001",

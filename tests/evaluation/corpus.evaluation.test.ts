@@ -224,6 +224,22 @@ describe('Evaluation corpus structure', () => {
     const ids = allCases.map((testCase) => testCase.id);
     expect(new Set(ids).size).toBe(ids.length);
   });
+
+  it('keeps exact conversation text out of holdout when it appears in development or regressions', () => {
+    const keyFor = (testCase: CorpusCase) => testCase.messages
+      .map((message) => message.text.normalize('NFKC').trim().replace(/\s+/g, ' ').toLowerCase())
+      .join('\n');
+    const tuningTexts = new Set(
+      allCases
+        .filter((testCase) => testCase.corpus !== 'holdout')
+        .map(keyFor)
+    );
+    const overlaps = allCases
+      .filter((testCase) => testCase.corpus === 'holdout' && tuningTexts.has(keyFor(testCase)))
+      .map((testCase) => testCase.id);
+
+    expect(overlaps, 'Holdout messages must be independent of development and regression text').toEqual([]);
+  });
 });
 
 describe('Local threat-classification evaluation corpus', () => {

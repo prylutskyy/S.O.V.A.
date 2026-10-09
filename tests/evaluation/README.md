@@ -6,9 +6,10 @@ This directory contains human-labeled conversation scenarios for evaluating the 
 
 - `corpus/development.json` — examples used while changing rules and thresholds.
 - `corpus/regressions.json` — confirmed bugs and false alarms that must not return.
-- `corpus/holdout.json` — scenarios reserved for final evaluation; do not use these to tune rules. Since this project is version controlled, this is a process convention, not access control.
+- `corpus/holdout.json` — scenarios reserved for final evaluation; do not use these to tune rules. A corpus test rejects exact conversation-text overlap with development or regressions. Since this project is version controlled, this is a process convention, not access control.
 - `corpus.schema.json` — JSON Schema for the corpus files.
 - `corpus.evaluation.test.ts` — Vitest runner. It evaluates every turn in a conversation using `ChatSessionState`, then checks the final classification.
+- `RESULTS.md` — dated notes explaining intentional classifier/corpus changes and how to interpret their metric shifts.
 
 The corpora contain labeled cases; check the JSON files for current counts. Add future examples to the appropriate file using the schema. IDs must be unique across all files. Keep paraphrases and variants from the same underlying scenario in the same file/split to avoid leakage.
 
@@ -52,6 +53,7 @@ Expected labels in this suite describe the local heuristic pipeline, before a cl
 3. Include complete dialogue context when the interpretation depends on earlier turns. Order messages chronologically and set `speaker` to `interlocutor` or `user`.
 4. Add a regression case whenever a real false positive or missed threat is confirmed. Remove personal data and replace it with synthetic values first.
 5. Record why the label is correct in `notes`; avoid copying live user conversations verbatim.
-6. For a small bachelor-project evaluation, target at least 300–500 scenarios overall, with benign/ambiguous cases represented generously. Do not treat many near-identical paraphrases as independent evidence.
+6. Keep exact and near-duplicate conversations in the same split. The automated check catches exact text overlap; review paraphrase families manually because a text-level check cannot reliably identify semantic duplicates.
+7. For a small bachelor-project evaluation, target at least 300–500 scenarios overall, with benign/ambiguous cases represented generously. Do not treat many near-identical paraphrases as independent evidence.
 
 The JSON corpus measures local classification and the mitigation policy. Browser pages under `test_pages/scenarios/` remain manual/integration smoke tests for rendering and actual input locking. Those UI outcomes still need browser verification; a correct policy result alone does not prove that the page behaved correctly.
