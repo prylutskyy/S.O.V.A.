@@ -175,7 +175,13 @@ DOM-репліка
 
 ### Б. Нормалізація та витягування кластерів
 
-`IntentClassifier.extractClusters()` визначає мову, нормалізує текст, перевіряє набір багатомовних правил кластерів і формує `matchedSpans` виду `{ cluster, text, weight, start, end }`. Для окремих персональних маркерів використовується `IdentityRequestDetector`, який враховує не тільки назву даних, а й ознаки запиту до адресата. Правила текстової нормалізації описані у [`text-normalizer.ts`](../src/heuristics/text-normalizer.ts); правила нечіткого зіставлення — у [`fuzzy-matcher.ts`](../src/heuristics/fuzzy-matcher.ts).
+`IntentClassifier.extractClusters()` визначає мову, нормалізує текст, перевіряє набір багатомовних правил кластерів і формує `matchedSpans` виду `{ cluster, text, weight, start, end }`. Запити банківських секретів, паролів, секретів криптогаманця та персональних маркерів аналізує спільний [`RequestAnalyzer`](../src/heuristics/request-analyzer.ts). Він формує `requestFrames`: дію, об'єкт, заявлену мету (`payment`, `verification`, `unknown`), напрямок передачі (`interlocutor`, `page`, `unknown`) та фрагмент доказу. Напрямок `page` означає згадку сторінки/посилання, а не доведену небезпечність домену. Це детермінований аналізатор конструкцій, не навчена модель і не LLM.
+
+Наприклад, «Для перевірки профілю перешли мені код з SMS» утворює запит передачі банківського секрету з метою перевірки; «Не передавай код з SMS» не утворює такого запиту. Спільна перевірка пов'язує дію з об'єктом у межах одного речення, на відстані до 120 символів і до 10 проміжних слів. Вона відкидає заперечену дію, впізнані цитати-приклади, повідомлення про вимогу шахрая й запити інструкцій про дані. Словник назв персональних даних і довільні ключові слова Personal Vault залишаються в [`IdentityRequestDetector`](../src/heuristics/identity-request-detector.ts), але використовують той самий механізм зв'язування дії з об'єктом. Рамки актуальної вхідної репліки доступні також у результаті `ChatSessionState`; вихідні репліки не додають їх до локальних доказів.
+
+Запит seed-фрази або пароля гаманця отримує специфічний crypto-кластер; вкладений у нього загальний пароль не створює конкуруючого password-кластера. Мета запиту додає відповідний purpose-кластер, а перевірка з вимогою пароля є окремою допустимою комбінацією для `VERIFICATION_PHISHING`. Заявлена мета визначається за впізнаними конструкціями в тому самому реченні; це ще не повний синтаксичний розбір. Автоматичне зв'язування займенника «його» із секретом попередньої репліки, перенесення військових правил на рамки запитів та навчений класифікатор у цьому етапі не реалізовані. Пороги, часові ваги та правила арбітражу з AI залишаються окремими механізмами. Приріст метрик і ліміти 500 МБ/500 мс потребують вимірювання; сам факт цього рефакторингу їх не підтверджує.
+
+Правила текстової нормалізації описані у [`text-normalizer.ts`](../src/heuristics/text-normalizer.ts); правила нечіткого зіставлення — у [`fuzzy-matcher.ts`](../src/heuristics/fuzzy-matcher.ts).
 
 Нормалізація призначена для пошуку евристичних збігів: вона прибирає частину невидимих і розділових символів, може звести схожі латинські/кириличні знаки й склеїти розбиті пробілами літери. Це збільшує покриття обфускації, але може також збільшити неоднозначність. Це не універсальний декодер шифрування, зображень, аудіо або вкладених файлів.
 
@@ -213,7 +219,7 @@ score(d) = Σ clusterWeight(c), c ∈ matched(d)
 | Намір | Мінімум кластерів | Мінімальний бал | Необхідна комбінація кластерів (достатньо будь-якої однієї) |
 | --- | ---: | ---: | --- |
 | `MILITARY_SABOTAGE_RECRUITMENT` | 1 | 50 | `military_sabotage` |
-| `VERIFICATION_PHISHING` | 2 | 45 | `verification_purpose + payment_credential_request`; `verification_purpose + action_link`; або `verification_trap` із `off_platform`, `action_link`, `delivery_action`, `urgency_pressure` чи `password_theft` |
+| `VERIFICATION_PHISHING` | 2 | 45 | `verification_purpose + payment_credential_request`; `verification_purpose + password_theft`; `verification_purpose + action_link`; або `verification_trap` із `off_platform`, `action_link`, `delivery_action`, `urgency_pressure` чи `password_theft` |
 | `ESCROW_DELIVERY_SCAM` | 2 | 45 | `delivery_action + payment_claim`; `delivery_action + action_link`; `payment_claim + action_link`; `delivery_action + off_platform` |
 | `OFF_PLATFORM_REDIRECT` | 2 | 50 | `off_platform + off_platform_action` (обидва також мають бути в поточній репліці) |
 | `PAYMENT_CREDENTIAL_THEFT` | 1 | 40 | `payment_credential_request`; або `bank_login_request + action_link + payment_purpose` |

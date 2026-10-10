@@ -1,6 +1,7 @@
 import { IntentMatchSpan, IntentClassifier, IntentClassificationResult, ScamIntentType } from './intent-classifier';
 import { SemanticTriggerEngine } from './semantic-trigger';
 import { SupportedLanguage } from './language-detector';
+import { RequestFrame } from './request-analyzer';
 
 export interface ChatMessageContext {
   id: string;
@@ -12,6 +13,7 @@ export interface ChatMessageContext {
   matchedSpans: IntentMatchSpan[];
   detectedLanguage: SupportedLanguage;
   isMixedLanguage: boolean;
+  requestFrames?: RequestFrame[];
 }
 
 export class ChatSessionState {
@@ -67,7 +69,7 @@ export class ChatSessionState {
     this.cleanExpired();
 
     // 1. Extract clusters for the current message
-    const { matchedSpans, detectedClusterMap, normalizedText, detectedLanguage, isMixedLanguage } = IntentClassifier.extractClusters(rawText);
+    const { matchedSpans, detectedClusterMap, normalizedText, detectedLanguage, isMixedLanguage, requestFrames } = IntentClassifier.extractClusters(rawText);
 
     // 2. Save it to state
     this.messages.push({
@@ -80,6 +82,7 @@ export class ChatSessionState {
       matchedSpans: direction === 'inbound' ? matchedSpans : [],
       detectedLanguage,
       isMixedLanguage,
+      requestFrames: direction === 'inbound' ? requestFrames : [],
     });
 
     if (this.messages.filter((message) => message.direction === direction).length > this.MAX_MESSAGES_PER_DIRECTION) {
@@ -151,6 +154,7 @@ export class ChatSessionState {
     if (heuristicResult.hasFormedIntent) {
       return {
         ...heuristicResult,
+        requestFrames: latestInbound.requestFrames ?? [],
         telemetry: semanticResult.telemetry,
       };
     }
@@ -165,6 +169,7 @@ export class ChatSessionState {
 
       return {
         hasFormedIntent: true,
+        requestFrames: latestInbound.requestFrames ?? [],
         intentType: semanticResult.intentType as ScamIntentType,
         intentTitle: semanticResult.intentTitle,
         confidence: semanticResult.confidence,
@@ -180,6 +185,7 @@ export class ChatSessionState {
 
     return {
       ...heuristicResult,
+      requestFrames: latestInbound.requestFrames ?? [],
       telemetry: semanticResult.telemetry,
     };
   }

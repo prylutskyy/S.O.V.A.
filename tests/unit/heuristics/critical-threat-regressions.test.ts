@@ -34,7 +34,7 @@ describe('Critical threat regressions through the chat pipeline', () => {
       );
     }
     expect(result.hasFormedIntent).toBe(true);
-    expect(result.intentType).toBe(entry.expected.intentType);
+    expect(result.intentType, JSON.stringify({ clusters: result.clustersDetected, frames: result.requestFrames })).toBe(entry.expected.intentType);
     expect(getThreatMitigationAction(result.hasFormedIntent, result.intentType)).toBe('LOCK_INPUT');
   });
 

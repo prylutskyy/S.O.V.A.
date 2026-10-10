@@ -2,6 +2,23 @@ import { describe, it, expect } from 'vitest';
 import { IntentClassifier } from '../../../src/heuristics/intent-classifier';
 
 describe('IntentClassifier', () => {
+  describe('shared request analysis', () => {
+    it('binds a requested bank secret to its stated purpose and recipient', () => {
+      const result = IntentClassifier.classify('Для перевірки профілю перешли мені код з SMS.');
+      expect(result.intentType).toBe('VERIFICATION_PHISHING');
+      expect(result.requestFrames).toEqual(expect.arrayContaining([
+        expect.objectContaining({ object: 'payment_secret', purpose: 'verification', destination: 'interlocutor' }),
+      ]));
+    });
+
+    it('binds a wallet seed phrase to a crypto request without a generic password candidate', () => {
+      const result = IntentClassifier.classify('Надішліть seed phrase для відновлення гаманця.');
+      expect(result.intentType).toBe('CRYPTO_WALLET_COMPROMISE');
+      expect(result.clustersDetected).toContain('crypto_phishing');
+      expect(result.clustersDetected).not.toContain('password_theft');
+    });
+  });
+
   describe('Basic operations', () => {
     it('should return empty result for empty or very short strings', () => {
       expect(IntentClassifier.classify('').hasFormedIntent).toBe(false);

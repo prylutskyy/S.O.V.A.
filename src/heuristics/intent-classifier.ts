@@ -1,5 +1,6 @@
 import { TextNormalizer } from './text-normalizer';
 import { IdentityRequestDetector } from './identity-request-detector';
+import { RequestAnalyzer, RequestFrame } from './request-analyzer';
 import { UrlExtractor } from './url-extractor';
 import { PersonalVaultManager } from '../core/personal-vault';
 import { FastLanguageDetector, SupportedLanguage } from './language-detector';
@@ -37,6 +38,7 @@ export interface IntentClassificationResult {
   detectedLanguage?: SupportedLanguage;
   isMixedLanguage?: boolean;
   telemetry?: any;
+  requestFrames?: RequestFrame[];
 }
 
 interface ClusterRule {
@@ -325,17 +327,6 @@ export class IntentClassifier {
     // A verification/profile mention is not by itself a request to steal
     // payment credentials. Keep explicit sensitive-data solicitation separate.
     {
-      cluster: 'payment_credential_request',
-      weight: 60,
-      lang: 'universal',
-      patterns: [
-        /(?:надішліть|скиньте|вкажіть|введіть|повідомте|продиктуйте|напишіть|скажіть|просить)\s+(?:ваш\s+|свій\s+)?(?:код\s+підтвердження|одноразовий\s+код|фото\s+картки\s+з\s+обох\s+боків)/giu,
-        /(?:надішліть|скиньте|вкажіть|введіть|повідомте|продиктуйте|напишіть|скажіть|пришлите|укажите|введите|сообщите|назовите)\s+(?:ваш\s+|свій\s+|свой\s+)?код\s+(?:з|із|из)\s*(?:sms|смс|банківського\s+повідомлення)/giu,
-        /(?:надішліть|вкажіть|введіть|продиктуйте|назвіть|пришлите|укажите|введите|продиктуйте|назовите|send|share|enter|provide|tell)\s+(?:ваш\s+|свій\s+|свой\s+|your\s+)?(?:[pр][iі]n\s*код|pin\s*code|код\s+безопасности\s+карт[а-яё]*|[cс]v[vв]|[cс]v[cс])/giu,
-        /(?:надішліть|скиньте|вкажіть|введіть|повідомте|продиктуйте|напишіть|скажіть|дайте|потрібен|потрібно|треба)\s+(?=[^.!?\n]{0,80}(?:[cс]vv|[cс]v[cс]|код|смс|одноразов|баланс|картк|термін\s+дії|(?:16|іб)\s+цифр))[^.!?\n]{0,80}(?:[cс]vv|[cс]v[cс]|код\s+(?:з|із)\s*смс|смс[- ]код|одноразов(?:ий|ого)\s+код|код\s+безпеки|баланс(?:\s+картки)?|(?:номер|дані|реквізити)\s+(?:вашої\s+)?картк|термін\s+дії\s+картк|(?:16|іб)\s+цифр)/giu,
-      ],
-    },
-    {
       cluster: 'bank_login_request',
       weight: 60,
       lang: 'universal',
@@ -343,22 +334,6 @@ export class IntentClassifier {
         /(?:авторизуйтеся|увійдіть|введіть\s+(?:логін|пароль))\s+(?:в|у|до|від)\s+(?:вашого\s+|свого\s+)?банк[а-яіїє]*/giu,
         /(?:авторизуйтесь|войдите|введите\s+(?:логин|пароль))\s+(?:в|от)\s+(?:вашего\s+)?банк[а-яё]*/giu,
         /(?:log\s*in|sign\s*in)\s+(?:to|at)\s+(?:your\s+)?bank/giu,
-      ],
-    },
-    {
-      cluster: 'payment_credential_request',
-      weight: 60,
-      lang: 'universal',
-      patterns: [
-        /(?:пришлите|скиньте|укажите|введите|сообщите|продиктуйте|напишите|скажите|дайте|нужен|нужно|надо)\s+(?=[^.!?\n]{0,80}(?:cvv|cvc|код|смс|одноразов|баланс|карт|срок\s+действия))[^.!?\n]{0,80}(?:cvv|cvc|код\s+(?:из|с)\s*смс|смс[- ]код|одноразов(?:ый|ого)\s+код|код\s+безопасности|баланс(?:\s+карты)?|(?:номер|данные|реквизиты)\s+(?:вашей\s+)?карт|срок\s+действия\s+карт|16\s+цифр)/giu,
-      ],
-    },
-    {
-      cluster: 'payment_credential_request',
-      weight: 60,
-      lang: 'universal',
-      patterns: [
-        /(?:send|share|provide|enter|tell|text|give|need|require)\s+(?=[^.!?\n]{0,80}(?:cvv|cvc|code|sms|otp|balance|card|expir))[^.!?\n]{0,80}(?:cvv|cvc|security\s+code|sms\s+(?:code|passcode)|one[- ]time\s+(?:code|password|passcode)|otp|card\s+(?:number|details|balance)|(?:number|details)\s+of\s+(?:your\s+)?card|expir(?:y|ation)\s+date)/giu,
       ],
     },
 
@@ -463,32 +438,7 @@ export class IntentClassifier {
       ],
     },
 
-    // =========================================================================
-    // 9. CRYPTO PHISHING & PASSWORD THEFT
-    // =========================================================================
-    {
-      cluster: 'crypto_phishing',
-      weight: 45,
-      lang: 'universal',
-      patterns: [
-        // Require a request and a wallet secret, rather than a wallet/crypto mention.
-        // Technical English words also match the Cyrillic homoglyphs produced by normalization.
-        /(?:надішліть|надішли|надсилайте|повідомте|повідомляйте|повідом|ввести|введіть|вводьте|надавайте|просить|попросив|пришлите|сообщите|просит|напишіть|вкажіть|скиньте|надайте|продиктуйте|напишите|укажите|предоставьте|введите|send|share|enter|provide|give|tell)\s+(?:ваш[а-яіїєё]*\s+|св[іо][йю]\s+|your\s+)?(?:с[іи]д\s*фраз[а-яіїєё]*|s[еe]{2}d\s*[рp]hr[аa]s[еe]|s[еe][сc]r[еe]t\s*r[еe][сc][оo]v[еe]r[уy]\s*[рp]hr[аa]s[еe]|мнемон[іи]ч[а-яіїєё]*\s+фраз[а-яіїєё]*|резервн[а-яіїєё]*\s+фраз[а-яіїєё]*|приватн[а-яіїєё]*\s+ключ[а-яіїєё]*|[рp]r[іi]v[аa]t[еe]\s+k[еe][уy])/giu,
-        /(?:напишіть|вкажіть|скиньте|скажіть|надайте|продиктуйте|введіть|дайте|напишите|укажите|скажите|предоставьте|введите|enter|provide|send|tell|give)\s+(?:ваш[уа]\s+|свою\s+|свой\s+|your\s+)?(?:сід[-_\s]?фраз[ауи]|сид[-_\s]?фраз[ауе]|s[еe]{2}d\s*[рp]hr[аa]s[еe]|seed\s*phrase|[1іi]2\s*сл[іиоа]в|[1іi]2\s*words|24\s*сл[оа]в[ау]?|24\s*words|s[еe][сc]r[еe]t\s*r[еe][сc][оo]v[еe]r[уy]|secret\s*recovery|мнемонічн[а-яіїє]*|мнемоническ[а-яё]*)/gi,
-        /(?:надішліть|вкажіть|скиньте|скажіть|надайте|продиктуйте|введіть|дайте)\s+(?:ваш[ау]?\s+|свій\s+|свою\s+)?(?:пароль\s+(?:від\s+)?(?:крипто)?гаманц[яю]|(?:крипто)?гаманц[яю]\s+пароль)/giu,
-        /(?:пришлите|укажите|скиньте|скажите|предоставьте|введите|дайте)\s+(?:ваш[а-яё]*\s+|свой\s+|свою\s+)?(?:пароль\s+(?:от\s+)?(?:крипто)?кошельк[а-яё]*|(?:крипто)?кошельк[а-яё]*\s+пароль)/giu,
-        /(?:provide|send|share|enter|tell|give|need)\s+(?:your\s+)?(?:wallet\s+password|password\s+(?:for|of)\s+(?:your\s+)?wallet)/giu,
-      ],
-    },
-    {
-      cluster: 'password_theft',
-      weight: 40,
-      lang: 'universal',
-      patterns: [
-        /(?:напишіть|вкажіть|скиньте|скажіть|надайте|продиктуйте|введіть|дайте|напишите|укажите|скажите|предоставьте|введите|enter|provide|send|tell|give)\s+(?:ваш\s+|свій\s+|свой\s+|your\s+)?(?:пароль|[рp][аa]ssw[оo]rd|password|[рp]wd|pwd|pass)/gi,
-        /пароль\s+від|пароль\s+от|password\s+for/gi,
-      ],
-    },
+    // Sensitive secret requests are extracted by RequestAnalyzer below.
   ];
 
   /**
@@ -535,6 +485,7 @@ export class IntentClassifier {
       ],
       requiredClusters: [
         ['verification_purpose', 'payment_credential_request'],
+        ['verification_purpose', 'password_theft'],
         ['verification_purpose', 'action_link'],
         ['verification_trap', 'off_platform'],
         ['verification_trap', 'action_link'],
@@ -757,7 +708,10 @@ export class IntentClassifier {
     const matchedSpans: IntentMatchSpan[] = [];
     const detectedClusterMap: Map<string, number> = new Map();
 
-    // 3. Запуск виключно релевантних мовних регулярних виразів
+    const requestFrames = RequestAnalyzer.analyze(rawText, langResult.primary, IdentityRequestDetector.getObjectPattern());
+
+    // Sensitive requests share one action/object binder instead of maintaining
+    // different verb/object combinations for each threat type.
     for (const rule of this.clusters) {
       const ruleLang = rule.lang || 'universal';
       if (!activeLangs.has(ruleLang)) {
@@ -772,10 +726,10 @@ export class IntentClassifier {
             const precedingText = text.slice(Math.max(0, match.index - 36), match.index);
             if (this.OFF_PLATFORM_NEGATION.test(precedingText)) continue;
           }
-          if (['payment_credential_request', 'crypto_phishing', 'military_sabotage'].includes(rule.cluster)) {
+          if (rule.cluster === 'military_sabotage') {
             const precedingText = text.slice(Math.max(0, match.index - 48), match.index);
             if (this.SENSITIVE_REQUEST_NEGATION.test(precedingText)) continue;
-            if (rule.cluster !== 'payment_credential_request' && this.HARD_LOCK_REQUEST_NEGATION.test(precedingText)) continue;
+            if (this.HARD_LOCK_REQUEST_NEGATION.test(precedingText)) continue;
           }
           matchedSpans.push({
             start: match.index,
@@ -790,10 +744,20 @@ export class IntentClassifier {
       }
     }
 
-    // Identity evidence requires a request directed at a sensitive object.
-    for (const span of IdentityRequestDetector.detect(rawText, langResult.primary)) {
-      matchedSpans.push({ ...span, cluster: 'identity_probing', weight: 45 });
-      detectedClusterMap.set('identity_probing', 45);
+    for (const frame of requestFrames) {
+      const cluster = frame.object === 'identity' ? 'identity_probing'
+        : frame.object === 'wallet_secret' ? 'crypto_phishing'
+        : frame.object === 'account_password' ? 'password_theft' : 'payment_credential_request';
+      const weight = frame.object === 'payment_secret' ? 60 : frame.object === 'account_password' ? 40 : 45;
+      matchedSpans.push({ start: frame.start, end: frame.end, text: frame.text, cluster, weight });
+      detectedClusterMap.set(cluster, Math.max(detectedClusterMap.get(cluster) ?? 0, weight));
+      // Purpose contributes only when attached to an actual sensitive request.
+      if (frame.purpose !== 'unknown') {
+        const purposeCluster = frame.purpose === 'payment' ? 'payment_purpose' : 'verification_purpose';
+        const purposeWeight = frame.purpose === 'payment' ? 25 : 40;
+        matchedSpans.push({ start: frame.start, end: frame.end, text: frame.text, cluster: purposeCluster, weight: purposeWeight });
+        detectedClusterMap.set(purposeCluster, purposeWeight);
+      }
     }
 
     // 4. Динамічна багатомовна перевірка ключових слів активних об'єктів Personal Vault
@@ -817,7 +781,8 @@ export class IntentClassifier {
       detectedClusterMap,
       normalizedText: text,
       detectedLanguage: langResult.primary,
-      isMixedLanguage: langResult.isMixed
+      isMixedLanguage: langResult.isMixed,
+      requestFrames,
     };
   }
 
@@ -948,7 +913,7 @@ export class IntentClassifier {
       };
     }
     const activeClusters = Array.from(extracted.detectedClusterMap.keys());
-    return this.evaluateStatefulIntent(
+    const result = this.evaluateStatefulIntent(
       activeClusters,
       extracted.detectedClusterMap,
       extracted.matchedSpans,
@@ -957,5 +922,6 @@ export class IntentClassifier {
       extracted.isMixedLanguage,
       activeClusters
     );
+    return { ...result, requestFrames: extracted.requestFrames ?? [] };
   }
 }
