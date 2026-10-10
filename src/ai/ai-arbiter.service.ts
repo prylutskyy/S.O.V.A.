@@ -5,6 +5,7 @@ import { OutboundDataSanitizer } from '../privacy/outbound-data-sanitizer';
 import { ChatSessionState } from '../heuristics/chat-session-state';
 import { UrlExtractor } from '../heuristics/url-extractor';
 import type { AICheckResult } from '../ui/ai-check-history';
+import { PseudonymizationContext } from '../privacy/pseudonymization-context';
 
 export interface AIArbiterVerifyOptions {
   context: ActiveThreatContext;
@@ -31,6 +32,14 @@ export interface AIArbiterVerifyResult extends AICheckResult {
  * та швидке LRU/TTL кешування за відбитком контексту для уникнення навантаження на слабкий CPU/GPU.
  */
 export class AIArbiterService {
+  private static privacySession = new PseudonymizationContext();
+  private static privacySessionKey = '';
+  static {
+    ChatSessionState.onReset(() => {
+      this.privacySession.clear();
+      this.privacySessionKey = '';
+    });
+  }
   private static inflightRequest: {
     key: string;
     requestId: number;
@@ -72,6 +81,8 @@ export class AIArbiterService {
    * Очищення кешу та скасування активного запиту (для тестів або скидання сесії)
    */
   public static clearCache(): void {
+    this.privacySession.clear();
+    this.privacySessionKey = '';
     this.cache.clear();
     this.cancelPending();
   }
@@ -146,7 +157,9 @@ export class AIArbiterService {
     const currentRequestId = ++this.requestCounter;
     const abortController = new AbortController();
 
-    const executionPromise = this.executeInference(options, currentRequestId, abortController, cacheKey, chatDialogue);
+    // Preparation failures must never fall back to sending the original text.
+    const executionPromise = this.executeInference(options, currentRequestId, abortController, cacheKey, chatDialogue)
+      .catch(() => null);
 
     this.inflightRequest = {
       key: cacheKey,
@@ -202,16 +215,23 @@ export class AIArbiterService {
     } catch {}
 
     // ── ZERO-KNOWLEDGE ПСЕВДОНІМІЗАЦІЯ ДАНИХ ──────────────────────────────
-    const sanitizedScan = OutboundDataSanitizer.sanitize(scanText);
-    const sanitizedDialogue = OutboundDataSanitizer.sanitize(chatDialogue);
+    const privacyKey = `${ChatSessionState.sessionRevision}:${context.sessionId || ''}`;
+    if (this.privacySessionKey !== privacyKey) {
+      this.privacySession.clear();
+      this.privacySessionKey = privacyKey;
+    }
+    const privacyOptions = { privacySession: this.privacySession };
+    const sanitizedDialogue = OutboundDataSanitizer.sanitize(chatDialogue, privacyOptions);
+    const sanitizedScan = OutboundDataSanitizer.sanitize(scanText, privacyOptions);
 
     const sanitizedPrompt = OutboundDataSanitizer.buildCloudPrompt(sanitizedScan, {
+      privacySession: this.privacySession,
       sourcePlatform: context.sourcePlatform,
       targetHost,
       dialogueHistory: sanitizedDialogue.sanitizedText,
       dialogueMessages: ChatSessionState.getRecentMessages().map(message => ({
         speaker: message.direction === 'outbound' ? 'user' as const : 'interlocutor' as const,
-        text: OutboundDataSanitizer.sanitize(message.rawText).sanitizedText,
+        text: OutboundDataSanitizer.sanitize(message.rawText, privacyOptions).sanitizedText,
         observedAgeMs: Math.max(0, Date.now() - message.timestamp),
       })),
       detectedKeywords: context.detectedKeywords || [],

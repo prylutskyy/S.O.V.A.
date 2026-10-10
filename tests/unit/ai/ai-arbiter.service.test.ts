@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { AIArbiterService } from '../../../src/ai/ai-arbiter.service';
 import { ActiveThreatContext } from '../../../src/types';
 import { ChatSessionState } from '../../../src/heuristics/chat-session-state';
+import { OutboundDataSanitizer } from '../../../src/privacy/outbound-data-sanitizer';
 
 describe('AIArbiterService (Single-Flight & Cache)', () => {
   const baseContext: ActiveThreatContext = {
@@ -27,6 +28,26 @@ describe('AIArbiterService (Single-Flight & Cache)', () => {
     globalThis.chrome = undefined;
     const result = await AIArbiterService.verify({ context: baseContext });
     expect(result).toBeNull();
+  });
+  it('sends nothing and keeps fallback available when privacy preparation fails', async () => {
+    const sendMessage = vi.fn(); vi.stubGlobal('chrome', { runtime: { sendMessage } });
+    vi.spyOn(OutboundDataSanitizer, 'sanitize').mockImplementation(() => { throw new Error('Privacy budget'); });
+    expect(await AIArbiterService.verify({ context: baseContext, rawTextToScan: 'private' })).toBeNull();
+    expect(sendMessage).not.toHaveBeenCalled();
+  });
+
+  it('keeps raw local messages but sends only pseudonyms and resets the privacy map with the chat', async () => {
+    const raw = 'Мене звати Іван Петренко. Email ivan@example.invalid';
+    ChatSessionState.addMessageAndEvaluate(raw, 'outbound');
+    const sendMessage = vi.fn((_message: any, callback: (response: any) => void) => callback({ aiResult: null }));
+    vi.stubGlobal('chrome', { runtime: { sendMessage } });
+    await AIArbiterService.verify({ context: baseContext, rawTextToScan: 'Для Іван Петренко надішліть CVV.' });
+    const prompt = sendMessage.mock.calls[0][0].payload.sanitizedPrompt;
+    expect(prompt).not.toContain('Іван Петренко'); expect(prompt).not.toContain('ivan@');
+    expect(ChatSessionState.getRecentMessages()[0].rawText).toBe(raw);
+    const privacy = (AIArbiterService as any).privacySession;
+    expect(privacy.replaceKnown('Іван Петренко')).toBe('[PERSON_1]');
+    ChatSessionState.reset(); expect(privacy.replaceKnown('Іван Петренко')).toBe('Іван Петренко');
   });
 
   it('sends sanitized role-labelled history without duplicating the cached snapshot or asserting a local verdict', async () => {

@@ -16,7 +16,7 @@ export function makeInput(messages: string[]): LocalInput {
   const latest = bounded.at(-1) ?? '';
   return { messages, frames: RequestAnalyzer.analyze(latest, FastLanguageDetector.detect(latest).primary, IdentityRequestDetector.getObjectPattern()) };
 }
-export function digest(value: string): string { return createHash('sha256').update(value).digest('hex'); }
+export function digest(value: string): string { return createHash('sha256').update(value.replace(/\r\n/g, '\n')).digest('hex'); }
 export function prepareDataset(): TrainingDataset {
   const records = ['development', 'regressions'].flatMap(source => readCorpus(source).map(entry => {
     const label = entry.expected.detected ? entry.expected.intentType : 'SAFE';

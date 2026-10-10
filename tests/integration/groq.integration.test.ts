@@ -2,6 +2,8 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { GroqDriver } from '../../src/ai/cloud/drivers/groq-driver';
+import { OutboundDataSanitizer } from '../../src/privacy/outbound-data-sanitizer';
+import { PseudonymizationContext } from '../../src/privacy/pseudonymization-context';
 
 type CorpusCase = {
   id: string;
@@ -65,9 +67,14 @@ describe.skipIf(!enabled)('Groq live integration', () => {
     for (const scenario of scenarios) {
       await new Promise(resolve => setTimeout(resolve, Math.max(0, lastStart + interval - Date.now())));
       lastStart = Date.now();
-      const prompt = scenario.messages
+      const privacySession = new PseudonymizationContext();
+      const history = scenario.messages
         .map(({ speaker, text }) => `${speaker === 'user' ? '[Ви]' : '[Співрозмовник]'}: ${text}`)
         .join('\n');
+      const dialogueHistory = OutboundDataSanitizer.sanitize(history, { privacySession }).sanitizedText;
+      const latest = scenario.messages.filter(m => m.speaker !== 'user').at(-1)?.text || '';
+      const prompt = OutboundDataSanitizer.buildCloudPrompt(
+        OutboundDataSanitizer.sanitize(latest, { privacySession }), { dialogueHistory, privacySession });
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), Number(process.env.GROQ_TIMEOUT_MS || 30_000));
       try {

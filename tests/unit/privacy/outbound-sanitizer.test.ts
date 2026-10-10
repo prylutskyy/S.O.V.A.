@@ -54,7 +54,7 @@ describe('OutboundDataSanitizer (Zero-Knowledge Privacy Guard)', () => {
       expect(result.telemetry.hasValidPaymentCard).toBe(true);
       expect(result.telemetry.cardBrand).toBe('Visa');
       expect(result.telemetry.cardCount).toBe(1);
-      expect(result.isFullyAnonymized).toBe(true);
+      expect(result.hasRecognizedResidualCards).toBe(false);
     });
 
     it('should replace Mastercard with proper brand detection', () => {
@@ -141,7 +141,7 @@ describe('OutboundDataSanitizer (Zero-Knowledge Privacy Guard)', () => {
       expect(result.telemetry.hasCardExpiry).toBe(true);
       expect(result.telemetry.hasOtp).toBe(true);
       expect(result.telemetry.vaultMarkersDetected.length).toBe(2);
-      expect(result.isFullyAnonymized).toBe(true);
+      expect(result.hasRecognizedResidualCards).toBe(false);
     });
   });
 

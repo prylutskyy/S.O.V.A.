@@ -7,6 +7,9 @@ import { ChatSessionState } from '../../../src/heuristics/chat-session-state';
 import { digest, makeInput, prepareDataset } from '../../../scripts/local-classifier/dataset';
 
 describe('Learned linear classifier: shadow-only safety and reproducibility', () => {
+  it('hashes identical training text consistently across LF and Windows CRLF', () => {
+    expect(digest('one\r\ntwo\r\n')).toBe(digest('one\ntwo\n'));
+  });
   beforeEach(() => ChatSessionState.reset());
   afterEach(() => { vi.restoreAllMocks(); vi.useRealTimers(); ChatSessionState.reset(); });
 

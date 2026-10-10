@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 import { GroqDriver } from '../../src/ai/cloud/drivers/groq-driver';
 import { OutboundDataSanitizer } from '../../src/privacy/outbound-data-sanitizer';
 import { IntentClassifier } from '../../src/heuristics/intent-classifier';
+import { PseudonymizationContext } from '../../src/privacy/pseudonymization-context';
 
 type Message = { speaker: string; text: string; atMs?: number };
 type Scenario = { id: string; annotationReview?: string; messages: Message[]; expected: { detected: boolean; intentType: string | null; action?: string } };
@@ -67,14 +68,15 @@ describe.skipIf(!enabled)('Groq prompt comparison', () => {
       const c = cases[i];
       const latest = c.messages.filter(m => m.speaker !== 'user').at(-1)?.text || '';
       const local = IntentClassifier.classify(latest);
-      const payload = OutboundDataSanitizer.sanitize(latest);
+      const privacySession = new PseudonymizationContext();
       const dialogueHistory = OutboundDataSanitizer.sanitize(c.messages.map(m =>
-        `${m.atMs === undefined ? '' : `[+${m.atMs}ms] `}${m.speaker === 'user' ? '[Ви]' : '[Співрозмовник]'}: ${m.text}`).join('\n')).sanitizedText;
+        `${m.atMs === undefined ? '' : `[+${m.atMs}ms] `}${m.speaker === 'user' ? '[Ви]' : '[Співрозмовник]'}: ${m.text}`).join('\n'), { privacySession }).sanitizedText;
+      const payload = OutboundDataSanitizer.sanitize(latest, { privacySession });
       const end = c.messages.at(-1)?.atMs || 0;
-      const context = { dialogueHistory, sourcePlatform: 'synthetic-test',
+      const context = { privacySession, dialogueHistory, sourcePlatform: 'synthetic-test',
         dialogueMessages: c.messages.map(m => ({
           speaker: m.speaker === 'user' ? 'user' as const : 'interlocutor' as const,
-          text: OutboundDataSanitizer.sanitize(m.text).sanitizedText,
+          text: OutboundDataSanitizer.sanitize(m.text, { privacySession }).sanitizedText,
           observedAgeMs: Math.max(0, end - (m.atMs ?? end)),
         })),
         intentType: local.intentType || 'UNKNOWN',

@@ -42,6 +42,8 @@ Without an environment key, no live comparison is performed. Mock tests check pr
 
 ## Production verdict contract
 
+Both runners now prepare dialogues with the production sanitizer and prompt builder. Each scenario has one shared pseudonym map for history and latest-message fields. Historical metrics predate the expanded privacy policy; do not treat them as measurements of the new prompts. See [privacy pipeline](../../docs/PRIVACY_PIPELINE.md) and [offline privacy report](../results/PRIVACY_REPORT.md). Live runs remain explicitly opt-in.
+
 Groq must return `isScam` as a boolean, finite `confidence` in 0–100, a known `scamType`, and nonempty `reasoning`. Missing/malformed fields and unknown class aliases fail verification instead of becoming SAFE or a guessed military class. `UNKNOWN` cannot represent a confirmed attack; use `SUSPICIOUS_LURE` for attacks outside the specific classes. The dispatcher returns no cloud verdict on failure, so the existing browser-AI/local fallback applies. This strict validation currently covers the Groq driver; other provider adapters have their own parsers.
 
 These tests send synthetic corpus messages to the real Groq API through the production `GroqDriver`. They verify the configured model/API path, the response contract, and detection metrics. They are separate from unit tests and the local corpus runner. Do not put real conversations, personal information, credentials, or secrets in the corpus.

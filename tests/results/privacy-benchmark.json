@@ -1,0 +1,10 @@
+{
+  "date": "2026-10-10",
+  "scope": "Full sanitizer in Node, fresh context per synthetic 100-line dialogue; not Chrome memory or target i3 guarantee",
+  "characters": 5289,
+  "samples": 100,
+  "medianMs": 0.33550000000002456,
+  "p95Ms": 0.5194999999999936,
+  "maxMs": 0.7239000000000146,
+  "processRssMiB": 47.57421875
+}

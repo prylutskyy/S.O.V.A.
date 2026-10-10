@@ -27,6 +27,8 @@ export class ChatSessionState {
 
   // Incremented on reset so cached verdicts cannot cross conversation sessions.
   public static sessionRevision = 0;
+  private static resetListeners = new Set<() => void>();
+  public static onReset(listener: () => void): void { this.resetListeners.add(listener); }
 
   // Latest AI verdict; SAFE does not grant session-wide immunity.
   public static sessionLlmVerdict: 'SCAM' | 'SAFE' | null = null;
@@ -35,6 +37,7 @@ export class ChatSessionState {
 
   public static reset() {
     this.sessionRevision += 1;
+    for (const listener of this.resetListeners) listener();
     this.messages = []; 
     this.shadowCache = undefined;
     this.sessionLlmVerdict = null;

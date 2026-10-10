@@ -2,6 +2,7 @@ import { SensitiveAssetDetector } from '../heuristics/sensitive-asset-detector';
 import { PersonalVaultManager } from '../core/personal-vault';
 import { VaultItemCategory } from '../types/vault';
 import { THREAT_TAXONOMY } from '../ai/cloud/threat-taxonomy';
+import { PseudonymizationContext, redactPersonalData } from './pseudonymization-context';
 
 export interface SanitizedTokenRecord {
   placeholder: string;
@@ -31,7 +32,9 @@ export interface SanitizedPayload {
   sanitizedText: string;
   telemetry: SecurityTelemetryFlags;
   redactedTokens: SanitizedTokenRecord[];
-  isFullyAnonymized: boolean;
+  /** Limited integrity check, not a guarantee that arbitrary PII was recognized. */
+  hasRecognizedResidualCards: boolean;
+  privacyStatus: 'processed';
 }
 
 export class OutboundDataSanitizer {
@@ -52,7 +55,7 @@ export class OutboundDataSanitizer {
    */
   public static sanitize(
     rawText: string,
-    context?: { targetHost?: string; sourcePlatform?: string }
+    context?: { targetHost?: string; sourcePlatform?: string; privacySession?: PseudonymizationContext }
   ): SanitizedPayload {
     if (!rawText) {
       return {
@@ -67,11 +70,13 @@ export class OutboundDataSanitizer {
           totalSensitiveAssetsRedacted: 0,
         },
         redactedTokens: [],
-        isFullyAnonymized: true,
+        hasRecognizedResidualCards: false,
+        privacyStatus: 'processed',
       };
     }
 
-    let sanitizedText = rawText;
+    const privacy = context?.privacySession || new PseudonymizationContext();
+    let sanitizedText = rawText.normalize('NFKC').replace(/[\u200B-\u200D\uFEFF]/g, '');
     const redactedTokens: SanitizedTokenRecord[] = [];
     const vaultMarkersDetected: Array<{ category: VaultItemCategory | string; label: string; tier: string }> = [];
 
@@ -106,6 +111,7 @@ export class OutboundDataSanitizer {
               break;
           }
 
+          if (context?.privacySession) placeholder = privacy.token(placeholder.slice(1, -1), realVal);
           sanitizedText = sanitizedText.split(realVal).join(placeholder);
 
           redactedTokens.push({
@@ -136,7 +142,7 @@ export class OutboundDataSanitizer {
           cardBrand = this.getCardBrand(cardDigits);
         }
 
-        const placeholder = `[VERIFIED_CARD_NUMBER_${idx + 1}]`;
+        const placeholder = context?.privacySession ? privacy.token('VERIFIED_CARD_NUMBER', cardDigits) : `[VERIFIED_CARD_NUMBER_${idx + 1}]`;
 
         // Замінюємо різні формати написання тієї ж картки (з пробілами/дефісами)
         const digitsArray = cardDigits.split('');
@@ -161,7 +167,7 @@ export class OutboundDataSanitizer {
 
     if (cvvResult.detected && cvvResult.match) {
       hasCvv = true;
-      const placeholder = '[VERIFIED_CVV_CODE]';
+      const placeholder = context?.privacySession ? privacy.token('VERIFIED_CVV_CODE', cvvResult.match) : '[VERIFIED_CVV_CODE]';
       const code = cvvResult.match;
 
       // Заміна CVV з прив'язкою до контекстного слова або окремого 3-значного числа
@@ -187,7 +193,7 @@ export class OutboundDataSanitizer {
 
     if (expiryResult.detected && expiryResult.match) {
       hasCardExpiry = true;
-      const placeholder = '[VERIFIED_EXPIRY_DATE]';
+      const placeholder = context?.privacySession ? privacy.token('VERIFIED_EXPIRY_DATE', expiryResult.match) : '[VERIFIED_EXPIRY_DATE]';
       sanitizedText = sanitizedText.replace(expiryResult.match, placeholder);
 
       redactedTokens.push({
@@ -203,7 +209,7 @@ export class OutboundDataSanitizer {
 
     if (otpResult.detected && otpResult.match) {
       hasOtp = true;
-      const placeholder = '[VERIFIED_SMS_OTP_CODE]';
+      const placeholder = context?.privacySession ? privacy.token('VERIFIED_SMS_OTP_CODE', otpResult.match) : '[VERIFIED_SMS_OTP_CODE]';
       sanitizedText = sanitizedText.replace(otpResult.match, placeholder);
 
       redactedTokens.push({
@@ -219,7 +225,7 @@ export class OutboundDataSanitizer {
     
     if (seedResult.detected && seedResult.match) {
       hasSeedPhrase = true;
-      const placeholder = '[VERIFIED_CRYPTO_SEED_PHRASE]';
+      const placeholder = context?.privacySession ? privacy.token('VERIFIED_CRYPTO_SEED_PHRASE', seedResult.match) : '[VERIFIED_CRYPTO_SEED_PHRASE]';
       sanitizedText = sanitizedText.replace(seedResult.match, placeholder);
 
       redactedTokens.push({
@@ -235,7 +241,7 @@ export class OutboundDataSanitizer {
 
     if (passwordResult.detected && passwordResult.match) {
       hasPassword = true;
-      const placeholder = '[VERIFIED_PASSWORD]';
+      const placeholder = context?.privacySession ? privacy.token('VERIFIED_PASSWORD', passwordResult.match) : '[VERIFIED_PASSWORD]';
       sanitizedText = sanitizedText.replace(passwordResult.match, placeholder);
 
       redactedTokens.push({
@@ -245,11 +251,39 @@ export class OutboundDataSanitizer {
       });
     }
 
+    // Repeated distinct secrets must be consumed, not just the first match.
+    const detectors = [
+      ['VERIFIED_CVV_CODE', (text: string) => SensitiveAssetDetector.detectCvv(text, false)],
+      ['VERIFIED_EXPIRY_DATE', (text: string) => SensitiveAssetDetector.detectExpirationDate(text, false)],
+      ['VERIFIED_SMS_OTP_CODE', SensitiveAssetDetector.detectOtp],
+      ['VERIFIED_CRYPTO_SEED_PHRASE', SensitiveAssetDetector.detectSeedPhrase],
+      ['VERIFIED_PASSWORD', SensitiveAssetDetector.detectPassword],
+    ] as const;
+    for (const [kind, detector] of detectors) {
+      for (let i = 0; i < 256; i++) {
+        const found = detector(sanitizedText);
+        if (!found.detected || !found.match) break;
+        const placeholder = privacy.token(kind, found.match);
+        const next = sanitizedText.split(found.match).join(placeholder);
+        if (next === sanitizedText) break;
+        sanitizedText = next;
+        redactedTokens.push({ placeholder, originalAssetType: kind });
+        if (kind === 'VERIFIED_CVV_CODE') hasCvv = true;
+        if (kind === 'VERIFIED_EXPIRY_DATE') hasCardExpiry = true;
+        if (kind === 'VERIFIED_SMS_OTP_CODE') hasOtp = true;
+        if (kind === 'VERIFIED_CRYPTO_SEED_PHRASE') hasSeedPhrase = true;
+        if (kind === 'VERIFIED_PASSWORD') hasPassword = true;
+        if (i === 255) throw new Error('Privacy secret processing capacity exceeded');
+      }
+    }
+    sanitizedText = redactPersonalData(sanitizedText, privacy, (placeholder, kind) => {
+      redactedTokens.push({ placeholder, originalAssetType: kind });
+    });
     const totalSensitiveAssetsRedacted = redactedTokens.length;
 
     // Перевірка цілісності: чи залишився будь-який сирий номер картки
     const remainingCards = SensitiveAssetDetector.extractCardNumbers(sanitizedText);
-    const isFullyAnonymized = remainingCards.length === 0;
+    const hasRecognizedResidualCards = remainingCards.length > 0;
 
     return {
       sanitizedText,
@@ -266,7 +300,8 @@ export class OutboundDataSanitizer {
         totalSensitiveAssetsRedacted,
       },
       redactedTokens,
-      isFullyAnonymized,
+      hasRecognizedResidualCards,
+      privacyStatus: 'processed',
     };
   }
 
@@ -279,6 +314,19 @@ export class OutboundDataSanitizer {
     context?: Parameters<typeof OutboundDataSanitizer.buildLegacyCloudPrompt>[1],
     variant: 'text-only' | 'observations' | 'compact' | 'legacy' = 'compact'
   ): string {
+    const privacy = context?.privacySession || new PseudonymizationContext();
+    const clean = (text: string) => this.sanitize(text, { privacySession: privacy }).sanitizedText;
+    // Protect every evidence field at the final boundary, including direct test callers.
+    context = context ? { ...context,
+      dialogueHistory: clean(context.dialogueHistory || ''),
+      dialogueMessages: context.dialogueMessages?.map(m => ({ ...m, text: clean(m.text) })),
+      sourcePlatform: clean(context.sourcePlatform || ''), targetHost: clean(context.targetHost || ''),
+      intentType: clean(context.intentType || ''),
+      detectedKeywords: context.detectedKeywords?.map(clean), suspiciousUrls: context.suspiciousUrls?.map(clean),
+      raisedFlags: context.raisedFlags?.map(clean), scenarioRule: clean(context.scenarioRule || ''),
+    } : undefined;
+    payload = { ...payload, sanitizedText: clean(payload.sanitizedText),
+      telemetry: { ...payload.telemetry, vaultMarkersDetected: payload.telemetry.vaultMarkersDetected.map(m => ({ ...m, label: 'Private vault item' })) } };
     if (variant === 'legacy') return this.buildLegacyCloudPrompt(payload, context);
     if (variant === 'compact') {
       const history = context?.dialogueHistory?.trim() || '';
@@ -336,6 +384,7 @@ ${JSON.stringify(evidence)}`;
   public static buildLegacyCloudPrompt(
     payload: SanitizedPayload,
     context?: {
+      privacySession?: PseudonymizationContext;
       sourcePlatform?: string;
       targetHost?: string;
       scenarioRule?: string;

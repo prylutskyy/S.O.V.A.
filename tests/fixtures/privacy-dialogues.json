@@ -1,0 +1,13 @@
+{
+  "description": "Synthetic privacy regression examples; no real personal data. Extend forbidden values and preserved meaning together.",
+  "cases": [
+    {"id":"privacy-short-name","text":"Мене звати Олена.","forbidden":["Олена"],"preserved":["Мене звати"]},
+    {"id":"privacy-two-addresses","text":"Адреса: вул. Миру 12; адреса: вул. Сонячна 25","forbidden":["Миру","Сонячна","12","25"],"preserved":["ADDRESS_1","ADDRESS_2"]},
+    {"id":"privacy-phone-formats","text":"Телефон: 07700900123; телефон: +44 7700 900123","forbidden":["900123"],"preserved":["PHONE_1","PHONE_2"]},
+    {"id":"privacy-expiry-formats","text":"Термін дії: 08.2028; expiry: 11-2029","forbidden":["08.2028","11-2029"],"preserved":["EXPIRY_DATE"]},
+    {"id":"privacy-negated-request","text":"Ось email test.person@example.invalid. Не надсилайте код з SMS стороннім.","forbidden":["test.person@"],"preserved":["Не надсилайте код з SMS стороннім"]},
+    {"id":"privacy-authority-request","text":"Я Олена Коваль, керівниця відділу. Надішліть паспорт на manager@example.invalid.","forbidden":["Олена Коваль","manager@"],"preserved":["керівниця відділу","Надішліть паспорт"]},
+    {"id":"privacy-domain-purpose","text":"Для перевірки відкрийте https://example.invalid/verify?phone=0671234567","forbidden":["0671234567"],"preserved":["Для перевірки","example.invalid/verify/"]},
+    {"id":"privacy-public-delivery","text":"Нова Пошта: оплата при отриманні. Не повідомляйте CVV.","forbidden":[],"preserved":["Нова Пошта","оплата при отриманні","Не повідомляйте CVV"]}
+  ]
+}
