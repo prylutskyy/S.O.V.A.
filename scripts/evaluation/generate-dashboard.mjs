@@ -40,28 +40,48 @@ function chart(data) {
   const plotWidth = width - pad.left - pad.right;
   const plotHeight = height - pad.top - pad.bottom;
   const series = [
-    ['Precision', 'precision', '#2563eb'],
-    ['Recall', 'recall', '#16a34a'],
-    ['F1', 'f1', '#dc2626'],
-    ['Exact match', 'exactMatchRate', '#9333ea'],
+    ['Precision', 'precision', 'var(--precision)', ''],
+    ['Recall', 'recall', 'var(--recall)', '8 4'],
+    ['F1', 'f1', 'var(--f1)', '3 3'],
+    ['Точний збіг', 'exactMatchRate', 'var(--exact)', '10 3 2 3'],
   ];
+  const metricValue = (entry, key) => {
+    const value = key === 'exactMatchRate' ? entry[key] : entry.overall?.[key];
+    return typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 1 ? value : null;
+  };
   const x = (index) => pad.left + (data.length < 2 ? plotWidth / 2 : index * plotWidth / (data.length - 1));
   const y = (value) => pad.top + (1 - Math.max(0, Math.min(1, Number(value ?? 0)))) * plotHeight;
   const grid = [0, 25, 50, 75, 100].map((tick) => {
     const yy = y(tick / 100);
-    return `<line x1="${pad.left}" y1="${yy}" x2="${width - pad.right}" y2="${yy}" stroke="#d1d5db"/><text x="${pad.left - 10}" y="${yy + 4}" text-anchor="end" fill="#4b5563" font-size="12">${tick}%</text>`;
+    return `<line x1="${pad.left}" y1="${yy}" x2="${width - pad.right}" y2="${yy}" stroke="var(--line)"/><text x="${pad.left - 10}" y="${yy + 4}" text-anchor="end" fill="var(--muted)" font-size="12">${tick}%</text>`;
   }).join('');
-  const lines = series.map(([label, key, color]) => {
-    const points = data.map((entry, index) => `${x(index)},${y(entry[key])}`).join(' ');
-    const dots = data.map((entry, index) => `<circle cx="${x(index)}" cy="${y(entry[key])}" r="3" fill="${color}"><title>${escapeHtml(entry.generatedAt)} · ${escapeHtml(label)} ${percent(entry[key])} · ${shortSha(entry.commit)}</title></circle>`).join('');
-    return `<polyline points="${points}" fill="none" stroke="${color}" stroke-width="2.5"/>${dots}`;
+  const lines = series.map(([label, key, color, dash]) => {
+    const segments = [];
+    let segment = [];
+    const dots = data.map((entry, index) => {
+      const value = metricValue(entry, key);
+      if (value === null) {
+        if (segment.length) segments.push(segment);
+        segment = [];
+        return '';
+      }
+      segment.push(`${x(index)},${y(value)}`);
+      return `<circle cx="${x(index)}" cy="${y(value)}" r="3" fill="${color}"><title>${escapeHtml(entry.generatedAt)} · ${escapeHtml(label)} ${percent(value)} · ${escapeHtml(shortSha(entry.commit))}</title></circle>`;
+    }).join('');
+    if (segment.length) segments.push(segment);
+    const paths = segments.map((points) => `<polyline points="${points.join(' ')}" fill="none" stroke="${color}" stroke-width="2.5" stroke-dasharray="${dash}"/>`).join('');
+    return `<g data-series="${key}">${paths}${dots}</g>`;
   }).join('');
+  const labelStride = Math.max(1, Math.ceil((data.length - 1) / 7));
   const labels = data.map((entry, index) => {
+    if (index % labelStride !== 0 && index !== data.length - 1) return '';
+    // Avoid crowding the final label with the preceding sampled label.
+    if (index !== data.length - 1 && index > 0 && data.length - 1 - index < labelStride) return '';
     const date = new Date(entry.generatedAt).toISOString().slice(0, 10);
-    return `<text x="${x(index)}" y="${height - 38}" text-anchor="middle" fill="#4b5563" font-size="10">${escapeHtml(date)}</text><text x="${x(index)}" y="${height - 20}" text-anchor="middle" fill="#6b7280" font-size="10">${escapeHtml(shortSha(entry.commit))}</text>`;
+    return `<g data-axis-label="${index}"><text x="${x(index)}" y="${height - 38}" text-anchor="middle" fill="var(--muted)" font-size="10">${escapeHtml(date)}</text><text x="${x(index)}" y="${height - 20}" text-anchor="middle" fill="var(--muted)" font-size="10">${escapeHtml(shortSha(entry.commit))}</text></g>`;
   }).join('');
-  const legend = series.map(([label, , color], index) => `<g transform="translate(${pad.left + index * 175},12)"><line x1="0" y1="0" x2="20" y2="0" stroke="${color}" stroke-width="3"/><text x="27" y="4" fill="#374151" font-size="12">${label}</text></g>`).join('');
-  return `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Історія метрик корпусу за комітами" style="width:100%;height:auto">${legend}${grid}${lines}${labels}</svg>`;
+  const legend = series.map(([label, , color, dash]) => `<span><svg width="28" height="12" aria-hidden="true"><line x1="0" y1="6" x2="28" y2="6" stroke="${color}" stroke-width="3" stroke-dasharray="${dash}"/></svg>${escapeHtml(label)}</span>`).join('');
+  return `<div class="chart-legend">${legend}</div><div class="chart-scroll"><svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Історія метрик корпусу за комітами" style="width:100%;min-width:640px;height:auto">${grid}${lines}${labels}</svg></div>`;
 }
 
 const overviewRows = Object.entries(report.byCorpus ?? {}).map(([name, metric]) =>
@@ -76,12 +96,13 @@ const mismatchRows = (report.mismatches ?? []).slice(0, 100).map((item) =>
 const html = `<!doctype html>
 <html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Відкрита історія локальної оцінки детектора загроз С.О.В.А."><title>С.О.В.А. — ефективність детектора</title><style>
 :root{color-scheme:light;--ink:#172033;--muted:#536174;--line:#dbe2ea;--panel:#fff;--bg:#f3f6fa;--accent:#174ea6}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}main{max-width:1120px;margin:0 auto;padding:32px 20px 64px}h1{margin:.2em 0}h2{margin-top:1.8em}.muted,small{color:var(--muted)}.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px;margin:18px 0;overflow:auto}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}.card{border:1px solid var(--line);border-radius:10px;padding:14px}.card strong{display:block;font-size:1.55rem}.table-wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:.92rem}th,td{text-align:left;padding:9px 11px;border-bottom:1px solid var(--line);white-space:nowrap}thead th{background:#fff;color:#172033;border-bottom:2px solid #94a3b8;font-weight:700}a{color:var(--accent)}.note{border-left:4px solid #d97706;padding:10px 14px;background:#fff7ed}.footer{margin-top:32px;font-size:.9rem}@media(prefers-color-scheme:dark){:root{color-scheme:dark;--ink:#e6edf5;--muted:#a7b3c2;--line:#354154;--panel:#182233;--bg:#0d1420;--accent:#8ab4f8}.note{background:#332512}}
+:root{--precision:#2563eb;--recall:#15803d;--f1:#dc2626;--exact:#9333ea}.chart-legend{display:flex;flex-wrap:wrap;gap:12px 24px;margin:12px 0;color:var(--ink);font-size:.9rem}.chart-legend span{display:flex;align-items:center;gap:8px}.chart-scroll{overflow-x:auto}@media(prefers-color-scheme:dark){:root{--precision:#60a5fa;--recall:#4ade80;--f1:#f87171;--exact:#c084fc}}
 </style></head><body><main>
 <p><a href="https://github.com/${escapeHtml(process.env.GITHUB_REPOSITORY ?? 'prylutskyy/S.O.V.A.')}">← Репозиторій С.О.В.А.</a></p>
 <h1>Оцінка ефективності детектора</h1><p class="muted">Автоматичний звіт локального класифікатора сценаріїв. Останнє оновлення: ${escapeHtml(latestDate)} · commit <code>${escapeHtml(shortSha(report.commit))}</code>.</p>
 <div class="cards"><div class="card">Сценарії<strong>${report.totalCases}</strong></div><div class="card">Precision<strong>${percent(report.overall.precision)}</strong></div><div class="card">Recall<strong>${percent(report.overall.recall)}</strong></div><div class="card">F1<strong>${percent(report.overall.f1)}</strong></div><div class="card">Точний збіг<strong>${percent(report.exactMatchRate)}</strong></div><div class="card">Хибні блокування вводу<strong>${report.falseLockInputs ?? 0}</strong></div></div>
 <p class="note"><strong>Як читати:</strong> precision/recall/F1 тут оцінюють бінарне виявлення загрози. «Точний збіг» додатково вимагає правильної категорії та дії. Результати вимірюють лише версійований синтетичний корпус, а не реальні чати. Порівнюйте точки з однаковим SHA-256 корпусу; зміна корпусу може змінити складність оцінки.</p>
-<section class="panel"><h2>Історія змін</h2><p class="muted">Значення за кожним commit. Зміни складу корпусу позначені в таблиці нижче.</p>${chart(records)}</section>
+<section class="panel"><h2>Історія змін</h2><p class="muted">Кожна точка — окремий прогін. Наведіть курсор на точку, щоб побачити значення, час і коміт. Відсутні значення залишають розрив у лінії; усі наявні точки збережено, навіть коли частину підписів приховано для читабельності.</p>${chart(records)}</section>
 <section class="panel"><h2>Результати за частинами корпусу</h2><div class="table-wrap"><table><thead><tr><th>Набір</th><th>N</th><th>TP</th><th>FP</th><th>FN</th><th>TN</th><th>Precision</th><th>Recall</th><th>F1</th></tr></thead><tbody>${overviewRows}</tbody></table></div></section>
 <section class="panel"><h2>Результати за класами</h2><p class="muted">One-vs-rest: кожен клас оцінюється проти всіх інших класів і безпечних прикладів.</p><div class="table-wrap"><table><thead><tr><th>Клас</th><th>N</th><th>TP</th><th>FP</th><th>FN</th><th>Precision</th><th>Recall</th><th>F1</th></tr></thead><tbody>${classRows}</tbody></table></div></section>
 <section class="panel"><h2>Невідповідності останнього прогону</h2><p>${(report.mismatches ?? []).length} сценаріїв не збіглися повністю; показано не більше 100. Тексти повідомлень у звіт не записуються.</p><div class="table-wrap"><table><thead><tr><th>ID</th><th>Набір</th><th>Очікуваний клас</th><th>Фактичний клас</th><th>Очікувана дія</th><th>Фактична дія</th></tr></thead><tbody>${mismatchRows || '<tr><td colspan="6">Невідповідностей немає.</td></tr>'}</tbody></table></div></section>
