@@ -325,7 +325,11 @@ export class SemanticTriggerEngine {
   /**
    * Комплексна семантична оцінка повідомлення або діалогу
    */
-  public static evaluate(text: string, fullDialogueContext?: string): SemanticEvaluationResult {
+  public static evaluate(
+    text: string,
+    fullDialogueContext?: string,
+    credentialRequestEvidence?: boolean,
+  ): SemanticEvaluationResult {
     const combinedText = fullDialogueContext
       ? (fullDialogueContext.includes(text) ? fullDialogueContext : `${fullDialogueContext}\n${text}`)
       : text;
@@ -438,6 +442,7 @@ export class SemanticTriggerEngine {
       topMatch.similarity >= 0.55;
 
     const isCredentialPragmatic =
+      credentialRequestEvidence !== false &&
       topMatch.prototypeId === 'PAYMENT_CREDENTIAL_THEFT' &&
       signals.hasActionDirective &&
       (topMatch.similarity >= 0.45 || (topMatch.similarity >= 0.38 && /cvv|cvc|срок\s+действия|термін\s+дії|номер\s+карт|парол|смс/i.test(combinedText)));

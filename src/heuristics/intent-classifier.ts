@@ -298,6 +298,29 @@ export class IntentClassifier {
       ],
     },
 
+    // Purpose is independent of the requested secret and of URL vocabulary.
+    {
+      cluster: 'verification_purpose',
+      weight: 40,
+      lang: 'universal',
+      patterns: [
+        /(?:підтвердіть|підтвердити|підтвердите|підтвердженн[яюі]|перевірк[а-яіїє]*|перевірити|перевірте|перевірили|верифікаці[а-яіїє]*)\s+(?:(?:ваш[а-яіїє]*|свій)\s+)?(?:профіл[а-яіїє]*|акаунт[а-яіїє]*|вхід|замовлення|картк[а-яіїє]*|платеж[а-яіїє]*)/giu,
+        /(?:подтвердите|подтвердить|подтверждени[яюе]|проверк[а-яё]*|проверить|проверьте|проверили|верификаци[а-яё]*)\s+(?:ваш[а-яё]*\s+)?(?:профил[а-яё]*|аккаунт[а-яё]*|вход|заказ[а-яё]*|карт[а-яё]*|платеж[а-яё]*)/giu,
+        /(?:verify|verification\s+of|confirm|confirmation\s+of)\s+(?:your\s+)?(?:account|profile|login|order|card|payment)/giu,
+        /(?:для\s+(?:завершення|прохождения|завершения)\s+(?:перевірки|проверки|верифікації|верификации)|(?:служба\s+безпеки|служба\s+безопасности)[^\n]{0,65}(?:скасування|отмены)\s+(?:підозрілої|подозрительной)\s+операці[їи])/giu,
+      ],
+    },
+    {
+      cluster: 'payment_purpose',
+      weight: 25,
+      lang: 'universal',
+      patterns: [
+        /(?:отримати|отримання|зарахування)\s+(?:оплат[а-яіїє]*|кошт[а-яіїє]*|грош[а-яіїє]*|виплат[а-яіїє]*)/giu,
+        /(?:получить|получения|зачисления)\s+(?:оплат[а-яё]*|средств|денег|выплат[а-яё]*)/giu,
+        /(?:receive|collect|claim)\s+(?:your\s+)?(?:payment|payout|money|funds)/giu,
+        /(?:покупець\s+оплатив|покупатель\s+оплатил|buyer\s+(?:can\s+)?pay)/giu,
+      ],
+    },
     // A verification/profile mention is not by itself a request to steal
     // payment credentials. Keep explicit sensitive-data solicitation separate.
     {
@@ -305,7 +328,20 @@ export class IntentClassifier {
       weight: 60,
       lang: 'universal',
       patterns: [
+        /(?:надішліть|скиньте|вкажіть|введіть|повідомте|продиктуйте|напишіть|скажіть|просить)\s+(?:ваш\s+|свій\s+)?(?:код\s+підтвердження|одноразовий\s+код|фото\s+картки\s+з\s+обох\s+боків)/giu,
+        /(?:надішліть|скиньте|вкажіть|введіть|повідомте|продиктуйте|напишіть|скажіть|пришлите|укажите|введите|сообщите|назовите)\s+(?:ваш\s+|свій\s+|свой\s+)?код\s+(?:з|із|из)\s*(?:sms|смс|банківського\s+повідомлення)/giu,
+        /(?:надішліть|вкажіть|введіть|продиктуйте|назвіть|пришлите|укажите|введите|продиктуйте|назовите|send|share|enter|provide|tell)\s+(?:ваш\s+|свій\s+|свой\s+|your\s+)?(?:[pр][iі]n\s*код|pin\s*code|код\s+безопасности\s+карт[а-яё]*|[cс]v[vв]|[cс]v[cс])/giu,
         /(?:надішліть|скиньте|вкажіть|введіть|повідомте|продиктуйте|напишіть|скажіть|дайте|потрібен|потрібно|треба)\s+(?=[^.!?\n]{0,80}(?:[cс]vv|[cс]v[cс]|код|смс|одноразов|баланс|картк|термін\s+дії|(?:16|іб)\s+цифр))[^.!?\n]{0,80}(?:[cс]vv|[cс]v[cс]|код\s+(?:з|із)\s*смс|смс[- ]код|одноразов(?:ий|ого)\s+код|код\s+безпеки|баланс(?:\s+картки)?|(?:номер|дані|реквізити)\s+(?:вашої\s+)?картк|термін\s+дії\s+картк|(?:16|іб)\s+цифр)/giu,
+      ],
+    },
+    {
+      cluster: 'bank_login_request',
+      weight: 60,
+      lang: 'universal',
+      patterns: [
+        /(?:авторизуйтеся|увійдіть|введіть\s+(?:логін|пароль))\s+(?:в|у|до|від)\s+(?:вашого\s+|свого\s+)?банк[а-яіїє]*/giu,
+        /(?:авторизуйтесь|войдите|введите\s+(?:логин|пароль))\s+(?:в|от)\s+(?:вашего\s+)?банк[а-яё]*/giu,
+        /(?:log\s*in|sign\s*in)\s+(?:to|at)\s+(?:your\s+)?bank/giu,
       ],
     },
     {
@@ -545,9 +581,11 @@ export class IntentClassifier {
       type: 'VERIFICATION_PHISHING',
       evidenceClusters: [
         'verification_trap', 'off_platform', 'action_link', 'delivery_action', 'urgency_pressure',
-        'password_theft',
+        'password_theft', 'verification_purpose', 'payment_credential_request',
       ],
       requiredClusters: [
+        ['verification_purpose', 'payment_credential_request'],
+        ['verification_purpose', 'action_link'],
         ['verification_trap', 'off_platform'],
         ['verification_trap', 'action_link'],
         ['verification_trap', 'delivery_action'],
@@ -649,9 +687,10 @@ export class IntentClassifier {
     },
     {
       type: 'PAYMENT_CREDENTIAL_THEFT',
-      evidenceClusters: ['payment_credential_request'],
+      evidenceClusters: ['payment_credential_request', 'bank_login_request', 'action_link', 'payment_purpose'],
       requiredClusters: [
         ['payment_credential_request'],
+        ['bank_login_request', 'action_link', 'payment_purpose'],
       ],
       minClusters: 1,
       minScore: 40,
@@ -908,7 +947,19 @@ export class IntentClassifier {
       left.definition.type.localeCompare(right.definition.type)
     );
 
-    const best = candidates[0];
+    let best = candidates[0];
+    // Resolve competing financial intents using the latest concrete request.
+    // A payout pretext + secret request is payment theft; account/order checking
+    // + secret request is verification phishing. A URL named "verify" is neither.
+    const financialTypes = ['VERIFICATION_PHISHING', 'PAYMENT_CREDENTIAL_THEFT', 'ESCROW_DELIVERY_SCAM'];
+    if (best && financialTypes.includes(best.definition.type) &&
+        (currentClusters.includes('payment_credential_request') ||
+         (currentClusters.includes('bank_login_request') && currentClusters.includes('action_link')))) {
+      const requestedType = currentClusters.includes('verification_purpose') &&
+        !currentClusters.includes('payment_purpose')
+        ? 'VERIFICATION_PHISHING' : 'PAYMENT_CREDENTIAL_THEFT';
+      best = candidates.find((candidate) => candidate.definition.type === requestedType) ?? best;
+    }
     if (best) {
       const def = best.definition;
       const candidateSpans = matchedSpans.filter((span) =>

@@ -102,7 +102,21 @@ export class ChatSessionState {
     // 5. Tier 1.5: Семантичний векторний аналіз (Semantic & Behavioral Intent Trigger)
     // Завжди обчислюємо векторний спектр для кожного повідомлення для актуальної телеметрії
     const fullDialogueContext = this.getDialogueHistory();
-    const semanticResult = SemanticTriggerEngine.evaluate(rawText, fullDialogueContext);
+    // A conceptual resemblance to a banking message must not manufacture an
+    // explicit secret request that the lexical analysis rejected (e.g. advice).
+    const hasCredentialRequest = detectedClusterMap.has('payment_credential_request') ||
+      detectedClusterMap.has('password_theft') ||
+      (detectedClusterMap.has('bank_login_request') && detectedClusterMap.has('action_link') &&
+       detectedClusterMap.has('payment_purpose'));
+    const mentionsCredential = /(?:[cс]vv|[cс]v[cс]|\bpin\b|код|парол|password|passcode|\botp\b|баланс|balance|реквізит|ключ|фраз|phrase|security\s+code)/iu.test(rawText);
+    const isCredentialAdvice = /(?:не\s+(?:надсилайте|повідомляйте|передавайте|вводьте|надавайте|сообщайте|отправляйте|передавайте)|never\s+(?:send|share|provide)|do\s+not\s+(?:send|share|provide))/iu.test(rawText);
+    const isSelfServiceBalanceCheck = /перевір[а-яіїє]*\s+баланс\s+самостійно/iu.test(rawText);
+    const isCompletedVerification = /(?:перевірено|підтверджено|проверен[ао]?|подтвержден[ао]?|\bverified\b|\bconfirmed\b)/iu.test(rawText);
+    // Keep semantic coverage for unlisted request paraphrases; reject clear
+    // advice/status messages rather than demanding one exact lexical template.
+    const credentialEvidence = hasCredentialRequest ? true
+      : ((!mentionsCredential && isCompletedVerification) || isCredentialAdvice || isSelfServiceBalanceCheck) ? false : undefined;
+    const semanticResult = SemanticTriggerEngine.evaluate(rawText, fullDialogueContext, credentialEvidence);
 
     if (heuristicResult.hasFormedIntent) {
       return {

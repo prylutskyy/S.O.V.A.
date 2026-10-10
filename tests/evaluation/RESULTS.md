@@ -93,3 +93,36 @@ Development recall rose from 94.9% to 98.3%; regression recall from 72.1% to 86.
 The final full run without live Groq has 592 passing tests and one failing aggregate corpus assertion (54 remaining mismatches); TypeScript compilation passes. Raw logs and the baseline report remain local under `tests/results/`.
 
 These rules improve coverage of concrete requests, not contextual understanding in general. In particular, the existing label for `reg2-military-003` treats an unspecified equipment movement schedule as military reconnaissance. Industrial/logistics uses of such wording remain ambiguous and need independent benign data and label review. Zero false locks on this corpus and the added controls does not establish zero false locks in real chats.
+
+## 2026-10-10 — verification and payment purpose resolution
+
+### Changes
+
+- Added independent `verification_purpose` and `payment_purpose` signals. Requests to confirm an account, login, order or card are distinguished from requests made to receive a payment; words in a URL do not establish either purpose.
+- When verification, payment theft and escrow candidates compete, an explicit secret request in the current message resolves the category according to its purpose. A prior verification pretext cannot override a new payout request. Existing military/crypto candidate selection is preserved.
+- Added lexical coverage for confirmation codes, Latin `SMS`, PIN, both sides of a card and bank sign-in requests. Bank sign-in requires both a link and a payout purpose to form the payment-theft class.
+- The chat pipeline can veto the semantic payment fallback for clear safety advice, completed-status messages without credential subjects, and self-service balance checks. Concrete secret requests remain eligible, and other unlisted paraphrases retain semantic evaluation.
+- Added 52 checks covering all 32 development/regression verification/payment cases, ten purpose/URL contrasts, nine safe controls and one stale-context check. The existing 35 critical-threat checks still pass. Corpus files, labels and SHA-256 are unchanged; no holdout text was used for tuning.
+
+### Results
+
+Compared with the baseline at `617ac05`, on the same 326 cases:
+
+| Measure | Before | After |
+| --- | ---: | ---: |
+| TP / FP / FN / TN | 151 / 1 / 37 / 137 | 154 / 1 / 34 / 137 |
+| Precision | 99.3% | 99.4% |
+| Recall | 80.3% | 81.9% |
+| Binary detection F1 | 88.8% | 89.8% |
+| Exact matches | 272/326 (83.4%) | 284/326 (87.1%) |
+| Exact-result mismatches | 54 | 42 |
+| Action mismatches | 39 | 36 |
+| False input locks | 0 | 0 |
+| Verification class F1 | 60.0% | 87.5% |
+| Payment theft class F1 | 63.0% | 81.6% |
+
+Ten exact results were corrected in development/regressions and two in the independently evaluated holdout. No previously correct scenario became incorrect. Development binary recall stays at 98.3%; regression recall rises from 86.9% to 91.8%; holdout binary recall stays at 58.8%. Per-class F1 measures the chosen category, whereas binary detection F1 measures threat versus safe regardless of category.
+
+Full non-Groq validation: 644 passing tests and one failing aggregate corpus assertion, with 42 remaining mismatches. TypeScript compilation passes. Logs and the baseline report stay local under `tests/results/`.
+
+The categories still overlap: a bank code requested under an account-check pretext can support both labels. The purpose rule follows the current corpus convention and selects one primary type; it does not establish that only one attack mechanism is present. The remaining benign false positive and holdout misses still need separate work.
