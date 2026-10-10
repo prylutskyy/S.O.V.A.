@@ -1873,5 +1873,130 @@
     },
     "actionMismatches": 26,
     "falseLockInputs": 0
+  },
+  {
+    "schemaVersion": 1,
+    "generatedAt": "2026-10-10T18:53:17.525Z",
+    "commit": "6d58f9d9ec0d42d153029e3c0f51643af4053d62",
+    "corpusSha256": "f84c28a2e06096b1c61d53de70f029446161bc52373360c5f7fa83f86f3427ce",
+    "totalCases": 326,
+    "exactMatches": 326,
+    "exactMatchRate": 1,
+    "overall": {
+      "n": 326,
+      "tp": 187,
+      "fp": 0,
+      "fn": 0,
+      "tn": 139,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1
+    },
+    "byCorpus": {
+      "development": {
+        "n": 100,
+        "tp": 59,
+        "fp": 0,
+        "fn": 0,
+        "tn": 41,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1
+      },
+      "regressions": {
+        "n": 113,
+        "tp": 61,
+        "fp": 0,
+        "fn": 0,
+        "tn": 52,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1
+      },
+      "holdout": {
+        "n": 113,
+        "tp": 67,
+        "fp": 0,
+        "fn": 0,
+        "tn": 46,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1
+      }
+    },
+    "byIntentType": {
+      "CRYPTO_WALLET_COMPROMISE": {
+        "n": 326,
+        "tp": 22,
+        "fp": 0,
+        "fn": 0,
+        "tn": 304,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1
+      },
+      "ESCROW_DELIVERY_SCAM": {
+        "n": 326,
+        "tp": 24,
+        "fp": 0,
+        "fn": 0,
+        "tn": 302,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1
+      },
+      "IDENTITY_PROBING": {
+        "n": 326,
+        "tp": 26,
+        "fp": 0,
+        "fn": 0,
+        "tn": 300,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1
+      },
+      "MILITARY_SABOTAGE_RECRUITMENT": {
+        "n": 326,
+        "tp": 27,
+        "fp": 0,
+        "fn": 0,
+        "tn": 299,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1
+      },
+      "OFF_PLATFORM_REDIRECT": {
+        "n": 326,
+        "tp": 38,
+        "fp": 0,
+        "fn": 0,
+        "tn": 288,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1
+      },
+      "PAYMENT_CREDENTIAL_THEFT": {
+        "n": 326,
+        "tp": 25,
+        "fp": 0,
+        "fn": 0,
+        "tn": 301,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1
+      },
+      "VERIFICATION_PHISHING": {
+        "n": 326,
+        "tp": 25,
+        "fp": 0,
+        "fn": 0,
+        "tn": 301,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1
+      }
+    },
+    "actionMismatches": 0,
+    "falseLockInputs": 0
   }
 ]
