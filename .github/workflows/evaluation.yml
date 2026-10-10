@@ -125,6 +125,7 @@ jobs:
             const summary = {
               schemaVersion: report.schemaVersion,
               groups: report.groups,
+              combined: report.combined,
               evaluatedCases: report.evaluatedCases,
               generatedAt: report.generatedAt,
               commit: report.commit,

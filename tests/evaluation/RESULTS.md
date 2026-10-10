@@ -2,6 +2,13 @@
 
 Record each intentional classifier or corpus change here so metric shifts can be interpreted alongside the dashboard history. Exact-match results depend on both the classifier and the corpus contents; compare runs only when the corpus hash is the same, or report the changed split separately.
 
+## 2026-10-10 — pooled local badges and live privacy smoke
+
+- Local block results unchanged: regression 326/326; challenge defined cases F1 80%, exact 117/200. Added combined counts, not average F1: TP 277, FP 15, FN 30, TN 204; scored 526, F1 92.5%, recall 90.2%, exact 443/526 (84.2%). The 100 ambiguous cases and all live Groq results are excluded from combined scores.
+- Eight synthetic production-prompt privacy calls completed: 8 outbound bodies checked, 8/8 binary decisions, 7/8 exact classes; 7,436 total tokens, no 429/retries. Payment versus verification mismatch retained. No raw control or general accuracy claim; source [report](../results/GROQ_PRIVACY_SMOKE_REPORT.md).
+- Fixed address marker renumbering across repeat sanitize/final builder before sending any requests. Added privacy preflight and repeat-marker controls, plus pooled-score badge tests. Full offline suite **911/911**, 79 files; TypeScript and production build passed. Live integration transport/privacy test passed separately; this does not assert all class predictions are correct.
+- README shows two named corpus rows and pooled top badges. Dashboard/CI display the dated manual privacy snapshot separately, never as a new API call during CI.
+
 ## 2026-10-10 — frozen challenge-v1, separate reporting tracks
 
 - Known regression set: 326/326, F1 100%; used for tuning, no independent generalization claim.

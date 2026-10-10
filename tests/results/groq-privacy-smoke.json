@@ -1,0 +1,202 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-10T19:35:25.753Z",
+  "model": "qwen/qwen3.8-27b",
+  "cohortSha256": "b95ec453e72073d964b8690c9eb0c0ff98cc439aa6a31cfd2e05d49d60bfb267",
+  "conservativeTokenBudget": 39084,
+  "tokenCeiling": 60000,
+  "requestsPerMinuteCeiling": 6,
+  "rollingTokensPerMinuteCeiling": 7000,
+  "accountLimitsProvided": {
+    "rpm": 30,
+    "tpm": 8000,
+    "tpd": 200000,
+    "usedBeforeRunApprox": 102000
+  },
+  "preflightPassed": 8,
+  "boundaryChecks": 8,
+  "plannedRequests": 8,
+  "inProgress": false,
+  "results": [
+    {
+      "id": "privacy-live-payment",
+      "status": "completed",
+      "privacyPassed": true,
+      "expected": {
+        "detected": true,
+        "type": "PAYMENT_CREDENTIAL_THEFT"
+      },
+      "actual": {
+        "detected": true,
+        "type": "VERIFICATION_PHISHING",
+        "confidence": 98
+      },
+      "exactMatch": false,
+      "tokenUsage": {
+        "input": 845,
+        "output": 87,
+        "total": 932
+      },
+      "latencyMs": 414,
+      "promptSha256": "81853ce756835173f4e4f926a0e4d054284c3022881e1683b8b69bf85507f2f0"
+    },
+    {
+      "id": "privacy-live-manager",
+      "status": "completed",
+      "privacyPassed": true,
+      "expected": {
+        "detected": true,
+        "type": "IDENTITY_PROBING"
+      },
+      "actual": {
+        "detected": true,
+        "type": "IDENTITY_PROBING",
+        "confidence": 98
+      },
+      "exactMatch": true,
+      "tokenUsage": {
+        "input": 799,
+        "output": 101,
+        "total": 900
+      },
+      "latencyMs": 549,
+      "promptSha256": "e98f0ee76300bace32f082358e4529491d2f9f7392f078cd4bd0f4d0172b2c12"
+    },
+    {
+      "id": "privacy-live-military",
+      "status": "completed",
+      "privacyPassed": true,
+      "expected": {
+        "detected": true,
+        "type": "MILITARY_SABOTAGE_RECRUITMENT"
+      },
+      "actual": {
+        "detected": true,
+        "type": "MILITARY_SABOTAGE_RECRUITMENT",
+        "confidence": 98
+      },
+      "exactMatch": true,
+      "tokenUsage": {
+        "input": 820,
+        "output": 95,
+        "total": 915
+      },
+      "latencyMs": 477,
+      "promptSha256": "69da1f32cb04edd8de86c07798f9bebbec774e98d32388614c6e5287982d6288"
+    },
+    {
+      "id": "privacy-live-account",
+      "status": "completed",
+      "privacyPassed": true,
+      "expected": {
+        "detected": true,
+        "type": "VERIFICATION_PHISHING"
+      },
+      "actual": {
+        "detected": true,
+        "type": "VERIFICATION_PHISHING",
+        "confidence": 98
+      },
+      "exactMatch": true,
+      "tokenUsage": {
+        "input": 914,
+        "output": 92,
+        "total": 1006
+      },
+      "latencyMs": 442,
+      "promptSha256": "71712658977ea542a10dbeefa26fb838562f1aa96a1b0ea9b4092623e3fd2a7f"
+    },
+    {
+      "id": "privacy-live-wallet",
+      "status": "completed",
+      "privacyPassed": true,
+      "expected": {
+        "detected": true,
+        "type": "CRYPTO_WALLET_COMPROMISE"
+      },
+      "actual": {
+        "detected": true,
+        "type": "CRYPTO_WALLET_COMPROMISE",
+        "confidence": 98
+      },
+      "exactMatch": true,
+      "tokenUsage": {
+        "input": 816,
+        "output": 104,
+        "total": 920
+      },
+      "latencyMs": 457,
+      "promptSha256": "a94b2035a4a91a9f386b10a9b95fb2c2b87ea0898abd7a459832e57f6fbf8377"
+    },
+    {
+      "id": "privacy-live-safe-delivery",
+      "status": "completed",
+      "privacyPassed": true,
+      "expected": {
+        "detected": false,
+        "type": null
+      },
+      "actual": {
+        "detected": false,
+        "type": null,
+        "confidence": 95
+      },
+      "exactMatch": true,
+      "tokenUsage": {
+        "input": 817,
+        "output": 82,
+        "total": 899
+      },
+      "latencyMs": 497,
+      "promptSha256": "4567bff96c8749f0bf8547edf4750797864d5fa06d4bf5f864b9a619dabbab74"
+    },
+    {
+      "id": "privacy-live-safe-code",
+      "status": "completed",
+      "privacyPassed": true,
+      "expected": {
+        "detected": false,
+        "type": null
+      },
+      "actual": {
+        "detected": false,
+        "type": null,
+        "confidence": 95
+      },
+      "exactMatch": true,
+      "tokenUsage": {
+        "input": 830,
+        "output": 88,
+        "total": 918
+      },
+      "latencyMs": 360,
+      "promptSha256": "14fdcf326ee99f538f2826ac0a267fbb3e84ec609d290d36af289aeb057eaff9"
+    },
+    {
+      "id": "privacy-live-safe-two-people",
+      "status": "completed",
+      "privacyPassed": true,
+      "expected": {
+        "detected": false,
+        "type": null
+      },
+      "actual": {
+        "detected": false,
+        "type": null,
+        "confidence": 95
+      },
+      "exactMatch": true,
+      "tokenUsage": {
+        "input": 852,
+        "output": 94,
+        "total": 946
+      },
+      "latencyMs": 580,
+      "promptSha256": "51f63e2f9bd9af1f89eb58e7c4cc7db08efb852a0040767b45b2de05ec2cc5fd"
+    }
+  ],
+  "totalTokens": 7436,
+  "completed": 8,
+  "exactMatches": 7,
+  "scope": "Synthetic privacy smoke only; no raw control, no real PII, no general accuracy or browser-lifecycle claim."
+}

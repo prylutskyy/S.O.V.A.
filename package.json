@@ -20,7 +20,9 @@
     "classifier:evaluate": "node scripts/local-classifier/run.mjs evaluate",
     "classifier:compare": "node scripts/local-classifier/run.mjs compare",
     "classifier:pilot": "node scripts/local-classifier/run.mjs pilot",
-    "classifier:relations": "node scripts/local-classifier/run.mjs relations"
+    "classifier:relations": "node scripts/local-classifier/run.mjs relations",
+    "test:groq:privacy": "vitest run tests/integration/groq-privacy.integration.test.ts",
+    "test:groq:privacy:interactive": "node scripts/evaluation/run-groq-privacy.mjs"
   },
   "devDependencies": {
     "esbuild": "0.25.12",

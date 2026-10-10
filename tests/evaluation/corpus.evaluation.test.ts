@@ -193,6 +193,7 @@ function writeEvaluationReport(): void {
   const report = {
     schemaVersion: 2,
     groups,
+    combined: { ...summarizeGroup(cases), status: 'mixed-known-and-new-not-independent' },
     cases,
     generatedAt: new Date().toISOString(),
     commit: process.env.GITHUB_SHA ?? 'local',

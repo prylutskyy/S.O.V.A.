@@ -32,6 +32,9 @@ export class PseudonymizationContext {
 export function redactPersonalData(text: string, context: PseudonymizationContext,
   record: (token: string, kind: string) => void): string {
   const hide = (kind: string, value: string) => {
+    // The final prompt boundary may process already sanitized address fields again.
+    // A pure typed marker contains no private value and must retain its identity.
+    if (new RegExp(`^\\[${kind}_\\d+\\][.\\s]*$`).test(value)) return value;
     const token = context.token(kind, value); record(token, kind); return token;
   };
   text = text.normalize('NFKC').replace(/[\u200B-\u200D\uFEFF]/g, '');

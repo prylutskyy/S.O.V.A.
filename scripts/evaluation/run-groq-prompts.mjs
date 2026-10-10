@@ -30,7 +30,7 @@ if (!key) {
 if (!key) throw new Error('No test credential supplied');
 mkdirSync(resolve('.cache/vitest'), { recursive: true });
 const child = spawn(process.execPath, ['node_modules/vitest/vitest.mjs', 'run',
-  'tests/integration/groq-prompts.integration.test.ts', '--pool=threads', '--maxWorkers=1'], {
+  process.env.GROQ_PRIVACY_SMOKE === '1' ? 'tests/integration/groq-privacy.integration.test.ts' : 'tests/integration/groq-prompts.integration.test.ts', '--pool=threads', '--maxWorkers=1'], {
   stdio: ['ignore', 'inherit', 'inherit'],
   env: { ...process.env, GROQ_API_KEY: key, GROQ_INTEGRATION: '1', GROQ_PROMPT_COMPARE: '1',
     GROQ_CORPUS: process.env.GROQ_CORPUS || 'regressions',

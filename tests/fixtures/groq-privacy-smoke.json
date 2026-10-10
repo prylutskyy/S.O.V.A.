@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 1,
+  "provenance": "Eight synthetic privacy smoke dialogues, frozen before inference; no real personal data; not an accuracy benchmark.",
+  "cases": [
+    {
+      "id": "privacy-live-payment",
+      "messages": [
+        {"speaker":"user","text":"Мене звати Іван Петренко. Моя картка 4111111111111111, термін дії: 08.2028."},
+        {"speaker":"interlocutor","text":"Я Олена Коваль, допоможу отримати виплату. Нікуди не поспішайте."},
+        {"speaker":"user","text":"Іван Петренко — це я, Олена Коваль — ви. Не хочу передавати секрети."},
+        {"speaker":"interlocutor","text":"Для виплати на картку надішліть мені CVV та код банку з SMS. Я введу їх замість вас."}
+      ],
+      "forbidden":["Іван Петренко","Олена Коваль","4111111111111111","08.2028"],
+      "preserved":["PERSON_1","PERSON_2","CVV","код банку","замість вас"],
+      "expected":{"detected":true,"type":"PAYMENT_CREDENTIAL_THEFT"}
+    },
+    {
+      "id": "privacy-live-manager",
+      "messages": [
+        {"speaker":"interlocutor","text":"Я Олена Коваль, нова керівниця відділу. Допоможу без черги."},
+        {"speaker":"user","text":"Мене звати Іван Петренко. Адреса проживання: Київ, вул. Миру 12, кв. 7. Email: employee@example.invalid."},
+        {"speaker":"interlocutor","text":"Надішліть мені скан паспорта, податковий номер і адресу проживання на manager@example.invalid, кадровий портал оминемо."}
+      ],
+      "forbidden":["Олена Коваль","Іван Петренко","Миру","employee@","manager@"],
+      "preserved":["керівниця","скан паспорта","податковий номер","портал оминемо","EMAIL_"],
+      "expected":{"detected":true,"type":"IDENTITY_PROBING"}
+    },
+    {
+      "id": "privacy-live-military",
+      "messages": [
+        {"speaker":"user","text":"Мене звати Іван Петренко. На мапі я бачу точку 50.450123, 30.523456."},
+        {"speaker":"interlocutor","text":"Представляю редакцію, пишемо про район. Ваші приватні дані не опублікуємо."},
+        {"speaker":"interlocutor","text":"Надішліть актуальні координати військової бази, фото військової техніки й час зміни охорони. Усе лише мені, без погодження з командуванням."}
+      ],
+      "forbidden":["Іван Петренко","50.450123","30.523456"],
+      "preserved":["COORDINATES_","військової бази","фото військової техніки","без погодження"],
+      "expected":{"detected":true,"type":"MILITARY_SABOTAGE_RECRUITMENT"}
+    },
+    {
+      "id": "privacy-live-account",
+      "messages": [
+        {"speaker":"user","text":"Email: owner@example.invalid. Телефон: +44 7700 900123. Пароль: SyntheticSecret42!"},
+        {"speaker":"interlocutor","text":"Я з підтримки вашого акаунта, допоможу все відновити."},
+        {"speaker":"interlocutor","text":"Щоб відновити профіль, відкрийте https://support.example.invalid/verify?email=owner%40example.invalid&token=privateToken123 та передайте мені пароль і одноразовий код входу."}
+      ],
+      "forbidden":["owner@","900123","SyntheticSecret42","privateToken123","owner%40"],
+      "preserved":["support.example.invalid/verify/","одноразовий код входу","передайте мені","PHONE_","PASSWORD"],
+      "expected":{"detected":true,"type":"VERIFICATION_PHISHING"}
+    },
+    {
+      "id": "privacy-live-wallet",
+      "messages": [
+        {"speaker":"user","text":"Email: wallet.owner@example.invalid. У гаманці є невелика сума, боюся її втратити."},
+        {"speaker":"interlocutor","text":"Я досвідчений учасник спільноти, допоможу безкоштовно."},
+        {"speaker":"interlocutor","text":"Напишіть усі дванадцять слів відновлення гаманця по порядку мені в чат. Я імпортую гаманець у себе і перевірю його."}
+      ],
+      "forbidden":["wallet.owner@"],
+      "preserved":["дванадцять слів відновлення","імпортую гаманець у себе","EMAIL_"],
+      "expected":{"detected":true,"type":"CRYPTO_WALLET_COMPROMISE"}
+    },
+    {
+      "id": "privacy-live-safe-delivery",
+      "messages": [
+        {"speaker":"user","text":"Мене звати Олена Коваль. Телефон: +44 7700 900123. Адреса: вул. Миру 12, кв. 7."},
+        {"speaker":"interlocutor","text":"Нова Пошта: оформіть доставку самостійно у знайомому застосунку. Оплата при отриманні."},
+        {"speaker":"interlocutor","text":"Не надсилайте мені паспорт, CVV або код банку. Якщо потрібно змінити адресу, зробіть це самі в офіційному кабінеті."}
+      ],
+      "forbidden":["Олена Коваль","900123","Миру"],
+      "preserved":["Нова Пошта","Не надсилайте мені","офіційному кабінеті","ADDRESS_"],
+      "expected":{"detected":false,"type":null}
+    },
+    {
+      "id": "privacy-live-safe-code",
+      "messages": [
+        {"speaker":"user","text":"Email: test.person@example.invalid. OTP: 654321. Я щойно сам увійшов у свій профіль."},
+        {"speaker":"interlocutor","text":"Не пересилайте цей код нікому, навіть мені. Я не представляю підтримку, лише пояснюю правила безпеки."},
+        {"speaker":"interlocutor","text":"Якщо ви самі почали вхід на офіційному сайті, введіть код лише там. Я не прошу ані код, ані доступ до вашого акаунта."}
+      ],
+      "forbidden":["test.person@","654321"],
+      "preserved":["OTP","Не пересилайте","Я не прошу","офіційному сайті"],
+      "expected":{"detected":false,"type":null}
+    },
+    {
+      "id": "privacy-live-safe-two-people",
+      "messages": [
+        {"speaker":"user","text":"Мене звати Іван Петренко. Я Олена Коваль — це цитата з попереднього листа, не моє ім’я. Адреса: вул. Миру 12; адреса: вул. Сонячна 25."},
+        {"speaker":"interlocutor","text":"Працюємо лише з вигаданими прикладами для навчання. Не надсилайте паспорт чи банківські секрети."},
+        {"speaker":"interlocutor","text":"Іван Петренко й Олена Коваль мають залишатися різними персонажами. Порівняйте два навчальні листи самостійно, приватні адреси в чаті не повторюйте."}
+      ],
+      "forbidden":["Іван Петренко","Олена Коваль","Миру","Сонячна"],
+      "preserved":["PERSON_1","PERSON_2","ADDRESS_1","ADDRESS_2","різними персонажами","Не надсилайте"],
+      "expected":{"detected":false,"type":null}
+    }
+  ]
+}

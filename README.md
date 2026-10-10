@@ -6,11 +6,18 @@
 
 <p align="center">
   <a href="https://github.com/prylutskyy/S.O.V.A./actions/workflows/evaluation.yml"><img src="https://github.com/prylutskyy/S.O.V.A./actions/workflows/evaluation.yml/badge.svg?branch=main" alt="Evaluation workflow" /></a>
-  <a href="https://prylutskyy.github.io/S.O.V.A./"><img src="https://prylutskyy.github.io/S.O.V.A./badges/f1.svg" alt="Регресійний F1: відомий корпус" /></a>
-  <a href="https://prylutskyy.github.io/S.O.V.A./"><img src="https://prylutskyy.github.io/S.O.V.A./badges/recall.svg" alt="Регресійний recall: відомий корпус" /></a>
-  <a href="https://prylutskyy.github.io/S.O.V.A./#challenge"><img src="https://prylutskyy.github.io/S.O.V.A./badges/challenge-f1.svg" alt="F1 нового синтетичного корпусу" /></a>
-  <a href="https://prylutskyy.github.io/S.O.V.A./#challenge"><img src="https://prylutskyy.github.io/S.O.V.A./badges/challenge-recall.svg" alt="Recall нового синтетичного корпусу" /></a>
+  <a href="https://prylutskyy.github.io/S.O.V.A./#combined"><img src="https://prylutskyy.github.io/S.O.V.A./badges/combined-f1.svg" alt="Зведений F1 двох локальних корпусів" /></a>
+  <a href="https://prylutskyy.github.io/S.O.V.A./#combined"><img src="https://prylutskyy.github.io/S.O.V.A./badges/combined-recall.svg" alt="Зведений recall двох локальних корпусів" /></a>
 </p>
+
+| Блок перевірки | Що містить | Обсяг | F1 | Recall |
+| --- | --- | --- | --- | --- |
+| **1 · Відомі регресії** | Загрози, безпечні репліки та виправлені помилки; за цими прикладами вже налаштовували правила | 326 сценаріїв | [![Регресійний F1](https://prylutskyy.github.io/S.O.V.A./badges/f1.svg)](https://prylutskyy.github.io/S.O.V.A./#regression) | [![Регресійний recall](https://prylutskyy.github.io/S.O.V.A./badges/recall.svg)](https://prylutskyy.github.io/S.O.V.A./#regression) |
+| **2 · Нові діалоги** | Поступове входження в довіру, фальшиві керівники, знайомі, підтримка, редакції; розмітка очікує незалежного аудиту | 300 діалогів: 200 визначених + 100 неоднозначних | [![F1 нових діалогів](https://prylutskyy.github.io/S.O.V.A./badges/challenge-f1.svg)](https://prylutskyy.github.io/S.O.V.A./#challenge) | [![Recall нових діалогів](https://prylutskyy.github.io/S.O.V.A./badges/challenge-recall.svg)](https://prylutskyy.github.io/S.O.V.A./#challenge) |
+
+Зведені бейджі зверху пораховані за сумою TP/FP/FN/TN **526 визначених прикладів**, не за середнім F1. Відомі регресії підвищують цей результат; він не є незалежним доказом реальної точності. Groq і перевірки анонімізації мають окремі результати й не змішуються з локальними метриками.
+
+**Анонімізація перед Groq:** [методика й результати невеликого live-прогону](tests/results/GROQ_PRIVACY_SMOKE_REPORT.md). Він перевіряє підтримані категорії даних у синтетичних прикладах, а не гарантує розпізнавання всіх персональних даних. Звичайний CI виконує локальний preflight, не витрачаючи API-токени.
 
 S.O.V.A. — відкритий дослідницький проєкт браузерного розширення для виявлення фішингових форм, шахрайських сценаріїв у чатах і спроб виманити чутливу інформацію. Розширення поєднує локальні правила та аналіз контексту; за бажанням можна підключити зовнішнього ШІ-провайдера для додаткової перевірки.
 

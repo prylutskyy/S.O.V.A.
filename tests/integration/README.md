@@ -83,3 +83,8 @@ npm run test:groq
 The test prints a confusion matrix, accuracy, per-case IDs, confidence, and latency. Raw model responses are not persisted. Use the same pinned model and corpus when comparing runs; model output can vary. A live model result is an evaluation signal, not proof that the system is safe or suitable for blocking by itself.
 
 Without `GROQ_INTEGRATION=1`, Vitest skips the live test and makes no network requests. If the flag is enabled but `GROQ_API_KEY` is missing, the test fails with a clear setup message.
+
+
+## Privacy smoke (opt-in)
+
+`npm run test:groq:privacy:interactive` requests a hidden test credential and sends exactly eight synthetic, preflight-cleaned production compact prompts. The runner checks the actual request body, reserves rolling token budget (7,000/60s) and at most six calls/minute, caps the conservative block budget at 60,000 tokens, stops on errors without retry, and stores only verdicts/usage/hashes. Ordinary CI excludes integration tests and runs local fixture checks only. Existing reports are dated historical runs, never portrayed as a fresh CI call. See [report and limits](../results/GROQ_PRIVACY_SMOKE_REPORT.md). Running the command spends API quota; keep the key in process memory only.

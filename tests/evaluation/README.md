@@ -65,3 +65,6 @@ Expected labels in this suite describe the local heuristic pipeline, before a cl
 7. For a small bachelor-project evaluation, target at least 300–500 scenarios overall, with benign/ambiguous cases represented generously. Do not treat many near-identical paraphrases as independent evidence.
 
 The JSON corpus measures local classification and the mitigation policy. Browser pages under `test_pages/scenarios/` remain manual/integration smoke tests for rendering and actual input locking. Those UI outcomes still need browser verification; a correct policy result alone does not prove that the page behaved correctly.
+
+
+The optional `combined` field pools defined predictions from both local groups (526), excluding ambiguous cases; badges use summed confusion counts, not the mean of F1. The figure includes known tuning cases and is not independent accuracy. The dated Groq privacy snapshot is a separate historical manual run, excluded from local aggregate metrics; CI never reruns it.

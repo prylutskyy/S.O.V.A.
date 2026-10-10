@@ -27,4 +27,13 @@ describe('Separate corpus metrics', () => {
     const { assessment, ...historical } = entry('safe', false, false);
     expect(summarizeGroup([historical]).overall.tn).toBe(1);
   });
+  it('pools predictions rather than averaging block F1 scores', () => {
+    const old = [entry('threat', true, true), entry('safe', false, false)];
+    const fresh = [entry('threat', true, false), entry('threat', true, false), entry('threat', true, false), entry('ambiguous', false, true)];
+    const combined = summarizeGroup([...old, ...fresh]);
+    expect(combined.scoredCases).toBe(5);
+    expect(combined.overall).toMatchObject({ tp: 1, fn: 3, tn: 1, f1: 0.4 });
+    expect(combined.overall.recall).toBeCloseTo(1 / 4);
+    expect(combined.overall.f1).not.toBe((summarizeGroup(old).overall.f1 + summarizeGroup(fresh).overall.f1) / 2);
+  });
 });

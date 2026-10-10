@@ -12,7 +12,7 @@ const record = (index: number) => ({
   overall: { precision: 0.9, recall: 0.5, f1: 0.6 },
 });
 
-function generate(history: object[], report: object = record(history.length)) {
+function generate(history: object[], report: object = record(history.length), artifact = 'index.html') {
   const directory = mkdtempSync(resolve(tmpdir(), 'sova-dashboard-'));
   try {
     const reportPath = resolve(directory, 'report.json');
@@ -23,7 +23,7 @@ function generate(history: object[], report: object = record(history.length)) {
       resolve('scripts/evaluation/generate-dashboard.mjs'),
       '--report', reportPath, '--history', historyPath, '--out', directory,
     ]);
-    return readFileSync(resolve(directory, 'index.html'), 'utf8');
+    return readFileSync(resolve(directory, artifact), 'utf8');
   } finally {
     rmSync(directory, { recursive: true, force: true });
   }
@@ -85,5 +85,11 @@ describe('Evaluation dashboard history chart', () => {
   it('breaks history lines when the corpus changes instead of implying algorithm improvement', () => {
     const html = generate([{ ...record(0), corpusSha256: 'old' }], { ...record(1), corpusSha256: 'new' });
     expect([...series(html, 'f1').matchAll(/<polyline /g)]).toHaveLength(2);
+  });
+  it('uses the pooled score for the top badge and does not reuse old F1 when it is absent', () => {
+    const combined = { overall: { f1: 0.924875, recall: 0.90228 } };
+    expect(generate([], { ...record(0), combined }, 'badges/combined-f1.svg')).toContain('92.5%');
+    expect(generate([], record(0), 'badges/combined-f1.svg')).toContain('—');
+    expect(generate([], { ...record(0), combined }, 'badges/combined-recall.svg')).toContain('90.2%');
   });
 });

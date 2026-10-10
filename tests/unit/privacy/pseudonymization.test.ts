@@ -67,6 +67,22 @@ describe('Cloud dialogue privacy boundary', () => {
     expect(session.token('PERSON', 'Bob')).toBe('[PERSON_1]');
     expect(session.replaceKnown('Alice')).toBe('Alice');
   });
+  it('preserves address identity through repeated sanitization and the final prompt boundary', () => {
+    const privacySession = new PseudonymizationContext();
+    const original = 'Адреса: вул. Миру 12; адреса: вул. Сонячна 25.';
+    const first = Sanitizer.sanitize(original, { privacySession }).sanitizedText;
+    expect(first).toContain('[ADDRESS_1]');
+    expect(first).toContain('[ADDRESS_2]');
+    expect(Sanitizer.sanitize(first, { privacySession }).sanitizedText).toBe(first);
+    const prompt = Sanitizer.buildCloudPrompt(Sanitizer.sanitize('Порівняйте дві адреси.', { privacySession }), { privacySession, dialogueHistory: first });
+    expect(prompt).toContain('[ADDRESS_1]');
+    expect(prompt).toContain('[ADDRESS_2]');
+    expect(prompt).not.toContain('[ADDRESS_3]');
+  });
+  it('does not treat a marker followed by raw address data as already safe', () => {
+    const output = Sanitizer.sanitize('Адреса: [ADDRESS_1] вул. Сонячна 25').sanitizedText;
+    expect(output).not.toContain('Сонячна');
+  });
   it('does not merge unrelated single names or partial words', () => {
     const session = new PseudonymizationContext(); session.token('PERSON', 'Іван');
     expect(session.replaceKnown('Іваненко')).toBe('Іваненко');
