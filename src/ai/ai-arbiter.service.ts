@@ -45,14 +45,26 @@ export class AIArbiterService {
   /**
    * Генерація стабільного хеш-ключа контексту для кешування
    */
-  public static generateCacheKey(options: AIArbiterVerifyOptions): string {
-    const { context, rawTextToScan, intentType } = options;
-    const scanText = (rawTextToScan || context.targetSuspiciousUrl || '').trim();
-    const intent = intentType || context.scenario || 'UNKNOWN';
-    const keywords = (context.detectedKeywords || []).slice().sort().join(',');
-    const platform = context.sourcePlatform || '';
-    const suspiciousUrl = context.targetSuspiciousUrl || '';
-    return `${platform}|${suspiciousUrl}|${intent}|${keywords}|${scanText}`;
+  public static generateCacheKey(
+    options: AIArbiterVerifyOptions,
+    dialogueHistory = ChatChannelMonitor.getDialogueHistory()
+  ): string {
+    const { context, rawTextToScan, intentType, confidence } = options;
+    // Serialize fields separately so embedded delimiters cannot collide.
+    // SAFE is reusable only for this exact evidence, session and dialogue.
+    return JSON.stringify({
+      sessionRevision: ChatSessionState.sessionRevision,
+      sessionId: context.sessionId || '',
+      platform: context.sourcePlatform,
+      suspiciousUrl: context.targetSuspiciousUrl || '',
+      intent: intentType || context.scenario || 'UNKNOWN',
+      keywords: [...(context.detectedKeywords || [])].sort(),
+      scanText: rawTextToScan || context.targetSuspiciousUrl || '',
+      dialogueHistory,
+      threatLevel: context.threatLevel,
+      confidence: confidence ?? null,
+      offPlatformLure: context.offPlatformLure,
+    });
   }
 
   /**
@@ -86,10 +98,7 @@ export class AIArbiterService {
       return null;
     }
 
-    const { context, confidence } = options;
-    const currentScore = confidence || (context.threatLevel === 'HIGH' ? 75 : (context.threatLevel === 'MEDIUM' ? 50 : 25));
-
-    // 0. Карантин та Імунітет Сесії (Session Quarantine & Immunity)
+    // 0. Session quarantine for a previously confirmed threat.
     if (ChatSessionState.sessionLlmVerdict === 'SCAM') {
       return {
         isScam: true,
@@ -99,26 +108,14 @@ export class AIArbiterService {
       };
     }
     
+    // A safe verdict is a result for a particular request, not session immunity.
+    // Reuse the original result via the exact-context TTL cache below.
     if (ChatSessionState.sessionLlmVerdict === 'SAFE') {
-      if (currentScore <= ChatSessionState.sessionLlmImmunityPeakScore + 15) {
-        // Рівень загрози не зріс суттєво — не турбуємо LLM
-        return {
-          isScam: false,
-          confidence: 99,
-          reasoning: 'Імунітет сесії: ескалації загроз не виявлено',
-          provider: 'session-immunity'
-        };
-      } else {
-        DebuggerOverlay.logAI(
-          'ШІ Арбітр → Переоцінка',
-          `Ескалація загрози (${ChatSessionState.sessionLlmImmunityPeakScore} ➔ ${currentScore}). Імунітет скасовано.`,
-          '#EAB308'
-        );
-        ChatSessionState.sessionLlmVerdict = null;
-      }
+      ChatSessionState.sessionLlmVerdict = null;
+      ChatSessionState.sessionLlmImmunityPeakScore = 0;
     }
-
-    const cacheKey = this.generateCacheKey(options);
+    const chatDialogue = ChatChannelMonitor.getDialogueHistory();
+    const cacheKey = this.generateCacheKey(options, chatDialogue);
 
     // 1. Швидкий кеш: якщо однаковий контекст уже перевірявся — 0 мс затримки, 0% CPU
     const cached = this.cache.get(cacheKey);
@@ -157,7 +154,7 @@ export class AIArbiterService {
     const currentRequestId = ++this.requestCounter;
     const abortController = new AbortController();
 
-    const executionPromise = this.executeInference(options, currentRequestId, abortController, cacheKey);
+    const executionPromise = this.executeInference(options, currentRequestId, abortController, cacheKey, chatDialogue);
 
     this.inflightRequest = {
       key: cacheKey,
@@ -179,8 +176,10 @@ export class AIArbiterService {
     options: AIArbiterVerifyOptions,
     requestId: number,
     abortController: AbortController,
-    cacheKey: string
+    cacheKey: string,
+    chatDialogue: string
   ): Promise<AIArbiterVerifyResult | null> {
+    const sessionRevision = ChatSessionState.sessionRevision;
     const { context, rawTextToScan, intentType, confidence } = options;
     const scanText = rawTextToScan || context.targetSuspiciousUrl || '';
     const intentLabel =
@@ -225,8 +224,6 @@ Required JSON schema:
         targetHost = new URL(context.targetSuspiciousUrl).hostname;
       }
     } catch {}
-
-    const chatDialogue = ChatChannelMonitor.getDialogueHistory();
 
     // ── ZERO-KNOWLEDGE ПСЕВДОНІМІЗАЦІЯ ДАНИХ ──────────────────────────────
     const sanitizedScan = OutboundDataSanitizer.sanitize(scanText);
@@ -300,7 +297,8 @@ Required JSON schema:
             abortController.signal.removeEventListener('abort', onAbort);
 
             // Якщо запит було скасовано або перекрито іншим
-            if (abortController.signal.aborted || this.requestCounter !== requestId) {
+            if (abortController.signal.aborted || this.requestCounter !== requestId ||
+                ChatSessionState.sessionRevision !== sessionRevision) {
               resolve(null);
               return;
             }
@@ -325,7 +323,7 @@ Required JSON schema:
                 expiresAt: Date.now() + AIArbiterService.CACHE_TTL_MS,
               });
 
-              // Оновлюємо стан сесії для Карантину та Імунітету
+              // SAFE records the latest verdict only; reuse is controlled by the exact cache.
               if (aiResult.isScam && aiResult.confidence >= 75) {
                 ChatSessionState.sessionLlmVerdict = 'SCAM';
               } else if (!aiResult.isScam) {

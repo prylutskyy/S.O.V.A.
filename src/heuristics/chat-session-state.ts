@@ -21,11 +21,16 @@ export class ChatSessionState {
   private static readonly FULL_WEIGHT_MS = 60 * 1000;
   private static readonly HALF_LIFE_MS = 5 * 60 * 1000;
 
-  // Керування станом перевірки ШІ (Карантин / Імунітет)
+  // Incremented on reset so cached verdicts cannot cross conversation sessions.
+  public static sessionRevision = 0;
+
+  // Latest AI verdict; SAFE does not grant session-wide immunity.
   public static sessionLlmVerdict: 'SCAM' | 'SAFE' | null = null;
+  /** Legacy diagnostic value; never used to authorize SAFE reuse. */
   public static sessionLlmImmunityPeakScore: number = 0;
 
-  public static reset() { 
+  public static reset() {
+    this.sessionRevision += 1;
     this.messages = []; 
     this.sessionLlmVerdict = null;
     this.sessionLlmImmunityPeakScore = 0;
@@ -180,9 +185,7 @@ export class ChatSessionState {
   }
 
   public static clear() {
-    this.messages = [];
-    this.sessionLlmVerdict = null;
-    this.sessionLlmImmunityPeakScore = 0;
+    this.reset();
   }
 
   private static cleanExpired() {

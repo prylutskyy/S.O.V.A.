@@ -1,4 +1,5 @@
 import { TextNormalizer } from './text-normalizer';
+import { IdentityRequestDetector } from './identity-request-detector';
 import { UrlExtractor } from './url-extractor';
 import { PersonalVaultManager } from '../core/personal-vault';
 import { FastLanguageDetector, SupportedLanguage } from './language-detector';
@@ -399,57 +400,6 @@ export class IntentClassifier {
     },
 
     // =========================================================================
-    // 7. IDENTITY PROBING (Випитування чутливих маркерів особи)
-    // =========================================================================
-    {
-      cluster: 'identity_probing',
-      weight: 45,
-      lang: 'uk',
-      patterns: [
-        /(?:напишіть|вкажіть|скиньте|скажіть|надайте|продиктуйте|введіть|потрібен|треба|вишліть|дайте)\s+(?:ваш\s+|свій\s+)?(?:іпн|рнокпп|ідентифікаційний\s+код|податковий\s+номер|код\s+платника)/gi,
-        /(?:іпн|рнокпп)\s+(?:отримувача|платника|відправника)/gi,
-        /(?:напишіть|вкажіть|скажіть|яке|назвіть|дівоче)\s+(?:дівоче\s+)?прізвище\s*(?:матері)?/gi,
-        /дівоче\s+прізвище(\s+матері)?/gi,
-        /прізвище\s+матері/gi,
-        /(?:кодове|секретне|контрольне)\s+слово(?:\s+банку)?/gi,
-        /(?:назвіть|підтвердіть|скажіть|напишіть)\s+(?:кодове|секретне)\s+слово/gi,
-        /(?:напишіть|скиньте|вкажіть|надайте|продиктуйте|введіть)\s+(?:(?:номер|серію)\s+(?:вашого\s+)?)?(?:паспорта|айді|id[-_\s]?картки|документа)/gi,
-        /(?:дата|день|рік)\s+народження/gi,
-      ],
-    },
-    {
-      cluster: 'identity_probing',
-      weight: 45,
-      lang: 'ru',
-      patterns: [
-        /(?:напишите|укажите|скиньте|скажите|предоставьте|продиктуйте|введите|нужен|надо|вышлите|дайте)\s+(?:ваш\s+|свой\s+)?(?:инн|идентификационный\s+код|налоговый\s+номер)/gi,
-        /(?:инн)\s+(?:получателя|плательщика|отправителя)/gi,
-        /(?:напишите|укажите|скажите|какая|назовите|девичья)\s+(?:девичья\s+)?фамили[яи]\s*(?:матери)?/gi,
-        /девичья\s+фамили[яи](\s+матери)?/gi,
-        /фамили[яи]\s+матери/gi,
-        /(?:кодовое|секретное|контрольное)\s+слово(?:\s+банка)?/gi,
-        /(?:назовите|подтвердите|скажите|напишите)\s+(?:кодовое|секретное)\s+слово/gi,
-        /(?:напишите|скиньте|укажите|предоставьте|продиктуйте|введите)\s+(?:(?:номер|серию)\s+(?:вашего\s+)?)?(?:паспорта|айди|id[-_\s]?карт[ые]|документа)/gi,
-        /(?:дата|день|год)\s+рождения/gi,
-      ],
-    },
-    {
-      cluster: 'identity_probing',
-      weight: 45,
-      lang: 'en',
-      patterns: [
-        /(?:enter|provide|send|tell|type|need|give)\s+(?:your\s+)?(?:ssn|tax\s+id|national\s+id|tin)/gi,
-        /(?:what\s+is\s+your\s+|tell\s+me\s+your\s+)?(?:mother'?s?|mom'?s?)\s+maiden\s+name/gi,
-        /(?:mother'?s?|mom'?s?)\s+maiden\s+name|maiden\s+name/gi,
-        /(?:tax\s+id|national\s+id|ssn|social\s+security\s+number)/gi,
-        /(?:security|secret|control)\s+word(?:\s+for\s+bank)?/gi,
-        /(?:provide|enter|send)\s+(?:bank\s+)?(?:security|secret)\s+word/gi,
-        /(?:provide|send|enter|tell|share)\s+(?:your\s+)?(?:passport\s+number|id\s+card|national\s+id)/gi,
-        /(?:date\s+of\s+birth|dob|birth\s+date)/gi,
-      ],
-    },
-
-    // =========================================================================
     // 8. MILITARY SABOTAGE (Вербування до диверсій / Збір координат)
     // =========================================================================
     // 8. MILITARY SABOTAGE & RECRUITMENT (ст. 111-2, 113 КК України)
@@ -730,7 +680,7 @@ export class IntentClassifier {
         uk: {
           title: 'Спроба виманювання персональних маркерів особи (Identity Probing)',
           explanation: (words) =>
-            `Співрозмовник випитує конфіденційні персональні дані або банківські маркери безпеки (${words.slice(0, 3).map((w) => `«${w}»`).join(', ')}). Офіційні служби та покупці ніколи не запитують ІПН, дівоче прізвище матері чи кодове слово банку в чаті.`,
+            `Співрозмовник випитує конфіденційні персональні дані або банківські маркери безпеки (${words.slice(0, 3).map((w) => `«${w}»`).join(', ')}). Передавання документів або контрольних відповідей сторонньому співрозмовнику створює ризик зловживання; перевірте мету та канал запиту.`,
           carefulAdvice:
             'Ніколи не повідомляйте свій ІПН, дівоче прізвище матері, кодове слово банку або паспортні дані стороннім особам у листуванні.',
         },
@@ -744,7 +694,7 @@ export class IntentClassifier {
         en: {
           title: 'Identity Probing & Personal Security Marker Harvesting',
           explanation: (words) =>
-            `The interlocutor is probing for confidential personal identifiers or banking security markers (${words.slice(0, 3).map((w) => `"${w}"`).join(', ')}). Legitimate buyers and services never ask for tax ID, mother maiden name, or bank secret words in chat.`,
+            `The interlocutor is probing for confidential personal identifiers or banking security markers (${words.slice(0, 3).map((w) => `"${w}"`).join(', ')}). Check the purpose and recipient before sharing documents or account recovery answers in chat.`,
           carefulAdvice:
             'Never share your tax ID, mother maiden name, bank security word, or passport details with third parties in chats.',
         },
@@ -840,33 +790,22 @@ export class IntentClassifier {
       }
     }
 
+    // Identity evidence requires a request directed at a sensitive object.
+    for (const span of IdentityRequestDetector.detect(rawText, langResult.primary)) {
+      matchedSpans.push({ ...span, cluster: 'identity_probing', weight: 45 });
+      detectedClusterMap.set('identity_probing', 45);
+    }
+
     // 4. Динамічна багатомовна перевірка ключових слів активних об'єктів Personal Vault
     try {
       const vaultItems = PersonalVaultManager.getItemsSync();
       if (vaultItems && vaultItems.length > 0) {
-        const actionPromptRegex = /(?:напишіть|вкажіть|скиньте|скажіть|надайте|продиктуйте|введіть|потрібен|треба|вишліть|дайте|підтвердіть|напишите|укажите|предоставьте|нужен|надо|enter|provide|send|tell|type|need|give)\s+(?:ваш\s+|свій\s+|свой\s+|your\s+)?/i;
         for (const item of vaultItems) {
           if (!item.enabled && item.enabled !== undefined) continue;
           for (const kw of item.keywords) {
-            const kwClean = kw.trim().toLowerCase();
-            if (kwClean.length >= 3 && text.includes(kwClean)) {
-              const kwIdx = text.indexOf(kwClean);
-              const preceding = text.slice(Math.max(0, kwIdx - 40), kwIdx);
-              if (
-                actionPromptRegex.test(preceding) ||
-                item.category === 'MOTHER_MAIDEN_NAME' ||
-                item.category === 'SECRET_WORD'
-              ) {
-                matchedSpans.push({
-                  start: kwIdx,
-                  end: kwIdx + kwClean.length,
-                  text: text.slice(kwIdx, kwIdx + kwClean.length),
-                  cluster: 'identity_probing',
-                  weight: 45,
-                });
-                const currentMax = detectedClusterMap.get('identity_probing') || 0;
-                detectedClusterMap.set('identity_probing', Math.max(currentMax, 45));
-              }
+            for (const span of IdentityRequestDetector.detect(rawText, langResult.primary, kw)) {
+              matchedSpans.push({ ...span, cluster: 'identity_probing', weight: 45 });
+              detectedClusterMap.set('identity_probing', 45);
             }
           }
         }

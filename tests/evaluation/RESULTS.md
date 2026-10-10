@@ -154,3 +154,25 @@ The corpus has no controlled inter-message delays and little mixed-speaker cover
 Full validation without live Groq: 660 passing tests and one failing aggregate corpus assertion (the same 42 mismatches). TypeScript compilation passes. Raw logs stay local under `tests/results/`.
 
 Age is measured from extension ingestion, not from the chat platform's displayed send time. The grace period and half-life are initial policy settings, not calibrated estimates; validate them on independently labelled conversations with realistic timing. An aged local score does not itself clear an active UI threat or override an AI verdict. Full two-speaker history remains available to the cloud arbiter.
+
+## 2026-10-10 — personal-data requests and scoped SAFE reuse
+
+- Replaced identity keyword mentions with request/object matching within a sentence. Covered document photos and identifiers, tax identifiers, account recovery answers and birth dates in Ukrainian, Russian and English. Added request negation and explanatory/quoted-example exclusions. Ordinary delivery addresses alone are not identity evidence; vault keywords also require a request.
+- Removed score-based session SAFE immunity. Only an exact-context cache entry can reuse a safe verdict, preserving the provider's original confidence and reasoning for up to five minutes. The key includes dialogue, draft, intent, URL, evidence, score and session identity; session reset invalidates reuse and late inference results.
+- Evaluation now compares against commit 91803f4 on the same 326 cases and unchanged corpus hash. The first run found an omitted request verb in dev2-id-002 and an overbroad question-word match in safe2-reg-012. Added the request verb and restricted question-word proximity to the sensitive object; both regressions are corrected. Holdout text and labels were not used for tuning.
+
+| Measure | Before | After |
+| --- | ---: | ---: |
+| TP / FP / FN / TN | 154 / 1 / 34 / 137 | 164 / 1 / 24 / 137 |
+| Precision | 99.4% | 99.4% |
+| Recall | 81.9% | 87.2% |
+| Binary F1 | 89.8% | 92.9% |
+| Exact matches | 284/326 | 294/326 |
+| Exact-result mismatches | 42 | 32 |
+| Action mismatches | 36 | 26 |
+| Identity class F1 | 70.0% | 96.0% |
+| False input locks | 0 | 0 |
+
+Six development/regression identity misses and four independently evaluated holdout cases are fixed; no previously correct case regressed. Twenty-three new identity checks and ten mocked SAFE cache checks cover advice, negation, quoted examples, sentence boundaries, exact-result reuse, changed evidence/dialogue, expiry, reset and stale responses.
+
+Final full run without live Groq: 65 passing files and one failing corpus file; 693 passing tests and one failing aggregate corpus assertion (32 remaining exact mismatches). Focused run: 37/37. TypeScript compilation passes. Final log: tests/results/vitest-identity-safe-final-2026-10-10.log; baseline: tests/results/evaluation-before-identity-safe-2026-10-10.json. Raw results remain local.
