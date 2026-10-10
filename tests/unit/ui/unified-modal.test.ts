@@ -44,6 +44,14 @@ describe('UnifiedFrictionModal (Apple HIG & Sensory Hold)', () => {
     const modal = root.getElementById('threat-shield-unified-modal');
     expect(modal).not.toBeNull();
 
+    const dialog = modal?.querySelector('#ts-modal-card');
+    expect(dialog?.getAttribute('role')).toBe('dialog');
+    expect(dialog?.getAttribute('aria-modal')).toBe('true');
+    expect(dialog?.getAttribute('aria-labelledby')).toBe('ts-modal-title');
+    expect(modal?.querySelector('.ts-status-badge')?.textContent).toContain('CRITICAL');
+    expect(modal?.querySelector('style')?.textContent).toContain('@media (max-width: 540px)');
+    expect(modal?.querySelector('style')?.textContent).toContain('prefers-reduced-motion: reduce');
+
     // Check contrast capsule presence
     expect(modal?.innerHTML).toContain('modalIntendedActionTitle');
     expect(modal?.innerHTML).toContain('modalHiddenThreatTitle');
@@ -85,6 +93,47 @@ describe('UnifiedFrictionModal (Apple HIG & Sensory Hold)', () => {
 
     expect(cancelCalled).toBe(true);
     expect(root.getElementById('threat-shield-unified-modal')).toBeNull();
+  });
+
+  it('moves focus into the dialog and restores it to the invoking control on close', async () => {
+    const trigger = document.createElement('button');
+    document.body.appendChild(trigger);
+    trigger.focus();
+
+    await UnifiedFrictionModal.show({
+      type: 'form',
+      title: 'Перевірка форми',
+      badgeText: 'WARNING',
+      contextLabel: 'Сайт',
+      contextValue: 'example.test',
+      triggers: [],
+      onProceed: () => {},
+      onCancel: () => {},
+    });
+
+    expect(ShadowHost.getRoot().activeElement?.id).toBe('ts-primary-btn');
+    UnifiedFrictionModal.close();
+    expect(document.activeElement).toBe(trigger);
+    trigger.remove();
+  });
+
+  it('renders untrusted title and context as text rather than HTML', async () => {
+    const payload = '<img id="modal-xss" src="x" onerror="alert(1)">';
+    await UnifiedFrictionModal.show({
+      type: 'form',
+      title: payload,
+      badgeText: 'WARNING',
+      contextLabel: 'Сайт',
+      contextValue: payload,
+      triggers: [],
+      onProceed: () => {},
+      onCancel: () => {},
+    });
+
+    const modal = ShadowHost.getRoot().getElementById('threat-shield-unified-modal');
+    expect(modal?.querySelector('#modal-xss')).toBeNull();
+    expect(modal?.querySelector('#ts-modal-title')?.textContent).toBe(payload);
+    expect(modal?.querySelector('.ts-context-tag')?.textContent).toBe(payload);
   });
 
   it('renders remember domain checkbox directly in action area when enabled', async () => {
@@ -133,6 +182,8 @@ describe('UnifiedFrictionModal (Apple HIG & Sensory Hold)', () => {
 
     expect(inspectBtn).not.toBeNull();
     expect(inspector).not.toBeNull();
+    expect(inspector.getAttribute('role')).toBe('region');
+    expect(inspector.getAttribute('aria-labelledby')).toBe('ts-inspector-title');
     expect(inspector.style.display).toBe('none');
     expect(inspectText.textContent).toBe('modalInspectDetails');
 
@@ -142,11 +193,15 @@ describe('UnifiedFrictionModal (Apple HIG & Sensory Hold)', () => {
     expect(inspectBtn.classList.contains('expanded')).toBe(true);
     expect(inspectBtn.getAttribute('aria-expanded')).toBe('true');
     expect(inspectText.textContent).toBe('modalHideDetails');
+    expect(inspector.querySelector('#ts-inspector-title')?.textContent).toBe('Що вплинуло на оцінку');
+    expect(inspector.textContent).toContain('Сигнали й докази');
+    expect(inspector.textContent).toContain('Фактори оцінки');
 
-    // Telemetry header
+    // Engine source and the separate risk score
     const header = inspector.querySelector('.ts-xai-header');
     expect(header).not.toBeNull();
-    expect(header?.textContent).toContain('modalThreatScore');
+    expect(header?.textContent).toContain('modalAiEngineDefault');
+    expect(inspector.querySelector('.ts-xai-score-pill')?.textContent).toContain('modalThreatScore');
 
     // 3-factor telemetry grid
     const telemetry = inspector.querySelector('.ts-xai-telemetry');
@@ -154,6 +209,8 @@ describe('UnifiedFrictionModal (Apple HIG & Sensory Hold)', () => {
     expect(telemetry?.textContent).toContain('modalFactorFormServer');
     expect(telemetry?.textContent).toContain('modalFactorSessionContext');
     expect(telemetry?.textContent).toContain('modalFactorUserAction');
+    expect(telemetry?.querySelectorAll('[role="meter"]').length).toBe(3);
+    expect(telemetry?.querySelector('[role="meter"]')?.getAttribute('aria-valuenow')).toBeTruthy();
 
     // Inset grouped list
     const list = inspector.querySelector('.ts-xai-list');

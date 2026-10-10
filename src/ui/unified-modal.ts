@@ -56,6 +56,7 @@ export class UnifiedFrictionModal {
   private static holdListeners: Array<() => void> = [];
   private static previousBodyOverflow: string | null = null;
   private static previousHtmlOverflow: string | null = null;
+  private static previousFocusElement: HTMLElement | null = null;
 
   public static async show(options: UnifiedModalOptions): Promise<void> {
     if (typeof document === 'undefined') return;
@@ -65,6 +66,7 @@ export class UnifiedFrictionModal {
       this.previousBodyOverflow = document.body.style.overflow;
       this.previousHtmlOverflow = document.documentElement.style.overflow;
     }
+    this.previousFocusElement = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     document.body.style.overflow = 'hidden';
     document.documentElement.style.overflow = 'hidden';
 
@@ -123,29 +125,13 @@ export class UnifiedFrictionModal {
     const verdict = xai.intentVsReality?.verdict || xai.plainLanguageExplanation;
     const threatTitle = options.title || xai.intentVsReality?.threatName || xai.humanTitle;
 
-    // Скляний Backdrop з м'яким матовим розмиттям (Apple Frosted Glass)
-    modalRoot.style.cssText = `
-      position: fixed !important;
-      inset: 0 !important;
-      width: 100vw !important;
-      height: 100vh !important;
-      z-index: 2147483647 !important;
-      background: rgba(0, 0, 0, 0.32) !important;
-      backdrop-filter: blur(24px) saturate(180%) !important;
-      -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-      display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      padding: 16px !important;
-      box-sizing: border-box !important;
-      animation: tsBackdrop 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
-      pointer-events: auto !important;
-    `;
+    // Darkened backdrop keeps the interrupted page recognizable while centering attention.
+    modalRoot.className = 'ts-modal-backdrop';
 
     const rememberCheckboxHtml = options.allowRememberDomain && options.domainToRemember ? `
       <label class="ts-remember-row" id="ts-remember-label">
         <input type="checkbox" id="ts-remember-domain" class="ts-checkbox">
-        <span>${i18n.getMessage('modalTrustDomain', [options.domainToRemember || ''])}</span>
+        <span>${this.escapeHtml(i18n.getMessage('modalTrustDomain', [options.domainToRemember || '']))}</span>
       </label>
     ` : '';
 
@@ -162,14 +148,14 @@ export class UnifiedFrictionModal {
         </div>
         <div class="ts-xai-item-body">
           <div class="ts-xai-item-top">
-            <span class="ts-xai-item-title">${d.title}</span>
-            <span class="ts-xai-item-badge ${d.badgeType}">${d.badge}</span>
+            <span class="ts-xai-item-title">${this.escapeHtml(d.title)}</span>
+            <span class="ts-xai-item-badge ${d.badgeType}">${this.escapeHtml(d.badge)}</span>
           </div>
-          <div class="ts-xai-item-desc">${d.description}</div>
+          <div class="ts-xai-item-desc">${this.escapeHtml(d.description)}</div>
           ${d.evidence ? `
             <div class="ts-xai-evidence">
               <span class="ts-xai-evidence-label">${i18n.getMessage('modalEvidenceLabel')}</span>
-              <span class="ts-xai-evidence-code">${d.evidence}</span>
+              <span class="ts-xai-evidence-code">${this.escapeHtml(d.evidence)}</span>
             </div>
           ` : ''}
         </div>
@@ -189,27 +175,97 @@ export class UnifiedFrictionModal {
           to   { opacity: 1; transform: scale(1) translateY(0); }
         }
 
+        #threat-shield-unified-modal {
+          position: fixed;
+          inset: 0;
+          width: 100vw;
+          height: 100vh;
+          z-index: 2147483647;
+          background: rgba(14, 18, 27, 0.52);
+          backdrop-filter: blur(8px) saturate(115%);
+          -webkit-backdrop-filter: blur(8px) saturate(115%);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 16px;
+          box-sizing: border-box;
+          animation: tsBackdrop 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+          pointer-events: auto;
+        }
+
         #ts-modal-card {
-          width: 470px;
-          max-width: 92vw;
-          max-height: 90vh;
+          width: min(520px, 100%);
+          max-height: min(90vh, 820px);
           overflow-y: auto;
-          background: var(--sanctuary-glass-elevated);
-          backdrop-filter: blur(32px) saturate(190%);
-          -webkit-backdrop-filter: blur(32px) saturate(190%);
-          border-radius: var(--radius-modal);
+          background: rgba(255, 255, 255, 0.98);
+          backdrop-filter: blur(20px) saturate(130%);
+          -webkit-backdrop-filter: blur(20px) saturate(130%);
+          border-radius: 24px;
           border: 1px solid var(--sanctuary-hairline);
-          box-shadow: var(--shadow-modal);
+          box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28), 0 4px 16px rgba(0, 0, 0, 0.12);
           font-family: var(--font-sanctuary);
           animation: tsCardEnter 0.3s var(--ease-apple-spring);
           color: var(--sanctuary-ink-primary);
           display: flex;
           flex-direction: column;
-          align-items: center;
-          text-align: center;
-          padding: 28px 24px 22px;
+          align-items: stretch;
+          text-align: left;
+          padding: 28px;
           box-sizing: border-box;
-          user-select: none;
+          user-select: text;
+          outline: none;
+        }
+
+        .ts-modal-heading {
+          width: 100%;
+          display: flex;
+          align-items: center;
+          gap: 14px;
+          margin-bottom: 18px;
+        }
+
+        .ts-heading-copy {
+          min-width: 0;
+          flex: 1;
+        }
+
+        .ts-heading-meta {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin-bottom: 5px;
+        }
+
+        .ts-modal-kicker {
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: 0.08em;
+          color: var(--sanctuary-ink-tertiary);
+          text-transform: uppercase;
+        }
+
+        .ts-status-badge {
+          display: inline-flex;
+          align-items: center;
+          min-height: 20px;
+          padding: 2px 8px;
+          border-radius: 999px;
+          font-size: 10px;
+          line-height: 1.2;
+          font-weight: 700;
+          letter-spacing: 0.02em;
+        }
+
+        .ts-status-badge.critical {
+          color: var(--sanctuary-red-ink);
+          background: var(--sanctuary-red-bg);
+          border: 1px solid var(--sanctuary-red-bd);
+        }
+
+        .ts-status-badge.warning {
+          color: var(--sanctuary-amber-ink);
+          background: var(--sanctuary-amber-bg);
+          border: 1px solid var(--sanctuary-amber-bd);
         }
 
         #ts-modal-card::-webkit-scrollbar {
@@ -221,13 +277,14 @@ export class UnifiedFrictionModal {
         }
 
         .ts-emblem-box {
-          width: 52px;
-          height: 52px;
-          border-radius: 16px;
+          width: 48px;
+          height: 48px;
+          border-radius: 14px;
           display: flex;
           align-items: center;
           justify-content: center;
-          margin-bottom: 14px;
+          margin: 0;
+          flex: 0 0 48px;
         }
 
         .ts-emblem-box.critical {
@@ -245,21 +302,23 @@ export class UnifiedFrictionModal {
         }
 
         .ts-title {
-          font-size: 18px;
-          font-weight: 600;
+          font-size: 22px;
+          font-weight: 700;
           color: var(--sanctuary-ink-primary);
-          letter-spacing: -0.015em;
-          line-height: 1.3;
-          margin-bottom: 6px;
+          letter-spacing: -0.025em;
+          line-height: 1.2;
+          margin: 0;
+          overflow-wrap: anywhere;
         }
 
         .ts-context-pill {
-          display: inline-flex;
+          display: flex;
           align-items: center;
           gap: 6px;
           font-size: 11.5px;
           color: var(--sanctuary-ink-secondary);
-          margin-bottom: 16px;
+          margin: 0 0 16px;
+          flex-wrap: wrap;
         }
 
         .ts-context-tag {
@@ -270,7 +329,7 @@ export class UnifiedFrictionModal {
           border: 1px solid var(--sanctuary-hairline);
           padding: 2.5px 8px;
           border-radius: 6px;
-          max-width: 240px;
+          max-width: min(360px, 100%);
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
@@ -280,13 +339,13 @@ export class UnifiedFrictionModal {
         .ts-contrast-grid {
           width: 100%;
           margin-bottom: 14px;
-          background: var(--sanctuary-surface);
-          border-radius: 12px;
+          background: #fff;
+          border-radius: 14px;
           border: 1px solid var(--sanctuary-hairline);
           display: grid;
           grid-template-columns: 1fr 1fr;
           overflow: hidden;
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
           text-align: left;
         }
 
@@ -344,11 +403,15 @@ export class UnifiedFrictionModal {
         }
 
         .ts-verdict {
-          font-size: 12px;
-          line-height: 1.5;
-          color: var(--sanctuary-ink-secondary);
-          margin-bottom: 16px;
-          padding: 0 4px;
+          font-size: 13px;
+          line-height: 1.55;
+          color: var(--sanctuary-ink-primary);
+          margin: 0 0 18px;
+          padding: 12px 14px;
+          background: var(--sanctuary-surface-subtle);
+          border-left: 3px solid var(--sanctuary-blue);
+          border-radius: 0 10px 10px 0;
+          overflow-wrap: anywhere;
         }
 
         .ts-remember-row {
@@ -577,16 +640,48 @@ export class UnifiedFrictionModal {
         .ts-inspector-sheet {
           display: none;
           width: 100%;
-          background: rgba(0, 0, 0, 0.025);
+          background: var(--sanctuary-surface-subtle);
           border: 1px solid var(--sanctuary-hairline);
           border-radius: 14px;
-          padding: 12px 14px;
+          padding: 16px;
           margin-top: 10px;
           animation: tsInspectorFade 0.24s var(--ease-apple-spring);
           text-align: left;
           box-sizing: border-box;
           flex-direction: column;
-          gap: 10px;
+          gap: 12px;
+        }
+
+        .ts-xai-title-row {
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
+          gap: 12px;
+        }
+
+        .ts-xai-title-copy { min-width: 0; }
+        .ts-xai-eyebrow {
+          display: block;
+          margin-bottom: 3px;
+          color: var(--sanctuary-ink-tertiary);
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: 0.07em;
+          text-transform: uppercase;
+        }
+        .ts-xai-title {
+          margin: 0;
+          color: var(--sanctuary-ink-primary);
+          font-size: 14px;
+          font-weight: 700;
+          line-height: 1.3;
+          letter-spacing: -0.01em;
+        }
+        .ts-xai-subtitle {
+          margin: 3px 0 0;
+          color: var(--sanctuary-ink-secondary);
+          font-size: 11px;
+          line-height: 1.4;
         }
 
         @keyframes tsInspectorFade {
@@ -619,11 +714,13 @@ export class UnifiedFrictionModal {
         }
 
         .ts-xai-score-pill {
+          flex: 0 0 auto;
           font-size: 11px;
-          font-weight: 500;
-          padding: 2.5px 8px;
-          border-radius: 6px;
+          font-weight: 600;
+          padding: 6px 9px;
+          border-radius: 9px;
           font-family: var(--font-sanctuary);
+          white-space: nowrap;
         }
 
         .ts-xai-score-pill strong {
@@ -643,32 +740,46 @@ export class UnifiedFrictionModal {
           border: 1px solid var(--sanctuary-amber-bd);
         }
 
-        /* 3-Factor Risk Telemetry Grid */
+        .ts-xai-section-heading {
+          display: flex;
+          align-items: baseline;
+          justify-content: space-between;
+          gap: 8px;
+          margin: 1px 0 0;
+          color: var(--sanctuary-ink-primary);
+          font-size: 11px;
+          font-weight: 700;
+        }
+        .ts-xai-count {
+          color: var(--sanctuary-ink-tertiary);
+          font-size: 10px;
+          font-weight: 500;
+        }
+
+        /* Three independent signal groups */
         .ts-xai-telemetry {
           display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 6px;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 8px;
         }
 
         .ts-xai-factor {
           background: var(--sanctuary-surface);
           border: 1px solid var(--sanctuary-hairline);
           border-radius: 9px;
-          padding: 7px 9px 8px;
+          padding: 10px;
           display: flex;
           flex-direction: column;
-          gap: 2px;
+          gap: 4px;
         }
 
         .ts-xai-factor-name {
-          font-size: 9px;
+          font-size: 10px;
           font-weight: 600;
           text-transform: uppercase;
           letter-spacing: 0.03em;
           color: var(--sanctuary-ink-secondary);
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
+          line-height: 1.3;
         }
 
         .ts-xai-factor-value {
@@ -689,7 +800,7 @@ export class UnifiedFrictionModal {
         }
 
         .ts-xai-meter {
-          height: 3px;
+          height: 5px;
           background: rgba(118, 118, 128, 0.12);
           border-radius: 1.5px;
           overflow: hidden;
@@ -719,23 +830,12 @@ export class UnifiedFrictionModal {
           background: var(--sanctuary-surface);
           border: 1px solid var(--sanctuary-hairline);
           border-radius: 10px;
-          overflow-y: auto;
-          max-height: 180px;
           display: flex;
           flex-direction: column;
         }
 
-        .ts-xai-list::-webkit-scrollbar {
-          width: 3px;
-        }
-
-        .ts-xai-list::-webkit-scrollbar-thumb {
-          background: rgba(118, 118, 128, 0.2);
-          border-radius: 3px;
-        }
-
         .ts-xai-item {
-          padding: 9px 11px;
+          padding: 12px;
           display: flex;
           align-items: flex-start;
           gap: 9px;
@@ -789,7 +889,7 @@ export class UnifiedFrictionModal {
         }
 
         .ts-xai-item-title {
-          font-size: 11.5px;
+          font-size: 12px;
           font-weight: 600;
           color: var(--sanctuary-ink-primary);
           line-height: 1.3;
@@ -820,7 +920,7 @@ export class UnifiedFrictionModal {
         }
 
         .ts-xai-item-desc {
-          font-size: 11px;
+          font-size: 11.5px;
           color: var(--sanctuary-ink-secondary);
           line-height: 1.4;
         }
@@ -837,7 +937,8 @@ export class UnifiedFrictionModal {
           font-size: 9.5px;
           color: var(--sanctuary-ink-secondary);
           max-width: 100%;
-          word-break: break-all;
+          overflow-wrap: anywhere;
+          line-height: 1.4;
         }
 
         .ts-xai-evidence-label {
@@ -864,23 +965,86 @@ export class UnifiedFrictionModal {
           flex-shrink: 0;
           margin-top: 1px;
         }
+
+        #threat-shield-unified-modal button:focus-visible,
+        #threat-shield-unified-modal [role="button"]:focus-visible,
+        #threat-shield-unified-modal input:focus-visible {
+          outline: 3px solid rgba(0, 113, 227, 0.42);
+          outline-offset: 3px;
+        }
+
+        @media (max-width: 540px) {
+          #threat-shield-unified-modal {
+            align-items: flex-end !important;
+            padding: 10px !important;
+          }
+
+          #ts-modal-card {
+            width: 100%;
+            max-height: min(92vh, 820px);
+            padding: 22px 18px 18px;
+            border-radius: 22px;
+          }
+
+          .ts-modal-heading { gap: 11px; margin-bottom: 15px; }
+          .ts-emblem-box { width: 42px; height: 42px; flex-basis: 42px; }
+          .ts-title { font-size: 19px; }
+          .ts-contrast-grid { grid-template-columns: 1fr; }
+          .ts-contrast-col-left {
+            border-right: 0;
+            border-bottom: 1px solid var(--sanctuary-divider);
+          }
+          .ts-contrast-col-left,
+          .ts-contrast-col-right { padding: 11px 13px; }
+          .ts-inspector-sheet { padding: 14px; }
+          .ts-xai-telemetry { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+          .ts-xai-factor:last-child { grid-column: 1 / -1; }
+        }
+
+        @media (max-width: 360px) {
+          .ts-xai-telemetry { grid-template-columns: 1fr; }
+          .ts-xai-factor:last-child { grid-column: auto; }
+          .ts-xai-title-row { flex-direction: column; }
+        }
+
+        @media (max-height: 620px) and (min-width: 541px) {
+          #ts-modal-card { max-height: 96vh; padding-top: 18px; padding-bottom: 18px; }
+          .ts-emblem-box { width: 40px; height: 40px; flex-basis: 40px; }
+          .ts-modal-heading { margin-bottom: 12px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          #threat-shield-unified-modal *,
+          #threat-shield-unified-modal *::before,
+          #threat-shield-unified-modal *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            scroll-behavior: auto !important;
+            transition-duration: 0.01ms !important;
+          }
+        }
       </style>
 
-      <div id="ts-modal-card">
-        <!-- AUTHENTIC S.O.V.A. LOGO EMBLEM -->
-        <div class="ts-emblem-box">
+      <div id="ts-modal-card" role="dialog" aria-modal="true" aria-labelledby="ts-modal-title" aria-describedby="ts-modal-verdict" tabindex="-1">
+        <div class="ts-modal-heading">
+        <div class="ts-emblem-box ${isCritical ? 'critical' : 'warning'}">
           <div style="width: 42px; height: 42px; border-radius: 12px; overflow: hidden; background: #000000; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);">
             <img class="ts-sova-logo-img" src="${getSovaLogoUrl()}" alt="С.О.В.А." style="width: 100%; height: 100%; object-fit: cover; display: block;" />
           </div>
         </div>
-
-        <!-- HEADLINE -->
-        <h2 class="ts-title">${threatTitle}</h2>
+        <div class="ts-heading-copy">
+          <div class="ts-heading-meta">
+            <span class="ts-modal-kicker">С.О.В.А. · Безпека</span>
+            <span class="ts-status-badge ${isCritical ? 'critical' : 'warning'}">${this.escapeHtml(options.badgeText)}</span>
+          </div>
+          <h2 class="ts-title" id="ts-modal-title">${this.escapeHtml(threatTitle)}</h2>
+        </div>
+        </div>
 
         <!-- CONTEXT PILL -->
         <div class="ts-context-pill">
-          <span>${options.contextLabel}:</span>
-          <span class="ts-context-tag">${options.contextValue}</span>
+          <span>${this.escapeHtml(options.contextLabel)}:</span>
+          <span class="ts-context-tag">${this.escapeHtml(options.contextValue)}</span>
         </div>
 
         <!-- TWO-COLUMN INTENT VS REALITY CONTRAST MATRIX -->
@@ -890,19 +1054,19 @@ export class UnifiedFrictionModal {
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>
               ${i18n.getMessage('modalIntendedActionTitle')}
             </span>
-            <span class="ts-contrast-val-left">${userIntent}</span>
+            <span class="ts-contrast-val-left">${this.escapeHtml(userIntent)}</span>
           </div>
           <div class="ts-contrast-col-right">
             <span class="ts-contrast-header-right">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
               ${i18n.getMessage('modalHiddenThreatTitle')}
             </span>
-            <span class="ts-contrast-val-right">${hiddenReality}</span>
+            <span class="ts-contrast-val-right">${this.escapeHtml(hiddenReality)}</span>
           </div>
         </div>
 
         <!-- PLAIN LANGUAGE VERDICT -->
-        <p class="ts-verdict">${verdict}</p>
+        <p class="ts-verdict" id="ts-modal-verdict">${this.escapeHtml(verdict)}</p>
 
         <!-- ACTION STACK -->
         <div class="ts-actions-stack">
@@ -950,55 +1114,67 @@ export class UnifiedFrictionModal {
         </button>
 
         <!-- DIAGNOSTIC SHEET (Apple Security Inspector) -->
-        <div id="ts-inspector" class="ts-inspector-sheet" style="display: none;">
-          <!-- TELEMETRY HEADER -->
-          <div class="ts-xai-header">
-            <div class="ts-xai-engine-tag">
-              <span class="ts-xai-pulse-dot"></span>
-              <span>${xai.engineType === 'chrome-builtin-ai' ? 'Chrome Gemini Nano' : i18n.getMessage('modalAiEngineDefault')}</span>
+        <section id="ts-inspector" class="ts-inspector-sheet" role="region" aria-labelledby="ts-inspector-title" style="display: none;">
+          <div class="ts-xai-title-row">
+            <div class="ts-xai-title-copy">
+              <span class="ts-xai-eyebrow">Пояснення рішення</span>
+              <h3 id="ts-inspector-title" class="ts-xai-title">Що вплинуло на оцінку</h3>
+              <p class="ts-xai-subtitle">Окремі сигнали системи, а не ймовірність загрози.</p>
             </div>
             <div class="ts-xai-score-pill ${isCritical ? 'critical' : 'warning'}">
               <span>${i18n.getMessage('modalThreatScore', [String(fallbackAssessment.score)])}</span>
             </div>
           </div>
 
-          <!-- 3-FACTOR RISK TELEMETRY (R_tech, C_env, A_user) -->
+          <!-- MODEL SOURCE -->
+          <div class="ts-xai-header">
+            <div class="ts-xai-engine-tag">
+              <span class="ts-xai-pulse-dot"></span>
+              <span>${xai.engineType === 'chrome-builtin-ai' ? 'Chrome Gemini Nano' : i18n.getMessage('modalAiEngineDefault')}</span>
+            </div>
+          </div>
+
+          <h4 class="ts-xai-section-heading">Фактори оцінки</h4>
+          <!-- 3 independent factor scores -->
           <div class="ts-xai-telemetry">
-            <div class="ts-xai-factor">
+            <div class="ts-xai-factor" role="meter" aria-label="${this.escapeHtml(i18n.getMessage('modalFactorFormServer'))}" aria-valuemin="0" aria-valuemax="${breakdown.technical.maxScore}" aria-valuenow="${breakdown.technical.score}">
               <span class="ts-xai-factor-name">${i18n.getMessage('modalFactorFormServer')}</span>
               <div class="ts-xai-factor-value">
                 <span>${breakdown.technical.score}</span>
                 <span class="ts-xai-factor-max">/${breakdown.technical.maxScore}</span>
               </div>
               <div class="ts-xai-meter">
-                <div class="ts-xai-bar red" style="width: ${breakdown.technical.percentage}%;"></div>
+                <div class="ts-xai-bar red" style="width: ${Math.max(0, Math.min(100, breakdown.technical.percentage))}%;"></div>
               </div>
             </div>
 
-            <div class="ts-xai-factor">
+            <div class="ts-xai-factor" role="meter" aria-label="${this.escapeHtml(i18n.getMessage('modalFactorSessionContext'))}" aria-valuemin="0" aria-valuemax="${breakdown.contextual.maxScore}" aria-valuenow="${breakdown.contextual.score}">
               <span class="ts-xai-factor-name">${i18n.getMessage('modalFactorSessionContext')}</span>
               <div class="ts-xai-factor-value">
                 <span>${breakdown.contextual.score}</span>
                 <span class="ts-xai-factor-max">/${breakdown.contextual.maxScore}</span>
               </div>
               <div class="ts-xai-meter">
-                <div class="ts-xai-bar amber" style="width: ${breakdown.contextual.percentage}%;"></div>
+                <div class="ts-xai-bar amber" style="width: ${Math.max(0, Math.min(100, breakdown.contextual.percentage))}%;"></div>
               </div>
             </div>
 
-            <div class="ts-xai-factor">
+            <div class="ts-xai-factor" role="meter" aria-label="${this.escapeHtml(i18n.getMessage('modalFactorUserAction'))}" aria-valuemin="0" aria-valuemax="${breakdown.userAction.maxScore}" aria-valuenow="${breakdown.userAction.score}">
               <span class="ts-xai-factor-name">${i18n.getMessage('modalFactorUserAction')}</span>
               <div class="ts-xai-factor-value">
                 <span>${breakdown.userAction.score}</span>
                 <span class="ts-xai-factor-max">/${breakdown.userAction.maxScore}</span>
               </div>
               <div class="ts-xai-meter">
-                <div class="ts-xai-bar blue" style="width: ${breakdown.userAction.percentage}%;"></div>
+                <div class="ts-xai-bar blue" style="width: ${Math.max(0, Math.min(100, breakdown.userAction.percentage))}%;"></div>
               </div>
             </div>
           </div>
 
-          <!-- INSET GROUPED INDICATORS LIST -->
+          <h4 class="ts-xai-section-heading">
+            <span>Сигнали й докази</span>
+            <span class="ts-xai-count">${diagnostics.length}</span>
+          </h4>
           <div class="ts-xai-list">
             ${diagnosticsHtml}
           </div>
@@ -1009,10 +1185,10 @@ export class UnifiedFrictionModal {
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
               </svg>
-              <span>${xai.educationalTip}</span>
+              <span>${this.escapeHtml(xai.educationalTip)}</span>
             </div>
           ` : ''}
-        </div>
+        </section>
       </div>
     `;
 
@@ -1024,6 +1200,7 @@ export class UnifiedFrictionModal {
     const btnDecoy      = modalRoot.querySelector('#ts-decoy-btn') as HTMLButtonElement | null;
     const btnInspect    = modalRoot.querySelector('#ts-inspect-btn') as HTMLButtonElement;
     const inspector     = modalRoot.querySelector('#ts-inspector') as HTMLElement;
+    const modalCard     = modalRoot.querySelector('#ts-modal-card') as HTMLElement;
     const checkRemember = modalRoot.querySelector('#ts-remember-domain') as HTMLInputElement | null;
 
     const holdBtn       = modalRoot.querySelector('#ts-hold-btn') as HTMLElement | null;
@@ -1076,11 +1253,36 @@ export class UnifiedFrictionModal {
     // Keyboard support: Escape cancels
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
+        e.preventDefault();
         handleCancel();
+        return;
+      }
+      if (e.key === 'Tab') {
+        const focusable = Array.from(modalRoot.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), input:not([disabled]), [href], [role="button"][tabindex], [tabindex]:not([tabindex="-1"])'
+        )).filter((element) =>
+          !element.closest('[hidden]') && !element.closest('#ts-inspector[style*="display: none"]')
+        );
+        if (focusable.length === 0) {
+          e.preventDefault();
+          modalCard.focus();
+          return;
+        }
+        const activeElement = ShadowHost.getRoot().activeElement as HTMLElement | null;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey && (activeElement === first || !modalRoot.contains(activeElement))) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && (activeElement === last || !modalRoot.contains(activeElement))) {
+          e.preventDefault();
+          first.focus();
+        }
       }
     };
     window.addEventListener('keydown', onKeyDown);
     this.holdListeners.push(() => window.removeEventListener('keydown', onKeyDown));
+    (btnPrimary || modalCard).focus();
 
     // 2000 ms Sensory Hold-to-Unlock Mechanics with Apple Spring Rebound (Only for non-civic threats)
     if (holdBtn && holdFill && holdLabel) {
@@ -1175,6 +1377,8 @@ export class UnifiedFrictionModal {
       ShadowHost.remove(this.activeModal);
       this.activeModal = null;
     }
+    const focusTarget = this.previousFocusElement;
+    this.previousFocusElement = null;
     if (typeof document !== 'undefined') {
       if (this.previousBodyOverflow !== null && document.body) {
         document.body.style.overflow = this.previousBodyOverflow;
@@ -1184,6 +1388,7 @@ export class UnifiedFrictionModal {
         document.documentElement.style.overflow = this.previousHtmlOverflow;
         this.previousHtmlOverflow = null;
       }
+      if (focusTarget?.isConnected) focusTarget.focus({ preventScroll: true });
     }
   }
 
@@ -1207,6 +1412,16 @@ export class UnifiedFrictionModal {
       default:
         return '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>';
     }
+  }
+
+  private static escapeHtml(value: unknown): string {
+    return String(value ?? '').replace(/[&<>"']/g, (character) => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;',
+    })[character]!);
   }
 
   private static buildDiagnosticFactors(options: UnifiedModalOptions, xai: any): DiagnosticItem[] {
