@@ -49,6 +49,12 @@ export interface SemanticVectorTelemetry {
   confidence?: number;
   reason?: string;
   latestMessage?: string;
+  recencySupport?: number;
+}
+
+export interface SemanticContextEvidence {
+  text: string;
+  weight: number;
 }
 
 export interface SemanticEvaluationResult {
@@ -329,6 +335,7 @@ export class SemanticTriggerEngine {
     text: string,
     fullDialogueContext?: string,
     credentialRequestEvidence?: boolean,
+    contextEvidence?: readonly SemanticContextEvidence[],
   ): SemanticEvaluationResult {
     const combinedText = fullDialogueContext
       ? (fullDialogueContext.includes(text) ? fullDialogueContext : `${fullDialogueContext}\n${text}`)
@@ -479,6 +486,58 @@ export class SemanticTriggerEngine {
       }
     }
 
+    // Boolean pragmatic matches and cosine similarity do not decay by themselves.
+    // Require enough recent support for the actual branch that formed the intent.
+    // Unrelated old greetings do not reduce the weight of fresh evidence.
+    let recencySupport = 1;
+    if (contextEvidence && hasFormedIntent &&
+        contextEvidence.some((message) => !Number.isFinite(message.weight) || message.weight < 1)) {
+      const strength = (pattern: RegExp) => Math.max(0, ...contextEvidence.map((message) =>
+        Number.isFinite(message.weight) && pattern.test(message.text)
+          ? Math.max(0, Math.min(1, message.weight)) : 0,
+      ));
+      const action = strength(this.ACTION_REGEX);
+      const target = strength(this.TARGET_REGEX);
+      const reward = strength(this.REWARD_REGEX);
+      const discretion = strength(this.DISCRETION_REGEX);
+      const recon = strength(this.RECON_REGEX);
+      const ideology = strength(this.IDEOLOGY_COVER_REGEX);
+      const sabotage = strength(/(?:підпал|поджог|розпалювач|розжиг|подожги|сожги|коктейл|релейн|шаф|диверс)/iu);
+      const courier = strength(/кур(?:[ь'’]?є|ьер|ер)|розвід|развед/iu);
+      const media = strength(/(?:фото|відео|видео|зніми|сними|сфоткай|засними|кадр|зйомк|съемк)/iu);
+      const vehicle = strength(/(?:авто|машин|бус|номер|піксель|пиксель|хрест|крест|тачк)/iu);
+      const protectedTarget = strength(/(?:військов|воєнкомат|военкомат|військкомат|тцк|зсу|всу|ппо|пво|блокпост|в\/ч|релейн|підстанц|трансформатор|тэц|гес|радар|критичн[а-яіїє]*\s+інфраструктур)/iu);
+      if (intentType === 'MILITARY_SABOTAGE_RECRUITMENT') {
+        const physical = Math.max(target, sabotage, courier, recon, ideology);
+        const pragmaticSupport = isSabotagePragmatic ? Math.min(action, physical, Math.max(
+          signals.hasRewardIncentive && signals.hasTargetFocus ? Math.min(reward, target) : 0,
+          signals.hasRewardIncentive && signals.hasDiscretionUrgency ? Math.min(reward, discretion) : 0,
+          hasCourierScoutRecruitment ? Math.min(reward, courier) : 0,
+          isHostileReconnaissance ? Math.min(target, Math.max(recon, Math.min(media, vehicle))) : 0,
+          isIdeologicalRecruitment ? Math.min(ideology, target) : 0,
+          hasSabotageKeywords ? sabotage : 0,
+        )) : 0;
+        const vectorSupport = isHighVectorSabotage
+          ? Math.min(action, physical, Math.max(recon, ideology, sabotage, courier, protectedTarget)) : 0;
+        const politeSupport = isPureHighVectorSabotage ? Math.min(media, protectedTarget,
+          strength(/(?:чи\s+(?:не\s+)?(?:могли\s+б|можете|можеш)|могли\s+б\s+ви|could\s+you|can\s+you|would\s+you|please)/iu)) : 0;
+        recencySupport = Math.max(pragmaticSupport, vectorSupport, politeSupport);
+      } else {
+        const credential = strength(/(?:cvv|cvc|код|парол|смс|sms|password|passcode|otp|баланс|balance|термін\s+дії|срок\s+действия|номер\s+карт)/iu);
+        recencySupport = Math.min(action, credential);
+      }
+      confidence = Math.round(confidence * recencySupport);
+      const minimumConfidence = intentType === 'MILITARY_SABOTAGE_RECRUITMENT' ? 75
+        : topMatch.similarity >= 0.45 ? 45 : 38;
+      if (confidence < minimumConfidence) {
+        hasFormedIntent = false;
+        intentType = 'UNKNOWN';
+        intentTitle = '';
+        confidence = 0;
+        reason = 'Контекстні ознаки застаріли: недостатньо свіжих доказів загрози';
+      }
+    }
+
     const reconMatches = Array.from(new Set(Array.from(combinedText.matchAll(new RegExp(this.RECON_REGEX.source, 'gi'))).map(m => m[0])));
     const ideologyMatches = Array.from(new Set(Array.from(combinedText.matchAll(new RegExp(this.IDEOLOGY_COVER_REGEX.source, 'gi'))).map(m => m[0])));
 
@@ -505,6 +564,7 @@ export class SemanticTriggerEngine {
       },
       conceptWeights
     );
+    telemetry.recencySupport = recencySupport;
 
     return {
       hasFormedIntent,

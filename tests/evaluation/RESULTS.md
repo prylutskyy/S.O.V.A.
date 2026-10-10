@@ -126,3 +126,31 @@ Ten exact results were corrected in development/regressions and two in the indep
 Full non-Groq validation: 644 passing tests and one failing aggregate corpus assertion, with 42 remaining mismatches. TypeScript compilation passes. Logs and the baseline report stay local under `tests/results/`.
 
 The categories still overlap: a bank code requested under an account-check pretext can support both labels. The purpose rule follows the current corpus convention and selects one primary type; it does not establish that only one attack mechanism is present. The remaining benign false positive and holdout misses still need separate work.
+
+## 2026-10-10 — speaker isolation and context recency
+
+### Changes
+
+- Local heuristic and semantic decisions use interlocutor messages only. Outbound messages keep their text and speaker identity in AI dialogue history, but store no threat clusters or match spans. A user quote cannot supply a seed, military or payment signal to the other person's intent.
+- Outbound evaluations reuse the latest interlocutor message's original timestamp and language. Replies cannot renew its age or change its localization. Incoming and outgoing histories have independent limits of 30 messages each, so user replies cannot evict incoming evidence.
+- Evidence has full weight for 60 seconds, then an exponential five-minute half-life: `2 ** (-max(0, ageMs - 60000) / 300000)`. At six minutes its weight is 0.5; at eleven minutes 0.25. Messages expire at fifteen minutes, and future timestamps after a clock reversal are discarded.
+- Heuristic clusters use their maximum decayed weight rather than accumulating repeated messages. For aged semantic context, decision confidence is reduced using support for the required action, target, reward or credential cues. This prevents unweighted pragmatic flags or vector similarity from restoring old evidence. Fresh unrelated messages do not refresh old cues; old unrelated greetings do not weaken fresh threat evidence. `recencySupport` is exposed in telemetry.
+- Added sixteen tests for quoted outgoing threats, mixed-speaker combinations, preserved incoming threats, split incoming lures, fading confidence, stale heuristic and semantic blocking evidence, per-speaker limits, TTL/clock reversal and reset. Replaced the old message-buffer smoke assertion with a real thirty-message retention check.
+
+### Results
+
+Compared with `1af9799`, all corpus metrics and scenario predictions are unchanged on the same 326 cases and SHA-256 `9319bb14b87430898ea9dc42f14cff7faa03aa37e215861612e633ab87442cde`:
+
+| Measure | Before | After |
+| --- | ---: | ---: |
+| TP / FP / FN / TN | 154 / 1 / 34 / 137 | 154 / 1 / 34 / 137 |
+| Binary detection F1 | 89.8% | 89.8% |
+| Exact matches | 284/326 (87.1%) | 284/326 (87.1%) |
+| Exact-result mismatches | 42 | 42 |
+| False input locks | 0 | 0 |
+
+The corpus has no controlled inter-message delays and little mixed-speaker coverage. Therefore it does not measure the benefit of this change. The sixteen new isolated-time tests verify those behaviors separately without modifying corpus labels or tuning against holdout text.
+
+Full validation without live Groq: 660 passing tests and one failing aggregate corpus assertion (the same 42 mismatches). TypeScript compilation passes. Raw logs stay local under `tests/results/`.
+
+Age is measured from extension ingestion, not from the chat platform's displayed send time. The grace period and half-life are initial policy settings, not calibrated estimates; validate them on independently labelled conversations with realistic timing. An aged local score does not itself clear an active UI threat or override an AI verdict. Full two-speaker history remains available to the cloud arbiter.

@@ -15,7 +15,7 @@ describe('ChatSessionState', () => {
     // 1st message: mentions viber (off_platform)
     const res1 = ChatSessionState.addMessageAndEvaluate('Переходимо у viber', 'inbound');
     expect(res1.clustersDetected).toContain('off_platform');
-    expect(res1.hasFormedIntent).toBe(true); // Since OFF_PLATFORM_REDIRECT only needs 1 cluster
+    expect(res1.hasFormedIntent).toBe(true); // Messenger + an explicit redirection action.
 
     // 2nd message: sends a suspicious link (action_link)
     const res2 = ChatSessionState.addMessageAndEvaluate('ось лінк на olx доставка https://fake-olx.com', 'inbound');
@@ -43,13 +43,14 @@ describe('ChatSessionState', () => {
     expect(res2.clustersDetected).toContain('action_link');
   });
 
-  it('should only keep the last 5 messages', () => {
-    for (let i = 0; i < 6; i++) {
+  it('keeps the last 30 incoming messages', () => {
+    for (let i = 0; i < 35; i++) {
       ChatSessionState.addMessageAndEvaluate(`message ${i}`, 'inbound');
     }
-    // There is no public getter for messages length, but we can test behavior if needed.
-    // We're just ensuring it doesn't crash here.
-    expect(true).toBe(true);
+    const messages = ChatSessionState.getRecentMessages();
+    expect(messages).toHaveLength(30);
+    expect(messages[0].rawText).toBe('message 5');
+    expect(messages.at(-1)?.rawText).toBe('message 34');
   });
 
   it('should calculate confidence >= 50 for critical threats (Phase 3 Risk Matrix)', () => {

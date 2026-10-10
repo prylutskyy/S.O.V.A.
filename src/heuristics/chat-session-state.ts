@@ -1,5 +1,6 @@
 import { IntentMatchSpan, IntentClassifier, IntentClassificationResult, ScamIntentType } from './intent-classifier';
 import { SemanticTriggerEngine } from './semantic-trigger';
+import { SupportedLanguage } from './language-detector';
 
 export interface ChatMessageContext {
   id: string;
@@ -9,12 +10,16 @@ export interface ChatMessageContext {
   direction: 'inbound' | 'outbound';
   clusters: string[];
   matchedSpans: IntentMatchSpan[];
+  detectedLanguage: SupportedLanguage;
+  isMixedLanguage: boolean;
 }
 
 export class ChatSessionState {
   private static messages: ChatMessageContext[] = [];
-  private static readonly MAX_MESSAGES = 30;
+  private static readonly MAX_MESSAGES_PER_DIRECTION = 30;
   private static readonly TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes
+  private static readonly FULL_WEIGHT_MS = 60 * 1000;
+  private static readonly HALF_LIFE_MS = 5 * 60 * 1000;
 
   // Керування станом перевірки ШІ (Карантин / Імунітет)
   public static sessionLlmVerdict: 'SCAM' | 'SAFE' | null = null;
@@ -66,23 +71,38 @@ export class ChatSessionState {
       normalizedText,
       timestamp: Date.now(),
       direction,
-      clusters: Array.from(detectedClusterMap.keys()),
-      matchedSpans
+      clusters: direction === 'inbound' ? Array.from(detectedClusterMap.keys()) : [],
+      matchedSpans: direction === 'inbound' ? matchedSpans : [],
+      detectedLanguage,
+      isMixedLanguage,
     });
 
-    if (this.messages.length > this.MAX_MESSAGES) {
-      this.messages.shift();
+    if (this.messages.filter((message) => message.direction === direction).length > this.MAX_MESSAGES_PER_DIRECTION) {
+      const oldestIndex = this.messages.findIndex((message) => message.direction === direction);
+      this.messages.splice(oldestIndex, 1);
     }
 
-    // 3. Aggregate all clusters from the sliding window
+    // Outbound messages preserve dialogue history but cannot contribute evidence
+    // or refresh the timestamp/language of the latest interlocutor message.
+    const inboundMessages = this.messages.filter((message) => message.direction === 'inbound');
+    const latestInbound = inboundMessages.at(-1);
+    if (!latestInbound) {
+      return { hasFormedIntent: false, matchedSpans: [], clustersDetected: [], normalizedText,
+        detectedLanguage, isMixedLanguage, suspiciousUrls: [] };
+    }
+    rawText = latestInbound.rawText;
+
+    // 3. Aggregate only interlocutor evidence with a per-message recency weight.
     const aggregatedClusterMap = new Map<string, number>();
     const aggregatedSpans: IntentMatchSpan[] = [];
+    const now = Date.now();
     
-    for (const msg of this.messages) {
+    for (const msg of inboundMessages) {
       for (const span of msg.matchedSpans) {
-        aggregatedSpans.push(span);
+        const weight = (span.weight ?? 35) * this.recencyWeight(msg.timestamp, now);
+        aggregatedSpans.push({ ...span, weight });
         const currentMax = aggregatedClusterMap.get(span.cluster) || 0;
-        aggregatedClusterMap.set(span.cluster, Math.max(currentMax, span.weight ?? 35));
+        aggregatedClusterMap.set(span.cluster, Math.max(currentMax, weight));
       }
     }
 
@@ -94,20 +114,25 @@ export class ChatSessionState {
       aggregatedClusterMap,
       aggregatedSpans,
       rawText,
-      detectedLanguage,
-      isMixedLanguage,
-      Array.from(detectedClusterMap.keys())
+      latestInbound.detectedLanguage,
+      latestInbound.isMixedLanguage,
+      latestInbound.clusters
     );
 
     // 5. Tier 1.5: Семантичний векторний аналіз (Semantic & Behavioral Intent Trigger)
     // Завжди обчислюємо векторний спектр для кожного повідомлення для актуальної телеметрії
-    const fullDialogueContext = this.getDialogueHistory();
+    const inboundEvidence = inboundMessages.map((message) => ({
+      text: message.rawText,
+      weight: this.recencyWeight(message.timestamp, now),
+    }));
+    const inboundDialogueContext = inboundMessages.map((message) => `[Співрозмовник]: ${message.rawText}`).join('\n');
+    const latestClusterMap = new Map(latestInbound.matchedSpans.map((span) => [span.cluster, span.weight ?? 35]));
     // A conceptual resemblance to a banking message must not manufacture an
     // explicit secret request that the lexical analysis rejected (e.g. advice).
-    const hasCredentialRequest = detectedClusterMap.has('payment_credential_request') ||
-      detectedClusterMap.has('password_theft') ||
-      (detectedClusterMap.has('bank_login_request') && detectedClusterMap.has('action_link') &&
-       detectedClusterMap.has('payment_purpose'));
+    const hasCredentialRequest = latestClusterMap.has('payment_credential_request') ||
+      latestClusterMap.has('password_theft') ||
+      (latestClusterMap.has('bank_login_request') && latestClusterMap.has('action_link') &&
+       latestClusterMap.has('payment_purpose'));
     const mentionsCredential = /(?:[cс]vv|[cс]v[cс]|\bpin\b|код|парол|password|passcode|\botp\b|баланс|balance|реквізит|ключ|фраз|phrase|security\s+code)/iu.test(rawText);
     const isCredentialAdvice = /(?:не\s+(?:надсилайте|повідомляйте|передавайте|вводьте|надавайте|сообщайте|отправляйте|передавайте)|never\s+(?:send|share|provide)|do\s+not\s+(?:send|share|provide))/iu.test(rawText);
     const isSelfServiceBalanceCheck = /перевір[а-яіїє]*\s+баланс\s+самостійно/iu.test(rawText);
@@ -116,7 +141,7 @@ export class ChatSessionState {
     // advice/status messages rather than demanding one exact lexical template.
     const credentialEvidence = hasCredentialRequest ? true
       : ((!mentionsCredential && isCompletedVerification) || isCredentialAdvice || isSelfServiceBalanceCheck) ? false : undefined;
-    const semanticResult = SemanticTriggerEngine.evaluate(rawText, fullDialogueContext, credentialEvidence);
+    const semanticResult = SemanticTriggerEngine.evaluate(rawText, inboundDialogueContext, credentialEvidence, inboundEvidence);
 
     if (heuristicResult.hasFormedIntent) {
       return {
@@ -140,9 +165,9 @@ export class ChatSessionState {
         confidence: semanticResult.confidence,
         clustersDetected: ['semantic_trigger', ...activeClusters],
         matchedSpans: semanticSpans.length > 0 ? semanticSpans : aggregatedSpans,
-        detectedLanguage: detectedLanguage || 'uk',
-        isMixedLanguage,
-        normalizedText,
+        detectedLanguage: latestInbound.detectedLanguage,
+        isMixedLanguage: latestInbound.isMixedLanguage,
+        normalizedText: latestInbound.normalizedText,
         suspiciousUrls: heuristicResult.suspiciousUrls || [],
         telemetry: semanticResult.telemetry,
       };
@@ -162,6 +187,11 @@ export class ChatSessionState {
 
   private static cleanExpired() {
     const now = Date.now();
-    this.messages = this.messages.filter(m => now - m.timestamp < this.TIMEOUT_MS);
+    this.messages = this.messages.filter(m => now >= m.timestamp && now - m.timestamp < this.TIMEOUT_MS);
+  }
+
+  private static recencyWeight(timestamp: number, now: number): number {
+    const age = Math.max(0, now - timestamp);
+    return Math.pow(2, -Math.max(0, age - this.FULL_WEIGHT_MS) / this.HALF_LIFE_MS);
   }
 }
