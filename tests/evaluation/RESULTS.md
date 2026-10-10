@@ -2,6 +2,15 @@
 
 Record each intentional classifier or corpus change here so metric shifts can be interpreted alongside the dashboard history. Exact-match results depend on both the classifier and the corpus contents; compare runs only when the corpus hash is the same, or report the changed split separately.
 
+## 2026-10-10 — AI-reviewed stress baseline (A/B reported separately)
+
+- Four complete reviewer files, 300 answers each; provisional references preserve votes and all conflicts, no human adjudication. Author hypotheses do not determine expectations. Frozen text SHA `3f75c7a6e924bb4367beac3b6c33549d8dcc156a62bb7991af6fcca0ce011705`; reference SHA `dfdb7d6203716575071c2483b87e1dd3463d41661547106ee539fc7c8198bdba`.
+- A: agreed binary N=244, TP 94 / FP 35 / FN 26 / TN 89, F1 75.5%, recall 78.3%, exact 148/239 (type conflicts excluded), 18 false final locks. B: binary N=240, TP 85 / FP 25 / FN 35 / TN 95, F1 73.9%, recall 70.8%, exact 148/240, 12 false final locks. Uncertain assessments excluded: A 56 (8 detected, 3 locked), B 60 (10 detected, 5 locked).
+- 300 paired variants of 60 A cases: typos lose 8 recognized threats, mixed language 5, Unicode 2. Outgoing quotes and split requests cause no prediction changes on these pairs. Stability can preserve errors; pairs are not independent observations. 40 dialogues locally lock before the final request. Verification-to-payment confusion occurs 46 times across the scored blocks.
+- Runtime rules and trained weights unchanged. Old regression/challenge combined badges retain their previous scope; A/B have separate graphs, badges, case detail and hash history. Their research mismatches are not zero-mismatch assertions. Technical failures, broken references and incomplete exports fail CI.
+- Final offline suite **932/932**, 83 files; TypeScript and production build pass. No Groq calls. Node per-message median 2.10 ms, p95 3.86 ms under suite load; no browser/RAM or weak-hardware guarantee.
+- [Report and limitations](../review/LOCAL_EVALUATION_REPORT.md), [all predictions and trajectories](../review/LOCAL_BASELINE.json), [reviewer agreement](../review/AI_REVIEW_ANALYSIS.md).
+
 ## 2026-10-10 — pooled local badges and live privacy smoke
 
 - Local block results unchanged: regression 326/326; challenge defined cases F1 80%, exact 117/200. Added combined counts, not average F1: TP 277, FP 15, FN 30, TN 204; scored 526, F1 92.5%, recall 90.2%, exact 443/526 (84.2%). The 100 ambiguous cases and all live Groq results are excluded from combined scores.

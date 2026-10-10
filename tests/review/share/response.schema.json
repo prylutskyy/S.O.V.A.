@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "datasetId",
+    "datasetSha256",
+    "reviewer",
+    "cases"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "datasetId": {
+      "const": "sova-blind-review-v1"
+    },
+    "datasetSha256": {
+      "const": "3f75c7a6e924bb4367beac3b6c33549d8dcc156a62bb7991af6fcca0ce011705"
+    },
+    "reviewer": {
+      "type": "string",
+      "minLength": 1
+    },
+    "cases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "assessment",
+          "intentType",
+          "action",
+          "evidenceTurns",
+          "rationale",
+          "confidence",
+          "needsDiscussion"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^R-[0-9]{4}$"
+          },
+          "assessment": {
+            "enum": [
+              "threat",
+              "safe",
+              "ambiguous"
+            ]
+          },
+          "intentType": {
+            "enum": [
+              null,
+              "ESCROW_DELIVERY_SCAM",
+              "OFF_PLATFORM_REDIRECT",
+              "VERIFICATION_PHISHING",
+              "PAYMENT_CREDENTIAL_THEFT",
+              "IDENTITY_PROBING",
+              "URGENCY_PRESSURE",
+              "MILITARY_SABOTAGE_RECRUITMENT",
+              "SEED_PHRASE_THEFT",
+              "CRYPTO_WALLET_COMPROMISE",
+              "OTHER"
+            ]
+          },
+          "action": {
+            "enum": [
+              "ALLOW",
+              "WARN",
+              "LOCK_INPUT"
+            ]
+          },
+          "evidenceTurns": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "uniqueItems": true
+          },
+          "rationale": {
+            "type": "string",
+            "minLength": 1
+          },
+          "confidence": {
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ]
+          },
+          "needsDiscussion": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

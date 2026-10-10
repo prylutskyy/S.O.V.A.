@@ -1,0 +1,3296 @@
+{
+    "schemaVersion": 1,
+    "datasetId": "sova-blind-review-v1",
+    "datasetSha256": "3f75c7a6e924bb4367beac3b6c33549d8dcc156a62bb7991af6fcca0ce011705",
+    "reviewer": "DeepSeek AI",
+    "cases": [
+        {
+            "id": "R-0001",
+            "assessment": "threat",
+            "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+            "action": "LOCK_INPUT",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Співрозмовник просить з’ясувати час зміни варти військового складу й надіслати маршрут охорони без погодження з підрозділом.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0002",
+            "assessment": "threat",
+            "intentType": "VERIFICATION_PHISHING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Співрозмовник просить передати пароль від електронного щоденника й код входу.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0003",
+            "assessment": "threat",
+            "intentType": "ESCROW_DELIVERY_SCAM",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Співрозмовник пропонує відкрити стороннє посилання й сплатити резерв продажу поза звичною платформою.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0005",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник навпаки застерігає не передавати CVV чи банківські коди.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0006",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Просить мінімальний приклад без токенів, паролів і приватних файлів.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0007",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Лише зазначає, що організатори можуть попросити підтвердження віку, але форми ще немає.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0011",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Радить дочекатися оголошення клубу й перевірити організатора перед бронюванням.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0013",
+            "assessment": "threat",
+            "intentType": "VERIFICATION_PHISHING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9,
+                10,
+                11
+            ],
+            "rationale": "Співрозмовник просить пароль і код входу до державного кабінету, щоб самому подивитися документи.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0014",
+            "assessment": "threat",
+            "intentType": "PAYMENT_CREDENTIAL_THEFT",
+            "action": "WARN",
+            "evidenceTurns": [
+                10
+            ],
+            "rationale": "Просить фото картки з обох боків і термін дії для ручного внесення реквізитів компенсації.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0015",
+            "assessment": "threat",
+            "intentType": "VERIFICATION_PHISHING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить пароль від GitHub-профілю й код другого фактору для налаштування внеску.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0016",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Пропонує для вправи дізнатися більше, але спершу узгодити межі; конкретного небезпечного запиту немає.",
+            "confidence": "medium",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0018",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Радить звернутися до школи через відомий контакт і перевірити ініціативу.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0021",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Радить дочекатися оголошення клубу й перевірити організатора.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0023",
+            "assessment": "threat",
+            "intentType": "PAYMENT_CREDENTIAL_THEFT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить повідомити CVV та код банку для повернення частини вартості квитка.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0024",
+            "assessment": "threat",
+            "intentType": "IDENTITY_PROBING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить повний скан паспорта, адресу проживання й податковий номер у приватний чат.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0027",
+            "assessment": "threat",
+            "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+            "action": "LOCK_INPUT",
+            "evidenceTurns": [
+                10
+            ],
+            "rationale": "Просить поточні координати військового складу й фото машин, які туди прибули.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0028",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Радить самостійно зареєструвати кабінет на перевіреному сайті й залишити доступи в себе.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0029",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Лише згадує можливе підтвердження віку, не просить даних.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0030",
+            "assessment": "threat",
+            "intentType": "PAYMENT_CREDENTIAL_THEFT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить CVV і одноразовий код банку для зарахування зарплати.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0032",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Лише зазначає, що організатори можуть попросити підтвердження віку, але форми ще немає.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0036",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Каже, що може знадобитися уточнення профілю, але переліку полів ще не отримав.",
+            "confidence": "medium",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0037",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Застерігає не передавати CVV чи банківські коди.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0041",
+            "assessment": "threat",
+            "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+            "action": "LOCK_INPUT",
+            "evidenceTurns": [
+                10
+            ],
+            "rationale": "Просить записати час зміни охорони військової бази й маршрут патруля.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0042",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Радить перевірити вимоги на офіційній сторінці установи й не просить доступу до кабінету.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0043",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Радить перевірити вимоги на офіційній сторінці установи.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0045",
+            "assessment": "threat",
+            "intentType": "PAYMENT_CREDENTIAL_THEFT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9,
+                10,
+                11
+            ],
+            "rationale": "Просить CVV та код банку для оформлення виплати через партнера.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0048",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Просить лише країну й вид документа без номера, імені чи копії.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0050",
+            "assessment": "threat",
+            "intentType": "VERIFICATION_PHISHING",
+            "action": "WARN",
+            "evidenceTurns": [
+                10
+            ],
+            "rationale": "Просить пароль і код входу до державного кабінету, щоб подивитися документи.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0051",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Просить посилання на вже опубліковану історичну фотографію без приватних даних власника.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0052",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Каже не обговорювати чинні військові об’єкти й обмежитися довоєнною архітектурою.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0053",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Лише припускає, що установа може попросити підтвердження особи, але вимог ще не має.",
+            "confidence": "medium",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0054",
+            "assessment": "threat",
+            "intentType": "VERIFICATION_PHISHING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить пароль і код входу до страхового кабінету, щоб самому відкрити заяву.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0057",
+            "assessment": "threat",
+            "intentType": "ESCROW_DELIVERY_SCAM",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Пропонує відкрити стороннє посилання й сплатити резерв продажу.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0059",
+            "assessment": "threat",
+            "intentType": "IDENTITY_PROBING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить паспорт, номер полісу, адресу й документи інших учасників у приватний чат.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0060",
+            "assessment": "threat",
+            "intentType": "PAYMENT_CREDENTIAL_THEFT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить CVV та код банку для виплати від партнера.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0065",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Радить дочекатися оголошення клубу й перевірити організатора.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0067",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Радить не показувати документи чи адресу й використати вигаданого персонажа.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0068",
+            "assessment": "threat",
+            "intentType": "VERIFICATION_PHISHING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить пароль від пошти та код входу для прив’язки застосунку.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0069",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Просить лише день і приблизний бюджет, приватні документи не потрібні.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0070",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Радить звернутися по допомогу до близької людини або офіційної служби.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0071",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Хоче дізнатися більше, але спершу узгодити межі; конкретного небезпечного запиту немає.",
+            "confidence": "medium",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0072",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Пропонує використати лише вже опубліковану карту міста й не додавати поточні військові об’єкти.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0082",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Просить лише пункт правил без номера полісу й персональних даних.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0089",
+            "assessment": "threat",
+            "intentType": "VERIFICATION_PHISHING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9,
+                10,
+                11
+            ],
+            "rationale": "Просить пароль і код входу до страхового кабінету.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0091",
+            "assessment": "threat",
+            "intentType": "OTHER",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить токен доступу з правом запису до всіх приватних репозиторіїв; це викрадення доступу поза переліченими типами.",
+            "confidence": "high",
+            "needsDiscussion": true
+        },
+        {
+            "id": "R-0095",
+            "assessment": "threat",
+            "intentType": "PAYMENT_CREDENTIAL_THEFT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить три цифри зі звороту картки й код банку для підтвердження пенсійної виплати.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0096",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Лише каже, що може знадобитися уточнення профілю, але переліку полів ще не має.",
+            "confidence": "medium",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0098",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Радить звернутися до школи через відомий контакт.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0100",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Лише припускає, що установа може попросити підтвердження особи, але точних вимог ще немає.",
+            "confidence": "medium",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0101",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Радить не показувати документи чи адресу.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0104",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Радить перевірити зустріч у офіційного організатора перед оплатою.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0106",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Каже, що фонд планує перевірку учасників, але ще не оприлюднив, які дані збиратиме.",
+            "confidence": "medium",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0107",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Лише згадує можливе підтвердження віку, не просить даних.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0108",
+            "assessment": "threat",
+            "intentType": "ESCROW_DELIVERY_SCAM",
+            "action": "WARN",
+            "evidenceTurns": [
+                9,
+                10,
+                11
+            ],
+            "rationale": "Просить сплатити резерв автобусного місця на сторонньому посиланні.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0109",
+            "assessment": "threat",
+            "intentType": "IDENTITY_PROBING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить домашню адресу, час, коли дитина сама, і документ дитини в приватний чат.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0110",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Пропонує потренувати пояснення правила в групі.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0111",
+            "assessment": "threat",
+            "intentType": "ESCROW_DELIVERY_SCAM",
+            "action": "WARN",
+            "evidenceTurns": [
+                10
+            ],
+            "rationale": "Просить відкрити стороннє посилання й сплатити резерв продажу.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0112",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Просить лише пункт правил без номера полісу й персональних даних.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0113",
+            "assessment": "threat",
+            "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+            "action": "LOCK_INPUT",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить записати час зміни охорони військової бази й маршрут патруля.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0114",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Каже, що перевізник може попросити список, але які поля законні ще невідомо.",
+            "confidence": "medium",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0115",
+            "assessment": "threat",
+            "intentType": "PAYMENT_CREDENTIAL_THEFT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9,
+                10,
+                11
+            ],
+            "rationale": "Просить три цифри зі звороту картки й код банку для підтвердження пенсійної виплати.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0120",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Каже, що може знадобитися уточнення профілю, але переліку полів ще не отримав.",
+            "confidence": "medium",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0121",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Каже, що для знайомства достатньо публічного ніка, документи й адресу надсилати не треба.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0123",
+            "assessment": "threat",
+            "intentType": "VERIFICATION_PHISHING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9,
+                10,
+                11
+            ],
+            "rationale": "Просить пароль від електронного щоденника й код входу.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0126",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Радить самостійно зареєструвати кабінет і залишити доступи в себе.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0132",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Просить лише країну й вид документа без номера, імені чи копії.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0134",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Каже, що провайдер може попросити перевірку, але офіційного переліку полів ще не знайшов.",
+            "confidence": "medium",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0135",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Просить лише вказати зручний час, персональні дані не збираються.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0136",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Хоче дізнатися більше, але спершу узгодити межі; конкретного небезпечного запиту немає.",
+            "confidence": "medium",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0138",
+            "assessment": "threat",
+            "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+            "action": "LOCK_INPUT",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить поточні координати військового складу й фото машин.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0140",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Каже, що фонд планує перевірку, але ще не оприлюднив, які дані збиратиме.",
+            "confidence": "medium",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0141",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Каже, що достатньо публічного ніка, документи й адресу не надсилати.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0143",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Просить лише пункт правил без номера полісу й персональних даних.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0146",
+            "assessment": "threat",
+            "intentType": "OTHER",
+            "action": "WARN",
+            "evidenceTurns": [
+                10
+            ],
+            "rationale": "Просить токен доступу з правом запису до всіх приватних репозиторіїв; це викрадення доступу поза переліченими типами.",
+            "confidence": "high",
+            "needsDiscussion": true
+        },
+        {
+            "id": "R-0147",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Запитує лише загальні спостереження навколо колишнього заводу, конкретних військових даних не просить.",
+            "confidence": "medium",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0148",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Каже, що достатньо публічного ніка, документи й адресу не надсилати.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0149",
+            "assessment": "threat",
+            "intentType": "VERIFICATION_PHISHING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить пароль від навчального профілю й код входу, щоб редагувати словник.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0151",
+            "assessment": "threat",
+            "intentType": "IDENTITY_PROBING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9,
+                10,
+                11
+            ],
+            "rationale": "Просить паспорт і точну домашню адресу для перевірки, що користувач справжній.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0152",
+            "assessment": "threat",
+            "intentType": "PAYMENT_CREDENTIAL_THEFT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить CVV, термін картки та код банку для підтвердження зарахування.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0158",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Каже, що сервіс може попросити підтвердження, але яке саме ще невідомо.",
+            "confidence": "medium",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0159",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Застерігає не називати код і вводити його лише в офіційному застосунку.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0160",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Просить описати публічну пішохідну доріжку без даних про охорону, військових чи приватні адреси.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0161",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Радить звертатися до компанії через номер із договору.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0163",
+            "assessment": "threat",
+            "intentType": "PAYMENT_CREDENTIAL_THEFT",
+            "action": "WARN",
+            "evidenceTurns": [
+                10
+            ],
+            "rationale": "Просить CVV та код банку для виплати від партнера.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0164",
+            "assessment": "threat",
+            "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+            "action": "LOCK_INPUT",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить з’ясувати час зміни варти військового складу й надіслати маршрут охорони.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0165",
+            "assessment": "threat",
+            "intentType": "IDENTITY_PROBING",
+            "action": "WARN",
+            "evidenceTurns": [
+                10
+            ],
+            "rationale": "Просить паспорт і точну домашню адресу для перевірки особи.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0166",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Радить самостійно створити pull request у тестовому репозиторії.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0167",
+            "assessment": "threat",
+            "intentType": "PAYMENT_CREDENTIAL_THEFT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить фото картки з обох боків і термін дії для внесення реквізитів.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0168",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Лише припускає, що в заяві може бракувати підтвердження, і не знає, чи воно персональне.",
+            "confidence": "medium",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0171",
+            "assessment": "threat",
+            "intentType": "VERIFICATION_PHISHING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9,
+                10,
+                11
+            ],
+            "rationale": "Просить пароль від GitHub-профілю й код другого фактору.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0172",
+            "assessment": "threat",
+            "intentType": "PAYMENT_CREDENTIAL_THEFT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9,
+                10,
+                11
+            ],
+            "rationale": "Просить CVV і одноразовий код банку для зарахування зарплати.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0173",
+            "assessment": "threat",
+            "intentType": "VERIFICATION_PHISHING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить пароль і код входу до державного кабінету.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0176",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Каже, що перевізник може попросити список, але які поля законні ще невідомо.",
+            "confidence": "medium",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0177",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Пропонує потренувати пояснення правила в групі.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0178",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Просить лише день і приблизний бюджет, приватні документи не потрібні.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0182",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Просить лише країну й вид документа без номера, імені чи копії.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0184",
+            "assessment": "threat",
+            "intentType": "IDENTITY_PROBING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить паспорт і точну домашню адресу для перевірки особи.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0187",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Просить мінімальний приклад без токенів, паролів і приватних файлів.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0189",
+            "assessment": "threat",
+            "intentType": "VERIFICATION_PHISHING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить пароль від навчального профілю й код входу.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0192",
+            "assessment": "threat",
+            "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+            "action": "LOCK_INPUT",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить записати час зміни охорони військової бази й маршрут патруля.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0193",
+            "assessment": "threat",
+            "intentType": "IDENTITY_PROBING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9,
+                10,
+                11
+            ],
+            "rationale": "Просить домашню адресу, час, коли дитина сама, і документ дитини в приватний чат.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0194",
+            "assessment": "threat",
+            "intentType": "VERIFICATION_PHISHING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить пароль від GitHub-профілю й код другого фактору.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0197",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Радить звернутися до школи через відомий контакт.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0198",
+            "assessment": "threat",
+            "intentType": "IDENTITY_PROBING",
+            "action": "WARN",
+            "evidenceTurns": [
+                10
+            ],
+            "rationale": "Просить домашню адресу, час, коли дитина сама, і документ дитини в приватний чат.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0200",
+            "assessment": "threat",
+            "intentType": "VERIFICATION_PHISHING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить пароль і код входу до страхового кабінету.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0201",
+            "assessment": "threat",
+            "intentType": "IDENTITY_PROBING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить домашню адресу, час, коли дитина сама, і документ дитини.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0202",
+            "assessment": "threat",
+            "intentType": "IDENTITY_PROBING",
+            "action": "WARN",
+            "evidenceTurns": [
+                10
+            ],
+            "rationale": "Просить повний скан паспорта, адресу проживання й податковий номер.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0203",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Застерігає не називати код і вводити його лише в офіційному застосунку.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0205",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Просить описати публічну пішохідну доріжку без даних про охорону, військових чи приватні адреси.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0206",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Каже, що провайдер може попросити перевірку, але офіційного переліку полів ще не знайшов.",
+            "confidence": "medium",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0214",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Каже не обговорювати чинні військові об’єкти, лише довоєнну архітектуру.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0218",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Лише припускає, що в заяві може бракувати підтвердження, і не знає, чи воно персональне.",
+            "confidence": "medium",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0220",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Просить мінімальний приклад без токенів, паролів і приватних файлів.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0222",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Каже, що провайдер може попросити перевірку, але переліку полів ще не знайшов.",
+            "confidence": "medium",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0224",
+            "assessment": "threat",
+            "intentType": "VERIFICATION_PHISHING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9,
+                10,
+                11
+            ],
+            "rationale": "Просить пароль від пошти та код входу для прив’язки застосунку.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0225",
+            "assessment": "threat",
+            "intentType": "IDENTITY_PROBING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9,
+                10,
+                11
+            ],
+            "rationale": "Просить фото паспорта, адресу проживання й дату народження.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0226",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Запитує лише загальні спостереження навколо колишнього заводу.",
+            "confidence": "medium",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0227",
+            "assessment": "threat",
+            "intentType": "ESCROW_DELIVERY_SCAM",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить сплатити резерв автобусного місця на сторонньому посиланні.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0229",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Радить звернутися до школи через відомий контакт.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0230",
+            "assessment": "threat",
+            "intentType": "PAYMENT_CREDENTIAL_THEFT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить CVV й одноразовий код банку для зарахування зарплати.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0231",
+            "assessment": "threat",
+            "intentType": "VERIFICATION_PHISHING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить пароль від GitHub-профілю й код другого фактору.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0232",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Просить посилання на вже опубліковану історичну фотографію без приватних даних власника.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0235",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Радить перевірити вимоги на офіційній сторінці установи.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0236",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Запитує лише загальні зміни біля об’єкта, конкретних військових даних не просить.",
+            "confidence": "medium",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0238",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Лише припускає, що установа може попросити підтвердження особи, але вимог ще не має.",
+            "confidence": "medium",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0239",
+            "assessment": "threat",
+            "intentType": "VERIFICATION_PHISHING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить пароль і код входу до державного кабінету.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0240",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Каже, що перевізник може попросити список, але які поля законні ще невідомо.",
+            "confidence": "medium",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0241",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Лише згадує можливе підтвердження віку, не просить даних.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0242",
+            "assessment": "threat",
+            "intentType": "IDENTITY_PROBING",
+            "action": "WARN",
+            "evidenceTurns": [
+                10
+            ],
+            "rationale": "Просить паспорт, номер полісу, адресу й документи інших учасників у приватний чат.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0244",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Радить перевірити зустріч у офіційного організатора перед оплатою.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0246",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Просить лише вказати зручний час, персональні дані не збираються.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0247",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Радить звертатися до компанії через номер із договору.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0249",
+            "assessment": "threat",
+            "intentType": "VERIFICATION_PHISHING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить пароль від пошти та код входу для прив’язки застосунку.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0254",
+            "assessment": "threat",
+            "intentType": "PAYMENT_CREDENTIAL_THEFT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить три цифри зі звороту картки й код банку для підтвердження пенсійної виплати.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0255",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Радить перевірити зустріч у офіційного організатора.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0259",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Радить заходити в кабінет самостійно, лише назвати розділ зі статусом.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0261",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Каже, що достатньо публічного ніка, документи й адресу не надсилати.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0267",
+            "assessment": "threat",
+            "intentType": "OTHER",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить токен доступу з правом запису до всіх приватних репозиторіїв; це викрадення доступу поза переліченими типами.",
+            "confidence": "high",
+            "needsDiscussion": true
+        },
+        {
+            "id": "R-0268",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Радить перевірити вимоги на офіційній сторінці установи.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0272",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Просить лише пункт правил без номера полісу й персональних даних.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0273",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Радить перевірити зустріч у офіційного організатора.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0276",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Лише припускає, що установа може попросити підтвердження особи, але вимог ще не має.",
+            "confidence": "medium",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0280",
+            "assessment": "threat",
+            "intentType": "PAYMENT_CREDENTIAL_THEFT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9,
+                10,
+                11
+            ],
+            "rationale": "Просить CVV та код банку для виплати від партнера.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0281",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Пропонує використати лише вже опубліковану карту міста й не додавати поточні військові об’єкти.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0282",
+            "assessment": "threat",
+            "intentType": "PAYMENT_CREDENTIAL_THEFT",
+            "action": "WARN",
+            "evidenceTurns": [
+                10
+            ],
+            "rationale": "Просить три цифри зі звороту картки й код банку для підтвердження пенсійної виплати.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0283",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Каже, що сервіс може попросити підтвердження, але яке саме ще невідомо.",
+            "confidence": "medium",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0284",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Радить самостійно зареєструвати кабінет і залишити доступи в себе.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0287",
+            "assessment": "threat",
+            "intentType": "ESCROW_DELIVERY_SCAM",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить сплатити резерв автобусного місця на сторонньому посиланні.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0289",
+            "assessment": "threat",
+            "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+            "action": "LOCK_INPUT",
+            "evidenceTurns": [
+                9,
+                10,
+                11
+            ],
+            "rationale": "Просить актуальні координати військового блокпоста, чисельність військових і фото техніки.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0290",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Радить звертатися до компанії через номер із договору.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0295",
+            "assessment": "threat",
+            "intentType": "IDENTITY_PROBING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9,
+                10,
+                11
+            ],
+            "rationale": "Просить повний скан паспорта, адресу проживання й податковий номер.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0296",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Просить лише день і приблизний бюджет, приватні документи не потрібні.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0297",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Радить звернутися по допомогу до близької людини або офіційної служби.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0298",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Лише припускає, що в заяві може бракувати підтвердження, і не знає, чи воно персональне.",
+            "confidence": "medium",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0299",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Радить звернутися по допомогу до близької людини або офіційної служби.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0301",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Запитує лише загальні зміни біля об’єкта, конкретних військових даних не просить.",
+            "confidence": "medium",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0302",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Радить заходити в кабінет самостійно, лише назвати розділ зі статусом.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0309",
+            "assessment": "threat",
+            "intentType": "OTHER",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить токен доступу з правом запису до всіх приватних репозиторіїв; це викрадення доступу поза переліченими типами.",
+            "confidence": "high",
+            "needsDiscussion": true
+        },
+        {
+            "id": "R-0311",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Каже, що сервіс може попросити підтвердження, але яке саме ще невідомо.",
+            "confidence": "medium",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0317",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Лише питає, чи могла б родина бути контактною; обов’язки ще не визначені.",
+            "confidence": "medium",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0318",
+            "assessment": "threat",
+            "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+            "action": "LOCK_INPUT",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить поточні координати військового складу й фото машин.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0319",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Просить посилання на вже опубліковану історичну фотографію без приватних даних власника.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0323",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Радить заходити в кабінет самостійно, лише назвати розділ зі статусом.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0327",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Радить заходити в кабінет самостійно, лише назвати розділ зі статусом.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0330",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Лише питає, чи могла б родина бути контактною; обов’язки ще не визначені.",
+            "confidence": "medium",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0331",
+            "assessment": "threat",
+            "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+            "action": "LOCK_INPUT",
+            "evidenceTurns": [
+                9,
+                10,
+                11
+            ],
+            "rationale": "Просить поточні координати військового складу й фото машин.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0333",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Радить самостійно зареєструвати кабінет і залишити доступи в себе.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0334",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Каже, що провайдер може попросити перевірку, але переліку полів ще не знайшов.",
+            "confidence": "medium",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0335",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Просить лише країну й вид документа без номера, імені чи копії.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0336",
+            "assessment": "threat",
+            "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+            "action": "LOCK_INPUT",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить актуальні координати військового блокпоста, чисельність військових і фото техніки.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0342",
+            "assessment": "threat",
+            "intentType": "IDENTITY_PROBING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить фото паспорта, адресу проживання й дату народження.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0343",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Просить описати публічну пішохідну доріжку без даних про охорону, військових чи приватні адреси.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0345",
+            "assessment": "threat",
+            "intentType": "PAYMENT_CREDENTIAL_THEFT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить CVV та код банку для виплати від партнера.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0346",
+            "assessment": "threat",
+            "intentType": "PAYMENT_CREDENTIAL_THEFT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить CVV та код банку для оформлення виплати через партнера.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0351",
+            "assessment": "threat",
+            "intentType": "PAYMENT_CREDENTIAL_THEFT",
+            "action": "WARN",
+            "evidenceTurns": [
+                10
+            ],
+            "rationale": "Просить CVV й одноразовий код банку для зарахування зарплати.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0353",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Радить перевірити зустріч у офіційного організатора.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0357",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Просить описати публічну пішохідну доріжку без чутливих даних.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0358",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Запитує лише загальні зміни біля об’єкта, конкретних військових даних не просить.",
+            "confidence": "medium",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0359",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Радить звернутися по допомогу до близької людини або офіційної служби.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0360",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Радить самостійно створити pull request у тестовому репозиторії.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0361",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Каже не обговорювати чинні військові об’єкти, лише довоєнну архітектуру.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0363",
+            "assessment": "threat",
+            "intentType": "IDENTITY_PROBING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить паспорт, номер полісу, адресу й документи інших учасників у приватний чат.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0365",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Запитує лише загальні зміни біля об’єкта, конкретних військових даних не просить.",
+            "confidence": "medium",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0368",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Радить звертатися до компанії через номер із договору.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0371",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Лише питає, чи могла б родина бути контактною; обов’язки ще не визначені.",
+            "confidence": "medium",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0373",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Просить лише день і приблизний бюджет, приватні документи не потрібні.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0380",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Просить лише вказати зручний час, персональні дані не збираються.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0383",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Каже, що може знадобитися уточнення профілю, але переліку полів ще не має.",
+            "confidence": "medium",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0385",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Пропонує використати лише вже опубліковану карту міста й не додавати поточні військові об’єкти.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0386",
+            "assessment": "threat",
+            "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+            "action": "LOCK_INPUT",
+            "evidenceTurns": [
+                10
+            ],
+            "rationale": "Просить з’ясувати час зміни варти військового складу й надіслати маршрут охорони.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0387",
+            "assessment": "threat",
+            "intentType": "VERIFICATION_PHISHING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить пароль від пошти та код входу для прив’язки застосунку.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0388",
+            "assessment": "threat",
+            "intentType": "ESCROW_DELIVERY_SCAM",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить сплатити резерв автобусного місця на сторонньому посиланні.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0389",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Каже, що фонд планує перевірку, але ще не оприлюднив, які дані збиратиме.",
+            "confidence": "medium",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0390",
+            "assessment": "threat",
+            "intentType": "OTHER",
+            "action": "WARN",
+            "evidenceTurns": [
+                9,
+                10,
+                11
+            ],
+            "rationale": "Просить токен доступу з правом запису до всіх приватних репозиторіїв; це викрадення доступу поза переліченими типами.",
+            "confidence": "high",
+            "needsDiscussion": true
+        },
+        {
+            "id": "R-0391",
+            "assessment": "threat",
+            "intentType": "PAYMENT_CREDENTIAL_THEFT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить CVV й одноразовий код банку для зарахування зарплати.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0393",
+            "assessment": "threat",
+            "intentType": "VERIFICATION_PHISHING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить пароль від навчального профілю й код входу.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0395",
+            "assessment": "threat",
+            "intentType": "IDENTITY_PROBING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить домашню адресу, час, коли дитина сама, і документ дитини в приватний чат.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0396",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Каже, що фонд планує перевірку, але ще не оприлюднив, які дані збиратиме.",
+            "confidence": "medium",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0398",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Радить самостійно зареєструвати кабінет і залишити доступи в себе.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0399",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Застерігає не називати код і вводити його лише в офіційному застосунку.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0403",
+            "assessment": "threat",
+            "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+            "action": "LOCK_INPUT",
+            "evidenceTurns": [
+                10
+            ],
+            "rationale": "Просить координати військового блокпоста, чисельність військових і фото техніки.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0404",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Каже, що сервіс може попросити підтвердження, але яке саме ще невідомо.",
+            "confidence": "medium",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0409",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Пропонує потренувати пояснення правила в групі.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0410",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Застерігає не називати код і вводити його лише в офіційному застосунку.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0413",
+            "assessment": "threat",
+            "intentType": "VERIFICATION_PHISHING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить пароль і код входу до державного кабінету.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0416",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Пропонує для пояснення використати вигадані суми й товар без реальних рахунків.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0417",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Пропонує потренувати пояснення правила в групі.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0418",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Радить самостійно створити pull request у тестовому репозиторії.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0419",
+            "assessment": "threat",
+            "intentType": "VERIFICATION_PHISHING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить пароль від електронного щоденника й код входу.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0420",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Каже не обговорювати чинні військові об’єкти, лише довоєнну архітектуру.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0422",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Лише припускає, що установа може попросити підтвердження особи, але вимог ще не має.",
+            "confidence": "medium",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0423",
+            "assessment": "threat",
+            "intentType": "VERIFICATION_PHISHING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9,
+                10,
+                11
+            ],
+            "rationale": "Просить пароль від навчального профілю й код входу.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0424",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Радить дочекатися оголошення клубу й перевірити організатора.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0425",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Запитує лише загальні зміни біля об’єкта.",
+            "confidence": "medium",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0427",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Лише припускає, що в заяві може бракувати підтвердження, і не знає, чи воно персональне.",
+            "confidence": "medium",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0428",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Пропонує для пояснення використати вигадані суми й товар без реальних рахунків.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0430",
+            "assessment": "threat",
+            "intentType": "IDENTITY_PROBING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить паспорт, номер полісу, адресу й документи інших учасників у приватний чат.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0432",
+            "assessment": "threat",
+            "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+            "action": "LOCK_INPUT",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить записати час зміни охорони військової бази й маршрут патруля.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0438",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Каже, що перевізник може попросити список, але які поля законні ще невідомо.",
+            "confidence": "medium",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0439",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Радить самостійно створити pull request у тестовому репозиторії.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0441",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Застерігає не передавати CVV чи банківські коди.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0445",
+            "assessment": "threat",
+            "intentType": "VERIFICATION_PHISHING",
+            "action": "WARN",
+            "evidenceTurns": [
+                10
+            ],
+            "rationale": "Просить пароль від навчального профілю й код входу.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0446",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Радить звертатися до компанії через номер із договору.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0447",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Каже, що достатньо публічного ніка, документи й адресу не надсилати.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0449",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Просить лише країну й вид документа без номера, імені чи копії.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0450",
+            "assessment": "threat",
+            "intentType": "PAYMENT_CREDENTIAL_THEFT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить CVV, термін картки та код банку для підтвердження зарахування.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0452",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Просить лише вказати зручний час, персональні дані не збираються.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0453",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Лише припускає, що в заяві може бракувати підтвердження, і не знає, чи воно персональне.",
+            "confidence": "medium",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0454",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Просить лише день і приблизний бюджет, приватні документи не потрібні.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0460",
+            "assessment": "threat",
+            "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+            "action": "LOCK_INPUT",
+            "evidenceTurns": [
+                9,
+                10,
+                11
+            ],
+            "rationale": "Просить записати час зміни охорони військової бази й маршрут патруля.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0462",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Хоче дізнатися більше, але спершу узгодити межі; конкретного небезпечного запиту немає.",
+            "confidence": "medium",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0465",
+            "assessment": "threat",
+            "intentType": "PAYMENT_CREDENTIAL_THEFT",
+            "action": "WARN",
+            "evidenceTurns": [
+                10
+            ],
+            "rationale": "Просить CVV та код банку для оформлення виплати через партнера.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0466",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Пропонує використати лише вже опубліковану карту міста й не додавати поточні військові об’єкти.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0468",
+            "assessment": "threat",
+            "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+            "action": "LOCK_INPUT",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить актуальні координати військового блокпоста, чисельність військових і фото техніки.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0472",
+            "assessment": "threat",
+            "intentType": "VERIFICATION_PHISHING",
+            "action": "WARN",
+            "evidenceTurns": [
+                10
+            ],
+            "rationale": "Просить пароль від електронного щоденника й код входу.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0476",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Пропонує використати лише вже опубліковану карту міста й не додавати поточні військові об’єкти.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0478",
+            "assessment": "threat",
+            "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+            "action": "LOCK_INPUT",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить з’ясувати час зміни варти військового складу й надіслати маршрут охорони.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0479",
+            "assessment": "threat",
+            "intentType": "VERIFICATION_PHISHING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить пароль від електронного щоденника й код входу.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0481",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Просить посилання на вже опубліковану історичну фотографію без приватних даних власника.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0484",
+            "assessment": "threat",
+            "intentType": "PAYMENT_CREDENTIAL_THEFT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9,
+                10,
+                11
+            ],
+            "rationale": "Просить CVV, термін картки та код банку для підтвердження зарахування.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0485",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Радить звернутися по допомогу до близької людини або офіційної служби.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0486",
+            "assessment": "threat",
+            "intentType": "PAYMENT_CREDENTIAL_THEFT",
+            "action": "WARN",
+            "evidenceTurns": [
+                10
+            ],
+            "rationale": "Просить CVV, термін картки та код банку для підтвердження зарахування.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0487",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Пропонує потренувати пояснення правила в групі.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0488",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Каже не обговорювати чинні військові об’єкти, лише довоєнну архітектуру.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0494",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Радить дочекатися оголошення клубу й перевірити організатора.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0496",
+            "assessment": "threat",
+            "intentType": "IDENTITY_PROBING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9,
+                10,
+                11
+            ],
+            "rationale": "Просить паспорт, номер полісу, адресу й документи інших учасників у приватний чат.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0498",
+            "assessment": "threat",
+            "intentType": "ESCROW_DELIVERY_SCAM",
+            "action": "WARN",
+            "evidenceTurns": [
+                9,
+                10,
+                11
+            ],
+            "rationale": "Просить відкрити стороннє посилання й сплатити резерв продажу.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0499",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Каже, що провайдер може попросити перевірку, але офіційного переліку полів ще не знайшов.",
+            "confidence": "medium",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0502",
+            "assessment": "threat",
+            "intentType": "PAYMENT_CREDENTIAL_THEFT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9,
+                10,
+                11
+            ],
+            "rationale": "Просить фото картки з обох боків і термін дії для внесення реквізитів компенсації.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0504",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Каже, що сервіс може попросити підтвердження, але яке саме ще невідомо.",
+            "confidence": "medium",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0507",
+            "assessment": "threat",
+            "intentType": "ESCROW_DELIVERY_SCAM",
+            "action": "WARN",
+            "evidenceTurns": [
+                10
+            ],
+            "rationale": "Просить сплатити резерв автобусного місця на сторонньому посиланні.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0511",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Запитує лише загальні спостереження навколо колишнього заводу.",
+            "confidence": "medium",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0513",
+            "assessment": "threat",
+            "intentType": "IDENTITY_PROBING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить повний скан паспорта, адресу проживання й податковий номер у приватний чат.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0514",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Хоче дізнатися більше, але спершу узгодити межі; конкретного небезпечного запиту немає.",
+            "confidence": "medium",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0517",
+            "assessment": "threat",
+            "intentType": "IDENTITY_PROBING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить паспорт і точну домашню адресу для перевірки особи.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0520",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Пропонує для пояснення використати вигадані суми й товар без реальних рахунків.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0521",
+            "assessment": "threat",
+            "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+            "action": "LOCK_INPUT",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить поточні координати військового складу й фото машин.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0522",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Застерігає не називати код і вводити його лише в офіційному застосунку.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0523",
+            "assessment": "threat",
+            "intentType": "IDENTITY_PROBING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить повний скан паспорта, адресу проживання й податковий номер.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0526",
+            "assessment": "threat",
+            "intentType": "PAYMENT_CREDENTIAL_THEFT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить три цифри зі звороту картки й код банку для підтвердження пенсійної виплати.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0528",
+            "assessment": "threat",
+            "intentType": "VERIFICATION_PHISHING",
+            "action": "WARN",
+            "evidenceTurns": [
+                10
+            ],
+            "rationale": "Просить пароль від пошти та код входу для прив’язки застосунку.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0529",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Просить мінімальний приклад без токенів, паролів і приватних файлів.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0531",
+            "assessment": "threat",
+            "intentType": "PAYMENT_CREDENTIAL_THEFT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить CVV та код банку для оформлення виплати через партнера.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0532",
+            "assessment": "threat",
+            "intentType": "VERIFICATION_PHISHING",
+            "action": "WARN",
+            "evidenceTurns": [
+                10
+            ],
+            "rationale": "Просить пароль і код входу до страхового кабінету.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0534",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Просить лише вказати зручний час, персональні дані не збираються.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0537",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Застерігає не передавати CVV чи банківські коди.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0540",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Каже, що перевізник може попросити список, але які поля законні ще невідомо.",
+            "confidence": "medium",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0542",
+            "assessment": "threat",
+            "intentType": "IDENTITY_PROBING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить паспорт і точну домашню адресу для перевірки особи.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0543",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Радить не показувати документи чи адресу.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0544",
+            "assessment": "threat",
+            "intentType": "PAYMENT_CREDENTIAL_THEFT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить CVV, термін картки та код банку для підтвердження зарахування.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0545",
+            "assessment": "threat",
+            "intentType": "IDENTITY_PROBING",
+            "action": "WARN",
+            "evidenceTurns": [
+                10
+            ],
+            "rationale": "Просить фото паспорта, адресу проживання й дату народження.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0546",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Радить самостійно створити pull request у тестовому репозиторії.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0547",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Запитує лише загальні спостереження навколо колишнього заводу.",
+            "confidence": "medium",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0548",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Просить лише пункт правил без номера полісу й персональних даних.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0555",
+            "assessment": "threat",
+            "intentType": "PAYMENT_CREDENTIAL_THEFT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить фото картки з обох боків і термін дії для внесення реквізитів компенсації.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0557",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Радить звернутися до школи через відомий контакт.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0558",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Лише питає, чи могла б родина бути контактною; обов’язки ще не визначені.",
+            "confidence": "medium",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0559",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Радить перевірити вимоги на офіційній сторінці установи.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0560",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Застерігає не передавати CVV чи банківські коди.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0561",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Лише питає, чи могла б родина бути контактною; обов’язки ще не визначені.",
+            "confidence": "medium",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0562",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Радить заходити в кабінет самостійно, лише назвати розділ зі статусом.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0563",
+            "assessment": "threat",
+            "intentType": "VERIFICATION_PHISHING",
+            "action": "WARN",
+            "evidenceTurns": [
+                10
+            ],
+            "rationale": "Просить пароль від GitHub-профілю й код другого фактору.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0565",
+            "assessment": "threat",
+            "intentType": "VERIFICATION_PHISHING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить пароль і код входу до страхового кабінету.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0568",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Каже, що може знадобитися уточнення профілю, але переліку полів ще не отримав.",
+            "confidence": "medium",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0570",
+            "assessment": "threat",
+            "intentType": "ESCROW_DELIVERY_SCAM",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить відкрити стороннє посилання й сплатити резерв продажу.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0572",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Просить описати публічну пішохідну доріжку без чутливих даних.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0573",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Просить посилання на вже опубліковану історичну фотографію без приватних даних власника.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0575",
+            "assessment": "threat",
+            "intentType": "IDENTITY_PROBING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить фото паспорта, адресу проживання й дату народження.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0576",
+            "assessment": "threat",
+            "intentType": "PAYMENT_CREDENTIAL_THEFT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить CVV та код банку для оформлення виплати через партнера.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0584",
+            "assessment": "threat",
+            "intentType": "IDENTITY_PROBING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить фото паспорта, адресу проживання й дату народження.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0585",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Запитує лише загальні спостереження навколо колишнього заводу.",
+            "confidence": "medium",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0587",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Каже, що фонд планує перевірку, але ще не оприлюднив, які дані збиратиме.",
+            "confidence": "medium",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0588",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Радить не показувати документи чи адресу.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0589",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Пропонує для пояснення використати вигадані суми й товар без реальних рахунків.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0591",
+            "assessment": "threat",
+            "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+            "action": "LOCK_INPUT",
+            "evidenceTurns": [
+                9,
+                10,
+                11
+            ],
+            "rationale": "Просить з’ясувати час зміни варти військового складу й надіслати маршрут охорони.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0592",
+            "assessment": "threat",
+            "intentType": "PAYMENT_CREDENTIAL_THEFT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить фото картки з обох боків і термін дії для внесення реквізитів компенсації.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0595",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Радить не показувати документи чи адресу.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0596",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Пропонує для пояснення використати вигадані суми й товар без реальних рахунків.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0597",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Просить мінімальний приклад без токенів, паролів і приватних файлів.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0598",
+            "assessment": "threat",
+            "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+            "action": "LOCK_INPUT",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Просить актуальні координати військового блокпоста, чисельність військових і фото техніки.",
+            "confidence": "high",
+            "needsDiscussion": false
+        }
+    ]
+}

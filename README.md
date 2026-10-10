@@ -14,8 +14,12 @@
 | --- | --- | --- | --- | --- |
 | **1 · Відомі регресії** | Загрози, безпечні репліки та виправлені помилки; за цими прикладами вже налаштовували правила | 326 сценаріїв | [![Регресійний F1](https://prylutskyy.github.io/S.O.V.A./badges/f1-value.svg)](https://prylutskyy.github.io/S.O.V.A./#regression) | [![Регресійний recall](https://prylutskyy.github.io/S.O.V.A./badges/recall-value.svg)](https://prylutskyy.github.io/S.O.V.A./#regression) |
 | **2 · Нові діалоги** | Поступове входження в довіру, фальшиві керівники, знайомі, підтримка, редакції; розмітка очікує незалежного аудиту | 300 діалогів: 200 визначених + 100 неоднозначних | [![F1 нових діалогів](https://prylutskyy.github.io/S.O.V.A./badges/challenge-f1-value.svg)](https://prylutskyy.github.io/S.O.V.A./#challenge) | [![Recall нових діалогів](https://prylutskyy.github.io/S.O.V.A./badges/challenge-recall-value.svg)](https://prylutskyy.github.io/S.O.V.A./#challenge) |
+| **3 · Сліпий блок A** | Дві ШІ-рецензії; нові контекстні діалоги, без ручного узгодження | 300: 244 у binary-оцінці, 239 у точному збігу | [![F1 A](https://prylutskyy.github.io/S.O.V.A./badges/reviewA-f1-value.svg)](https://prylutskyy.github.io/S.O.V.A./#review-stress) | [![Recall A](https://prylutskyy.github.io/S.O.V.A./badges/reviewA-recall-value.svg)](https://prylutskyy.github.io/S.O.V.A./#review-stress) |
+| **4 · Сліпий блок B** | Парні помилки, змішані мови, Unicode, розбиті запити та власні цитати | 300: 240 у binary-оцінці; перетворення 60 кейсів A | [![F1 B](https://prylutskyy.github.io/S.O.V.A./badges/reviewB-f1-value.svg)](https://prylutskyy.github.io/S.O.V.A./#review-stress) | [![Recall B](https://prylutskyy.github.io/S.O.V.A./badges/reviewB-recall-value.svg)](https://prylutskyy.github.io/S.O.V.A./#review-stress) |
 
-Зведені бейджі зверху пораховані за сумою TP/FP/FN/TN **526 визначених прикладів**, не за середнім F1. Відомі регресії підвищують цей результат; він не є незалежним доказом реальної точності. Groq і перевірки анонімізації мають окремі результати й не змішуються з локальними метриками.
+Зведені бейджі зверху пораховані за сумою TP/FP/FN/TN **526 визначених прикладів перших двох блоків**, не за середнім F1. Відомі регресії підвищують цей результат; він не є незалежним доказом реальної точності. Блоки A/B показані окремо через споріднені кейси та попередній еталон ШІ. Groq і перевірки анонімізації також мають окремі результати.
+
+[Перший стрес-прогін 600 діалогів](tests/review/LOCAL_EVALUATION_REPORT.md): F1 A **75,5%**, B **73,9%**; 18/12 хибних фінальних блокувань. Метрики рахуються лише на узгоджених threat/safe. Невизначені мітки та спірні типи мають окремі знаменники. CI повторює прогін на push, dashboard зберігає окрему історію A/B.
 
 **Анонімізація перед Groq:** [методика й результати невеликого live-прогону](tests/results/GROQ_PRIVACY_SMOKE_REPORT.md). Він перевіряє підтримані категорії даних у синтетичних прикладах, а не гарантує розпізнавання всіх персональних даних. Звичайний CI виконує локальний preflight, не витрачаючи API-токени.
 
@@ -86,6 +90,10 @@ npm run build         # production-збірка
 4. **Надішліть pull request.** Поясніть проблему, рішення, перевірки та можливі компроміси. Невеликі, сфокусовані зміни легше обговорити й перевірити.
 
 Корисні сторінки: [створити Issue](https://github.com/prylutskyy/S.O.V.A./issues/new/choose) · [корпус тестів](tests/evaluation/README.md) · [посібник розробника](docs/DEVELOPMENT_GUIDE.md) · [технічна специфікація](docs/PROJECT_IMPLEMENTATION_SPECIFICATION.md).
+
+### Допоможіть перевірити розмітку
+
+Підготовлено [600 діалогів для сліпого рецензування](tests/review/README.md): контекст довіри та варіації повідомлень. Дві ШІ-рецензії на блок дали попередні еталони, за якими CI оцінює A/B окремо. В [офлайн-сторінці](tests/review/review.html) можна прочитати вибірку з 50 кейсів і запропонувати власну оцінку. Ручного узгодження ще немає; суперечності збережені.
 
 ## Конфіденційність і безпечне тестування
 

@@ -39,6 +39,7 @@ jobs:
         id: run-tests
         env:
           SOVA_EVAL_REPORT: metrics/evaluation.json
+          SOVA_REVIEW_REPORT: metrics/review-evaluation.json
           GITHUB_SHA: ${{ github.sha }}
         shell: bash
         run: |
@@ -46,13 +47,14 @@ jobs:
           set +e
           npm test -- --exclude 'tests/integration/**' --reporter=dot
           test_status=$?
-          if [[ -f metrics/evaluation.json ]]; then
+          if [[ -f metrics/evaluation.json && -f metrics/review-evaluation.json ]] && node scripts/review/merge-evaluation.mjs; then
             echo 'report-ready=true' >> "$GITHUB_OUTPUT"
           else
             echo 'report-ready=false' >> "$GITHUB_OUTPUT"
+            test_status=1
           fi
           exit "$test_status"
-      - name: Explain regression and challenge results
+      - name: Explain regression, challenge and AI-reviewed stress results
         if: always() && steps.run-tests.outputs.report-ready == 'true'
         run: node scripts/evaluation/write-ci-summary.mjs metrics/evaluation.json
       - name: Upload evaluation report

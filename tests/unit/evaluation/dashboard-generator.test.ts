@@ -34,6 +34,17 @@ function series(html: string, key: string) {
 }
 
 describe('Evaluation dashboard history chart', () => {
+  it('shows AI-reviewed groups with separate exact denominators and no invented historical observations', () => {
+    const group={totalCases:300,scoredCases:244,exactScoredCases:239,overall:{precision:.73,recall:.78,f1:.755},exactMatchRate:148/239,falseLockInputs:18,disputedCases:6,agreedAmbiguousCases:50,uncertain:{n:56,detected:8,locked:3},corpusSha256:'review-hash'};
+    const report={...record(1),groups:{reviewA:group,reviewB:group},reviewEvaluation:{pairedByTransform:{typos:{n:60,binaryChanged:9,typeChanged:10,actionChanged:10}},prematureLocks:[],timing:{p95Ms:2.8},cases:[{id:'R-0001',block:'A',assessment:'disputed',typeAgreement:true,expectedType:null,actualType:null,actualAction:'ALLOW',exactScored:false}]}};
+    const html=generate([record(0)],report);
+    const panel=html.split('id="review-stress"')[1];
+    expect(panel).toContain('Знаменник точного збігу: 239');
+    expect(panel).toContain('без ручного узгодження');
+    expect(panel).toContain('Не оцінюється');
+    expect([...series(panel,'f1').matchAll(/<circle /g)]).toHaveLength(1);
+    expect(generate([],report,'badges/reviewA-f1-value.svg')).toContain('75.5%');
+  });
   it('plots nested binary metrics and the top-level exact match at their actual percentages', () => {
     const html = generate([record(0)]);
     // The plot spans y=30..268: 90%, 50%, 60%, and 70% must not collapse to zero.

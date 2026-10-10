@@ -15,6 +15,8 @@
     "test:groq:prompts": "vitest run tests/integration/groq-prompts.integration.test.ts",
     "test:groq:prompts:interactive": "node scripts/evaluation/run-groq-prompts.mjs",
     "test:watch": "vitest",
+    "review:prepare": "node scripts/review/build-review-pack.mjs",
+    "review:references": "node scripts/review/prepare-references.mjs",
     "classifier:prepare": "node scripts/local-classifier/run.mjs prepare",
     "classifier:train": "node scripts/local-classifier/run.mjs train",
     "classifier:evaluate": "node scripts/local-classifier/run.mjs evaluate",

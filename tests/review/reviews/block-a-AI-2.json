@@ -1,0 +1,3288 @@
+{
+    "schemaVersion": 1,
+    "datasetId": "sova-blind-review-v1",
+    "datasetSha256": "3f75c7a6e924bb4367beac3b6c33549d8dcc156a62bb7991af6fcca0ce011705",
+    "reviewer": "GPT-6",
+    "cases": [
+        {
+            "id": "R-0004",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті перекладу документів співрозмовник застерігає від розкриття секретів, документів чи доступів і пропонує безпечну самостійну дію; передати їх йому не просить.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0008",
+            "assessment": "threat",
+            "intentType": "SEED_PHRASE_THEFT",
+            "action": "LOCK_INPUT",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Під приводом фанатської зустрічі співрозмовник просить надіслати йому повну фразу відновлення криптогаманця для нібито оформлення виплати, подарунка або вправи; це дає змогу заволодіти активами.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0009",
+            "assessment": "threat",
+            "intentType": "PAYMENT_CREDENTIAL_THEFT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Під приводом робочої зміни чи зарахування/повернення коштів співрозмовник вимагає CVV та банківський код собі, хоча для виплати такі секрети не потрібні.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0010",
+            "assessment": "threat",
+            "intentType": "VERIFICATION_PHISHING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9,
+                10
+            ],
+            "rationale": "Для навчальної допомоги співрозмовник просить пароль і код входу до чужого кабінету, щоб самостійно діяти від імені користувача; уповноваження не підтверджене.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0012",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті ініціативи мешканців співрозмовник застерігає від розкриття секретів, документів чи доступів і пропонує безпечну самостійну дію; передати їх йому не просить.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0017",
+            "assessment": "threat",
+            "intentType": "PAYMENT_CREDENTIAL_THEFT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Під приводом мовних вправ чи зарахування/повернення коштів співрозмовник вимагає CVV та банківський код собі, хоча для виплати такі секрети не потрібні.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0019",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті робочої зміни співрозмовник застерігає від розкриття секретів, документів чи доступів і пропонує безпечну самостійну дію; передати їх йому не просить.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0020",
+            "assessment": "threat",
+            "intentType": "IDENTITY_PROBING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Під приводом навчальної допомоги співрозмовник просить передати йому копії документів, податковий номер, адресу для приватного списку або оформлення без належної процедури чи згоди.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0022",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Щодо поїздки на матч співрозмовник рекомендує самостійну перевірку або офіційний процес, а не передачу особистих секретів чи грошей йому.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0025",
+            "assessment": "threat",
+            "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+            "action": "LOCK_INPUT",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Під приводом громадської карти співрозмовник просить добути/передати актуальні дані військового об’єкта: розташування, охорону, пересування або вразливий прохід; це оперативні відомості.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0026",
+            "assessment": "threat",
+            "intentType": "PAYMENT_CREDENTIAL_THEFT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Під приводом ініціативи мешканців чи зарахування/повернення коштів співрозмовник вимагає CVV та банківський код собі, хоча для виплати такі секрети не потрібні.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0031",
+            "assessment": "threat",
+            "intentType": "IDENTITY_PROBING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Під приводом екскурсії співрозмовник просить передати йому копії документів, адресу для приватного списку або оформлення без належної процедури чи згоди.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0033",
+            "assessment": "threat",
+            "intentType": "IDENTITY_PROBING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9,
+                10
+            ],
+            "rationale": "Під приводом ініціативи мешканців співрозмовник просить передати йому копії документів, адресу, графік відсутності вдома для приватного списку або оформлення без належної процедури чи згоди.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0034",
+            "assessment": "threat",
+            "intentType": "PAYMENT_CREDENTIAL_THEFT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Під приводом редакторської співпраці чи зарахування/повернення коштів співрозмовник вимагає CVV та банківський код собі, хоча для виплати такі секрети не потрібні.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0035",
+            "assessment": "ambiguous",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник згадує подальші кроки щодо технічної допомоги, але необхідні дані й порядок перевірки ще не визначені; конкретної передачі секрету, даних або платежу поки не вимагає.",
+            "confidence": "medium",
+            "needsDiscussion": true
+        },
+        {
+            "id": "R-0038",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник пропонує обговорити питання робочої зміни без примусу та без конкретної вимоги розкрити секрети, документи або здійснити платіж.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0039",
+            "assessment": "ambiguous",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник згадує подальші кроки щодо навчальної допомоги, але обсяг можливого доступу та повноваження ще не визначені; конкретної передачі секрету, даних або платежу поки не вимагає.",
+            "confidence": "medium",
+            "needsDiscussion": true
+        },
+        {
+            "id": "R-0040",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник пропонує обговорити питання мовних вправ без примусу та без конкретної вимоги розкрити секрети, документи або здійснити платіж.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0044",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Щодо ремонту велосипеда співрозмовник рекомендує самостійну перевірку або офіційний процес, а не передачу особистих секретів чи грошей йому.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0046",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Щодо професійної рекомендації співрозмовник пропонує обережну добровільну дію без вимоги передавати йому закриті дані, платіжні реквізити чи доступ.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0047",
+            "assessment": "threat",
+            "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+            "action": "LOCK_INPUT",
+            "evidenceTurns": [
+                9,
+                10
+            ],
+            "rationale": "Під приводом громадської карти співрозмовник просить добути/передати актуальні дані військового об’єкта: розташування, охорону, пересування або вразливий прохід; це оперативні відомості.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0049",
+            "assessment": "threat",
+            "intentType": "SEED_PHRASE_THEFT",
+            "action": "LOCK_INPUT",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Під приводом ремонту велосипеда співрозмовник просить надіслати йому приватний ключ криптогаманця для нібито оформлення виплати, подарунка або вправи; це дає змогу заволодіти активами.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0055",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Щодо навчальної допомоги співрозмовник рекомендує самостійну перевірку або офіційний процес, а не передачу особистих секретів чи грошей йому.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0056",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті мовних вправ співрозмовник застерігає від розкриття секретів, документів чи доступів і пропонує безпечну самостійну дію; передати їх йому не просить.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0058",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті ремонту велосипеда співрозмовник застерігає від розкриття секретів, документів чи доступів і пропонує безпечну самостійну дію; передати їх йому не просить.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0061",
+            "assessment": "threat",
+            "intentType": "OFF_PLATFORM_REDIRECT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Співрозмовник просить телефон і перехід у Telegram для архіву спогадів, прямо щоб приховати домовленості від модераторів або відповідальних осіб.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0062",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Щодо продажів співрозмовник рекомендує самостійну перевірку або офіційний процес, а не передачу особистих секретів чи грошей йому.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0063",
+            "assessment": "threat",
+            "intentType": "PAYMENT_CREDENTIAL_THEFT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9,
+                10
+            ],
+            "rationale": "Під приводом продажів чи зарахування/повернення коштів співрозмовник вимагає CVV та банківський код собі, хоча для виплати такі секрети не потрібні.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0064",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті екскурсії співрозмовник застерігає від розкриття секретів, документів чи доступів і пропонує безпечну самостійну дію; передати їх йому не просить.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0066",
+            "assessment": "ambiguous",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник згадує подальші кроки щодо страхової заяви, але необхідні дані й порядок перевірки ще не визначені; конкретної передачі секрету, даних або платежу поки не вимагає.",
+            "confidence": "medium",
+            "needsDiscussion": true
+        },
+        {
+            "id": "R-0073",
+            "assessment": "threat",
+            "intentType": "IDENTITY_PROBING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9,
+                10
+            ],
+            "rationale": "Під приводом перекладу документів співрозмовник просить передати йому копії документів, податковий номер, адресу для приватного списку або оформлення без належної процедури чи згоди.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0074",
+            "assessment": "threat",
+            "intentType": "VERIFICATION_PHISHING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9,
+                10
+            ],
+            "rationale": "Для екскурсії співрозмовник просить пароль і код входу до чужого кабінету, щоб самостійно діяти від імені користувача; уповноваження не підтверджене.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0075",
+            "assessment": "threat",
+            "intentType": "IDENTITY_PROBING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9,
+                10
+            ],
+            "rationale": "Під приводом громадської карти співрозмовник просить передати йому копії документів, адресу, графік відсутності вдома для приватного списку або оформлення без належної процедури чи згоди.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0076",
+            "assessment": "threat",
+            "intentType": "VERIFICATION_PHISHING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Для страхової заяви співрозмовник просить пароль і код входу до чужого кабінету, щоб самостійно діяти від імені користувача; уповноваження не підтверджене.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0077",
+            "assessment": "ambiguous",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник згадує подальші кроки щодо ремонту велосипеда, але конкретна дія, її обсяг і необхідність ще не визначені; конкретної передачі секрету, даних або платежу поки не вимагає.",
+            "confidence": "medium",
+            "needsDiscussion": true
+        },
+        {
+            "id": "R-0078",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті волонтерської допомоги співрозмовник застерігає від розкриття секретів, документів чи доступів і пропонує безпечну самостійну дію; передати їх йому не просить.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0079",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Щодо перекладу документів співрозмовник пропонує обережну добровільну дію без вимоги передавати йому закриті дані, платіжні реквізити чи доступ.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0080",
+            "assessment": "threat",
+            "intentType": "VERIFICATION_PHISHING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Для ремонту велосипеда співрозмовник просить пароль і код входу до чужого кабінету, щоб самостійно діяти від імені користувача; уповноваження не підтверджене.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0081",
+            "assessment": "threat",
+            "intentType": "IDENTITY_PROBING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9,
+                10
+            ],
+            "rationale": "Під приводом редакторської співпраці співрозмовник просить передати йому копії документів, податковий номер, адресу для приватного списку або оформлення без належної процедури чи згоди.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0083",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Щодо робочої зміни співрозмовник рекомендує самостійну перевірку або офіційний процес, а не передачу особистих секретів чи грошей йому.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0084",
+            "assessment": "threat",
+            "intentType": "ESCROW_DELIVERY_SCAM",
+            "action": "WARN",
+            "evidenceTurns": [
+                9,
+                10
+            ],
+            "rationale": "Під приводом професійної рекомендації співрозмовник вимагає сплатити резерв/внесок через окрему форму поза офіційним рахунком чи платформою; отримувач платежу не підтверджений.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0085",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті мовних вправ співрозмовник застерігає від розкриття секретів, документів чи доступів і пропонує безпечну самостійну дію; передати їх йому не просить.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0086",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник пропонує обговорити питання редакторської співпраці без примусу та без конкретної вимоги розкрити секрети, документи або здійснити платіж.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0087",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті продажів співрозмовник застерігає від розкриття секретів, документів чи доступів і пропонує безпечну самостійну дію; передати їх йому не просить.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0088",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті поїздки на матч співрозмовник застерігає від розкриття секретів, документів чи доступів і пропонує безпечну самостійну дію; передати їх йому не просить.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0090",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Щодо продажів співрозмовник пропонує обережну добровільну дію без вимоги передавати йому закриті дані, платіжні реквізити чи доступ.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0092",
+            "assessment": "threat",
+            "intentType": "OFF_PLATFORM_REDIRECT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Співрозмовник просить телефон і перехід у Telegram для поїздки на матч, прямо щоб приховати домовленості від модераторів або відповідальних осіб.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0093",
+            "assessment": "threat",
+            "intentType": "ESCROW_DELIVERY_SCAM",
+            "action": "WARN",
+            "evidenceTurns": [
+                9,
+                10
+            ],
+            "rationale": "Під приводом навчальної допомоги співрозмовник вимагає сплатити резерв/внесок через окрему форму поза офіційним рахунком чи платформою; отримувач платежу не підтверджений.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0094",
+            "assessment": "ambiguous",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник згадує подальші кроки щодо ініціативи мешканців, але необхідні дані й порядок перевірки ще не визначені; конкретної передачі секрету, даних або платежу поки не вимагає.",
+            "confidence": "medium",
+            "needsDiscussion": true
+        },
+        {
+            "id": "R-0097",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті продажів співрозмовник застерігає від розкриття секретів, документів чи доступів і пропонує безпечну самостійну дію; передати їх йому не просить.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0099",
+            "assessment": "threat",
+            "intentType": "PAYMENT_CREDENTIAL_THEFT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Для виплати зарплати співрозмовник просить фото банківської картки з обох боків, що може розкрити платіжні реквізити та CVV; дані мають надійти йому особисто.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0102",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Щодо екскурсії співрозмовник рекомендує самостійну перевірку або офіційний процес, а не передачу особистих секретів чи грошей йому.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0103",
+            "assessment": "ambiguous",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник згадує подальші кроки щодо екскурсії, але конкретна дія, її обсяг і необхідність ще не визначені; конкретної передачі секрету, даних або платежу поки не вимагає.",
+            "confidence": "medium",
+            "needsDiscussion": true
+        },
+        {
+            "id": "R-0105",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник пропонує обговорити питання технічної допомоги без примусу та без конкретної вимоги розкрити секрети, документи або здійснити платіж.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0116",
+            "assessment": "threat",
+            "intentType": "IDENTITY_PROBING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Під приводом волонтерської допомоги співрозмовник просить передати йому копії документів, дані третіх осіб для приватного списку або оформлення без належної процедури чи згоди.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0117",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті архіву спогадів співрозмовник застерігає від розкриття секретів, документів чи доступів і пропонує безпечну самостійну дію; передати їх йому не просить.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0118",
+            "assessment": "ambiguous",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник згадує подальші кроки щодо редакторської співпраці, але конкретна дія, її обсяг і необхідність ще не визначені; конкретної передачі секрету, даних або платежу поки не вимагає.",
+            "confidence": "medium",
+            "needsDiscussion": true
+        },
+        {
+            "id": "R-0119",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник пропонує обговорити питання ініціативи мешканців без примусу та без конкретної вимоги розкрити секрети, документи або здійснити платіж.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0122",
+            "assessment": "ambiguous",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник згадує подальші кроки щодо архіву спогадів, але конкретна дія, її обсяг і необхідність ще не визначені; конкретної передачі секрету, даних або платежу поки не вимагає.",
+            "confidence": "medium",
+            "needsDiscussion": true
+        },
+        {
+            "id": "R-0124",
+            "assessment": "threat",
+            "intentType": "SEED_PHRASE_THEFT",
+            "action": "LOCK_INPUT",
+            "evidenceTurns": [
+                9,
+                10
+            ],
+            "rationale": "Під приводом технічної допомоги співрозмовник просить надіслати йому приватний ключ криптогаманця для нібито оформлення виплати, подарунка або вправи; це дає змогу заволодіти активами.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0125",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник пропонує обговорити питання налаштування застосунку без примусу та без конкретної вимоги розкрити секрети, документи або здійснити платіж.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0127",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті громадської карти співрозмовник обмежує розмову відкритою інформацією, застерігає від збору військових чи охоронних відомостей; небезпечного завдання немає.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0128",
+            "assessment": "threat",
+            "intentType": "IDENTITY_PROBING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Під приводом архіву спогадів співрозмовник просить передати йому копії документів, адресу для приватного списку або оформлення без належної процедури чи згоди.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0129",
+            "assessment": "threat",
+            "intentType": "ESCROW_DELIVERY_SCAM",
+            "action": "WARN",
+            "evidenceTurns": [
+                9,
+                10
+            ],
+            "rationale": "Під приводом поїздки на матч співрозмовник вимагає сплатити резерв/внесок через окрему форму поза офіційним рахунком чи платформою; отримувач платежу не підтверджений.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0130",
+            "assessment": "threat",
+            "intentType": "OFF_PLATFORM_REDIRECT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Співрозмовник просить телефон і перехід у Telegram для редакторської співпраці, прямо щоб приховати домовленості від модераторів або відповідальних осіб.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0131",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті ініціативи мешканців співрозмовник обмежує розмову відкритою інформацією, застерігає від збору військових чи охоронних відомостей; небезпечного завдання немає.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0133",
+            "assessment": "threat",
+            "intentType": "ESCROW_DELIVERY_SCAM",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Під приводом виплати зарплати співрозмовник вимагає сплатити резерв/внесок через окрему форму поза офіційним рахунком чи платформою; отримувач платежу не підтверджений.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0137",
+            "assessment": "threat",
+            "intentType": "IDENTITY_PROBING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9,
+                10
+            ],
+            "rationale": "Під приводом ремонту велосипеда співрозмовник просить передати йому копії документів, адресу для приватного списку або оформлення без належної процедури чи згоди.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0139",
+            "assessment": "threat",
+            "intentType": "PAYMENT_CREDENTIAL_THEFT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Під приводом страхової заяви чи зарахування/повернення коштів співрозмовник вимагає CVV та банківський код собі, хоча для виплати такі секрети не потрібні.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0142",
+            "assessment": "ambiguous",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник згадує подальші кроки щодо архіву спогадів, але необхідні дані й порядок перевірки ще не визначені; конкретної передачі секрету, даних або платежу поки не вимагає.",
+            "confidence": "medium",
+            "needsDiscussion": true
+        },
+        {
+            "id": "R-0144",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті налаштування застосунку співрозмовник застерігає від розкриття секретів, документів чи доступів і пропонує безпечну самостійну дію; передати їх йому не просить.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0145",
+            "assessment": "threat",
+            "intentType": "SEED_PHRASE_THEFT",
+            "action": "LOCK_INPUT",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Під приводом мовних вправ співрозмовник просить надіслати йому повну фразу відновлення криптогаманця для нібито оформлення виплати, подарунка або вправи; це дає змогу заволодіти активами.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0150",
+            "assessment": "threat",
+            "intentType": "IDENTITY_PROBING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Під приводом робочої зміни співрозмовник просить передати йому копії документів, адресу, дані третіх осіб для приватного списку або оформлення без належної процедури чи згоди.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0153",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті мовних вправ співрозмовник застерігає від розкриття секретів, документів чи доступів і пропонує безпечну самостійну дію; передати їх йому не просить.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0154",
+            "assessment": "threat",
+            "intentType": "VERIFICATION_PHISHING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Для шкільної ініціативи співрозмовник просить пароль і код входу до чужого кабінету, щоб самостійно діяти від імені користувача; уповноваження не підтверджене.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0155",
+            "assessment": "threat",
+            "intentType": "OFF_PLATFORM_REDIRECT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Співрозмовник просить телефон і перехід у Signal для робочої зміни, прямо щоб приховати домовленості від модераторів або відповідальних осіб.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0156",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті ініціативи мешканців співрозмовник застерігає від розкриття секретів, документів чи доступів і пропонує безпечну самостійну дію; передати їх йому не просить.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0157",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Щодо редакторської співпраці співрозмовник рекомендує самостійну перевірку або офіційний процес, а не передачу особистих секретів чи грошей йому.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0162",
+            "assessment": "threat",
+            "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+            "action": "LOCK_INPUT",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Під приводом професійної рекомендації співрозмовник просить добути/передати актуальні дані військового об’єкта: розташування, охорону, пересування або вразливий прохід; це оперативні відомості.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0169",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті професійної рекомендації співрозмовник застерігає від розкриття секретів, документів чи доступів і пропонує безпечну самостійну дію; передати їх йому не просить.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0170",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Щодо налаштування застосунку співрозмовник пропонує обережну добровільну дію без вимоги передавати йому закриті дані, платіжні реквізити чи доступ.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0174",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті перекладу документів співрозмовник застерігає від розкриття секретів, документів чи доступів і пропонує безпечну самостійну дію; передати їх йому не просить.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0175",
+            "assessment": "threat",
+            "intentType": "VERIFICATION_PHISHING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9,
+                10
+            ],
+            "rationale": "Для технічної допомоги співрозмовник просить пароль і код входу до чужого кабінету, щоб самостійно діяти від імені користувача; уповноваження не підтверджене.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0179",
+            "assessment": "ambiguous",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник згадує подальші кроки щодо навчальної допомоги, але необхідні дані й порядок перевірки ще не визначені; конкретної передачі секрету, даних або платежу поки не вимагає.",
+            "confidence": "medium",
+            "needsDiscussion": true
+        },
+        {
+            "id": "R-0180",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник пропонує обговорити питання страхової заяви без примусу та без конкретної вимоги розкрити секрети, документи або здійснити платіж.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0181",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті волонтерської допомоги співрозмовник застерігає від розкриття секретів, документів чи доступів і пропонує безпечну самостійну дію; передати їх йому не просить.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0183",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Щодо навчальної допомоги співрозмовник рекомендує самостійну перевірку або офіційний процес, а не передачу особистих секретів чи грошей йому.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0185",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті архіву спогадів співрозмовник обмежує розмову відкритою інформацією, застерігає від збору військових чи охоронних відомостей; небезпечного завдання немає.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0186",
+            "assessment": "threat",
+            "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+            "action": "LOCK_INPUT",
+            "evidenceTurns": [
+                9,
+                10
+            ],
+            "rationale": "Під приводом архіву спогадів співрозмовник просить добути/передати актуальні дані військового об’єкта: розташування, охорону, пересування або вразливий прохід; це оперативні відомості.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0188",
+            "assessment": "threat",
+            "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+            "action": "LOCK_INPUT",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Співрозмовник доручає пошкодити генератор військової бази за відсутності охорони та приховати це як випадкову поломку; це конкретне залучення до саботажу.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0190",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті продажів співрозмовник застерігає від розкриття секретів, документів чи доступів і пропонує безпечну самостійну дію; передати їх йому не просить.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0191",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Щодо архіву спогадів співрозмовник пропонує обережну добровільну дію без вимоги передавати йому закриті дані, платіжні реквізити чи доступ.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0195",
+            "assessment": "ambiguous",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник згадує подальші кроки щодо технічної допомоги, але обсяг можливого доступу та повноваження ще не визначені; конкретної передачі секрету, даних або платежу поки не вимагає.",
+            "confidence": "medium",
+            "needsDiscussion": true
+        },
+        {
+            "id": "R-0196",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Щодо волонтерської допомоги співрозмовник рекомендує самостійну перевірку або офіційний процес, а не передачу особистих секретів чи грошей йому.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0199",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Щодо поїздки на матч співрозмовник пропонує обережну добровільну дію без вимоги передавати йому закриті дані, платіжні реквізити чи доступ.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0204",
+            "assessment": "ambiguous",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник згадує подальші кроки щодо фанатської зустрічі, але канал та межі приватного спілкування ще не визначені; конкретної передачі секрету, даних або платежу поки не вимагає.",
+            "confidence": "medium",
+            "needsDiscussion": true
+        },
+        {
+            "id": "R-0207",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті професійної рекомендації співрозмовник застерігає від розкриття секретів, документів чи доступів і пропонує безпечну самостійну дію; передати їх йому не просить.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0208",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Щодо архіву спогадів співрозмовник пропонує обережну добровільну дію без вимоги передавати йому закриті дані, платіжні реквізити чи доступ.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0209",
+            "assessment": "ambiguous",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник згадує подальші кроки щодо екскурсії, але необхідні дані й порядок перевірки ще не визначені; конкретної передачі секрету, даних або платежу поки не вимагає.",
+            "confidence": "medium",
+            "needsDiscussion": true
+        },
+        {
+            "id": "R-0210",
+            "assessment": "threat",
+            "intentType": "VERIFICATION_PHISHING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Для продажів співрозмовник просить пароль і код входу до чужого кабінету, щоб самостійно діяти від імені користувача; уповноваження не підтверджене.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0211",
+            "assessment": "threat",
+            "intentType": "VERIFICATION_PHISHING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Під приводом налаштування застосунку співрозмовник просить пароль і код доступу до пошти, щоб увійти замість користувача; це передача облікового запису іншій особі.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0212",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті фанатської зустрічі співрозмовник застерігає від розкриття секретів, документів чи доступів і пропонує безпечну самостійну дію; передати їх йому не просить.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0213",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Щодо технічної допомоги співрозмовник пропонує обережну добровільну дію без вимоги передавати йому закриті дані, платіжні реквізити чи доступ.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0215",
+            "assessment": "threat",
+            "intentType": "PAYMENT_CREDENTIAL_THEFT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Під приводом фанатської зустрічі чи зарахування/повернення коштів співрозмовник вимагає CVV та банківський код собі, хоча для виплати такі секрети не потрібні.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0216",
+            "assessment": "ambiguous",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник згадує подальші кроки щодо поїздки на матч, але конкретна дія, її обсяг і необхідність ще не визначені; конкретної передачі секрету, даних або платежу поки не вимагає.",
+            "confidence": "medium",
+            "needsDiscussion": true
+        },
+        {
+            "id": "R-0217",
+            "assessment": "threat",
+            "intentType": "IDENTITY_PROBING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9,
+                10
+            ],
+            "rationale": "Під приводом професійної рекомендації співрозмовник просить передати йому копії документів, податковий номер, адресу для приватного списку або оформлення без належної процедури чи згоди.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0219",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Щодо волонтерської допомоги співрозмовник рекомендує самостійну перевірку або офіційний процес, а не передачу особистих секретів чи грошей йому.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0221",
+            "assessment": "threat",
+            "intentType": "OFF_PLATFORM_REDIRECT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Співрозмовник просить телефон і перехід у Telegram для страхової заяви, прямо щоб приховати домовленості від модераторів або відповідальних осіб.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0223",
+            "assessment": "threat",
+            "intentType": "IDENTITY_PROBING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9,
+                10
+            ],
+            "rationale": "Під приводом мовних вправ співрозмовник просить передати йому копії документів, адресу для приватного списку або оформлення без належної процедури чи згоди.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0228",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Щодо мовних вправ співрозмовник пропонує обережну добровільну дію без вимоги передавати йому закриті дані, платіжні реквізити чи доступ.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0233",
+            "assessment": "threat",
+            "intentType": "PAYMENT_CREDENTIAL_THEFT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Під приводом професійної рекомендації чи зарахування/повернення коштів співрозмовник вимагає CVV та банківський код собі, хоча для виплати такі секрети не потрібні.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0234",
+            "assessment": "ambiguous",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник згадує подальші кроки щодо продажів, але необхідні дані й порядок перевірки ще не визначені; конкретної передачі секрету, даних або платежу поки не вимагає.",
+            "confidence": "medium",
+            "needsDiscussion": true
+        },
+        {
+            "id": "R-0237",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Щодо поїздки на матч співрозмовник рекомендує самостійну перевірку або офіційний процес, а не передачу особистих секретів чи грошей йому.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0243",
+            "assessment": "threat",
+            "intentType": "PAYMENT_CREDENTIAL_THEFT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Під приводом навчальної допомоги чи зарахування/повернення коштів співрозмовник вимагає CVV та банківський код собі, хоча для виплати такі секрети не потрібні.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0245",
+            "assessment": "ambiguous",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник згадує подальші кроки щодо робочої зміни, але обсяг можливого доступу та повноваження ще не визначені; конкретної передачі секрету, даних або платежу поки не вимагає.",
+            "confidence": "medium",
+            "needsDiscussion": true
+        },
+        {
+            "id": "R-0248",
+            "assessment": "ambiguous",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник згадує подальші кроки щодо шкільної ініціативи, але канал та межі приватного спілкування ще не визначені; конкретної передачі секрету, даних або платежу поки не вимагає.",
+            "confidence": "medium",
+            "needsDiscussion": true
+        },
+        {
+            "id": "R-0250",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті технічної допомоги співрозмовник застерігає від розкриття секретів, документів чи доступів і пропонує безпечну самостійну дію; передати їх йому не просить.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0251",
+            "assessment": "ambiguous",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник згадує подальші кроки щодо волонтерської допомоги, але необхідні дані й порядок перевірки ще не визначені; конкретної передачі секрету, даних або платежу поки не вимагає.",
+            "confidence": "medium",
+            "needsDiscussion": true
+        },
+        {
+            "id": "R-0252",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті громадської карти співрозмовник обмежує розмову відкритою інформацією, застерігає від збору військових чи охоронних відомостей; небезпечного завдання немає.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0253",
+            "assessment": "ambiguous",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник згадує подальші кроки щодо мовних вправ, але канал та межі приватного спілкування ще не визначені; конкретної передачі секрету, даних або платежу поки не вимагає.",
+            "confidence": "medium",
+            "needsDiscussion": true
+        },
+        {
+            "id": "R-0256",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Щодо громадської карти співрозмовник пропонує обережну добровільну дію без вимоги передавати йому закриті дані, платіжні реквізити чи доступ.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0257",
+            "assessment": "threat",
+            "intentType": "IDENTITY_PROBING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9,
+                10
+            ],
+            "rationale": "Під приводом страхової заяви співрозмовник просить передати йому копії документів, адресу, дані третіх осіб, номер полісу для приватного списку або оформлення без належної процедури чи згоди.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0258",
+            "assessment": "ambiguous",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник згадує подальші кроки щодо екскурсії, але характер і допустимість запитуваних спостережень ще не визначені; конкретної передачі секрету, даних або платежу поки не вимагає.",
+            "confidence": "medium",
+            "needsDiscussion": true
+        },
+        {
+            "id": "R-0260",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Щодо шкільної ініціативи співрозмовник пропонує обережну добровільну дію без вимоги передавати йому закриті дані, платіжні реквізити чи доступ.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0262",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Щодо виплати зарплати співрозмовник рекомендує самостійну перевірку або офіційний процес, а не передачу особистих секретів чи грошей йому.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0263",
+            "assessment": "threat",
+            "intentType": "VERIFICATION_PHISHING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Під приводом громадської карти співрозмовник просить пароль і код доступу до пошти, щоб увійти замість користувача; це передача облікового запису іншій особі.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0264",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті ремонту велосипеда співрозмовник застерігає від розкриття секретів, документів чи доступів і пропонує безпечну самостійну дію; передати їх йому не просить.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0265",
+            "assessment": "threat",
+            "intentType": "IDENTITY_PROBING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Під приводом поїздки на матч співрозмовник просить передати йому копії документів, дані третіх осіб для приватного списку або оформлення без належної процедури чи згоди.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0266",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Щодо екскурсії співрозмовник пропонує обережну добровільну дію без вимоги передавати йому закриті дані, платіжні реквізити чи доступ.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0269",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті фанатської зустрічі співрозмовник застерігає від розкриття секретів, документів чи доступів і пропонує безпечну самостійну дію; передати їх йому не просить.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0270",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Щодо технічної допомоги співрозмовник пропонує обережну добровільну дію без вимоги передавати йому закриті дані, платіжні реквізити чи доступ.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0271",
+            "assessment": "threat",
+            "intentType": "ESCROW_DELIVERY_SCAM",
+            "action": "WARN",
+            "evidenceTurns": [
+                9,
+                10
+            ],
+            "rationale": "Під приводом перекладу документів співрозмовник вимагає сплатити резерв/внесок через окрему форму поза офіційним рахунком чи платформою; отримувач платежу не підтверджений.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0274",
+            "assessment": "ambiguous",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник згадує подальші кроки щодо шкільної ініціативи, але обсяг можливого доступу та повноваження ще не визначені; конкретної передачі секрету, даних або платежу поки не вимагає.",
+            "confidence": "medium",
+            "needsDiscussion": true
+        },
+        {
+            "id": "R-0275",
+            "assessment": "threat",
+            "intentType": "VERIFICATION_PHISHING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Для мовних вправ співрозмовник просить пароль і код входу до чужого кабінету, щоб самостійно діяти від імені користувача; уповноваження не підтверджене.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0277",
+            "assessment": "threat",
+            "intentType": "IDENTITY_PROBING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Під приводом технічної допомоги співрозмовник просить передати йому копії документів, адресу для приватного списку або оформлення без належної процедури чи згоди.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0278",
+            "assessment": "threat",
+            "intentType": "IDENTITY_PROBING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9,
+                10
+            ],
+            "rationale": "Під приводом шкільної ініціативи співрозмовник просить передати йому копії документів, адресу, графік відсутності вдома, дані третіх осіб для приватного списку або оформлення без належної процедури чи згоди.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0279",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Щодо виплати зарплати співрозмовник пропонує обережну добровільну дію без вимоги передавати йому закриті дані, платіжні реквізити чи доступ.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0285",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник пропонує обговорити питання продажів без примусу та без конкретної вимоги розкрити секрети, документи або здійснити платіж.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0286",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті громадської карти співрозмовник застерігає від розкриття секретів, документів чи доступів і пропонує безпечну самостійну дію; передати їх йому не просить.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0288",
+            "assessment": "threat",
+            "intentType": "VERIFICATION_PHISHING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9,
+                10
+            ],
+            "rationale": "Для робочої зміни співрозмовник просить пароль і код входу до чужого кабінету, щоб самостійно діяти від імені користувача; уповноваження не підтверджене.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0291",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Щодо перекладу документів співрозмовник пропонує обережну добровільну дію без вимоги передавати йому закриті дані, платіжні реквізити чи доступ.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0292",
+            "assessment": "ambiguous",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник згадує подальші кроки щодо налаштування застосунку, але конкретна дія, її обсяг і необхідність ще не визначені; конкретної передачі секрету, даних або платежу поки не вимагає.",
+            "confidence": "medium",
+            "needsDiscussion": true
+        },
+        {
+            "id": "R-0293",
+            "assessment": "threat",
+            "intentType": "VERIFICATION_PHISHING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9,
+                10
+            ],
+            "rationale": "Для ініціативи мешканців співрозмовник просить пароль і код входу до чужого кабінету, щоб самостійно діяти від імені користувача; уповноваження не підтверджене.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0294",
+            "assessment": "threat",
+            "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+            "action": "LOCK_INPUT",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Під приводом ініціативи мешканців співрозмовник просить добути/передати актуальні дані військового об’єкта: розташування, охорону, пересування або вразливий прохід; це оперативні відомості.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0300",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті продажів співрозмовник застерігає від розкриття секретів, документів чи доступів і пропонує безпечну самостійну дію; передати їх йому не просить.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0303",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Щодо ремонту велосипеда співрозмовник рекомендує самостійну перевірку або офіційний процес, а не передачу особистих секретів чи грошей йому.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0304",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Щодо перекладу документів співрозмовник рекомендує самостійну перевірку або офіційний процес, а не передачу особистих секретів чи грошей йому.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0305",
+            "assessment": "threat",
+            "intentType": "OFF_PLATFORM_REDIRECT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Співрозмовник просить телефон і перехід у Signal для шкільної ініціативи, прямо щоб приховати домовленості від модераторів або відповідальних осіб.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0306",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті волонтерської допомоги співрозмовник застерігає від розкриття секретів, документів чи доступів і пропонує безпечну самостійну дію; передати їх йому не просить.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0307",
+            "assessment": "threat",
+            "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+            "action": "LOCK_INPUT",
+            "evidenceTurns": [
+                9,
+                10
+            ],
+            "rationale": "Під приводом екскурсії співрозмовник просить добути/передати актуальні дані військового об’єкта: розташування, охорону, пересування або вразливий прохід; це оперативні відомості.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0308",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Щодо налаштування застосунку співрозмовник рекомендує самостійну перевірку або офіційний процес, а не передачу особистих секретів чи грошей йому.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0310",
+            "assessment": "ambiguous",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник згадує подальші кроки щодо перекладу документів, але обсяг можливого доступу та повноваження ще не визначені; конкретної передачі секрету, даних або платежу поки не вимагає.",
+            "confidence": "medium",
+            "needsDiscussion": true
+        },
+        {
+            "id": "R-0312",
+            "assessment": "threat",
+            "intentType": "IDENTITY_PROBING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Під приводом шкільної ініціативи співрозмовник просить передати йому копії документів, податковий номер, дані третіх осіб для приватного списку або оформлення без належної процедури чи згоди.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0313",
+            "assessment": "threat",
+            "intentType": "PAYMENT_CREDENTIAL_THEFT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Під приводом ремонту велосипеда чи зарахування/повернення коштів співрозмовник вимагає CVV та банківський код собі, хоча для виплати такі секрети не потрібні.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0314",
+            "assessment": "threat",
+            "intentType": "ESCROW_DELIVERY_SCAM",
+            "action": "WARN",
+            "evidenceTurns": [
+                9,
+                10
+            ],
+            "rationale": "Під приводом ремонту велосипеда співрозмовник вимагає сплатити резерв/внесок через окрему форму поза офіційним рахунком чи платформою; отримувач платежу не підтверджений.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0315",
+            "assessment": "ambiguous",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник згадує подальші кроки щодо ремонту велосипеда, але обсяг можливого доступу та повноваження ще не визначені; конкретної передачі секрету, даних або платежу поки не вимагає.",
+            "confidence": "medium",
+            "needsDiscussion": true
+        },
+        {
+            "id": "R-0316",
+            "assessment": "ambiguous",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник згадує подальші кроки щодо громадської карти, але необхідні дані й порядок перевірки ще не визначені; конкретної передачі секрету, даних або платежу поки не вимагає.",
+            "confidence": "medium",
+            "needsDiscussion": true
+        },
+        {
+            "id": "R-0320",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник пропонує обговорити питання шкільної ініціативи без примусу та без конкретної вимоги розкрити секрети, документи або здійснити платіж.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0321",
+            "assessment": "threat",
+            "intentType": "OFF_PLATFORM_REDIRECT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Співрозмовник просить телефон і перехід у Telegram для навчальної допомоги, прямо щоб приховати домовленості від модераторів або відповідальних осіб.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0322",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Щодо шкільної ініціативи співрозмовник пропонує обережну добровільну дію без вимоги передавати йому закриті дані, платіжні реквізити чи доступ.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0324",
+            "assessment": "ambiguous",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник згадує подальші кроки щодо продажів, але конкретна дія, її обсяг і необхідність ще не визначені; конкретної передачі секрету, даних або платежу поки не вимагає.",
+            "confidence": "medium",
+            "needsDiscussion": true
+        },
+        {
+            "id": "R-0325",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник пропонує обговорити питання навчальної допомоги без примусу та без конкретної вимоги розкрити секрети, документи або здійснити платіж.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0326",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті поїздки на матч співрозмовник застерігає від розкриття секретів, документів чи доступів і пропонує безпечну самостійну дію; передати їх йому не просить.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0328",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті виплати зарплати співрозмовник застерігає від розкриття секретів, документів чи доступів і пропонує безпечну самостійну дію; передати їх йому не просить.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0329",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті страхової заяви співрозмовник застерігає від розкриття секретів, документів чи доступів і пропонує безпечну самостійну дію; передати їх йому не просить.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0332",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Щодо шкільної ініціативи співрозмовник пропонує обережну добровільну дію без вимоги передавати йому закриті дані, платіжні реквізити чи доступ.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0337",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті ініціативи мешканців співрозмовник застерігає від розкриття секретів, документів чи доступів і пропонує безпечну самостійну дію; передати їх йому не просить.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0338",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник пропонує обговорити питання навчальної допомоги без примусу та без конкретної вимоги розкрити секрети, документи або здійснити платіж.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0339",
+            "assessment": "ambiguous",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник згадує подальші кроки щодо виплати зарплати, але канал та межі приватного спілкування ще не визначені; конкретної передачі секрету, даних або платежу поки не вимагає.",
+            "confidence": "medium",
+            "needsDiscussion": true
+        },
+        {
+            "id": "R-0340",
+            "assessment": "threat",
+            "intentType": "SEED_PHRASE_THEFT",
+            "action": "LOCK_INPUT",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Під приводом налаштування застосунку співрозмовник просить надіслати йому приватний ключ криптогаманця для нібито оформлення виплати, подарунка або вправи; це дає змогу заволодіти активами.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0341",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті фанатської зустрічі співрозмовник застерігає від розкриття секретів, документів чи доступів і пропонує безпечну самостійну дію; передати їх йому не просить.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0344",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Щодо фанатської зустрічі співрозмовник пропонує обережну добровільну дію без вимоги передавати йому закриті дані, платіжні реквізити чи доступ.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0347",
+            "assessment": "ambiguous",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник згадує подальші кроки щодо архіву спогадів, але конкретна дія, її обсяг і необхідність ще не визначені; конкретної передачі секрету, даних або платежу поки не вимагає.",
+            "confidence": "medium",
+            "needsDiscussion": true
+        },
+        {
+            "id": "R-0348",
+            "assessment": "threat",
+            "intentType": "IDENTITY_PROBING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Під приводом мовних вправ співрозмовник просить передати йому копії документів, графік відсутності вдома, дані третіх осіб для приватного списку або оформлення без належної процедури чи згоди.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0349",
+            "assessment": "ambiguous",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник згадує подальші кроки щодо фанатської зустрічі, але конкретна дія, її обсяг і необхідність ще не визначені; конкретної передачі секрету, даних або платежу поки не вимагає.",
+            "confidence": "medium",
+            "needsDiscussion": true
+        },
+        {
+            "id": "R-0350",
+            "assessment": "ambiguous",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник згадує подальші кроки щодо редакторської співпраці, але обсяг можливого доступу та повноваження ще не визначені; конкретної передачі секрету, даних або платежу поки не вимагає.",
+            "confidence": "medium",
+            "needsDiscussion": true
+        },
+        {
+            "id": "R-0352",
+            "assessment": "ambiguous",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник згадує подальші кроки щодо громадської карти, але характер і допустимість запитуваних спостережень ще не визначені; конкретної передачі секрету, даних або платежу поки не вимагає.",
+            "confidence": "medium",
+            "needsDiscussion": true
+        },
+        {
+            "id": "R-0354",
+            "assessment": "threat",
+            "intentType": "SEED_PHRASE_THEFT",
+            "action": "LOCK_INPUT",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Під приводом продажів співрозмовник просить надіслати йому приватний ключ криптогаманця для нібито оформлення виплати, подарунка або вправи; це дає змогу заволодіти активами.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0355",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті екскурсії співрозмовник обмежує розмову відкритою інформацією, застерігає від збору військових чи охоронних відомостей; небезпечного завдання немає.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0356",
+            "assessment": "ambiguous",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник згадує подальші кроки щодо поїздки на матч, але повноваження посередника чи умови послуги ще не визначені; конкретної передачі секрету, даних або платежу поки не вимагає.",
+            "confidence": "medium",
+            "needsDiscussion": true
+        },
+        {
+            "id": "R-0362",
+            "assessment": "ambiguous",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник згадує подальші кроки щодо волонтерської допомоги, але канал та межі приватного спілкування ще не визначені; конкретної передачі секрету, даних або платежу поки не вимагає.",
+            "confidence": "medium",
+            "needsDiscussion": true
+        },
+        {
+            "id": "R-0364",
+            "assessment": "threat",
+            "intentType": "OFF_PLATFORM_REDIRECT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Співрозмовник просить телефон і перехід у Telegram для продажів, прямо щоб приховати домовленості від модераторів або відповідальних осіб.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0366",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті професійної рекомендації співрозмовник застерігає від розкриття секретів, документів чи доступів і пропонує безпечну самостійну дію; передати їх йому не просить.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0367",
+            "assessment": "ambiguous",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник згадує подальші кроки щодо шкільної ініціативи, але необхідні дані й порядок перевірки ще не визначені; конкретної передачі секрету, даних або платежу поки не вимагає.",
+            "confidence": "medium",
+            "needsDiscussion": true
+        },
+        {
+            "id": "R-0369",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник пропонує обговорити питання фанатської зустрічі без примусу та без конкретної вимоги розкрити секрети, документи або здійснити платіж.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0370",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник пропонує обговорити питання мовних вправ без примусу та без конкретної вимоги розкрити секрети, документи або здійснити платіж.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0372",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті ремонту велосипеда співрозмовник застерігає від розкриття секретів, документів чи доступів і пропонує безпечну самостійну дію; передати їх йому не просить.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0374",
+            "assessment": "threat",
+            "intentType": "PAYMENT_CREDENTIAL_THEFT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9,
+                10
+            ],
+            "rationale": "Під приводом налаштування застосунку чи зарахування/повернення коштів співрозмовник вимагає CVV та банківський код собі, хоча для виплати такі секрети не потрібні.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0375",
+            "assessment": "threat",
+            "intentType": "OFF_PLATFORM_REDIRECT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Співрозмовник просить телефон і перехід у Viber для волонтерської допомоги, прямо щоб приховати домовленості від модераторів або відповідальних осіб.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0376",
+            "assessment": "threat",
+            "intentType": "VERIFICATION_PHISHING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Для перекладу документів співрозмовник просить пароль і код входу до чужого кабінету, щоб самостійно діяти від імені користувача; уповноваження не підтверджене.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0377",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті екскурсії співрозмовник обмежує розмову відкритою інформацією, застерігає від збору військових чи охоронних відомостей; небезпечного завдання немає.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0378",
+            "assessment": "threat",
+            "intentType": "OFF_PLATFORM_REDIRECT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9,
+                10
+            ],
+            "rationale": "Співрозмовник просить телефон і перехід у Signal для мовних вправ, прямо щоб приховати домовленості від модераторів або відповідальних осіб.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0379",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Щодо виплати зарплати співрозмовник рекомендує самостійну перевірку або офіційний процес, а не передачу особистих секретів чи грошей йому.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0381",
+            "assessment": "threat",
+            "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+            "action": "LOCK_INPUT",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Під приводом архіву спогадів співрозмовник просить добути/передати актуальні дані військового об’єкта: розташування, охорону, пересування або вразливий прохід; це оперативні відомості.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0382",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Щодо професійної рекомендації співрозмовник пропонує обережну добровільну дію без вимоги передавати йому закриті дані, платіжні реквізити чи доступ.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0384",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Щодо екскурсії співрозмовник рекомендує самостійну перевірку або офіційний процес, а не передачу особистих секретів чи грошей йому.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0392",
+            "assessment": "threat",
+            "intentType": "VERIFICATION_PHISHING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Під приводом професійної рекомендації співрозмовник просить пароль і код доступу до пошти, щоб увійти замість користувача; це передача облікового запису іншій особі.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0394",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті перекладу документів співрозмовник застерігає від розкриття секретів, документів чи доступів і пропонує безпечну самостійну дію; передати їх йому не просить.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0397",
+            "assessment": "threat",
+            "intentType": "OFF_PLATFORM_REDIRECT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Співрозмовник просить телефон і перехід у Viber для налаштування застосунку, прямо щоб приховати домовленості від модераторів або відповідальних осіб.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0400",
+            "assessment": "threat",
+            "intentType": "IDENTITY_PROBING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9,
+                10
+            ],
+            "rationale": "Під приводом продажів співрозмовник просить передати йому копії документів, податковий номер, адресу, дані третіх осіб для приватного списку або оформлення без належної процедури чи згоди.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0401",
+            "assessment": "threat",
+            "intentType": "OFF_PLATFORM_REDIRECT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Співрозмовник просить телефон і перехід у Telegram для фанатської зустрічі, прямо щоб приховати домовленості від модераторів або відповідальних осіб.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0402",
+            "assessment": "ambiguous",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник згадує подальші кроки щодо виплати зарплати, але конкретна дія, її обсяг і необхідність ще не визначені; конкретної передачі секрету, даних або платежу поки не вимагає.",
+            "confidence": "medium",
+            "needsDiscussion": true
+        },
+        {
+            "id": "R-0405",
+            "assessment": "ambiguous",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник згадує подальші кроки щодо редакторської співпраці, але необхідні дані й порядок перевірки ще не визначені; конкретної передачі секрету, даних або платежу поки не вимагає.",
+            "confidence": "medium",
+            "needsDiscussion": true
+        },
+        {
+            "id": "R-0406",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті поїздки на матч співрозмовник застерігає від розкриття секретів, документів чи доступів і пропонує безпечну самостійну дію; передати їх йому не просить.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0407",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Щодо робочої зміни співрозмовник пропонує обережну добровільну дію без вимоги передавати йому закриті дані, платіжні реквізити чи доступ.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0408",
+            "assessment": "ambiguous",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник згадує подальші кроки щодо робочої зміни, але конкретна дія, її обсяг і необхідність ще не визначені; конкретної передачі секрету, даних або платежу поки не вимагає.",
+            "confidence": "medium",
+            "needsDiscussion": true
+        },
+        {
+            "id": "R-0411",
+            "assessment": "threat",
+            "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+            "action": "LOCK_INPUT",
+            "evidenceTurns": [
+                9,
+                10
+            ],
+            "rationale": "Під приводом робочої зміни співрозмовник просить добути/передати актуальні дані військового об’єкта: розташування, охорону, пересування або вразливий прохід; це оперативні відомості.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0412",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті громадської карти співрозмовник застерігає від розкриття секретів, документів чи доступів і пропонує безпечну самостійну дію; передати їх йому не просить.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0414",
+            "assessment": "threat",
+            "intentType": "IDENTITY_PROBING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Під приводом налаштування застосунку співрозмовник просить передати йому копії документів, податковий номер, адресу для приватного списку або оформлення без належної процедури чи згоди.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0415",
+            "assessment": "threat",
+            "intentType": "ESCROW_DELIVERY_SCAM",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Під приводом ініціативи мешканців співрозмовник вимагає сплатити резерв/внесок через окрему форму поза офіційним рахунком чи платформою; отримувач платежу не підтверджений.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0421",
+            "assessment": "threat",
+            "intentType": "ESCROW_DELIVERY_SCAM",
+            "action": "WARN",
+            "evidenceTurns": [
+                9,
+                10
+            ],
+            "rationale": "Під приводом шкільної ініціативи співрозмовник вимагає сплатити резерв/внесок через окрему форму поза офіційним рахунком чи платформою; отримувач платежу не підтверджений.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0426",
+            "assessment": "threat",
+            "intentType": "SEED_PHRASE_THEFT",
+            "action": "LOCK_INPUT",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Під приводом редакторської співпраці співрозмовник просить надіслати йому приватний ключ криптогаманця для нібито оформлення виплати, подарунка або вправи; це дає змогу заволодіти активами.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0429",
+            "assessment": "threat",
+            "intentType": "ESCROW_DELIVERY_SCAM",
+            "action": "WARN",
+            "evidenceTurns": [
+                9,
+                10
+            ],
+            "rationale": "Під приводом налаштування застосунку співрозмовник вимагає сплатити резерв/внесок через окрему форму поза офіційним рахунком чи платформою; отримувач платежу не підтверджений.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0431",
+            "assessment": "ambiguous",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник згадує подальші кроки щодо страхової заяви, але повноваження посередника чи умови послуги ще не визначені; конкретної передачі секрету, даних або платежу поки не вимагає.",
+            "confidence": "medium",
+            "needsDiscussion": true
+        },
+        {
+            "id": "R-0433",
+            "assessment": "threat",
+            "intentType": "PAYMENT_CREDENTIAL_THEFT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Під приводом архіву спогадів чи зарахування/повернення коштів співрозмовник вимагає CVV та банківський код собі, хоча для виплати такі секрети не потрібні.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0434",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Щодо робочої зміни співрозмовник пропонує обережну добровільну дію без вимоги передавати йому закриті дані, платіжні реквізити чи доступ.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0435",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник пропонує обговорити питання ініціативи мешканців без примусу та без конкретної вимоги розкрити секрети, документи або здійснити платіж.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0436",
+            "assessment": "threat",
+            "intentType": "IDENTITY_PROBING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9,
+                10
+            ],
+            "rationale": "Під приводом виплати зарплати співрозмовник просить передати йому копії документів, податковий номер, адресу для приватного списку або оформлення без належної процедури чи згоди.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0437",
+            "assessment": "threat",
+            "intentType": "VERIFICATION_PHISHING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Для волонтерської допомоги співрозмовник просить пароль і код входу до чужого кабінету, щоб самостійно діяти від імені користувача; уповноваження не підтверджене.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0440",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті ремонту велосипеда співрозмовник застерігає від розкриття секретів, документів чи доступів і пропонує безпечну самостійну дію; передати їх йому не просить.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0442",
+            "assessment": "ambiguous",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник згадує подальші кроки щодо перекладу документів, але необхідні дані й порядок перевірки ще не визначені; конкретної передачі секрету, даних або платежу поки не вимагає.",
+            "confidence": "medium",
+            "needsDiscussion": true
+        },
+        {
+            "id": "R-0443",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Щодо ініціативи мешканців співрозмовник пропонує обережну добровільну дію без вимоги передавати йому закриті дані, платіжні реквізити чи доступ.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0444",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті технічної допомоги співрозмовник застерігає від розкриття секретів, документів чи доступів і пропонує безпечну самостійну дію; передати їх йому не просить.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0448",
+            "assessment": "threat",
+            "intentType": "PAYMENT_CREDENTIAL_THEFT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9,
+                10
+            ],
+            "rationale": "Під приводом виплати зарплати чи зарахування/повернення коштів співрозмовник вимагає CVV та банківський код собі, хоча для виплати такі секрети не потрібні.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0451",
+            "assessment": "threat",
+            "intentType": "OFF_PLATFORM_REDIRECT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Співрозмовник просить телефон і перехід у Signal для екскурсії, прямо щоб приховати домовленості від модераторів або відповідальних осіб.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0455",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Щодо фанатської зустрічі співрозмовник рекомендує самостійну перевірку або офіційний процес, а не передачу особистих секретів чи грошей йому.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0456",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Щодо робочої зміни співрозмовник пропонує обережну добровільну дію без вимоги передавати йому закриті дані, платіжні реквізити чи доступ.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0457",
+            "assessment": "threat",
+            "intentType": "SEED_PHRASE_THEFT",
+            "action": "LOCK_INPUT",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Під приводом технічної допомоги співрозмовник просить надіслати йому приватний ключ криптогаманця для нібито оформлення виплати, подарунка або вправи; це дає змогу заволодіти активами.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0458",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Щодо налаштування застосунку співрозмовник пропонує обережну добровільну дію без вимоги передавати йому закриті дані, платіжні реквізити чи доступ.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0459",
+            "assessment": "threat",
+            "intentType": "ESCROW_DELIVERY_SCAM",
+            "action": "WARN",
+            "evidenceTurns": [
+                9,
+                10
+            ],
+            "rationale": "Під приводом страхової заяви співрозмовник вимагає сплатити резерв/внесок через окрему форму поза офіційним рахунком чи платформою; отримувач платежу не підтверджений.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0461",
+            "assessment": "threat",
+            "intentType": "VERIFICATION_PHISHING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Для фанатської зустрічі співрозмовник просить пароль і код входу до чужого кабінету, щоб самостійно діяти від імені користувача; уповноваження не підтверджене.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0463",
+            "assessment": "threat",
+            "intentType": "ESCROW_DELIVERY_SCAM",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Під приводом продажів співрозмовник вимагає сплатити резерв/внесок через окрему форму поза офіційним рахунком чи платформою; отримувач платежу не підтверджений.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0464",
+            "assessment": "threat",
+            "intentType": "ESCROW_DELIVERY_SCAM",
+            "action": "WARN",
+            "evidenceTurns": [
+                9,
+                10
+            ],
+            "rationale": "Під приводом редакторської співпраці співрозмовник вимагає сплатити резерв/внесок через окрему форму поза офіційним рахунком чи платформою; отримувач платежу не підтверджений.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0467",
+            "assessment": "threat",
+            "intentType": "IDENTITY_PROBING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9,
+                10
+            ],
+            "rationale": "Під приводом поїздки на матч співрозмовник просить передати йому копії документів, податковий номер, адресу для приватного списку або оформлення без належної процедури чи згоди.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0469",
+            "assessment": "threat",
+            "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+            "action": "LOCK_INPUT",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Під приводом екскурсії співрозмовник просить добути/передати актуальні дані військового об’єкта: розташування, охорону, пересування або вразливий прохід; це оперативні відомості.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0470",
+            "assessment": "threat",
+            "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+            "action": "LOCK_INPUT",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Під приводом громадської карти співрозмовник просить добути/передати актуальні дані військового об’єкта: розташування, охорону, пересування або вразливий прохід; це оперативні відомості.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0471",
+            "assessment": "ambiguous",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник згадує подальші кроки щодо професійної рекомендації, але необхідні дані й порядок перевірки ще не визначені; конкретної передачі секрету, даних або платежу поки не вимагає.",
+            "confidence": "medium",
+            "needsDiscussion": true
+        },
+        {
+            "id": "R-0473",
+            "assessment": "ambiguous",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник згадує подальші кроки щодо ремонту велосипеда, але повноваження посередника чи умови послуги ще не визначені; конкретної передачі секрету, даних або платежу поки не вимагає.",
+            "confidence": "medium",
+            "needsDiscussion": true
+        },
+        {
+            "id": "R-0474",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Щодо шкільної ініціативи співрозмовник рекомендує самостійну перевірку або офіційний процес, а не передачу особистих секретів чи грошей йому.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0475",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Щодо архіву спогадів співрозмовник пропонує обережну добровільну дію без вимоги передавати йому закриті дані, платіжні реквізити чи доступ.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0477",
+            "assessment": "threat",
+            "intentType": "VERIFICATION_PHISHING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Під приводом технічної допомоги співрозмовник вимагає токен із записом до всіх приватних репозиторіїв замість обмеженого тестового доступу; це передає йому широкий контроль.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0480",
+            "assessment": "ambiguous",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник згадує подальші кроки щодо фанатської зустрічі, але необхідні дані й порядок перевірки ще не визначені; конкретної передачі секрету, даних або платежу поки не вимагає.",
+            "confidence": "medium",
+            "needsDiscussion": true
+        },
+        {
+            "id": "R-0482",
+            "assessment": "ambiguous",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник згадує подальші кроки щодо перекладу документів, але конкретна дія, її обсяг і необхідність ще не визначені; конкретної передачі секрету, даних або платежу поки не вимагає.",
+            "confidence": "medium",
+            "needsDiscussion": true
+        },
+        {
+            "id": "R-0483",
+            "assessment": "threat",
+            "intentType": "PAYMENT_CREDENTIAL_THEFT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Під приводом перекладу документів чи зарахування/повернення коштів співрозмовник вимагає CVV та банківський код собі, хоча для виплати такі секрети не потрібні.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0489",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті редакторської співпраці співрозмовник застерігає від розкриття секретів, документів чи доступів і пропонує безпечну самостійну дію; передати їх йому не просить.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0490",
+            "assessment": "ambiguous",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник згадує подальші кроки щодо громадської карти, але характер і допустимість запитуваних спостережень ще не визначені; конкретної передачі секрету, даних або платежу поки не вимагає.",
+            "confidence": "medium",
+            "needsDiscussion": true
+        },
+        {
+            "id": "R-0491",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті редакторської співпраці співрозмовник застерігає від розкриття секретів, документів чи доступів і пропонує безпечну самостійну дію; передати їх йому не просить.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0492",
+            "assessment": "threat",
+            "intentType": "SEED_PHRASE_THEFT",
+            "action": "LOCK_INPUT",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Під приводом навчальної допомоги співрозмовник просить надіслати йому повну фразу відновлення криптогаманця для нібито оформлення виплати, подарунка або вправи; це дає змогу заволодіти активами.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0493",
+            "assessment": "threat",
+            "intentType": "ESCROW_DELIVERY_SCAM",
+            "action": "WARN",
+            "evidenceTurns": [
+                9,
+                10
+            ],
+            "rationale": "Під приводом фанатської зустрічі співрозмовник вимагає сплатити резерв/внесок через окрему форму поза офіційним рахунком чи платформою; отримувач платежу не підтверджений.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0495",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник пропонує обговорити питання страхової заяви без примусу та без конкретної вимоги розкрити секрети, документи або здійснити платіж.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0497",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті громадської карти співрозмовник застерігає від розкриття секретів, документів чи доступів і пропонує безпечну самостійну дію; передати їх йому не просить.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0500",
+            "assessment": "threat",
+            "intentType": "OFF_PLATFORM_REDIRECT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Співрозмовник просить телефон і перехід у Signal для громадської карти, прямо щоб приховати домовленості від модераторів або відповідальних осіб.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0501",
+            "assessment": "threat",
+            "intentType": "OFF_PLATFORM_REDIRECT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Співрозмовник просить телефон і перехід у Signal для ініціативи мешканців, прямо щоб приховати домовленості від модераторів або відповідальних осіб.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0503",
+            "assessment": "ambiguous",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник згадує подальші кроки щодо ініціативи мешканців, але обсяг можливого доступу та повноваження ще не визначені; конкретної передачі секрету, даних або платежу поки не вимагає.",
+            "confidence": "medium",
+            "needsDiscussion": true
+        },
+        {
+            "id": "R-0505",
+            "assessment": "threat",
+            "intentType": "VERIFICATION_PHISHING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Під приводом редакторської співпраці співрозмовник просить пароль і код доступу до пошти, щоб увійти замість користувача; це передача облікового запису іншій особі.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0506",
+            "assessment": "threat",
+            "intentType": "OFF_PLATFORM_REDIRECT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Співрозмовник просить телефон і перехід у Telegram для перекладу документів, прямо щоб приховати домовленості від модераторів або відповідальних осіб.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0508",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті налаштування застосунку співрозмовник застерігає від розкриття секретів, документів чи доступів і пропонує безпечну самостійну дію; передати їх йому не просить.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0509",
+            "assessment": "threat",
+            "intentType": "PAYMENT_CREDENTIAL_THEFT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Під приводом екскурсії чи зарахування/повернення коштів співрозмовник вимагає CVV та банківський код собі, хоча для виплати такі секрети не потрібні.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0510",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Щодо мовних вправ співрозмовник пропонує обережну добровільну дію без вимоги передавати йому закриті дані, платіжні реквізити чи доступ.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0512",
+            "assessment": "ambiguous",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник згадує подальші кроки щодо налаштування застосунку, але необхідні дані й порядок перевірки ще не визначені; конкретної передачі секрету, даних або платежу поки не вимагає.",
+            "confidence": "medium",
+            "needsDiscussion": true
+        },
+        {
+            "id": "R-0515",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Щодо страхової заяви співрозмовник пропонує обережну добровільну дію без вимоги передавати йому закриті дані, платіжні реквізити чи доступ.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0516",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті технічної допомоги співрозмовник застерігає від розкриття секретів, документів чи доступів і пропонує безпечну самостійну дію; передати їх йому не просить.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0518",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Щодо мовних вправ співрозмовник пропонує обережну добровільну дію без вимоги передавати йому закриті дані, платіжні реквізити чи доступ.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0519",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті шкільної ініціативи співрозмовник застерігає від розкриття секретів, документів чи доступів і пропонує безпечну самостійну дію; передати їх йому не просить.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0524",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті робочої зміни співрозмовник обмежує розмову відкритою інформацією, застерігає від збору військових чи охоронних відомостей; небезпечного завдання немає.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0525",
+            "assessment": "threat",
+            "intentType": "VERIFICATION_PHISHING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Для виплати зарплати співрозмовник просить пароль і код входу до чужого кабінету, щоб самостійно діяти від імені користувача; уповноваження не підтверджене.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0527",
+            "assessment": "threat",
+            "intentType": "IDENTITY_PROBING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9,
+                10
+            ],
+            "rationale": "Під приводом фанатської зустрічі співрозмовник просить передати йому копії документів, адресу для приватного списку або оформлення без належної процедури чи згоди.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0530",
+            "assessment": "threat",
+            "intentType": "OFF_PLATFORM_REDIRECT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Співрозмовник просить телефон і перехід у Signal для виплати зарплати, прямо щоб приховати домовленості від модераторів або відповідальних осіб.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0533",
+            "assessment": "threat",
+            "intentType": "IDENTITY_PROBING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Під приводом страхової заяви співрозмовник просить передати йому копії документів, податковий номер для приватного списку або оформлення без належної процедури чи згоди.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0535",
+            "assessment": "threat",
+            "intentType": "OFF_PLATFORM_REDIRECT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Співрозмовник просить телефон і перехід у Viber для ремонту велосипеда, прямо щоб приховати домовленості від модераторів або відповідальних осіб.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0536",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті налаштування застосунку співрозмовник застерігає від розкриття секретів, документів чи доступів і пропонує безпечну самостійну дію; передати їх йому не просить.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0538",
+            "assessment": "threat",
+            "intentType": "VERIFICATION_PHISHING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Для поїздки на матч співрозмовник просить пароль і код входу до чужого кабінету, щоб самостійно діяти від імені користувача; уповноваження не підтверджене.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0539",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті навчальної допомоги співрозмовник застерігає від розкриття секретів, документів чи доступів і пропонує безпечну самостійну дію; передати їх йому не просить.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0541",
+            "assessment": "threat",
+            "intentType": "PAYMENT_CREDENTIAL_THEFT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Під приводом поїздки на матч чи зарахування/повернення коштів співрозмовник вимагає CVV та банківський код собі, хоча для виплати такі секрети не потрібні.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0549",
+            "assessment": "threat",
+            "intentType": "OFF_PLATFORM_REDIRECT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Співрозмовник просить телефон і перехід у Telegram для професійної рекомендації, прямо щоб приховати домовленості від модераторів або відповідальних осіб.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0550",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті технічної допомоги співрозмовник застерігає від розкриття секретів, документів чи доступів і пропонує безпечну самостійну дію; передати їх йому не просить.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0551",
+            "assessment": "threat",
+            "intentType": "IDENTITY_PROBING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9,
+                10
+            ],
+            "rationale": "Під приводом волонтерської допомоги співрозмовник просить передати йому копії документів, адресу, графік відсутності вдома для приватного списку або оформлення без належної процедури чи згоди.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0552",
+            "assessment": "ambiguous",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник згадує подальші кроки щодо поїздки на матч, але конкретна дія, її обсяг і необхідність ще не визначені; конкретної передачі секрету, даних або платежу поки не вимагає.",
+            "confidence": "medium",
+            "needsDiscussion": true
+        },
+        {
+            "id": "R-0553",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті архіву спогадів співрозмовник застерігає від розкриття секретів, документів чи доступів і пропонує безпечну самостійну дію; передати їх йому не просить.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0554",
+            "assessment": "threat",
+            "intentType": "PAYMENT_CREDENTIAL_THEFT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Під приводом волонтерської допомоги чи зарахування/повернення коштів співрозмовник вимагає CVV та банківський код собі, хоча для виплати такі секрети не потрібні.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0556",
+            "assessment": "threat",
+            "intentType": "ESCROW_DELIVERY_SCAM",
+            "action": "WARN",
+            "evidenceTurns": [
+                9,
+                10
+            ],
+            "rationale": "Під приводом волонтерської допомоги співрозмовник вимагає сплатити резерв/внесок через окрему форму поза офіційним рахунком чи платформою; отримувач платежу не підтверджений.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0564",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Щодо волонтерської допомоги співрозмовник рекомендує самостійну перевірку або офіційний процес, а не передачу особистих секретів чи грошей йому.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0566",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Щодо редакторської співпраці співрозмовник рекомендує самостійну перевірку або офіційний процес, а не передачу особистих секретів чи грошей йому.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0567",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті редакторської співпраці співрозмовник застерігає від розкриття секретів, документів чи доступів і пропонує безпечну самостійну дію; передати їх йому не просить.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0569",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Щодо страхової заяви співрозмовник рекомендує самостійну перевірку або офіційний процес, а не передачу особистих секретів чи грошей йому.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0571",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті професійної рекомендації співрозмовник застерігає від розкриття секретів, документів чи доступів і пропонує безпечну самостійну дію; передати їх йому не просить.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0574",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті навчальної допомоги співрозмовник застерігає від розкриття секретів, документів чи доступів і пропонує безпечну самостійну дію; передати їх йому не просить.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0577",
+            "assessment": "threat",
+            "intentType": "VERIFICATION_PHISHING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9,
+                10
+            ],
+            "rationale": "Під приводом архіву спогадів співрозмовник просить пароль і код доступу до пошти, щоб увійти замість користувача; це передача облікового запису іншій особі.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0578",
+            "assessment": "threat",
+            "intentType": "PAYMENT_CREDENTIAL_THEFT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Під приводом шкільної ініціативи чи зарахування/повернення коштів співрозмовник вимагає CVV та банківський код собі, хоча для виплати такі секрети не потрібні.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0579",
+            "assessment": "ambiguous",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник згадує подальші кроки щодо виплати зарплати, але необхідні дані й порядок перевірки ще не визначені; конкретної передачі секрету, даних або платежу поки не вимагає.",
+            "confidence": "medium",
+            "needsDiscussion": true
+        },
+        {
+            "id": "R-0580",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Щодо страхової заяви співрозмовник рекомендує самостійну перевірку або офіційний процес, а не передачу особистих секретів чи грошей йому.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0581",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Щодо навчальної допомоги співрозмовник рекомендує самостійну перевірку або офіційний процес, а не передачу особистих секретів чи грошей йому.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0582",
+            "assessment": "threat",
+            "intentType": "IDENTITY_PROBING",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Під приводом перекладу документів співрозмовник просить передати йому копії документів для приватного списку або оформлення без належної процедури чи згоди.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0583",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник пропонує обговорити питання волонтерської допомоги без примусу та без конкретної вимоги розкрити секрети, документи або здійснити платіж.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0586",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Щодо страхової заяви співрозмовник рекомендує самостійну перевірку або офіційний процес, а не передачу особистих секретів чи грошей йому.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0590",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Щодо виплати зарплати співрозмовник рекомендує самостійну перевірку або офіційний процес, а не передачу особистих секретів чи грошей йому.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0593",
+            "assessment": "ambiguous",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник згадує подальші кроки щодо професійної рекомендації, але конкретна дія, її обсяг і необхідність ще не визначені; конкретної передачі секрету, даних або платежу поки не вимагає.",
+            "confidence": "medium",
+            "needsDiscussion": true
+        },
+        {
+            "id": "R-0594",
+            "assessment": "threat",
+            "intentType": "OFF_PLATFORM_REDIRECT",
+            "action": "WARN",
+            "evidenceTurns": [
+                9
+            ],
+            "rationale": "Співрозмовник просить телефон і перехід у Signal для технічної допомоги, прямо щоб приховати домовленості від модераторів або відповідальних осіб.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0599",
+            "assessment": "safe",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "У контексті виплати зарплати співрозмовник застерігає від розкриття секретів, документів чи доступів і пропонує безпечну самостійну дію; передати їх йому не просить.",
+            "confidence": "high",
+            "needsDiscussion": false
+        },
+        {
+            "id": "R-0600",
+            "assessment": "ambiguous",
+            "intentType": null,
+            "action": "ALLOW",
+            "evidenceTurns": [],
+            "rationale": "Співрозмовник згадує подальші кроки щодо професійної рекомендації, але конкретна дія, її обсяг і необхідність ще не визначені; конкретної передачі секрету, даних або платежу поки не вимагає.",
+            "confidence": "medium",
+            "needsDiscussion": true
+        }
+    ]
+}

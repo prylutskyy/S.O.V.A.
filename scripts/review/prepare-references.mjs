@@ -1,0 +1,11 @@
+import { readFileSync,writeFileSync } from 'node:fs';
+import { buildReferences } from './references.mjs';
+const root=new URL('../../tests/review/',import.meta.url);
+const read=name=>JSON.parse(readFileSync(new URL(name,root),'utf8'));
+const a=read('share/block-a.json'),b=read('share/block-b.json');
+const pack={...a,cases:[...a.cases,...b.cases].sort((a,b)=>a.id.localeCompare(b.id))};
+const files=['block-a-AI-1.json','block-a-AI-2.json','block-b-AI-1.json','block-b-AI-2.json'];
+const relations=Object.fromEntries(read('author-only/author-labels.json').cases.map(c=>[c.id,{family:c.family,sourceId:c.sourceId,transform:c.transform}]));
+const reference=buildReferences(pack,Object.fromEntries(files.map(name=>[name,read('reviews/'+name)])),relations);
+writeFileSync(new URL('references.json',root),JSON.stringify(reference,null,2)+'\n');
+console.log('Frozen provisional AI references for '+reference.cases.length+' cases. Hash: '+reference.corpusSha256);
