@@ -5,6 +5,7 @@ import { UrlExtractor } from './url-extractor';
 import { PersonalVaultManager } from '../core/personal-vault';
 import { FastLanguageDetector, SupportedLanguage } from './language-detector';
 import type { LocalPrediction } from './linear-classifier';
+import { ContextualRequestEvidence } from './contextual-request-evidence';
 
 export type ScamIntentType =
   | 'ESCROW_DELIVERY_SCAM'
@@ -67,7 +68,7 @@ interface IntentDefinition {
 }
 
 export class IntentClassifier {
-  private static readonly OFF_PLATFORM_NEGATION = /(?:не|ніколи\s+не|не\s+(?:варто|треба|потрібно)|not|never|do\s+not|don['’]?t)\s+[^.!?\n]{0,35}$/iu;
+  private static readonly OFF_PLATFORM_NEGATION = /(?:не(?:\s+(?:варто|треба|потрібно|радіть|раджу|пропоную|пропонуємо))?|ніколи\s+не|not|never|do\s+not|don['’]?t)\s*$/iu;
   private static readonly SENSITIVE_REQUEST_NEGATION = /(?:^|[\s,;:])(?:не(?:\s+(?:потрібно|треба|варто|слід|можна))?|ніколи\s+не|never|do\s+not|don['’]?t|should\s+not|shouldn['’]?t)\s*$/iu;
   private static readonly HARD_LOCK_REQUEST_NEGATION = /(?:^|\s)(?:не|ніколи\s+не|never|do\s+not|don['’]?t)\s+(?:(?:просить|просит|asks?)\s+(?:you\s+)?(?:to\s+)?)?$/iu;
 
@@ -76,6 +77,14 @@ export class IntentClassifier {
    * 'uk' (Українська), 'ru' (Російська), 'en' (Англійська), 'universal' (Спільні/Технічні)
    */
   private static clusters: ClusterRule[] = [
+    {
+      cluster: 'off_platform_action', weight: 25, lang: 'universal',
+      patterns: [/(?:наберіть|звяжімося|звяжіться|перейдемо|переходьте)/giu],
+    },
+    {
+      cluster: 'verification_purpose', weight: 40, lang: 'universal',
+      patterns: [/(?:підтвердити|підтвердіть|підтвердження)\s+(?:покупк[а-яіїє]*|особ[а-яіїє]*)/giu],
+    },
     // =========================================================================
     // 1. DELIVERY ACTION (Оформлення фішингової доставки / покупки)
     // =========================================================================
@@ -523,14 +532,15 @@ export class IntentClassifier {
     },
     {
       type: 'ESCROW_DELIVERY_SCAM',
-      evidenceClusters: ['delivery_action', 'payment_claim', 'action_link', 'off_platform'],
+      evidenceClusters: ['delivery_action', 'payment_claim', 'action_link', 'off_platform', 'transaction_redirect'],
       requiredClusters: [
+        ['transaction_redirect'],
         ['delivery_action', 'payment_claim'],
         ['delivery_action', 'action_link'],
         ['payment_claim', 'action_link'],
         ['delivery_action', 'off_platform'],
       ],
-      minClusters: 2,
+      minClusters: 1,
       minScore: 45,
       i18n: {
         uk: {
@@ -711,6 +721,10 @@ export class IntentClassifier {
     const detectedClusterMap: Map<string, number> = new Map();
 
     const requestFrames = RequestAnalyzer.analyze(rawText, langResult.primary, IdentityRequestDetector.getObjectPattern());
+    for (const evidence of ContextualRequestEvidence.extract(rawText, langResult.primary)) {
+      matchedSpans.push({ start: 0, end: text.length, ...evidence });
+      detectedClusterMap.set(evidence.cluster, evidence.weight);
+    }
 
     // Sensitive requests share one action/object binder instead of maintaining
     // different verb/object combinations for each threat type.
@@ -854,6 +868,18 @@ export class IntentClassifier {
     );
 
     let best = candidates[0];
+    if (best?.definition.type === 'ESCROW_DELIVERY_SCAM' && currentClusters.includes('off_platform_action') &&
+        !currentClusters.includes('transaction_redirect') && !currentClusters.includes('payment_claim') &&
+        !currentClusters.includes('payment_credential_request') &&
+        !/(?:отримати\s+виплат|receive\s+(?:a\s+)?payout)/iu.test(rawText)) {
+      best = candidates.find(c => c.definition.type === 'OFF_PLATFORM_REDIRECT') ?? best;
+    }
+    // A document-upload request remains identity harvesting unless a separate
+    // credential/payment request supplies a more specific competing purpose.
+    if (best?.definition.type === 'VERIFICATION_PHISHING' && currentClusters.includes('identity_probing') &&
+        !currentClusters.includes('payment_credential_request') && !currentClusters.includes('password_theft')) {
+      best = candidates.find(c => c.definition.type === 'IDENTITY_PROBING') ?? best;
+    }
     // Resolve competing financial intents using the latest concrete request.
     // A payout pretext + secret request is payment theft; account/order checking
     // + secret request is verification phishing. A URL named "verify" is neither.

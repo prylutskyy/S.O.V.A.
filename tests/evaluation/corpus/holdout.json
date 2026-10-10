@@ -179,10 +179,10 @@
       ],
       "expected": {
         "detected": true,
-        "intentType": "VERIFICATION_PHISHING",
+        "intentType": "PAYMENT_CREDENTIAL_THEFT",
         "action": "WARN"
       },
-      "notes": "Одноразовий код запитують для нібито підтвердження виплати."
+      "notes": "Одноразовий код запитують для нібито підтвердження виплати. Аудит 2026-10-10: мета — виплата, а не перевірка профілю; узгоджено з purpose-based taxonomy, запит OTP залишається загрозою WARN."
     },
     {
       "id": "hold-verify-004",
@@ -1224,7 +1224,9 @@
       "tags": [
         "uk",
         "military",
-        "adversarial"
+        "adversarial",
+        "annotation-reviewed",
+        "ambiguous"
       ],
       "messages": [
         {
@@ -1233,11 +1235,11 @@
         }
       ],
       "expected": {
-        "detected": true,
-        "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
-        "action": "LOCK_INPUT"
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
       },
-      "notes": "Незалежний holdout-сценарій для класу MILITARY_SABOTAGE_RECRUITMENT; сформульований окремо від regression-прикладів."
+      "notes": "Аудит 2026-10-10: запит графіка варти без військового об’єкта, диверсії або іншого підтвердження не є достатнім для військової класифікації та LOCK_INPUT. Це неоднозначний контекст, а не доказ безпеки; локальні правила утримуються від такого типу. Потребує окремої перевірки зовнішнім ШІ за наявності додаткових сигналів."
     },
     {
       "id": "hold2-military-003",

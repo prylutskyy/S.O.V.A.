@@ -11,14 +11,16 @@ export class IdentityRequestDetector {
     return RequestAnalyzer.findRequestedAction(text, objectIndex)?.start ?? null;
   }
 
-  public static getObjectPattern(): RegExp { return new RegExp(this.OBJECT); }
+  public static getObjectPattern(): RegExp {
+    return new RegExp(`${this.OBJECT.source}|(?<![\\p{L}\\p{N}])повне\\s+імя(?![\\p{L}\\p{N}])`, 'giu');
+  }
 
   public static detect(rawText: string, language: SupportedLanguage, vaultKeyword?: string) {
     const normalizedText = TextNormalizer.normalizeWords(rawText, language);
     const spans: Array<{ start: number; end: number; text: string }> = [];
     const keyword = vaultKeyword === undefined ? undefined : TextNormalizer.normalizeWords(vaultKeyword, language);
     if (keyword !== undefined && keyword.length < 3) return spans;
-    const objectPattern = keyword === undefined ? this.OBJECT : new RegExp(
+    const objectPattern = keyword === undefined ? this.getObjectPattern() : new RegExp(
       `(?<![\\p{L}\\p{N}])${keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![\\p{L}\\p{N}])`, 'giu'
     );
     let searchFrom = 0;

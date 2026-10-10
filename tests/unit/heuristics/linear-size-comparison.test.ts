@@ -24,7 +24,7 @@ describe('Controlled comparison of linear model sizes', () => {
     expect(prediction.actionApplied).toBe(false);
     expect(prediction.status).not.toBe('unavailable');
     if (dimensions === 8192) expect(model).toEqual(artifact);
-  });
+  }, 30_000); // Offline training, not the runtime decision-latency budget.
   it('uses the same hash before reducing it into different feature spaces', () => {
     for (const name of ['word:пароль', 'request:payment_secret:payment', 'word:CVV']) {
       expect(featureHash(name, 32768) % 8192).toBe(featureHash(name, 8192));

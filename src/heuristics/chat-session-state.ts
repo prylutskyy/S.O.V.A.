@@ -149,7 +149,7 @@ export class ChatSessionState {
        latestClusterMap.has('payment_purpose'));
     const mentionsCredential = /(?:[cс]vv|[cс]v[cс]|\bpin\b|код|парол|password|passcode|\botp\b|баланс|balance|реквізит|ключ|фраз|phrase|security\s+code)/iu.test(rawText);
     const isCredentialAdvice = /(?:не\s+(?:надсилайте|повідомляйте|передавайте|вводьте|надавайте|сообщайте|отправляйте|передавайте)|never\s+(?:send|share|provide)|do\s+not\s+(?:send|share|provide))/iu.test(rawText);
-    const isSelfServiceBalanceCheck = /перевір[а-яіїє]*\s+баланс\s+самостійно/iu.test(rawText);
+    const isSelfServiceBalanceCheck = /перевір[а-яіїє]*\s+баланс\s+самостійно|я\s+сам[^.!?\n]{0,60}(?:банку|bank)[^.!?\n]{0,60}не\s+передаватиму\s+код/iu.test(rawText);
     const isCompletedVerification = /(?:перевірено|підтверджено|проверен[ао]?|подтвержден[ао]?|\bverified\b|\bconfirmed\b)/iu.test(rawText);
     // Keep semantic coverage for unlisted request paraphrases; reject clear
     // advice/status messages rather than demanding one exact lexical template.

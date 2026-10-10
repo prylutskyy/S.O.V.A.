@@ -6,7 +6,7 @@ This directory contains human-labeled conversation scenarios for evaluating the 
 
 - `corpus/development.json` — examples used while changing rules and thresholds.
 - `corpus/regressions.json` — confirmed bugs and false alarms that must not return.
-- `corpus/holdout.json` — scenarios reserved for final evaluation; do not use these to tune rules. A corpus test rejects exact conversation-text overlap with development or regressions. Since this project is version controlled, this is a process convention, not access control.
+- `corpus/holdout.json` — historical evaluation scenarios. The 2026-10-10 corpus-fix work explicitly inspected its remaining mismatches, so it is now a regression benchmark, not an independent final holdout. Do not claim generalization from its perfect score; collect a new unseen set before final evaluation. A corpus test still rejects exact conversation-text overlap with development or regressions. This is a process convention, not access control.
 - `corpus.schema.json` — JSON Schema for the corpus files.
 - `corpus.evaluation.test.ts` — Vitest runner. It evaluates every turn in a conversation using `ChatSessionState`, then checks the final classification.
 - `RESULTS.md` — dated notes explaining intentional classifier/corpus changes and how to interpret their metric shifts.

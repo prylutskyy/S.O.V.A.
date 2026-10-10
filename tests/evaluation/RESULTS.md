@@ -2,6 +2,15 @@
 
 Record each intentional classifier or corpus change here so metric shifts can be interpreted alongside the dashboard history. Exact-match results depend on both the classifier and the corpus contents; compare runs only when the corpus hash is the same, or report the changed split separately.
 
+## 2026-10-10 — remaining local corpus mismatches resolved
+
+- Before: 302/326 exact, FP 1, FN 19, F1 94.4%. New logic against the same old labels: 324/326 exact, FP 0, FN 1, F1 99.7%. Two audited labels then yield 326/326, FP/FN 0, F1 100%; corpus SHA changed, so distinguish algorithm gains from annotation changes.
+- Improved concrete request binding, local negation scope, verification/payment/document priority, transaction redirects and protected-object military requests. Added 25 threat/control checks; no scenario-ID branching or relaxed corpus assertion.
+- `hold-verify-003` is payout credential theft, still WARN. `hold2-military-002` lacks enough context for a military LOCK_INPUT; local abstention is not proof of safety and future cloud routing remains necessary.
+- Full offline run using the evaluate command: **888/888 passed**. Compilation/build passed, live Groq disabled. Offline-training test timeouts are now 30 seconds; runtime performance assertions remain unchanged.
+- Retrained only the existing shadow model on the same 171 train examples after feature extraction changed. Historical holdout was inspected and tuned against; it is now explicitly a regression benchmark, not an unseen final test.
+- [Detailed audit and results](../results/CORPUS_FIXES_REPORT.md), [machine corpus result](../results/corpus-final-fixes.json), [model evaluation](../../training/local-intent/REPORT.md).
+
 ## 2026-10-10 — shared taxonomy, 40-dialogue paired Groq comparison and compact promotion
 
 - Frozen 40 historical dialogues before inference: 6 verification, 6 payment, 6 military recruitment, 6 off-platform, 16 safe controls; 6 multi-turn. Previous smoke IDs excluded. Three off-platform labels were pre-flagged for independent review; source expectations remain unchanged. See [cohort notes](../../training/groq-prompts/README.md).

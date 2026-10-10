@@ -155,6 +155,7 @@
 | Контекст між вкладками | [`context-manager.ts`](../src/core/context-manager.ts) |
 | Перевірка форм | [`form-analysis-pipeline.ts`](../src/detectors/form-analysis-pipeline.ts) |
 | Фільтрація відомих секретів перед AI | [`outbound-data-sanitizer.ts`](../src/privacy/outbound-data-sanitizer.ts) |
+| Конкретні військові запити та переадресація угоди | [`contextual-request-evidence.ts`](../src/heuristics/contextual-request-evidence.ts) |
 | Пояснення рішення | [`xai-engine.ts`](../src/xai/xai-engine.ts) та [`unified-modal.ts`](../src/ui/unified-modal.ts) |
 
 ---

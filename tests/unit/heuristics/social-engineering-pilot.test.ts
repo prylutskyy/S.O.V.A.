@@ -80,7 +80,7 @@ describe('Social engineering pilot provenance and dialogue checkpoints', () => {
     const result = new LinearIntentClassifier(model).predict({ messages: ['Надішліть мені seed-фразу вашого гаманця.'], frames: [] });
     expect(result.status).not.toBe('unavailable'); expect(result.actionApplied).toBe(false);
     expect(digest(readFileSync(path, 'utf8'))).toBe(before);
-  });
+  }, 30_000); // CPU training under parallel CI load; inference budgets stay unchanged.
   it('reports ambiguity separately and marks hypothetical excessive locks', () => {
     const prediction = { mode: 'shadow' as const, actionApplied: false as const, status: 'ok' as const, candidate: 'MILITARY_SABOTAGE_RECRUITMENT' as const,
       decision: 'MILITARY_SABOTAGE_RECRUITMENT' as const, score: .9, margin: .8, elapsedMs: 0, truncated: false, datasetHash: 'test' };

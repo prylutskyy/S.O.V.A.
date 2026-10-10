@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "modelHash": "ced75726b1c0a3085ca9ff984d88ed9ec65c202ea2e8339e1b2199b18fdb6a61",
+  "modelHash": "a58ff7cce994658e5e7b714eb6ad1fc585005b8a17ca988023e029effd83dcdf",
   "datasetHash": "26c7fbf081fca94da00b871b3dbcbec905170aabf22457aa9064dfdf48ebaed0",
   "caveats": [
     "Shadow only: no protection actions changed.",
@@ -213,8 +213,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.986764620513685,
-          "margin": 0.9811170776606456
+          "score": 0.9867742229289255,
+          "margin": 0.9811414369352937
         },
         {
           "id": "dev-crypto-001",
@@ -222,8 +222,8 @@
           "rules": "CRYPTO_WALLET_COMPROMISE",
           "candidate": "CRYPTO_WALLET_COMPROMISE",
           "decision": "CRYPTO_WALLET_COMPROMISE",
-          "score": 0.9994422359940789,
-          "margin": 0.9991945550690878
+          "score": 0.999443715865183,
+          "margin": 0.9991951795104497
         },
         {
           "id": "dev-crypto-002",
@@ -231,8 +231,8 @@
           "rules": "CRYPTO_WALLET_COMPROMISE",
           "candidate": "CRYPTO_WALLET_COMPROMISE",
           "decision": "CRYPTO_WALLET_COMPROMISE",
-          "score": 0.9964597289300982,
-          "margin": 0.9951655041302784
+          "score": 0.9964626993806356,
+          "margin": 0.995184627038423
         },
         {
           "id": "dev-escrow-001",
@@ -240,8 +240,8 @@
           "rules": "ESCROW_DELIVERY_SCAM",
           "candidate": "ESCROW_DELIVERY_SCAM",
           "decision": "ESCROW_DELIVERY_SCAM",
-          "score": 0.9977007853701585,
-          "margin": 0.9969093071596359
+          "score": 0.9977092121134365,
+          "margin": 0.9970709408723514
         },
         {
           "id": "dev-escrow-002",
@@ -249,8 +249,8 @@
           "rules": "ESCROW_DELIVERY_SCAM",
           "candidate": "ESCROW_DELIVERY_SCAM",
           "decision": "ESCROW_DELIVERY_SCAM",
-          "score": 0.9868799497480585,
-          "margin": 0.9776738604274103
+          "score": 0.9868603219758701,
+          "margin": 0.9776478901159962
         },
         {
           "id": "dev-escrow-003",
@@ -258,8 +258,8 @@
           "rules": "ESCROW_DELIVERY_SCAM",
           "candidate": "ESCROW_DELIVERY_SCAM",
           "decision": "ESCROW_DELIVERY_SCAM",
-          "score": 0.995653536261084,
-          "margin": 0.9933386142053479
+          "score": 0.9956080183607501,
+          "margin": 0.9932755981052601
         },
         {
           "id": "dev-escrow-004",
@@ -267,8 +267,8 @@
           "rules": "ESCROW_DELIVERY_SCAM",
           "candidate": "ESCROW_DELIVERY_SCAM",
           "decision": "ESCROW_DELIVERY_SCAM",
-          "score": 0.9876642172616202,
-          "margin": 0.9835640163548927
+          "score": 0.987604310954372,
+          "margin": 0.9835262264372151
         },
         {
           "id": "dev-identity-001",
@@ -276,8 +276,8 @@
           "rules": "IDENTITY_PROBING",
           "candidate": "IDENTITY_PROBING",
           "decision": "IDENTITY_PROBING",
-          "score": 0.9987733006533229,
-          "margin": 0.9984361215551931
+          "score": 0.9987404920691939,
+          "margin": 0.9983974462037808
         },
         {
           "id": "dev-identity-002",
@@ -285,8 +285,8 @@
           "rules": "IDENTITY_PROBING",
           "candidate": "IDENTITY_PROBING",
           "decision": "IDENTITY_PROBING",
-          "score": 0.9981765189053411,
-          "margin": 0.9974247081598099
+          "score": 0.9979014149916163,
+          "margin": 0.9970305403796915
         },
         {
           "id": "dev-identity-003",
@@ -294,8 +294,8 @@
           "rules": "IDENTITY_PROBING",
           "candidate": "IDENTITY_PROBING",
           "decision": "IDENTITY_PROBING",
-          "score": 0.9987238181747948,
-          "margin": 0.9981828072848814
+          "score": 0.9986840447502503,
+          "margin": 0.998125721719582
         },
         {
           "id": "dev-identity-004",
@@ -303,8 +303,8 @@
           "rules": "IDENTITY_PROBING",
           "candidate": "IDENTITY_PROBING",
           "decision": "IDENTITY_PROBING",
-          "score": 0.9956177611852274,
-          "margin": 0.9938661211902549
+          "score": 0.9954656430219874,
+          "margin": 0.9936562315217534
         },
         {
           "id": "dev-military-001",
@@ -312,8 +312,8 @@
           "rules": "MILITARY_SABOTAGE_RECRUITMENT",
           "candidate": "MILITARY_SABOTAGE_RECRUITMENT",
           "decision": "MILITARY_SABOTAGE_RECRUITMENT",
-          "score": 0.9881315434429294,
-          "margin": 0.9814714756039334
+          "score": 0.9881466843027634,
+          "margin": 0.9814915398643437
         },
         {
           "id": "dev-military-002",
@@ -321,8 +321,8 @@
           "rules": "MILITARY_SABOTAGE_RECRUITMENT",
           "candidate": "MILITARY_SABOTAGE_RECRUITMENT",
           "decision": "MILITARY_SABOTAGE_RECRUITMENT",
-          "score": 0.9879840794959027,
-          "margin": 0.980283505946649
+          "score": 0.9879811391073064,
+          "margin": 0.9802811257527673
         },
         {
           "id": "dev-military-003",
@@ -330,8 +330,8 @@
           "rules": "MILITARY_SABOTAGE_RECRUITMENT",
           "candidate": "MILITARY_SABOTAGE_RECRUITMENT",
           "decision": "MILITARY_SABOTAGE_RECRUITMENT",
-          "score": 0.9861815334170536,
-          "margin": 0.9779094290527861
+          "score": 0.9861599709351115,
+          "margin": 0.9778808851392612
         },
         {
           "id": "dev-military-004",
@@ -339,8 +339,8 @@
           "rules": "MILITARY_SABOTAGE_RECRUITMENT",
           "candidate": "MILITARY_SABOTAGE_RECRUITMENT",
           "decision": "MILITARY_SABOTAGE_RECRUITMENT",
-          "score": 0.9960149568755386,
-          "margin": 0.9935407268091959
+          "score": 0.9960050695789113,
+          "margin": 0.9935327977612245
         },
         {
           "id": "dev-offplatform-002",
@@ -348,8 +348,8 @@
           "rules": "OFF_PLATFORM_REDIRECT",
           "candidate": "OFF_PLATFORM_REDIRECT",
           "decision": "OFF_PLATFORM_REDIRECT",
-          "score": 0.9921313044273482,
-          "margin": 0.9893571117187969
+          "score": 0.9920682447947645,
+          "margin": 0.989296002282197
         },
         {
           "id": "dev-offplatform-003",
@@ -357,8 +357,8 @@
           "rules": "OFF_PLATFORM_REDIRECT",
           "candidate": "OFF_PLATFORM_REDIRECT",
           "decision": "OFF_PLATFORM_REDIRECT",
-          "score": 0.9860742523626027,
-          "margin": 0.9801583371595639
+          "score": 0.986143771271122,
+          "margin": 0.9802759440012067
         },
         {
           "id": "dev-offplatform-004",
@@ -366,8 +366,8 @@
           "rules": "OFF_PLATFORM_REDIRECT",
           "candidate": "OFF_PLATFORM_REDIRECT",
           "decision": "OFF_PLATFORM_REDIRECT",
-          "score": 0.9852542396950891,
-          "margin": 0.9752726257910338
+          "score": 0.9852319496653631,
+          "margin": 0.9752411328883335
         },
         {
           "id": "dev-offplatform-005",
@@ -375,8 +375,8 @@
           "rules": "OFF_PLATFORM_REDIRECT",
           "candidate": "OFF_PLATFORM_REDIRECT",
           "decision": "OFF_PLATFORM_REDIRECT",
-          "score": 0.9793037753605929,
-          "margin": 0.9648931715438583
+          "score": 0.9793163126735756,
+          "margin": 0.9649314080091141
         },
         {
           "id": "dev-payment-001",
@@ -384,8 +384,8 @@
           "rules": "PAYMENT_CREDENTIAL_THEFT",
           "candidate": "PAYMENT_CREDENTIAL_THEFT",
           "decision": "PAYMENT_CREDENTIAL_THEFT",
-          "score": 0.9974403981571782,
-          "margin": 0.9953336615088797
+          "score": 0.9982223512793195,
+          "margin": 0.9969460288127402
         },
         {
           "id": "dev-payment-002",
@@ -393,8 +393,8 @@
           "rules": "PAYMENT_CREDENTIAL_THEFT",
           "candidate": "PAYMENT_CREDENTIAL_THEFT",
           "decision": "PAYMENT_CREDENTIAL_THEFT",
-          "score": 0.9959670383232123,
-          "margin": 0.9930791115184953
+          "score": 0.9975152470382691,
+          "margin": 0.9961868673770464
         },
         {
           "id": "dev-payment-003",
@@ -402,8 +402,8 @@
           "rules": "PAYMENT_CREDENTIAL_THEFT",
           "candidate": "PAYMENT_CREDENTIAL_THEFT",
           "decision": "PAYMENT_CREDENTIAL_THEFT",
-          "score": 0.9921832581743563,
-          "margin": 0.9886222256624032
+          "score": 0.9929108917748035,
+          "margin": 0.9900148871107929
         },
         {
           "id": "dev-payment-004",
@@ -411,8 +411,8 @@
           "rules": "PAYMENT_CREDENTIAL_THEFT",
           "candidate": "PAYMENT_CREDENTIAL_THEFT",
           "decision": "PAYMENT_CREDENTIAL_THEFT",
-          "score": 0.9976480021386123,
-          "margin": 0.9960644538135303
+          "score": 0.9982100995162311,
+          "margin": 0.997283445363735
         },
         {
           "id": "dev-verification-001",
@@ -420,8 +420,8 @@
           "rules": "VERIFICATION_PHISHING",
           "candidate": "VERIFICATION_PHISHING",
           "decision": "VERIFICATION_PHISHING",
-          "score": 0.9894692886752167,
-          "margin": 0.9836006337422609
+          "score": 0.9889861008557493,
+          "margin": 0.983007095822373
         },
         {
           "id": "dev-verification-002",
@@ -429,8 +429,8 @@
           "rules": "VERIFICATION_PHISHING",
           "candidate": "VERIFICATION_PHISHING",
           "decision": "VERIFICATION_PHISHING",
-          "score": 0.9960482441037285,
-          "margin": 0.9938835193689214
+          "score": 0.9955047526336898,
+          "margin": 0.9929245390948204
         },
         {
           "id": "dev-verification-003",
@@ -438,8 +438,8 @@
           "rules": "VERIFICATION_PHISHING",
           "candidate": "VERIFICATION_PHISHING",
           "decision": "VERIFICATION_PHISHING",
-          "score": 0.9938351773877186,
-          "margin": 0.9907992501848032
+          "score": 0.9943912776250541,
+          "margin": 0.991650228814879
         },
         {
           "id": "dev-verification-004",
@@ -447,8 +447,8 @@
           "rules": "VERIFICATION_PHISHING",
           "candidate": "VERIFICATION_PHISHING",
           "decision": "VERIFICATION_PHISHING",
-          "score": 0.9960712258764649,
-          "margin": 0.9937015571510905
+          "score": 0.9972245255528889,
+          "margin": 0.9956398774725747
         },
         {
           "id": "dev2-benign-002",
@@ -456,8 +456,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9729918565603619,
-          "margin": 0.9616458812120923
+          "score": 0.9730143618528297,
+          "margin": 0.9616494856682365
         },
         {
           "id": "dev2-benign-004",
@@ -465,8 +465,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.988965083379603,
-          "margin": 0.9851193151227454
+          "score": 0.9889165038689639,
+          "margin": 0.9850638569281113
         },
         {
           "id": "dev2-benign-005",
@@ -474,8 +474,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9760486198578229,
-          "margin": 0.967323138386651
+          "score": 0.976011238485412,
+          "margin": 0.967278710591323
         },
         {
           "id": "dev2-crypto-001",
@@ -483,8 +483,8 @@
           "rules": "CRYPTO_WALLET_COMPROMISE",
           "candidate": "CRYPTO_WALLET_COMPROMISE",
           "decision": "CRYPTO_WALLET_COMPROMISE",
-          "score": 0.9947039122355276,
-          "margin": 0.9915997616119476
+          "score": 0.9947195357696289,
+          "margin": 0.9916358951388605
         },
         {
           "id": "dev2-crypto-003",
@@ -492,8 +492,8 @@
           "rules": "CRYPTO_WALLET_COMPROMISE",
           "candidate": "CRYPTO_WALLET_COMPROMISE",
           "decision": "CRYPTO_WALLET_COMPROMISE",
-          "score": 0.9980735865311489,
-          "margin": 0.9970968444087137
+          "score": 0.9980534943398427,
+          "margin": 0.9970872196075965
         },
         {
           "id": "dev2-escrow-001",
@@ -501,8 +501,8 @@
           "rules": "ESCROW_DELIVERY_SCAM",
           "candidate": "ESCROW_DELIVERY_SCAM",
           "decision": "ESCROW_DELIVERY_SCAM",
-          "score": 0.9971432979657369,
-          "margin": 0.9960820146566273
+          "score": 0.9975034338688815,
+          "margin": 0.996410397087686
         },
         {
           "id": "dev2-escrow-002",
@@ -510,8 +510,8 @@
           "rules": "ESCROW_DELIVERY_SCAM",
           "candidate": "ESCROW_DELIVERY_SCAM",
           "decision": "ESCROW_DELIVERY_SCAM",
-          "score": 0.9948628863936982,
-          "margin": 0.9922176021247884
+          "score": 0.9948261228632327,
+          "margin": 0.9921612950173784
         },
         {
           "id": "dev2-id-001",
@@ -519,8 +519,8 @@
           "rules": "IDENTITY_PROBING",
           "candidate": "IDENTITY_PROBING",
           "decision": "IDENTITY_PROBING",
-          "score": 0.9984151448568356,
-          "margin": 0.9977007497700188
+          "score": 0.9983767987495304,
+          "margin": 0.9976475404621796
         },
         {
           "id": "dev2-id-002",
@@ -528,8 +528,8 @@
           "rules": "IDENTITY_PROBING",
           "candidate": "IDENTITY_PROBING",
           "decision": "IDENTITY_PROBING",
-          "score": 0.9965357318165479,
-          "margin": 0.9943632308859658
+          "score": 0.996334256713439,
+          "margin": 0.993996853135742
         },
         {
           "id": "dev2-military-002",
@@ -537,8 +537,8 @@
           "rules": "MILITARY_SABOTAGE_RECRUITMENT",
           "candidate": "MILITARY_SABOTAGE_RECRUITMENT",
           "decision": "MILITARY_SABOTAGE_RECRUITMENT",
-          "score": 0.9906792696615999,
-          "margin": 0.9852939267924485
+          "score": 0.9906706089939475,
+          "margin": 0.985283387159354
         },
         {
           "id": "dev2-military-003",
@@ -546,8 +546,8 @@
           "rules": "MILITARY_SABOTAGE_RECRUITMENT",
           "candidate": "MILITARY_SABOTAGE_RECRUITMENT",
           "decision": "MILITARY_SABOTAGE_RECRUITMENT",
-          "score": 0.9903249275942464,
-          "margin": 0.9851217189342495
+          "score": 0.9903133941938489,
+          "margin": 0.9851161198268127
         },
         {
           "id": "dev2-military-004",
@@ -555,8 +555,8 @@
           "rules": "MILITARY_SABOTAGE_RECRUITMENT",
           "candidate": "MILITARY_SABOTAGE_RECRUITMENT",
           "decision": "MILITARY_SABOTAGE_RECRUITMENT",
-          "score": 0.9864172387283662,
-          "margin": 0.9785111780871854
+          "score": 0.9864046002948573,
+          "margin": 0.9785044872059793
         },
         {
           "id": "dev2-off-001",
@@ -564,8 +564,8 @@
           "rules": "OFF_PLATFORM_REDIRECT",
           "candidate": "OFF_PLATFORM_REDIRECT",
           "decision": "OFF_PLATFORM_REDIRECT",
-          "score": 0.9935583552709301,
-          "margin": 0.9897834584908652
+          "score": 0.9935636715083981,
+          "margin": 0.9898022630814399
         },
         {
           "id": "dev2-off-002",
@@ -573,8 +573,8 @@
           "rules": "OFF_PLATFORM_REDIRECT",
           "candidate": "OFF_PLATFORM_REDIRECT",
           "decision": "OFF_PLATFORM_REDIRECT",
-          "score": 0.9886404057420584,
-          "margin": 0.9824984393804298
+          "score": 0.9886473891936932,
+          "margin": 0.9825366509838172
         },
         {
           "id": "dev2-off-003",
@@ -582,8 +582,8 @@
           "rules": "OFF_PLATFORM_REDIRECT",
           "candidate": "OFF_PLATFORM_REDIRECT",
           "decision": "OFF_PLATFORM_REDIRECT",
-          "score": 0.9906328295402502,
-          "margin": 0.9847081535744123
+          "score": 0.9906414716855191,
+          "margin": 0.9847218208551384
         },
         {
           "id": "dev2-off-005",
@@ -591,8 +591,8 @@
           "rules": "OFF_PLATFORM_REDIRECT",
           "candidate": "OFF_PLATFORM_REDIRECT",
           "decision": "OFF_PLATFORM_REDIRECT",
-          "score": 0.9896577732388776,
-          "margin": 0.9836858341295122
+          "score": 0.9896877900113034,
+          "margin": 0.9837345009437609
         },
         {
           "id": "dev2-off-006",
@@ -600,8 +600,8 @@
           "rules": "OFF_PLATFORM_REDIRECT",
           "candidate": "OFF_PLATFORM_REDIRECT",
           "decision": "OFF_PLATFORM_REDIRECT",
-          "score": 0.9960467282826984,
-          "margin": 0.9941316035600173
+          "score": 0.996035069935223,
+          "margin": 0.9941155487792437
         },
         {
           "id": "dev2-off-007",
@@ -609,8 +609,8 @@
           "rules": "OFF_PLATFORM_REDIRECT",
           "candidate": "OFF_PLATFORM_REDIRECT",
           "decision": "OFF_PLATFORM_REDIRECT",
-          "score": 0.983833479587549,
-          "margin": 0.9736915967599501
+          "score": 0.9838142960062354,
+          "margin": 0.9736572439615638
         },
         {
           "id": "dev2-off-008",
@@ -618,8 +618,8 @@
           "rules": "OFF_PLATFORM_REDIRECT",
           "candidate": "OFF_PLATFORM_REDIRECT",
           "decision": "OFF_PLATFORM_REDIRECT",
-          "score": 0.9938156005499068,
-          "margin": 0.9911246652971006
+          "score": 0.9937807041526365,
+          "margin": 0.9911019521083391
         },
         {
           "id": "dev2-off-009",
@@ -627,8 +627,8 @@
           "rules": "OFF_PLATFORM_REDIRECT",
           "candidate": "OFF_PLATFORM_REDIRECT",
           "decision": "OFF_PLATFORM_REDIRECT",
-          "score": 0.9914858503365249,
-          "margin": 0.987399127777973
+          "score": 0.9914610511640692,
+          "margin": 0.987404022042407
         },
         {
           "id": "dev2-off-010",
@@ -636,8 +636,8 @@
           "rules": "OFF_PLATFORM_REDIRECT",
           "candidate": "OFF_PLATFORM_REDIRECT",
           "decision": "OFF_PLATFORM_REDIRECT",
-          "score": 0.9831624472338057,
-          "margin": 0.9732329766397282
+          "score": 0.9831907670045495,
+          "margin": 0.9732845568586529
         },
         {
           "id": "dev2-pay-003",
@@ -645,8 +645,8 @@
           "rules": "PAYMENT_CREDENTIAL_THEFT",
           "candidate": "PAYMENT_CREDENTIAL_THEFT",
           "decision": "PAYMENT_CREDENTIAL_THEFT",
-          "score": 0.9940819298231921,
-          "margin": 0.9904588246079885
+          "score": 0.9949355350278577,
+          "margin": 0.9925017477083958
         },
         {
           "id": "dev2-verify-001",
@@ -654,8 +654,8 @@
           "rules": "VERIFICATION_PHISHING",
           "candidate": "VERIFICATION_PHISHING",
           "decision": "VERIFICATION_PHISHING",
-          "score": 0.9927511002124118,
-          "margin": 0.9893922652002073
+          "score": 0.9921916410086471,
+          "margin": 0.988675577638261
         },
         {
           "id": "dev2-verify-002",
@@ -663,8 +663,8 @@
           "rules": "VERIFICATION_PHISHING",
           "candidate": "VERIFICATION_PHISHING",
           "decision": "VERIFICATION_PHISHING",
-          "score": 0.9983675094892239,
-          "margin": 0.9974343694177114
+          "score": 0.9961382016091063,
+          "margin": 0.994388687380518
         },
         {
           "id": "dev2-verify-004",
@@ -672,8 +672,8 @@
           "rules": "VERIFICATION_PHISHING",
           "candidate": "VERIFICATION_PHISHING",
           "decision": "VERIFICATION_PHISHING",
-          "score": 0.9975400556774316,
-          "margin": 0.9964682131012622
+          "score": 0.9970828778438061,
+          "margin": 0.9956893308455202
         },
         {
           "id": "reg-benign-001",
@@ -681,8 +681,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9747288235955534,
-          "margin": 0.9609938793768609
+          "score": 0.9746036052924539,
+          "margin": 0.960837986021994
         },
         {
           "id": "reg-courier-meeting-001",
@@ -690,8 +690,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9761338993806294,
-          "margin": 0.9677775260512552
+          "score": 0.9760962871402371,
+          "margin": 0.9677064449180814
         },
         {
           "id": "reg-crypto-001",
@@ -699,8 +699,8 @@
           "rules": "CRYPTO_WALLET_COMPROMISE",
           "candidate": "CRYPTO_WALLET_COMPROMISE",
           "decision": "CRYPTO_WALLET_COMPROMISE",
-          "score": 0.9984124429047034,
-          "margin": 0.9973820582184111
+          "score": 0.9984135072275376,
+          "margin": 0.9973838416037409
         },
         {
           "id": "reg-crypto-002",
@@ -708,8 +708,8 @@
           "rules": "CRYPTO_WALLET_COMPROMISE",
           "candidate": "CRYPTO_WALLET_COMPROMISE",
           "decision": "CRYPTO_WALLET_COMPROMISE",
-          "score": 0.9971514558678752,
-          "margin": 0.9959046959903951
+          "score": 0.9971548070467371,
+          "margin": 0.9959167845077711
         },
         {
           "id": "reg-delivery-phone-001",
@@ -717,8 +717,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9836673464703877,
-          "margin": 0.979535402007086
+          "score": 0.9836733111709891,
+          "margin": 0.9794834469816806
         },
         {
           "id": "reg-delivery-price-001",
@@ -726,8 +726,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9758086399074827,
-          "margin": 0.9664253816575107
+          "score": 0.9758222308077765,
+          "margin": 0.9664430266616174
         },
         {
           "id": "reg-escrow-001",
@@ -735,8 +735,8 @@
           "rules": "ESCROW_DELIVERY_SCAM",
           "candidate": "ESCROW_DELIVERY_SCAM",
           "decision": "ESCROW_DELIVERY_SCAM",
-          "score": 0.997179016198191,
-          "margin": 0.9958513423343164
+          "score": 0.9970354140762536,
+          "margin": 0.9956699543294182
         },
         {
           "id": "reg-escrow-002",
@@ -744,8 +744,8 @@
           "rules": "ESCROW_DELIVERY_SCAM",
           "candidate": "ESCROW_DELIVERY_SCAM",
           "decision": "ESCROW_DELIVERY_SCAM",
-          "score": 0.9879536195023106,
-          "margin": 0.9807241630537437
+          "score": 0.9879195518102432,
+          "margin": 0.9806828080792416
         },
         {
           "id": "reg-identity-001",
@@ -753,8 +753,8 @@
           "rules": "IDENTITY_PROBING",
           "candidate": "IDENTITY_PROBING",
           "decision": "IDENTITY_PROBING",
-          "score": 0.9974961513443955,
-          "margin": 0.996205283607176
+          "score": 0.9975317550103562,
+          "margin": 0.9962658015798057
         },
         {
           "id": "reg-identity-002",
@@ -762,8 +762,8 @@
           "rules": "IDENTITY_PROBING",
           "candidate": "IDENTITY_PROBING",
           "decision": "IDENTITY_PROBING",
-          "score": 0.9971742631207312,
-          "margin": 0.9958415375336546
+          "score": 0.996910861267841,
+          "margin": 0.9954488409486594
         },
         {
           "id": "reg-identity-003",
@@ -771,8 +771,8 @@
           "rules": "IDENTITY_PROBING",
           "candidate": "IDENTITY_PROBING",
           "decision": "IDENTITY_PROBING",
-          "score": 0.9974640576586513,
-          "margin": 0.9958139481903485
+          "score": 0.9974493908264064,
+          "margin": 0.9957921411052145
         },
         {
           "id": "reg-military-001",
@@ -780,8 +780,8 @@
           "rules": "MILITARY_SABOTAGE_RECRUITMENT",
           "candidate": "MILITARY_SABOTAGE_RECRUITMENT",
           "decision": "MILITARY_SABOTAGE_RECRUITMENT",
-          "score": 0.9934285358877402,
-          "margin": 0.9898134038930854
+          "score": 0.9934447229147347,
+          "margin": 0.9898138425945605
         },
         {
           "id": "reg-military-003",
@@ -789,8 +789,8 @@
           "rules": "MILITARY_SABOTAGE_RECRUITMENT",
           "candidate": "MILITARY_SABOTAGE_RECRUITMENT",
           "decision": "MILITARY_SABOTAGE_RECRUITMENT",
-          "score": 0.9939515147704477,
-          "margin": 0.9904081572366705
+          "score": 0.9939430697245648,
+          "margin": 0.990401116355527
         },
         {
           "id": "reg-military-004",
@@ -798,8 +798,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.977602566464446,
-          "margin": 0.9676568308070311
+          "score": 0.9775708960207512,
+          "margin": 0.9676073475543973
         },
         {
           "id": "reg-offplatform-001",
@@ -807,8 +807,8 @@
           "rules": "OFF_PLATFORM_REDIRECT",
           "candidate": "OFF_PLATFORM_REDIRECT",
           "decision": "OFF_PLATFORM_REDIRECT",
-          "score": 0.9920496866239467,
-          "margin": 0.9893133034909167
+          "score": 0.9920436743870543,
+          "margin": 0.989227666725656
         },
         {
           "id": "reg-offplatform-002",
@@ -816,8 +816,8 @@
           "rules": "OFF_PLATFORM_REDIRECT",
           "candidate": "OFF_PLATFORM_REDIRECT",
           "decision": "OFF_PLATFORM_REDIRECT",
-          "score": 0.9872050351073884,
-          "margin": 0.9774945638881162
+          "score": 0.9871753865330363,
+          "margin": 0.9774577526596278
         },
         {
           "id": "reg-offplatform-003",
@@ -825,8 +825,8 @@
           "rules": "OFF_PLATFORM_REDIRECT",
           "candidate": "OFF_PLATFORM_REDIRECT",
           "decision": "OFF_PLATFORM_REDIRECT",
-          "score": 0.9820527353182413,
-          "margin": 0.9703862376688813
+          "score": 0.9820466132621655,
+          "margin": 0.9703878582045161
         },
         {
           "id": "reg-offplatform-004",
@@ -834,8 +834,8 @@
           "rules": "OFF_PLATFORM_REDIRECT",
           "candidate": "OFF_PLATFORM_REDIRECT",
           "decision": "OFF_PLATFORM_REDIRECT",
-          "score": 0.990042897663291,
-          "margin": 0.9836400224549015
+          "score": 0.990043493950188,
+          "margin": 0.9836826405437139
         },
         {
           "id": "reg-order-status-001",
@@ -843,8 +843,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9791895494081317,
-          "margin": 0.9724676127231716
+          "score": 0.9795962332243142,
+          "margin": 0.9727648550087186
         },
         {
           "id": "reg-payment-002",
@@ -852,8 +852,8 @@
           "rules": "PAYMENT_CREDENTIAL_THEFT",
           "candidate": "PAYMENT_CREDENTIAL_THEFT",
           "decision": "PAYMENT_CREDENTIAL_THEFT",
-          "score": 0.9972075247221247,
-          "margin": 0.9955826694486043
+          "score": 0.9963681405375637,
+          "margin": 0.9941739834025115
         },
         {
           "id": "reg-safe-refund-001",
@@ -861,8 +861,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9738408776164191,
-          "margin": 0.9651638673893036
+          "score": 0.9736470171113603,
+          "margin": 0.9649657258602938
         },
         {
           "id": "reg-verification-001",
@@ -870,8 +870,8 @@
           "rules": "VERIFICATION_PHISHING",
           "candidate": "VERIFICATION_PHISHING",
           "decision": "VERIFICATION_PHISHING",
-          "score": 0.9910224712720767,
-          "margin": 0.9867963177769509
+          "score": 0.9933676535978118,
+          "margin": 0.9905141180890422
         },
         {
           "id": "reg-verification-002",
@@ -879,8 +879,8 @@
           "rules": "VERIFICATION_PHISHING",
           "candidate": "VERIFICATION_PHISHING",
           "decision": "VERIFICATION_PHISHING",
-          "score": 0.9947714232682363,
-          "margin": 0.991981198943985
+          "score": 0.9956731153772305,
+          "margin": 0.9934326884258216
         },
         {
           "id": "reg-verification-003",
@@ -888,8 +888,8 @@
           "rules": "VERIFICATION_PHISHING",
           "candidate": "VERIFICATION_PHISHING",
           "decision": "VERIFICATION_PHISHING",
-          "score": 0.9830469601324396,
-          "margin": 0.9773091595789011
+          "score": 0.9831359790170385,
+          "margin": 0.9774626446169884
         },
         {
           "id": "reg2-benign-001",
@@ -897,8 +897,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9832636505703097,
-          "margin": 0.9775362536283565
+          "score": 0.9831595601815953,
+          "margin": 0.9773717022829244
         },
         {
           "id": "reg2-benign-002",
@@ -906,8 +906,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9791467366033819,
-          "margin": 0.973850169741725
+          "score": 0.9788573713250788,
+          "margin": 0.9735702690779119
         },
         {
           "id": "reg2-benign-003",
@@ -915,8 +915,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9870408169048616,
-          "margin": 0.9804205240226963
+          "score": 0.9883752073697896,
+          "margin": 0.9842274593925315
         },
         {
           "id": "reg2-benign-004",
@@ -924,8 +924,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9728579486563487,
-          "margin": 0.9631877673171811
+          "score": 0.9734499651636563,
+          "margin": 0.963683440817812
         },
         {
           "id": "reg2-benign-005",
@@ -933,8 +933,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9490484850638289,
-          "margin": 0.926098138525965
+          "score": 0.9486476452241477,
+          "margin": 0.9257648855015973
         },
         {
           "id": "reg2-benign-006",
@@ -942,8 +942,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9663450030540498,
-          "margin": 0.9429108125600918
+          "score": 0.9663326818569004,
+          "margin": 0.9428218513433244
         },
         {
           "id": "reg2-benign-007",
@@ -951,8 +951,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9816059365139,
-          "margin": 0.9776088674870712
+          "score": 0.98151480882951,
+          "margin": 0.9773790380714921
         },
         {
           "id": "reg2-crypto-001",
@@ -960,8 +960,8 @@
           "rules": "CRYPTO_WALLET_COMPROMISE",
           "candidate": "CRYPTO_WALLET_COMPROMISE",
           "decision": "CRYPTO_WALLET_COMPROMISE",
-          "score": 0.9993439518883706,
-          "margin": 0.999033296069418
+          "score": 0.9993434046751328,
+          "margin": 0.999032424892909
         },
         {
           "id": "reg2-crypto-003",
@@ -969,8 +969,8 @@
           "rules": "CRYPTO_WALLET_COMPROMISE",
           "candidate": "CRYPTO_WALLET_COMPROMISE",
           "decision": "CRYPTO_WALLET_COMPROMISE",
-          "score": 0.9934259335115371,
-          "margin": 0.9916048522059204
+          "score": 0.9934319639190746,
+          "margin": 0.9916122701242793
         },
         {
           "id": "reg2-crypto-004",
@@ -978,8 +978,8 @@
           "rules": "CRYPTO_WALLET_COMPROMISE",
           "candidate": "CRYPTO_WALLET_COMPROMISE",
           "decision": "CRYPTO_WALLET_COMPROMISE",
-          "score": 0.9959892782232511,
-          "margin": 0.994261530907405
+          "score": 0.9959644969011664,
+          "margin": 0.994215273618007
         },
         {
           "id": "reg2-crypto-005",
@@ -987,8 +987,8 @@
           "rules": "CRYPTO_WALLET_COMPROMISE",
           "candidate": "CRYPTO_WALLET_COMPROMISE",
           "decision": "CRYPTO_WALLET_COMPROMISE",
-          "score": 0.9988019550973067,
-          "margin": 0.9983050328645938
+          "score": 0.9988029377640767,
+          "margin": 0.9983082525963131
         },
         {
           "id": "reg2-crypto-006",
@@ -996,8 +996,8 @@
           "rules": "CRYPTO_WALLET_COMPROMISE",
           "candidate": "CRYPTO_WALLET_COMPROMISE",
           "decision": "CRYPTO_WALLET_COMPROMISE",
-          "score": 0.9977761024216749,
-          "margin": 0.9965971728146845
+          "score": 0.9977574909912552,
+          "margin": 0.9965650401068407
         },
         {
           "id": "reg2-escrow-002",
@@ -1005,8 +1005,8 @@
           "rules": "ESCROW_DELIVERY_SCAM",
           "candidate": "ESCROW_DELIVERY_SCAM",
           "decision": "ESCROW_DELIVERY_SCAM",
-          "score": 0.9908059465664087,
-          "margin": 0.9861704278881589
+          "score": 0.9907397484371548,
+          "margin": 0.9860795751897985
         },
         {
           "id": "reg2-escrow-003",
@@ -1014,8 +1014,8 @@
           "rules": "ESCROW_DELIVERY_SCAM",
           "candidate": "ESCROW_DELIVERY_SCAM",
           "decision": "ESCROW_DELIVERY_SCAM",
-          "score": 0.9904525745271733,
-          "margin": 0.987258487899932
+          "score": 0.9904059159438461,
+          "margin": 0.9871879557173993
         },
         {
           "id": "reg2-escrow-004",
@@ -1023,8 +1023,8 @@
           "rules": "ESCROW_DELIVERY_SCAM",
           "candidate": "ESCROW_DELIVERY_SCAM",
           "decision": "ESCROW_DELIVERY_SCAM",
-          "score": 0.9915544097154732,
-          "margin": 0.988196491619833
+          "score": 0.991840764976342,
+          "margin": 0.9883719076561439
         },
         {
           "id": "reg2-escrow-006",
@@ -1032,8 +1032,8 @@
           "rules": "ESCROW_DELIVERY_SCAM",
           "candidate": "ESCROW_DELIVERY_SCAM",
           "decision": "ESCROW_DELIVERY_SCAM",
-          "score": 0.9933795569266416,
-          "margin": 0.9901815949416716
+          "score": 0.9933624624617422,
+          "margin": 0.9901480282504086
         },
         {
           "id": "reg2-identity-001",
@@ -1041,8 +1041,8 @@
           "rules": "IDENTITY_PROBING",
           "candidate": "IDENTITY_PROBING",
           "decision": "IDENTITY_PROBING",
-          "score": 0.9974193011315918,
-          "margin": 0.9963133241067212
+          "score": 0.9973822836698956,
+          "margin": 0.9962683726034678
         },
         {
           "id": "reg2-identity-003",
@@ -1050,8 +1050,8 @@
           "rules": "IDENTITY_PROBING",
           "candidate": "IDENTITY_PROBING",
           "decision": "IDENTITY_PROBING",
-          "score": 0.9961497685700096,
-          "margin": 0.9942094484282626
+          "score": 0.9980535261536826,
+          "margin": 0.9970972197920895
         },
         {
           "id": "reg2-identity-004",
@@ -1059,8 +1059,8 @@
           "rules": "IDENTITY_PROBING",
           "candidate": "IDENTITY_PROBING",
           "decision": "IDENTITY_PROBING",
-          "score": 0.9926859229975505,
-          "margin": 0.9904736713130328
+          "score": 0.992686986073917,
+          "margin": 0.9904462220411658
         },
         {
           "id": "reg2-identity-005",
@@ -1068,8 +1068,8 @@
           "rules": "IDENTITY_PROBING",
           "candidate": "IDENTITY_PROBING",
           "decision": "IDENTITY_PROBING",
-          "score": 0.997074735185509,
-          "margin": 0.9956045656538803
+          "score": 0.9969724451878216,
+          "margin": 0.9954510692746139
         },
         {
           "id": "reg2-identity-006",
@@ -1077,8 +1077,8 @@
           "rules": "IDENTITY_PROBING",
           "candidate": "IDENTITY_PROBING",
           "decision": "IDENTITY_PROBING",
-          "score": 0.9970531759669432,
-          "margin": 0.9955935733562228
+          "score": 0.9968241406149683,
+          "margin": 0.9952454819257013
         },
         {
           "id": "reg2-military-001",
@@ -1086,8 +1086,8 @@
           "rules": "MILITARY_SABOTAGE_RECRUITMENT",
           "candidate": "MILITARY_SABOTAGE_RECRUITMENT",
           "decision": "MILITARY_SABOTAGE_RECRUITMENT",
-          "score": 0.9929804296929741,
-          "margin": 0.9899892800805209
+          "score": 0.9929784912485551,
+          "margin": 0.9899840191882999
         },
         {
           "id": "reg2-military-002",
@@ -1095,8 +1095,8 @@
           "rules": "MILITARY_SABOTAGE_RECRUITMENT",
           "candidate": "MILITARY_SABOTAGE_RECRUITMENT",
           "decision": "MILITARY_SABOTAGE_RECRUITMENT",
-          "score": 0.9934409752142846,
-          "margin": 0.9895798205568184
+          "score": 0.9934515644481506,
+          "margin": 0.9895990854699764
         },
         {
           "id": "reg2-military-003",
@@ -1104,8 +1104,8 @@
           "rules": "MILITARY_SABOTAGE_RECRUITMENT",
           "candidate": "MILITARY_SABOTAGE_RECRUITMENT",
           "decision": "MILITARY_SABOTAGE_RECRUITMENT",
-          "score": 0.9880066432054285,
-          "margin": 0.9820112258890122
+          "score": 0.9880002245381464,
+          "margin": 0.9819772965971759
         },
         {
           "id": "reg2-military-005",
@@ -1113,8 +1113,8 @@
           "rules": "MILITARY_SABOTAGE_RECRUITMENT",
           "candidate": "MILITARY_SABOTAGE_RECRUITMENT",
           "decision": "MILITARY_SABOTAGE_RECRUITMENT",
-          "score": 0.9891636094793187,
-          "margin": 0.9833177735806278
+          "score": 0.9892007818405615,
+          "margin": 0.9833273395051491
         },
         {
           "id": "reg2-military-006",
@@ -1122,8 +1122,8 @@
           "rules": "MILITARY_SABOTAGE_RECRUITMENT",
           "candidate": "MILITARY_SABOTAGE_RECRUITMENT",
           "decision": "MILITARY_SABOTAGE_RECRUITMENT",
-          "score": 0.9894119139422827,
-          "margin": 0.983364026881258
+          "score": 0.9893901977307428,
+          "margin": 0.9833382467527496
         },
         {
           "id": "reg2-payment-001",
@@ -1131,8 +1131,8 @@
           "rules": "PAYMENT_CREDENTIAL_THEFT",
           "candidate": "PAYMENT_CREDENTIAL_THEFT",
           "decision": "PAYMENT_CREDENTIAL_THEFT",
-          "score": 0.9941335565744523,
-          "margin": 0.9917995396052125
+          "score": 0.9944068353598974,
+          "margin": 0.9919565240063768
         },
         {
           "id": "reg2-payment-002",
@@ -1140,8 +1140,8 @@
           "rules": "PAYMENT_CREDENTIAL_THEFT",
           "candidate": "PAYMENT_CREDENTIAL_THEFT",
           "decision": "PAYMENT_CREDENTIAL_THEFT",
-          "score": 0.9978215332774599,
-          "margin": 0.9970090064975704
+          "score": 0.9969964389857305,
+          "margin": 0.9957538665062377
         },
         {
           "id": "reg2-payment-003",
@@ -1149,8 +1149,8 @@
           "rules": "PAYMENT_CREDENTIAL_THEFT",
           "candidate": "PAYMENT_CREDENTIAL_THEFT",
           "decision": "PAYMENT_CREDENTIAL_THEFT",
-          "score": 0.9862976616594519,
-          "margin": 0.9790238077007296
+          "score": 0.9864864206206714,
+          "margin": 0.9792312192371004
         },
         {
           "id": "reg2-payment-004",
@@ -1158,8 +1158,8 @@
           "rules": "PAYMENT_CREDENTIAL_THEFT",
           "candidate": "PAYMENT_CREDENTIAL_THEFT",
           "decision": "PAYMENT_CREDENTIAL_THEFT",
-          "score": 0.9898595419977817,
-          "margin": 0.9841037916260124
+          "score": 0.9940272644185965,
+          "margin": 0.9922056836299646
         },
         {
           "id": "reg2-payment-005",
@@ -1167,8 +1167,8 @@
           "rules": "PAYMENT_CREDENTIAL_THEFT",
           "candidate": "PAYMENT_CREDENTIAL_THEFT",
           "decision": "PAYMENT_CREDENTIAL_THEFT",
-          "score": 0.9874642842726321,
-          "margin": 0.978988972254009
+          "score": 0.9904393456509091,
+          "margin": 0.984815322438116
         },
         {
           "id": "reg2-payment-006",
@@ -1176,8 +1176,8 @@
           "rules": "PAYMENT_CREDENTIAL_THEFT",
           "candidate": "PAYMENT_CREDENTIAL_THEFT",
           "decision": "PAYMENT_CREDENTIAL_THEFT",
-          "score": 0.9838965418177182,
-          "margin": 0.9752794908705278
+          "score": 0.983846891639002,
+          "margin": 0.9752286241666457
         },
         {
           "id": "reg2-phone-003",
@@ -1185,8 +1185,8 @@
           "rules": "OFF_PLATFORM_REDIRECT",
           "candidate": "OFF_PLATFORM_REDIRECT",
           "decision": "OFF_PLATFORM_REDIRECT",
-          "score": 0.9856375459004597,
-          "margin": 0.977035356546392
+          "score": 0.9858398404958509,
+          "margin": 0.9771540616794524
         },
         {
           "id": "reg2-phone-004",
@@ -1194,8 +1194,8 @@
           "rules": "OFF_PLATFORM_REDIRECT",
           "candidate": "OFF_PLATFORM_REDIRECT",
           "decision": "OFF_PLATFORM_REDIRECT",
-          "score": 0.9825309320236589,
-          "margin": 0.9738441704624239
+          "score": 0.9824842777429689,
+          "margin": 0.9738369250037864
         },
         {
           "id": "reg2-phone-005",
@@ -1203,8 +1203,8 @@
           "rules": "OFF_PLATFORM_REDIRECT",
           "candidate": "OFF_PLATFORM_REDIRECT",
           "decision": "OFF_PLATFORM_REDIRECT",
-          "score": 0.9838002919776694,
-          "margin": 0.975946407336805
+          "score": 0.9838741932635262,
+          "margin": 0.9760652277224843
         },
         {
           "id": "reg2-phone-006",
@@ -1212,8 +1212,8 @@
           "rules": "OFF_PLATFORM_REDIRECT",
           "candidate": "OFF_PLATFORM_REDIRECT",
           "decision": "OFF_PLATFORM_REDIRECT",
-          "score": 0.9892477791297511,
-          "margin": 0.9852352208546529
+          "score": 0.9892165925107989,
+          "margin": 0.9851889900539894
         },
         {
           "id": "reg2-verification-001",
@@ -1221,8 +1221,8 @@
           "rules": "VERIFICATION_PHISHING",
           "candidate": "VERIFICATION_PHISHING",
           "decision": "VERIFICATION_PHISHING",
-          "score": 0.9780639550598642,
-          "margin": 0.9621850201583034
+          "score": 0.9944156249799351,
+          "margin": 0.9923004940133441
         },
         {
           "id": "reg2-verification-002",
@@ -1230,8 +1230,8 @@
           "rules": "VERIFICATION_PHISHING",
           "candidate": "VERIFICATION_PHISHING",
           "decision": "VERIFICATION_PHISHING",
-          "score": 0.9949246802471406,
-          "margin": 0.9910727953279794
+          "score": 0.9953722654652547,
+          "margin": 0.991858125661191
         },
         {
           "id": "reg2-verification-004",
@@ -1239,8 +1239,8 @@
           "rules": "VERIFICATION_PHISHING",
           "candidate": "VERIFICATION_PHISHING",
           "decision": "VERIFICATION_PHISHING",
-          "score": 0.995358801802964,
-          "margin": 0.992821930801175
+          "score": 0.9958704137656362,
+          "margin": 0.9936001354742424
         },
         {
           "id": "reg2-verification-006",
@@ -1248,8 +1248,8 @@
           "rules": "VERIFICATION_PHISHING",
           "candidate": "VERIFICATION_PHISHING",
           "decision": "VERIFICATION_PHISHING",
-          "score": 0.9975789826215711,
-          "margin": 0.9962426566172499
+          "score": 0.9964833666510241,
+          "margin": 0.9943268664937697
         },
         {
           "id": "safe2-dev-001",
@@ -1257,8 +1257,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9783151411289317,
-          "margin": 0.9675442382741353
+          "score": 0.9786350376820558,
+          "margin": 0.9677900360026419
         },
         {
           "id": "safe2-dev-002",
@@ -1266,8 +1266,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9808600135320263,
-          "margin": 0.9734881280278781
+          "score": 0.9810303007981666,
+          "margin": 0.9736281531903628
         },
         {
           "id": "safe2-dev-003",
@@ -1275,8 +1275,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9839654458389108,
-          "margin": 0.9778152256461186
+          "score": 0.9838141931054626,
+          "margin": 0.9776806077887598
         },
         {
           "id": "safe2-dev-005",
@@ -1284,8 +1284,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9911163313530024,
-          "margin": 0.9870773031842535
+          "score": 0.9910309600742966,
+          "margin": 0.9869446603229534
         },
         {
           "id": "safe2-dev-006",
@@ -1293,8 +1293,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9848144659480059,
-          "margin": 0.9784334024867598
+          "score": 0.9847488175362069,
+          "margin": 0.9783619818248245
         },
         {
           "id": "safe2-dev-007",
@@ -1302,8 +1302,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9801923352696479,
-          "margin": 0.9722509309191973
+          "score": 0.9805260556318953,
+          "margin": 0.9723655580010488
         },
         {
           "id": "safe2-dev-009",
@@ -1311,8 +1311,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9794492103768111,
-          "margin": 0.9697205212250538
+          "score": 0.9794280158886881,
+          "margin": 0.9696732405995648
         },
         {
           "id": "safe2-dev-010",
@@ -1320,8 +1320,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9828153298208172,
-          "margin": 0.9759937388248121
+          "score": 0.9827640854819227,
+          "margin": 0.9759622643335315
         },
         {
           "id": "safe2-dev-011",
@@ -1329,8 +1329,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9851905892369299,
-          "margin": 0.9795071137771223
+          "score": 0.9851338722794601,
+          "margin": 0.9794603844692409
         },
         {
           "id": "safe2-dev-012",
@@ -1338,8 +1338,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9754982383117761,
-          "margin": 0.9675846609428883
+          "score": 0.9753418155627,
+          "margin": 0.9673966797289963
         },
         {
           "id": "safe2-dev-014",
@@ -1347,8 +1347,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9745209408851582,
-          "margin": 0.9660222857308453
+          "score": 0.9748734332465493,
+          "margin": 0.966279860372162
         },
         {
           "id": "safe2-dev-015",
@@ -1356,8 +1356,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9891902173204822,
-          "margin": 0.9855334480006955
+          "score": 0.9891223575186692,
+          "margin": 0.9854537599223885
         },
         {
           "id": "safe2-dev-016",
@@ -1365,8 +1365,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.975983353673461,
-          "margin": 0.9661469971829051
+          "score": 0.9760380309193156,
+          "margin": 0.9661788921345525
         },
         {
           "id": "safe2-dev-017",
@@ -1374,8 +1374,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9740549937716406,
-          "margin": 0.9668662205496915
+          "score": 0.9737423113094188,
+          "margin": 0.9665647494497774
         },
         {
           "id": "safe2-dev-018",
@@ -1383,8 +1383,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9755976735219203,
-          "margin": 0.9667425490499557
+          "score": 0.9755452074670102,
+          "margin": 0.9666990044632018
         },
         {
           "id": "safe2-dev-019",
@@ -1392,8 +1392,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9853748659457832,
-          "margin": 0.980550978985756
+          "score": 0.9854253352443709,
+          "margin": 0.980558207367295
         },
         {
           "id": "safe2-dev-020",
@@ -1401,8 +1401,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9898966214952999,
-          "margin": 0.9843624107965768
+          "score": 0.9898294925184564,
+          "margin": 0.9842815800298347
         },
         {
           "id": "safe2-dev-022",
@@ -1410,8 +1410,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9826215670974751,
-          "margin": 0.9771524468712264
+          "score": 0.9824984244270879,
+          "margin": 0.9770151606684955
         },
         {
           "id": "safe2-dev-023",
@@ -1419,8 +1419,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9798983218531266,
-          "margin": 0.9725784965214849
+          "score": 0.9797969107664191,
+          "margin": 0.9724636339709238
         },
         {
           "id": "safe2-dev-025",
@@ -1428,8 +1428,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9874414657901204,
-          "margin": 0.983318193866149
+          "score": 0.987371983419378,
+          "margin": 0.9832326967914204
         },
         {
           "id": "safe2-dev-026",
@@ -1437,8 +1437,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9796926656472925,
-          "margin": 0.9730858195356528
+          "score": 0.979609164880116,
+          "margin": 0.973032704590348
         },
         {
           "id": "safe2-dev-027",
@@ -1446,8 +1446,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9899596669481853,
-          "margin": 0.9861543018076636
+          "score": 0.9899056495185298,
+          "margin": 0.9860878303821514
         },
         {
           "id": "safe2-dev-028",
@@ -1455,8 +1455,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9676739081858423,
-          "margin": 0.9567329750616258
+          "score": 0.9679316094586516,
+          "margin": 0.9569918196031023
         },
         {
           "id": "safe2-dev-029",
@@ -1464,8 +1464,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9844046342806102,
-          "margin": 0.9790608426560868
+          "score": 0.9843957912274577,
+          "margin": 0.9790246772560001
         },
         {
           "id": "safe2-dev-030",
@@ -1473,8 +1473,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9839391855664262,
-          "margin": 0.9797319785327944
+          "score": 0.9838142247491571,
+          "margin": 0.979589252707873
         },
         {
           "id": "safe2-dev-033",
@@ -1482,8 +1482,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9888703009843646,
-          "margin": 0.9849498519996311
+          "score": 0.9887676035068216,
+          "margin": 0.9848546982270133
         },
         {
           "id": "safe2-dev-034",
@@ -1491,8 +1491,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9843187522943142,
-          "margin": 0.979067816933241
+          "score": 0.9842443206043567,
+          "margin": 0.9789722705707032
         },
         {
           "id": "safe2-reg-001",
@@ -1500,8 +1500,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9368342790608343,
-          "margin": 0.9055237037999166
+          "score": 0.9368627710134453,
+          "margin": 0.9056043751222802
         },
         {
           "id": "safe2-reg-002",
@@ -1509,8 +1509,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9599318597493784,
-          "margin": 0.9389180723238603
+          "score": 0.9599978719825237,
+          "margin": 0.9389221737170206
         },
         {
           "id": "safe2-reg-003",
@@ -1518,8 +1518,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9690792294942955,
-          "margin": 0.9477501326502912
+          "score": 0.9690675725505375,
+          "margin": 0.9477781558946469
         },
         {
           "id": "safe2-reg-004",
@@ -1527,8 +1527,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9860305280926326,
-          "margin": 0.9765001358792141
+          "score": 0.9860740203587088,
+          "margin": 0.9764846085832524
         },
         {
           "id": "safe2-reg-005",
@@ -1536,8 +1536,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9779939658054121,
-          "margin": 0.971194748311489
+          "score": 0.9778637943829013,
+          "margin": 0.9710439869129567
         },
         {
           "id": "safe2-reg-007",
@@ -1545,8 +1545,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9848519786758368,
-          "margin": 0.9751647007179407
+          "score": 0.9846804120516263,
+          "margin": 0.9749382345188986
         },
         {
           "id": "safe2-reg-008",
@@ -1554,8 +1554,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9929332715750868,
-          "margin": 0.9896556521107116
+          "score": 0.9928816994473677,
+          "margin": 0.9895913290392897
         },
         {
           "id": "safe2-reg-009",
@@ -1563,8 +1563,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9831811801154177,
-          "margin": 0.9765161779143244
+          "score": 0.983554065486327,
+          "margin": 0.9768283443783766
         },
         {
           "id": "safe2-reg-010",
@@ -1572,8 +1572,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9860115780587028,
-          "margin": 0.9815535685432875
+          "score": 0.9859800635066088,
+          "margin": 0.9815330833666218
         },
         {
           "id": "safe2-reg-011",
@@ -1581,8 +1581,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9763204023323306,
-          "margin": 0.9672229369580319
+          "score": 0.9763678765388493,
+          "margin": 0.9672476215779295
         },
         {
           "id": "safe2-reg-012",
@@ -1590,8 +1590,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9886515773116429,
-          "margin": 0.9843942474548906
+          "score": 0.9888676599123887,
+          "margin": 0.9845860358139759
         },
         {
           "id": "safe2-reg-013",
@@ -1599,8 +1599,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9590412230417872,
-          "margin": 0.944367864658562
+          "score": 0.9590857090992373,
+          "margin": 0.9443761194671515
         },
         {
           "id": "safe2-reg-014",
@@ -1608,8 +1608,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9749017677958076,
-          "margin": 0.964719862571872
+          "score": 0.9747847323566636,
+          "margin": 0.9645905577276958
         },
         {
           "id": "safe2-reg-015",
@@ -1617,8 +1617,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9876794251156374,
-          "margin": 0.98410782703681
+          "score": 0.9876360349852497,
+          "margin": 0.984068056072999
         },
         {
           "id": "safe2-reg-016",
@@ -1626,8 +1626,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9929593661094052,
-          "margin": 0.9901544443825163
+          "score": 0.9928990821251095,
+          "margin": 0.9900779146006129
         },
         {
           "id": "safe2-reg-017",
@@ -1635,8 +1635,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9762917385749765,
-          "margin": 0.9661305907165356
+          "score": 0.9762029167932068,
+          "margin": 0.9659990552037292
         },
         {
           "id": "safe2-reg-018",
@@ -1644,8 +1644,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9852683875625419,
-          "margin": 0.9802732727296068
+          "score": 0.9852388403228309,
+          "margin": 0.9802412314295511
         },
         {
           "id": "safe2-reg-019",
@@ -1653,8 +1653,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9723097210720663,
-          "margin": 0.961522171476242
+          "score": 0.9721759135739274,
+          "margin": 0.9613823199890081
         },
         {
           "id": "safe2-reg-020",
@@ -1662,8 +1662,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9789285176821132,
-          "margin": 0.971832475719262
+          "score": 0.9789094382695744,
+          "margin": 0.9718128303073124
         },
         {
           "id": "safe2-reg-021",
@@ -1671,8 +1671,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9870829200902593,
-          "margin": 0.9831799365521868
+          "score": 0.987029425782255,
+          "margin": 0.9831125554882287
         },
         {
           "id": "safe2-reg-022",
@@ -1680,8 +1680,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9722476045444575,
-          "margin": 0.9614182300263574
+          "score": 0.9723084899423083,
+          "margin": 0.9614452415657622
         },
         {
           "id": "safe2-reg-023",
@@ -1689,8 +1689,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.982535621156207,
-          "margin": 0.977096736372303
+          "score": 0.9825500768832802,
+          "margin": 0.9771770516080223
         },
         {
           "id": "safe2-reg-025",
@@ -1698,8 +1698,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9825334738258567,
-          "margin": 0.9764295624205621
+          "score": 0.9825677551503063,
+          "margin": 0.9764583414560687
         },
         {
           "id": "safe2-reg-026",
@@ -1707,8 +1707,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.988388127648008,
-          "margin": 0.9836597624541946
+          "score": 0.9883339038116178,
+          "margin": 0.9835981988209501
         },
         {
           "id": "safe2-reg-027",
@@ -1716,8 +1716,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.989762045486089,
-          "margin": 0.9870886939607026
+          "score": 0.9897726211088829,
+          "margin": 0.9871095089563086
         },
         {
           "id": "safe2-reg-029",
@@ -1725,8 +1725,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9690745539467855,
-          "margin": 0.9583906281937499
+          "score": 0.9690823797533777,
+          "margin": 0.9584127854039116
         },
         {
           "id": "safe2-reg-030",
@@ -1734,8 +1734,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9739746142381135,
-          "margin": 0.9667798920872303
+          "score": 0.9740332575375109,
+          "margin": 0.9668424615417813
         },
         {
           "id": "safe2-reg-032",
@@ -1743,8 +1743,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.980192059987486,
-          "margin": 0.9728857944558071
+          "score": 0.9801054100069354,
+          "margin": 0.9728180025047889
         }
       ]
     },
@@ -1957,8 +1957,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9599453568838963,
-          "margin": 0.9478117175022215
+          "score": 0.9597686246869489,
+          "margin": 0.9475803721119677
         },
         {
           "id": "dev-offplatform-001",
@@ -1966,8 +1966,8 @@
           "rules": "OFF_PLATFORM_REDIRECT",
           "candidate": "OFF_PLATFORM_REDIRECT",
           "decision": "OFF_PLATFORM_REDIRECT",
-          "score": 0.9793682289244243,
-          "margin": 0.9637157405351141
+          "score": 0.9793704046948594,
+          "margin": 0.9637245269660193
         },
         {
           "id": "dev-offplatform-006",
@@ -1975,8 +1975,8 @@
           "rules": "OFF_PLATFORM_REDIRECT",
           "candidate": "OFF_PLATFORM_REDIRECT",
           "decision": "OFF_PLATFORM_REDIRECT",
-          "score": 0.9176446584976357,
-          "margin": 0.8532195813560153
+          "score": 0.9177135008533454,
+          "margin": 0.8535267830563267
         },
         {
           "id": "dev2-benign-001",
@@ -1984,8 +1984,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.953615422685014,
-          "margin": 0.9273852803734736
+          "score": 0.9535043097936119,
+          "margin": 0.9272058852415819
         },
         {
           "id": "dev2-crypto-002",
@@ -1993,8 +1993,8 @@
           "rules": "CRYPTO_WALLET_COMPROMISE",
           "candidate": "CRYPTO_WALLET_COMPROMISE",
           "decision": "CRYPTO_WALLET_COMPROMISE",
-          "score": 0.9927928711136857,
-          "margin": 0.9889823489224822
+          "score": 0.9927672824373273,
+          "margin": 0.9889368608931874
         },
         {
           "id": "dev2-escrow-003",
@@ -2002,8 +2002,8 @@
           "rules": "ESCROW_DELIVERY_SCAM",
           "candidate": "ESCROW_DELIVERY_SCAM",
           "decision": "ABSTAIN",
-          "score": 0.5922130930290658,
-          "margin": 0.4548263333871063
+          "score": 0.5920670964774466,
+          "margin": 0.4545867817579814
         },
         {
           "id": "dev2-id-003",
@@ -2011,8 +2011,8 @@
           "rules": "IDENTITY_PROBING",
           "candidate": "IDENTITY_PROBING",
           "decision": "IDENTITY_PROBING",
-          "score": 0.9960429282742784,
-          "margin": 0.9941066497921099
+          "score": 0.9958988493055622,
+          "margin": 0.9938935921852246
         },
         {
           "id": "dev2-id-004",
@@ -2020,8 +2020,8 @@
           "rules": "IDENTITY_PROBING",
           "candidate": "IDENTITY_PROBING",
           "decision": "IDENTITY_PROBING",
-          "score": 0.9946239256846521,
-          "margin": 0.991837190172039
+          "score": 0.9945806972076723,
+          "margin": 0.9918060059723665
         },
         {
           "id": "dev2-military-001",
@@ -2029,8 +2029,8 @@
           "rules": "MILITARY_SABOTAGE_RECRUITMENT",
           "candidate": "MILITARY_SABOTAGE_RECRUITMENT",
           "decision": "MILITARY_SABOTAGE_RECRUITMENT",
-          "score": 0.9929549682077666,
-          "margin": 0.988374769989837
+          "score": 0.9929300187245886,
+          "margin": 0.9883481751840427
         },
         {
           "id": "dev2-off-004",
@@ -2038,8 +2038,8 @@
           "rules": "OFF_PLATFORM_REDIRECT",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.7938985153572594,
-          "margin": 0.7195653040174189
+          "score": 0.7988834095352407,
+          "margin": 0.7236164675491723
         },
         {
           "id": "dev2-pay-001",
@@ -2047,8 +2047,8 @@
           "rules": "PAYMENT_CREDENTIAL_THEFT",
           "candidate": "PAYMENT_CREDENTIAL_THEFT",
           "decision": "PAYMENT_CREDENTIAL_THEFT",
-          "score": 0.9988053208235534,
-          "margin": 0.9984110105610932
+          "score": 0.9977854130046613,
+          "margin": 0.9968687531678263
         },
         {
           "id": "dev2-pay-002",
@@ -2056,8 +2056,8 @@
           "rules": "PAYMENT_CREDENTIAL_THEFT",
           "candidate": "PAYMENT_CREDENTIAL_THEFT",
           "decision": "PAYMENT_CREDENTIAL_THEFT",
-          "score": 0.9867548269245993,
-          "margin": 0.975178137458902
+          "score": 0.9946284509308455,
+          "margin": 0.9907168358752566
         },
         {
           "id": "dev2-verify-003",
@@ -2065,8 +2065,8 @@
           "rules": "VERIFICATION_PHISHING",
           "candidate": "VERIFICATION_PHISHING",
           "decision": "VERIFICATION_PHISHING",
-          "score": 0.9574811876634516,
-          "margin": 0.9273049029152608
+          "score": 0.9671524934622112,
+          "margin": 0.9444102463843427
         },
         {
           "id": "reg-benign-002",
@@ -2074,8 +2074,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9894357008645016,
-          "margin": 0.9864788700164143
+          "score": 0.9891600703497407,
+          "margin": 0.9862204790898709
         },
         {
           "id": "reg-military-002",
@@ -2083,8 +2083,8 @@
           "rules": "MILITARY_SABOTAGE_RECRUITMENT",
           "candidate": "MILITARY_SABOTAGE_RECRUITMENT",
           "decision": "MILITARY_SABOTAGE_RECRUITMENT",
-          "score": 0.6017040601630258,
-          "margin": 0.30340887818589507
+          "score": 0.6019997729442988,
+          "margin": 0.3038719408765316
         },
         {
           "id": "reg-payment-001",
@@ -2092,8 +2092,8 @@
           "rules": "PAYMENT_CREDENTIAL_THEFT",
           "candidate": "PAYMENT_CREDENTIAL_THEFT",
           "decision": "PAYMENT_CREDENTIAL_THEFT",
-          "score": 0.9969673869043564,
-          "margin": 0.9945251453965466
+          "score": 0.9976480739349928,
+          "margin": 0.995984285042933
         },
         {
           "id": "reg-phone-number-call-001",
@@ -2101,8 +2101,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9461656321805187,
-          "margin": 0.9288603471404553
+          "score": 0.9459043552598073,
+          "margin": 0.9285630384777788
         },
         {
           "id": "reg-safe-contact-001",
@@ -2110,8 +2110,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.6528489953414311,
-          "margin": 0.43631695197927134
+          "score": 0.6519148095770947,
+          "margin": 0.4348142291286572
         },
         {
           "id": "reg2-benign-008",
@@ -2119,8 +2119,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.8985680327574308,
-          "margin": 0.8584546668886367
+          "score": 0.8984364321177181,
+          "margin": 0.8583653387322893
         },
         {
           "id": "reg2-crypto-002",
@@ -2128,8 +2128,8 @@
           "rules": "CRYPTO_WALLET_COMPROMISE",
           "candidate": "CRYPTO_WALLET_COMPROMISE",
           "decision": "CRYPTO_WALLET_COMPROMISE",
-          "score": 0.9930518568791584,
-          "margin": 0.9879497320106502
+          "score": 0.9930952343170157,
+          "margin": 0.9880274301788725
         },
         {
           "id": "reg2-escrow-001",
@@ -2137,8 +2137,8 @@
           "rules": "ESCROW_DELIVERY_SCAM",
           "candidate": "ESCROW_DELIVERY_SCAM",
           "decision": "ESCROW_DELIVERY_SCAM",
-          "score": 0.8611293685034935,
-          "margin": 0.7873843141887664
+          "score": 0.8578158638924118,
+          "margin": 0.7814625880698287
         },
         {
           "id": "reg2-escrow-005",
@@ -2146,8 +2146,8 @@
           "rules": "ESCROW_DELIVERY_SCAM",
           "candidate": "ESCROW_DELIVERY_SCAM",
           "decision": "ABSTAIN",
-          "score": 0.5211211236926729,
-          "margin": 0.1801884922350795
+          "score": 0.5258484912257183,
+          "margin": 0.18837658479644787
         },
         {
           "id": "reg2-identity-002",
@@ -2155,8 +2155,8 @@
           "rules": "IDENTITY_PROBING",
           "candidate": "IDENTITY_PROBING",
           "decision": "IDENTITY_PROBING",
-          "score": 0.99151187274057,
-          "margin": 0.9877897597086965
+          "score": 0.9908202158352762,
+          "margin": 0.9867676811342082
         },
         {
           "id": "reg2-military-004",
@@ -2164,8 +2164,8 @@
           "rules": "MILITARY_SABOTAGE_RECRUITMENT",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.7742554918738332,
-          "margin": 0.6399180474052293
+          "score": 0.775264466919574,
+          "margin": 0.6410328599432552
         },
         {
           "id": "reg2-phone-001",
@@ -2173,8 +2173,8 @@
           "rules": "OFF_PLATFORM_REDIRECT",
           "candidate": "OFF_PLATFORM_REDIRECT",
           "decision": "OFF_PLATFORM_REDIRECT",
-          "score": 0.9949782171079739,
-          "margin": 0.9928964136355067
+          "score": 0.9950078646444779,
+          "margin": 0.9929209234529387
         },
         {
           "id": "reg2-phone-002",
@@ -2182,8 +2182,8 @@
           "rules": "OFF_PLATFORM_REDIRECT",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.7847861617399836,
-          "margin": 0.6036533891203456
+          "score": 0.784839929058407,
+          "margin": 0.6032903977614363
         },
         {
           "id": "reg2-verification-003",
@@ -2191,8 +2191,8 @@
           "rules": "VERIFICATION_PHISHING",
           "candidate": "ESCROW_DELIVERY_SCAM",
           "decision": "ABSTAIN",
-          "score": 0.5018236946006124,
-          "margin": 0.2506906058041161
+          "score": 0.5201160148700438,
+          "margin": 0.2604538183608312
         },
         {
           "id": "reg2-verification-005",
@@ -2200,8 +2200,8 @@
           "rules": "VERIFICATION_PHISHING",
           "candidate": "ESCROW_DELIVERY_SCAM",
           "decision": "ABSTAIN",
-          "score": 0.3358312416862881,
-          "margin": 0.004377267474501623
+          "score": 0.33469342912527034,
+          "margin": 0.0027435337216433764
         },
         {
           "id": "safe2-dev-004",
@@ -2209,8 +2209,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9497793594173932,
-          "margin": 0.9300254645450583
+          "score": 0.950307951293348,
+          "margin": 0.9305922405971265
         },
         {
           "id": "safe2-dev-008",
@@ -2218,8 +2218,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.8003599032954554,
-          "margin": 0.7155120516294373
+          "score": 0.8003659637634446,
+          "margin": 0.7152992195798679
         },
         {
           "id": "safe2-dev-013",
@@ -2227,8 +2227,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9778798053991832,
-          "margin": 0.970695097332918
+          "score": 0.9777274392622851,
+          "margin": 0.970538030685981
         },
         {
           "id": "safe2-dev-021",
@@ -2236,8 +2236,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.7813987132619378,
-          "margin": 0.6772240300353527
+          "score": 0.7817263707152029,
+          "margin": 0.677446444084924
         },
         {
           "id": "safe2-dev-024",
@@ -2245,8 +2245,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.8632370855050101,
-          "margin": 0.7782568426244041
+          "score": 0.8625801348824306,
+          "margin": 0.7773847515278587
         },
         {
           "id": "safe2-dev-031",
@@ -2254,8 +2254,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9401663982159572,
-          "margin": 0.8909076916372519
+          "score": 0.9398288397597074,
+          "margin": 0.8903543401015012
         },
         {
           "id": "safe2-dev-032",
@@ -2263,8 +2263,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9304668286286539,
-          "margin": 0.9137943917705583
+          "score": 0.9304490924303426,
+          "margin": 0.9137901082389127
         },
         {
           "id": "safe2-reg-006",
@@ -2272,8 +2272,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9421408133455976,
-          "margin": 0.9125237726260343
+          "score": 0.9418543815730519,
+          "margin": 0.9123180720667917
         },
         {
           "id": "safe2-reg-024",
@@ -2281,8 +2281,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9735994703029403,
-          "margin": 0.9635870162507306
+          "score": 0.9736635663504913,
+          "margin": 0.9636948348492255
         },
         {
           "id": "safe2-reg-028",
@@ -2290,8 +2290,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9718862014302182,
-          "margin": 0.9597837101562117
+          "score": 0.9719127539395336,
+          "margin": 0.9597605258848323
         },
         {
           "id": "safe2-reg-031",
@@ -2299,8 +2299,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9004615787098793,
-          "margin": 0.8557100476774971
+          "score": 0.8998302494420709,
+          "margin": 0.8548668475151231
         },
         {
           "id": "safe2-reg-033",
@@ -2308,8 +2308,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.7864529557647401,
-          "margin": 0.6285230755393795
+          "score": 0.7858679690482913,
+          "margin": 0.6275314282489598
         }
       ]
     },
@@ -2318,80 +2318,80 @@
       "rules": {
         "n": 113,
         "coverage": 1,
-        "exact": 0.7876106194690266,
-        "tp": 49,
-        "fp": 1,
-        "fn": 19,
-        "tn": 44,
-        "precision": 0.98,
-        "recall": 0.7205882352941176,
-        "f1": 0.8305084745762712,
-        "recallIncludingAbstentions": 0.7205882352941176,
-        "macroF1": 0.7639054232804233,
+        "exact": 1,
+        "tp": 67,
+        "fp": 0,
+        "fn": 0,
+        "tn": 46,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "recallIncludingAbstentions": 1,
+        "macroF1": 1,
         "perClass": [
           {
             "label": "OFF_PLATFORM_REDIRECT",
             "precision": 1,
-            "recall": 0.6666666666666666,
-            "f1": 0.8
+            "recall": 1,
+            "f1": 1
           },
           {
             "label": "VERIFICATION_PHISHING",
-            "precision": 0.8571428571428571,
-            "recall": 0.6666666666666666,
-            "f1": 0.75
+            "precision": 1,
+            "recall": 1,
+            "f1": 1
           },
           {
             "label": "PAYMENT_CREDENTIAL_THEFT",
-            "precision": 0.7272727272727273,
-            "recall": 0.8888888888888888,
-            "f1": 0.7999999999999999
+            "precision": 1,
+            "recall": 1,
+            "f1": 1
           },
           {
             "label": "IDENTITY_PROBING",
             "precision": 1,
-            "recall": 0.7777777777777778,
-            "f1": 0.8750000000000001
+            "recall": 1,
+            "f1": 1
           },
           {
             "label": "ESCROW_DELIVERY_SCAM",
-            "precision": 0.8,
-            "recall": 0.4444444444444444,
-            "f1": 0.5714285714285714
+            "precision": 1,
+            "recall": 1,
+            "f1": 1
           },
           {
             "label": "MILITARY_SABOTAGE_RECRUITMENT",
             "precision": 1,
-            "recall": 0.45454545454545453,
-            "f1": 0.625
+            "recall": 1,
+            "f1": 1
           },
           {
             "label": "CRYPTO_WALLET_COMPROMISE",
             "precision": 1,
-            "recall": 0.7777777777777778,
-            "f1": 0.8750000000000001
+            "recall": 1,
+            "f1": 1
           },
           {
             "label": "SAFE",
-            "precision": 0.6984126984126984,
-            "recall": 0.9777777777777777,
-            "f1": 0.8148148148148148
+            "precision": 1,
+            "recall": 1,
+            "f1": 1
           }
         ]
       },
       "linearCandidate": {
         "n": 113,
         "coverage": 1,
-        "exact": 0.831858407079646,
-        "tp": 51,
-        "fp": 0,
-        "fn": 17,
+        "exact": 0.8849557522123894,
+        "tp": 56,
+        "fp": 1,
+        "fn": 11,
         "tn": 45,
-        "precision": 1,
-        "recall": 0.75,
-        "f1": 0.8571428571428571,
-        "recallIncludingAbstentions": 0.75,
-        "macroF1": 0.8228018349084183,
+        "precision": 0.9824561403508771,
+        "recall": 0.835820895522388,
+        "f1": 0.9032258064516129,
+        "recallIncludingAbstentions": 0.835820895522388,
+        "macroF1": 0.880672268907563,
         "perClass": [
           {
             "label": "OFF_PLATFORM_REDIRECT",
@@ -2402,20 +2402,20 @@
           {
             "label": "VERIFICATION_PHISHING",
             "precision": 1,
-            "recall": 0.6666666666666666,
-            "f1": 0.8
+            "recall": 0.875,
+            "f1": 0.9333333333333333
           },
           {
             "label": "PAYMENT_CREDENTIAL_THEFT",
-            "precision": 0.875,
-            "recall": 0.7777777777777778,
-            "f1": 0.823529411764706
+            "precision": 1,
+            "recall": 1,
+            "f1": 1
           },
           {
             "label": "IDENTITY_PROBING",
             "precision": 1,
-            "recall": 0.8888888888888888,
-            "f1": 0.9411764705882353
+            "recall": 1,
+            "f1": 1
           },
           {
             "label": "ESCROW_DELIVERY_SCAM",
@@ -2425,37 +2425,37 @@
           },
           {
             "label": "MILITARY_SABOTAGE_RECRUITMENT",
-            "precision": 1,
-            "recall": 0.6363636363636364,
-            "f1": 0.7777777777777778
+            "precision": 0.8571428571428571,
+            "recall": 0.6,
+            "f1": 0.7058823529411764
           },
           {
             "label": "CRYPTO_WALLET_COMPROMISE",
             "precision": 1,
-            "recall": 0.7777777777777778,
-            "f1": 0.8750000000000001
+            "recall": 1,
+            "f1": 1
           },
           {
             "label": "SAFE",
-            "precision": 0.7258064516129032,
-            "recall": 1,
-            "f1": 0.8411214953271028
+            "precision": 0.8035714285714286,
+            "recall": 0.9782608695652174,
+            "f1": 0.8823529411764706
           }
         ]
       },
       "linearAccepted": {
         "n": 113,
-        "coverage": 0.911504424778761,
-        "exact": 0.7787610619469026,
-        "tp": 43,
+        "coverage": 0.9203539823008849,
+        "exact": 0.831858407079646,
+        "tp": 49,
         "fp": 0,
-        "fn": 15,
+        "fn": 10,
         "tn": 45,
         "precision": 1,
-        "recall": 0.7413793103448276,
-        "f1": 0.8514851485148515,
-        "recallIncludingAbstentions": 0.6323529411764706,
-        "macroF1": 0.774034421460892,
+        "recall": 0.8305084745762712,
+        "f1": 0.9074074074074074,
+        "recallIncludingAbstentions": 0.7313432835820896,
+        "macroF1": 0.8310892425274916,
         "perClass": [
           {
             "label": "OFF_PLATFORM_REDIRECT",
@@ -2466,20 +2466,20 @@
           {
             "label": "VERIFICATION_PHISHING",
             "precision": 1,
-            "recall": 0.6666666666666666,
-            "f1": 0.8
+            "recall": 0.875,
+            "f1": 0.9333333333333333
           },
           {
             "label": "PAYMENT_CREDENTIAL_THEFT",
             "precision": 1,
-            "recall": 0.7777777777777778,
-            "f1": 0.8750000000000001
+            "recall": 0.9,
+            "f1": 0.9473684210526316
           },
           {
             "label": "IDENTITY_PROBING",
             "precision": 1,
-            "recall": 0.8888888888888888,
-            "f1": 0.9411764705882353
+            "recall": 1,
+            "f1": 1
           },
           {
             "label": "ESCROW_DELIVERY_SCAM",
@@ -2490,49 +2490,48 @@
           {
             "label": "MILITARY_SABOTAGE_RECRUITMENT",
             "precision": 1,
-            "recall": 0.2727272727272727,
-            "f1": 0.42857142857142855
+            "recall": 0.3,
+            "f1": 0.4615384615384615
           },
           {
             "label": "CRYPTO_WALLET_COMPROMISE",
             "precision": 1,
-            "recall": 0.7777777777777778,
-            "f1": 0.8750000000000001
+            "recall": 1,
+            "f1": 1
           },
           {
             "label": "SAFE",
-            "precision": 0.75,
-            "recall": 1,
-            "f1": 0.8571428571428571
+            "precision": 0.8181818181818182,
+            "recall": 0.9782608695652174,
+            "f1": 0.8910891089108911
           }
         ]
       },
-      "modelFixes": [
-        "hold-off-001",
-        "hold2-phone-003",
-        "hold2-identity-004",
-        "hold2-escrow-006",
-        "hold2-military-002",
-        "hold2-military-003",
-        "hold2-military-005",
-        "hold2-military-006",
-        "hold2-benign-007"
-      ],
+      "modelFixes": [],
       "modelRegressions": [
         "hold-mil-001",
         "hold-mil-002",
+        "hold-mil-005",
         "hold2-phone-002",
-        "hold2-payment-003"
+        "hold2-phone-005",
+        "hold2-phone-006",
+        "hold2-verification-003",
+        "hold2-escrow-002",
+        "hold2-escrow-003",
+        "hold2-escrow-004",
+        "hold2-escrow-005",
+        "hold2-military-002",
+        "hold2-military-004"
       ],
       "rows": [
         {
           "id": "hold-off-001",
           "expected": "OFF_PLATFORM_REDIRECT",
-          "rules": "SAFE",
+          "rules": "OFF_PLATFORM_REDIRECT",
           "candidate": "OFF_PLATFORM_REDIRECT",
           "decision": "OFF_PLATFORM_REDIRECT",
-          "score": 0.8709587158862556,
-          "margin": 0.7622444474245406
+          "score": 0.8714390019570781,
+          "margin": 0.7633163541769071
         },
         {
           "id": "hold-off-002",
@@ -2540,8 +2539,8 @@
           "rules": "OFF_PLATFORM_REDIRECT",
           "candidate": "OFF_PLATFORM_REDIRECT",
           "decision": "OFF_PLATFORM_REDIRECT",
-          "score": 0.9893261739004203,
-          "margin": 0.9838189581287301
+          "score": 0.9893382468669628,
+          "margin": 0.9838399604531605
         },
         {
           "id": "hold-off-003",
@@ -2549,8 +2548,8 @@
           "rules": "OFF_PLATFORM_REDIRECT",
           "candidate": "OFF_PLATFORM_REDIRECT",
           "decision": "OFF_PLATFORM_REDIRECT",
-          "score": 0.6916827734696137,
-          "margin": 0.41149510712719045
+          "score": 0.6919225595281403,
+          "margin": 0.41189811697804946
         },
         {
           "id": "hold-off-004",
@@ -2558,8 +2557,8 @@
           "rules": "OFF_PLATFORM_REDIRECT",
           "candidate": "OFF_PLATFORM_REDIRECT",
           "decision": "OFF_PLATFORM_REDIRECT",
-          "score": 0.9085965309437906,
-          "margin": 0.8536319902763889
+          "score": 0.908360133961137,
+          "margin": 0.8537048038904796
         },
         {
           "id": "hold-off-005",
@@ -2567,8 +2566,8 @@
           "rules": "OFF_PLATFORM_REDIRECT",
           "candidate": "OFF_PLATFORM_REDIRECT",
           "decision": "ABSTAIN",
-          "score": 0.5005629782224544,
-          "margin": 0.1010613798008026
+          "score": 0.501921657764546,
+          "margin": 0.10363415719835684
         },
         {
           "id": "hold-off-006",
@@ -2576,8 +2575,8 @@
           "rules": "OFF_PLATFORM_REDIRECT",
           "candidate": "OFF_PLATFORM_REDIRECT",
           "decision": "OFF_PLATFORM_REDIRECT",
-          "score": 0.6516900520940035,
-          "margin": 0.35929222466532207
+          "score": 0.6515514464675328,
+          "margin": 0.3598545463874339
         },
         {
           "id": "hold-verify-001",
@@ -2585,8 +2584,8 @@
           "rules": "VERIFICATION_PHISHING",
           "candidate": "VERIFICATION_PHISHING",
           "decision": "VERIFICATION_PHISHING",
-          "score": 0.9987434445836798,
-          "margin": 0.9983005310422897
+          "score": 0.9920238242621701,
+          "margin": 0.9871398303411918
         },
         {
           "id": "hold-verify-002",
@@ -2594,17 +2593,17 @@
           "rules": "VERIFICATION_PHISHING",
           "candidate": "VERIFICATION_PHISHING",
           "decision": "VERIFICATION_PHISHING",
-          "score": 0.9720305355850922,
-          "margin": 0.9579245859845406
+          "score": 0.9818060790952298,
+          "margin": 0.9736878843500292
         },
         {
           "id": "hold-verify-003",
-          "expected": "VERIFICATION_PHISHING",
+          "expected": "PAYMENT_CREDENTIAL_THEFT",
           "rules": "PAYMENT_CREDENTIAL_THEFT",
-          "candidate": "SAFE",
-          "decision": "SAFE",
-          "score": 0.7092982520859176,
-          "margin": 0.6064725727394324
+          "candidate": "PAYMENT_CREDENTIAL_THEFT",
+          "decision": "PAYMENT_CREDENTIAL_THEFT",
+          "score": 0.8778053107229158,
+          "margin": 0.8023547368224865
         },
         {
           "id": "hold-verify-004",
@@ -2612,8 +2611,8 @@
           "rules": "VERIFICATION_PHISHING",
           "candidate": "VERIFICATION_PHISHING",
           "decision": "VERIFICATION_PHISHING",
-          "score": 0.9877308043277827,
-          "margin": 0.9820056612021326
+          "score": 0.9905864162867143,
+          "margin": 0.9860577741109866
         },
         {
           "id": "hold-pay-001",
@@ -2621,8 +2620,8 @@
           "rules": "PAYMENT_CREDENTIAL_THEFT",
           "candidate": "PAYMENT_CREDENTIAL_THEFT",
           "decision": "PAYMENT_CREDENTIAL_THEFT",
-          "score": 0.9988343020293114,
-          "margin": 0.9979746281786608
+          "score": 0.9992424026578035,
+          "margin": 0.9988139526476111
         },
         {
           "id": "hold-pay-002",
@@ -2630,8 +2629,8 @@
           "rules": "PAYMENT_CREDENTIAL_THEFT",
           "candidate": "PAYMENT_CREDENTIAL_THEFT",
           "decision": "PAYMENT_CREDENTIAL_THEFT",
-          "score": 0.989936930759455,
-          "margin": 0.9845865719659744
+          "score": 0.9931767488311726,
+          "margin": 0.9907947129510688
         },
         {
           "id": "hold-pay-003",
@@ -2639,8 +2638,8 @@
           "rules": "PAYMENT_CREDENTIAL_THEFT",
           "candidate": "PAYMENT_CREDENTIAL_THEFT",
           "decision": "PAYMENT_CREDENTIAL_THEFT",
-          "score": 0.9823756397498161,
-          "margin": 0.9704331335528115
+          "score": 0.987898367412864,
+          "margin": 0.9816543047309652
         },
         {
           "id": "hold-id-001",
@@ -2648,8 +2647,8 @@
           "rules": "IDENTITY_PROBING",
           "candidate": "IDENTITY_PROBING",
           "decision": "IDENTITY_PROBING",
-          "score": 0.9979774483517807,
-          "margin": 0.9966363574091451
+          "score": 0.9979547885821053,
+          "margin": 0.9965776137375284
         },
         {
           "id": "hold-id-002",
@@ -2657,8 +2656,8 @@
           "rules": "IDENTITY_PROBING",
           "candidate": "IDENTITY_PROBING",
           "decision": "IDENTITY_PROBING",
-          "score": 0.9937749330448256,
-          "margin": 0.9913761887714696
+          "score": 0.9932659102180249,
+          "margin": 0.9906486028215298
         },
         {
           "id": "hold-id-003",
@@ -2666,8 +2665,8 @@
           "rules": "IDENTITY_PROBING",
           "candidate": "IDENTITY_PROBING",
           "decision": "IDENTITY_PROBING",
-          "score": 0.9837284383183579,
-          "margin": 0.9779249193336035
+          "score": 0.9826971366806759,
+          "margin": 0.97653060415839
         },
         {
           "id": "hold-escrow-001",
@@ -2675,8 +2674,8 @@
           "rules": "ESCROW_DELIVERY_SCAM",
           "candidate": "ESCROW_DELIVERY_SCAM",
           "decision": "ESCROW_DELIVERY_SCAM",
-          "score": 0.9928874121812842,
-          "margin": 0.9901976212175343
+          "score": 0.9937855271048566,
+          "margin": 0.9910335332782991
         },
         {
           "id": "hold-escrow-002",
@@ -2684,8 +2683,8 @@
           "rules": "ESCROW_DELIVERY_SCAM",
           "candidate": "ESCROW_DELIVERY_SCAM",
           "decision": "ESCROW_DELIVERY_SCAM",
-          "score": 0.9688597774548617,
-          "margin": 0.951537071915429
+          "score": 0.9686497668784159,
+          "margin": 0.9512120849993747
         },
         {
           "id": "hold-escrow-003",
@@ -2693,8 +2692,8 @@
           "rules": "ESCROW_DELIVERY_SCAM",
           "candidate": "ESCROW_DELIVERY_SCAM",
           "decision": "ABSTAIN",
-          "score": 0.4284804613370273,
-          "margin": 0.06818321861258458
+          "score": 0.4260842784167082,
+          "margin": 0.06685256475632184
         },
         {
           "id": "hold-mil-001",
@@ -2702,8 +2701,8 @@
           "rules": "MILITARY_SABOTAGE_RECRUITMENT",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.6213538835237405,
-          "margin": 0.3691506380002058
+          "score": 0.6221137059609164,
+          "margin": 0.37005630204533585
         },
         {
           "id": "hold-mil-002",
@@ -2711,8 +2710,8 @@
           "rules": "MILITARY_SABOTAGE_RECRUITMENT",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.8427168477040425,
-          "margin": 0.7510018213701664
+          "score": 0.8443659747924527,
+          "margin": 0.753171537473131
         },
         {
           "id": "hold-mil-003",
@@ -2720,8 +2719,8 @@
           "rules": "MILITARY_SABOTAGE_RECRUITMENT",
           "candidate": "MILITARY_SABOTAGE_RECRUITMENT",
           "decision": "ABSTAIN",
-          "score": 0.5248133712459928,
-          "margin": 0.11932433033886153
+          "score": 0.5257801316437041,
+          "margin": 0.12105162750475518
         },
         {
           "id": "hold-mil-004",
@@ -2729,17 +2728,17 @@
           "rules": "MILITARY_SABOTAGE_RECRUITMENT",
           "candidate": "MILITARY_SABOTAGE_RECRUITMENT",
           "decision": "MILITARY_SABOTAGE_RECRUITMENT",
-          "score": 0.9285398375237519,
-          "margin": 0.8784226028102884
+          "score": 0.928489827762845,
+          "margin": 0.8780337330435343
         },
         {
           "id": "hold-mil-005",
           "expected": "MILITARY_SABOTAGE_RECRUITMENT",
-          "rules": "SAFE",
+          "rules": "MILITARY_SABOTAGE_RECRUITMENT",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9059390525914617,
-          "margin": 0.8723240891363254
+          "score": 0.9060056896913958,
+          "margin": 0.8723776447747774
         },
         {
           "id": "hold-crypto-001",
@@ -2747,8 +2746,8 @@
           "rules": "CRYPTO_WALLET_COMPROMISE",
           "candidate": "CRYPTO_WALLET_COMPROMISE",
           "decision": "CRYPTO_WALLET_COMPROMISE",
-          "score": 0.9976571990482801,
-          "margin": 0.996727295426014
+          "score": 0.9976398031052855,
+          "margin": 0.9967019787942516
         },
         {
           "id": "hold-crypto-002",
@@ -2756,8 +2755,8 @@
           "rules": "CRYPTO_WALLET_COMPROMISE",
           "candidate": "CRYPTO_WALLET_COMPROMISE",
           "decision": "CRYPTO_WALLET_COMPROMISE",
-          "score": 0.9983467255269024,
-          "margin": 0.9975345157194332
+          "score": 0.9983427924213344,
+          "margin": 0.9975280901446378
         },
         {
           "id": "hold-crypto-003",
@@ -2765,8 +2764,8 @@
           "rules": "CRYPTO_WALLET_COMPROMISE",
           "candidate": "CRYPTO_WALLET_COMPROMISE",
           "decision": "CRYPTO_WALLET_COMPROMISE",
-          "score": 0.9928976981672831,
-          "margin": 0.989632112041413
+          "score": 0.9927882182985011,
+          "margin": 0.9895261683907376
         },
         {
           "id": "hold-benign-001",
@@ -2774,8 +2773,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9626249345786438,
-          "margin": 0.9394057787116732
+          "score": 0.9622411946772222,
+          "margin": 0.9387886186622248
         },
         {
           "id": "hold-benign-002",
@@ -2783,8 +2782,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.851277910363029,
-          "margin": 0.7150919518744971
+          "score": 0.8507522815036072,
+          "margin": 0.7142082142028864
         },
         {
           "id": "hold-benign-003",
@@ -2792,8 +2791,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.7624483132453135,
-          "margin": 0.5954336608690909
+          "score": 0.7632834410852224,
+          "margin": 0.5968038608610973
         },
         {
           "id": "hold2-phone-001",
@@ -2801,8 +2800,8 @@
           "rules": "OFF_PLATFORM_REDIRECT",
           "candidate": "OFF_PLATFORM_REDIRECT",
           "decision": "OFF_PLATFORM_REDIRECT",
-          "score": 0.9655036021444382,
-          "margin": 0.9499854595249018
+          "score": 0.9653306634991696,
+          "margin": 0.9498662642215726
         },
         {
           "id": "hold2-phone-002",
@@ -2810,17 +2809,17 @@
           "rules": "OFF_PLATFORM_REDIRECT",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.7842097122454924,
-          "margin": 0.6482987273728047
+          "score": 0.7831154701195491,
+          "margin": 0.6463798675927638
         },
         {
           "id": "hold2-phone-003",
           "expected": "OFF_PLATFORM_REDIRECT",
-          "rules": "SAFE",
+          "rules": "OFF_PLATFORM_REDIRECT",
           "candidate": "OFF_PLATFORM_REDIRECT",
           "decision": "OFF_PLATFORM_REDIRECT",
-          "score": 0.6599490957618418,
-          "margin": 0.3374862222311029
+          "score": 0.6607202124838372,
+          "margin": 0.3382566319226123
         },
         {
           "id": "hold2-phone-004",
@@ -2828,35 +2827,35 @@
           "rules": "OFF_PLATFORM_REDIRECT",
           "candidate": "OFF_PLATFORM_REDIRECT",
           "decision": "OFF_PLATFORM_REDIRECT",
-          "score": 0.7734049088216344,
-          "margin": 0.6206786168826037
+          "score": 0.7728834219434828,
+          "margin": 0.6212711112169157
         },
         {
           "id": "hold2-phone-005",
           "expected": "OFF_PLATFORM_REDIRECT",
-          "rules": "ESCROW_DELIVERY_SCAM",
+          "rules": "OFF_PLATFORM_REDIRECT",
           "candidate": "SAFE",
           "decision": "ABSTAIN",
-          "score": 0.4296522332009037,
-          "margin": 0.15285992580783803
+          "score": 0.42979045972964447,
+          "margin": 0.15338778355348792
         },
         {
           "id": "hold2-phone-006",
           "expected": "OFF_PLATFORM_REDIRECT",
-          "rules": "SAFE",
+          "rules": "OFF_PLATFORM_REDIRECT",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.6989695597537188,
-          "margin": 0.5162529530016682
+          "score": 0.7001656519785191,
+          "margin": 0.5187642458871757
         },
         {
           "id": "hold2-verification-001",
           "expected": "VERIFICATION_PHISHING",
-          "rules": "PAYMENT_CREDENTIAL_THEFT",
-          "candidate": "PAYMENT_CREDENTIAL_THEFT",
-          "decision": "ABSTAIN",
-          "score": 0.546415854596845,
-          "margin": 0.11701399344420627
+          "rules": "VERIFICATION_PHISHING",
+          "candidate": "VERIFICATION_PHISHING",
+          "decision": "VERIFICATION_PHISHING",
+          "score": 0.9841833227346309,
+          "margin": 0.9742565239297304
         },
         {
           "id": "hold2-verification-002",
@@ -2864,17 +2863,17 @@
           "rules": "VERIFICATION_PHISHING",
           "candidate": "VERIFICATION_PHISHING",
           "decision": "VERIFICATION_PHISHING",
-          "score": 0.9430387903873423,
-          "margin": 0.9063381735581658
+          "score": 0.9489110053062764,
+          "margin": 0.9161485513078848
         },
         {
           "id": "hold2-verification-003",
           "expected": "VERIFICATION_PHISHING",
-          "rules": "SAFE",
+          "rules": "VERIFICATION_PHISHING",
           "candidate": "ESCROW_DELIVERY_SCAM",
           "decision": "ABSTAIN",
-          "score": 0.49629220833203963,
-          "margin": 0.17172447041520633
+          "score": 0.5037526461026396,
+          "margin": 0.17796699628986562
         },
         {
           "id": "hold2-verification-004",
@@ -2882,8 +2881,8 @@
           "rules": "VERIFICATION_PHISHING",
           "candidate": "VERIFICATION_PHISHING",
           "decision": "VERIFICATION_PHISHING",
-          "score": 0.9556997517461299,
-          "margin": 0.9321473562645162
+          "score": 0.9722209247960096,
+          "margin": 0.9587480186068564
         },
         {
           "id": "hold2-safe-password-001",
@@ -2891,8 +2890,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.8888648932413481,
-          "margin": 0.8164510067410187
+          "score": 0.8881706439222987,
+          "margin": 0.815369812101898
         },
         {
           "id": "hold2-verification-006",
@@ -2900,8 +2899,8 @@
           "rules": "VERIFICATION_PHISHING",
           "candidate": "VERIFICATION_PHISHING",
           "decision": "VERIFICATION_PHISHING",
-          "score": 0.9874972728571779,
-          "margin": 0.979683948985797
+          "score": 0.9913156713650108,
+          "margin": 0.9861147929167206
         },
         {
           "id": "hold2-payment-001",
@@ -2909,26 +2908,26 @@
           "rules": "PAYMENT_CREDENTIAL_THEFT",
           "candidate": "PAYMENT_CREDENTIAL_THEFT",
           "decision": "PAYMENT_CREDENTIAL_THEFT",
-          "score": 0.9525256380289203,
-          "margin": 0.9172630920961866
+          "score": 0.9861253220754216,
+          "margin": 0.9803405094407703
         },
         {
           "id": "hold2-payment-002",
           "expected": "PAYMENT_CREDENTIAL_THEFT",
-          "rules": "SAFE",
-          "candidate": "SAFE",
-          "decision": "SAFE",
-          "score": 0.6946495867013237,
-          "margin": 0.6135023363726443
+          "rules": "PAYMENT_CREDENTIAL_THEFT",
+          "candidate": "PAYMENT_CREDENTIAL_THEFT",
+          "decision": "PAYMENT_CREDENTIAL_THEFT",
+          "score": 0.9846304658149221,
+          "margin": 0.9792708799078715
         },
         {
           "id": "hold2-payment-003",
           "expected": "PAYMENT_CREDENTIAL_THEFT",
           "rules": "PAYMENT_CREDENTIAL_THEFT",
-          "candidate": "SAFE",
+          "candidate": "PAYMENT_CREDENTIAL_THEFT",
           "decision": "ABSTAIN",
-          "score": 0.38524295734287567,
-          "margin": 0.004223524073662666
+          "score": 0.3894032234895863,
+          "margin": 0.0035557491313767953
         },
         {
           "id": "hold2-payment-004",
@@ -2936,8 +2935,8 @@
           "rules": "PAYMENT_CREDENTIAL_THEFT",
           "candidate": "PAYMENT_CREDENTIAL_THEFT",
           "decision": "PAYMENT_CREDENTIAL_THEFT",
-          "score": 0.9912148785118484,
-          "margin": 0.984683389911106
+          "score": 0.9950067774681115,
+          "margin": 0.9922058492706151
         },
         {
           "id": "hold2-payment-005",
@@ -2945,8 +2944,8 @@
           "rules": "PAYMENT_CREDENTIAL_THEFT",
           "candidate": "PAYMENT_CREDENTIAL_THEFT",
           "decision": "PAYMENT_CREDENTIAL_THEFT",
-          "score": 0.9649577176552158,
-          "margin": 0.947180760733313
+          "score": 0.9685190277423625,
+          "margin": 0.9543492817097161
         },
         {
           "id": "hold2-payment-006",
@@ -2954,8 +2953,8 @@
           "rules": "PAYMENT_CREDENTIAL_THEFT",
           "candidate": "PAYMENT_CREDENTIAL_THEFT",
           "decision": "PAYMENT_CREDENTIAL_THEFT",
-          "score": 0.9887761775123867,
-          "margin": 0.9805369952054522
+          "score": 0.993446893883618,
+          "margin": 0.9899305516859067
         },
         {
           "id": "hold2-identity-001",
@@ -2963,8 +2962,8 @@
           "rules": "IDENTITY_PROBING",
           "candidate": "IDENTITY_PROBING",
           "decision": "IDENTITY_PROBING",
-          "score": 0.9955488271526446,
-          "margin": 0.9937448116364693
+          "score": 0.9953227336628037,
+          "margin": 0.9934367295936148
         },
         {
           "id": "hold2-identity-002",
@@ -2972,26 +2971,26 @@
           "rules": "IDENTITY_PROBING",
           "candidate": "IDENTITY_PROBING",
           "decision": "IDENTITY_PROBING",
-          "score": 0.9979628224641477,
-          "margin": 0.9967752948401201
+          "score": 0.9977074735443071,
+          "margin": 0.9963501679546001
         },
         {
           "id": "hold2-identity-003",
           "expected": "IDENTITY_PROBING",
-          "rules": "SAFE",
-          "candidate": "SAFE",
-          "decision": "SAFE",
-          "score": 0.7406886086401187,
-          "margin": 0.6118713049074824
+          "rules": "IDENTITY_PROBING",
+          "candidate": "IDENTITY_PROBING",
+          "decision": "IDENTITY_PROBING",
+          "score": 0.9706193394913167,
+          "margin": 0.9547000949128619
         },
         {
           "id": "hold2-identity-004",
           "expected": "IDENTITY_PROBING",
-          "rules": "VERIFICATION_PHISHING",
+          "rules": "IDENTITY_PROBING",
           "candidate": "IDENTITY_PROBING",
           "decision": "IDENTITY_PROBING",
-          "score": 0.9886804926480082,
-          "margin": 0.985012961536671
+          "score": 0.9882746041622835,
+          "margin": 0.9843980529840799
         },
         {
           "id": "hold2-identity-005",
@@ -2999,8 +2998,8 @@
           "rules": "IDENTITY_PROBING",
           "candidate": "IDENTITY_PROBING",
           "decision": "IDENTITY_PROBING",
-          "score": 0.9926805858252925,
-          "margin": 0.9879551321713242
+          "score": 0.9924632804561019,
+          "margin": 0.9876000773617638
         },
         {
           "id": "hold2-identity-006",
@@ -3008,8 +3007,8 @@
           "rules": "IDENTITY_PROBING",
           "candidate": "IDENTITY_PROBING",
           "decision": "IDENTITY_PROBING",
-          "score": 0.9893793722282426,
-          "margin": 0.9818853790977797
+          "score": 0.9880322760531567,
+          "margin": 0.9795567080861701
         },
         {
           "id": "hold2-escrow-001",
@@ -3017,53 +3016,53 @@
           "rules": "ESCROW_DELIVERY_SCAM",
           "candidate": "ESCROW_DELIVERY_SCAM",
           "decision": "ESCROW_DELIVERY_SCAM",
-          "score": 0.7167705966506271,
-          "margin": 0.5922412218702717
+          "score": 0.7119553470502407,
+          "margin": 0.5829770997671693
         },
         {
           "id": "hold2-escrow-002",
           "expected": "ESCROW_DELIVERY_SCAM",
-          "rules": "SAFE",
+          "rules": "ESCROW_DELIVERY_SCAM",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9444513739050586,
-          "margin": 0.9212120445079226
+          "score": 0.9442859486342783,
+          "margin": 0.9209181315186162
         },
         {
           "id": "hold2-escrow-003",
           "expected": "ESCROW_DELIVERY_SCAM",
-          "rules": "SAFE",
+          "rules": "ESCROW_DELIVERY_SCAM",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.7975803282326451,
-          "margin": 0.7181739127179165
+          "score": 0.7993745497809431,
+          "margin": 0.7196324727650083
         },
         {
           "id": "hold2-escrow-004",
           "expected": "ESCROW_DELIVERY_SCAM",
-          "rules": "SAFE",
+          "rules": "ESCROW_DELIVERY_SCAM",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.7767580842422527,
-          "margin": 0.698612241169969
+          "score": 0.7762762649243043,
+          "margin": 0.698098298470992
         },
         {
           "id": "hold2-escrow-005",
           "expected": "ESCROW_DELIVERY_SCAM",
-          "rules": "SAFE",
+          "rules": "ESCROW_DELIVERY_SCAM",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.8916263791940505,
-          "margin": 0.8526658737383992
+          "score": 0.8910994884203356,
+          "margin": 0.851383266435604
         },
         {
           "id": "hold2-escrow-006",
           "expected": "ESCROW_DELIVERY_SCAM",
-          "rules": "SAFE",
+          "rules": "ESCROW_DELIVERY_SCAM",
           "candidate": "ESCROW_DELIVERY_SCAM",
           "decision": "ESCROW_DELIVERY_SCAM",
-          "score": 0.7397696619107738,
-          "margin": 0.5394746560475251
+          "score": 0.7373755453572656,
+          "margin": 0.5356976354223267
         },
         {
           "id": "hold2-military-001",
@@ -3071,53 +3070,53 @@
           "rules": "MILITARY_SABOTAGE_RECRUITMENT",
           "candidate": "MILITARY_SABOTAGE_RECRUITMENT",
           "decision": "MILITARY_SABOTAGE_RECRUITMENT",
-          "score": 0.6315323832386117,
-          "margin": 0.37032576902798875
+          "score": 0.6317732198292808,
+          "margin": 0.37097487776294163
         },
         {
           "id": "hold2-military-002",
-          "expected": "MILITARY_SABOTAGE_RECRUITMENT",
+          "expected": "SAFE",
           "rules": "SAFE",
           "candidate": "MILITARY_SABOTAGE_RECRUITMENT",
           "decision": "ABSTAIN",
-          "score": 0.555389532812608,
-          "margin": 0.2646456437560783
+          "score": 0.5563251171849002,
+          "margin": 0.26443789945488083
         },
         {
           "id": "hold2-military-003",
           "expected": "MILITARY_SABOTAGE_RECRUITMENT",
-          "rules": "SAFE",
+          "rules": "MILITARY_SABOTAGE_RECRUITMENT",
           "candidate": "MILITARY_SABOTAGE_RECRUITMENT",
           "decision": "ABSTAIN",
-          "score": 0.5110265270695599,
-          "margin": 0.09655069535539662
+          "score": 0.5114025542394031,
+          "margin": 0.09670194454160741
         },
         {
           "id": "hold2-military-004",
           "expected": "MILITARY_SABOTAGE_RECRUITMENT",
-          "rules": "SAFE",
+          "rules": "MILITARY_SABOTAGE_RECRUITMENT",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.8650125498202224,
-          "margin": 0.7851910977734924
+          "score": 0.865150463343857,
+          "margin": 0.7852000338991947
         },
         {
           "id": "hold2-military-005",
           "expected": "MILITARY_SABOTAGE_RECRUITMENT",
-          "rules": "SAFE",
+          "rules": "MILITARY_SABOTAGE_RECRUITMENT",
           "candidate": "MILITARY_SABOTAGE_RECRUITMENT",
           "decision": "MILITARY_SABOTAGE_RECRUITMENT",
-          "score": 0.72451289114605,
-          "margin": 0.6026284479431886
+          "score": 0.724012076431453,
+          "margin": 0.60159003558046
         },
         {
           "id": "hold2-military-006",
           "expected": "MILITARY_SABOTAGE_RECRUITMENT",
-          "rules": "SAFE",
+          "rules": "MILITARY_SABOTAGE_RECRUITMENT",
           "candidate": "MILITARY_SABOTAGE_RECRUITMENT",
           "decision": "ABSTAIN",
-          "score": 0.5876500059893974,
-          "margin": 0.24892105410973075
+          "score": 0.5874490054142837,
+          "margin": 0.24904642047403225
         },
         {
           "id": "hold2-crypto-001",
@@ -3125,8 +3124,8 @@
           "rules": "CRYPTO_WALLET_COMPROMISE",
           "candidate": "CRYPTO_WALLET_COMPROMISE",
           "decision": "CRYPTO_WALLET_COMPROMISE",
-          "score": 0.9953703331715208,
-          "margin": 0.9934672134634664
+          "score": 0.9953750646831186,
+          "margin": 0.993473698485113
         },
         {
           "id": "hold2-crypto-002",
@@ -3134,26 +3133,26 @@
           "rules": "CRYPTO_WALLET_COMPROMISE",
           "candidate": "CRYPTO_WALLET_COMPROMISE",
           "decision": "CRYPTO_WALLET_COMPROMISE",
-          "score": 0.9595719288984387,
-          "margin": 0.9370976141538613
+          "score": 0.9597605402135944,
+          "margin": 0.9373598626784823
         },
         {
           "id": "hold2-crypto-003",
           "expected": "CRYPTO_WALLET_COMPROMISE",
-          "rules": "SAFE",
-          "candidate": "SAFE",
-          "decision": "SAFE",
-          "score": 0.8390870292094803,
-          "margin": 0.7565064069482597
+          "rules": "CRYPTO_WALLET_COMPROMISE",
+          "candidate": "CRYPTO_WALLET_COMPROMISE",
+          "decision": "CRYPTO_WALLET_COMPROMISE",
+          "score": 0.9933604833415053,
+          "margin": 0.9892041318986706
         },
         {
           "id": "hold2-crypto-004",
           "expected": "CRYPTO_WALLET_COMPROMISE",
-          "rules": "SAFE",
-          "candidate": "SAFE",
-          "decision": "SAFE",
-          "score": 0.7941680323118356,
-          "margin": 0.737735902413341
+          "rules": "CRYPTO_WALLET_COMPROMISE",
+          "candidate": "CRYPTO_WALLET_COMPROMISE",
+          "decision": "CRYPTO_WALLET_COMPROMISE",
+          "score": 0.9905674101999857,
+          "margin": 0.984680202844053
         },
         {
           "id": "hold2-crypto-005",
@@ -3161,8 +3160,8 @@
           "rules": "CRYPTO_WALLET_COMPROMISE",
           "candidate": "CRYPTO_WALLET_COMPROMISE",
           "decision": "CRYPTO_WALLET_COMPROMISE",
-          "score": 0.9916742130146007,
-          "margin": 0.9884431159677274
+          "score": 0.9917169435684704,
+          "margin": 0.9884864492627616
         },
         {
           "id": "hold2-crypto-006",
@@ -3170,8 +3169,8 @@
           "rules": "CRYPTO_WALLET_COMPROMISE",
           "candidate": "CRYPTO_WALLET_COMPROMISE",
           "decision": "CRYPTO_WALLET_COMPROMISE",
-          "score": 0.9955367653066278,
-          "margin": 0.9927454858609109
+          "score": 0.995532500268945,
+          "margin": 0.9927393418205751
         },
         {
           "id": "hold2-benign-001",
@@ -3179,8 +3178,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9943545488387145,
-          "margin": 0.9918745263808363
+          "score": 0.9942596760927582,
+          "margin": 0.9917431167819967
         },
         {
           "id": "hold2-benign-002",
@@ -3188,8 +3187,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9351207228463279,
-          "margin": 0.9072412567264617
+          "score": 0.9347403066831085,
+          "margin": 0.9068934318799229
         },
         {
           "id": "hold2-benign-003",
@@ -3197,8 +3196,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9864893235326085,
-          "margin": 0.9826786177256819
+          "score": 0.9867629637197571,
+          "margin": 0.9834490207494889
         },
         {
           "id": "hold2-benign-004",
@@ -3206,8 +3205,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.958557864064991,
-          "margin": 0.9402799648743368
+          "score": 0.9585985164806653,
+          "margin": 0.9402371428687479
         },
         {
           "id": "hold2-benign-005",
@@ -3215,8 +3214,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9787240116872512,
-          "margin": 0.9741093825305981
+          "score": 0.9784669764139915,
+          "margin": 0.9738857333744003
         },
         {
           "id": "hold2-benign-006",
@@ -3224,17 +3223,17 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9479578134838291,
-          "margin": 0.9317283554862676
+          "score": 0.9484589436075511,
+          "margin": 0.9322428411654314
         },
         {
           "id": "hold2-benign-007",
           "expected": "SAFE",
-          "rules": "PAYMENT_CREDENTIAL_THEFT",
+          "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9601819063740746,
-          "margin": 0.9467132673154061
+          "score": 0.9603036993035128,
+          "margin": 0.9466794879279286
         },
         {
           "id": "hold2-benign-008",
@@ -3242,8 +3241,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.8198810072198404,
-          "margin": 0.7006597450292764
+          "score": 0.8188871362807456,
+          "margin": 0.6992928685318033
         },
         {
           "id": "safe2-hold-001",
@@ -3251,8 +3250,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.8237798882992784,
-          "margin": 0.7289554091457313
+          "score": 0.8236040722281402,
+          "margin": 0.7283540660709885
         },
         {
           "id": "safe2-hold-002",
@@ -3260,8 +3259,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.8040951331694135,
-          "margin": 0.7350613014345133
+          "score": 0.8059921805238167,
+          "margin": 0.7363820979748733
         },
         {
           "id": "safe2-hold-003",
@@ -3269,8 +3268,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9111712443033375,
-          "margin": 0.8575198688023443
+          "score": 0.9109255309827734,
+          "margin": 0.8572222274910443
         },
         {
           "id": "safe2-hold-004",
@@ -3278,8 +3277,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.8885425453740755,
-          "margin": 0.8377433687828767
+          "score": 0.8878826692901954,
+          "margin": 0.8370623555208363
         },
         {
           "id": "safe2-hold-005",
@@ -3287,8 +3286,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.8801395825018422,
-          "margin": 0.8231152249369044
+          "score": 0.8810043729131302,
+          "margin": 0.8234917123091642
         },
         {
           "id": "safe2-hold-006",
@@ -3296,8 +3295,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.8995806898619896,
-          "margin": 0.8478398137149605
+          "score": 0.8992642299155879,
+          "margin": 0.8474083187130452
         },
         {
           "id": "safe2-hold-007",
@@ -3305,8 +3304,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9601137747804114,
-          "margin": 0.9434339315709647
+          "score": 0.9598976413575753,
+          "margin": 0.9431952376459504
         },
         {
           "id": "safe2-hold-008",
@@ -3314,8 +3313,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.8345792267032266,
-          "margin": 0.7599032197325094
+          "score": 0.8353732490824899,
+          "margin": 0.7608282331493739
         },
         {
           "id": "safe2-hold-009",
@@ -3323,8 +3322,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.7944875568867971,
-          "margin": 0.7098933540004653
+          "score": 0.7949269215449136,
+          "margin": 0.7104893269816144
         },
         {
           "id": "safe2-hold-010",
@@ -3332,8 +3331,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.8928425875959963,
-          "margin": 0.8465870246533231
+          "score": 0.892719489964804,
+          "margin": 0.846374182343791
         },
         {
           "id": "safe2-hold-011",
@@ -3341,8 +3340,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9630812619599076,
-          "margin": 0.9470743626611915
+          "score": 0.9629840817585726,
+          "margin": 0.9470264991238344
         },
         {
           "id": "safe2-hold-012",
@@ -3350,8 +3349,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9070228428350537,
-          "margin": 0.876204534178302
+          "score": 0.9137087418704585,
+          "margin": 0.8830318396416951
         },
         {
           "id": "safe2-hold-013",
@@ -3359,8 +3358,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9439229231879438,
-          "margin": 0.9223258535386142
+          "score": 0.9435706919822193,
+          "margin": 0.9218281293354048
         },
         {
           "id": "safe2-hold-014",
@@ -3368,8 +3367,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.7160126975628582,
-          "margin": 0.5083518771422313
+          "score": 0.7170139402403065,
+          "margin": 0.5096368851202118
         },
         {
           "id": "safe2-hold-015",
@@ -3377,8 +3376,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9322769312337407,
-          "margin": 0.9039047178846499
+          "score": 0.9317151379701749,
+          "margin": 0.9033656558898822
         },
         {
           "id": "safe2-hold-016",
@@ -3386,8 +3385,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9030564990455073,
-          "margin": 0.859809215926544
+          "score": 0.9034263371743868,
+          "margin": 0.8601941663027286
         },
         {
           "id": "safe2-hold-017",
@@ -3395,8 +3394,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9555702131883209,
-          "margin": 0.9388176375608351
+          "score": 0.9555822584751198,
+          "margin": 0.9387797228763055
         },
         {
           "id": "safe2-hold-018",
@@ -3404,8 +3403,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9612643303832635,
-          "margin": 0.9455678468815076
+          "score": 0.9609575525882851,
+          "margin": 0.9452567390268982
         },
         {
           "id": "safe2-hold-019",
@@ -3413,8 +3412,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9625404034653691,
-          "margin": 0.9482167757361777
+          "score": 0.9623312973782505,
+          "margin": 0.9479226091010418
         },
         {
           "id": "safe2-hold-020",
@@ -3422,8 +3421,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9297467601712492,
-          "margin": 0.8974727984988331
+          "score": 0.930692150106937,
+          "margin": 0.8986007700071924
         },
         {
           "id": "safe2-hold-021",
@@ -3431,8 +3430,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9619580304587444,
-          "margin": 0.9448801720294948
+          "score": 0.9617095104844186,
+          "margin": 0.9445640379735076
         },
         {
           "id": "safe2-hold-022",
@@ -3440,8 +3439,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.968098460708735,
-          "margin": 0.9539327521761621
+          "score": 0.9681806630013714,
+          "margin": 0.953908717826127
         },
         {
           "id": "safe2-hold-023",
@@ -3449,8 +3448,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9592467618234777,
-          "margin": 0.9481821805018404
+          "score": 0.95863755691497,
+          "margin": 0.9475178165766581
         },
         {
           "id": "safe2-hold-024",
@@ -3458,8 +3457,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9256290577505093,
-          "margin": 0.8924296392276849
+          "score": 0.9261053716858585,
+          "margin": 0.8927220827999136
         },
         {
           "id": "safe2-hold-025",
@@ -3467,8 +3466,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9145445109502955,
-          "margin": 0.8814827857211357
+          "score": 0.9135139671858851,
+          "margin": 0.8801547432343793
         },
         {
           "id": "safe2-hold-026",
@@ -3476,8 +3475,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.8802320254649642,
-          "margin": 0.8199817053163984
+          "score": 0.8803452289081034,
+          "margin": 0.8200956256944036
         },
         {
           "id": "safe2-hold-027",
@@ -3485,8 +3484,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9285523518106059,
-          "margin": 0.8918798044858247
+          "score": 0.928493184769521,
+          "margin": 0.8918194304590348
         },
         {
           "id": "safe2-hold-028",
@@ -3494,8 +3493,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.972075273653414,
-          "margin": 0.9625562292569483
+          "score": 0.9720190198182842,
+          "margin": 0.9625190565575673
         },
         {
           "id": "safe2-hold-029",
@@ -3503,8 +3502,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9434016763720413,
-          "margin": 0.9226012607254955
+          "score": 0.9444801014631289,
+          "margin": 0.9235484989248302
         },
         {
           "id": "safe2-hold-030",
@@ -3512,8 +3511,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.8178016418092672,
-          "margin": 0.6679988806998748
+          "score": 0.8181046141078085,
+          "margin": 0.6685524448709352
         },
         {
           "id": "safe2-hold-031",
@@ -3521,8 +3520,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.984614862226444,
-          "margin": 0.9788228055961311
+          "score": 0.9845789459617067,
+          "margin": 0.9788009870730102
         },
         {
           "id": "safe2-hold-032",
@@ -3530,8 +3529,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9430745390144907,
-          "margin": 0.9234804622868079
+          "score": 0.9432363245027312,
+          "margin": 0.9236862984919267
         },
         {
           "id": "safe2-hold-033",
@@ -3539,8 +3538,8 @@
           "rules": "SAFE",
           "candidate": "SAFE",
           "decision": "SAFE",
-          "score": 0.9040511919281251,
-          "margin": 0.8537697746204783
+          "score": 0.9079703184554818,
+          "margin": 0.8572530026923109
         }
       ]
     }
@@ -3548,15 +3547,15 @@
   "resource": {
     "cpu": "AMD Ryzen 7 6800H with Radeon Graphics         ",
     "node": "v24.18.0",
-    "coldMs": 0.6231000000000222,
-    "medianMs": 1.50100000000009,
-    "p95Ms": 1.6500999999999522,
-    "maxMs": 2.439899999999966,
-    "processPeakRssBytes": 81997824,
+    "coldMs": 1.3617000000000417,
+    "medianMs": 1.5091999999999643,
+    "p95Ms": 1.8622000000000298,
+    "maxMs": 2.4033999999999196,
+    "processPeakRssBytes": 81453056,
     "processMemory": {
-      "rss": 77701120,
-      "heapTotal": 31055872,
-      "heapUsed": 14470184,
+      "rss": 77529088,
+      "heapTotal": 31342592,
+      "heapUsed": 14679952,
       "external": 3457622,
       "arrayBuffers": 1036242
     },

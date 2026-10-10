@@ -1,0 +1,391 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-10T18:41:00.476Z",
+  "commit": "local",
+  "corpusSha256": "9319bb14b87430898ea9dc42f14cff7faa03aa37e215861612e633ab87442cde",
+  "totalCases": 326,
+  "exactMatches": 302,
+  "exactMatchRate": 0.9263803680981595,
+  "overall": {
+    "n": 326,
+    "tp": 169,
+    "fp": 1,
+    "fn": 19,
+    "tn": 137,
+    "precision": 0.9941176470588236,
+    "recall": 0.898936170212766,
+    "f1": 0.9441340782122905
+  },
+  "byCorpus": {
+    "development": {
+      "n": 100,
+      "tp": 59,
+      "fp": 0,
+      "fn": 0,
+      "tn": 41,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1
+    },
+    "regressions": {
+      "n": 113,
+      "tp": 61,
+      "fp": 0,
+      "fn": 0,
+      "tn": 52,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1
+    },
+    "holdout": {
+      "n": 113,
+      "tp": 49,
+      "fp": 1,
+      "fn": 19,
+      "tn": 44,
+      "precision": 0.98,
+      "recall": 0.7205882352941176,
+      "f1": 0.8305084745762712
+    }
+  },
+  "byIntentType": {
+    "CRYPTO_WALLET_COMPROMISE": {
+      "n": 326,
+      "tp": 20,
+      "fp": 0,
+      "fn": 2,
+      "tn": 304,
+      "precision": 1,
+      "recall": 0.9090909090909091,
+      "f1": 0.9523809523809523
+    },
+    "ESCROW_DELIVERY_SCAM": {
+      "n": 326,
+      "tp": 19,
+      "fp": 1,
+      "fn": 5,
+      "tn": 301,
+      "precision": 0.95,
+      "recall": 0.7916666666666666,
+      "f1": 0.8636363636363635
+    },
+    "IDENTITY_PROBING": {
+      "n": 326,
+      "tp": 24,
+      "fp": 0,
+      "fn": 2,
+      "tn": 300,
+      "precision": 1,
+      "recall": 0.9230769230769231,
+      "f1": 0.9600000000000001
+    },
+    "MILITARY_SABOTAGE_RECRUITMENT": {
+      "n": 326,
+      "tp": 22,
+      "fp": 0,
+      "fn": 6,
+      "tn": 298,
+      "precision": 1,
+      "recall": 0.7857142857142857,
+      "f1": 0.88
+    },
+    "OFF_PLATFORM_REDIRECT": {
+      "n": 326,
+      "tp": 34,
+      "fp": 0,
+      "fn": 4,
+      "tn": 288,
+      "precision": 1,
+      "recall": 0.8947368421052632,
+      "f1": 0.9444444444444444
+    },
+    "PAYMENT_CREDENTIAL_THEFT": {
+      "n": 326,
+      "tp": 23,
+      "fp": 3,
+      "fn": 1,
+      "tn": 299,
+      "precision": 0.8846153846153846,
+      "recall": 0.9583333333333334,
+      "f1": 0.9199999999999999
+    },
+    "VERIFICATION_PHISHING": {
+      "n": 326,
+      "tp": 23,
+      "fp": 1,
+      "fn": 3,
+      "tn": 299,
+      "precision": 0.9583333333333334,
+      "recall": 0.8846153846153846,
+      "f1": 0.9199999999999999
+    }
+  },
+  "actionMismatches": 20,
+  "falseLockInputs": 0,
+  "mismatches": [
+    {
+      "id": "hold-off-001",
+      "corpus": "holdout",
+      "expectedDetected": true,
+      "actualDetected": false,
+      "expectedType": "OFF_PLATFORM_REDIRECT",
+      "actualType": null,
+      "expectedAction": "WARN",
+      "actualAction": "ALLOW",
+      "confidence": 0
+    },
+    {
+      "id": "hold-verify-003",
+      "corpus": "holdout",
+      "expectedDetected": true,
+      "actualDetected": true,
+      "expectedType": "VERIFICATION_PHISHING",
+      "actualType": "PAYMENT_CREDENTIAL_THEFT",
+      "expectedAction": "WARN",
+      "actualAction": "WARN",
+      "confidence": 68
+    },
+    {
+      "id": "hold-mil-005",
+      "corpus": "holdout",
+      "expectedDetected": true,
+      "actualDetected": false,
+      "expectedType": "MILITARY_SABOTAGE_RECRUITMENT",
+      "actualType": null,
+      "expectedAction": "LOCK_INPUT",
+      "actualAction": "ALLOW",
+      "confidence": 0
+    },
+    {
+      "id": "hold2-phone-003",
+      "corpus": "holdout",
+      "expectedDetected": true,
+      "actualDetected": false,
+      "expectedType": "OFF_PLATFORM_REDIRECT",
+      "actualType": null,
+      "expectedAction": "WARN",
+      "actualAction": "ALLOW",
+      "confidence": 0
+    },
+    {
+      "id": "hold2-phone-005",
+      "corpus": "holdout",
+      "expectedDetected": true,
+      "actualDetected": true,
+      "expectedType": "OFF_PLATFORM_REDIRECT",
+      "actualType": "ESCROW_DELIVERY_SCAM",
+      "expectedAction": "WARN",
+      "actualAction": "WARN",
+      "confidence": 65
+    },
+    {
+      "id": "hold2-phone-006",
+      "corpus": "holdout",
+      "expectedDetected": true,
+      "actualDetected": false,
+      "expectedType": "OFF_PLATFORM_REDIRECT",
+      "actualType": null,
+      "expectedAction": "WARN",
+      "actualAction": "ALLOW",
+      "confidence": 0
+    },
+    {
+      "id": "hold2-verification-001",
+      "corpus": "holdout",
+      "expectedDetected": true,
+      "actualDetected": true,
+      "expectedType": "VERIFICATION_PHISHING",
+      "actualType": "PAYMENT_CREDENTIAL_THEFT",
+      "expectedAction": "WARN",
+      "actualAction": "WARN",
+      "confidence": 85
+    },
+    {
+      "id": "hold2-verification-003",
+      "corpus": "holdout",
+      "expectedDetected": true,
+      "actualDetected": false,
+      "expectedType": "VERIFICATION_PHISHING",
+      "actualType": null,
+      "expectedAction": "WARN",
+      "actualAction": "ALLOW",
+      "confidence": 0
+    },
+    {
+      "id": "hold2-payment-002",
+      "corpus": "holdout",
+      "expectedDetected": true,
+      "actualDetected": false,
+      "expectedType": "PAYMENT_CREDENTIAL_THEFT",
+      "actualType": null,
+      "expectedAction": "WARN",
+      "actualAction": "ALLOW",
+      "confidence": 0
+    },
+    {
+      "id": "hold2-identity-003",
+      "corpus": "holdout",
+      "expectedDetected": true,
+      "actualDetected": false,
+      "expectedType": "IDENTITY_PROBING",
+      "actualType": null,
+      "expectedAction": "WARN",
+      "actualAction": "ALLOW",
+      "confidence": 0
+    },
+    {
+      "id": "hold2-identity-004",
+      "corpus": "holdout",
+      "expectedDetected": true,
+      "actualDetected": true,
+      "expectedType": "IDENTITY_PROBING",
+      "actualType": "VERIFICATION_PHISHING",
+      "expectedAction": "WARN",
+      "actualAction": "WARN",
+      "confidence": 65
+    },
+    {
+      "id": "hold2-escrow-002",
+      "corpus": "holdout",
+      "expectedDetected": true,
+      "actualDetected": false,
+      "expectedType": "ESCROW_DELIVERY_SCAM",
+      "actualType": null,
+      "expectedAction": "WARN",
+      "actualAction": "ALLOW",
+      "confidence": 0
+    },
+    {
+      "id": "hold2-escrow-003",
+      "corpus": "holdout",
+      "expectedDetected": true,
+      "actualDetected": false,
+      "expectedType": "ESCROW_DELIVERY_SCAM",
+      "actualType": null,
+      "expectedAction": "WARN",
+      "actualAction": "ALLOW",
+      "confidence": 0
+    },
+    {
+      "id": "hold2-escrow-004",
+      "corpus": "holdout",
+      "expectedDetected": true,
+      "actualDetected": false,
+      "expectedType": "ESCROW_DELIVERY_SCAM",
+      "actualType": null,
+      "expectedAction": "WARN",
+      "actualAction": "ALLOW",
+      "confidence": 0
+    },
+    {
+      "id": "hold2-escrow-005",
+      "corpus": "holdout",
+      "expectedDetected": true,
+      "actualDetected": false,
+      "expectedType": "ESCROW_DELIVERY_SCAM",
+      "actualType": null,
+      "expectedAction": "WARN",
+      "actualAction": "ALLOW",
+      "confidence": 0
+    },
+    {
+      "id": "hold2-escrow-006",
+      "corpus": "holdout",
+      "expectedDetected": true,
+      "actualDetected": false,
+      "expectedType": "ESCROW_DELIVERY_SCAM",
+      "actualType": null,
+      "expectedAction": "WARN",
+      "actualAction": "ALLOW",
+      "confidence": 0
+    },
+    {
+      "id": "hold2-military-002",
+      "corpus": "holdout",
+      "expectedDetected": true,
+      "actualDetected": false,
+      "expectedType": "MILITARY_SABOTAGE_RECRUITMENT",
+      "actualType": null,
+      "expectedAction": "LOCK_INPUT",
+      "actualAction": "ALLOW",
+      "confidence": 0
+    },
+    {
+      "id": "hold2-military-003",
+      "corpus": "holdout",
+      "expectedDetected": true,
+      "actualDetected": false,
+      "expectedType": "MILITARY_SABOTAGE_RECRUITMENT",
+      "actualType": null,
+      "expectedAction": "LOCK_INPUT",
+      "actualAction": "ALLOW",
+      "confidence": 0
+    },
+    {
+      "id": "hold2-military-004",
+      "corpus": "holdout",
+      "expectedDetected": true,
+      "actualDetected": false,
+      "expectedType": "MILITARY_SABOTAGE_RECRUITMENT",
+      "actualType": null,
+      "expectedAction": "LOCK_INPUT",
+      "actualAction": "ALLOW",
+      "confidence": 0
+    },
+    {
+      "id": "hold2-military-005",
+      "corpus": "holdout",
+      "expectedDetected": true,
+      "actualDetected": false,
+      "expectedType": "MILITARY_SABOTAGE_RECRUITMENT",
+      "actualType": null,
+      "expectedAction": "LOCK_INPUT",
+      "actualAction": "ALLOW",
+      "confidence": 0
+    },
+    {
+      "id": "hold2-military-006",
+      "corpus": "holdout",
+      "expectedDetected": true,
+      "actualDetected": false,
+      "expectedType": "MILITARY_SABOTAGE_RECRUITMENT",
+      "actualType": null,
+      "expectedAction": "LOCK_INPUT",
+      "actualAction": "ALLOW",
+      "confidence": 0
+    },
+    {
+      "id": "hold2-crypto-003",
+      "corpus": "holdout",
+      "expectedDetected": true,
+      "actualDetected": false,
+      "expectedType": "CRYPTO_WALLET_COMPROMISE",
+      "actualType": null,
+      "expectedAction": "LOCK_INPUT",
+      "actualAction": "ALLOW",
+      "confidence": 0
+    },
+    {
+      "id": "hold2-crypto-004",
+      "corpus": "holdout",
+      "expectedDetected": true,
+      "actualDetected": false,
+      "expectedType": "CRYPTO_WALLET_COMPROMISE",
+      "actualType": null,
+      "expectedAction": "LOCK_INPUT",
+      "actualAction": "ALLOW",
+      "confidence": 0
+    },
+    {
+      "id": "hold2-benign-007",
+      "corpus": "holdout",
+      "expectedDetected": false,
+      "actualDetected": true,
+      "expectedType": null,
+      "actualType": "PAYMENT_CREDENTIAL_THEFT",
+      "expectedAction": "ALLOW",
+      "actualAction": "WARN",
+      "confidence": 76
+    }
+  ]
+}
