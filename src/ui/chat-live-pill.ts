@@ -660,18 +660,18 @@ export class ChatLivePill {
         display: inline-flex !important;
         align-items: center !important;
         gap: 6px !important;
-        background: rgba(255, 255, 255, 0.96) !important;
+        background: var(--sanctuary-glass-elevated) !important;
         backdrop-filter: blur(20px) saturate(180%) !important;
         -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
         border: 1px solid rgba(0, 113, 227, 0.28) !important;
-        color: #005BB5 !important;
+        color: var(--sanctuary-blue-active) !important;
         padding: 3.5px 10px !important;
-        border-radius: 14px !important;
+        border-radius: var(--radius-card) !important;
         font-size: 11px !important;
         font-weight: 600 !important;
         letter-spacing: -0.01em !important;
-        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif !important;
-        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+        font-family: var(--font-sanctuary) !important;
+        box-shadow: var(--shadow-card) !important;
         cursor: pointer !important;
         user-select: none !important;
         white-space: nowrap !important;
@@ -687,33 +687,33 @@ export class ChatLivePill {
 
       .ts-chat-live-pill:hover {
         border-color: rgba(0, 113, 227, 0.45) !important;
-        box-shadow: 0 6px 18px rgba(0, 0, 113, 0.12) !important;
+        box-shadow: var(--shadow-card) !important;
       }
 
       /* Crimson Red State (Vault Secrets, CVV, OTP, Sabotage) */
       .ts-chat-live-pill.ts-pill-red {
-        background: rgba(254, 242, 242, 0.96) !important;
-        border-color: rgba(220, 38, 38, 0.38) !important;
-        color: #DC2626 !important;
-        box-shadow: 0 4px 14px rgba(220, 38, 38, 0.12), 0 1px 3px rgba(220, 38, 38, 0.06) !important;
+        background: var(--sanctuary-red-surface) !important;
+        border-color: var(--sanctuary-red-bd) !important;
+        color: var(--sanctuary-red-ink) !important;
+        box-shadow: var(--shadow-card) !important;
       }
 
       .ts-chat-live-pill.ts-pill-red:hover {
-        border-color: rgba(220, 38, 38, 0.55) !important;
-        box-shadow: 0 6px 20px rgba(220, 38, 38, 0.18) !important;
+        border-color: var(--sanctuary-red-bd) !important;
+        box-shadow: var(--shadow-card) !important;
       }
 
       /* Civic State (GPS Coordinates, National Resistance) */
       .ts-chat-live-pill.ts-civic {
-        background: rgba(240, 249, 255, 0.96) !important;
-        border-color: rgba(2, 132, 199, 0.35) !important;
-        color: #0369A1 !important;
-        box-shadow: 0 4px 14px rgba(2, 132, 199, 0.12), 0 1px 3px rgba(2, 132, 199, 0.06) !important;
+        background: var(--sanctuary-blue-surface) !important;
+        border-color: var(--sanctuary-blue-bd) !important;
+        color: var(--sanctuary-blue-active) !important;
+        box-shadow: var(--shadow-card) !important;
       }
 
       .ts-chat-live-pill.ts-civic:hover {
-        border-color: rgba(2, 132, 199, 0.55) !important;
-        box-shadow: 0 6px 20px rgba(2, 132, 199, 0.18) !important;
+        border-color: var(--sanctuary-blue-bd) !important;
+        box-shadow: var(--shadow-card) !important;
       }
 
       /* Stack Indicators */
@@ -725,7 +725,7 @@ export class ChatLivePill {
         font-weight: 700 !important;
         font-family: inherit !important;
         background: rgba(0, 113, 227, 0.10) !important;
-        color: #0071E3 !important;
+        color: var(--sanctuary-blue) !important;
         border: 1px solid rgba(0, 113, 227, 0.22) !important;
         border-radius: 9999px !important;
         padding: 0 5px !important;
@@ -735,15 +735,15 @@ export class ChatLivePill {
       }
 
       .ts-chat-live-pill.ts-pill-red .ts-pill-counter {
-        background: rgba(220, 38, 38, 0.12) !important;
-        color: #DC2626 !important;
-        border-color: rgba(220, 38, 38, 0.28) !important;
+        background: var(--sanctuary-red-bg) !important;
+        color: var(--sanctuary-red-ink) !important;
+        border-color: var(--sanctuary-red-bd) !important;
       }
 
       .ts-chat-live-pill.ts-civic .ts-pill-counter {
-        background: rgba(2, 132, 199, 0.12) !important;
-        color: #0284C7 !important;
-        border-color: rgba(2, 132, 199, 0.25) !important;
+        background: var(--sanctuary-blue-bg) !important;
+        color: var(--sanctuary-blue) !important;
+        border-color: var(--sanctuary-blue-bd) !important;
       }
 
       /* Expanded Banner State (In-Place Fluid Surface) */
@@ -752,9 +752,9 @@ export class ChatLivePill {
         width: 340px !important;
         max-width: calc(100vw - 20px) !important;
         padding: 10px 14px !important;
-        border-radius: 12px !important;
+        border-radius: var(--radius-card) !important;
         white-space: normal !important;
-        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+        box-shadow: var(--shadow-card) !important;
         cursor: default !important;
         overflow-x: hidden !important;
         box-sizing: border-box !important;
@@ -811,7 +811,7 @@ export class ChatLivePill {
         -webkit-appearance: none !important;
         cursor: pointer !important;
         font-family: inherit !important;
-        font-size: 10.5px !important;
+        font-size: var(--text-caption) !important;
         font-weight: 600 !important;
         letter-spacing: -0.01em !important;
         padding: 3px 10px !important;
@@ -824,47 +824,47 @@ export class ChatLivePill {
         flex-shrink: 0 !important;
         white-space: nowrap !important;
         background: rgba(0, 113, 227, 0.09) !important;
-        color: #0071E3 !important;
+        color: var(--sanctuary-blue) !important;
         border: 1px solid rgba(0, 113, 227, 0.25) !important;
         transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease !important;
       }
 
       .ts-pill-action-chip:hover,
       .ts-pill-btn-primary:hover {
-        background: #0071E3 !important;
-        color: #FFFFFF !important;
-        border-color: #0071E3 !important;
-        box-shadow: 0 2px 8px rgba(0, 113, 227, 0.25) !important;
+        background: var(--sanctuary-blue) !important;
+        color: var(--sanctuary-surface) !important;
+        border-color: var(--sanctuary-blue) !important;
+        box-shadow: var(--shadow-card) !important;
       }
 
       .ts-pill-red .ts-pill-action-chip,
       .ts-pill-red .ts-pill-btn-primary {
-        background: rgba(220, 38, 38, 0.10) !important;
-        color: #DC2626 !important;
-        border: 1px solid rgba(220, 38, 38, 0.28) !important;
+        background: var(--sanctuary-red-bg) !important;
+        color: var(--sanctuary-red-ink) !important;
+        border: 1px solid var(--sanctuary-red-bd) !important;
       }
 
       .ts-pill-red .ts-pill-action-chip:hover,
       .ts-pill-red .ts-pill-btn-primary:hover {
-        background: #DC2626 !important;
-        color: #FFFFFF !important;
-        border-color: #DC2626 !important;
-        box-shadow: 0 2px 8px rgba(220, 38, 38, 0.28) !important;
+        background: var(--sanctuary-red-ink) !important;
+        color: var(--sanctuary-surface) !important;
+        border-color: var(--sanctuary-red-ink) !important;
+        box-shadow: var(--shadow-card) !important;
       }
 
       .ts-civic .ts-pill-action-chip,
       .ts-civic .ts-pill-btn-primary {
-        background: rgba(2, 132, 199, 0.10) !important;
-        color: #0284C7 !important;
-        border: 1px solid rgba(2, 132, 199, 0.28) !important;
+        background: var(--sanctuary-blue-bg) !important;
+        color: var(--sanctuary-blue) !important;
+        border: 1px solid var(--sanctuary-blue-bd) !important;
       }
 
       .ts-civic .ts-pill-action-chip:hover,
       .ts-civic .ts-pill-btn-primary:hover {
-        background: #0284C7 !important;
-        color: #FFFFFF !important;
-        border-color: #0284C7 !important;
-        box-shadow: 0 2px 8px rgba(2, 132, 199, 0.28) !important;
+        background: var(--sanctuary-blue) !important;
+        color: var(--sanctuary-surface) !important;
+        border-color: var(--sanctuary-blue) !important;
+        box-shadow: var(--shadow-card) !important;
       }
 
       /* Secondary Item Action Button (In Deck Rows) */
@@ -894,10 +894,10 @@ export class ChatLivePill {
 
       .ts-pill-clean-single-btn:hover,
       .ts-pill-btn-secondary:hover {
-        background: rgba(220, 38, 38, 0.12) !important;
-        color: #DC2626 !important;
-        border-color: rgba(220, 38, 38, 0.30) !important;
-        box-shadow: 0 1px 4px rgba(220, 38, 38, 0.12) !important;
+        background: var(--sanctuary-red-bg) !important;
+        color: var(--sanctuary-red-ink) !important;
+        border-color: var(--sanctuary-red-bd) !important;
+        box-shadow: var(--shadow-card) !important;
       }
     `;
     root.appendChild(style);

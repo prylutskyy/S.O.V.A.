@@ -2,7 +2,7 @@
    S.O.V.A. DESIGN SYSTEM: ATOMIC DESIGN TOKENS
    ========================================================================== */
 
-:root {
+:root, :host {
   /* Surfaces & Glass Diffraction */
   --sanctuary-canvas:         #F5F5F7;
   --sanctuary-surface:        #FFFFFF;
@@ -22,10 +22,11 @@
 
   /* Functional Accents & Semantic Tints (WCAG 2.1 AA Calibrated) */
   --sanctuary-blue:           #0071E3; /* 4.75:1 on #FFFFFF (Passes AA) */
-  --sanctuary-blue-hover:     #0077ED;
+  --sanctuary-blue-hover:     #0065CC;
   --sanctuary-blue-active:    #005BB5;
   --sanctuary-blue-bg:        rgba(0, 113, 227, 0.08);
   --sanctuary-blue-bd:        rgba(0, 113, 227, 0.20);
+  --sanctuary-blue-surface:   #F0F7FF;
 
   --sanctuary-green:          #34C759;
   --sanctuary-green-hover:    #2DB84F;
@@ -38,12 +39,15 @@
   --sanctuary-amber-ink:      #A04F00; /* 5.20:1 on #FFFFFF (Passes AA) */
   --sanctuary-amber-bg:       rgba(255, 149, 0, 0.10);
   --sanctuary-amber-bd:       rgba(255, 149, 0, 0.24);
+  --sanctuary-amber-surface:  #FFF8EF;
 
   --sanctuary-red:            #FF3B30;
   --sanctuary-red-hover:      #E03228;
   --sanctuary-red-ink:        #D70015; /* 5.40:1 on #FFFFFF (Passes AA) */
+  --sanctuary-red-ink-hover:  #B80012;
   --sanctuary-red-bg:         rgba(255, 59, 48, 0.08);
   --sanctuary-red-bd:         rgba(255, 59, 48, 0.22);
+  --sanctuary-red-surface:    #FFF3F2;
 
   --sanctuary-purple-ink:     #8944AB; /* 5.10:1 on #FFFFFF (Passes AA) */
   --sanctuary-teal-ink:       #007D8C; /* 4.65:1 on #FFFFFF (Passes AA) */
@@ -79,6 +83,18 @@
   /* Fonts */
   --font-sanctuary: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --font-mono:      "SF Mono", Menlo, Consolas, Monaco, monospace;
+
+  /* Shared scale for popup, diagnostics and in-page protection. */
+  --text-caption: 11px;
+  --text-body: 12px;
+  --text-title: 13px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --control-height: 32px;
+  --sanctuary-focus-ring: rgba(0, 113, 227, 0.30);
+  --sanctuary-scroll-thumb: rgba(0, 0, 0, 0.18);
 
   /* Sanctuary Core Obsidian Dark HUD Tokens (Apple VisionOS Calibrated) */
   --sc-obsidian-bg:               rgba(16, 16, 20, 0.94);
@@ -155,4 +171,30 @@
   --fx-red-hover:      var(--sanctuary-red-hover);
   --fx-red-bg:         var(--sanctuary-red-bg);
   --fx-red-bd:         var(--sanctuary-red-bd);
+}
+
+/* Foundations stay inside the popup document or an isolated ShadowRoot. */
+button, input, select, textarea {
+  font-family: var(--font-sanctuary);
+}
+
+button:focus-visible, input:focus-visible, select:focus-visible,
+textarea:focus-visible, a:focus-visible, [tabindex]:focus-visible {
+  outline: 2px solid var(--sanctuary-blue) !important;
+  outline-offset: 2px !important;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :is(:root, :host) [class][class],
+  :is(:root, :host) [class][class]::before,
+  :is(:root, :host) [class][class]::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

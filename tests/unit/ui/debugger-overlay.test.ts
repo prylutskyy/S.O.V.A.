@@ -16,6 +16,32 @@ describe('DebuggerOverlay Lifecycle & Visibility Guard (Swiss Loupe)', () => {
     expect(DebuggerOverlay.isOpen()).toBe(false);
   });
 
+  it('shows an empty spectrum without inventing a demonstration threat before any analysis', () => {
+    DebuggerOverlay.show();
+    DebuggerOverlay['shadowRoot']!.querySelector<HTMLButtonElement>('[data-tab="vectors"]')!.click();
+    const root = DebuggerOverlay['shadowRoot']!;
+    expect(root.textContent).toContain('Ще немає повідомлень для аналізу');
+    expect(root.querySelector('.sc-vector-sim-badge')).toBeNull();
+    expect(root.querySelector('[data-tab="vectors"]')?.getAttribute('aria-pressed')).toBe('true');
+    expect(DebuggerOverlay['exportDiagnosticReport']()).not.toContain('Демонстраційний');
+    root.querySelector<HTMLButtonElement>('[data-tab="overview"]')!.click();
+    expect(DebuggerOverlay['state'].score).toBe(0);
+  });
+
+  it('preserves keyboard focus and reading position when new events rerender the open tab', () => {
+    DebuggerOverlay.show();
+    const root = DebuggerOverlay['shadowRoot']!;
+    const tab = root.querySelector<HTMLButtonElement>('[data-tab="vectors"]')!;
+    tab.focus();
+    tab.click();
+    expect(root.activeElement?.getAttribute('data-tab')).toBe('vectors');
+    root.querySelector<HTMLElement>('.sc-viewport')!.scrollTop = 120;
+    DebuggerOverlay.log('Система', 'Нова подія', '#0071E3');
+    expect(root.activeElement?.getAttribute('data-tab')).toBe('vectors');
+    expect(root.querySelector<HTMLElement>('.sc-viewport')!.scrollTop).toBe(120);
+    root.querySelector<HTMLButtonElement>('[data-tab="overview"]')!.click();
+  });
+
   it('keeps an active warning visible despite cancelled drafts and background context echoes', () => {
     DebuggerOverlay.setSession('chat-1', 'HIGH');
     DebuggerOverlay.setThreatDecision('WARN', 'IDENTITY_PROBING', 45, 'local');

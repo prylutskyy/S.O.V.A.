@@ -194,12 +194,12 @@ export class UnifiedFrictionModal {
           max-width: 92vw;
           max-height: 90vh;
           overflow-y: auto;
-          background: rgba(255, 255, 255, 0.94);
+          background: var(--sanctuary-glass-elevated);
           backdrop-filter: blur(32px) saturate(190%);
           -webkit-backdrop-filter: blur(32px) saturate(190%);
-          border-radius: 20px;
-          border: 1px solid rgba(255, 255, 255, 0.75);
-          box-shadow: 0 24px 64px rgba(0, 0, 0, 0.18), 0 4px 16px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(0, 0, 0, 0.05);
+          border-radius: var(--radius-modal);
+          border: 1px solid var(--sanctuary-hairline);
+          box-shadow: var(--shadow-modal);
           font-family: var(--font-sanctuary);
           animation: tsCardEnter 0.3s var(--ease-apple-spring);
           color: var(--sanctuary-ink-primary);
@@ -407,12 +407,12 @@ export class UnifiedFrictionModal {
         }
 
         .ts-btn-primary.civic {
-          background: var(--sanctuary-red);
-          box-shadow: 0 1px 4px rgba(255, 59, 48, 0.28);
+          background: var(--sanctuary-red-ink);
+          box-shadow: var(--shadow-sm);
         }
 
         .ts-btn-primary.civic:hover {
-          background: var(--sanctuary-red-hover);
+          background: var(--sanctuary-red-ink-hover);
         }
 
         .ts-btn-primary:active {

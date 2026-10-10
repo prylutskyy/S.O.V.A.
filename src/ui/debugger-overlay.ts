@@ -1,6 +1,6 @@
 import { UserWhitelistManager } from '../core/user-whitelist';
 import { DESIGN_TOKENS_CSS } from './design-tokens';
-import { SemanticTriggerEngine, SemanticVectorTelemetry } from '../heuristics/semantic-trigger';
+import { SemanticVectorTelemetry } from '../heuristics/semantic-trigger';
 
 export interface LogItem {
   id: string;
@@ -194,16 +194,16 @@ export class DebuggerOverlay {
         position: 'fixed',
         width: currentWidth,
         height: currentHeight,
-        minWidth: '380px',
-        minHeight: '480px',
-        maxWidth: '92vw',
-        maxHeight: '92vh',
+        minWidth: 'min(380px, calc(100vw - 40px))',
+        minHeight: 'min(480px, calc(100dvh - 40px))',
+        maxWidth: 'calc(100vw - 40px)',
+        maxHeight: 'calc(100dvh - 40px)',
         zIndex: '2147483647',
         display: 'block',
         resize: 'both',
         overflow: 'hidden',
-        borderRadius: '22px',
-        boxShadow: '0 24px 64px -12px rgba(0, 0, 0, 0.16), 0 0 0 1px rgba(0, 0, 0, 0.06)',
+        borderRadius: 'var(--radius-modal, 22px)',
+        boxShadow: 'var(--shadow-modal, 0 8px 24px rgba(0, 0, 0, 0.16))',
       };
 
       if (this.customPos) {
@@ -738,6 +738,13 @@ export class DebuggerOverlay {
     this.applyContainerGeometry();
 
     const { sessionId, severity, score, logs, activeTab, filterCategory, filterSearch, threatMitigated, liveScore } = this.state;
+    const focusedControl = this.shadowRoot.activeElement as HTMLElement | null;
+    const focusedId = focusedControl?.id;
+    const focusedTab = focusedControl?.dataset.tab;
+    const focusedPrototype = focusedControl?.dataset.protoId;
+    const viewport = this.shadowRoot.querySelector<HTMLElement>('.sc-viewport');
+    const previousTab = this.shadowRoot.querySelector<HTMLElement>('.sc-tab-btn.active')?.dataset.tab;
+    const scrollTop = previousTab === activeTab ? viewport?.scrollTop || 0 : 0;
 
     // Apple Light Theme Palette
     const riskColor =
@@ -979,12 +986,12 @@ export class DebuggerOverlay {
                   ? `
                 <div class="sc-ai-box">
                   <div class="sc-ai-box-title">
-                    <span style="color:#0071E3;">ПОВНИЙ ЗАПИТ ДО ШІ (PROMPT + ДІАЛОГ + ЕВРИСТИКИ)</span>
+                    <span style="color:var(--sanctuary-ink-primary);">Запит до ШІ</span>
                     <button type="button" class="sc-btn-ghost" data-copy="${encodeURIComponent(ctx.sanitizedPrompt)}">
                       ${ICONS.copy(10)} <span>Копіювати</span>
                     </button>
                   </div>
-                  <pre class="sc-code-block" style="white-space: pre-wrap; font-size: 11px;">${ctx.sanitizedPrompt}</pre>
+                  <pre class="sc-code-block" style="white-space: pre-wrap;">${ctx.sanitizedPrompt}</pre>
                 </div>
               `
                   : ''
@@ -995,12 +1002,12 @@ export class DebuggerOverlay {
                   ? `
                 <div class="sc-ai-box">
                   <div class="sc-ai-box-title">
-                    <span style="color:#10B981;">ІСТОРІЯ ЛИСТУВАННЯ (MULTI-TURN CHAT CONTEXT)</span>
+                    <span style="color:var(--sanctuary-ink-primary);">Історія листування</span>
                     <button type="button" class="sc-btn-ghost" data-copy="${encodeURIComponent(ctx.chatDialogue)}">
                       ${ICONS.copy(10)} <span>Копіювати</span>
                     </button>
                   </div>
-                  <pre class="sc-code-block" style="white-space: pre-wrap; font-size: 11px;">${ctx.chatDialogue}</pre>
+                  <pre class="sc-code-block" style="white-space: pre-wrap;">${ctx.chatDialogue}</pre>
                 </div>
               `
                   : ''
@@ -1011,9 +1018,9 @@ export class DebuggerOverlay {
                   ? `
                 <div class="sc-ai-box">
                   <div class="sc-ai-box-title">
-                    <span style="color:#F59E0B;">ЕВРИСТИЧНІ ПРАПОРЦІ (TIER 1 TELEMETRY)</span>
+                    <span style="color:var(--sanctuary-ink-primary);">Локальні ознаки</span>
                   </div>
-                  <pre class="sc-code-block" style="white-space: pre-wrap; font-size: 11px;">${ctx.raisedFlags.join('\n')}</pre>
+                  <pre class="sc-code-block" style="white-space: pre-wrap;">${ctx.raisedFlags.join('\n')}</pre>
                 </div>
               `
                   : ''
@@ -1024,7 +1031,7 @@ export class DebuggerOverlay {
                   ? `
                 <div class="sc-ai-box">
                   <div class="sc-ai-box-title">
-                    <span>ТРИГЕРНЕ ПОВІДОМЛЕННЯ (AUDITED MESSAGE)</span>
+                    <span>Повідомлення для перевірки</span>
                     <button type="button" class="sc-btn-ghost" data-copy="${encodeURIComponent(ctx.textSent)}">
                       ${ICONS.copy(10)} <span>Копіювати</span>
                     </button>
@@ -1040,7 +1047,7 @@ export class DebuggerOverlay {
                   ? `
                 <div class="sc-ai-box">
                   <div class="sc-ai-box-title">
-                    <span>СИСТЕМНИЙ ПРОМПТ</span>
+                    <span>Системні інструкції</span>
                     <button type="button" class="sc-btn-ghost" data-copy="${encodeURIComponent(ctx.systemPrompt)}">
                       ${ICONS.copy(10)} <span>Копіювати</span>
                     </button>
@@ -1056,12 +1063,12 @@ export class DebuggerOverlay {
                   ? `
                 <div class="sc-ai-box">
                   <div class="sc-ai-box-title">
-                    <span style="color:#0071E3;">ВІДПОВІДЬ МОДЕЛІ (RAW JSON)</span>
+                    <span style="color:var(--sanctuary-ink-primary);">Відповідь моделі · JSON</span>
                     <button type="button" class="sc-btn-ghost" data-copy="${encodeURIComponent(ctx.rawResponse)}">
                       ${ICONS.copy(10)} <span>Копіювати</span>
                     </button>
                   </div>
-                  <pre class="sc-code-block" style="color: #0071E3;">${ctx.rawResponse}</pre>
+                  <pre class="sc-code-block" style="color: var(--sanctuary-ink-primary);">${ctx.rawResponse}</pre>
                 </div>
               `
                   : ''
@@ -1076,7 +1083,16 @@ export class DebuggerOverlay {
 
     // Вкладка 4: Семантичний Векторний Спектр (Vector Spectrum)
     const renderVectorsTab = () => {
-      const telemetry = this.state.vectorTelemetry || SemanticTriggerEngine.getDefaultTelemetry();
+      const telemetry = this.state.vectorTelemetry;
+      if (!telemetry || telemetry.dimensions.length === 0) {
+        return `
+          <div class="sc-card sc-empty-state">
+            ${ICONS.activity(32, 'var(--sanctuary-blue)')}
+            <div class="sc-empty-title">Ще немає повідомлень для аналізу</div>
+            <div class="sc-empty-sub">Після аналізу вхідного повідомлення тут з’являться його ознаки та порівняння з еталонами загроз.</div>
+          </div>
+        `;
+      }
       const currentSelectedProto = this.state.selectedPrototypeId || telemetry.topPrototypeId || 'MILITARY_SABOTAGE_RECRUITMENT';
 
       const protoInfo = telemetry.allPrototypes.find((p) => p.id === currentSelectedProto) || telemetry.allPrototypes[0] || {
@@ -1089,20 +1105,19 @@ export class DebuggerOverlay {
       const similarity = protoInfo.similarity !== undefined ? protoInfo.similarity : telemetry.cosineSimilarity;
       const isIntentFormedForThis = Boolean(telemetry.hasFormedIntent && telemetry.intentType === protoInfo.id);
       const isHighSimilarity = similarity >= 0.40;
-      const isDangerous = isIntentFormedForThis || isHighSimilarity;
       const similarityPercent = Math.round(similarity * 100);
 
-      let statusTitle = 'БЕЗПЕЧНА ДИВЕРГЕНЦІЯ НАМІРУ (SAFE)';
-      let statusSub = `Вектор повідомлення (${similarityPercent}%) знаходиться значно нижче порогового значення загрози (0.40)`;
+      let statusTitle = 'Низька схожість з еталоном';
+      let statusSub = `Подібність ${similarityPercent}% — нижче орієнтира 40% для цього порівняння.`;
 
       if (isIntentFormedForThis) {
-        statusTitle = 'ВИЯВЛЕНО СЕМАНТИЧНИЙ РЕЗОНАНС ЗАГРОЗИ (MATCH)';
+        statusTitle = 'Локальний класифікатор виявив намір';
         statusSub = telemetry.reason
-          ? `${telemetry.reason} (Оцінка ризику: ${telemetry.confidence || 75}%)`
-          : 'Прагматична матриця намірів зафіксувала критичну комбінацію: Винагорода + Дія + Ціль';
+          ? telemetry.reason
+          : 'У повідомленні знайдено поєднання ознак цього типу загрози.';
       } else if (isHighSimilarity) {
-        statusTitle = 'ВИЯВЛЕНО СЕМАНТИЧНИЙ РЕЗОНАНС ЗАГРОЗИ (MATCH)';
-        statusSub = 'Вектор вхідного повідомлення має критичне накладання на еталонний вектор атаки (>= 0.40)';
+        statusTitle = 'Підвищена схожість з еталоном';
+        statusSub = 'Подібність від 40%. Сформованого наміру цього типу не виявлено.';
       }
 
       // Масив точок для 10 вимірів
@@ -1114,7 +1129,7 @@ export class DebuggerOverlay {
       const topY = 25;
       const usableHeight = originY - topY; // 125px
       const usableWidth = graphWidth - originX - 25; // 470px
-      const stepX = usableWidth / (telemetry.dimensions.length - 1);
+      const stepX = usableWidth / Math.max(1, telemetry.dimensions.length - 1);
 
       // Розрахунок точок
       const inputPoints: { x: number; y: number; val: number; key: string; label: string }[] = [];
@@ -1152,17 +1167,15 @@ export class DebuggerOverlay {
       const inputArea = `${inputCurve} L ${inputPoints[inputPoints.length - 1].x} ${originY} L ${inputPoints[0].x} ${originY} Z`;
       const protoArea = `${protoCurve} L ${protoPoints[protoPoints.length - 1].x} ${originY} L ${protoPoints[0].x} ${originY} Z`;
 
-      const effectiveThreshold = isIntentFormedForThis && protoInfo.id === 'MILITARY_SABOTAGE_RECRUITMENT' ? 0.30 : 0.40;
-      const thresholdY = Math.round(originY - (effectiveThreshold * usableHeight));
-
       return `
         <div class="sc-vectors-view">
           <!-- 1. Hero Card: Метрика косинусної подібності та статус -->
           <div class="sc-card sc-vector-hero">
             <div class="sc-vector-hero-top">
-              <div class="sc-vector-sim-badge ${isDangerous ? 'sc-badge-red' : 'sc-badge-blue'}">
-                <span class="sc-sim-title">Косинусна подібність cos(θ)</span>
-                <span class="sc-sim-value">${similarity.toFixed(2)} (${similarityPercent}%)</span>
+              <div class="sc-vector-sim-badge ${isIntentFormedForThis ? 'sc-badge-red' : isHighSimilarity ? 'sc-badge-amber' : 'sc-badge-blue'}">
+                <span class="sc-sim-title">Схожість з еталоном</span>
+                <span class="sc-sim-value">${similarityPercent}<span class="sc-sim-unit">%</span></span>
+                <span class="sc-sim-caption">cos(θ) = ${similarity.toFixed(2)}</span>
               </div>
               <div class="sc-vector-status-block">
                 <div class="sc-vector-status-title">
@@ -1176,7 +1189,7 @@ export class DebuggerOverlay {
 
             <!-- Селектор еталонного вектора атаки -->
             <div class="sc-proto-selector">
-              <span class="sc-proto-label">Порівняти з еталоном загрози:</span>
+              <span class="sc-proto-label">Еталон для порівняння</span>
               <div class="sc-proto-chips">
                 ${telemetry.allPrototypes.map((p) => {
                   const isThisTriggered = Boolean(telemetry.hasFormedIntent && telemetry.intentType === p.id);
@@ -1189,7 +1202,7 @@ export class DebuggerOverlay {
                     shortName = 'Викрадення CVV';
                   }
                   return `
-                    <button type="button" class="sc-chip sc-proto-chip ${p.id === currentSelectedProto ? 'active' : ''} ${isThisTriggered ? 'sc-chip-danger' : ''}" data-proto-id="${p.id}">
+                    <button type="button" class="sc-chip sc-proto-chip ${p.id === currentSelectedProto ? 'active' : ''} ${isThisTriggered ? 'sc-chip-danger' : ''}" data-proto-id="${p.id}" aria-pressed="${p.id === currentSelectedProto}">
                       <span>${shortName}</span>
                       <span class="sc-chip-sim">${Math.round((p.similarity || 0) * 100)}%${isThisTriggered ? ' [ТРИГЕР]' : ''}</span>
                     </button>
@@ -1203,14 +1216,15 @@ export class DebuggerOverlay {
               <span class="sc-vector-raw-label">Останнє проаналізоване повідомлення:</span>
               <div class="sc-vector-raw-text">«${telemetry.latestMessage ? (telemetry.latestMessage.length > 200 ? telemetry.latestMessage.substring(0, 200) + '...' : telemetry.latestMessage) : (telemetry.rawText ? (telemetry.rawText.length > 200 ? telemetry.rawText.substring(0, 200) + '...' : telemetry.rawText) : 'Немає даних')}»</div>
             </div>
+            <p class="sc-vector-note">Схожість показує близькість ознак до еталона. Застосоване попередження або блокування відображається у вкладці «Огляд».</p>
           </div>
 
           <!-- 2. Візуальний SVG Графік Накладання Векторів -->
           <div class="sc-card sc-vector-graph-card">
             <div class="sc-graph-header">
               <div class="sc-graph-title-group">
-                <span class="sc-card-title">Спектральне накладання векторів (10 осей)</span>
-                <span class="sc-graph-sub">Нормалізований простір ваг L2: [0.0 - 1.0]</span>
+                <span class="sc-card-title">Порівняння ознак</span>
+                <span class="sc-graph-sub">${telemetry.dimensions.length} ознак · нормалізовані ваги від 0 до 1</span>
               </div>
               <div class="sc-graph-legend">
                 <div class="sc-legend-item">
@@ -1219,52 +1233,42 @@ export class DebuggerOverlay {
                 </div>
                 <div class="sc-legend-item">
                   <span class="sc-legend-dot sc-dot-red"></span>
-                  <span>Еталон загрози (${
-                    protoInfo.id === 'MILITARY_SABOTAGE_RECRUITMENT' || /вербуван|диверс|розвід/i.test(protoInfo.labelUk)
-                      ? 'Вербування'
-                      : protoInfo.id === 'ESCROW_DELIVERY_SCAM' || /ескроу|доставк|імітац/i.test(protoInfo.labelUk)
-                      ? 'Ескроу'
-                      : 'CVV'
-                  })</span>
+                  <span>Обраний еталон</span>
                 </div>
               </div>
             </div>
 
             <div class="sc-svg-wrapper">
-              <svg class="sc-vector-svg" viewBox="0 0 ${graphWidth} ${graphHeight}">
+              <svg class="sc-vector-svg" viewBox="0 0 ${graphWidth} ${graphHeight}" role="img" aria-label="Порівняння ваг повідомлення й обраного еталона; назви ознак наведені нижче">
                 <defs>
                   <!-- Градієнт для вхідного повідомлення (Блакитний) -->
                   <linearGradient id="grad-input" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" stop-color="#0071E3" stop-opacity="0.30" />
-                    <stop offset="100%" stop-color="#0071E3" stop-opacity="0.02" />
+                    <stop offset="0%" stop-color="var(--sanctuary-blue)" stop-opacity="0.30" />
+                    <stop offset="100%" stop-color="var(--sanctuary-blue)" stop-opacity="0.02" />
                   </linearGradient>
                   <!-- Градієнт для еталона загрози (Червоний) -->
                   <linearGradient id="grad-proto" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" stop-color="#EF4444" stop-opacity="0.22" />
-                    <stop offset="100%" stop-color="#EF4444" stop-opacity="0.02" />
+                    <stop offset="0%" stop-color="var(--sanctuary-red-ink)" stop-opacity="0.22" />
+                    <stop offset="100%" stop-color="var(--sanctuary-red-ink)" stop-opacity="0.02" />
                   </linearGradient>
                 </defs>
 
                 <!-- Горизонтальні лінії сітки (Grid) -->
                 <line x1="${originX}" y1="${topY}" x2="${originX + usableWidth}" y2="${topY}" stroke="#E5E5EA" stroke-width="1" stroke-dasharray="2 3" />
-                <text x="${originX - 8}" y="${topY + 3}" fill="#86868B" font-size="8.5" text-anchor="end">1.0</text>
+                <text x="${originX - 8}" y="${topY + 3}" fill="var(--sanctuary-ink-secondary)" font-size="8.5" text-anchor="end">1.0</text>
 
                 <line x1="${originX}" y1="${topY + usableHeight * 0.25}" x2="${originX + usableWidth}" y2="${topY + usableHeight * 0.25}" stroke="#E5E5EA" stroke-width="1" stroke-dasharray="2 3" />
-                <text x="${originX - 8}" y="${topY + usableHeight * 0.25 + 3}" fill="#86868B" font-size="8.5" text-anchor="end">0.75</text>
+                <text x="${originX - 8}" y="${topY + usableHeight * 0.25 + 3}" fill="var(--sanctuary-ink-secondary)" font-size="8.5" text-anchor="end">0.75</text>
 
                 <line x1="${originX}" y1="${topY + usableHeight * 0.5}" x2="${originX + usableWidth}" y2="${topY + usableHeight * 0.5}" stroke="#E5E5EA" stroke-width="1" stroke-dasharray="2 3" />
-                <text x="${originX - 8}" y="${topY + usableHeight * 0.5 + 3}" fill="#86868B" font-size="8.5" text-anchor="end">0.5</text>
+                <text x="${originX - 8}" y="${topY + usableHeight * 0.5 + 3}" fill="var(--sanctuary-ink-secondary)" font-size="8.5" text-anchor="end">0.5</text>
 
                 <line x1="${originX}" y1="${topY + usableHeight * 0.75}" x2="${originX + usableWidth}" y2="${topY + usableHeight * 0.75}" stroke="#E5E5EA" stroke-width="1" stroke-dasharray="2 3" />
-                <text x="${originX - 8}" y="${topY + usableHeight * 0.75 + 3}" fill="#86868B" font-size="8.5" text-anchor="end">0.25</text>
-
-                <!-- Лінія порогу небезпеки (Threshold = 0.40) -->
-                <line x1="${originX}" y1="${thresholdY}" x2="${originX + usableWidth}" y2="${thresholdY}" stroke="#FF453A" stroke-width="1.2" stroke-dasharray="4 3" opacity="0.8" />
-                <text x="${originX + usableWidth}" y="${thresholdY - 4}" fill="#FF453A" font-size="8" font-weight="600" text-anchor="end">Поріг тригеру (0.40)</text>
+                <text x="${originX - 8}" y="${topY + usableHeight * 0.75 + 3}" fill="var(--sanctuary-ink-secondary)" font-size="8.5" text-anchor="end">0.25</text>
 
                 <!-- Базова лінія (Y = 0) -->
                 <line x1="${originX}" y1="${originY}" x2="${originX + usableWidth}" y2="${originY}" stroke="#C7C7CC" stroke-width="1" />
-                <text x="${originX - 8}" y="${originY + 3}" fill="#86868B" font-size="8.5" text-anchor="end">0.0</text>
+                <text x="${originX - 8}" y="${originY + 3}" fill="var(--sanctuary-ink-secondary)" font-size="8.5" text-anchor="end">0.0</text>
 
                 <!-- Вертикальні напрямні та осі -->
                 ${inputPoints.map((pt) => `
@@ -1274,27 +1278,27 @@ export class DebuggerOverlay {
                 <!-- Заливка площі еталона загрози -->
                 <path d="${protoArea}" fill="url(#grad-proto)" />
                 <!-- Лінія кривої еталона загрози -->
-                <path d="${protoCurve}" fill="none" stroke="#EF4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                <path d="${protoCurve}" fill="none" stroke="var(--sanctuary-red-ink)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
 
                 <!-- Заливка площі вхідного повідомлення -->
                 <path d="${inputArea}" fill="url(#grad-input)" />
                 <!-- Лінія кривої вхідного повідомлення -->
-                <path d="${inputCurve}" fill="none" stroke="#0071E3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                <path d="${inputCurve}" fill="none" stroke="var(--sanctuary-blue)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
 
                 <!-- Точки на графіку: Еталон загрози -->
                 ${protoPoints.map(pt => `
-                  <circle cx="${pt.x}" cy="${pt.y}" r="3" fill="#EF4444" stroke="#FFFFFF" stroke-width="1.2" />
+                  <circle cx="${pt.x}" cy="${pt.y}" r="3" fill="var(--sanctuary-red-ink)" stroke="var(--sanctuary-surface)" stroke-width="1.2" />
                 `).join('')}
 
                 <!-- Точки на графіку: Вхідне повідомлення -->
                 ${inputPoints.map(pt => `
-                  <circle cx="${pt.x}" cy="${pt.y}" r="4" fill="#0071E3" stroke="#FFFFFF" stroke-width="1.8" />
-                  ${pt.val >= 0.25 ? `<text x="${pt.x}" y="${Math.max(12, pt.y - 6)}" fill="#0071E3" font-size="8" font-weight="700" text-anchor="middle">${Math.round(pt.val * 100)}%</text>` : ''}
+                  <circle cx="${pt.x}" cy="${pt.y}" r="4" fill="var(--sanctuary-blue)" stroke="var(--sanctuary-surface)" stroke-width="1.8" />
+                  ${pt.val >= 0.25 ? `<text x="${pt.x}" y="${Math.max(12, pt.y - 6)}" fill="var(--sanctuary-blue)" font-size="8" font-weight="700" text-anchor="middle">${Math.round(pt.val * 100)}%</text>` : ''}
                 `).join('')}
 
                 <!-- Підписи осей (X-Labels) -->
-                ${inputPoints.map((pt) => `
-                  <text x="${pt.x}" y="${originY + 14}" fill="#6E6E73" font-size="7.5" font-weight="500" text-anchor="middle">${pt.label}</text>
+                ${inputPoints.map((pt, index) => `
+                  <text x="${pt.x}" y="${originY + 18}" fill="var(--sanctuary-ink-secondary)" font-size="11" font-weight="500" text-anchor="middle">${index + 1}</text>
                 `).join('')}
               </svg>
             </div>
@@ -1302,15 +1306,15 @@ export class DebuggerOverlay {
 
           <!-- 3. Деталізація за факторами (Поелементна матриця ваг) -->
           <div class="sc-card sc-dim-breakdown-card">
-            <span class="sc-card-title">Деталізація компонентів вектора за факторами</span>
+            <span class="sc-card-title">Ознаки повідомлення</span>
             <div class="sc-dim-grid">
-              ${telemetry.dimensions.map((dim) => {
+              ${telemetry.dimensions.map((dim, index) => {
                 const protoW = protoInfo.prototypeWeights[dim.key] !== undefined ? protoInfo.prototypeWeights[dim.key] : dim.prototypeWeight;
                 const isDimensionMatched = dim.inputWeight >= 0.35 && protoW >= 0.40;
                 return `
                   <div class="sc-dim-row ${isDimensionMatched ? 'matched' : ''}">
                     <div class="sc-dim-meta">
-                      <span class="sc-dim-name">${dim.labelUk}</span>
+                      <span class="sc-dim-name"><span class="sc-dim-number">${index + 1}</span>${dim.labelUk}</span>
                       <div class="sc-dim-weights">
                         <span class="sc-val-in" title="Вхідне повідомлення">Вхід: ${(dim.inputWeight * 100).toFixed(0)}%</span>
                         <span class="sc-val-proto" title="Еталон загрози">Еталон: ${(protoW * 100).toFixed(0)}%</span>
@@ -1352,10 +1356,12 @@ export class DebuggerOverlay {
 
         :host {
           all: initial;
-          font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-          color: #1D1D1F;
+          font-family: var(--font-sanctuary);
+          color: var(--sanctuary-ink-primary);
           box-sizing: border-box;
           -webkit-font-smoothing: antialiased;
+          color-scheme: light;
+          line-height: 1.5;
         }
 
         *, *:before, *:after {
@@ -1364,24 +1370,25 @@ export class DebuggerOverlay {
 
         /* 1. Pure Crystalline Ceramic Glass Container */
         .sc-window {
+          container-type: inline-size;
           width: 100%;
           height: 100%;
-          background: rgba(255, 255, 255, 0.90);
+          background: var(--sanctuary-canvas);
           backdrop-filter: blur(32px) saturate(180%);
           -webkit-backdrop-filter: blur(32px) saturate(180%);
           border: 1px solid rgba(0, 0, 0, 0.08);
-          border-radius: 22px;
-          box-shadow: 0 24px 64px -12px rgba(0, 0, 0, 0.16), 0 2px 6px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(0, 0, 0, 0.03);
+          border-radius: var(--radius-modal);
+          box-shadow: var(--shadow-modal);
           display: flex;
           flex-direction: column;
           overflow: hidden;
           font-size: 12.5px;
-          color: #1D1D1F;
+          color: var(--sanctuary-ink-primary);
         }
 
         /* 2. Apple Precision Titlebar */
         .sc-titlebar {
-          background: rgba(255, 255, 255, 0.95);
+          background: var(--sanctuary-surface);
           padding: 12px 16px;
           border-bottom: 1px solid rgba(0, 0, 0, 0.06);
           display: flex;
@@ -1402,11 +1409,11 @@ export class DebuggerOverlay {
           width: 24px;
           height: 24px;
           border-radius: 7px;
-          background: linear-gradient(135deg, #0071E3 0%, #42A5F5 100%);
+          background: linear-gradient(135deg, var(--sanctuary-blue) 0%, #42A5F5 100%);
           display: flex;
           align-items: center;
           justify-content: center;
-          color: #FFFFFF;
+          color: var(--sanctuary-surface);
           box-shadow: 0 2px 6px rgba(0, 113, 227, 0.3);
         }
         .sc-brand-meta {
@@ -1417,7 +1424,7 @@ export class DebuggerOverlay {
         .sc-brand-name {
           font-size: 13px;
           font-weight: 600;
-          color: #1D1D1F;
+          color: var(--sanctuary-ink-primary);
           letter-spacing: -0.015em;
         }
         .sc-brand-pill {
@@ -1425,7 +1432,7 @@ export class DebuggerOverlay {
           font-weight: 600;
           padding: 2px 7px;
           background: rgba(0, 0, 0, 0.05);
-          color: #515154;
+          color: var(--sanctuary-ink-secondary);
           border-radius: 9999px;
           letter-spacing: 0.02em;
         }
@@ -1436,12 +1443,12 @@ export class DebuggerOverlay {
           gap: 4px;
         }
         .sc-tool-btn {
-          width: 26px;
-          height: 26px;
-          border-radius: 6px;
+          width: var(--control-height);
+          height: var(--control-height);
+          border-radius: var(--radius-nested);
           border: 1px solid transparent;
           background: transparent;
-          color: #6E6E73;
+          color: var(--sanctuary-ink-secondary);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -1450,21 +1457,21 @@ export class DebuggerOverlay {
         }
         .sc-tool-btn:hover {
           background: rgba(0, 0, 0, 0.05);
-          color: #1D1D1F;
+          color: var(--sanctuary-ink-primary);
         }
         .sc-tool-btn:active {
           transform: scale(0.92);
         }
         .sc-tool-btn-close:hover {
           background: rgba(255, 59, 48, 0.12);
-          color: #D70015;
+          color: var(--sanctuary-red-ink);
         }
 
         /* 3. Cupertino Segmented Tab Bar */
         .sc-tab-bar {
           display: flex;
           background: rgba(0, 0, 0, 0.04);
-          border-radius: 10px;
+          border-radius: var(--radius-control);
           padding: 3px;
           margin: 10px 16px 4px 16px;
           gap: 3px;
@@ -1474,30 +1481,35 @@ export class DebuggerOverlay {
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 6px;
-          padding: 6px 10px;
+          gap: 5px;
+          padding: 7px 4px;
+          min-width: 0;
+          min-height: var(--control-height);
           border-radius: 8px;
           border: none;
           background: transparent;
-          color: #6E6E73;
+          color: var(--sanctuary-ink-secondary);
           font-size: 11.5px;
           font-weight: 500;
           cursor: pointer;
           transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .sc-tab-btn.active {
-          background: #FFFFFF;
-          color: #1D1D1F;
+          background: var(--sanctuary-surface);
+          color: var(--sanctuary-ink-primary);
           font-weight: 600;
           box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
         }
+        .sc-tab-btn.active svg { color: var(--sanctuary-blue); }
+        .sc-tab-btn > svg { flex-shrink: 0; }
         .sc-tab-btn:hover:not(.active) {
-          color: #1D1D1F;
+          color: var(--sanctuary-ink-primary);
         }
 
         /* 4. Viewport Scroll Container */
         .sc-viewport {
           flex: 1;
+          min-height: 0;
           overflow-y: auto;
           padding: 12px 16px 16px 16px;
         }
@@ -1511,12 +1523,12 @@ export class DebuggerOverlay {
 
         /* 5. Inset Cards */
         .sc-card {
-          background: #FFFFFF;
+          background: var(--sanctuary-surface);
           border: 1px solid rgba(0, 0, 0, 0.06);
-          border-radius: 14px;
-          padding: 14px;
+          border-radius: var(--radius-card);
+          padding: var(--space-4);
           margin-bottom: 12px;
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03), 0 4px 12px rgba(0, 0, 0, 0.02);
+          box-shadow: var(--shadow-card);
         }
 
         /* Hero: The Swiss Loupe Dial */
@@ -1564,14 +1576,14 @@ export class DebuggerOverlay {
         .sc-gauge-value {
           font-size: 21px;
           font-weight: 700;
-          color: #1D1D1F;
+          color: var(--sanctuary-ink-primary);
           letter-spacing: -0.03em;
         }
         .sc-gauge-label {
           font-size: 8.5px;
           font-weight: 600;
           text-transform: uppercase;
-          color: #86868B;
+          color: var(--sanctuary-ink-secondary);
           letter-spacing: 0.04em;
         }
 
@@ -1584,12 +1596,12 @@ export class DebuggerOverlay {
         .sc-site-name {
           font-size: 15px;
           font-weight: 600;
-          color: #1D1D1F;
+          color: var(--sanctuary-ink-primary);
           letter-spacing: -0.015em;
         }
         .sc-subtext {
           font-size: 10.5px;
-          color: #86868B;
+          color: var(--sanctuary-ink-secondary);
         }
 
         /* 4 Swiss Loupe Pillars */
@@ -1599,7 +1611,7 @@ export class DebuggerOverlay {
           gap: 6px;
           background: rgba(0, 0, 0, 0.025);
           border: 1px solid rgba(0, 0, 0, 0.05);
-          border-radius: 10px;
+          border-radius: var(--radius-control);
           padding: 8px;
         }
         .sc-pillar-cell {
@@ -1610,17 +1622,17 @@ export class DebuggerOverlay {
         }
         .sc-pillar-label {
           font-size: 9.5px;
-          color: #86868B;
+          color: var(--sanctuary-ink-secondary);
           font-weight: 500;
         }
         .sc-pillar-val {
           font-size: 11px;
           font-weight: 600;
-          color: #1D1D1F;
+          color: var(--sanctuary-ink-primary);
         }
-        .sc-val-green { color: #248A3D; }
-        .sc-val-blue { color: #0071E3; }
-        .sc-val-amber { color: #B25900; }
+        .sc-val-green { color: var(--sanctuary-green-ink); }
+        .sc-val-blue { color: var(--sanctuary-blue); }
+        .sc-val-amber { color: var(--sanctuary-amber-ink); }
         .sc-val-indigo { color: #5E5CE6; }
 
         /* Badges */
@@ -1638,22 +1650,22 @@ export class DebuggerOverlay {
         .sc-badge-green {
           background: rgba(52, 199, 89, 0.12);
           border: 1px solid rgba(52, 199, 89, 0.25);
-          color: #248A3D;
+          color: var(--sanctuary-green-ink);
         }
         .sc-badge-amber {
           background: rgba(255, 149, 0, 0.12);
           border: 1px solid rgba(255, 149, 0, 0.25);
-          color: #B25900;
+          color: var(--sanctuary-amber-ink);
         }
         .sc-badge-red {
           background: rgba(255, 59, 48, 0.10);
           border: 1px solid rgba(255, 59, 48, 0.22);
-          color: #D70015;
+          color: var(--sanctuary-red-ink);
         }
         .sc-badge-blue {
           background: rgba(0, 113, 227, 0.10);
           border: 1px solid rgba(0, 113, 227, 0.20);
-          color: #0071E3;
+          color: var(--sanctuary-blue);
         }
 
         /* Verdict Card */
@@ -1670,11 +1682,11 @@ export class DebuggerOverlay {
         .sc-card-title {
           font-size: 12px;
           font-weight: 600;
-          color: #1D1D1F;
+          color: var(--sanctuary-ink-primary);
         }
         .sc-verdict-text {
           font-size: 11.5px;
-          color: #515154;
+          color: var(--sanctuary-ink-secondary);
           line-height: 1.45;
           margin: 0;
         }
@@ -1686,7 +1698,7 @@ export class DebuggerOverlay {
         .sc-triggers-label {
           font-size: 10.5px;
           font-weight: 600;
-          color: #6E6E73;
+          color: var(--sanctuary-ink-secondary);
         }
         .sc-triggers-list {
           display: flex;
@@ -1699,7 +1711,7 @@ export class DebuggerOverlay {
           background: rgba(0, 0, 0, 0.04);
           border: 1px solid rgba(0, 0, 0, 0.06);
           border-radius: 5px;
-          color: #1D1D1F;
+          color: var(--sanctuary-ink-primary);
         }
 
         .sc-action-row {
@@ -1708,6 +1720,7 @@ export class DebuggerOverlay {
           margin-top: 4px;
         }
         .sc-btn {
+          min-height: var(--control-height);
           display: inline-flex;
           align-items: center;
           justify-content: center;
@@ -1717,8 +1730,8 @@ export class DebuggerOverlay {
           font-weight: 500;
           border-radius: 8px;
           border: 1px solid rgba(0, 0, 0, 0.10);
-          background: #FFFFFF;
-          color: #1D1D1F;
+          background: var(--sanctuary-surface);
+          color: var(--sanctuary-ink-primary);
           cursor: pointer;
           transition: all 0.15s ease;
         }
@@ -1735,7 +1748,7 @@ export class DebuggerOverlay {
         .sc-btn-ghost {
           background: transparent;
           border: none;
-          color: #0071E3;
+          color: var(--sanctuary-blue);
           font-size: 10.5px;
           font-weight: 500;
           cursor: pointer;
@@ -1760,7 +1773,7 @@ export class DebuggerOverlay {
           display: flex;
           align-items: center;
           gap: 8px;
-          background: #FFFFFF;
+          background: var(--sanctuary-surface);
           border: 1px solid rgba(0, 0, 0, 0.08);
           border-radius: 9px;
           padding: 6px 10px;
@@ -1770,11 +1783,11 @@ export class DebuggerOverlay {
           border: none;
           background: transparent;
           font-size: 11.5px;
-          color: #1D1D1F;
+          color: var(--sanctuary-ink-primary);
           outline: none;
         }
         .sc-search-input::placeholder {
-          color: #86868B;
+          color: var(--sanctuary-ink-secondary);
         }
         .sc-search-clear {
           background: transparent;
@@ -1792,31 +1805,31 @@ export class DebuggerOverlay {
           border-radius: 9999px;
           border: 1px solid rgba(0, 0, 0, 0.06);
           background: rgba(0, 0, 0, 0.03);
-          color: #6E6E73;
+          color: var(--sanctuary-ink-secondary);
           font-size: 10.5px;
           font-weight: 500;
           cursor: pointer;
           transition: all 0.15s ease;
         }
         .sc-chip.active {
-          background: #0071E3;
-          color: #FFFFFF;
-          border-color: #0071E3;
+          background: var(--sanctuary-blue-bg);
+          color: var(--sanctuary-blue);
+          border-color: var(--sanctuary-blue-bd);
         }
         .sc-chip.sc-chip-danger {
           border-color: rgba(239, 68, 68, 0.35);
           background: rgba(239, 68, 68, 0.08);
-          color: #D70015;
+          color: var(--sanctuary-red-ink);
         }
         .sc-chip.sc-chip-danger.active {
-          background: #EF4444;
-          color: #FFFFFF;
-          border-color: #EF4444;
+          background: var(--sanctuary-red-bg);
+          color: var(--sanctuary-red-ink);
+          border-color: var(--sanctuary-red-bd);
         }
 
         /* Events Timeline */
         .sc-event-card {
-          background: #FFFFFF;
+          background: var(--sanctuary-surface);
           border: 1px solid rgba(0, 0, 0, 0.06);
           border-radius: 12px;
           padding: 10px 12px;
@@ -1855,11 +1868,11 @@ export class DebuggerOverlay {
         }
         .sc-badge-ai {
           background: rgba(0, 113, 227, 0.08);
-          color: #0071E3;
+          color: var(--sanctuary-blue);
         }
         .sc-badge-form {
           background: rgba(52, 199, 89, 0.10);
-          color: #248A3D;
+          color: var(--sanctuary-green-ink);
         }
         .sc-badge-ctx {
           background: rgba(94, 92, 230, 0.08);
@@ -1871,12 +1884,12 @@ export class DebuggerOverlay {
         }
         .sc-badge-log {
           background: rgba(0, 0, 0, 0.04);
-          color: #6E6E73;
+          color: var(--sanctuary-ink-secondary);
         }
         .sc-event-title {
           font-size: 11.5px;
           font-weight: 600;
-          color: #1D1D1F;
+          color: var(--sanctuary-ink-primary);
           letter-spacing: -0.01em;
         }
         .sc-event-right {
@@ -1886,30 +1899,30 @@ export class DebuggerOverlay {
         }
         .sc-event-time {
           font-size: 10px;
-          color: #86868B;
+          color: var(--sanctuary-ink-secondary);
           font-family: var(--font-mono, monospace);
         }
         .sc-copy-icon-btn {
           background: transparent;
           border: none;
-          color: #86868B;
+          color: var(--sanctuary-ink-secondary);
           cursor: pointer;
           padding: 1px 3px;
           border-radius: 4px;
         }
         .sc-copy-icon-btn:hover {
-          color: #0071E3;
+          color: var(--sanctuary-blue);
           background: rgba(0, 113, 227, 0.08);
         }
         .sc-event-code {
           margin: 0;
-          background: #F5F5F7;
+          background: var(--sanctuary-canvas);
           border: 1px solid rgba(0, 0, 0, 0.04);
           border-radius: 6px;
           padding: 6px 8px;
           font-size: 10px;
           font-family: var(--font-mono, monospace);
-          color: #1D1D1F;
+          color: var(--sanctuary-ink-primary);
           overflow-x: auto;
           white-space: pre-wrap;
           word-break: break-all;
@@ -1936,7 +1949,7 @@ export class DebuggerOverlay {
           gap: 6px;
         }
         .sc-ai-box {
-          background: #F5F5F7;
+          background: var(--sanctuary-canvas);
           border: 1px solid rgba(0, 0, 0, 0.05);
           border-radius: 7px;
           padding: 6px 8px;
@@ -1947,14 +1960,14 @@ export class DebuggerOverlay {
           align-items: center;
           font-size: 9.5px;
           font-weight: 700;
-          color: #6E6E73;
+          color: var(--sanctuary-ink-secondary);
           margin-bottom: 3px;
         }
         .sc-code-block {
           margin: 0;
           font-size: 10px;
           font-family: var(--font-mono, monospace);
-          color: #1D1D1F;
+          color: var(--sanctuary-ink-primary);
           white-space: pre-wrap;
           word-break: break-all;
         }
@@ -1971,11 +1984,11 @@ export class DebuggerOverlay {
         .sc-empty-title {
           font-size: 12.5px;
           font-weight: 600;
-          color: #1D1D1F;
+          color: var(--sanctuary-ink-primary);
         }
         .sc-empty-sub {
           font-size: 11px;
-          color: #86868B;
+          color: var(--sanctuary-ink-secondary);
           line-height: 1.4;
         }
 
@@ -1988,252 +2001,63 @@ export class DebuggerOverlay {
           animation: sc-spin 1.2s linear infinite;
         }
 
-        /* Vector Spectrum Tab Styles */
-        .sc-vectors-view {
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-          padding: 14px;
-          overflow-y: auto;
-          height: 100%;
+        /* Spectrum uses the same cards, controls and type scale as every tab. */
+        .sc-vectors-view { display: flex; flex-direction: column; gap: var(--space-3); }
+        .sc-vectors-view > .sc-card { margin-bottom: 0; }
+        .sc-vector-hero, .sc-vector-graph-card, .sc-dim-breakdown-card {
+          display: flex; flex-direction: column; gap: var(--space-3);
         }
-        .sc-vector-hero {
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-        }
-        .sc-vector-hero-top {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-        }
+        .sc-vector-hero-top { display: flex; align-items: flex-start; gap: var(--space-3); }
         .sc-vector-sim-badge {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          padding: 10px 14px;
-          border-radius: 12px;
-          flex-shrink: 0;
-          min-width: 140px;
+          display: flex; flex-direction: column; align-items: flex-start; justify-content: center;
+          padding: var(--space-3); border-radius: var(--radius-control); min-width: 116px; flex-shrink: 0;
         }
-        .sc-sim-title {
-          font-size: 9.5px;
-          font-weight: 600;
-          text-transform: uppercase;
-          letter-spacing: 0.04em;
-          opacity: 0.85;
-          margin-bottom: 2px;
-        }
-        .sc-sim-value {
-          font-size: 19px;
-          font-weight: 800;
-          font-family: var(--font-mono, monospace);
-        }
-        .sc-vector-status-block {
-          flex: 1;
-        }
-        .sc-vector-status-title {
-          font-size: 12px;
-          font-weight: 700;
-          color: #1D1D1F;
-          letter-spacing: -0.01em;
-          margin-bottom: 2px;
-        }
-        .sc-vector-status-sub {
-          font-size: 11px;
-          color: #6E6E73;
-          line-height: 1.35;
-        }
-        .sc-proto-selector {
-          display: flex;
-          flex-direction: column;
-          gap: 6px;
-          margin-top: 2px;
-        }
-        .sc-proto-label {
-          font-size: 10px;
-          font-weight: 600;
-          color: #86868B;
-          text-transform: uppercase;
-          letter-spacing: 0.03em;
-        }
-        .sc-proto-chips {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 6px;
-        }
-        .sc-chip-sim {
-          font-size: 9.5px;
-          font-family: var(--font-mono, monospace);
-          font-weight: 700;
-          opacity: 0.9;
-          margin-left: 3px;
-        }
-        .sc-vector-raw-box {
-          background: #F5F5F7;
-          border: 1px solid rgba(0, 0, 0, 0.04);
-          border-radius: 8px;
-          padding: 8px 10px;
-        }
-        .sc-vector-raw-label {
-          font-size: 9.5px;
-          font-weight: 700;
-          color: #6E6E73;
-          text-transform: uppercase;
-          display: block;
-          margin-bottom: 2px;
-        }
-        .sc-vector-raw-text {
-          font-size: 11px;
-          font-style: italic;
-          color: #1D1D1F;
-          line-height: 1.4;
-        }
+        .sc-sim-title, .sc-sim-caption { font-size: var(--text-caption); line-height: 1.4; }
+        .sc-sim-value { font-size: 30px; line-height: 1.2; font-weight: 650; font-variant-numeric: tabular-nums; }
+        .sc-sim-unit { font-size: 16px; font-weight: 500; margin-left: 2px; }
+        .sc-vector-status-block { min-width: 0; flex: 1; padding-top: 2px; }
+        .sc-vector-status-title { font-size: var(--text-title); font-weight: 600; margin-bottom: var(--space-1); }
+        .sc-vector-status-sub, .sc-vector-note { font-size: var(--text-caption); color: var(--sanctuary-ink-secondary); line-height: 1.5; }
+        .sc-vector-note { margin: 0; }
+        .sc-proto-selector { display: flex; flex-direction: column; gap: var(--space-2); }
+        .sc-proto-label, .sc-vector-raw-label { font-size: var(--text-caption); font-weight: 600; color: var(--sanctuary-ink-secondary); }
+        .sc-proto-chips { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: var(--space-2); }
+        .sc-proto-chip { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); text-align: left; padding: 8px 10px; border-radius: var(--radius-control); min-height: var(--control-height); }
+        .sc-chip-sim { flex-shrink: 0; font-size: var(--text-caption); font-weight: 600; font-variant-numeric: tabular-nums; }
+        .sc-vector-raw-box { background: var(--sanctuary-surface-subtle); border: 1px solid var(--sanctuary-hairline); border-radius: var(--radius-control); padding: var(--space-3); }
+        .sc-vector-raw-label { display: block; margin-bottom: var(--space-1); }
+        .sc-vector-raw-text { font-size: var(--text-body); color: var(--sanctuary-ink-primary); line-height: 1.5; overflow-wrap: anywhere; }
+        .sc-graph-header, .sc-graph-title-group { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-1); }
+        .sc-graph-sub { font-size: var(--text-caption); color: var(--sanctuary-ink-secondary); }
+        .sc-graph-legend { display: flex; flex-wrap: wrap; gap: var(--space-3); font-size: var(--text-caption); color: var(--sanctuary-ink-secondary); margin-top: var(--space-1); }
+        .sc-legend-item { display: flex; align-items: center; gap: 6px; }
+        .sc-legend-dot { width: 8px; height: 8px; border-radius: var(--radius-pill); }
+        .sc-dot-blue, .sc-bar-blue { background: var(--sanctuary-blue); }
+        .sc-dot-red, .sc-bar-red { background: var(--sanctuary-red-ink); }
+        .sc-svg-wrapper { background: var(--sanctuary-surface-subtle); border: 1px solid var(--sanctuary-hairline); border-radius: var(--radius-control); padding: var(--space-2); overflow-x: auto; }
+        .sc-vector-svg { display: block; width: 100%; min-width: 440px; height: auto; }
+        .sc-dim-grid { display: flex; flex-direction: column; gap: var(--space-2); }
+        .sc-dim-row { background: var(--sanctuary-surface-subtle); border: 1px solid var(--sanctuary-hairline); border-radius: var(--radius-control); padding: 10px 12px; }
+        .sc-dim-row.matched { background: var(--sanctuary-red-bg); border-color: var(--sanctuary-red-bd); }
+        .sc-dim-meta { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--space-1); margin-bottom: 6px; }
+        .sc-dim-name { display: flex; gap: 6px; align-items: center; font-size: var(--text-body); font-weight: 600; color: var(--sanctuary-ink-primary); }
+        .sc-dim-number { color: var(--sanctuary-ink-secondary); font-size: var(--text-caption); font-weight: 500; min-width: 14px; font-variant-numeric: tabular-nums; }
+        .sc-dim-weights { display: flex; gap: var(--space-2); font-size: var(--text-caption); font-variant-numeric: tabular-nums; }
+        .sc-val-in { color: var(--sanctuary-blue); }
+        .sc-val-proto { color: var(--sanctuary-red-ink); }
+        .sc-dim-bars { display: flex; flex-direction: column; gap: var(--space-1); }
+        .sc-bar-track { height: 4px; background: var(--sanctuary-surface-active); border-radius: var(--radius-pill); overflow: hidden; }
+        .sc-bar-fill { height: 100%; border-radius: var(--radius-pill); transition: width 0.2s ease; }
+        .sc-dim-tokens { display: flex; flex-wrap: wrap; gap: var(--space-1); margin-top: 6px; }
+        .sc-dim-token-chip { font-size: var(--text-caption); padding: 2px 6px; background: var(--sanctuary-surface); color: var(--sanctuary-ink-secondary); border-radius: var(--radius-micro); border: 1px solid var(--sanctuary-hairline); }
 
-        /* Vector Graph Card */
-        .sc-vector-graph-card {
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-        }
-        .sc-graph-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          flex-wrap: wrap;
-          gap: 6px;
-        }
-        .sc-graph-title-group {
-          display: flex;
-          flex-direction: column;
-        }
-        .sc-graph-sub {
-          font-size: 10px;
-          color: #86868B;
-        }
-        .sc-graph-legend {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          font-size: 10px;
-          color: #515154;
-        }
-        .sc-legend-item {
-          display: flex;
-          align-items: center;
-          gap: 5px;
-        }
-        .sc-legend-dot {
-          width: 8px;
-          height: 8px;
-          border-radius: 9999px;
-        }
-        .sc-dot-blue {
-          background: #0071E3;
-          box-shadow: 0 0 4px rgba(0, 113, 227, 0.6);
-        }
-        .sc-dot-red {
-          background: #EF4444;
-          box-shadow: 0 0 4px rgba(239, 68, 68, 0.6);
-        }
-        .sc-svg-wrapper {
-          background: #FFFFFF;
-          border: 1px solid rgba(0, 0, 0, 0.06);
-          border-radius: 12px;
-          padding: 8px 4px;
-          box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.02);
-          overflow: hidden;
-        }
-        .sc-vector-svg {
-          width: 100%;
-          height: auto;
-          display: block;
-        }
-
-        /* Dimension Breakdown */
-        .sc-dim-breakdown-card {
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-        }
-        .sc-dim-grid {
-          display: flex;
-          flex-direction: column;
-          gap: 6px;
-        }
-        .sc-dim-row {
-          background: #FBFBFC;
-          border: 1px solid rgba(0, 0, 0, 0.05);
-          border-radius: 8px;
-          padding: 7px 10px;
-          transition: all 0.15s ease;
-        }
-        .sc-dim-row.matched {
-          background: rgba(239, 68, 68, 0.03);
-          border-color: rgba(239, 68, 68, 0.25);
-          border-left: 3px solid #EF4444;
-        }
-        .sc-dim-meta {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 4px;
-        }
-        .sc-dim-name {
-          font-size: 11px;
-          font-weight: 600;
-          color: #1D1D1F;
-        }
-        .sc-dim-weights {
-          display: flex;
-          gap: 8px;
-          font-size: 10px;
-          font-family: var(--font-mono, monospace);
-        }
-        .sc-val-in {
-          color: #0071E3;
-          font-weight: 600;
-        }
-        .sc-val-proto {
-          color: #EF4444;
-          font-weight: 600;
-        }
-        .sc-dim-bars {
-          display: flex;
-          flex-direction: column;
-          gap: 3px;
-        }
-        .sc-bar-track {
-          height: 4px;
-          background: rgba(0, 0, 0, 0.05);
-          border-radius: 9999px;
-          overflow: hidden;
-        }
-        .sc-bar-fill {
-          height: 100%;
-          border-radius: 9999px;
-          transition: width 0.3s ease;
-        }
-        .sc-bar-blue {
-          background: #0071E3;
-        }
-        .sc-bar-red {
-          background: #EF4444;
-        }
-        .sc-dim-tokens {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 4px;
-          margin-top: 5px;
-        }
-        .sc-dim-token-chip {
-          font-size: 9px;
-          padding: 1px 5px;
-          background: rgba(0, 113, 227, 0.08);
-          color: #0071E3;
-          border-radius: 4px;
-          border: 1px solid rgba(0, 113, 227, 0.15);
+        @container (max-width: 380px) {
+          .sc-tab-btn { gap: 3px; font-size: 11px; }
+          .sc-tab-btn > svg { display: none; }
+          .sc-brand-pill { display: none; }
+          .sc-vector-hero-top { flex-direction: column; }
+          .sc-vector-sim-badge { width: 100%; }
+          .sc-action-row { flex-wrap: wrap; }
         }
       </style>
 
@@ -2266,24 +2090,24 @@ export class DebuggerOverlay {
         </div>
 
         <!-- 2. Cupertino Segmented Navigation -->
-        <nav class="sc-tab-bar">
-          <button type="button" class="sc-tab-btn ${activeTab === 'overview' ? 'active' : ''}" data-tab="overview">
+        <nav class="sc-tab-bar" aria-label="Розділи діагностики">
+          <button type="button" class="sc-tab-btn ${activeTab === 'overview' ? 'active' : ''}" data-tab="overview" aria-pressed="${activeTab === 'overview'}">
             ${ICONS.loupe(12)}
-            <span>Огляд (Лупа)</span>
+            <span>Огляд</span>
             ${fpInfo.status === 'FP_CANDIDATE' ? '<span class="sc-badge sc-badge-amber" style="padding:1px 5px; font-size:8.5px;">FP?</span>' : ''}
           </button>
-          <button type="button" class="sc-tab-btn ${activeTab === 'events' ? 'active' : ''}" data-tab="events">
+          <button type="button" class="sc-tab-btn ${activeTab === 'events' ? 'active' : ''}" data-tab="events" aria-pressed="${activeTab === 'events'}">
             ${ICONS.terminal(12)}
             <span>Події (${logs.length})</span>
           </button>
-          <button type="button" class="sc-tab-btn ${activeTab === 'ai' ? 'active' : ''}" data-tab="ai">
+          <button type="button" class="sc-tab-btn ${activeTab === 'ai' ? 'active' : ''}" data-tab="ai" aria-pressed="${activeTab === 'ai'}">
             ${ICONS.cpu(12)}
-            <span>ШІ LLM (${aiCount})</span>
+            <span>ШІ (${aiCount})</span>
           </button>
-          <button type="button" class="sc-tab-btn ${activeTab === 'vectors' ? 'active' : ''}" data-tab="vectors">
+          <button type="button" class="sc-tab-btn ${activeTab === 'vectors' ? 'active' : ''}" data-tab="vectors" aria-pressed="${activeTab === 'vectors'}" title="Векторний спектр">
             ${ICONS.activity(12)}
-            <span>Векторний спектр</span>
-            ${this.state.vectorTelemetry ? `<span class="sc-badge ${this.state.vectorTelemetry.cosineSimilarity >= 0.4 ? 'sc-badge-red' : 'sc-badge-blue'}" style="padding:1px 5px; font-size:8.5px;">${Math.round(this.state.vectorTelemetry.cosineSimilarity * 100)}%</span>` : ''}
+            <span>Спектр</span>
+            ${this.state.vectorTelemetry ? `<span class="sc-badge ${this.state.vectorTelemetry.hasFormedIntent ? 'sc-badge-red' : this.state.vectorTelemetry.cosineSimilarity >= 0.4 ? 'sc-badge-amber' : 'sc-badge-blue'}" style="padding:1px 5px; font-size:8.5px;">${Math.round(this.state.vectorTelemetry.cosineSimilarity * 100)}%</span>` : ''}
           </button>
         </nav>
 
@@ -2295,6 +2119,13 @@ export class DebuggerOverlay {
     `;
 
     this.bindEvents();
+    const nextViewport = this.shadowRoot.querySelector<HTMLElement>('.sc-viewport');
+    if (nextViewport) nextViewport.scrollTop = scrollTop;
+    const nextFocus = focusedId ? this.shadowRoot.getElementById(focusedId)
+      : Array.from(this.shadowRoot.querySelectorAll<HTMLElement>('[data-tab], [data-proto-id]'))
+        .find((control) => (focusedTab && control.dataset.tab === focusedTab)
+          || (focusedPrototype && control.dataset.protoId === focusedPrototype));
+    nextFocus?.focus({ preventScroll: true });
   }
 
   // Рендеринг компактного віджета (Dynamic Island Pill у світлій темі)
@@ -2315,7 +2146,7 @@ export class DebuggerOverlay {
 
         :host {
           all: initial;
-          font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+          font-family: var(--font-sanctuary);
         }
         .sc-pill {
           height: 34px;
@@ -2328,7 +2159,7 @@ export class DebuggerOverlay {
           display: flex;
           align-items: center;
           gap: 8px;
-          color: #1D1D1F;
+          color: var(--sanctuary-ink-primary);
           cursor: pointer;
           box-shadow: 0 4px 16px rgba(0, 0, 0, 0.10);
           transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.18s ease;
@@ -2349,7 +2180,7 @@ export class DebuggerOverlay {
         .sc-pill-text {
           font-size: 11.5px;
           font-weight: 600;
-          color: #1D1D1F;
+          color: var(--sanctuary-ink-primary);
           letter-spacing: -0.01em;
         }
         .sc-pill-badge {
@@ -2364,7 +2195,7 @@ export class DebuggerOverlay {
         }
         .sc-pill-count {
           font-size: 10.5px;
-          color: #86868B;
+          color: var(--sanctuary-ink-secondary);
           font-family: var(--font-mono, monospace);
           display: flex;
           align-items: center;

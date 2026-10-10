@@ -169,10 +169,10 @@ html, body {
 .segmented-control {
   padding: 2.5px;
   background: rgba(118, 118, 128, 0.12);
-  border-radius: 10px;
+  border-radius: var(--radius-control);
   display: flex;
   gap: 2px;
-  height: 32px;
+  height: var(--control-height);
 }
 
 .segment-btn {
@@ -263,9 +263,9 @@ html, body {
    ========================================================================== */
 .sanctuary-card {
   background: var(--sanctuary-surface);
-  border-radius: 12px;
+  border-radius: var(--radius-card);
   border: 1px solid var(--sanctuary-hairline);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--shadow-card);
   padding: 12px 14px;
   transition: all 0.2s var(--ease-apple-spring);
 }
@@ -444,16 +444,16 @@ html, body {
   height: 28px;
   padding: 0 11px;
   border-radius: 8px;
-  border: none;
-  background: var(--sanctuary-amber);
-  color: #FFFFFF;
+  border: 1px solid var(--sanctuary-amber-bd);
+  background: var(--sanctuary-amber-surface);
+  color: var(--sanctuary-amber-ink);
   font-size: 11.5px;
   font-weight: 600;
   display: inline-flex;
   align-items: center;
   gap: 6px;
   cursor: pointer;
-  box-shadow: 0 1px 3px rgba(255, 149, 0, 0.35), 0 2px 6px rgba(255, 149, 0, 0.2);
+  box-shadow: var(--shadow-sm);
   transition: all 0.18s var(--ease-apple-spring);
   font-family: var(--font-sanctuary);
   text-decoration: none;
@@ -465,15 +465,15 @@ html, body {
 .btn-tainted-reset svg {
   width: 13px;
   height: 13px;
-  stroke: #FFFFFF;
-  color: #FFFFFF;
+  stroke: currentColor;
+  color: inherit;
   flex-shrink: 0;
   transition: transform 0.3s var(--ease-apple-spring);
 }
 
 .btn-tainted-reset:hover {
-  background: var(--sanctuary-amber-hover);
-  box-shadow: 0 2px 8px rgba(255, 149, 0, 0.45);
+  background: var(--sanctuary-amber-bg);
+  box-shadow: var(--shadow-card);
 }
 
 .btn-tainted-reset:hover svg {
@@ -492,7 +492,7 @@ html, body {
 .tainted-card {
   background: var(--sanctuary-amber-bg);
   border: 1px solid var(--sanctuary-amber-bd);
-  border-radius: 12px;
+  border-radius: var(--radius-card);
   padding: 10px 12px;
   display: flex;
   flex-direction: column;
@@ -613,13 +613,14 @@ html, body {
    ========================================================================== */
 .inset-group {
   background: var(--sanctuary-surface);
-  border-radius: 12px;
+  border-radius: var(--radius-card);
   border: 1px solid var(--sanctuary-hairline);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--shadow-card);
   overflow: hidden;
 }
 
 .inset-row {
+  gap: var(--space-3);
   padding: 10px 14px;
   min-height: 44px;
   display: flex;
@@ -642,6 +643,7 @@ html, body {
 }
 
 .inset-lead {
+  flex: 1;
   display: flex;
   align-items: center;
   gap: 11px;
@@ -670,6 +672,7 @@ html, body {
 .inset-icon-box.dark   { background: rgba(0, 0, 0, 0.06);      color: var(--sanctuary-ink-primary); }
 
 .inset-info {
+  flex: 1;
   display: flex;
   flex-direction: column;
   min-width: 0;
@@ -685,14 +688,13 @@ html, body {
 .inset-desc {
   font-size: 11px;
   color: var(--sanctuary-ink-secondary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 200px;
-  line-height: 1.25;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.45;
 }
 
 .inset-end {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -792,7 +794,7 @@ html, body {
    ========================================================================== */
 .vault-state-card {
   background: var(--sanctuary-surface);
-  border-radius: 12px;
+  border-radius: var(--radius-card);
   border: 1px solid var(--sanctuary-hairline);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
   padding: 18px 16px;
@@ -826,7 +828,7 @@ html, body {
 .vault-hero-emblem {
   width: 44px;
   height: 44px;
-  border-radius: 12px;
+  border-radius: var(--radius-card);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -870,7 +872,7 @@ html, body {
 .vault-health-card {
   padding: 12px 14px;
   background: var(--sanctuary-surface);
-  border-radius: 12px;
+  border-radius: var(--radius-card);
   border: 1px solid var(--sanctuary-hairline);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
@@ -995,7 +997,7 @@ html, body {
 
 .vault-inset-group {
   background: var(--sanctuary-surface);
-  border-radius: 12px;
+  border-radius: var(--radius-card);
   border: 1px solid var(--sanctuary-hairline);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
   overflow: hidden;
@@ -1234,12 +1236,12 @@ html, body {
 
 .vault-actions-row .vault-save-btn {
   flex: 1;
-  height: 32px;
+  height: var(--control-height);
   font-size: 12px;
 }
 
 .vault-actions-row .vault-clear-btn {
-  height: 32px;
+  height: var(--control-height);
   font-size: 12px;
   padding: 0 12px;
 }
@@ -1302,7 +1304,7 @@ html, body {
 
 .sanctuary-input {
   width: 100%;
-  height: 32px;
+  height: var(--control-height);
   padding: 0 10px;
   border-radius: 8px;
   border: 1px solid var(--sanctuary-hairline);
@@ -1355,7 +1357,7 @@ html, body {
 
 /* Buttons */
 .btn-primary {
-  height: 32px;
+  height: var(--control-height);
   padding: 0 14px;
   border-radius: 8px;
   border: none;
@@ -1380,12 +1382,12 @@ html, body {
 }
 
 .btn-primary.compact {
-  height: 32px;
+  height: var(--control-height);
   flex-shrink: 0;
 }
 
 .btn-secondary {
-  height: 32px;
+  height: var(--control-height);
   padding: 0 14px;
   border-radius: 8px;
   border: 1px solid var(--sanctuary-hairline);
@@ -1434,9 +1436,9 @@ html, body {
 }
 
 .btn-icon-subtle {
-  width: 26px;
-  height: 26px;
-  border-radius: 7px;
+  width: var(--control-height);
+  height: var(--control-height);
+  border-radius: var(--radius-nested);
   border: 1px solid transparent;
   background: transparent;
   color: var(--sanctuary-ink-secondary);
@@ -1490,7 +1492,7 @@ html, body {
 .provider-segmented-control {
   padding: 2.5px;
   background: rgba(118, 118, 128, 0.08);
-  border-radius: 10px;
+  border-radius: var(--radius-control);
   display: flex;
   gap: 2.5px;
   border: 1px solid var(--sanctuary-hairline);
@@ -1628,9 +1630,9 @@ html, body {
 
 /* Tool Buttons & Close Icon from Sanctuary Prism */
 .sc-tool-btn {
-  width: 17px;
-  height: 17px;
-  border-radius: 4px;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-nested);
   border: none;
   background: transparent;
   color: var(--sanctuary-ink-secondary);
@@ -2109,7 +2111,7 @@ kbd {
   max-width: 320px;
   background: var(--sanctuary-surface);
   border: 1px solid var(--sanctuary-hairline);
-  border-radius: 18px;
+  border-radius: var(--radius-modal);
   box-shadow: 0 20px 48px rgba(0, 0, 0, 0.2), 0 2px 8px rgba(0, 0, 0, 0.06);
   padding: 24px 20px 18px;
   animation: sheetScaleIn 0.28s var(--ease-apple-spring);
@@ -2162,20 +2164,20 @@ kbd {
 }
 
 .confirm-sheet-actions .btn-primary.danger {
-  background: var(--sanctuary-red);
+  background: var(--sanctuary-red-ink);
   color: #FFFFFF;
   width: 100%;
   height: 38px;
   font-size: 13px;
   font-weight: 600;
-  border-radius: 10px;
+  border-radius: var(--radius-control);
   border: none;
   cursor: pointer;
   transition: all 0.15s var(--ease-apple-spring);
 }
 
 .confirm-sheet-actions .btn-primary.danger:hover {
-  background: var(--sanctuary-red-hover);
+  background: var(--sanctuary-red-ink-hover);
 }
 
 .confirm-sheet-actions .btn-primary.danger:active {
@@ -2190,7 +2192,7 @@ kbd {
   color: var(--sanctuary-ink-primary);
   font-size: 12.5px;
   font-weight: 500;
-  border-radius: 10px;
+  border-radius: var(--radius-control);
   cursor: pointer;
   transition: background 0.15s ease;
 }

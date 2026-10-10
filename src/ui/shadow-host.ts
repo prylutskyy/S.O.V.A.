@@ -3,6 +3,8 @@
  * Захищає інтерфейс розширення від CSS-атак цільового сайту, забороняє перекриття чи приховування
  * попереджувальних віджетів правилами на зразок "div { display: none !important; }".
  */
+import { DESIGN_TOKENS_CSS } from './design-tokens';
+
 export class ShadowHost {
   private static hostElement: HTMLElement | null = null;
   private static shadowRoot: ShadowRoot | null = null;
@@ -56,11 +58,12 @@ export class ShadowHost {
     const style = document.createElement('style');
     style.id = 'threat-shield-base-styles';
     style.textContent = `
+      ${DESIGN_TOKENS_CSS}
       :host {
         all: initial;
         display: block;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-        color: #0f172a;
+        font-family: var(--font-sanctuary);
+        color: var(--sanctuary-ink-primary);
         line-height: 1.5;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
@@ -98,15 +101,15 @@ export class ShadowHost {
         height: 6px;
       }
       ::-webkit-scrollbar-track {
-        background: #f1f5f9;
-        border-radius: 4px;
+        background: transparent;
+        border-radius: var(--radius-pill);
       }
       ::-webkit-scrollbar-thumb {
-        background: #cbd5e1;
-        border-radius: 4px;
+        background: var(--sanctuary-scroll-thumb);
+        border-radius: var(--radius-pill);
       }
       ::-webkit-scrollbar-thumb:hover {
-        background: #94a3b8;
+        background: var(--sanctuary-ink-tertiary);
       }
     `;
     root.appendChild(style);

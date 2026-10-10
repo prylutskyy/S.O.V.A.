@@ -681,18 +681,18 @@ export class FieldLivePill {
         display: inline-flex !important;
         align-items: center !important;
         gap: 5px !important;
-        background: rgba(255, 255, 255, 0.94) !important;
+        background: var(--sanctuary-glass-elevated) !important;
         backdrop-filter: blur(20px) saturate(180%) !important;
         -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
         border: 1px solid rgba(0, 113, 227, 0.25) !important;
-        color: #0071E3 !important;
+        color: var(--sanctuary-blue) !important;
         padding: 3.5px 10px !important;
-        border-radius: 14px !important;
-        font-size: 10.5px !important;
+        border-radius: var(--radius-card) !important;
+        font-size: var(--text-caption) !important;
         font-weight: 600 !important;
         letter-spacing: -0.01em !important;
-        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif !important;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+        font-family: var(--font-sanctuary) !important;
+        box-shadow: var(--shadow-card) !important;
         cursor: pointer !important;
         user-select: none !important;
         white-space: nowrap !important;
@@ -711,7 +711,7 @@ export class FieldLivePill {
 
       .ts-field-live-pill:hover {
         border-color: rgba(0, 113, 227, 0.45) !important;
-        box-shadow: 0 4px 12px rgba(0, 113, 227, 0.15) !important;
+        box-shadow: var(--shadow-card) !important;
       }
 
       .ts-field-pill-label {
@@ -729,9 +729,9 @@ export class FieldLivePill {
         width: 340px !important;
         max-width: calc(100vw - 20px) !important;
         padding: 10px 14px !important;
-        border-radius: 12px !important;
+        border-radius: var(--radius-card) !important;
         white-space: normal !important;
-        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+        box-shadow: var(--shadow-card) !important;
         cursor: default !important;
         overflow-x: hidden !important;
         box-sizing: border-box !important;
@@ -755,40 +755,40 @@ export class FieldLivePill {
 
       /* Morphed Amber Caution State (> 7 characters) */
       .ts-field-live-pill.ts-pill-amber {
-        background: rgba(255, 251, 235, 0.96) !important;
-        border-color: rgba(217, 119, 6, 0.35) !important;
-        color: #B45309 !important;
-        box-shadow: 0 2px 8px rgba(217, 119, 6, 0.12), 0 1px 2px rgba(217, 119, 6, 0.06) !important;
+        background: var(--sanctuary-amber-surface) !important;
+        border-color: var(--sanctuary-amber-bd) !important;
+        color: var(--sanctuary-amber-ink) !important;
+        box-shadow: var(--shadow-card) !important;
       }
 
       .ts-field-live-pill.ts-pill-amber:hover {
-        background: rgba(254, 243, 199, 0.98) !important;
-        border-color: rgba(217, 119, 6, 0.55) !important;
-        box-shadow: 0 3px 12px rgba(217, 119, 6, 0.18) !important;
+        background: var(--sanctuary-amber-surface) !important;
+        border-color: var(--sanctuary-amber-bd) !important;
+        box-shadow: var(--shadow-card) !important;
       }
 
       .ts-field-live-pill.ts-pill-amber.ts-expanded {
-        border-color: rgba(217, 119, 6, 0.45) !important;
-        box-shadow: 0 8px 24px rgba(217, 119, 6, 0.16), 0 2px 6px rgba(217, 119, 6, 0.06) !important;
+        border-color: var(--sanctuary-amber-bd) !important;
+        box-shadow: var(--shadow-card) !important;
       }
 
       /* Morphed Red Alert State (Direct Vault Secret Match) */
       .ts-field-live-pill.ts-pill-red {
-        background: rgba(254, 242, 242, 0.96) !important;
-        border-color: rgba(220, 38, 38, 0.45) !important;
-        color: #DC2626 !important;
-        box-shadow: 0 3px 12px rgba(220, 38, 38, 0.18), 0 1px 3px rgba(220, 38, 38, 0.08) !important;
+        background: var(--sanctuary-red-surface) !important;
+        border-color: var(--sanctuary-red-bd) !important;
+        color: var(--sanctuary-red-ink) !important;
+        box-shadow: var(--shadow-card) !important;
       }
 
       .ts-field-live-pill.ts-pill-red:hover {
-        background: rgba(254, 226, 226, 0.98) !important;
-        border-color: rgba(220, 38, 38, 0.65) !important;
-        box-shadow: 0 4px 16px rgba(220, 38, 38, 0.25) !important;
+        background: var(--sanctuary-red-surface) !important;
+        border-color: var(--sanctuary-red-bd) !important;
+        box-shadow: var(--shadow-card) !important;
       }
 
       .ts-field-live-pill.ts-pill-red.ts-expanded {
-        border-color: rgba(220, 38, 38, 0.55) !important;
-        box-shadow: 0 8px 24px rgba(220, 38, 38, 0.20), 0 2px 6px rgba(220, 38, 38, 0.08) !important;
+        border-color: var(--sanctuary-red-bd) !important;
+        box-shadow: var(--shadow-card) !important;
       }
 
       /* Action Chips (Integrated Minimalist Clean Button) */
@@ -811,42 +811,42 @@ export class FieldLivePill {
         flex-shrink: 0 !important;
         white-space: nowrap !important;
         background: rgba(0, 113, 227, 0.08) !important;
-        color: #0071E3 !important;
+        color: var(--sanctuary-blue) !important;
         border: 1px solid rgba(0, 113, 227, 0.25) !important;
         transition: background-color 0.16s ease, color 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease !important;
       }
 
       .ts-pill-action-chip:hover {
-        background: #0071E3 !important;
-        color: #FFFFFF !important;
-        border-color: #0071E3 !important;
-        box-shadow: 0 2px 6px rgba(0, 113, 227, 0.22) !important;
+        background: var(--sanctuary-blue) !important;
+        color: var(--sanctuary-surface) !important;
+        border-color: var(--sanctuary-blue) !important;
+        box-shadow: var(--shadow-card) !important;
       }
 
       .ts-field-live-pill.ts-pill-amber .ts-pill-action-chip {
-        background: rgba(217, 119, 6, 0.08) !important;
-        color: #B45309 !important;
-        border: 1px solid rgba(217, 119, 6, 0.25) !important;
+        background: var(--sanctuary-amber-bg) !important;
+        color: var(--sanctuary-amber-ink) !important;
+        border: 1px solid var(--sanctuary-amber-bd) !important;
       }
 
       .ts-field-live-pill.ts-pill-amber .ts-pill-action-chip:hover {
-        background: #D97706 !important;
-        color: #FFFFFF !important;
-        border-color: #D97706 !important;
-        box-shadow: 0 2px 6px rgba(217, 119, 6, 0.22) !important;
+        background: var(--sanctuary-amber-ink) !important;
+        color: var(--sanctuary-surface) !important;
+        border-color: var(--sanctuary-amber-ink) !important;
+        box-shadow: var(--shadow-card) !important;
       }
 
       .ts-field-live-pill.ts-pill-red .ts-pill-action-chip {
-        background: rgba(220, 38, 38, 0.08) !important;
-        color: #DC2626 !important;
-        border: 1px solid rgba(220, 38, 38, 0.28) !important;
+        background: var(--sanctuary-red-bg) !important;
+        color: var(--sanctuary-red-ink) !important;
+        border: 1px solid var(--sanctuary-red-bd) !important;
       }
 
       .ts-field-live-pill.ts-pill-red .ts-pill-action-chip:hover {
-        background: #DC2626 !important;
-        color: #FFFFFF !important;
-        border-color: #DC2626 !important;
-        box-shadow: 0 2px 6px rgba(220, 38, 38, 0.25) !important;
+        background: var(--sanctuary-red-ink) !important;
+        color: var(--sanctuary-surface) !important;
+        border-color: var(--sanctuary-red-ink) !important;
+        box-shadow: var(--shadow-card) !important;
       }
     `;
     root.appendChild(style);

@@ -2,6 +2,15 @@
 
 Record each intentional classifier or corpus change here so metric shifts can be interpreted alongside the dashboard history. Exact-match results depend on both the classifier and the corpus contents; compare runs only when the corpus hash is the same, or report the changed split separately.
 
+## 2026-10-10 — shared visual language and truthful spectrum state
+
+- Replaced the duplicated TypeScript palette with the canonical `design-tokens.css` imported through `?inline`. Popup, debugger, modals, banners and field/chat capsules now share typography, readable semantic colors, surface styles, radii, shadows, keyboard focus and reduced-motion rules.
+- Reworked the spectrum into the debugger's common card layout: one vertical scroll area, responsive summary, neutral prototype controls, numbered chart dimensions and a horizontally scrollable plot. Removed the misleading cosine-similarity threshold line from the per-dimension weight chart. Similarity is explicitly distinguished from the applied protection action.
+- Without actual telemetry, the spectrum now shows an empty state instead of a sample attack. Incoming events preserve focus and reading position in the current tab; popup module descriptions wrap instead of being truncated.
+- Focused verification: **66/66 tests passed in 8 files**, covering UI suites and the actual content-runtime threat-arbitration suite. TypeScript and production build passed. An earlier parallel run failed to load temporary Vite modules; the sequential single-worker thread run succeeded. Local log: untracked `tests/results/vitest-design-language-2026-10-10.log`.
+- Browser visual review used static snapshots of the actual renderers with synthetic data, including a 340px-wide spectrum, popup tabs, event/AI views and the empty spectrum. These snapshots do not exercise real Groq or extension settings. Visual artifacts are local under untracked `tests/results/`.
+- Detection rules, mitigation thresholds and corpus labels were unchanged. No new corpus or live Groq evaluation was run, so this UI change does not establish any classification metric improvement. Design guidance is recorded in `docs/DESIGN_SYSTEM.md` and section 10 of the implementation specification.
+
 ## 2026-10-10 — diagnostic status follows the applied threat action
 
 - Fixed the overview showing “safe” while a real warning/lock was active. Content now records the applied action, intent, score and decision source explicitly; overview and exported JSON use this state before draft mitigation or inferred log verdicts.
