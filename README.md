@@ -12,8 +12,8 @@
 
 | Блок перевірки | Що містить | Обсяг | F1 | Recall |
 | --- | --- | --- | --- | --- |
-| **1 · Відомі регресії** | Загрози, безпечні репліки та виправлені помилки; за цими прикладами вже налаштовували правила | 326 сценаріїв | [![Регресійний F1](https://prylutskyy.github.io/S.O.V.A./badges/f1.svg)](https://prylutskyy.github.io/S.O.V.A./#regression) | [![Регресійний recall](https://prylutskyy.github.io/S.O.V.A./badges/recall.svg)](https://prylutskyy.github.io/S.O.V.A./#regression) |
-| **2 · Нові діалоги** | Поступове входження в довіру, фальшиві керівники, знайомі, підтримка, редакції; розмітка очікує незалежного аудиту | 300 діалогів: 200 визначених + 100 неоднозначних | [![F1 нових діалогів](https://prylutskyy.github.io/S.O.V.A./badges/challenge-f1.svg)](https://prylutskyy.github.io/S.O.V.A./#challenge) | [![Recall нових діалогів](https://prylutskyy.github.io/S.O.V.A./badges/challenge-recall.svg)](https://prylutskyy.github.io/S.O.V.A./#challenge) |
+| **1 · Відомі регресії** | Загрози, безпечні репліки та виправлені помилки; за цими прикладами вже налаштовували правила | 326 сценаріїв | [![Регресійний F1](https://prylutskyy.github.io/S.O.V.A./badges/f1-value.svg)](https://prylutskyy.github.io/S.O.V.A./#regression) | [![Регресійний recall](https://prylutskyy.github.io/S.O.V.A./badges/recall-value.svg)](https://prylutskyy.github.io/S.O.V.A./#regression) |
+| **2 · Нові діалоги** | Поступове входження в довіру, фальшиві керівники, знайомі, підтримка, редакції; розмітка очікує незалежного аудиту | 300 діалогів: 200 визначених + 100 неоднозначних | [![F1 нових діалогів](https://prylutskyy.github.io/S.O.V.A./badges/challenge-f1-value.svg)](https://prylutskyy.github.io/S.O.V.A./#challenge) | [![Recall нових діалогів](https://prylutskyy.github.io/S.O.V.A./badges/challenge-recall-value.svg)](https://prylutskyy.github.io/S.O.V.A./#challenge) |
 
 Зведені бейджі зверху пораховані за сумою TP/FP/FN/TN **526 визначених прикладів**, не за середнім F1. Відомі регресії підвищують цей результат; він не є незалежним доказом реальної точності. Groq і перевірки анонімізації мають окремі результати й не змішуються з локальними метриками.
 

@@ -33,6 +33,12 @@ function badge(label, value, color) {
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="20" role="img" aria-label="${escapeHtml(label)}: ${valueText}"><title>${escapeHtml(label)}: ${valueText}</title><linearGradient id="b" x2="0" y2="100%"><stop offset="0" stop-color="#bbb" stop-opacity=".1"/><stop offset="1" stop-opacity=".1"/></linearGradient><clipPath id="r"><rect width="${width}" height="20" rx="3"/></clipPath><g clip-path="url(#r)"><path fill="#555" d="M0 0h${labelWidth}v20H0z"/><path fill="${color}" d="M${labelWidth} 0h${width - labelWidth}v20H${labelWidth}z"/><path fill="url(#b)" d="M0 0h${width}v20H0z"/></g><g fill="#fff" text-anchor="middle" font-family="Verdana,sans-serif" font-size="11"><text x="${labelWidth / 2}" y="14">${escapeHtml(label)}</text><text x="${labelWidth + (width - labelWidth) / 2}" y="14">${valueText}</text></g></svg>`;
 }
 
+/** Table headings already identify the metric; keep only the value visible. */
+function valueBadge(label, value, color) {
+  const description = escapeHtml(`${label}: ${value}`);
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="80" height="28" viewBox="0 0 80 28" role="img" aria-label="${description}"><title>${description}</title><rect width="80" height="28" rx="5" fill="${color}"/><text x="40" y="14" dy=".35em" fill="#fff" text-anchor="middle" font-family="Verdana,sans-serif" font-size="16" font-weight="600">${escapeHtml(value)}</text></svg>`;
+}
+
 function chart(data) {
   const width = 900;
   const height = 330;
@@ -147,3 +153,9 @@ writeFileSync(resolve(outputDirectory, 'badges/challenge-recall.svg'), badge('ne
 
 writeFileSync(resolve(outputDirectory, 'badges/combined-f1.svg'), badge('all F1', percent(combined?.overall?.f1), '#2563eb'));
 writeFileSync(resolve(outputDirectory, 'badges/combined-recall.svg'), badge('all recall', percent(combined?.overall?.recall), '#2563eb'));
+
+// Separate URLs make the table format explicit and leave labeled summary badges available.
+writeFileSync(resolve(outputDirectory, 'badges/f1-value.svg'), valueBadge('Регресійний F1', percent(report.overall.f1), '#b91c1c'));
+writeFileSync(resolve(outputDirectory, 'badges/recall-value.svg'), valueBadge('Регресійний recall', percent(report.overall.recall), '#166534'));
+writeFileSync(resolve(outputDirectory, 'badges/challenge-f1-value.svg'), valueBadge('F1 нових діалогів', percent(challenge?.overall?.f1), '#854d0e'));
+writeFileSync(resolve(outputDirectory, 'badges/challenge-recall-value.svg'), valueBadge('Recall нових діалогів', percent(challenge?.overall?.recall), '#854d0e'));
