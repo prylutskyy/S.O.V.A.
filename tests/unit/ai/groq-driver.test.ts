@@ -10,6 +10,25 @@ describe('GroqDriver - Dedicated Unit Tests', () => {
   });
 
   describe('verifyThreat', () => {
+    it('rejects oversized input before network access', async () => {
+      globalThis.fetch = vi.fn();
+      await expect(driver.verifyThreat({ provider: 'groq', apiKey: 'test',
+        sanitizedPrompt: 'я'.repeat(6000) })).rejects.toThrow('10000-token budget');
+      expect(fetch).not.toHaveBeenCalled();
+    });
+    it.each([
+      '', 'not json', '{}', '{"isScam":false}',
+      JSON.stringify({ isScam: 'false', confidence: 90, scamType: 'UNKNOWN', reasoning: 'safe' }),
+      JSON.stringify({ isScam: false, confidence: 101, scamType: 'UNKNOWN', reasoning: 'safe' }),
+      JSON.stringify({ isScam: false, confidence: 90, scamType: 'UNKNOWN', reasoning: '' }),
+      JSON.stringify({ isScam: true, confidence: 90, scamType: 'UNKNOWN', reasoning: 'attack' }),
+      JSON.stringify({ isScam: true, confidence: 90, scamType: 'made-up', reasoning: 'attack' }),
+    ])('rejects malformed or unsupported verdict %s', async (content) => {
+      globalThis.fetch = vi.fn().mockResolvedValue({ ok: true,
+        json: async () => ({ choices: [{ message: { content } }] }) });
+      await expect(driver.verifyThreat({ provider: 'groq', apiKey: 'test',
+        sanitizedPrompt: 'test' })).rejects.toThrow('invalid threat verdict');
+    });
     it('dispatches request to Groq API with Bearer auth, json_object format, and temperature 0.1', async () => {
       const mockReply = JSON.stringify({
         isScam: true,
@@ -44,6 +63,7 @@ describe('GroqDriver - Dedicated Unit Tests', () => {
       const body = JSON.parse(opts.body);
       expect(body.model).toBe('llama-3.3-70b-versatile');
       expect(body.temperature).toBe(0.1);
+      expect(body.max_completion_tokens).toBe(512);
       expect(body.response_format).toEqual({ type: 'json_object' });
       expect(body.messages[1].content).toContain('[VERIFIED_CVV_CODE]');
 
@@ -61,6 +81,7 @@ describe('GroqDriver - Dedicated Unit Tests', () => {
 {
   "isScam": false,
   "confidence": 10,
+  "scamType": "UNKNOWN",
   "reasoning": "Звичайне безпечне листування без підозрілих дій."
 }
 \`\`\``;
@@ -148,7 +169,7 @@ describe('GroqDriver - Dedicated Unit Tests', () => {
       expect(res.latencyMs).toBeGreaterThanOrEqual(0);
     });
 
-    it('normalizes recruitment or sabotage scamType to MILITARY_SABOTAGE_RECRUITMENT', async () => {
+    it('rejects unknown recruitment aliases instead of escalating to a trusted military verdict', async () => {
       const mockReply = JSON.stringify({
         isScam: true,
         confidence: 98,
@@ -164,15 +185,11 @@ describe('GroqDriver - Dedicated Unit Tests', () => {
         }),
       });
 
-      const res = await driver.verifyThreat({
+      await expect(driver.verifyThreat({
         provider: 'groq',
         apiKey: 'gsk_test',
         sanitizedPrompt: 'test prompt',
-      });
-
-      expect(res.isScam).toBe(true);
-      expect(res.scamType).toBe('MILITARY_SABOTAGE_RECRUITMENT');
-      expect(res.reasoning).toContain('активно вербує');
+      })).rejects.toThrow('invalid threat verdict');
     });
   });
 

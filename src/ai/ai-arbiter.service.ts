@@ -1,6 +1,4 @@
 import { ActiveThreatContext } from '../types';
-import { AILureVerifier } from '../heuristics/ai-verifier';
-import { ScamIntentType } from '../heuristics/intent-classifier';
 import { ChatChannelMonitor } from '../heuristics/chat-channel';
 import { DebuggerOverlay } from '../ui/debugger-overlay';
 import { OutboundDataSanitizer } from '../privacy/outbound-data-sanitizer';
@@ -180,10 +178,6 @@ export class AIArbiterService {
       intentType && intentType !== 'UNKNOWN' ? intentType : context.scenario || 'UNKNOWN';
     const triggerWord = context.detectedKeywords?.[0];
 
-    const contextRules =
-      AILureVerifier.intentContextRules[intentLabel as ScamIntentType] ||
-      'Analyze for social engineering, phishing, and payment credential theft.';
-
     // A trigger message is evidence text, never a URL merely because a caller supplied it here.
     let suspiciousUrls = UrlExtractor.extract(context.targetSuspiciousUrl || '');
     try {
@@ -214,13 +208,14 @@ export class AIArbiterService {
     const sanitizedPrompt = OutboundDataSanitizer.buildCloudPrompt(sanitizedScan, {
       sourcePlatform: context.sourcePlatform,
       targetHost,
-      scenarioRule: contextRules,
-      intentType: intentLabel,
       dialogueHistory: sanitizedDialogue.sanitizedText,
+      dialogueMessages: ChatSessionState.getRecentMessages().map(message => ({
+        speaker: message.direction === 'outbound' ? 'user' as const : 'interlocutor' as const,
+        text: OutboundDataSanitizer.sanitize(message.rawText).sanitizedText,
+        observedAgeMs: Math.max(0, Date.now() - message.timestamp),
+      })),
       detectedKeywords: context.detectedKeywords || [],
       suspiciousUrls,
-      raisedFlags,
-      offPlatformLure: context.offPlatformLure,
     });
 
     const heuristicContext = {

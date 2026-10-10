@@ -6,7 +6,7 @@ import { GeminiDriver } from '../../../src/ai/cloud/drivers/gemini-driver';
 import { ChromeBuiltinAIProvider } from '../../../src/heuristics/chrome-ai-provider';
 
 afterEach(() => { vi.restoreAllMocks(); vi.unstubAllGlobals(); });
-const reply = '{"isScam":false,"confidence":90,"reasoning":"Safe discussion"}';
+const reply = '{"isScam":false,"confidence":90,"scamType":"UNKNOWN","reasoning":"Safe discussion"}';
 describe('Provider request diagnostics contain actual text and no credentials', () => {
   it.each([
     { provider: 'groq' as const, driver: new GroqDriver() },

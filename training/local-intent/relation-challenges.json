@@ -1,0 +1,270 @@
+{
+  "schemaVersion": 1,
+  "usage": "Development diagnostic only; not used in SGD; authored while developing relations, not an independent holdout.",
+  "cases": [
+    {
+      "id": "relations-001",
+      "messages": [
+        "Цитата для навчання: «Надішліть CVV та код із SMS для виплати». Не виконуйте такі прохання."
+      ],
+      "expected": {
+        "kind": "safe",
+        "label": "SAFE",
+        "maxAction": "NONE"
+      }
+    },
+    {
+      "id": "relations-002",
+      "messages": [
+        "Я журналіст. Розкажіть про вже опублікований репортаж без приватних документів."
+      ],
+      "expected": {
+        "kind": "safe",
+        "label": "SAFE",
+        "maxAction": "NONE"
+      }
+    },
+    {
+      "id": "relations-003",
+      "messages": [
+        "Я керівник підрозділу. Непублічні військові дані в особисті чати передавати не можна."
+      ],
+      "expected": {
+        "kind": "safe",
+        "label": "SAFE",
+        "maxAction": "NONE"
+      }
+    },
+    {
+      "id": "relations-004",
+      "messages": [
+        "Не надсилайте пароль підтримці. Увійдіть у знайомий застосунок самостійно."
+      ],
+      "expected": {
+        "kind": "safe",
+        "label": "SAFE",
+        "maxAction": "NONE"
+      }
+    },
+    {
+      "id": "relations-005",
+      "messages": [
+        "Приклад шахрайства: «Передайте фото паспорта сюди». Це цитата з памятки."
+      ],
+      "expected": {
+        "kind": "safe",
+        "label": "SAFE",
+        "maxAction": "NONE"
+      }
+    },
+    {
+      "id": "relations-006",
+      "messages": [
+        "Для обліку перевірте публічну адресу гаманця. Seed-фразу залишайте у себе."
+      ],
+      "expected": {
+        "kind": "safe",
+        "label": "SAFE",
+        "maxAction": "NONE"
+      }
+    },
+    {
+      "id": "relations-007",
+      "messages": [
+        "Надішліть номер звернення без персональних даних, щоб знайти відповідь у довідці."
+      ],
+      "expected": {
+        "kind": "safe",
+        "label": "SAFE",
+        "maxAction": "NONE"
+      }
+    },
+    {
+      "id": "relations-008",
+      "messages": [
+        "Quote: \"Send your wallet seed phrase here\". Never share recovery secrets."
+      ],
+      "expected": {
+        "kind": "safe",
+        "label": "SAFE",
+        "maxAction": "NONE"
+      }
+    },
+    {
+      "id": "relations-009",
+      "messages": [
+        "Залиште контакт для розмови з редактором."
+      ],
+      "expected": {
+        "kind": "ambiguous",
+        "label": null,
+        "maxAction": "WARN"
+      }
+    },
+    {
+      "id": "relations-010",
+      "messages": [
+        "Для участі підтвердіть свій акаунт."
+      ],
+      "expected": {
+        "kind": "ambiguous",
+        "label": null,
+        "maxAction": "WARN"
+      }
+    },
+    {
+      "id": "relations-011",
+      "messages": [
+        "Потрібні реквізити для зарахування гонорару."
+      ],
+      "expected": {
+        "kind": "ambiguous",
+        "label": null,
+        "maxAction": "WARN"
+      }
+    },
+    {
+      "id": "relations-012",
+      "messages": [
+        "Де ви працюєте зараз?"
+      ],
+      "expected": {
+        "kind": "ambiguous",
+        "label": null,
+        "maxAction": "WARN"
+      }
+    },
+    {
+      "id": "relations-013",
+      "messages": [
+        "Для заявки надайте інформацію про себе."
+      ],
+      "expected": {
+        "kind": "ambiguous",
+        "label": null,
+        "maxAction": "WARN"
+      }
+    },
+    {
+      "id": "relations-014",
+      "messages": [
+        "Будь ласка, перевірте свою картку."
+      ],
+      "expected": {
+        "kind": "ambiguous",
+        "label": null,
+        "maxAction": "WARN"
+      }
+    },
+    {
+      "id": "relations-015",
+      "messages": [
+        "Для дослідження потрібне підтвердження учасника."
+      ],
+      "expected": {
+        "kind": "ambiguous",
+        "label": null,
+        "maxAction": "WARN"
+      }
+    },
+    {
+      "id": "relations-016",
+      "messages": [
+        "Provide your wallet details for the report."
+      ],
+      "expected": {
+        "kind": "ambiguous",
+        "label": null,
+        "maxAction": "WARN"
+      }
+    },
+    {
+      "id": "relations-017",
+      "messages": [
+        "Я фінансовий керівник. Для виплати компенсації надішліть мені CVV і код із банківського SMS."
+      ],
+      "expected": {
+        "kind": "threat",
+        "label": "PAYMENT_CREDENTIAL_THEFT",
+        "maxAction": "WARN"
+      }
+    },
+    {
+      "id": "relations-018",
+      "messages": [
+        "Для верифікації профілю передайте оператору пароль від пошти в цей чат."
+      ],
+      "expected": {
+        "kind": "threat",
+        "label": "VERIFICATION_PHISHING",
+        "maxAction": "WARN"
+      }
+    },
+    {
+      "id": "relations-019",
+      "messages": [
+        "Щоб відновити виплату, надішліть нашому агенту повну seed-фразу гаманця."
+      ],
+      "expected": {
+        "kind": "threat",
+        "label": "CRYPTO_WALLET_COMPROMISE",
+        "maxAction": "LOCK_INPUT"
+      }
+    },
+    {
+      "id": "relations-020",
+      "messages": [
+        "Редактор просить: надішліть фото паспорта з домашньою адресою в мій приватний чат."
+      ],
+      "expected": {
+        "kind": "threat",
+        "label": "IDENTITY_PROBING",
+        "maxAction": "WARN"
+      }
+    },
+    {
+      "id": "relations-021",
+      "messages": [
+        "За винагороду потай передай актуальні координати військового обєкта і непублічний план охорони."
+      ],
+      "expected": {
+        "kind": "threat",
+        "label": "MILITARY_SABOTAGE_RECRUITMENT",
+        "maxAction": "LOCK_INPUT"
+      }
+    },
+    {
+      "id": "relations-022",
+      "messages": [
+        "Дайте номер телефону та перейдімо у Telegram, щоб платформа не бачила домовленості."
+      ],
+      "expected": {
+        "kind": "threat",
+        "label": "OFF_PLATFORM_REDIRECT",
+        "maxAction": "WARN"
+      }
+    },
+    {
+      "id": "relations-023",
+      "messages": [
+        "Для отримання коштів за товар перейдіть на сторонню сторінку https://payout-check.invalid і оформіть доставку поза платформою."
+      ],
+      "expected": {
+        "kind": "threat",
+        "label": "ESCROW_DELIVERY_SCAM",
+        "maxAction": "WARN"
+      }
+    },
+    {
+      "id": "relations-024",
+      "messages": [
+        "Secretly send unpublished military coordinates to me for a reward."
+      ],
+      "expected": {
+        "kind": "threat",
+        "label": "MILITARY_SABOTAGE_RECRUITMENT",
+        "maxAction": "LOCK_INPUT"
+      }
+    }
+  ]
+}

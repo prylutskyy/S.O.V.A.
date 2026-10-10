@@ -44,6 +44,10 @@ describe.skipIf(!enabled)('Groq live integration', () => {
     expect(Number.isFinite(limit) && limit >= 0, 'GROQ_TEST_LIMIT must be 0 or a positive integer').toBe(true);
     const scenarios = selectCases(corpus.cases, limit);
     expect(scenarios.length, 'The selected corpus must contain scenarios').toBeGreaterThan(0);
+    const cap = Number(process.env.GROQ_MAX_REQUESTS || 12);
+    const interval = Math.max(7000, Number(process.env.GROQ_INTERVAL_MS || 7000));
+    expect(Number.isInteger(cap) && cap > 0 && Number.isFinite(interval)).toBe(true);
+    expect(scenarios.length, 'Explicitly set GROQ_MAX_REQUESTS for a larger run').toBeLessThanOrEqual(cap);
 
     const model = process.env.GROQ_MODEL || 'qwen/qwen3.8-27b';
     if (process.env.GROQ_CHECK_MODEL === '1') {
@@ -57,7 +61,10 @@ describe.skipIf(!enabled)('Groq live integration', () => {
     let falseNegative = 0;
     const runResults: Array<{ id: string; expected: boolean; actual: boolean; confidence: number; latencyMs: number }> = [];
 
+    let lastStart = 0;
     for (const scenario of scenarios) {
+      await new Promise(resolve => setTimeout(resolve, Math.max(0, lastStart + interval - Date.now())));
+      lastStart = Date.now();
       const prompt = scenario.messages
         .map(({ speaker, text }) => `${speaker === 'user' ? '[Ви]' : '[Співрозмовник]'}: ${text}`)
         .join('\n');

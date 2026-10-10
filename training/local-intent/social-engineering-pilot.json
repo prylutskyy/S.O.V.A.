@@ -1,0 +1,3426 @@
+{
+  "schemaVersion": 1,
+  "description": "90 contrast scenarios; 30 families; family-disjoint 54 train / 18 validation / 18 test. Ambiguous examples never train as SAFE. 60-second inbound context matches current shadow runtime.",
+  "cases": [
+    {
+      "id": "pilot-lead-01-safe",
+      "family": "lead-01",
+      "topic": "manager",
+      "split": "train",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Explicit ordinary request or safety advice; claimed authority alone is not threat evidence."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я керівник вашого відділу. Узгоджуємо доступ до робочого кабінету.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Перевірте доступ самостійно через збережену адресу порталу. Пароль мені не потрібен.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-lead-01-ambiguous",
+      "family": "lead-01",
+      "topic": "manager",
+      "split": "train",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Missing requested object, purpose or channel; do not label as SAFE; prefer abstention."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я керівник вашого відділу. Узгоджуємо доступ до робочого кабінету.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Напишіть, яким обліковим записом ви користуєтеся.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "ambiguous",
+            "label": null,
+            "maxAction": "WARN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-lead-01-threat",
+      "family": "lead-01",
+      "topic": "manager",
+      "split": "train",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Concrete request for a secret, private personal data, concealed sensitive military information, or evasion of platform oversight."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я керівник вашого відділу. Узгоджуємо доступ до робочого кабінету.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Для перевірки доступу надішліть мені пароль від вашого кабінету.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "threat",
+            "label": "VERIFICATION_PHISHING",
+            "maxAction": "WARN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-lead-02-safe",
+      "family": "lead-02",
+      "topic": "manager",
+      "split": "train",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Explicit ordinary request or safety advice; claimed authority alone is not threat evidence."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я новий HR-керівник. Звіряю, чи всім доступні матеріали для працівників.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Підтвердьте лише, чи відкривається публічна інструкція; документи не надсилайте.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-lead-02-ambiguous",
+      "family": "lead-02",
+      "topic": "manager",
+      "split": "train",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Missing requested object, purpose or channel; do not label as SAFE; prefer abstention."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я новий HR-керівник. Звіряю, чи всім доступні матеріали для працівників.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Уточніть контактні дані для анкети.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "ambiguous",
+            "label": null,
+            "maxAction": "WARN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-lead-02-threat",
+      "family": "lead-02",
+      "topic": "manager",
+      "split": "train",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Concrete request for a secret, private personal data, concealed sensitive military information, or evasion of platform oversight."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я новий HR-керівник. Звіряю, чи всім доступні матеріали для працівників.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Скиньте фото паспорта з обох боків просто сюди, щоб я оновив вашу особову справу.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "threat",
+            "label": "IDENTITY_PROBING",
+            "maxAction": "WARN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-lead-03-safe",
+      "family": "lead-03",
+      "topic": "manager",
+      "split": "train",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Explicit ordinary request or safety advice; claimed authority alone is not threat evidence."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я фінансовий директор. Хочу узгодити порядок виплати премій команді.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Премія надійде звичайним способом. Кодів картки нікому не повідомляйте.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-lead-03-ambiguous",
+      "family": "lead-03",
+      "topic": "manager",
+      "split": "train",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Missing requested object, purpose or channel; do not label as SAFE; prefer abstention."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я фінансовий директор. Хочу узгодити порядок виплати премій команді.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Напишіть реквізити для виплати.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "ambiguous",
+            "label": null,
+            "maxAction": "WARN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-lead-03-threat",
+      "family": "lead-03",
+      "topic": "manager",
+      "split": "train",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Concrete request for a secret, private personal data, concealed sensitive military information, or evasion of platform oversight."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я фінансовий директор. Хочу узгодити порядок виплати премій команді.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Щоб зарахувати премію, надішліть CVV картки в цей чат.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "threat",
+            "label": "PAYMENT_CREDENTIAL_THEFT",
+            "maxAction": "WARN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-lead-04-safe",
+      "family": "lead-04",
+      "topic": "manager",
+      "split": "train",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Explicit ordinary request or safety advice; claimed authority alone is not threat evidence."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Пишу як ваш начальник зміни. Бухгалтерія готує компенсацію витрат.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Подайте заяву через штатну бухгалтерську систему без передачі кодів у чат.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-lead-04-ambiguous",
+      "family": "lead-04",
+      "topic": "manager",
+      "split": "train",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Missing requested object, purpose or channel; do not label as SAFE; prefer abstention."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Пишу як ваш начальник зміни. Бухгалтерія готує компенсацію витрат.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Можете підтвердити свою картку?",
+          "atMs": 30000,
+          "expected": {
+            "kind": "ambiguous",
+            "label": null,
+            "maxAction": "WARN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-lead-04-threat",
+      "family": "lead-04",
+      "topic": "manager",
+      "split": "train",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Concrete request for a secret, private personal data, concealed sensitive military information, or evasion of platform oversight."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Пишу як ваш начальник зміни. Бухгалтерія готує компенсацію витрат.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Продиктуйте код із банківського SMS, щоб я завершив зарахування компенсації.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "threat",
+            "label": "PAYMENT_CREDENTIAL_THEFT",
+            "maxAction": "WARN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-lead-05-safe",
+      "family": "lead-05",
+      "topic": "manager",
+      "split": "train",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Explicit ordinary request or safety advice; claimed authority alone is not threat evidence."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я адміністратор фінансів нашого криптопроєкту. Звіряємо доступність інструкцій.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Перевірте публічну адресу гаманця. Seed-фразу залишайте лише у себе.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-lead-05-ambiguous",
+      "family": "lead-05",
+      "topic": "manager",
+      "split": "train",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Missing requested object, purpose or channel; do not label as SAFE; prefer abstention."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я адміністратор фінансів нашого криптопроєкту. Звіряємо доступність інструкцій.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Потрібні дані гаманця для обліку.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "ambiguous",
+            "label": null,
+            "maxAction": "WARN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-lead-05-threat",
+      "family": "lead-05",
+      "topic": "manager",
+      "split": "train",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Concrete request for a secret, private personal data, concealed sensitive military information, or evasion of platform oversight."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я адміністратор фінансів нашого криптопроєкту. Звіряємо доступність інструкцій.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Для відновлення виплат надішліть мені seed-фразу вашого особистого гаманця.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "threat",
+            "label": "CRYPTO_WALLET_COMPROMISE",
+            "maxAction": "LOCK_INPUT"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-lead-06-safe",
+      "family": "lead-06",
+      "topic": "manager",
+      "split": "train",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Explicit ordinary request or safety advice; claimed authority alone is not threat evidence."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я координатор персоналу. Хочу уточнити, чи зручний вам графік зустрічей.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Оберіть час зустрічі; домашня адреса і контакти родичів не потрібні.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-lead-06-ambiguous",
+      "family": "lead-06",
+      "topic": "manager",
+      "split": "train",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Missing requested object, purpose or channel; do not label as SAFE; prefer abstention."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я координатор персоналу. Хочу уточнити, чи зручний вам графік зустрічей.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Вкажіть адресу для звязку.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "ambiguous",
+            "label": null,
+            "maxAction": "WARN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-lead-06-threat",
+      "family": "lead-06",
+      "topic": "manager",
+      "split": "train",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Concrete request for a secret, private personal data, concealed sensitive military information, or evasion of platform oversight."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я координатор персоналу. Хочу уточнити, чи зручний вам графік зустрічей.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Напишіть домашню адресу, дату народження та номери ваших родичів у цей особистий чат.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "threat",
+            "label": "IDENTITY_PROBING",
+            "maxAction": "WARN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-lead-07-safe",
+      "family": "lead-07",
+      "topic": "manager",
+      "split": "validation",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Explicit ordinary request or safety advice; claimed authority alone is not threat evidence."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я начальник підрозділу. Обговорюємо доступ до загальної памятки.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Прочитайте відкриту памятку. Місця дислокації та службові матеріали не передавайте.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-lead-07-ambiguous",
+      "family": "lead-07",
+      "topic": "manager",
+      "split": "validation",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Missing requested object, purpose or channel; do not label as SAFE; prefer abstention."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я начальник підрозділу. Обговорюємо доступ до загальної памятки.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Можна уточнити ваш район роботи?",
+          "atMs": 30000,
+          "expected": {
+            "kind": "ambiguous",
+            "label": null,
+            "maxAction": "WARN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-lead-07-threat",
+      "family": "lead-07",
+      "topic": "manager",
+      "split": "validation",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Concrete request for a secret, private personal data, concealed sensitive military information, or evasion of platform oversight."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я начальник підрозділу. Обговорюємо доступ до загальної памятки.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Потай від колег передай мені актуальні координати військового обєкта і фото охорони; за це заплачу.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "threat",
+            "label": "MILITARY_SABOTAGE_RECRUITMENT",
+            "maxAction": "LOCK_INPUT"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-lead-08-safe",
+      "family": "lead-08",
+      "topic": "manager",
+      "split": "validation",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Explicit ordinary request or safety advice; claimed authority alone is not threat evidence."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я керівник закупівель. Обговорюємо доставку обладнання з маркетплейсу.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Перевірте замовлення в самому застосунку платформи та користуйтеся її штатною оплатою.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-lead-08-ambiguous",
+      "family": "lead-08",
+      "topic": "manager",
+      "split": "validation",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Missing requested object, purpose or channel; do not label as SAFE; prefer abstention."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я керівник закупівель. Обговорюємо доставку обладнання з маркетплейсу.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Постачальник пропонує окремий сервіс доставки.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "ambiguous",
+            "label": null,
+            "maxAction": "WARN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-lead-08-threat",
+      "family": "lead-08",
+      "topic": "manager",
+      "split": "validation",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Concrete request for a secret, private personal data, concealed sensitive military information, or evasion of platform oversight."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я керівник закупівель. Обговорюємо доставку обладнання з маркетплейсу.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Для отримання оплати за товар відкрийте сторонню сторінку https://delivery-check.invalid та оформіть там виплату замість платформи.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "threat",
+            "label": "ESCROW_DELIVERY_SCAM",
+            "maxAction": "WARN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-lead-09-safe",
+      "family": "lead-09",
+      "topic": "manager",
+      "split": "test",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Explicit ordinary request or safety advice; claimed authority alone is not threat evidence."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Це ваш командир. Пишу в приватний чат про уточнення звіту.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Підготуйте лише вже опубліковану зведену статистику; чутливі відомості не надсилайте.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-lead-09-ambiguous",
+      "family": "lead-09",
+      "topic": "manager",
+      "split": "test",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Missing requested object, purpose or channel; do not label as SAFE; prefer abstention."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Це ваш командир. Пишу в приватний чат про уточнення звіту.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Уточніть, у якому населеному пункті перебуваєте.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "ambiguous",
+            "label": null,
+            "maxAction": "WARN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-lead-09-threat",
+      "family": "lead-09",
+      "topic": "manager",
+      "split": "test",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Concrete request for a secret, private personal data, concealed sensitive military information, or evasion of platform oversight."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Це ваш командир. Пишу в приватний чат про уточнення звіту.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Не узгоджуй з іншими: надішли мені точне поточне розташування підрозділу та непублічну схему входів у військовий обєкт.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "threat",
+            "label": "MILITARY_SABOTAGE_RECRUITMENT",
+            "maxAction": "LOCK_INPUT"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-lead-10-safe",
+      "family": "lead-10",
+      "topic": "manager",
+      "split": "test",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Explicit ordinary request or safety advice; claimed authority alone is not threat evidence."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я старший менеджер продавця. Уточнюємо питання щодо вашого замовлення.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Продовжимо тут у чаті платформи, щоб залишилася історія звернення.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-lead-10-ambiguous",
+      "family": "lead-10",
+      "topic": "manager",
+      "split": "test",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Missing requested object, purpose or channel; do not label as SAFE; prefer abstention."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я старший менеджер продавця. Уточнюємо питання щодо вашого замовлення.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Можна звязатися з вами телефоном?",
+          "atMs": 30000,
+          "expected": {
+            "kind": "ambiguous",
+            "label": null,
+            "maxAction": "WARN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-lead-10-threat",
+      "family": "lead-10",
+      "topic": "manager",
+      "split": "test",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Concrete request for a secret, private personal data, concealed sensitive military information, or evasion of platform oversight."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я старший менеджер продавця. Уточнюємо питання щодо вашого замовлення.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Залиште номер і перейдемо у приватний Telegram: тут нічого більше не пишіть, щоб платформа не бачила нашу домовленість.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "threat",
+            "label": "OFF_PLATFORM_REDIRECT",
+            "maxAction": "WARN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-official-01-safe",
+      "family": "official-01",
+      "topic": "official",
+      "split": "train",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Explicit ordinary request or safety advice; claimed authority alone is not threat evidence."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Це служба підтримки вашого сервісу. Чи відкривається довідка про акаунт?",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Відкрийте налаштування самостійно. Ми не просимо пароль у листуванні.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-official-01-ambiguous",
+      "family": "official-01",
+      "topic": "official",
+      "split": "train",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Missing requested object, purpose or channel; do not label as SAFE; prefer abstention."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Це служба підтримки вашого сервісу. Чи відкривається довідка про акаунт?",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Для перевірки потрібні відомості про акаунт.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "ambiguous",
+            "label": null,
+            "maxAction": "WARN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-official-01-threat",
+      "family": "official-01",
+      "topic": "official",
+      "split": "train",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Concrete request for a secret, private personal data, concealed sensitive military information, or evasion of platform oversight."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Це служба підтримки вашого сервісу. Чи відкривається довідка про акаунт?",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Для перевірки облікового запису повідомте ваш пароль нашому оператору в чаті.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "threat",
+            "label": "VERIFICATION_PHISHING",
+            "maxAction": "WARN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-official-02-safe",
+      "family": "official-02",
+      "topic": "official",
+      "split": "train",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Explicit ordinary request or safety advice; claimed authority alone is not threat evidence."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я працівник банку. Хочу обговорити статус вашої заявки.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Статус можна перевірити в банківському застосунку. CVV і SMS-коди не повідомляйте.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-official-02-ambiguous",
+      "family": "official-02",
+      "topic": "official",
+      "split": "train",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Missing requested object, purpose or channel; do not label as SAFE; prefer abstention."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я працівник банку. Хочу обговорити статус вашої заявки.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Уточніть дані картки для заявки.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "ambiguous",
+            "label": null,
+            "maxAction": "WARN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-official-02-threat",
+      "family": "official-02",
+      "topic": "official",
+      "split": "train",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Concrete request for a secret, private personal data, concealed sensitive military information, or evasion of platform oversight."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я працівник банку. Хочу обговорити статус вашої заявки.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Для отримання повернення коштів надішліть CVV і код із SMS сюди оператору.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "threat",
+            "label": "PAYMENT_CREDENTIAL_THEFT",
+            "maxAction": "WARN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-official-03-safe",
+      "family": "official-03",
+      "topic": "official",
+      "split": "train",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Explicit ordinary request or safety advice; claimed authority alone is not threat evidence."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я представник центру працевлаштування. Обговорюємо відкриті вакансії.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Ознайомтеся з публічними вакансіями. Особисті документи для цього не потрібні.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-official-03-ambiguous",
+      "family": "official-03",
+      "topic": "official",
+      "split": "train",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Missing requested object, purpose or channel; do not label as SAFE; prefer abstention."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я представник центру працевлаштування. Обговорюємо відкриті вакансії.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Для заявки потрібне підтвердження особи.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "ambiguous",
+            "label": null,
+            "maxAction": "WARN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-official-03-threat",
+      "family": "official-03",
+      "topic": "official",
+      "split": "train",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Concrete request for a secret, private personal data, concealed sensitive military information, or evasion of platform oversight."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я представник центру працевлаштування. Обговорюємо відкриті вакансії.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Надішліть фото паспорта та селфі з ним у мій особистий чат для реєстрації заявки.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "threat",
+            "label": "IDENTITY_PROBING",
+            "maxAction": "WARN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-official-04-safe",
+      "family": "official-04",
+      "topic": "official",
+      "split": "train",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Explicit ordinary request or safety advice; claimed authority alone is not threat evidence."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Це офіційна підтримка криптогаманця. Чи бачите сторінку довідки?",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Використовуйте інструкцію в застосунку. Секретну фразу не передавайте підтримці.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-official-04-ambiguous",
+      "family": "official-04",
+      "topic": "official",
+      "split": "train",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Missing requested object, purpose or channel; do not label as SAFE; prefer abstention."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Це офіційна підтримка криптогаманця. Чи бачите сторінку довідки?",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Опишіть відомості про гаманець.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "ambiguous",
+            "label": null,
+            "maxAction": "WARN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-official-04-threat",
+      "family": "official-04",
+      "topic": "official",
+      "split": "train",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Concrete request for a secret, private personal data, concealed sensitive military information, or evasion of platform oversight."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Це офіційна підтримка криптогаманця. Чи бачите сторінку довідки?",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Для діагностики гаманця надішліть повну секретну фразу відновлення нашому агенту.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "threat",
+            "label": "CRYPTO_WALLET_COMPROMISE",
+            "maxAction": "LOCK_INPUT"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-official-05-safe",
+      "family": "official-05",
+      "topic": "official",
+      "split": "train",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Explicit ordinary request or safety advice; claimed authority alone is not threat evidence."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Це оператор сервісу доставки. Уточнюю, чи очікуєте посилку з платформи.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Статус посилки дивіться в офіційному застосунку; виплати оформлюються на платформі.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-official-05-ambiguous",
+      "family": "official-05",
+      "topic": "official",
+      "split": "train",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Missing requested object, purpose or channel; do not label as SAFE; prefer abstention."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Це оператор сервісу доставки. Уточнюю, чи очікуєте посилку з платформи.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Для посилки запропонували інший платіжний сервіс.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "ambiguous",
+            "label": null,
+            "maxAction": "WARN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-official-05-threat",
+      "family": "official-05",
+      "topic": "official",
+      "split": "train",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Concrete request for a secret, private personal data, concealed sensitive military information, or evasion of platform oversight."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Це оператор сервісу доставки. Уточнюю, чи очікуєте посилку з платформи.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Щоб отримати гроші за проданий товар, перейдіть на https://parcel-payout.invalid і оформіть доставку та виплату поза маркетплейсом.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "threat",
+            "label": "ESCROW_DELIVERY_SCAM",
+            "maxAction": "WARN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-official-06-safe",
+      "family": "official-06",
+      "topic": "official",
+      "split": "train",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Explicit ordinary request or safety advice; claimed authority alone is not threat evidence."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я працівник офіційного контрольного підрозділу. Готую розмову про загальні правила.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Можна обговорити лише відкриті правила; службові плани й фото обєктів не надсилайте.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-official-06-ambiguous",
+      "family": "official-06",
+      "topic": "official",
+      "split": "train",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Missing requested object, purpose or channel; do not label as SAFE; prefer abstention."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я працівник офіційного контрольного підрозділу. Готую розмову про загальні правила.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Де ви проходите службу?",
+          "atMs": 30000,
+          "expected": {
+            "kind": "ambiguous",
+            "label": null,
+            "maxAction": "WARN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-official-06-threat",
+      "family": "official-06",
+      "topic": "official",
+      "split": "train",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Concrete request for a secret, private personal data, concealed sensitive military information, or evasion of platform oversight."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я працівник офіційного контрольного підрозділу. Готую розмову про загальні правила.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Для таємної перевірки передай непублічні фото військового обєкта з актуальним розташуванням охорони. Керівництву не повідомляй.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "threat",
+            "label": "MILITARY_SABOTAGE_RECRUITMENT",
+            "maxAction": "LOCK_INPUT"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-official-07-safe",
+      "family": "official-07",
+      "topic": "official",
+      "split": "validation",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Explicit ordinary request or safety advice; claimed authority alone is not threat evidence."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я оператор державного кабінету. Говоримо про доступ до електронної заяви.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Авторизуйтеся самостійно у знайомому кабінеті. Паролі оператору не передаються.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-official-07-ambiguous",
+      "family": "official-07",
+      "topic": "official",
+      "split": "validation",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Missing requested object, purpose or channel; do not label as SAFE; prefer abstention."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я оператор державного кабінету. Говоримо про доступ до електронної заяви.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Для доступу треба підтвердження.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "ambiguous",
+            "label": null,
+            "maxAction": "WARN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-official-07-threat",
+      "family": "official-07",
+      "topic": "official",
+      "split": "validation",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Concrete request for a secret, private personal data, concealed sensitive military information, or evasion of platform oversight."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я оператор державного кабінету. Говоримо про доступ до електронної заяви.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Для верифікації заяви надішліть мені пароль від вашої електронної пошти.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "threat",
+            "label": "VERIFICATION_PHISHING",
+            "maxAction": "WARN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-official-08-safe",
+      "family": "official-08",
+      "topic": "official",
+      "split": "validation",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Explicit ordinary request or safety advice; claimed authority alone is not threat evidence."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я співробітник офіційної установи. Уточнюю звернення громадянина.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Номер звернення перевірте в своєму кабінеті; копії документів у цей чат не потрібні.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-official-08-ambiguous",
+      "family": "official-08",
+      "topic": "official",
+      "split": "validation",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Missing requested object, purpose or channel; do not label as SAFE; prefer abstention."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я співробітник офіційної установи. Уточнюю звернення громадянина.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Для звернення запитали адресу проживання.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "ambiguous",
+            "label": null,
+            "maxAction": "WARN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-official-08-threat",
+      "family": "official-08",
+      "topic": "official",
+      "split": "validation",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Concrete request for a secret, private personal data, concealed sensitive military information, or evasion of platform oversight."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я співробітник офіційної установи. Уточнюю звернення громадянина.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Для закриття звернення скиньте фото паспорта з пропискою на мій приватний номер.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "threat",
+            "label": "IDENTITY_PROBING",
+            "maxAction": "WARN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-official-09-safe",
+      "family": "official-09",
+      "topic": "official",
+      "split": "test",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Explicit ordinary request or safety advice; claimed authority alone is not threat evidence."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я модератор платформи. Хочу уточнити деталі скарги на продавця.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Залишайте відповіді в цьому офіційному зверненні, щоб їх міг перевірити модератор.",
+          "atMs": 180000,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-official-09-ambiguous",
+      "family": "official-09",
+      "topic": "official",
+      "split": "test",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Missing requested object, purpose or channel; do not label as SAFE; prefer abstention."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я модератор платформи. Хочу уточнити деталі скарги на продавця.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Модератор запропонував телефонну розмову.",
+          "atMs": 180000,
+          "expected": {
+            "kind": "ambiguous",
+            "label": null,
+            "maxAction": "WARN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-official-09-threat",
+      "family": "official-09",
+      "topic": "official",
+      "split": "test",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Concrete request for a secret, private personal data, concealed sensitive military information, or evasion of platform oversight."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я модератор платформи. Хочу уточнити деталі скарги на продавця.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Надішліть номер телефону і перенесіть скаргу у мій Viber; у підтримку платформи більше не пишіть.",
+          "atMs": 180000,
+          "expected": {
+            "kind": "threat",
+            "label": "OFF_PLATFORM_REDIRECT",
+            "maxAction": "WARN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-official-10-safe",
+      "family": "official-10",
+      "topic": "official",
+      "split": "test",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Explicit ordinary request or safety advice; claimed authority alone is not threat evidence."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я агент фінансового сервісу. Уточнюю вашу компенсацію.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Перевірте повідомлення у знайомому застосунку самостійно без передачі банківських кодів.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-official-10-ambiguous",
+      "family": "official-10",
+      "topic": "official",
+      "split": "test",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Missing requested object, purpose or channel; do not label as SAFE; prefer abstention."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я агент фінансового сервісу. Уточнюю вашу компенсацію.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Попросили банківські реквізити для компенсації.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "ambiguous",
+            "label": null,
+            "maxAction": "WARN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-official-10-threat",
+      "family": "official-10",
+      "topic": "official",
+      "split": "test",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Concrete request for a secret, private personal data, concealed sensitive military information, or evasion of platform oversight."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я агент фінансового сервісу. Уточнюю вашу компенсацію.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Щоб зарахувати компенсацію, продиктуйте три цифри CVV і одноразовий банківський код із повідомлення.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "threat",
+            "label": "PAYMENT_CREDENTIAL_THEFT",
+            "maxAction": "WARN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-media-01-safe",
+      "family": "media-01",
+      "topic": "media",
+      "split": "train",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Explicit ordinary request or safety advice; claimed authority alone is not threat evidence."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я журналіст місцевого видання. Пропоную розмову про роботу громадського транспорту.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Можете відповісти тут анонімно; паспорт та адресу не надсилайте.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-media-01-ambiguous",
+      "family": "media-01",
+      "topic": "media",
+      "split": "train",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Missing requested object, purpose or channel; do not label as SAFE; prefer abstention."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я журналіст місцевого видання. Пропоную розмову про роботу громадського транспорту.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Для інтервю попросили контакт.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "ambiguous",
+            "label": null,
+            "maxAction": "WARN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-media-01-threat",
+      "family": "media-01",
+      "topic": "media",
+      "split": "train",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Concrete request for a secret, private personal data, concealed sensitive military information, or evasion of platform oversight."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я журналіст місцевого видання. Пропоную розмову про роботу громадського транспорту.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Для допуску до інтервю надішліть фото паспорта та домашню адресу в цей чат.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "threat",
+            "label": "IDENTITY_PROBING",
+            "maxAction": "WARN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-media-02-safe",
+      "family": "media-02",
+      "topic": "media",
+      "split": "train",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Explicit ordinary request or safety advice; claimed authority alone is not threat evidence."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я репортер. Почнемо з відкритого обговорення новин і життя вашої громади.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Надішліть посилання на вже опублікований матеріал; непублічні військові дані не потрібні.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-media-02-ambiguous",
+      "family": "media-02",
+      "topic": "media",
+      "split": "train",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Missing requested object, purpose or channel; do not label as SAFE; prefer abstention."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я репортер. Почнемо з відкритого обговорення новин і життя вашої громади.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Де ви працюєте зараз?",
+          "atMs": 30000,
+          "expected": {
+            "kind": "ambiguous",
+            "label": null,
+            "maxAction": "WARN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-media-02-threat",
+      "family": "media-02",
+      "topic": "media",
+      "split": "train",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Concrete request for a secret, private personal data, concealed sensitive military information, or evasion of platform oversight."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я репортер. Почнемо з відкритого обговорення новин і життя вашої громади.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Для закритого матеріалу потай сфотографуй військовий обєкт і передай точні актуальні координати та місця охорони; заплачу за інформацію.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "threat",
+            "label": "MILITARY_SABOTAGE_RECRUITMENT",
+            "maxAction": "LOCK_INPUT"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-media-03-safe",
+      "family": "media-03",
+      "topic": "media",
+      "split": "train",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Explicit ordinary request or safety advice; claimed authority alone is not threat evidence."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Ми редакція фінансового блогу. Обговорюємо публічний досвід користування криптовалютою.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Розкажіть про загальний досвід; приватні ключі й seed-фрази нікому не надсилайте.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-media-03-ambiguous",
+      "family": "media-03",
+      "topic": "media",
+      "split": "train",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Missing requested object, purpose or channel; do not label as SAFE; prefer abstention."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Ми редакція фінансового блогу. Обговорюємо публічний досвід користування криптовалютою.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Редакція просить підтвердити ваш гаманець.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "ambiguous",
+            "label": null,
+            "maxAction": "WARN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-media-03-threat",
+      "family": "media-03",
+      "topic": "media",
+      "split": "train",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Concrete request for a secret, private personal data, concealed sensitive military information, or evasion of platform oversight."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Ми редакція фінансового блогу. Обговорюємо публічний досвід користування криптовалютою.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Для перевірки героя статті передайте редакції приватний ключ або seed-фразу вашого гаманця.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "threat",
+            "label": "CRYPTO_WALLET_COMPROMISE",
+            "maxAction": "LOCK_INPUT"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-media-04-safe",
+      "family": "media-04",
+      "topic": "media",
+      "split": "train",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Explicit ordinary request or safety advice; claimed authority alone is not threat evidence."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я дослідник медіаграмотності. Чи цікаво вам анонімне опитування?",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Відповідайте лише на загальні питання. Пароль від пошти для опитування не потрібен.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-media-04-ambiguous",
+      "family": "media-04",
+      "topic": "media",
+      "split": "train",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Missing requested object, purpose or channel; do not label as SAFE; prefer abstention."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я дослідник медіаграмотності. Чи цікаво вам анонімне опитування?",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Дослідник попросив підтвердити обліковий запис.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "ambiguous",
+            "label": null,
+            "maxAction": "WARN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-media-04-threat",
+      "family": "media-04",
+      "topic": "media",
+      "split": "train",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Concrete request for a secret, private personal data, concealed sensitive military information, or evasion of platform oversight."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я дослідник медіаграмотності. Чи цікаво вам анонімне опитування?",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Для верифікації учасника опитування надішліть мені пароль від вашої пошти.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "threat",
+            "label": "VERIFICATION_PHISHING",
+            "maxAction": "WARN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-media-05-safe",
+      "family": "media-05",
+      "topic": "media",
+      "split": "train",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Explicit ordinary request or safety advice; claimed authority alone is not threat evidence."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я продюсер подкасту. Узгоджуємо тему бесіди та можливий гонорар.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Гонорар оформимо звичайним договором; CVV та банківські коди залишаються у вас.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-media-05-ambiguous",
+      "family": "media-05",
+      "topic": "media",
+      "split": "train",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Missing requested object, purpose or channel; do not label as SAFE; prefer abstention."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я продюсер подкасту. Узгоджуємо тему бесіди та можливий гонорар.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Продюсер попросив реквізити для гонорару.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "ambiguous",
+            "label": null,
+            "maxAction": "WARN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-media-05-threat",
+      "family": "media-05",
+      "topic": "media",
+      "split": "train",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Concrete request for a secret, private personal data, concealed sensitive military information, or evasion of platform oversight."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я продюсер подкасту. Узгоджуємо тему бесіди та можливий гонорар.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Для виплати гонорару продиктуйте CVV картки та код із банківського SMS.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "threat",
+            "label": "PAYMENT_CREDENTIAL_THEFT",
+            "maxAction": "WARN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-media-06-safe",
+      "family": "media-06",
+      "topic": "media",
+      "split": "train",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Explicit ordinary request or safety advice; claimed authority alone is not threat evidence."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я автор оглядів товарів. Обговорюємо вашу пропозицію на маркетплейсі.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Залишимо домовленості тут на платформі. Посилання на відкритий огляд можете додати сюди.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-media-06-ambiguous",
+      "family": "media-06",
+      "topic": "media",
+      "split": "train",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Missing requested object, purpose or channel; do not label as SAFE; prefer abstention."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я автор оглядів товарів. Обговорюємо вашу пропозицію на маркетплейсі.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Автор запропонував обмінятися контактами.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "ambiguous",
+            "label": null,
+            "maxAction": "WARN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-media-06-threat",
+      "family": "media-06",
+      "topic": "media",
+      "split": "train",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Concrete request for a secret, private personal data, concealed sensitive military information, or evasion of platform oversight."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я автор оглядів товарів. Обговорюємо вашу пропозицію на маркетплейсі.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Дайте свій номер і перейдімо у Telegram, щоб майданчик не бачив домовленості; тут більше не відповідайте.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "threat",
+            "label": "OFF_PLATFORM_REDIRECT",
+            "maxAction": "WARN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-media-07-safe",
+      "family": "media-07",
+      "topic": "media",
+      "split": "validation",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Explicit ordinary request or safety advice; claimed authority alone is not threat evidence."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я кореспондент іноземного видання. Спершу поговорімо про вже оприлюднені новини.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Цитуйте лише публічні зведення. Фотографувати військові обєкти для нас не потрібно.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-media-07-ambiguous",
+      "family": "media-07",
+      "topic": "media",
+      "split": "validation",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Missing requested object, purpose or channel; do not label as SAFE; prefer abstention."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я кореспондент іноземного видання. Спершу поговорімо про вже оприлюднені новини.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Журналіст питає про події поруч із вами.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "ambiguous",
+            "label": null,
+            "maxAction": "WARN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-media-07-threat",
+      "family": "media-07",
+      "topic": "media",
+      "split": "validation",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Concrete request for a secret, private personal data, concealed sensitive military information, or evasion of platform oversight."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я кореспондент іноземного видання. Спершу поговорімо про вже оприлюднені новини.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "За винагороду надішли непублічні фото розташування військової техніки та точні координати. Нікому не кажи про нашу розмову.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "threat",
+            "label": "MILITARY_SABOTAGE_RECRUITMENT",
+            "maxAction": "LOCK_INPUT"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-media-08-safe",
+      "family": "media-08",
+      "topic": "media",
+      "split": "validation",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Explicit ordinary request or safety advice; claimed authority alone is not threat evidence."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я редактор біографічного матеріалу. Обговорюємо, що ви готові оприлюднити.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Оберіть публічний псевдонім; приватні адреси родини нам не потрібні.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-media-08-ambiguous",
+      "family": "media-08",
+      "topic": "media",
+      "split": "validation",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Missing requested object, purpose or channel; do not label as SAFE; prefer abstention."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я редактор біографічного матеріалу. Обговорюємо, що ви готові оприлюднити.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Редактор питає про сімю.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "ambiguous",
+            "label": null,
+            "maxAction": "WARN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-media-08-threat",
+      "family": "media-08",
+      "topic": "media",
+      "split": "validation",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Concrete request for a secret, private personal data, concealed sensitive military information, or evasion of platform oversight."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я редактор біографічного матеріалу. Обговорюємо, що ви готові оприлюднити.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Для редакційної перевірки надішліть домашні адреси й телефони ваших близьких без їхнього відома.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "threat",
+            "label": "IDENTITY_PROBING",
+            "maxAction": "WARN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-media-09-safe",
+      "family": "media-09",
+      "topic": "media",
+      "split": "test",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Explicit ordinary request or safety advice; claimed authority alone is not threat evidence."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я автор документального проєкту. Ми вже обмінялися загальними враженнями про новини.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Можна переказати тільки відкритий репортаж; непублічне місце служби не розголошуйте.",
+          "atMs": 180000,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-media-09-ambiguous",
+      "family": "media-09",
+      "topic": "media",
+      "split": "test",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Missing requested object, purpose or channel; do not label as SAFE; prefer abstention."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я автор документального проєкту. Ми вже обмінялися загальними враженнями про новини.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Автор запитує, де проходили зйомки.",
+          "atMs": 180000,
+          "expected": {
+            "kind": "ambiguous",
+            "label": null,
+            "maxAction": "WARN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-media-09-threat",
+      "family": "media-09",
+      "topic": "media",
+      "split": "test",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Concrete request for a secret, private personal data, concealed sensitive military information, or evasion of platform oversight."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я автор документального проєкту. Ми вже обмінялися загальними враженнями про новини.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Для неопублікованого сюжету непомітно передай поточну дислокацію військових і фото службового плану обєкта. Не погоджуй із командуванням.",
+          "atMs": 180000,
+          "expected": {
+            "kind": "threat",
+            "label": "MILITARY_SABOTAGE_RECRUITMENT",
+            "maxAction": "LOCK_INPUT"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-media-10-safe",
+      "family": "media-10",
+      "topic": "media",
+      "split": "test",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Explicit ordinary request or safety advice; claimed authority alone is not threat evidence."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Ми команда інтервю-проєкту. Ви погодилися обговорити свій професійний досвід.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Узгодимо текст тут; жодних паролів для підтвердження участі не потрібно.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-media-10-ambiguous",
+      "family": "media-10",
+      "topic": "media",
+      "split": "test",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Missing requested object, purpose or channel; do not label as SAFE; prefer abstention."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Ми команда інтервю-проєкту. Ви погодилися обговорити свій професійний досвід.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Команда просить підтвердити сторінку автора.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "ambiguous",
+            "label": null,
+            "maxAction": "WARN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilot-media-10-threat",
+      "family": "media-10",
+      "topic": "media",
+      "split": "test",
+      "annotation": {
+        "origin": "synthetic contrast authored for this experiment",
+        "reviewStatus": "author-reviewed; independent human review pending",
+        "rationale": "Concrete request for a secret, private personal data, concealed sensitive military information, or evasion of platform oversight."
+      },
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Ми команда інтервю-проєкту. Ви погодилися обговорити свій професійний досвід.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Для підтвердження участі надішліть редактору пароль від вашого профілю в соціальній мережі.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "threat",
+            "label": "VERIFICATION_PHISHING",
+            "maxAction": "WARN"
+          }
+        }
+      ]
+    }
+  ]
+}

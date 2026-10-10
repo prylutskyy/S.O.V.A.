@@ -12,9 +12,18 @@
     "test:corpus": "vitest run tests/evaluation/corpus.evaluation.test.ts",
     "test:dashboard": "node scripts/evaluation/generate-dashboard.mjs",
     "test:groq": "vitest run tests/integration/groq.integration.test.ts",
-    "test:watch": "vitest"
+    "test:groq:prompts": "vitest run tests/integration/groq-prompts.integration.test.ts",
+    "test:groq:prompts:interactive": "node scripts/evaluation/run-groq-prompts.mjs",
+    "test:watch": "vitest",
+    "classifier:prepare": "node scripts/local-classifier/run.mjs prepare",
+    "classifier:train": "node scripts/local-classifier/run.mjs train",
+    "classifier:evaluate": "node scripts/local-classifier/run.mjs evaluate",
+    "classifier:compare": "node scripts/local-classifier/run.mjs compare",
+    "classifier:pilot": "node scripts/local-classifier/run.mjs pilot",
+    "classifier:relations": "node scripts/local-classifier/run.mjs relations"
   },
   "devDependencies": {
+    "esbuild": "0.25.12",
     "@types/chrome": "^0.0.280",
     "happy-dom": "^20.14.5",
     "typescript": "^5.6.3",

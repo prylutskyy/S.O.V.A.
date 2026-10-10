@@ -153,10 +153,10 @@ describe('Chat Dialogue Context for AI Arbiter (TDD Suite)', () => {
       });
 
       // Перевірка наявності чітких правил щодо захисту автора
-      expect(prompt).toContain('IS THE CURRENT USER ([Ви]) PERSONALLY AT RISK');
-      expect(prompt).toContain('META-DISCUSSION & TEMPLATE SHARING');
-      expect(prompt).toContain('NOT AN ATTACK AGAINST [Ви] / SAFE CONTEXT (isScam: false)');
-      expect(prompt).toContain('=== FULL CHAT DIALOGUE HISTORY ===');
+      expect(prompt).toContain('[Ви] is currently targeted');
+      expect(prompt).toContain('advice, negation and quotations');
+      expect(prompt).toContain('not proof of an attack');
+      expect(prompt).toContain('"dialogueHistory"');
       expect(prompt).toContain('[Співрозмовник]: заробити бабосиків');
     });
   });

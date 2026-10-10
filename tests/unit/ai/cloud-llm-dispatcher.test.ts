@@ -114,7 +114,7 @@ describe('CloudLLMDispatcher & Drivers (TDD Suite)', () => {
               content: JSON.stringify({
                 isScam: true,
                 confidence: 98,
-                scamType: 'CREDENTIAL_THEFT',
+                scamType: 'PAYMENT_CREDENTIAL_THEFT',
                 reasoning: 'Спроба викрадення секретного коду CVV',
               }),
             },
@@ -209,6 +209,13 @@ describe('CloudLLMDispatcher & Drivers (TDD Suite)', () => {
   });
 
   describe('CloudLLMDispatcher Workflow', () => {
+    it('returns no verdict when Groq responds with invalid JSON instead of confirming SAFE', async () => {
+      await SecureKeyStore.saveConfig({ provider: 'groq', enabled: true });
+      await SecureKeyStore.saveApiKey('groq', 'test_key', 'device_encrypted');
+      globalThis.fetch = vi.fn().mockResolvedValue({ ok: true,
+        json: async () => ({ choices: [{ message: { content: '{}' } }] }) });
+      expect(await CloudLLMDispatcher.verifyThreat('Synthetic request')).toBeNull();
+    });
     it('should return null when not configured or disabled', async () => {
       await SecureKeyStore.saveConfig({ enabled: false });
       const isReady = await CloudLLMDispatcher.isConfigured();

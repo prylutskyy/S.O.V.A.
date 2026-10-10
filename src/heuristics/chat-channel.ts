@@ -305,6 +305,9 @@ export class ChatChannelMonitor {
     }
 
     if (this.debugMode) {
+      if (scan.localClassifier) {
+        DebuggerOverlay.log('Лінійний класифікатор · спостереження', scan.localClassifier, '#9CA3AF');
+      }
       // Безпечне логування: маскуємо сирий текст, щоб PII не зберігався в пам'яті Shadow DOM
       const safePreview = text.length <= 20
         ? text.replace(/\d{4,}/g, '****')

@@ -4,6 +4,7 @@ import { RequestAnalyzer, RequestFrame } from './request-analyzer';
 import { UrlExtractor } from './url-extractor';
 import { PersonalVaultManager } from '../core/personal-vault';
 import { FastLanguageDetector, SupportedLanguage } from './language-detector';
+import type { LocalPrediction } from './linear-classifier';
 
 export type ScamIntentType =
   | 'ESCROW_DELIVERY_SCAM'
@@ -39,6 +40,7 @@ export interface IntentClassificationResult {
   isMixedLanguage?: boolean;
   telemetry?: any;
   requestFrames?: RequestFrame[];
+  localClassifier?: LocalPrediction;
 }
 
 interface ClusterRule {

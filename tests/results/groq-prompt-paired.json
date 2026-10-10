@@ -1,0 +1,1718 @@
+{
+  "timestamp": "2026-10-10T17:58:15.740Z",
+  "model": "qwen/qwen3.8-27b",
+  "corpus": "regressions",
+  "mode": "paired",
+  "maxRequests": 81,
+  "intervalMs": 10000,
+  "rateLimited": false,
+  "corpusSha256": "088d36db2ca92cdde890844f881cef251e74704c431473b0ff7a155956e4b537",
+  "note": "Historical synthetic cases; same independent system instruction across all variants. Not a blind holdout or browser action test. No dialogue text or API keys persisted. Three annotations were flagged before inference; unflagged metrics are a sensitivity analysis, not independently verified ground truth.",
+  "summaries": [
+    {
+      "variant": "observations",
+      "requests": 41,
+      "completed": 40,
+      "errors": 1,
+      "coverage": 0.975609756097561,
+      "tp": 22,
+      "fp": 0,
+      "fn": 2,
+      "tn": 16,
+      "f1": 0.9565217391304348,
+      "exactTypeMatches": 38,
+      "excessLockCandidates": 0,
+      "meanInputTokens": 1010.675,
+      "p95Ms": 933,
+      "unflaggedCases": 37,
+      "unflaggedExactMatches": 37,
+      "completedP95Ms": 933
+    },
+    {
+      "variant": "compact",
+      "requests": 40,
+      "completed": 40,
+      "errors": 0,
+      "coverage": 1,
+      "tp": 23,
+      "fp": 0,
+      "fn": 1,
+      "tn": 16,
+      "f1": 0.9787234042553191,
+      "exactTypeMatches": 39,
+      "excessLockCandidates": 0,
+      "meanInputTokens": 760.225,
+      "p95Ms": 600,
+      "unflaggedCases": 37,
+      "unflaggedExactMatches": 37,
+      "completedP95Ms": 600
+    }
+  ],
+  "results": [
+    {
+      "id": "dev-verification-001",
+      "variant": "observations",
+      "expected": {
+        "detected": true,
+        "intentType": "VERIFICATION_PHISHING",
+        "action": "WARN"
+      },
+      "status": "completed",
+      "actual": true,
+      "type": "VERIFICATION_PHISHING",
+      "confidence": 95,
+      "latencyMs": 397,
+      "promptBytes": 4141,
+      "tokenUsage": {
+        "input": 1000,
+        "output": 89,
+        "total": 1089
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "dev-verification-001",
+      "variant": "compact",
+      "expected": {
+        "detected": true,
+        "intentType": "VERIFICATION_PHISHING",
+        "action": "WARN"
+      },
+      "status": "completed",
+      "actual": true,
+      "type": "VERIFICATION_PHISHING",
+      "confidence": 98,
+      "latencyMs": 389,
+      "promptBytes": 2956,
+      "tokenUsage": {
+        "input": 752,
+        "output": 90,
+        "total": 842
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "dev-verification-003",
+      "variant": "compact",
+      "expected": {
+        "detected": true,
+        "intentType": "VERIFICATION_PHISHING",
+        "action": "WARN"
+      },
+      "status": "completed",
+      "actual": true,
+      "type": "VERIFICATION_PHISHING",
+      "confidence": 98,
+      "latencyMs": 427,
+      "promptBytes": 3033,
+      "tokenUsage": {
+        "input": 751,
+        "output": 88,
+        "total": 839
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "dev-verification-003",
+      "variant": "observations",
+      "expected": {
+        "detected": true,
+        "intentType": "VERIFICATION_PHISHING",
+        "action": "WARN"
+      },
+      "status": "completed",
+      "actual": true,
+      "type": "VERIFICATION_PHISHING",
+      "confidence": 98,
+      "latencyMs": 394,
+      "promptBytes": 4318,
+      "tokenUsage": {
+        "input": 998,
+        "output": 89,
+        "total": 1087
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "dev2-verify-002",
+      "variant": "observations",
+      "expected": {
+        "detected": true,
+        "intentType": "VERIFICATION_PHISHING",
+        "action": "WARN"
+      },
+      "status": "completed",
+      "actual": true,
+      "type": "VERIFICATION_PHISHING",
+      "confidence": 95,
+      "latencyMs": 469,
+      "promptBytes": 4623,
+      "tokenUsage": {
+        "input": 1093,
+        "output": 93,
+        "total": 1186
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "dev2-verify-002",
+      "variant": "compact",
+      "expected": {
+        "detected": true,
+        "intentType": "VERIFICATION_PHISHING",
+        "action": "WARN"
+      },
+      "status": "completed",
+      "actual": true,
+      "type": "VERIFICATION_PHISHING",
+      "confidence": 95,
+      "latencyMs": 410,
+      "promptBytes": 3287,
+      "tokenUsage": {
+        "input": 823,
+        "output": 90,
+        "total": 913
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "reg-verification-002",
+      "variant": "compact",
+      "expected": {
+        "detected": true,
+        "intentType": "VERIFICATION_PHISHING",
+        "action": "WARN"
+      },
+      "status": "completed",
+      "actual": true,
+      "type": "VERIFICATION_PHISHING",
+      "confidence": 95,
+      "latencyMs": 410,
+      "promptBytes": 3027,
+      "tokenUsage": {
+        "input": 751,
+        "output": 94,
+        "total": 845
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "reg-verification-002",
+      "variant": "observations",
+      "expected": {
+        "detected": true,
+        "intentType": "VERIFICATION_PHISHING",
+        "action": "WARN"
+      },
+      "status": "completed",
+      "actual": true,
+      "type": "VERIFICATION_PHISHING",
+      "confidence": 95,
+      "latencyMs": 959,
+      "promptBytes": 4278,
+      "tokenUsage": {
+        "input": 997,
+        "output": 98,
+        "total": 1095
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "reg2-verification-001",
+      "variant": "observations",
+      "expected": {
+        "detected": true,
+        "intentType": "VERIFICATION_PHISHING",
+        "action": "WARN"
+      },
+      "status": "completed",
+      "actual": true,
+      "type": "VERIFICATION_PHISHING",
+      "confidence": 95,
+      "latencyMs": 561,
+      "promptBytes": 4342,
+      "tokenUsage": {
+        "input": 1032,
+        "output": 88,
+        "total": 1120
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "reg2-verification-001",
+      "variant": "compact",
+      "expected": {
+        "detected": true,
+        "intentType": "VERIFICATION_PHISHING",
+        "action": "WARN"
+      },
+      "status": "completed",
+      "actual": true,
+      "type": "VERIFICATION_PHISHING",
+      "confidence": 95,
+      "latencyMs": 378,
+      "promptBytes": 3083,
+      "tokenUsage": {
+        "input": 780,
+        "output": 97,
+        "total": 877
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "reg2-verification-004",
+      "variant": "compact",
+      "expected": {
+        "detected": true,
+        "intentType": "VERIFICATION_PHISHING",
+        "action": "WARN"
+      },
+      "status": "completed",
+      "actual": true,
+      "type": "VERIFICATION_PHISHING",
+      "confidence": 95,
+      "latencyMs": 390,
+      "promptBytes": 3106,
+      "tokenUsage": {
+        "input": 765,
+        "output": 80,
+        "total": 845
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "reg2-verification-004",
+      "variant": "observations",
+      "expected": {
+        "detected": true,
+        "intentType": "VERIFICATION_PHISHING",
+        "action": "WARN"
+      },
+      "status": "completed",
+      "actual": true,
+      "type": "VERIFICATION_PHISHING",
+      "confidence": 95,
+      "latencyMs": 398,
+      "promptBytes": 4376,
+      "tokenUsage": {
+        "input": 1020,
+        "output": 89,
+        "total": 1109
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "dev-payment-001",
+      "variant": "observations",
+      "expected": {
+        "detected": true,
+        "intentType": "PAYMENT_CREDENTIAL_THEFT",
+        "action": "WARN"
+      },
+      "status": "rate-limited",
+      "latencyMs": 112.03160000000207
+    },
+    {
+      "id": "dev-payment-001",
+      "variant": "observations",
+      "expected": {
+        "detected": true,
+        "intentType": "PAYMENT_CREDENTIAL_THEFT",
+        "action": "WARN"
+      },
+      "status": "completed",
+      "actual": true,
+      "type": "PAYMENT_CREDENTIAL_THEFT",
+      "confidence": 98,
+      "latencyMs": 433,
+      "promptBytes": 4015,
+      "tokenUsage": {
+        "input": 980,
+        "output": 103,
+        "total": 1083
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "dev-payment-001",
+      "variant": "compact",
+      "expected": {
+        "detected": true,
+        "intentType": "PAYMENT_CREDENTIAL_THEFT",
+        "action": "WARN"
+      },
+      "status": "completed",
+      "actual": true,
+      "type": "PAYMENT_CREDENTIAL_THEFT",
+      "confidence": 100,
+      "latencyMs": 575,
+      "promptBytes": 2902,
+      "tokenUsage": {
+        "input": 740,
+        "output": 96,
+        "total": 836
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "dev-payment-003",
+      "variant": "compact",
+      "expected": {
+        "detected": true,
+        "intentType": "PAYMENT_CREDENTIAL_THEFT",
+        "action": "WARN"
+      },
+      "status": "completed",
+      "actual": true,
+      "type": "PAYMENT_CREDENTIAL_THEFT",
+      "confidence": 98,
+      "latencyMs": 441,
+      "promptBytes": 2876,
+      "tokenUsage": {
+        "input": 730,
+        "output": 94,
+        "total": 824
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "dev-payment-003",
+      "variant": "observations",
+      "expected": {
+        "detected": true,
+        "intentType": "PAYMENT_CREDENTIAL_THEFT",
+        "action": "WARN"
+      },
+      "status": "completed",
+      "actual": true,
+      "type": "PAYMENT_CREDENTIAL_THEFT",
+      "confidence": 98,
+      "latencyMs": 370,
+      "promptBytes": 3945,
+      "tokenUsage": {
+        "input": 952,
+        "output": 78,
+        "total": 1030
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "dev2-pay-002",
+      "variant": "observations",
+      "expected": {
+        "detected": true,
+        "intentType": "PAYMENT_CREDENTIAL_THEFT",
+        "action": "WARN"
+      },
+      "status": "completed",
+      "actual": true,
+      "type": "PAYMENT_CREDENTIAL_THEFT",
+      "confidence": 95,
+      "latencyMs": 375,
+      "promptBytes": 4167,
+      "tokenUsage": {
+        "input": 965,
+        "output": 94,
+        "total": 1059
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "dev2-pay-002",
+      "variant": "compact",
+      "expected": {
+        "detected": true,
+        "intentType": "PAYMENT_CREDENTIAL_THEFT",
+        "action": "WARN"
+      },
+      "status": "completed",
+      "actual": true,
+      "type": "PAYMENT_CREDENTIAL_THEFT",
+      "confidence": 98,
+      "latencyMs": 478,
+      "promptBytes": 3012,
+      "tokenUsage": {
+        "input": 741,
+        "output": 92,
+        "total": 833
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "reg-payment-001",
+      "variant": "compact",
+      "expected": {
+        "detected": true,
+        "intentType": "PAYMENT_CREDENTIAL_THEFT",
+        "action": "WARN"
+      },
+      "status": "completed",
+      "actual": true,
+      "type": "PAYMENT_CREDENTIAL_THEFT",
+      "confidence": 98,
+      "latencyMs": 492,
+      "promptBytes": 2961,
+      "tokenUsage": {
+        "input": 749,
+        "output": 96,
+        "total": 845
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "reg-payment-001",
+      "variant": "observations",
+      "expected": {
+        "detected": true,
+        "intentType": "PAYMENT_CREDENTIAL_THEFT",
+        "action": "WARN"
+      },
+      "status": "completed",
+      "actual": true,
+      "type": "PAYMENT_CREDENTIAL_THEFT",
+      "confidence": 98,
+      "latencyMs": 429,
+      "promptBytes": 4126,
+      "tokenUsage": {
+        "input": 993,
+        "output": 106,
+        "total": 1099
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "reg2-payment-002",
+      "variant": "observations",
+      "expected": {
+        "detected": true,
+        "intentType": "PAYMENT_CREDENTIAL_THEFT",
+        "action": "WARN"
+      },
+      "status": "completed",
+      "actual": true,
+      "type": "PAYMENT_CREDENTIAL_THEFT",
+      "confidence": 95,
+      "latencyMs": 506,
+      "promptBytes": 4215,
+      "tokenUsage": {
+        "input": 1008,
+        "output": 86,
+        "total": 1094
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "reg2-payment-002",
+      "variant": "compact",
+      "expected": {
+        "detected": true,
+        "intentType": "PAYMENT_CREDENTIAL_THEFT",
+        "action": "WARN"
+      },
+      "status": "completed",
+      "actual": true,
+      "type": "PAYMENT_CREDENTIAL_THEFT",
+      "confidence": 95,
+      "latencyMs": 620,
+      "promptBytes": 2990,
+      "tokenUsage": {
+        "input": 753,
+        "output": 89,
+        "total": 842
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "reg2-payment-004",
+      "variant": "compact",
+      "expected": {
+        "detected": true,
+        "intentType": "PAYMENT_CREDENTIAL_THEFT",
+        "action": "WARN"
+      },
+      "status": "completed",
+      "actual": true,
+      "type": "PAYMENT_CREDENTIAL_THEFT",
+      "confidence": 98,
+      "latencyMs": 521,
+      "promptBytes": 2982,
+      "tokenUsage": {
+        "input": 762,
+        "output": 100,
+        "total": 862
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "reg2-payment-004",
+      "variant": "observations",
+      "expected": {
+        "detected": true,
+        "intentType": "PAYMENT_CREDENTIAL_THEFT",
+        "action": "WARN"
+      },
+      "status": "completed",
+      "actual": true,
+      "type": "PAYMENT_CREDENTIAL_THEFT",
+      "confidence": 98,
+      "latencyMs": 485,
+      "promptBytes": 4175,
+      "tokenUsage": {
+        "input": 1010,
+        "output": 83,
+        "total": 1093
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "dev-military-001",
+      "variant": "observations",
+      "expected": {
+        "detected": true,
+        "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+        "action": "LOCK_INPUT"
+      },
+      "status": "completed",
+      "actual": true,
+      "type": "MILITARY_SABOTAGE_RECRUITMENT",
+      "confidence": 98,
+      "latencyMs": 515,
+      "promptBytes": 4139,
+      "tokenUsage": {
+        "input": 996,
+        "output": 92,
+        "total": 1088
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "dev-military-001",
+      "variant": "compact",
+      "expected": {
+        "detected": true,
+        "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+        "action": "LOCK_INPUT"
+      },
+      "status": "completed",
+      "actual": true,
+      "type": "MILITARY_SABOTAGE_RECRUITMENT",
+      "confidence": 100,
+      "latencyMs": 516,
+      "promptBytes": 3008,
+      "tokenUsage": {
+        "input": 760,
+        "output": 98,
+        "total": 858
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "pilot-lead-09-threat",
+      "variant": "compact",
+      "expected": {
+        "detected": true,
+        "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+        "action": "LOCK_INPUT"
+      },
+      "status": "completed",
+      "actual": true,
+      "type": "MILITARY_SABOTAGE_RECRUITMENT",
+      "confidence": 98,
+      "latencyMs": 600,
+      "promptBytes": 3490,
+      "tokenUsage": {
+        "input": 870,
+        "output": 98,
+        "total": 968
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "pilot-lead-09-threat",
+      "variant": "observations",
+      "expected": {
+        "detected": true,
+        "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+        "action": "LOCK_INPUT"
+      },
+      "status": "completed",
+      "actual": true,
+      "type": "MILITARY_SABOTAGE_RECRUITMENT",
+      "confidence": 98,
+      "latencyMs": 676,
+      "promptBytes": 4958,
+      "tokenUsage": {
+        "input": 1186,
+        "output": 94,
+        "total": 1280
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "dev2-military-002",
+      "variant": "observations",
+      "expected": {
+        "detected": true,
+        "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+        "action": "LOCK_INPUT"
+      },
+      "status": "completed",
+      "actual": true,
+      "type": "MILITARY_SABOTAGE_RECRUITMENT",
+      "confidence": 100,
+      "latencyMs": 541,
+      "promptBytes": 3997,
+      "tokenUsage": {
+        "input": 965,
+        "output": 83,
+        "total": 1048
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "dev2-military-002",
+      "variant": "compact",
+      "expected": {
+        "detected": true,
+        "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+        "action": "LOCK_INPUT"
+      },
+      "status": "completed",
+      "actual": true,
+      "type": "MILITARY_SABOTAGE_RECRUITMENT",
+      "confidence": 100,
+      "latencyMs": 419,
+      "promptBytes": 2916,
+      "tokenUsage": {
+        "input": 739,
+        "output": 97,
+        "total": 836
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "reg-military-001",
+      "variant": "compact",
+      "expected": {
+        "detected": true,
+        "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+        "action": "LOCK_INPUT"
+      },
+      "status": "completed",
+      "actual": true,
+      "type": "MILITARY_SABOTAGE_RECRUITMENT",
+      "confidence": 98,
+      "latencyMs": 418,
+      "promptBytes": 2992,
+      "tokenUsage": {
+        "input": 759,
+        "output": 99,
+        "total": 858
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "reg-military-001",
+      "variant": "observations",
+      "expected": {
+        "detected": true,
+        "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+        "action": "LOCK_INPUT"
+      },
+      "status": "completed",
+      "actual": true,
+      "type": "MILITARY_SABOTAGE_RECRUITMENT",
+      "confidence": 98,
+      "latencyMs": 657,
+      "promptBytes": 4221,
+      "tokenUsage": {
+        "input": 1019,
+        "output": 95,
+        "total": 1114
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "reg2-military-001",
+      "variant": "observations",
+      "expected": {
+        "detected": true,
+        "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+        "action": "LOCK_INPUT"
+      },
+      "status": "completed",
+      "actual": true,
+      "type": "MILITARY_SABOTAGE_RECRUITMENT",
+      "confidence": 98,
+      "latencyMs": 543,
+      "promptBytes": 4154,
+      "tokenUsage": {
+        "input": 995,
+        "output": 99,
+        "total": 1094
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "reg2-military-001",
+      "variant": "compact",
+      "expected": {
+        "detected": true,
+        "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+        "action": "LOCK_INPUT"
+      },
+      "status": "completed",
+      "actual": true,
+      "type": "MILITARY_SABOTAGE_RECRUITMENT",
+      "confidence": 95,
+      "latencyMs": 452,
+      "promptBytes": 2963,
+      "tokenUsage": {
+        "input": 747,
+        "output": 103,
+        "total": 850
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "reg2-military-004",
+      "variant": "compact",
+      "expected": {
+        "detected": true,
+        "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+        "action": "LOCK_INPUT"
+      },
+      "status": "completed",
+      "actual": true,
+      "type": "MILITARY_SABOTAGE_RECRUITMENT",
+      "confidence": 98,
+      "latencyMs": 467,
+      "promptBytes": 2963,
+      "tokenUsage": {
+        "input": 741,
+        "output": 86,
+        "total": 827
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "reg2-military-004",
+      "variant": "observations",
+      "expected": {
+        "detected": true,
+        "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+        "action": "LOCK_INPUT"
+      },
+      "status": "completed",
+      "actual": true,
+      "type": "MILITARY_SABOTAGE_RECRUITMENT",
+      "confidence": 98,
+      "latencyMs": 547,
+      "promptBytes": 4144,
+      "tokenUsage": {
+        "input": 983,
+        "output": 89,
+        "total": 1072
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "dev-offplatform-001",
+      "variant": "observations",
+      "expected": {
+        "detected": true,
+        "intentType": "OFF_PLATFORM_REDIRECT",
+        "action": "WARN"
+      },
+      "status": "completed",
+      "annotationReview": "Off-platform coordination alone does not establish deception; frozen historical label needs independent review.",
+      "actual": true,
+      "type": "OFF_PLATFORM_REDIRECT",
+      "confidence": 85,
+      "latencyMs": 429,
+      "promptBytes": 4064,
+      "tokenUsage": {
+        "input": 966,
+        "output": 91,
+        "total": 1057
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "dev-offplatform-001",
+      "variant": "compact",
+      "expected": {
+        "detected": true,
+        "intentType": "OFF_PLATFORM_REDIRECT",
+        "action": "WARN"
+      },
+      "status": "completed",
+      "annotationReview": "Off-platform coordination alone does not establish deception; frozen historical label needs independent review.",
+      "actual": true,
+      "type": "OFF_PLATFORM_REDIRECT",
+      "confidence": 85,
+      "latencyMs": 359,
+      "promptBytes": 2927,
+      "tokenUsage": {
+        "input": 738,
+        "output": 93,
+        "total": 831
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "pilot-official-09-threat",
+      "variant": "compact",
+      "expected": {
+        "detected": true,
+        "intentType": "OFF_PLATFORM_REDIRECT",
+        "action": "WARN"
+      },
+      "status": "completed",
+      "actual": true,
+      "type": "OFF_PLATFORM_REDIRECT",
+      "confidence": 95,
+      "latencyMs": 390,
+      "promptBytes": 3438,
+      "tokenUsage": {
+        "input": 858,
+        "output": 98,
+        "total": 956
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "pilot-official-09-threat",
+      "variant": "observations",
+      "expected": {
+        "detected": true,
+        "intentType": "OFF_PLATFORM_REDIRECT",
+        "action": "WARN"
+      },
+      "status": "completed",
+      "actual": true,
+      "type": "OFF_PLATFORM_REDIRECT",
+      "confidence": 95,
+      "latencyMs": 575,
+      "promptBytes": 4872,
+      "tokenUsage": {
+        "input": 1163,
+        "output": 103,
+        "total": 1266
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "pilot-media-06-threat",
+      "variant": "observations",
+      "expected": {
+        "detected": true,
+        "intentType": "OFF_PLATFORM_REDIRECT",
+        "action": "WARN"
+      },
+      "status": "completed",
+      "actual": true,
+      "type": "OFF_PLATFORM_REDIRECT",
+      "confidence": 95,
+      "latencyMs": 522,
+      "promptBytes": 4909,
+      "tokenUsage": {
+        "input": 1159,
+        "output": 96,
+        "total": 1255
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "pilot-media-06-threat",
+      "variant": "compact",
+      "expected": {
+        "detected": true,
+        "intentType": "OFF_PLATFORM_REDIRECT",
+        "action": "WARN"
+      },
+      "status": "completed",
+      "actual": true,
+      "type": "OFF_PLATFORM_REDIRECT",
+      "confidence": 95,
+      "latencyMs": 411,
+      "promptBytes": 3454,
+      "tokenUsage": {
+        "input": 853,
+        "output": 88,
+        "total": 941
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "dev2-off-008",
+      "variant": "compact",
+      "expected": {
+        "detected": true,
+        "intentType": "OFF_PLATFORM_REDIRECT",
+        "action": "WARN"
+      },
+      "status": "completed",
+      "annotationReview": "Off-platform coordination alone does not establish deception; frozen historical label needs independent review.",
+      "actual": false,
+      "confidence": 95,
+      "latencyMs": 478,
+      "promptBytes": 2867,
+      "tokenUsage": {
+        "input": 731,
+        "output": 80,
+        "total": 811
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "dev2-off-008",
+      "variant": "observations",
+      "expected": {
+        "detected": true,
+        "intentType": "OFF_PLATFORM_REDIRECT",
+        "action": "WARN"
+      },
+      "status": "completed",
+      "annotationReview": "Off-platform coordination alone does not establish deception; frozen historical label needs independent review.",
+      "actual": false,
+      "confidence": 95,
+      "latencyMs": 530,
+      "promptBytes": 3902,
+      "tokenUsage": {
+        "input": 947,
+        "output": 88,
+        "total": 1035
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "pilot-lead-10-threat",
+      "variant": "observations",
+      "expected": {
+        "detected": true,
+        "intentType": "OFF_PLATFORM_REDIRECT",
+        "action": "WARN"
+      },
+      "status": "completed",
+      "actual": true,
+      "type": "OFF_PLATFORM_REDIRECT",
+      "confidence": 95,
+      "latencyMs": 461,
+      "promptBytes": 5029,
+      "tokenUsage": {
+        "input": 1169,
+        "output": 104,
+        "total": 1273
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "pilot-lead-10-threat",
+      "variant": "compact",
+      "expected": {
+        "detected": true,
+        "intentType": "OFF_PLATFORM_REDIRECT",
+        "action": "WARN"
+      },
+      "status": "completed",
+      "actual": true,
+      "type": "OFF_PLATFORM_REDIRECT",
+      "confidence": 95,
+      "latencyMs": 504,
+      "promptBytes": 3546,
+      "tokenUsage": {
+        "input": 864,
+        "output": 85,
+        "total": 949
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "reg2-phone-002",
+      "variant": "compact",
+      "expected": {
+        "detected": true,
+        "intentType": "OFF_PLATFORM_REDIRECT",
+        "action": "WARN"
+      },
+      "status": "completed",
+      "annotationReview": "Off-platform coordination alone does not establish deception; frozen historical label needs independent review.",
+      "actual": true,
+      "type": "OFF_PLATFORM_REDIRECT",
+      "confidence": 85,
+      "latencyMs": 354,
+      "promptBytes": 2908,
+      "tokenUsage": {
+        "input": 740,
+        "output": 79,
+        "total": 819
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "reg2-phone-002",
+      "variant": "observations",
+      "expected": {
+        "detected": true,
+        "intentType": "OFF_PLATFORM_REDIRECT",
+        "action": "WARN"
+      },
+      "status": "completed",
+      "annotationReview": "Off-platform coordination alone does not establish deception; frozen historical label needs independent review.",
+      "actual": false,
+      "confidence": 95,
+      "latencyMs": 616,
+      "promptBytes": 4055,
+      "tokenUsage": {
+        "input": 978,
+        "output": 78,
+        "total": 1056
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "pilot-official-10-safe",
+      "variant": "observations",
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "NONE"
+      },
+      "status": "completed",
+      "actual": false,
+      "confidence": 95,
+      "latencyMs": 648,
+      "promptBytes": 4786,
+      "tokenUsage": {
+        "input": 1134,
+        "output": 87,
+        "total": 1221
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "pilot-official-10-safe",
+      "variant": "compact",
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "NONE"
+      },
+      "status": "completed",
+      "actual": false,
+      "confidence": 95,
+      "latencyMs": 407,
+      "promptBytes": 3377,
+      "tokenUsage": {
+        "input": 836,
+        "output": 90,
+        "total": 926
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "dev2-benign-004",
+      "variant": "compact",
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "status": "completed",
+      "actual": false,
+      "confidence": 95,
+      "latencyMs": 662,
+      "promptBytes": 2905,
+      "tokenUsage": {
+        "input": 730,
+        "output": 83,
+        "total": 813
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "dev2-benign-004",
+      "variant": "observations",
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "status": "completed",
+      "actual": false,
+      "confidence": 95,
+      "latencyMs": 477,
+      "promptBytes": 4100,
+      "tokenUsage": {
+        "input": 968,
+        "output": 72,
+        "total": 1040
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "safe2-dev-005",
+      "variant": "observations",
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "status": "completed",
+      "actual": false,
+      "confidence": 95,
+      "latencyMs": 573,
+      "promptBytes": 4097,
+      "tokenUsage": {
+        "input": 975,
+        "output": 87,
+        "total": 1062
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "safe2-dev-005",
+      "variant": "compact",
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "status": "completed",
+      "actual": false,
+      "confidence": 100,
+      "latencyMs": 479,
+      "promptBytes": 2904,
+      "tokenUsage": {
+        "input": 733,
+        "output": 86,
+        "total": 819
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "safe2-dev-011",
+      "variant": "compact",
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "status": "completed",
+      "actual": false,
+      "confidence": 95,
+      "latencyMs": 495,
+      "promptBytes": 2949,
+      "tokenUsage": {
+        "input": 739,
+        "output": 93,
+        "total": 832
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "safe2-dev-011",
+      "variant": "observations",
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "status": "completed",
+      "actual": false,
+      "confidence": 95,
+      "latencyMs": 503,
+      "promptBytes": 4192,
+      "tokenUsage": {
+        "input": 987,
+        "output": 99,
+        "total": 1086
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "safe2-dev-017",
+      "variant": "observations",
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "status": "completed",
+      "actual": false,
+      "confidence": 95,
+      "latencyMs": 487,
+      "promptBytes": 4160,
+      "tokenUsage": {
+        "input": 983,
+        "output": 83,
+        "total": 1066
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "safe2-dev-017",
+      "variant": "compact",
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "status": "completed",
+      "actual": false,
+      "confidence": 95,
+      "latencyMs": 510,
+      "promptBytes": 2929,
+      "tokenUsage": {
+        "input": 737,
+        "output": 93,
+        "total": 830
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "safe2-dev-022",
+      "variant": "compact",
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "status": "completed",
+      "actual": false,
+      "confidence": 95,
+      "latencyMs": 376,
+      "promptBytes": 2916,
+      "tokenUsage": {
+        "input": 737,
+        "output": 88,
+        "total": 825
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "safe2-dev-022",
+      "variant": "observations",
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "status": "completed",
+      "actual": false,
+      "confidence": 95,
+      "latencyMs": 503,
+      "promptBytes": 4093,
+      "tokenUsage": {
+        "input": 981,
+        "output": 79,
+        "total": 1060
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "safe2-dev-028",
+      "variant": "observations",
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "status": "completed",
+      "actual": false,
+      "confidence": 95,
+      "latencyMs": 514,
+      "promptBytes": 4118,
+      "tokenUsage": {
+        "input": 978,
+        "output": 95,
+        "total": 1073
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "safe2-dev-028",
+      "variant": "compact",
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "status": "completed",
+      "actual": false,
+      "confidence": 95,
+      "latencyMs": 511,
+      "promptBytes": 2911,
+      "tokenUsage": {
+        "input": 734,
+        "output": 91,
+        "total": 825
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "safe2-dev-034",
+      "variant": "compact",
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "status": "completed",
+      "actual": false,
+      "confidence": 95,
+      "latencyMs": 491,
+      "promptBytes": 2916,
+      "tokenUsage": {
+        "input": 733,
+        "output": 92,
+        "total": 825
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "safe2-dev-034",
+      "variant": "observations",
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "status": "completed",
+      "actual": false,
+      "confidence": 100,
+      "latencyMs": 482,
+      "promptBytes": 4133,
+      "tokenUsage": {
+        "input": 975,
+        "output": 84,
+        "total": 1059
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "reg-delivery-price-001",
+      "variant": "observations",
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "status": "completed",
+      "actual": false,
+      "confidence": 100,
+      "latencyMs": 536,
+      "promptBytes": 3986,
+      "tokenUsage": {
+        "input": 959,
+        "output": 94,
+        "total": 1053
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "reg-delivery-price-001",
+      "variant": "compact",
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "status": "completed",
+      "actual": false,
+      "confidence": 100,
+      "latencyMs": 457,
+      "promptBytes": 2867,
+      "tokenUsage": {
+        "input": 727,
+        "output": 85,
+        "total": 812
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "pilot-media-10-safe",
+      "variant": "compact",
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "NONE"
+      },
+      "status": "completed",
+      "actual": false,
+      "confidence": 95,
+      "latencyMs": 395,
+      "promptBytes": 3354,
+      "tokenUsage": {
+        "input": 831,
+        "output": 83,
+        "total": 914
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "pilot-media-10-safe",
+      "variant": "observations",
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "NONE"
+      },
+      "status": "completed",
+      "actual": false,
+      "confidence": 95,
+      "latencyMs": 519,
+      "promptBytes": 4773,
+      "tokenUsage": {
+        "input": 1132,
+        "output": 96,
+        "total": 1228
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "reg2-benign-006",
+      "variant": "observations",
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "status": "completed",
+      "actual": false,
+      "confidence": 95,
+      "latencyMs": 1314,
+      "promptBytes": 3968,
+      "tokenUsage": {
+        "input": 954,
+        "output": 82,
+        "total": 1036
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "reg2-benign-006",
+      "variant": "compact",
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "status": "completed",
+      "actual": false,
+      "confidence": 95,
+      "latencyMs": 503,
+      "promptBytes": 2861,
+      "tokenUsage": {
+        "input": 726,
+        "output": 93,
+        "total": 819
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "safe2-reg-004",
+      "variant": "compact",
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "status": "completed",
+      "actual": false,
+      "confidence": 100,
+      "latencyMs": 503,
+      "promptBytes": 2906,
+      "tokenUsage": {
+        "input": 733,
+        "output": 90,
+        "total": 823
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "safe2-reg-004",
+      "variant": "observations",
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "status": "completed",
+      "actual": false,
+      "confidence": 100,
+      "latencyMs": 552,
+      "promptBytes": 4103,
+      "tokenUsage": {
+        "input": 975,
+        "output": 76,
+        "total": 1051
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "safe2-reg-010",
+      "variant": "observations",
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "status": "completed",
+      "actual": false,
+      "confidence": 100,
+      "latencyMs": 933,
+      "promptBytes": 3932,
+      "tokenUsage": {
+        "input": 939,
+        "output": 85,
+        "total": 1024
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "safe2-reg-010",
+      "variant": "compact",
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "status": "completed",
+      "actual": false,
+      "confidence": 100,
+      "latencyMs": 370,
+      "promptBytes": 2849,
+      "tokenUsage": {
+        "input": 721,
+        "output": 95,
+        "total": 816
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "safe2-reg-015",
+      "variant": "compact",
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "status": "completed",
+      "actual": false,
+      "confidence": 100,
+      "latencyMs": 464,
+      "promptBytes": 2855,
+      "tokenUsage": {
+        "input": 724,
+        "output": 84,
+        "total": 808
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "safe2-reg-015",
+      "variant": "observations",
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "status": "completed",
+      "actual": false,
+      "confidence": 95,
+      "latencyMs": 393,
+      "promptBytes": 3950,
+      "tokenUsage": {
+        "input": 948,
+        "output": 90,
+        "total": 1038
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "safe2-reg-022",
+      "variant": "observations",
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "status": "completed",
+      "actual": false,
+      "confidence": 95,
+      "latencyMs": 518,
+      "promptBytes": 4175,
+      "tokenUsage": {
+        "input": 972,
+        "output": 88,
+        "total": 1060
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "safe2-reg-022",
+      "variant": "compact",
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "status": "completed",
+      "actual": false,
+      "confidence": 95,
+      "latencyMs": 488,
+      "promptBytes": 2930,
+      "tokenUsage": {
+        "input": 732,
+        "output": 86,
+        "total": 818
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "safe2-reg-028",
+      "variant": "compact",
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "status": "completed",
+      "actual": false,
+      "confidence": 100,
+      "latencyMs": 470,
+      "promptBytes": 2945,
+      "tokenUsage": {
+        "input": 739,
+        "output": 83,
+        "total": 822
+      },
+      "excessLockCandidate": false
+    },
+    {
+      "id": "safe2-reg-028",
+      "variant": "observations",
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "status": "completed",
+      "actual": false,
+      "confidence": 100,
+      "latencyMs": 390,
+      "promptBytes": 4220,
+      "tokenUsage": {
+        "input": 993,
+        "output": 87,
+        "total": 1080
+      },
+      "excessLockCandidate": false
+    }
+  ],
+  "plannedPairs": 80,
+  "completedPairs": 80,
+  "hadRateLimit": true
+}
