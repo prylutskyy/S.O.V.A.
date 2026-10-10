@@ -871,12 +871,37 @@ export class DebuggerOverlay {
     });
 
     const currentHost = typeof window !== 'undefined' ? window.location.hostname || 'Активна сторінка' : 'Сторінка';
+    const shellStatus = this.state.activeDecision?.action === 'LOCK_INPUT'
+      ? { label: 'Ввід заблоковано', tone: 'locked' }
+      : this.state.activeDecision?.action === 'WARN'
+      ? { label: 'Активне попередження', tone: 'warning' }
+      : { label: 'Моніторинг', tone: 'monitoring' };
+    const sessionChecks = checks.filter(check => check.sessionId === sessionId);
+    const latestSessionCheck = sessionChecks.at(-1);
+    const hasPendingCheck = sessionChecks.some(check => check.status === 'pending');
+    const aiOverview = hasPendingCheck
+      ? { label: 'Перевірка триває', tone: 'blue' }
+      : latestSessionCheck?.status === 'completed'
+      ? { label: 'Висновок готовий', tone: 'blue' }
+      : latestSessionCheck
+      ? { label: latestSessionCheck.status === 'cancelled' ? 'Перевірку скасовано' : latestSessionCheck.status === 'timeout' ? 'Час очікування вичерпано' : 'Помилка перевірки', tone: 'amber' }
+      : { label: 'Ще не запускалась', tone: 'neutral' };
+    const protectionOverview = this.state.activeDecision?.action === 'LOCK_INPUT'
+      ? { label: 'Введення заблоковано', tone: 'red' }
+      : this.state.activeDecision?.action === 'WARN'
+      ? { label: 'Показано попередження', tone: 'amber' }
+      : { label: 'Немає активної дії', tone: 'neutral' };
+    const severityLabel = severity === 'CRITICAL' ? 'Критичний ризик'
+      : severity === 'HIGH' ? 'Високий ризик'
+      : severity === 'MEDIUM' ? 'Помірний ризик'
+      : severity === 'LOW' ? 'Низький ризик'
+      : 'Оцінка ризику';
 
     // Вкладка 1: Швейцарська Лупа (Огляд)
     const renderOverviewTab = () => {
       return `
         <div class="sc-overview-view">
-          <!-- 1. The Swiss Loupe Dial (Швейцарська Лупа) -->
+          <!-- Поточний стан сторінки -->
           <div class="sc-card sc-loupe-hero">
             <div class="sc-gauge-section">
               <div class="sc-gauge-container">
@@ -886,44 +911,42 @@ export class DebuggerOverlay {
                 </svg>
                 <div class="sc-gauge-text">
                   <span class="sc-gauge-value">${score}</span>
-                  <span class="sc-gauge-label">Індекс R</span>
+                  <span class="sc-gauge-label">РИЗИК</span>
                 </div>
               </div>
               <div class="sc-hero-meta">
-                <div class="sc-site-name" title="${currentHost}">${currentHost}</div>
+                <span class="sc-hero-eyebrow">ПОТОЧНА ОЦІНКА</span>
+                <div class="sc-site-name">${severityLabel}</div>
                 <div class="sc-badge ${fpInfo.badgeClass}">
                   ${fpInfo.badgeIcon}
                   <span>${fpInfo.badgeText}</span>
                 </div>
-                <div class="sc-subtext">${threatMitigated ? `Чернетка: ${liveScore}/100 (Вилучено) · Піковий ризик збережено` : (sessionId ? `Сесія: ${sessionId.substring(0, 16)}...` : 'Пасивний фоновий моніторинг')}</div>
+                <div class="sc-subtext">${threatMitigated ? `Чернетку скасовано · збережений пік ${liveScore}/100` : (sessionId ? 'Контекст розмови активний' : 'Очікування повідомлень')}</div>
               </div>
             </div>
 
-            <!-- 2. 4 Стовпи Телеметрії (Швейцарська Лупа) -->
+            <!-- Живий стан ключових компонентів -->
             <div class="sc-loupe-pillars">
               <div class="sc-pillar-cell">
-                <span class="sc-pillar-label">Евристичний ризик</span>
-                <span class="sc-pillar-val" style="color: ${riskColor}">${score}/100${threatMitigated ? ` <span style="font-size:9.5px;color:#86868B;font-weight:400;">(Live: ${liveScore})</span>` : ''}</span>
+                <span class="sc-pillar-label">Захист зараз</span>
+                <span class="sc-pillar-val sc-pillar-${protectionOverview.tone}">${protectionOverview.label}</span>
               </div>
               <div class="sc-pillar-cell">
-                <span class="sc-pillar-label">ШІ-Арбітр (LLM)</span>
-                <span class="sc-pillar-val sc-val-blue">${checks.some(check => check.sessionId === sessionId && check.status === 'pending') ? 'Очікування ШІ' : checks.filter(check => check.sessionId === sessionId).at(-1)?.durationMs !== undefined ? `${checks.filter(check => check.sessionId === sessionId).at(-1)!.durationMs} мс · перевірка` : 'ШІ-Арбітр'}</span>
+                <span class="sc-pillar-label">Перевірка ШІ</span>
+                <span class="sc-pillar-val sc-pillar-${aiOverview.tone}">${aiOverview.label}</span>
               </div>
               <div class="sc-pillar-cell">
-                <span class="sc-pillar-label">DOM Cloaking AST</span>
-                <span class="sc-pillar-val ${formCount > 0 ? 'sc-val-amber' : 'sc-val-green'}">${formCount > 0 ? `${formCount} форм` : '0 пасток'}</span>
+                <span class="sc-pillar-label">Форми на сторінці</span>
+                <span class="sc-pillar-val ${formCount > 0 ? 'sc-pillar-amber' : 'sc-pillar-neutral'}">${formCount > 0 ? `${formCount} виявлено` : 'Не виявлено'}</span>
               </div>
-              <div class="sc-pillar-cell">
-                <span class="sc-pillar-label">Шифрування DLP</span>
-                <span class="sc-pillar-val sc-val-indigo">AES-GCM 256</span>
-              </div>
+              ${latestSessionCheck?.durationMs !== undefined ? `<div class="sc-pillar-cell"><span class="sc-pillar-label">Час останньої перевірки ШІ</span><span class="sc-pillar-val sc-pillar-neutral">${latestSessionCheck.durationMs} мс</span></div>` : ''}
             </div>
           </div>
 
-          <!-- 3. XAI Вердикт та пояснення -->
+          <!-- Пояснення рішення -->
           <div class="sc-card sc-verdict-card">
             <div class="sc-verdict-header">
-              <span class="sc-card-title">Аналітичний висновок системи</span>
+              <span class="sc-card-title">Чому система так вирішила</span>
               <button type="button" class="sc-btn-ghost" id="btn-copy-fp-report" title="Скопіювати структурований звіт">
                 ${ICONS.copy(11, '#0071E3')}
                 <span>Копіювати звіт</span>
@@ -931,13 +954,18 @@ export class DebuggerOverlay {
             </div>
             <p class="sc-verdict-text">${fpInfo.explanation}</p>
 
+            <div class="sc-overview-guidance ${fpInfo.badgeClass}">
+              <span class="sc-overview-guidance-label">Що це означає</span>
+              <span>${this.escape(fpInfo.recommendation)}</span>
+            </div>
+
             ${
               fpInfo.triggers.length > 0 && fpInfo.triggers[0] !== 'Тригери відсутні'
                 ? `
               <div class="sc-triggers-wrap">
                 <div class="sc-triggers-label">Фактори ризику:</div>
                 <div class="sc-triggers-list">
-                  ${fpInfo.triggers.map((t) => `<span class="sc-trigger-chip">${t}</span>`).join('')}
+                  ${fpInfo.triggers.map((t) => `<span class="sc-trigger-chip">${this.escape(t)}</span>`).join('')}
                 </div>
               </div>
             `
@@ -1350,11 +1378,12 @@ export class DebuggerOverlay {
         /* 2. Apple Precision Titlebar */
         .sc-titlebar {
           background: var(--sanctuary-surface);
-          padding: 12px 16px;
+          padding: 12px 14px 10px;
           border-bottom: 1px solid rgba(0, 0, 0, 0.06);
           display: flex;
           justify-content: space-between;
-          align-items: center;
+          align-items: flex-start;
+          gap: 8px;
           cursor: grab;
           user-select: none;
         }
@@ -1363,8 +1392,9 @@ export class DebuggerOverlay {
         }
         .sc-brand-group {
           display: flex;
-          align-items: center;
-          gap: 9px;
+          align-items: flex-start;
+          gap: 10px;
+          min-width: 0;
         }
         .sc-brand-icon {
           width: 24px;
@@ -1375,19 +1405,23 @@ export class DebuggerOverlay {
           align-items: center;
           justify-content: center;
           color: var(--sanctuary-surface);
-          box-shadow: 0 2px 6px rgba(0, 113, 227, 0.3);
+          box-shadow: none;
         }
         .sc-brand-meta {
           display: flex;
-          align-items: center;
-          gap: 6px;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 2px;
+          min-width: 0;
         }
         .sc-brand-name {
-          font-size: 13px;
-          font-weight: 600;
+          font-size: 14px;
+          line-height: 18px;
+          font-weight: 650;
           color: var(--sanctuary-ink-primary);
           letter-spacing: -0.015em;
         }
+        .sc-brand-context { max-width: 178px; color: var(--sanctuary-ink-secondary); font-size: 10px; line-height: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .sc-brand-pill {
           font-size: 10px;
           font-weight: 600;
@@ -1401,7 +1435,9 @@ export class DebuggerOverlay {
         .sc-win-controls {
           display: flex;
           align-items: center;
-          gap: 4px;
+          gap: 2px;
+          flex-shrink: 0;
+          padding-top: 1px;
         }
         .sc-tool-btn {
           width: var(--control-height);
@@ -1431,23 +1467,24 @@ export class DebuggerOverlay {
         /* 3. Cupertino Segmented Tab Bar */
         .sc-tab-bar {
           display: flex;
-          background: rgba(0, 0, 0, 0.04);
-          border-radius: var(--radius-control);
-          padding: 3px;
-          margin: 10px 16px 4px 16px;
-          gap: 3px;
+          background: var(--sanctuary-surface-subtle);
+          border: 1px solid var(--sanctuary-hairline);
+          border-radius: 12px;
+          padding: 4px;
+          margin: 10px 14px 2px;
+          gap: 2px;
         }
         .sc-tab-btn {
           flex: 1;
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 5px;
-          padding: 7px 4px;
+          gap: 6px;
+          padding: 7px 6px;
           min-width: 0;
           min-height: var(--control-height);
-          border-radius: 8px;
-          border: none;
+          border-radius: 9px;
+          border: 1px solid transparent;
           background: transparent;
           color: var(--sanctuary-ink-secondary);
           font-size: 11.5px;
@@ -1456,16 +1493,24 @@ export class DebuggerOverlay {
           transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .sc-tab-btn.active {
-          background: var(--sanctuary-surface);
-          color: var(--sanctuary-ink-primary);
-          font-weight: 600;
-          box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+          background: var(--sanctuary-blue-surface);
+          border-color: var(--sanctuary-blue-bd);
+          color: var(--sanctuary-blue);
+          font-weight: 650;
+          box-shadow: var(--shadow-sm);
         }
         .sc-tab-btn.active svg { color: var(--sanctuary-blue); }
         .sc-tab-btn > svg { flex-shrink: 0; }
         .sc-tab-btn:hover:not(.active) {
           color: var(--sanctuary-ink-primary);
+          background: var(--sanctuary-surface-hover);
         }
+        .sc-tab-count { min-width: 17px; padding: 1px 5px; border-radius: var(--radius-pill); background: var(--sanctuary-surface-active); color: var(--sanctuary-ink-secondary); font-size: 9px; line-height: 14px; font-variant-numeric: tabular-nums; }
+        .sc-tab-btn.active .sc-tab-count { background: rgba(0, 113, 227, 0.11); color: var(--sanctuary-blue); }
+        .sc-shell-status { display: inline-flex; align-items: center; gap: 5px; margin: 1px 4px 0 auto; padding: 5px 8px; border-radius: var(--radius-pill); border: 1px solid var(--sanctuary-green-bd); background: var(--sanctuary-green-bg); color: var(--sanctuary-green-ink); font-size: 9px; line-height: 13px; font-weight: 600; white-space: nowrap; }
+        .sc-shell-status::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+        .sc-shell-status.warning { border-color: var(--sanctuary-amber-bd); background: var(--sanctuary-amber-bg); color: var(--sanctuary-amber-ink); }
+        .sc-shell-status.locked { border-color: var(--sanctuary-red-bd); background: var(--sanctuary-red-bg); color: var(--sanctuary-red-ink); }
 
         /* 4. Viewport Scroll Container */
         .sc-viewport {
@@ -1554,6 +1599,8 @@ export class DebuggerOverlay {
           flex-direction: column;
           gap: 5px;
         }
+        .sc-hero-eyebrow { color: var(--sanctuary-ink-secondary); font-size: 9px; font-weight: 650; letter-spacing: 0.07em; }
+        .sc-hero-meta .sc-badge { max-width: 100%; white-space: normal; line-height: 1.3; }
         .sc-site-name {
           font-size: 15px;
           font-weight: 600;
@@ -1568,18 +1615,20 @@ export class DebuggerOverlay {
         /* 4 Swiss Loupe Pillars */
         .sc-loupe-pillars {
           display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 6px;
-          background: rgba(0, 0, 0, 0.025);
-          border: 1px solid rgba(0, 0, 0, 0.05);
-          border-radius: var(--radius-control);
-          padding: 8px;
+          grid-template-columns: repeat(auto-fit, minmax(125px, 1fr));
+          gap: 7px;
         }
         .sc-pillar-cell {
           display: flex;
           flex-direction: column;
-          gap: 2px;
-          padding: 4px 6px;
+          justify-content: center;
+          gap: 4px;
+          min-height: 58px;
+          padding: 9px 10px;
+          background: var(--sanctuary-surface-subtle);
+          border: 1px solid var(--sanctuary-hairline);
+          border-radius: var(--radius-control);
+          min-width: 0;
         }
         .sc-pillar-label {
           font-size: 9.5px;
@@ -1590,7 +1639,13 @@ export class DebuggerOverlay {
           font-size: 11px;
           font-weight: 600;
           color: var(--sanctuary-ink-primary);
+          line-height: 1.35;
+          overflow-wrap: anywhere;
         }
+        .sc-pillar-neutral { color: var(--sanctuary-ink-primary); }
+        .sc-pillar-blue { color: var(--sanctuary-blue); }
+        .sc-pillar-amber { color: var(--sanctuary-amber-ink); }
+        .sc-pillar-red { color: var(--sanctuary-red-ink); }
         .sc-val-green { color: var(--sanctuary-green-ink); }
         .sc-val-blue { color: var(--sanctuary-blue); }
         .sc-val-amber { color: var(--sanctuary-amber-ink); }
@@ -1651,6 +1706,16 @@ export class DebuggerOverlay {
           line-height: 1.45;
           margin: 0;
         }
+        .sc-overview-guidance {
+          display: flex;
+          flex-direction: column;
+          gap: 3px;
+          padding: 9px 10px;
+          border-radius: var(--radius-control);
+          font-size: 10.5px;
+          line-height: 1.45;
+        }
+        .sc-overview-guidance-label { font-size: 9px; font-weight: 650; opacity: 0.85; }
         .sc-triggers-wrap {
           display: flex;
           flex-direction: column;
@@ -2002,9 +2067,13 @@ export class DebuggerOverlay {
         .sc-dim-token-chip { font-size: var(--text-caption); padding: 2px 6px; background: var(--sanctuary-surface); color: var(--sanctuary-ink-secondary); border-radius: var(--radius-micro); border: 1px solid var(--sanctuary-hairline); }
 
         @container (max-width: 380px) {
-          .sc-tab-btn { gap: 3px; font-size: 11px; }
+          .sc-titlebar { padding-inline: 10px; }
+          .sc-tab-bar { margin-inline: 10px; }
+          .sc-tab-btn { gap: 3px; padding-inline: 3px; font-size: 10.5px; }
           .sc-tab-btn > svg { display: none; }
-          .sc-brand-pill { display: none; }
+          .sc-brand-context { display: none; }
+          .sc-shell-status { font-size: 0; width: 20px; height: 20px; justify-content: center; padding: 0; margin-top: 5px; }
+          .sc-shell-status::before { width: 7px; height: 7px; }
           .sc-vector-hero-top { flex-direction: column; }
           .sc-vector-sim-badge { width: 100%; }
           .sc-action-row { flex-wrap: wrap; }
@@ -2020,20 +2089,21 @@ export class DebuggerOverlay {
             </div>
             <div class="sc-brand-meta">
               <span class="sc-brand-name">С.О.В.А.</span>
-              <span class="sc-brand-pill">Аналітичний модуль XAI</span>
+              <span class="sc-brand-context" title="${this.escape(currentHost)}">${this.escape(currentHost)}</span>
             </div>
           </div>
+          <span class="sc-shell-status ${shellStatus.tone}" title="Поточний стан захисту">${shellStatus.label}</span>
           <div class="sc-win-controls">
-            <button type="button" class="sc-tool-btn" id="btn-export-json" title="Експортувати звіт у JSON">
+            <button type="button" class="sc-tool-btn" id="btn-export-json" aria-label="Експортувати звіт у JSON" title="Експортувати звіт у JSON">
               ${ICONS.download(13)}
             </button>
-            <button type="button" class="sc-tool-btn" id="btn-clear-all" title="Очистити події">
+            <button type="button" class="sc-tool-btn" id="btn-clear-all" aria-label="Очистити події" title="Очистити події">
               ${ICONS.trash(13)}
             </button>
-            <button type="button" class="sc-tool-btn" id="btn-minimize" title="Згорнути у Dynamic Island">
+            <button type="button" class="sc-tool-btn" id="btn-minimize" aria-label="Згорнути вікно дебагера" title="Згорнути вікно дебагера">
               ${ICONS.minimize(13)}
             </button>
-            <button type="button" class="sc-tool-btn sc-tool-btn-close" id="btn-close-window" title="Закрити вікно">
+            <button type="button" class="sc-tool-btn sc-tool-btn-close" id="btn-close-window" aria-label="Закрити вікно дебагера" title="Закрити вікно">
               ${ICONS.close(13)}
             </button>
           </div>
@@ -2041,18 +2111,18 @@ export class DebuggerOverlay {
 
         <!-- 2. Cupertino Segmented Navigation -->
         <nav class="sc-tab-bar" aria-label="Розділи діагностики">
-          <button type="button" class="sc-tab-btn ${activeTab === 'overview' ? 'active' : ''}" data-tab="overview" aria-pressed="${activeTab === 'overview'}">
+          <button type="button" class="sc-tab-btn ${activeTab === 'overview' ? 'active' : ''}" data-tab="overview" aria-label="Огляд" aria-pressed="${activeTab === 'overview'}">
             ${ICONS.loupe(12)}
             <span>Огляд</span>
             ${fpInfo.status === 'FP_CANDIDATE' ? '<span class="sc-badge sc-badge-amber" style="padding:1px 5px; font-size:8.5px;">FP?</span>' : ''}
           </button>
-          <button type="button" class="sc-tab-btn ${activeTab === 'events' ? 'active' : ''}" data-tab="events" aria-pressed="${activeTab === 'events'}">
+          <button type="button" class="sc-tab-btn ${activeTab === 'events' ? 'active' : ''}" data-tab="events" aria-label="Події, ${logs.length}" aria-pressed="${activeTab === 'events'}">
             ${ICONS.terminal(12)}
-            <span>Події (${logs.length})</span>
+            <span>Події</span><span class="sc-tab-count">${logs.length}</span>
           </button>
-          <button type="button" class="sc-tab-btn ${activeTab === 'ai' ? 'active' : ''}" data-tab="ai" aria-pressed="${activeTab === 'ai'}">
+          <button type="button" class="sc-tab-btn ${activeTab === 'ai' ? 'active' : ''}" data-tab="ai" aria-label="ШІ, ${aiCount}" aria-pressed="${activeTab === 'ai'}">
             ${ICONS.cpu(12)}
-            <span>ШІ (${aiCount})</span>
+            <span>ШІ</span><span class="sc-tab-count">${aiCount}</span>
           </button>
           <button type="button" class="sc-tab-btn ${activeTab === 'vectors' ? 'active' : ''}" data-tab="vectors" aria-pressed="${activeTab === 'vectors'}" title="Векторний спектр">
             ${ICONS.activity(12)}
