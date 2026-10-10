@@ -1,6 +1,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { createHash } from 'node:crypto';
+import { summarizeGroup } from './group-metrics';
 import { afterAll, describe, expect, it } from 'vitest';
 import { ChatSessionState } from '../../src/heuristics/chat-session-state';
 import { getThreatMitigationAction, ThreatMitigationAction } from '../../src/heuristics/threat-mitigation-policy';
@@ -8,6 +9,8 @@ import { getThreatMitigationAction, ThreatMitigationAction } from '../../src/heu
 type CorpusCase = {
   id: string;
   tags: string[];
+  assessment?: 'threat' | 'safe' | 'ambiguous';
+  family?: string;
   messages: Array<{ speaker: 'interlocutor' | 'user'; text: string }>;
   expected: {
     detected: boolean;
@@ -23,6 +26,8 @@ type CorpusFile = { schemaVersion: number; cases: CorpusCase[] };
 type Prediction = {
   id: string;
   corpus: string;
+  assessment?: string;
+  family?: string;
   expectedDetected: boolean;
   actualDetected: boolean;
   expectedType: string | null;
@@ -35,7 +40,8 @@ type Prediction = {
 };
 
 const corpusDirectory = resolve(process.cwd(), 'tests/evaluation/corpus');
-const corpusNames = ['development', 'regressions', 'holdout'];
+const legacyNames = ['development', 'regressions', 'holdout'];
+const corpusNames = [...legacyNames, 'challenge-v1'];
 const corpusFiles = corpusNames.map((name) => ({
   name,
   path: resolve(corpusDirectory, `${name}.json`),
@@ -117,24 +123,10 @@ function printMetrics(): void {
     };
   };
 
-  const categories = Array.from(new Set(
-    predictions.flatMap((entry) => [entry.expectedType, entry.actualType])
-  )).filter((type): type is string => type !== null).sort();
-  const rows = [
-    metricsFor('OVERALL', predictions, (entry) => ({
-      expected: entry.expectedDetected,
-      actual: entry.actualDetected,
-    })),
-    ...categories.map((type) => metricsFor(type, predictions, (entry) => ({
-      expected: entry.expectedType === type,
-      actual: entry.actualType === type,
-    }))),
-  ];
-
-  console.info('\n[corpus] Classification metrics (intent detected vs not detected):');
-  console.table(rows);
+  console.info('\n[corpus] Separate scores; ambiguous cases excluded from binary metrics:');
+  console.table(corpusNames.map(name => metricsFor(name, predictions.filter(e => e.corpus === name && e.assessment !== 'ambiguous'), e => ({expected:e.expectedDetected, actual:e.actualDetected}))));
   const mismatches = predictions.filter((entry) =>
-    entry.expectedDetected !== entry.actualDetected || entry.expectedType !== entry.actualType
+    entry.assessment !== 'ambiguous' && (entry.expectedDetected !== entry.actualDetected || entry.expectedType !== entry.actualType)
   );
   if (mismatches.length > 0) {
     console.info('[corpus] Cases that differ from the expected result:');
@@ -147,6 +139,7 @@ function printMetrics(): void {
 function writeEvaluationReport(): void {
   const reportPath = process.env.SOVA_EVAL_REPORT;
   if (!reportPath || predictions.length === 0) return;
+  if (predictions.length !== allCases.length) throw new Error('Incomplete corpus execution: refusing to publish partial scores');
 
   const metricsFor = (entries: Prediction[], expectedType?: string | null) => {
     const pairs = entries.map((entry) => ({
@@ -167,12 +160,13 @@ function writeEvaluationReport(): void {
   )).filter((type): type is string => type !== null).sort();
   const cases = predictions.map((entry) => ({
     ...entry,
+    scored: entry.assessment !== 'ambiguous',
     exactMatch: entry.expectedDetected === entry.actualDetected &&
       entry.expectedType === entry.actualType && entry.expectedAction === entry.actualAction &&
       (entry.expectedMinConfidence === undefined || entry.confidence >= entry.expectedMinConfidence) &&
       (entry.expectedMaxConfidence === undefined || entry.confidence <= entry.expectedMaxConfidence),
   }));
-  const mismatches = cases.filter((entry) => !entry.exactMatch).map((entry) => ({
+  const mismatches = cases.filter((entry) => entry.scored && !entry.exactMatch).map((entry) => ({
     id: entry.id,
     corpus: entry.corpus,
     expectedDetected: entry.expectedDetected,
@@ -185,29 +179,40 @@ function writeEvaluationReport(): void {
     expectedMinConfidence: entry.expectedMinConfidence,
     expectedMaxConfidence: entry.expectedMaxConfidence,
   }));
-  const hash = createHash('sha256');
-  for (const file of corpusFiles) hash.update(file.name).update(readFileSync(file.path));
+  const legacyPredictions = predictions.filter(e => legacyNames.includes(e.corpus));
+  const legacyCases = cases.filter(e => legacyNames.includes(e.corpus));
+  const hashFor = (names: string[]) => {
+    const h = createHash('sha256');
+    for (const file of corpusFiles.filter(f => names.includes(f.name))) h.update(file.name).update(readFileSync(file.path, 'utf8').replace(/\r\n/g, '\n'));
+    return h.digest('hex');
+  };
+  const groups = {
+    regression: { ...summarizeGroup(legacyCases), corpusSha256: hashFor(legacyNames), status: 'used-for-tuning' },
+    challenge: { ...summarizeGroup(cases.filter(e => e.corpus === 'challenge-v1')), corpusSha256: hashFor(['challenge-v1']), status: 'synthetic-awaiting-independent-review' },
+  };
   const report = {
-    schemaVersion: 1,
+    schemaVersion: 2,
+    groups,
+    cases,
     generatedAt: new Date().toISOString(),
     commit: process.env.GITHUB_SHA ?? 'local',
-    corpusSha256: hash.digest('hex'),
-    totalCases: cases.length,
-    exactMatches: cases.filter((entry) => entry.exactMatch).length,
-    exactMatchRate: cases.length === 0 ? 0 : cases.filter((entry) => entry.exactMatch).length / cases.length,
-    overall: metricsFor(predictions),
+    corpusSha256: groups.regression.corpusSha256,
+    combinedCorpusSha256: hashFor(corpusNames),
+    totalCases: legacyCases.length,
+    evaluatedCases: cases.length,
+    exactMatches: groups.regression.exactMatches,
+    exactMatchRate: groups.regression.exactMatchRate,
+    overall: metricsFor(legacyPredictions),
     byCorpus: Object.fromEntries(corpusNames.map((name) => [
       name,
-      metricsFor(predictions.filter((entry) => entry.corpus === name)),
+      metricsFor(predictions.filter((entry) => entry.corpus === name && entry.assessment !== 'ambiguous')),
     ])),
     byIntentType: Object.fromEntries(allTypes.map((type) => [
       type,
-      metricsFor(predictions, type),
+      metricsFor(legacyPredictions, type),
     ])),
-    actionMismatches: cases.filter((entry) => entry.expectedAction !== entry.actualAction).length,
-    falseLockInputs: cases.filter((entry) =>
-      entry.expectedAction !== 'LOCK_INPUT' && entry.actualAction === 'LOCK_INPUT'
-    ).length,
+    actionMismatches: groups.regression.actionMismatches,
+    falseLockInputs: groups.regression.falseLockInputs,
     mismatches,
   };
   mkdirSync(resolve(reportPath, '..'), { recursive: true });
@@ -263,13 +268,16 @@ describe('Local threat-classification evaluation corpus', () => {
       }
 
       expect(result, `${testCase.id}: scenario has at least one evaluated message`).toBeDefined();
-      if (!result) return;
+      if (!result) throw new Error(`Missing result for ${testCase.id}`);
+      expect(Number.isFinite(result.confidence ?? 0), `${testCase.id}: finite score`).toBe(true);
 
       const actualType = result.hasFormedIntent ? result.intentType || null : null;
       const actualAction = getThreatMitigationAction(result.hasFormedIntent, actualType);
       predictions.push({
         id: testCase.id,
         corpus: testCase.corpus,
+        assessment: testCase.assessment,
+        family: testCase.family,
         expectedDetected: testCase.expected.detected,
         actualDetected: result.hasFormedIntent,
         expectedType: testCase.expected.intentType,
@@ -281,11 +289,11 @@ describe('Local threat-classification evaluation corpus', () => {
         expectedMaxConfidence: testCase.expected.maxConfidence,
       });
 
-      if (
+      if (testCase.corpus !== 'challenge-v1' && (
         result.hasFormedIntent !== testCase.expected.detected ||
         actualType !== testCase.expected.intentType ||
         actualAction !== testCase.expected.action
-      ) {
+      )) {
         mismatches.push({
           id: testCase.id,
           corpus: testCase.corpus,
@@ -298,12 +306,12 @@ describe('Local threat-classification evaluation corpus', () => {
         });
       }
 
-      if (testCase.expected.minConfidence !== undefined) {
+      if (testCase.corpus !== 'challenge-v1' && testCase.expected.minConfidence !== undefined) {
         if ((result.confidence ?? 0) < testCase.expected.minConfidence) {
           mismatches.push({ id: testCase.id, field: 'minConfidence', expected: testCase.expected.minConfidence, actual: result.confidence ?? 0 });
         }
       }
-      if (testCase.expected.maxConfidence !== undefined) {
+      if (testCase.corpus !== 'challenge-v1' && testCase.expected.maxConfidence !== undefined) {
         if ((result.confidence ?? 0) > testCase.expected.maxConfidence) {
           mismatches.push({ id: testCase.id, field: 'maxConfidence', expected: testCase.expected.maxConfidence, actual: result.confidence ?? 0 });
         }
@@ -314,7 +322,7 @@ describe('Local threat-classification evaluation corpus', () => {
       if (mismatches.length > 0) console.table(mismatches);
       expect(mismatches.length, 'See mismatch table above for scenario IDs and expected/actual results')
         .toBe(0);
-    });
+    }, 30_000);
   }
 
   afterAll(() => {

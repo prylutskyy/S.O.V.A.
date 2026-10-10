@@ -2,7 +2,7 @@ name: Evaluation
 
 on:
   push:
-    branches: [main]
+    branches-ignore: [metrics-history]
     paths-ignore:
       - 'site/**'
       - 'metrics/**'
@@ -52,6 +52,9 @@ jobs:
             echo 'report-ready=false' >> "$GITHUB_OUTPUT"
           fi
           exit "$test_status"
+      - name: Explain regression and challenge results
+        if: always() && steps.run-tests.outputs.report-ready == 'true'
+        run: node scripts/evaluation/write-ci-summary.mjs metrics/evaluation.json
       - name: Upload evaluation report
         if: always() && steps.run-tests.outputs.report-ready == 'true'
         uses: actions/upload-artifact@v4
@@ -120,7 +123,9 @@ jobs:
             }
 
             const summary = {
-              schemaVersion: 1,
+              schemaVersion: report.schemaVersion,
+              groups: report.groups,
+              evaluatedCases: report.evaluatedCases,
               generatedAt: report.generatedAt,
               commit: report.commit,
               corpusSha256: report.corpusSha256,

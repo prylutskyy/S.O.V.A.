@@ -22,7 +22,7 @@ const records = [...history.filter((record) => record.commit !== report.commit),
 const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({
   '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
 }[char]));
-const percent = (value) => `${(Number(value ?? 0) * 100).toFixed(1)}%`;
+const percent = (value) => typeof value === 'number' && Number.isFinite(value) ? `${(value * 100).toFixed(1)}%` : '—';
 const shortSha = (value) => value === 'local' ? 'local' : String(value ?? '').slice(0, 7);
 const latestDate = new Date(report.generatedAt).toLocaleString('uk-UA', { timeZone: 'UTC' }) + ' UTC';
 
@@ -65,6 +65,10 @@ function chart(data) {
         segment = [];
         return '';
       }
+      if (index > 0 && entry.corpusSha256 !== data[index - 1].corpusSha256) {
+        if (segment.length) segments.push(segment);
+        segment = [];
+      }
       segment.push(`${x(index)},${y(value)}`);
       return `<circle cx="${x(index)}" cy="${y(value)}" r="3" fill="${color}"><title>${escapeHtml(entry.generatedAt)} · ${escapeHtml(label)} ${percent(value)} · ${escapeHtml(shortSha(entry.commit))}</title></circle>`;
     }).join('');
@@ -93,26 +97,40 @@ const classRows = Object.entries(report.byIntentType ?? {}).map(([name, metric])
 const mismatchRows = (report.mismatches ?? []).slice(0, 100).map((item) =>
   `<tr><td><code>${escapeHtml(item.id)}</code></td><td>${escapeHtml(item.corpus)}</td><td>${escapeHtml(item.expectedType ?? '—')}</td><td>${escapeHtml(item.actualType ?? '—')}</td><td>${escapeHtml(item.expectedAction)}</td><td>${escapeHtml(item.actualAction)}</td></tr>`
 ).join('');
+const regression = report.groups?.regression ?? report;
+const challenge = report.groups?.challenge;
+function cards(group) {
+  if (!group) return '<p>Ще не виміряно. Відсутність прогону не дорівнює 0%.</p>';
+  return `<div class="cards"><div class="card">Діалоги<strong>${group.totalCases}</strong></div><div class="card">У binary-оцінці<strong>${group.scoredCases ?? group.totalCases}</strong></div><div class="card">Precision<strong>${percent(group.overall?.precision)}</strong></div><div class="card">Recall<strong>${percent(group.overall?.recall)}</strong></div><div class="card">F1<strong>${percent(group.overall?.f1)}</strong></div><div class="card">Точний збіг<strong>${percent(group.exactMatchRate)}</strong></div><div class="card">Хибні блокування<strong>${group.falseLockInputs ?? 0}</strong></div></div>`;
+}
+const challengeRecords = records.map(r => ({ ...r, overall: r.groups?.challenge?.overall ?? {}, exactMatchRate: r.groups?.challenge?.exactMatchRate, corpusSha256: r.groups?.challenge?.corpusSha256 }));
+const caseRows = (report.cases ?? []).filter(c => c.corpus === 'challenge-v1').map(c =>
+  `<tr><td><code>${escapeHtml(c.id)}</code></td><td>${escapeHtml(c.assessment)}</td><td>${escapeHtml(c.expectedType ?? '—')}</td><td>${escapeHtml(c.actualType ?? '—')}</td><td>${escapeHtml(c.actualAction)}</td><td>${c.assessment === 'ambiguous' ? 'Уточнити / не оцінюється як SAFE' : c.exactMatch ? 'Збіг' : 'Розбіжність'}</td></tr>`
+).join('');
 const html = `<!doctype html>
-<html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Відкрита історія локальної оцінки детектора загроз С.О.В.А."><title>С.О.В.А. — ефективність детектора</title><style>
+<html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Відкрита історія локальної оцінки детектора загроз С.О.В.А."><title>С.О.В.А. — регресії та нові діалоги</title><style>
 :root{color-scheme:light;--ink:#172033;--muted:#536174;--line:#dbe2ea;--panel:#fff;--bg:#f3f6fa;--accent:#174ea6}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}main{max-width:1120px;margin:0 auto;padding:32px 20px 64px}h1{margin:.2em 0}h2{margin-top:1.8em}.muted,small{color:var(--muted)}.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px;margin:18px 0;overflow:auto}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}.card{border:1px solid var(--line);border-radius:10px;padding:14px}.card strong{display:block;font-size:1.55rem}.table-wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:.92rem}th,td{text-align:left;padding:9px 11px;border-bottom:1px solid var(--line);white-space:nowrap}thead th{background:#fff;color:#172033;border-bottom:2px solid #94a3b8;font-weight:700}a{color:var(--accent)}.note{border-left:4px solid #d97706;padding:10px 14px;background:#fff7ed}.footer{margin-top:32px;font-size:.9rem}@media(prefers-color-scheme:dark){:root{color-scheme:dark;--ink:#e6edf5;--muted:#a7b3c2;--line:#354154;--panel:#182233;--bg:#0d1420;--accent:#8ab4f8}.note{background:#332512}}
 :root{--precision:#2563eb;--recall:#15803d;--f1:#dc2626;--exact:#9333ea}.chart-legend{display:flex;flex-wrap:wrap;gap:12px 24px;margin:12px 0;color:var(--ink);font-size:.9rem}.chart-legend span{display:flex;align-items:center;gap:8px}.chart-scroll{overflow-x:auto}@media(prefers-color-scheme:dark){:root{--precision:#60a5fa;--recall:#4ade80;--f1:#f87171;--exact:#c084fc}}
 </style></head><body><main>
 <p><a href="https://github.com/${escapeHtml(process.env.GITHUB_REPOSITORY ?? 'prylutskyy/S.O.V.A.')}">← Репозиторій С.О.В.А.</a></p>
-<h1>Оцінка ефективності детектора</h1><p class="muted">Автоматичний звіт локального класифікатора сценаріїв. Останнє оновлення: ${escapeHtml(latestDate)} · commit <code>${escapeHtml(shortSha(report.commit))}</code>.</p>
-<div class="cards"><div class="card">Сценарії<strong>${report.totalCases}</strong></div><div class="card">Precision<strong>${percent(report.overall.precision)}</strong></div><div class="card">Recall<strong>${percent(report.overall.recall)}</strong></div><div class="card">F1<strong>${percent(report.overall.f1)}</strong></div><div class="card">Точний збіг<strong>${percent(report.exactMatchRate)}</strong></div><div class="card">Хибні блокування вводу<strong>${report.falseLockInputs ?? 0}</strong></div></div>
-<p class="note"><strong>Як читати:</strong> precision/recall/F1 тут оцінюють бінарне виявлення загрози. «Точний збіг» додатково вимагає правильної категорії та дії. Результати вимірюють лише версійований синтетичний корпус, а не реальні чати. Порівнюйте точки з однаковим SHA-256 корпусу; зміна корпусу може змінити складність оцінки.</p>
-<section class="panel"><h2>Історія змін</h2><p class="muted">Кожна точка — окремий прогін. Наведіть курсор на точку, щоб побачити значення, час і коміт. Відсутні значення залишають розрив у лінії; усі наявні точки збережено, навіть коли частину підписів приховано для читабельності.</p>${chart(records)}</section>
-<section class="panel"><h2>Результати за частинами корпусу</h2><div class="table-wrap"><table><thead><tr><th>Набір</th><th>N</th><th>TP</th><th>FP</th><th>FN</th><th>TN</th><th>Precision</th><th>Recall</th><th>F1</th></tr></thead><tbody>${overviewRows}</tbody></table></div></section>
-<section class="panel"><h2>Результати за класами</h2><p class="muted">One-vs-rest: кожен клас оцінюється проти всіх інших класів і безпечних прикладів.</p><div class="table-wrap"><table><thead><tr><th>Клас</th><th>N</th><th>TP</th><th>FP</th><th>FN</th><th>Precision</th><th>Recall</th><th>F1</th></tr></thead><tbody>${classRows}</tbody></table></div></section>
+<h1>Перевірки С.О.В.А.: два окремі корпуси</h1><p class="muted">Автоматичний звіт локального класифікатора сценаріїв. Останнє оновлення: ${escapeHtml(latestDate)} · commit <code>${escapeHtml(shortSha(report.commit))}</code>.</p>
+<p class="note"><strong>Що означає відсоток?</strong> Це збіг із розміткою конкретного синтетичного набору, а не ймовірність захисту у реальному чаті. Precision — частка розмічених загроз серед спрацьовувань; recall — частка виявлених розмічених загроз; F1 — їх гармонійне середнє. Точний збіг також вимагає правильного типу та дії. 100% на знайомому корпусі після підлаштування правил не доводить узагальнення. Тут вимірюються локальні правила та політика дії, без Groq і без браузерного DOM.</p>
+<section class="panel" id="regression"><h2>Відомий корпус · регресійна відповідність</h2><p>326 сценаріїв development/regressions/історичного holdout використовувалися для вдосконалення правил. CI суворо перевіряє всі очікування; зелений статус означає відсутність перевірених регресій.</p>${cards(regression)}<p class="muted">SHA-256: <code>${escapeHtml(regression.corpusSha256)}</code></p><h3>Історія відомого корпусу</h3>${chart(records)}</section>
+<section class="panel" id="challenge"><h2>Новий корпус · поступове входження в довіру</h2><p>300 діалогів: 120 загрозливих, 80 безпечних, 100 неоднозначних. У binary Precision/Recall/F1 і точному збігу оцінюються лише 200 визначених випадків. 20 споріднених контрастних сімейств, синтетичні тексти та розмітка створені ШІ; незалежного аудиту ще немає. Це нова дослідницька перевірка, не незалежний доказ реальної якості.</p>${cards(challenge)}<p>Неоднозначні: ${challenge?.ambiguous?.n ?? '—'}; локальні спрацьовування: ${challenge?.ambiguous?.detected ?? '—'}; блокування: ${challenge?.ambiguous?.locked ?? '—'}. Відсутність тривоги тут не означає SAFE. Передавання таких випадків до ШІ не вимірюється цим прогоном.</p><p class="muted">SHA-256: <code>${escapeHtml(challenge?.corpusSha256 ?? 'ще не виміряно')}</code>. Розбіжності визначених сценаріїв — дослідницький результат, не помилка виконання CI.</p><h3>Історія нового корпусу</h3><p>До першого прогону немає значень; лінія переривається при зміні SHA корпусу. Зелений CI не означає, що новий корпус розпізнано на 100%.</p>${chart(challengeRecords)}</section>
+<section class="panel"><h2>Binary-результати за частинами корпусу</h2><p>Для challenge-v1 N = 200: неоднозначні діалоги виключено.</p><div class="table-wrap"><table><thead><tr><th>Набір</th><th>N</th><th>TP</th><th>FP</th><th>FN</th><th>TN</th><th>Precision</th><th>Recall</th><th>F1</th></tr></thead><tbody>${overviewRows}</tbody></table></div></section>
+<section class="panel"><h2>Класи відомого регресійного корпусу</h2><p class="muted">One-vs-rest: кожен клас оцінюється проти всіх інших класів і безпечних прикладів.</p><div class="table-wrap"><table><thead><tr><th>Клас</th><th>N</th><th>TP</th><th>FP</th><th>FN</th><th>Precision</th><th>Recall</th><th>F1</th></tr></thead><tbody>${classRows}</tbody></table></div></section>
 <section class="panel"><h2>Невідповідності останнього прогону</h2><p>${(report.mismatches ?? []).length} сценаріїв не збіглися повністю; показано не більше 100. Тексти повідомлень у звіт не записуються.</p><div class="table-wrap"><table><thead><tr><th>ID</th><th>Набір</th><th>Очікуваний клас</th><th>Фактичний клас</th><th>Очікувана дія</th><th>Фактична дія</th></tr></thead><tbody>${mismatchRows || '<tr><td colspan="6">Невідповідностей немає.</td></tr>'}</tbody></table></div></section>
-<p class="footer muted">SHA-256 корпусу: <code>${escapeHtml(report.corpusSha256)}</code>. Для відтворення див. <a href="https://github.com/${escapeHtml(process.env.GITHUB_REPOSITORY ?? 'prylutskyy/S.O.V.A.')}/tree/main/tests/evaluation">інструкції оцінювання</a>. Звіти не містять текстів тестових повідомлень.</p>
+<section class="panel"><h2>Усі 300 нових сценаріїв</h2><p>Очікування визначено до першого прогону; неоднозначні діалоги не мають підтвердженого класу. <a href="evaluation.json">Завантажити повний звіт із прогнозами обох корпусів</a>. Історія зберігає агрегати, цей файл — останні детальні результати.</p><div class="table-wrap"><table><thead><tr><th>ID</th><th>Розмітка</th><th>Очікуваний тип</th><th>Локальний тип</th><th>Дія</th><th>Результат</th></tr></thead><tbody>${caseRows || '<tr><td colspan="6">Ще не виміряно.</td></tr>'}</tbody></table></div></section><p class="footer muted">SHA-256 корпусу: <code>${escapeHtml(report.corpusSha256)}</code>. Для відтворення див. <a href="https://github.com/${escapeHtml(process.env.GITHUB_REPOSITORY ?? 'prylutskyy/S.O.V.A.')}/tree/main/tests/evaluation">інструкції оцінювання</a>. Звіти не містять текстів тестових повідомлень.</p>
 </main></body></html>`;
 
 mkdirSync(outputDirectory, { recursive: true });
 writeFileSync(resolve(outputDirectory, 'index.html'), html);
+writeFileSync(resolve(outputDirectory, 'evaluation.json'), JSON.stringify(report, null, 2) + '\n');
 writeFileSync(resolve(outputDirectory, 'history.json'), `${JSON.stringify(records, null, 2)}\n`);
 mkdirSync(resolve(outputDirectory, 'badges'), { recursive: true });
-writeFileSync(resolve(outputDirectory, 'badges/f1.svg'), badge('eval F1', percent(report.overall.f1), '#dc2626'));
-writeFileSync(resolve(outputDirectory, 'badges/recall.svg'), badge('eval recall', percent(report.overall.recall), '#16a34a'));
+writeFileSync(resolve(outputDirectory, 'badges/f1.svg'), badge('reg F1', percent(report.overall.f1), '#dc2626'));
+writeFileSync(resolve(outputDirectory, 'badges/recall.svg'), badge('reg recall', percent(report.overall.recall), '#16a34a'));
 console.info(`Dashboard generated at ${outputDirectory} with ${records.length} history points.`);
+
+writeFileSync(resolve(outputDirectory, 'badges/challenge-f1.svg'), badge('new F1', percent(challenge?.overall?.f1), '#a16207'));
+writeFileSync(resolve(outputDirectory, 'badges/challenge-recall.svg'), badge('new recall', percent(challenge?.overall?.recall), '#a16207'));

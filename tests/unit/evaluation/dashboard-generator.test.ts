@@ -12,7 +12,7 @@ const record = (index: number) => ({
   overall: { precision: 0.9, recall: 0.5, f1: 0.6 },
 });
 
-function generate(history: object[], report = record(history.length)) {
+function generate(history: object[], report: object = record(history.length)) {
   const directory = mkdtempSync(resolve(tmpdir(), 'sova-dashboard-'));
   try {
     const reportPath = resolve(directory, 'report.json');
@@ -58,12 +58,32 @@ describe('Evaluation dashboard history chart', () => {
   it('keeps all observations but samples labels for long histories and uses theme colors', () => {
     const html = generate(Array.from({ length: 49 }, (_, index) => record(index)), record(49));
     expect([...series(html, 'precision').matchAll(/<circle /g)]).toHaveLength(50);
-    const labels = [...html.matchAll(/data-axis-label="(\d+)"/g)].map((match) => match[1]);
+    const regressionPanel = html.split('id="regression"')[1].split('id="challenge"')[0];
+    const labels = [...regressionPanel.matchAll(/data-axis-label="(\d+)"/g)].map((match) => match[1]);
     expect(labels.length).toBeLessThanOrEqual(8);
     expect(labels[0]).toBe('0');
     expect(labels.at(-1)).toBe('49');
     expect(html).toContain('fill="var(--muted)"');
     expect(html).toContain('class="chart-legend"');
     expect(html).toContain('stroke-dasharray="8 4"');
+  });
+
+  it('shows two separate scores and never substitutes old results for an unmeasured new corpus', () => {
+    const old = generate([]);
+    expect(old).toContain('Ще не виміряно');
+    expect(old).toContain('не доводить узагальнення');
+    const challenge = { totalCases: 300, scoredCases: 200, overall: { precision: 0.5, recall: 0.2, f1: 0.2857 }, exactMatchRate: 0.1, ambiguous: { n: 100, detected: 7, locked: 2 } };
+    const current = { ...record(1), groups: { regression: record(1), challenge } };
+    const html = generate([record(0)], current);
+    const newPanel = html.split('id="challenge"')[1].split('Результати за частинами')[0];
+    expect(newPanel).toContain('28.6%');
+    expect(newPanel).toContain('100; локальні спрацьовування: 7; блокування: 2');
+    expect(newPanel).toContain('незалежного аудиту ще немає');
+    expect(html).toContain('evaluation.json');
+  });
+
+  it('breaks history lines when the corpus changes instead of implying algorithm improvement', () => {
+    const html = generate([{ ...record(0), corpusSha256: 'old' }], { ...record(1), corpusSha256: 'new' });
+    expect([...series(html, 'f1').matchAll(/<polyline /g)]).toHaveLength(2);
   });
 });

@@ -2,6 +2,15 @@
 
 Record each intentional classifier or corpus change here so metric shifts can be interpreted alongside the dashboard history. Exact-match results depend on both the classifier and the corpus contents; compare runs only when the corpus hash is the same, or report the changed split separately.
 
+## 2026-10-10 — frozen challenge-v1, separate reporting tracks
+
+- Known regression set: 326/326, F1 100%; used for tuning, no independent generalization claim.
+- New AI-authored corpus: 300 nine-turn dialogues, 20 related contrast families, 120 threats + 80 safe + 100 ambiguous; labels/hash frozen before first run, independent review pending.
+- Defined 200: TP 90, FP 15, FN 30, TN 65; precision 85.7%, recall 75%, F1 80%, exact 117/200 (58.5%), 83 mismatches, 58 action mismatches, 16 false locks. Ambiguous 100 excluded from these rates: 14 detected, 6 locked, not proven SAFE.
+- Runtime heuristics, model weights and historical labels unchanged. Current model training excludes challenge-v1. New mismatch observations are reporting-only; historical strict assertion remains. Technical/structural failures still fail CI.
+- Offline suite: 899/899, 78 files; TypeScript and dashboard/Summary generation passed. No live Groq requests; no claim of completed remote CI deployment.
+- [Method and provenance](CHALLENGE_V1.md), [baseline report](../results/TWO_CORPUS_BASELINE.md), [all predictions](../results/two-corpus-baseline.json).
+
 ## 2026-10-10 — remaining local corpus mismatches resolved
 
 - Before: 302/326 exact, FP 1, FN 19, F1 94.4%. New logic against the same old labels: 324/326 exact, FP 0, FN 1, F1 99.7%. Two audited labels then yield 326/326, FP/FN 0, F1 100%; corpus SHA changed, so distinguish algorithm gains from annotation changes.

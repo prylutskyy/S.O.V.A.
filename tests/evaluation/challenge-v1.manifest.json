@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "version": "challenge-v1",
+  "createdAt": "2026-10-10",
+  "baselineCommit": "6d58f9d",
+  "fileSha256": "d8d72e182f0e4b591a490bc3c9f541d1dde89c704d088401aaa2b60cf681fcd6",
+  "totalCases": 300,
+  "threat": 120,
+  "safe": 80,
+  "ambiguous": 100,
+  "families": 20,
+  "turnsPerCase": 9,
+  "author": "AI-authored synthetic contrast families; same development assistant",
+  "independentReview": "pending",
+  "trainingAllowed": false,
+  "firstEvaluation": "Labels frozen before running current local rules; model not adapted to results",
+  "scope": "Final-turn local rules and mitigation policy. No DOM, cloud inference, routing, time passage or per-turn scoring."
+}
