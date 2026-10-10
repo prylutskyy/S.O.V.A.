@@ -2,6 +2,7 @@ import { IntentMatchSpan, IntentClassifier, IntentClassificationResult, ScamInte
 import { SemanticTriggerEngine } from './semantic-trigger';
 import { SupportedLanguage } from './language-detector';
 import { RequestFrame } from './request-analyzer';
+import { shadowIntentClassifier, type LocalPrediction } from './linear-classifier';
 
 export interface ChatMessageContext {
   id: string;
@@ -22,6 +23,7 @@ export class ChatSessionState {
   private static readonly TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes
   private static readonly FULL_WEIGHT_MS = 60 * 1000;
   private static readonly HALF_LIFE_MS = 5 * 60 * 1000;
+  private static shadowCache?: { key: string; prediction: LocalPrediction };
 
   // Incremented on reset so cached verdicts cannot cross conversation sessions.
   public static sessionRevision = 0;
@@ -34,6 +36,7 @@ export class ChatSessionState {
   public static reset() {
     this.sessionRevision += 1;
     this.messages = []; 
+    this.shadowCache = undefined;
     this.sessionLlmVerdict = null;
     this.sessionLlmImmunityPeakScore = 0;
   }
@@ -150,10 +153,18 @@ export class ChatSessionState {
     const credentialEvidence = hasCredentialRequest ? true
       : ((!mentionsCredential && isCompletedVerification) || isCredentialAdvice || isSelfServiceBalanceCheck) ? false : undefined;
     const semanticResult = SemanticTriggerEngine.evaluate(rawText, inboundDialogueContext, credentialEvidence, inboundEvidence);
+    // Short context, inbound only. Outbound messages reuse the observation.
+    const shadowContext = inboundMessages.filter(message => Date.now() - message.timestamp <= this.FULL_WEIGHT_MS).slice(-4);
+    const shadowKey = shadowContext.map(message => message.id).join(':');
+    if (this.shadowCache?.key !== shadowKey) this.shadowCache = { key: shadowKey,
+      prediction: shadowIntentClassifier.predict({ messages: shadowContext.map(message => message.rawText),
+        frames: shadowContext.at(-1)?.requestFrames ?? [] }) };
+    const localClassifier = this.shadowCache.prediction;
 
     if (heuristicResult.hasFormedIntent) {
       return {
         ...heuristicResult,
+        localClassifier,
         requestFrames: latestInbound.requestFrames ?? [],
         telemetry: semanticResult.telemetry,
       };
@@ -169,6 +180,7 @@ export class ChatSessionState {
 
       return {
         hasFormedIntent: true,
+        localClassifier,
         requestFrames: latestInbound.requestFrames ?? [],
         intentType: semanticResult.intentType as ScamIntentType,
         intentTitle: semanticResult.intentTitle,
@@ -185,6 +197,7 @@ export class ChatSessionState {
 
     return {
       ...heuristicResult,
+      localClassifier,
       requestFrames: latestInbound.requestFrames ?? [],
       telemetry: semanticResult.telemetry,
     };

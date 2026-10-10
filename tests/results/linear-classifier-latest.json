@@ -1,0 +1,3566 @@
+{
+  "schemaVersion": 1,
+  "modelHash": "ced75726b1c0a3085ca9ff984d88ed9ec65c202ea2e8339e1b2199b18fdb6a61",
+  "datasetHash": "26c7fbf081fca94da00b871b3dbcbec905170aabf22457aa9064dfdf48ebaed0",
+  "caveats": [
+    "Shadow only: no protection actions changed.",
+    "Softmax scores are not calibrated probabilities.",
+    "Accepted-only precision/recall exclude abstentions; consult coverage and exact over all cases.",
+    "Holdout already used in historical rule development: not independent proof of generalization.",
+    "This small synthetic corpus requires new independent real-world examples before promotion."
+  ],
+  "parts": [
+    {
+      "split": "train",
+      "rules": {
+        "n": 171,
+        "coverage": 1,
+        "exact": 1,
+        "tp": 98,
+        "fp": 0,
+        "fn": 0,
+        "tn": 73,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "recallIncludingAbstentions": 1,
+        "macroF1": 1,
+        "perClass": [
+          {
+            "label": "SAFE",
+            "precision": 1,
+            "recall": 1,
+            "f1": 1
+          },
+          {
+            "label": "CRYPTO_WALLET_COMPROMISE",
+            "precision": 1,
+            "recall": 1,
+            "f1": 1
+          },
+          {
+            "label": "ESCROW_DELIVERY_SCAM",
+            "precision": 1,
+            "recall": 1,
+            "f1": 1
+          },
+          {
+            "label": "IDENTITY_PROBING",
+            "precision": 1,
+            "recall": 1,
+            "f1": 1
+          },
+          {
+            "label": "MILITARY_SABOTAGE_RECRUITMENT",
+            "precision": 1,
+            "recall": 1,
+            "f1": 1
+          },
+          {
+            "label": "OFF_PLATFORM_REDIRECT",
+            "precision": 1,
+            "recall": 1,
+            "f1": 1
+          },
+          {
+            "label": "PAYMENT_CREDENTIAL_THEFT",
+            "precision": 1,
+            "recall": 1,
+            "f1": 1
+          },
+          {
+            "label": "VERIFICATION_PHISHING",
+            "precision": 1,
+            "recall": 1,
+            "f1": 1
+          }
+        ]
+      },
+      "linearCandidate": {
+        "n": 171,
+        "coverage": 1,
+        "exact": 1,
+        "tp": 98,
+        "fp": 0,
+        "fn": 0,
+        "tn": 73,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "recallIncludingAbstentions": 1,
+        "macroF1": 1,
+        "perClass": [
+          {
+            "label": "SAFE",
+            "precision": 1,
+            "recall": 1,
+            "f1": 1
+          },
+          {
+            "label": "CRYPTO_WALLET_COMPROMISE",
+            "precision": 1,
+            "recall": 1,
+            "f1": 1
+          },
+          {
+            "label": "ESCROW_DELIVERY_SCAM",
+            "precision": 1,
+            "recall": 1,
+            "f1": 1
+          },
+          {
+            "label": "IDENTITY_PROBING",
+            "precision": 1,
+            "recall": 1,
+            "f1": 1
+          },
+          {
+            "label": "MILITARY_SABOTAGE_RECRUITMENT",
+            "precision": 1,
+            "recall": 1,
+            "f1": 1
+          },
+          {
+            "label": "OFF_PLATFORM_REDIRECT",
+            "precision": 1,
+            "recall": 1,
+            "f1": 1
+          },
+          {
+            "label": "PAYMENT_CREDENTIAL_THEFT",
+            "precision": 1,
+            "recall": 1,
+            "f1": 1
+          },
+          {
+            "label": "VERIFICATION_PHISHING",
+            "precision": 1,
+            "recall": 1,
+            "f1": 1
+          }
+        ]
+      },
+      "linearAccepted": {
+        "n": 171,
+        "coverage": 1,
+        "exact": 1,
+        "tp": 98,
+        "fp": 0,
+        "fn": 0,
+        "tn": 73,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "recallIncludingAbstentions": 1,
+        "macroF1": 1,
+        "perClass": [
+          {
+            "label": "SAFE",
+            "precision": 1,
+            "recall": 1,
+            "f1": 1
+          },
+          {
+            "label": "CRYPTO_WALLET_COMPROMISE",
+            "precision": 1,
+            "recall": 1,
+            "f1": 1
+          },
+          {
+            "label": "ESCROW_DELIVERY_SCAM",
+            "precision": 1,
+            "recall": 1,
+            "f1": 1
+          },
+          {
+            "label": "IDENTITY_PROBING",
+            "precision": 1,
+            "recall": 1,
+            "f1": 1
+          },
+          {
+            "label": "MILITARY_SABOTAGE_RECRUITMENT",
+            "precision": 1,
+            "recall": 1,
+            "f1": 1
+          },
+          {
+            "label": "OFF_PLATFORM_REDIRECT",
+            "precision": 1,
+            "recall": 1,
+            "f1": 1
+          },
+          {
+            "label": "PAYMENT_CREDENTIAL_THEFT",
+            "precision": 1,
+            "recall": 1,
+            "f1": 1
+          },
+          {
+            "label": "VERIFICATION_PHISHING",
+            "precision": 1,
+            "recall": 1,
+            "f1": 1
+          }
+        ]
+      },
+      "modelFixes": [],
+      "modelRegressions": [],
+      "rows": [
+        {
+          "id": "dev-benign-002",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.986764620513685,
+          "margin": 0.9811170776606456
+        },
+        {
+          "id": "dev-crypto-001",
+          "expected": "CRYPTO_WALLET_COMPROMISE",
+          "rules": "CRYPTO_WALLET_COMPROMISE",
+          "candidate": "CRYPTO_WALLET_COMPROMISE",
+          "decision": "CRYPTO_WALLET_COMPROMISE",
+          "score": 0.9994422359940789,
+          "margin": 0.9991945550690878
+        },
+        {
+          "id": "dev-crypto-002",
+          "expected": "CRYPTO_WALLET_COMPROMISE",
+          "rules": "CRYPTO_WALLET_COMPROMISE",
+          "candidate": "CRYPTO_WALLET_COMPROMISE",
+          "decision": "CRYPTO_WALLET_COMPROMISE",
+          "score": 0.9964597289300982,
+          "margin": 0.9951655041302784
+        },
+        {
+          "id": "dev-escrow-001",
+          "expected": "ESCROW_DELIVERY_SCAM",
+          "rules": "ESCROW_DELIVERY_SCAM",
+          "candidate": "ESCROW_DELIVERY_SCAM",
+          "decision": "ESCROW_DELIVERY_SCAM",
+          "score": 0.9977007853701585,
+          "margin": 0.9969093071596359
+        },
+        {
+          "id": "dev-escrow-002",
+          "expected": "ESCROW_DELIVERY_SCAM",
+          "rules": "ESCROW_DELIVERY_SCAM",
+          "candidate": "ESCROW_DELIVERY_SCAM",
+          "decision": "ESCROW_DELIVERY_SCAM",
+          "score": 0.9868799497480585,
+          "margin": 0.9776738604274103
+        },
+        {
+          "id": "dev-escrow-003",
+          "expected": "ESCROW_DELIVERY_SCAM",
+          "rules": "ESCROW_DELIVERY_SCAM",
+          "candidate": "ESCROW_DELIVERY_SCAM",
+          "decision": "ESCROW_DELIVERY_SCAM",
+          "score": 0.995653536261084,
+          "margin": 0.9933386142053479
+        },
+        {
+          "id": "dev-escrow-004",
+          "expected": "ESCROW_DELIVERY_SCAM",
+          "rules": "ESCROW_DELIVERY_SCAM",
+          "candidate": "ESCROW_DELIVERY_SCAM",
+          "decision": "ESCROW_DELIVERY_SCAM",
+          "score": 0.9876642172616202,
+          "margin": 0.9835640163548927
+        },
+        {
+          "id": "dev-identity-001",
+          "expected": "IDENTITY_PROBING",
+          "rules": "IDENTITY_PROBING",
+          "candidate": "IDENTITY_PROBING",
+          "decision": "IDENTITY_PROBING",
+          "score": 0.9987733006533229,
+          "margin": 0.9984361215551931
+        },
+        {
+          "id": "dev-identity-002",
+          "expected": "IDENTITY_PROBING",
+          "rules": "IDENTITY_PROBING",
+          "candidate": "IDENTITY_PROBING",
+          "decision": "IDENTITY_PROBING",
+          "score": 0.9981765189053411,
+          "margin": 0.9974247081598099
+        },
+        {
+          "id": "dev-identity-003",
+          "expected": "IDENTITY_PROBING",
+          "rules": "IDENTITY_PROBING",
+          "candidate": "IDENTITY_PROBING",
+          "decision": "IDENTITY_PROBING",
+          "score": 0.9987238181747948,
+          "margin": 0.9981828072848814
+        },
+        {
+          "id": "dev-identity-004",
+          "expected": "IDENTITY_PROBING",
+          "rules": "IDENTITY_PROBING",
+          "candidate": "IDENTITY_PROBING",
+          "decision": "IDENTITY_PROBING",
+          "score": 0.9956177611852274,
+          "margin": 0.9938661211902549
+        },
+        {
+          "id": "dev-military-001",
+          "expected": "MILITARY_SABOTAGE_RECRUITMENT",
+          "rules": "MILITARY_SABOTAGE_RECRUITMENT",
+          "candidate": "MILITARY_SABOTAGE_RECRUITMENT",
+          "decision": "MILITARY_SABOTAGE_RECRUITMENT",
+          "score": 0.9881315434429294,
+          "margin": 0.9814714756039334
+        },
+        {
+          "id": "dev-military-002",
+          "expected": "MILITARY_SABOTAGE_RECRUITMENT",
+          "rules": "MILITARY_SABOTAGE_RECRUITMENT",
+          "candidate": "MILITARY_SABOTAGE_RECRUITMENT",
+          "decision": "MILITARY_SABOTAGE_RECRUITMENT",
+          "score": 0.9879840794959027,
+          "margin": 0.980283505946649
+        },
+        {
+          "id": "dev-military-003",
+          "expected": "MILITARY_SABOTAGE_RECRUITMENT",
+          "rules": "MILITARY_SABOTAGE_RECRUITMENT",
+          "candidate": "MILITARY_SABOTAGE_RECRUITMENT",
+          "decision": "MILITARY_SABOTAGE_RECRUITMENT",
+          "score": 0.9861815334170536,
+          "margin": 0.9779094290527861
+        },
+        {
+          "id": "dev-military-004",
+          "expected": "MILITARY_SABOTAGE_RECRUITMENT",
+          "rules": "MILITARY_SABOTAGE_RECRUITMENT",
+          "candidate": "MILITARY_SABOTAGE_RECRUITMENT",
+          "decision": "MILITARY_SABOTAGE_RECRUITMENT",
+          "score": 0.9960149568755386,
+          "margin": 0.9935407268091959
+        },
+        {
+          "id": "dev-offplatform-002",
+          "expected": "OFF_PLATFORM_REDIRECT",
+          "rules": "OFF_PLATFORM_REDIRECT",
+          "candidate": "OFF_PLATFORM_REDIRECT",
+          "decision": "OFF_PLATFORM_REDIRECT",
+          "score": 0.9921313044273482,
+          "margin": 0.9893571117187969
+        },
+        {
+          "id": "dev-offplatform-003",
+          "expected": "OFF_PLATFORM_REDIRECT",
+          "rules": "OFF_PLATFORM_REDIRECT",
+          "candidate": "OFF_PLATFORM_REDIRECT",
+          "decision": "OFF_PLATFORM_REDIRECT",
+          "score": 0.9860742523626027,
+          "margin": 0.9801583371595639
+        },
+        {
+          "id": "dev-offplatform-004",
+          "expected": "OFF_PLATFORM_REDIRECT",
+          "rules": "OFF_PLATFORM_REDIRECT",
+          "candidate": "OFF_PLATFORM_REDIRECT",
+          "decision": "OFF_PLATFORM_REDIRECT",
+          "score": 0.9852542396950891,
+          "margin": 0.9752726257910338
+        },
+        {
+          "id": "dev-offplatform-005",
+          "expected": "OFF_PLATFORM_REDIRECT",
+          "rules": "OFF_PLATFORM_REDIRECT",
+          "candidate": "OFF_PLATFORM_REDIRECT",
+          "decision": "OFF_PLATFORM_REDIRECT",
+          "score": 0.9793037753605929,
+          "margin": 0.9648931715438583
+        },
+        {
+          "id": "dev-payment-001",
+          "expected": "PAYMENT_CREDENTIAL_THEFT",
+          "rules": "PAYMENT_CREDENTIAL_THEFT",
+          "candidate": "PAYMENT_CREDENTIAL_THEFT",
+          "decision": "PAYMENT_CREDENTIAL_THEFT",
+          "score": 0.9974403981571782,
+          "margin": 0.9953336615088797
+        },
+        {
+          "id": "dev-payment-002",
+          "expected": "PAYMENT_CREDENTIAL_THEFT",
+          "rules": "PAYMENT_CREDENTIAL_THEFT",
+          "candidate": "PAYMENT_CREDENTIAL_THEFT",
+          "decision": "PAYMENT_CREDENTIAL_THEFT",
+          "score": 0.9959670383232123,
+          "margin": 0.9930791115184953
+        },
+        {
+          "id": "dev-payment-003",
+          "expected": "PAYMENT_CREDENTIAL_THEFT",
+          "rules": "PAYMENT_CREDENTIAL_THEFT",
+          "candidate": "PAYMENT_CREDENTIAL_THEFT",
+          "decision": "PAYMENT_CREDENTIAL_THEFT",
+          "score": 0.9921832581743563,
+          "margin": 0.9886222256624032
+        },
+        {
+          "id": "dev-payment-004",
+          "expected": "PAYMENT_CREDENTIAL_THEFT",
+          "rules": "PAYMENT_CREDENTIAL_THEFT",
+          "candidate": "PAYMENT_CREDENTIAL_THEFT",
+          "decision": "PAYMENT_CREDENTIAL_THEFT",
+          "score": 0.9976480021386123,
+          "margin": 0.9960644538135303
+        },
+        {
+          "id": "dev-verification-001",
+          "expected": "VERIFICATION_PHISHING",
+          "rules": "VERIFICATION_PHISHING",
+          "candidate": "VERIFICATION_PHISHING",
+          "decision": "VERIFICATION_PHISHING",
+          "score": 0.9894692886752167,
+          "margin": 0.9836006337422609
+        },
+        {
+          "id": "dev-verification-002",
+          "expected": "VERIFICATION_PHISHING",
+          "rules": "VERIFICATION_PHISHING",
+          "candidate": "VERIFICATION_PHISHING",
+          "decision": "VERIFICATION_PHISHING",
+          "score": 0.9960482441037285,
+          "margin": 0.9938835193689214
+        },
+        {
+          "id": "dev-verification-003",
+          "expected": "VERIFICATION_PHISHING",
+          "rules": "VERIFICATION_PHISHING",
+          "candidate": "VERIFICATION_PHISHING",
+          "decision": "VERIFICATION_PHISHING",
+          "score": 0.9938351773877186,
+          "margin": 0.9907992501848032
+        },
+        {
+          "id": "dev-verification-004",
+          "expected": "VERIFICATION_PHISHING",
+          "rules": "VERIFICATION_PHISHING",
+          "candidate": "VERIFICATION_PHISHING",
+          "decision": "VERIFICATION_PHISHING",
+          "score": 0.9960712258764649,
+          "margin": 0.9937015571510905
+        },
+        {
+          "id": "dev2-benign-002",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9729918565603619,
+          "margin": 0.9616458812120923
+        },
+        {
+          "id": "dev2-benign-004",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.988965083379603,
+          "margin": 0.9851193151227454
+        },
+        {
+          "id": "dev2-benign-005",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9760486198578229,
+          "margin": 0.967323138386651
+        },
+        {
+          "id": "dev2-crypto-001",
+          "expected": "CRYPTO_WALLET_COMPROMISE",
+          "rules": "CRYPTO_WALLET_COMPROMISE",
+          "candidate": "CRYPTO_WALLET_COMPROMISE",
+          "decision": "CRYPTO_WALLET_COMPROMISE",
+          "score": 0.9947039122355276,
+          "margin": 0.9915997616119476
+        },
+        {
+          "id": "dev2-crypto-003",
+          "expected": "CRYPTO_WALLET_COMPROMISE",
+          "rules": "CRYPTO_WALLET_COMPROMISE",
+          "candidate": "CRYPTO_WALLET_COMPROMISE",
+          "decision": "CRYPTO_WALLET_COMPROMISE",
+          "score": 0.9980735865311489,
+          "margin": 0.9970968444087137
+        },
+        {
+          "id": "dev2-escrow-001",
+          "expected": "ESCROW_DELIVERY_SCAM",
+          "rules": "ESCROW_DELIVERY_SCAM",
+          "candidate": "ESCROW_DELIVERY_SCAM",
+          "decision": "ESCROW_DELIVERY_SCAM",
+          "score": 0.9971432979657369,
+          "margin": 0.9960820146566273
+        },
+        {
+          "id": "dev2-escrow-002",
+          "expected": "ESCROW_DELIVERY_SCAM",
+          "rules": "ESCROW_DELIVERY_SCAM",
+          "candidate": "ESCROW_DELIVERY_SCAM",
+          "decision": "ESCROW_DELIVERY_SCAM",
+          "score": 0.9948628863936982,
+          "margin": 0.9922176021247884
+        },
+        {
+          "id": "dev2-id-001",
+          "expected": "IDENTITY_PROBING",
+          "rules": "IDENTITY_PROBING",
+          "candidate": "IDENTITY_PROBING",
+          "decision": "IDENTITY_PROBING",
+          "score": 0.9984151448568356,
+          "margin": 0.9977007497700188
+        },
+        {
+          "id": "dev2-id-002",
+          "expected": "IDENTITY_PROBING",
+          "rules": "IDENTITY_PROBING",
+          "candidate": "IDENTITY_PROBING",
+          "decision": "IDENTITY_PROBING",
+          "score": 0.9965357318165479,
+          "margin": 0.9943632308859658
+        },
+        {
+          "id": "dev2-military-002",
+          "expected": "MILITARY_SABOTAGE_RECRUITMENT",
+          "rules": "MILITARY_SABOTAGE_RECRUITMENT",
+          "candidate": "MILITARY_SABOTAGE_RECRUITMENT",
+          "decision": "MILITARY_SABOTAGE_RECRUITMENT",
+          "score": 0.9906792696615999,
+          "margin": 0.9852939267924485
+        },
+        {
+          "id": "dev2-military-003",
+          "expected": "MILITARY_SABOTAGE_RECRUITMENT",
+          "rules": "MILITARY_SABOTAGE_RECRUITMENT",
+          "candidate": "MILITARY_SABOTAGE_RECRUITMENT",
+          "decision": "MILITARY_SABOTAGE_RECRUITMENT",
+          "score": 0.9903249275942464,
+          "margin": 0.9851217189342495
+        },
+        {
+          "id": "dev2-military-004",
+          "expected": "MILITARY_SABOTAGE_RECRUITMENT",
+          "rules": "MILITARY_SABOTAGE_RECRUITMENT",
+          "candidate": "MILITARY_SABOTAGE_RECRUITMENT",
+          "decision": "MILITARY_SABOTAGE_RECRUITMENT",
+          "score": 0.9864172387283662,
+          "margin": 0.9785111780871854
+        },
+        {
+          "id": "dev2-off-001",
+          "expected": "OFF_PLATFORM_REDIRECT",
+          "rules": "OFF_PLATFORM_REDIRECT",
+          "candidate": "OFF_PLATFORM_REDIRECT",
+          "decision": "OFF_PLATFORM_REDIRECT",
+          "score": 0.9935583552709301,
+          "margin": 0.9897834584908652
+        },
+        {
+          "id": "dev2-off-002",
+          "expected": "OFF_PLATFORM_REDIRECT",
+          "rules": "OFF_PLATFORM_REDIRECT",
+          "candidate": "OFF_PLATFORM_REDIRECT",
+          "decision": "OFF_PLATFORM_REDIRECT",
+          "score": 0.9886404057420584,
+          "margin": 0.9824984393804298
+        },
+        {
+          "id": "dev2-off-003",
+          "expected": "OFF_PLATFORM_REDIRECT",
+          "rules": "OFF_PLATFORM_REDIRECT",
+          "candidate": "OFF_PLATFORM_REDIRECT",
+          "decision": "OFF_PLATFORM_REDIRECT",
+          "score": 0.9906328295402502,
+          "margin": 0.9847081535744123
+        },
+        {
+          "id": "dev2-off-005",
+          "expected": "OFF_PLATFORM_REDIRECT",
+          "rules": "OFF_PLATFORM_REDIRECT",
+          "candidate": "OFF_PLATFORM_REDIRECT",
+          "decision": "OFF_PLATFORM_REDIRECT",
+          "score": 0.9896577732388776,
+          "margin": 0.9836858341295122
+        },
+        {
+          "id": "dev2-off-006",
+          "expected": "OFF_PLATFORM_REDIRECT",
+          "rules": "OFF_PLATFORM_REDIRECT",
+          "candidate": "OFF_PLATFORM_REDIRECT",
+          "decision": "OFF_PLATFORM_REDIRECT",
+          "score": 0.9960467282826984,
+          "margin": 0.9941316035600173
+        },
+        {
+          "id": "dev2-off-007",
+          "expected": "OFF_PLATFORM_REDIRECT",
+          "rules": "OFF_PLATFORM_REDIRECT",
+          "candidate": "OFF_PLATFORM_REDIRECT",
+          "decision": "OFF_PLATFORM_REDIRECT",
+          "score": 0.983833479587549,
+          "margin": 0.9736915967599501
+        },
+        {
+          "id": "dev2-off-008",
+          "expected": "OFF_PLATFORM_REDIRECT",
+          "rules": "OFF_PLATFORM_REDIRECT",
+          "candidate": "OFF_PLATFORM_REDIRECT",
+          "decision": "OFF_PLATFORM_REDIRECT",
+          "score": 0.9938156005499068,
+          "margin": 0.9911246652971006
+        },
+        {
+          "id": "dev2-off-009",
+          "expected": "OFF_PLATFORM_REDIRECT",
+          "rules": "OFF_PLATFORM_REDIRECT",
+          "candidate": "OFF_PLATFORM_REDIRECT",
+          "decision": "OFF_PLATFORM_REDIRECT",
+          "score": 0.9914858503365249,
+          "margin": 0.987399127777973
+        },
+        {
+          "id": "dev2-off-010",
+          "expected": "OFF_PLATFORM_REDIRECT",
+          "rules": "OFF_PLATFORM_REDIRECT",
+          "candidate": "OFF_PLATFORM_REDIRECT",
+          "decision": "OFF_PLATFORM_REDIRECT",
+          "score": 0.9831624472338057,
+          "margin": 0.9732329766397282
+        },
+        {
+          "id": "dev2-pay-003",
+          "expected": "PAYMENT_CREDENTIAL_THEFT",
+          "rules": "PAYMENT_CREDENTIAL_THEFT",
+          "candidate": "PAYMENT_CREDENTIAL_THEFT",
+          "decision": "PAYMENT_CREDENTIAL_THEFT",
+          "score": 0.9940819298231921,
+          "margin": 0.9904588246079885
+        },
+        {
+          "id": "dev2-verify-001",
+          "expected": "VERIFICATION_PHISHING",
+          "rules": "VERIFICATION_PHISHING",
+          "candidate": "VERIFICATION_PHISHING",
+          "decision": "VERIFICATION_PHISHING",
+          "score": 0.9927511002124118,
+          "margin": 0.9893922652002073
+        },
+        {
+          "id": "dev2-verify-002",
+          "expected": "VERIFICATION_PHISHING",
+          "rules": "VERIFICATION_PHISHING",
+          "candidate": "VERIFICATION_PHISHING",
+          "decision": "VERIFICATION_PHISHING",
+          "score": 0.9983675094892239,
+          "margin": 0.9974343694177114
+        },
+        {
+          "id": "dev2-verify-004",
+          "expected": "VERIFICATION_PHISHING",
+          "rules": "VERIFICATION_PHISHING",
+          "candidate": "VERIFICATION_PHISHING",
+          "decision": "VERIFICATION_PHISHING",
+          "score": 0.9975400556774316,
+          "margin": 0.9964682131012622
+        },
+        {
+          "id": "reg-benign-001",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9747288235955534,
+          "margin": 0.9609938793768609
+        },
+        {
+          "id": "reg-courier-meeting-001",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9761338993806294,
+          "margin": 0.9677775260512552
+        },
+        {
+          "id": "reg-crypto-001",
+          "expected": "CRYPTO_WALLET_COMPROMISE",
+          "rules": "CRYPTO_WALLET_COMPROMISE",
+          "candidate": "CRYPTO_WALLET_COMPROMISE",
+          "decision": "CRYPTO_WALLET_COMPROMISE",
+          "score": 0.9984124429047034,
+          "margin": 0.9973820582184111
+        },
+        {
+          "id": "reg-crypto-002",
+          "expected": "CRYPTO_WALLET_COMPROMISE",
+          "rules": "CRYPTO_WALLET_COMPROMISE",
+          "candidate": "CRYPTO_WALLET_COMPROMISE",
+          "decision": "CRYPTO_WALLET_COMPROMISE",
+          "score": 0.9971514558678752,
+          "margin": 0.9959046959903951
+        },
+        {
+          "id": "reg-delivery-phone-001",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9836673464703877,
+          "margin": 0.979535402007086
+        },
+        {
+          "id": "reg-delivery-price-001",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9758086399074827,
+          "margin": 0.9664253816575107
+        },
+        {
+          "id": "reg-escrow-001",
+          "expected": "ESCROW_DELIVERY_SCAM",
+          "rules": "ESCROW_DELIVERY_SCAM",
+          "candidate": "ESCROW_DELIVERY_SCAM",
+          "decision": "ESCROW_DELIVERY_SCAM",
+          "score": 0.997179016198191,
+          "margin": 0.9958513423343164
+        },
+        {
+          "id": "reg-escrow-002",
+          "expected": "ESCROW_DELIVERY_SCAM",
+          "rules": "ESCROW_DELIVERY_SCAM",
+          "candidate": "ESCROW_DELIVERY_SCAM",
+          "decision": "ESCROW_DELIVERY_SCAM",
+          "score": 0.9879536195023106,
+          "margin": 0.9807241630537437
+        },
+        {
+          "id": "reg-identity-001",
+          "expected": "IDENTITY_PROBING",
+          "rules": "IDENTITY_PROBING",
+          "candidate": "IDENTITY_PROBING",
+          "decision": "IDENTITY_PROBING",
+          "score": 0.9974961513443955,
+          "margin": 0.996205283607176
+        },
+        {
+          "id": "reg-identity-002",
+          "expected": "IDENTITY_PROBING",
+          "rules": "IDENTITY_PROBING",
+          "candidate": "IDENTITY_PROBING",
+          "decision": "IDENTITY_PROBING",
+          "score": 0.9971742631207312,
+          "margin": 0.9958415375336546
+        },
+        {
+          "id": "reg-identity-003",
+          "expected": "IDENTITY_PROBING",
+          "rules": "IDENTITY_PROBING",
+          "candidate": "IDENTITY_PROBING",
+          "decision": "IDENTITY_PROBING",
+          "score": 0.9974640576586513,
+          "margin": 0.9958139481903485
+        },
+        {
+          "id": "reg-military-001",
+          "expected": "MILITARY_SABOTAGE_RECRUITMENT",
+          "rules": "MILITARY_SABOTAGE_RECRUITMENT",
+          "candidate": "MILITARY_SABOTAGE_RECRUITMENT",
+          "decision": "MILITARY_SABOTAGE_RECRUITMENT",
+          "score": 0.9934285358877402,
+          "margin": 0.9898134038930854
+        },
+        {
+          "id": "reg-military-003",
+          "expected": "MILITARY_SABOTAGE_RECRUITMENT",
+          "rules": "MILITARY_SABOTAGE_RECRUITMENT",
+          "candidate": "MILITARY_SABOTAGE_RECRUITMENT",
+          "decision": "MILITARY_SABOTAGE_RECRUITMENT",
+          "score": 0.9939515147704477,
+          "margin": 0.9904081572366705
+        },
+        {
+          "id": "reg-military-004",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.977602566464446,
+          "margin": 0.9676568308070311
+        },
+        {
+          "id": "reg-offplatform-001",
+          "expected": "OFF_PLATFORM_REDIRECT",
+          "rules": "OFF_PLATFORM_REDIRECT",
+          "candidate": "OFF_PLATFORM_REDIRECT",
+          "decision": "OFF_PLATFORM_REDIRECT",
+          "score": 0.9920496866239467,
+          "margin": 0.9893133034909167
+        },
+        {
+          "id": "reg-offplatform-002",
+          "expected": "OFF_PLATFORM_REDIRECT",
+          "rules": "OFF_PLATFORM_REDIRECT",
+          "candidate": "OFF_PLATFORM_REDIRECT",
+          "decision": "OFF_PLATFORM_REDIRECT",
+          "score": 0.9872050351073884,
+          "margin": 0.9774945638881162
+        },
+        {
+          "id": "reg-offplatform-003",
+          "expected": "OFF_PLATFORM_REDIRECT",
+          "rules": "OFF_PLATFORM_REDIRECT",
+          "candidate": "OFF_PLATFORM_REDIRECT",
+          "decision": "OFF_PLATFORM_REDIRECT",
+          "score": 0.9820527353182413,
+          "margin": 0.9703862376688813
+        },
+        {
+          "id": "reg-offplatform-004",
+          "expected": "OFF_PLATFORM_REDIRECT",
+          "rules": "OFF_PLATFORM_REDIRECT",
+          "candidate": "OFF_PLATFORM_REDIRECT",
+          "decision": "OFF_PLATFORM_REDIRECT",
+          "score": 0.990042897663291,
+          "margin": 0.9836400224549015
+        },
+        {
+          "id": "reg-order-status-001",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9791895494081317,
+          "margin": 0.9724676127231716
+        },
+        {
+          "id": "reg-payment-002",
+          "expected": "PAYMENT_CREDENTIAL_THEFT",
+          "rules": "PAYMENT_CREDENTIAL_THEFT",
+          "candidate": "PAYMENT_CREDENTIAL_THEFT",
+          "decision": "PAYMENT_CREDENTIAL_THEFT",
+          "score": 0.9972075247221247,
+          "margin": 0.9955826694486043
+        },
+        {
+          "id": "reg-safe-refund-001",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9738408776164191,
+          "margin": 0.9651638673893036
+        },
+        {
+          "id": "reg-verification-001",
+          "expected": "VERIFICATION_PHISHING",
+          "rules": "VERIFICATION_PHISHING",
+          "candidate": "VERIFICATION_PHISHING",
+          "decision": "VERIFICATION_PHISHING",
+          "score": 0.9910224712720767,
+          "margin": 0.9867963177769509
+        },
+        {
+          "id": "reg-verification-002",
+          "expected": "VERIFICATION_PHISHING",
+          "rules": "VERIFICATION_PHISHING",
+          "candidate": "VERIFICATION_PHISHING",
+          "decision": "VERIFICATION_PHISHING",
+          "score": 0.9947714232682363,
+          "margin": 0.991981198943985
+        },
+        {
+          "id": "reg-verification-003",
+          "expected": "VERIFICATION_PHISHING",
+          "rules": "VERIFICATION_PHISHING",
+          "candidate": "VERIFICATION_PHISHING",
+          "decision": "VERIFICATION_PHISHING",
+          "score": 0.9830469601324396,
+          "margin": 0.9773091595789011
+        },
+        {
+          "id": "reg2-benign-001",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9832636505703097,
+          "margin": 0.9775362536283565
+        },
+        {
+          "id": "reg2-benign-002",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9791467366033819,
+          "margin": 0.973850169741725
+        },
+        {
+          "id": "reg2-benign-003",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9870408169048616,
+          "margin": 0.9804205240226963
+        },
+        {
+          "id": "reg2-benign-004",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9728579486563487,
+          "margin": 0.9631877673171811
+        },
+        {
+          "id": "reg2-benign-005",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9490484850638289,
+          "margin": 0.926098138525965
+        },
+        {
+          "id": "reg2-benign-006",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9663450030540498,
+          "margin": 0.9429108125600918
+        },
+        {
+          "id": "reg2-benign-007",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9816059365139,
+          "margin": 0.9776088674870712
+        },
+        {
+          "id": "reg2-crypto-001",
+          "expected": "CRYPTO_WALLET_COMPROMISE",
+          "rules": "CRYPTO_WALLET_COMPROMISE",
+          "candidate": "CRYPTO_WALLET_COMPROMISE",
+          "decision": "CRYPTO_WALLET_COMPROMISE",
+          "score": 0.9993439518883706,
+          "margin": 0.999033296069418
+        },
+        {
+          "id": "reg2-crypto-003",
+          "expected": "CRYPTO_WALLET_COMPROMISE",
+          "rules": "CRYPTO_WALLET_COMPROMISE",
+          "candidate": "CRYPTO_WALLET_COMPROMISE",
+          "decision": "CRYPTO_WALLET_COMPROMISE",
+          "score": 0.9934259335115371,
+          "margin": 0.9916048522059204
+        },
+        {
+          "id": "reg2-crypto-004",
+          "expected": "CRYPTO_WALLET_COMPROMISE",
+          "rules": "CRYPTO_WALLET_COMPROMISE",
+          "candidate": "CRYPTO_WALLET_COMPROMISE",
+          "decision": "CRYPTO_WALLET_COMPROMISE",
+          "score": 0.9959892782232511,
+          "margin": 0.994261530907405
+        },
+        {
+          "id": "reg2-crypto-005",
+          "expected": "CRYPTO_WALLET_COMPROMISE",
+          "rules": "CRYPTO_WALLET_COMPROMISE",
+          "candidate": "CRYPTO_WALLET_COMPROMISE",
+          "decision": "CRYPTO_WALLET_COMPROMISE",
+          "score": 0.9988019550973067,
+          "margin": 0.9983050328645938
+        },
+        {
+          "id": "reg2-crypto-006",
+          "expected": "CRYPTO_WALLET_COMPROMISE",
+          "rules": "CRYPTO_WALLET_COMPROMISE",
+          "candidate": "CRYPTO_WALLET_COMPROMISE",
+          "decision": "CRYPTO_WALLET_COMPROMISE",
+          "score": 0.9977761024216749,
+          "margin": 0.9965971728146845
+        },
+        {
+          "id": "reg2-escrow-002",
+          "expected": "ESCROW_DELIVERY_SCAM",
+          "rules": "ESCROW_DELIVERY_SCAM",
+          "candidate": "ESCROW_DELIVERY_SCAM",
+          "decision": "ESCROW_DELIVERY_SCAM",
+          "score": 0.9908059465664087,
+          "margin": 0.9861704278881589
+        },
+        {
+          "id": "reg2-escrow-003",
+          "expected": "ESCROW_DELIVERY_SCAM",
+          "rules": "ESCROW_DELIVERY_SCAM",
+          "candidate": "ESCROW_DELIVERY_SCAM",
+          "decision": "ESCROW_DELIVERY_SCAM",
+          "score": 0.9904525745271733,
+          "margin": 0.987258487899932
+        },
+        {
+          "id": "reg2-escrow-004",
+          "expected": "ESCROW_DELIVERY_SCAM",
+          "rules": "ESCROW_DELIVERY_SCAM",
+          "candidate": "ESCROW_DELIVERY_SCAM",
+          "decision": "ESCROW_DELIVERY_SCAM",
+          "score": 0.9915544097154732,
+          "margin": 0.988196491619833
+        },
+        {
+          "id": "reg2-escrow-006",
+          "expected": "ESCROW_DELIVERY_SCAM",
+          "rules": "ESCROW_DELIVERY_SCAM",
+          "candidate": "ESCROW_DELIVERY_SCAM",
+          "decision": "ESCROW_DELIVERY_SCAM",
+          "score": 0.9933795569266416,
+          "margin": 0.9901815949416716
+        },
+        {
+          "id": "reg2-identity-001",
+          "expected": "IDENTITY_PROBING",
+          "rules": "IDENTITY_PROBING",
+          "candidate": "IDENTITY_PROBING",
+          "decision": "IDENTITY_PROBING",
+          "score": 0.9974193011315918,
+          "margin": 0.9963133241067212
+        },
+        {
+          "id": "reg2-identity-003",
+          "expected": "IDENTITY_PROBING",
+          "rules": "IDENTITY_PROBING",
+          "candidate": "IDENTITY_PROBING",
+          "decision": "IDENTITY_PROBING",
+          "score": 0.9961497685700096,
+          "margin": 0.9942094484282626
+        },
+        {
+          "id": "reg2-identity-004",
+          "expected": "IDENTITY_PROBING",
+          "rules": "IDENTITY_PROBING",
+          "candidate": "IDENTITY_PROBING",
+          "decision": "IDENTITY_PROBING",
+          "score": 0.9926859229975505,
+          "margin": 0.9904736713130328
+        },
+        {
+          "id": "reg2-identity-005",
+          "expected": "IDENTITY_PROBING",
+          "rules": "IDENTITY_PROBING",
+          "candidate": "IDENTITY_PROBING",
+          "decision": "IDENTITY_PROBING",
+          "score": 0.997074735185509,
+          "margin": 0.9956045656538803
+        },
+        {
+          "id": "reg2-identity-006",
+          "expected": "IDENTITY_PROBING",
+          "rules": "IDENTITY_PROBING",
+          "candidate": "IDENTITY_PROBING",
+          "decision": "IDENTITY_PROBING",
+          "score": 0.9970531759669432,
+          "margin": 0.9955935733562228
+        },
+        {
+          "id": "reg2-military-001",
+          "expected": "MILITARY_SABOTAGE_RECRUITMENT",
+          "rules": "MILITARY_SABOTAGE_RECRUITMENT",
+          "candidate": "MILITARY_SABOTAGE_RECRUITMENT",
+          "decision": "MILITARY_SABOTAGE_RECRUITMENT",
+          "score": 0.9929804296929741,
+          "margin": 0.9899892800805209
+        },
+        {
+          "id": "reg2-military-002",
+          "expected": "MILITARY_SABOTAGE_RECRUITMENT",
+          "rules": "MILITARY_SABOTAGE_RECRUITMENT",
+          "candidate": "MILITARY_SABOTAGE_RECRUITMENT",
+          "decision": "MILITARY_SABOTAGE_RECRUITMENT",
+          "score": 0.9934409752142846,
+          "margin": 0.9895798205568184
+        },
+        {
+          "id": "reg2-military-003",
+          "expected": "MILITARY_SABOTAGE_RECRUITMENT",
+          "rules": "MILITARY_SABOTAGE_RECRUITMENT",
+          "candidate": "MILITARY_SABOTAGE_RECRUITMENT",
+          "decision": "MILITARY_SABOTAGE_RECRUITMENT",
+          "score": 0.9880066432054285,
+          "margin": 0.9820112258890122
+        },
+        {
+          "id": "reg2-military-005",
+          "expected": "MILITARY_SABOTAGE_RECRUITMENT",
+          "rules": "MILITARY_SABOTAGE_RECRUITMENT",
+          "candidate": "MILITARY_SABOTAGE_RECRUITMENT",
+          "decision": "MILITARY_SABOTAGE_RECRUITMENT",
+          "score": 0.9891636094793187,
+          "margin": 0.9833177735806278
+        },
+        {
+          "id": "reg2-military-006",
+          "expected": "MILITARY_SABOTAGE_RECRUITMENT",
+          "rules": "MILITARY_SABOTAGE_RECRUITMENT",
+          "candidate": "MILITARY_SABOTAGE_RECRUITMENT",
+          "decision": "MILITARY_SABOTAGE_RECRUITMENT",
+          "score": 0.9894119139422827,
+          "margin": 0.983364026881258
+        },
+        {
+          "id": "reg2-payment-001",
+          "expected": "PAYMENT_CREDENTIAL_THEFT",
+          "rules": "PAYMENT_CREDENTIAL_THEFT",
+          "candidate": "PAYMENT_CREDENTIAL_THEFT",
+          "decision": "PAYMENT_CREDENTIAL_THEFT",
+          "score": 0.9941335565744523,
+          "margin": 0.9917995396052125
+        },
+        {
+          "id": "reg2-payment-002",
+          "expected": "PAYMENT_CREDENTIAL_THEFT",
+          "rules": "PAYMENT_CREDENTIAL_THEFT",
+          "candidate": "PAYMENT_CREDENTIAL_THEFT",
+          "decision": "PAYMENT_CREDENTIAL_THEFT",
+          "score": 0.9978215332774599,
+          "margin": 0.9970090064975704
+        },
+        {
+          "id": "reg2-payment-003",
+          "expected": "PAYMENT_CREDENTIAL_THEFT",
+          "rules": "PAYMENT_CREDENTIAL_THEFT",
+          "candidate": "PAYMENT_CREDENTIAL_THEFT",
+          "decision": "PAYMENT_CREDENTIAL_THEFT",
+          "score": 0.9862976616594519,
+          "margin": 0.9790238077007296
+        },
+        {
+          "id": "reg2-payment-004",
+          "expected": "PAYMENT_CREDENTIAL_THEFT",
+          "rules": "PAYMENT_CREDENTIAL_THEFT",
+          "candidate": "PAYMENT_CREDENTIAL_THEFT",
+          "decision": "PAYMENT_CREDENTIAL_THEFT",
+          "score": 0.9898595419977817,
+          "margin": 0.9841037916260124
+        },
+        {
+          "id": "reg2-payment-005",
+          "expected": "PAYMENT_CREDENTIAL_THEFT",
+          "rules": "PAYMENT_CREDENTIAL_THEFT",
+          "candidate": "PAYMENT_CREDENTIAL_THEFT",
+          "decision": "PAYMENT_CREDENTIAL_THEFT",
+          "score": 0.9874642842726321,
+          "margin": 0.978988972254009
+        },
+        {
+          "id": "reg2-payment-006",
+          "expected": "PAYMENT_CREDENTIAL_THEFT",
+          "rules": "PAYMENT_CREDENTIAL_THEFT",
+          "candidate": "PAYMENT_CREDENTIAL_THEFT",
+          "decision": "PAYMENT_CREDENTIAL_THEFT",
+          "score": 0.9838965418177182,
+          "margin": 0.9752794908705278
+        },
+        {
+          "id": "reg2-phone-003",
+          "expected": "OFF_PLATFORM_REDIRECT",
+          "rules": "OFF_PLATFORM_REDIRECT",
+          "candidate": "OFF_PLATFORM_REDIRECT",
+          "decision": "OFF_PLATFORM_REDIRECT",
+          "score": 0.9856375459004597,
+          "margin": 0.977035356546392
+        },
+        {
+          "id": "reg2-phone-004",
+          "expected": "OFF_PLATFORM_REDIRECT",
+          "rules": "OFF_PLATFORM_REDIRECT",
+          "candidate": "OFF_PLATFORM_REDIRECT",
+          "decision": "OFF_PLATFORM_REDIRECT",
+          "score": 0.9825309320236589,
+          "margin": 0.9738441704624239
+        },
+        {
+          "id": "reg2-phone-005",
+          "expected": "OFF_PLATFORM_REDIRECT",
+          "rules": "OFF_PLATFORM_REDIRECT",
+          "candidate": "OFF_PLATFORM_REDIRECT",
+          "decision": "OFF_PLATFORM_REDIRECT",
+          "score": 0.9838002919776694,
+          "margin": 0.975946407336805
+        },
+        {
+          "id": "reg2-phone-006",
+          "expected": "OFF_PLATFORM_REDIRECT",
+          "rules": "OFF_PLATFORM_REDIRECT",
+          "candidate": "OFF_PLATFORM_REDIRECT",
+          "decision": "OFF_PLATFORM_REDIRECT",
+          "score": 0.9892477791297511,
+          "margin": 0.9852352208546529
+        },
+        {
+          "id": "reg2-verification-001",
+          "expected": "VERIFICATION_PHISHING",
+          "rules": "VERIFICATION_PHISHING",
+          "candidate": "VERIFICATION_PHISHING",
+          "decision": "VERIFICATION_PHISHING",
+          "score": 0.9780639550598642,
+          "margin": 0.9621850201583034
+        },
+        {
+          "id": "reg2-verification-002",
+          "expected": "VERIFICATION_PHISHING",
+          "rules": "VERIFICATION_PHISHING",
+          "candidate": "VERIFICATION_PHISHING",
+          "decision": "VERIFICATION_PHISHING",
+          "score": 0.9949246802471406,
+          "margin": 0.9910727953279794
+        },
+        {
+          "id": "reg2-verification-004",
+          "expected": "VERIFICATION_PHISHING",
+          "rules": "VERIFICATION_PHISHING",
+          "candidate": "VERIFICATION_PHISHING",
+          "decision": "VERIFICATION_PHISHING",
+          "score": 0.995358801802964,
+          "margin": 0.992821930801175
+        },
+        {
+          "id": "reg2-verification-006",
+          "expected": "VERIFICATION_PHISHING",
+          "rules": "VERIFICATION_PHISHING",
+          "candidate": "VERIFICATION_PHISHING",
+          "decision": "VERIFICATION_PHISHING",
+          "score": 0.9975789826215711,
+          "margin": 0.9962426566172499
+        },
+        {
+          "id": "safe2-dev-001",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9783151411289317,
+          "margin": 0.9675442382741353
+        },
+        {
+          "id": "safe2-dev-002",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9808600135320263,
+          "margin": 0.9734881280278781
+        },
+        {
+          "id": "safe2-dev-003",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9839654458389108,
+          "margin": 0.9778152256461186
+        },
+        {
+          "id": "safe2-dev-005",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9911163313530024,
+          "margin": 0.9870773031842535
+        },
+        {
+          "id": "safe2-dev-006",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9848144659480059,
+          "margin": 0.9784334024867598
+        },
+        {
+          "id": "safe2-dev-007",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9801923352696479,
+          "margin": 0.9722509309191973
+        },
+        {
+          "id": "safe2-dev-009",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9794492103768111,
+          "margin": 0.9697205212250538
+        },
+        {
+          "id": "safe2-dev-010",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9828153298208172,
+          "margin": 0.9759937388248121
+        },
+        {
+          "id": "safe2-dev-011",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9851905892369299,
+          "margin": 0.9795071137771223
+        },
+        {
+          "id": "safe2-dev-012",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9754982383117761,
+          "margin": 0.9675846609428883
+        },
+        {
+          "id": "safe2-dev-014",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9745209408851582,
+          "margin": 0.9660222857308453
+        },
+        {
+          "id": "safe2-dev-015",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9891902173204822,
+          "margin": 0.9855334480006955
+        },
+        {
+          "id": "safe2-dev-016",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.975983353673461,
+          "margin": 0.9661469971829051
+        },
+        {
+          "id": "safe2-dev-017",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9740549937716406,
+          "margin": 0.9668662205496915
+        },
+        {
+          "id": "safe2-dev-018",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9755976735219203,
+          "margin": 0.9667425490499557
+        },
+        {
+          "id": "safe2-dev-019",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9853748659457832,
+          "margin": 0.980550978985756
+        },
+        {
+          "id": "safe2-dev-020",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9898966214952999,
+          "margin": 0.9843624107965768
+        },
+        {
+          "id": "safe2-dev-022",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9826215670974751,
+          "margin": 0.9771524468712264
+        },
+        {
+          "id": "safe2-dev-023",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9798983218531266,
+          "margin": 0.9725784965214849
+        },
+        {
+          "id": "safe2-dev-025",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9874414657901204,
+          "margin": 0.983318193866149
+        },
+        {
+          "id": "safe2-dev-026",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9796926656472925,
+          "margin": 0.9730858195356528
+        },
+        {
+          "id": "safe2-dev-027",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9899596669481853,
+          "margin": 0.9861543018076636
+        },
+        {
+          "id": "safe2-dev-028",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9676739081858423,
+          "margin": 0.9567329750616258
+        },
+        {
+          "id": "safe2-dev-029",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9844046342806102,
+          "margin": 0.9790608426560868
+        },
+        {
+          "id": "safe2-dev-030",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9839391855664262,
+          "margin": 0.9797319785327944
+        },
+        {
+          "id": "safe2-dev-033",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9888703009843646,
+          "margin": 0.9849498519996311
+        },
+        {
+          "id": "safe2-dev-034",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9843187522943142,
+          "margin": 0.979067816933241
+        },
+        {
+          "id": "safe2-reg-001",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9368342790608343,
+          "margin": 0.9055237037999166
+        },
+        {
+          "id": "safe2-reg-002",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9599318597493784,
+          "margin": 0.9389180723238603
+        },
+        {
+          "id": "safe2-reg-003",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9690792294942955,
+          "margin": 0.9477501326502912
+        },
+        {
+          "id": "safe2-reg-004",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9860305280926326,
+          "margin": 0.9765001358792141
+        },
+        {
+          "id": "safe2-reg-005",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9779939658054121,
+          "margin": 0.971194748311489
+        },
+        {
+          "id": "safe2-reg-007",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9848519786758368,
+          "margin": 0.9751647007179407
+        },
+        {
+          "id": "safe2-reg-008",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9929332715750868,
+          "margin": 0.9896556521107116
+        },
+        {
+          "id": "safe2-reg-009",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9831811801154177,
+          "margin": 0.9765161779143244
+        },
+        {
+          "id": "safe2-reg-010",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9860115780587028,
+          "margin": 0.9815535685432875
+        },
+        {
+          "id": "safe2-reg-011",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9763204023323306,
+          "margin": 0.9672229369580319
+        },
+        {
+          "id": "safe2-reg-012",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9886515773116429,
+          "margin": 0.9843942474548906
+        },
+        {
+          "id": "safe2-reg-013",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9590412230417872,
+          "margin": 0.944367864658562
+        },
+        {
+          "id": "safe2-reg-014",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9749017677958076,
+          "margin": 0.964719862571872
+        },
+        {
+          "id": "safe2-reg-015",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9876794251156374,
+          "margin": 0.98410782703681
+        },
+        {
+          "id": "safe2-reg-016",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9929593661094052,
+          "margin": 0.9901544443825163
+        },
+        {
+          "id": "safe2-reg-017",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9762917385749765,
+          "margin": 0.9661305907165356
+        },
+        {
+          "id": "safe2-reg-018",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9852683875625419,
+          "margin": 0.9802732727296068
+        },
+        {
+          "id": "safe2-reg-019",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9723097210720663,
+          "margin": 0.961522171476242
+        },
+        {
+          "id": "safe2-reg-020",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9789285176821132,
+          "margin": 0.971832475719262
+        },
+        {
+          "id": "safe2-reg-021",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9870829200902593,
+          "margin": 0.9831799365521868
+        },
+        {
+          "id": "safe2-reg-022",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9722476045444575,
+          "margin": 0.9614182300263574
+        },
+        {
+          "id": "safe2-reg-023",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.982535621156207,
+          "margin": 0.977096736372303
+        },
+        {
+          "id": "safe2-reg-025",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9825334738258567,
+          "margin": 0.9764295624205621
+        },
+        {
+          "id": "safe2-reg-026",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.988388127648008,
+          "margin": 0.9836597624541946
+        },
+        {
+          "id": "safe2-reg-027",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.989762045486089,
+          "margin": 0.9870886939607026
+        },
+        {
+          "id": "safe2-reg-029",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9690745539467855,
+          "margin": 0.9583906281937499
+        },
+        {
+          "id": "safe2-reg-030",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9739746142381135,
+          "margin": 0.9667798920872303
+        },
+        {
+          "id": "safe2-reg-032",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.980192059987486,
+          "margin": 0.9728857944558071
+        }
+      ]
+    },
+    {
+      "split": "validation",
+      "rules": {
+        "n": 40,
+        "coverage": 1,
+        "exact": 1,
+        "tp": 22,
+        "fp": 0,
+        "fn": 0,
+        "tn": 18,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "recallIncludingAbstentions": 1,
+        "macroF1": 1,
+        "perClass": [
+          {
+            "label": "SAFE",
+            "precision": 1,
+            "recall": 1,
+            "f1": 1
+          },
+          {
+            "label": "OFF_PLATFORM_REDIRECT",
+            "precision": 1,
+            "recall": 1,
+            "f1": 1
+          },
+          {
+            "label": "CRYPTO_WALLET_COMPROMISE",
+            "precision": 1,
+            "recall": 1,
+            "f1": 1
+          },
+          {
+            "label": "ESCROW_DELIVERY_SCAM",
+            "precision": 1,
+            "recall": 1,
+            "f1": 1
+          },
+          {
+            "label": "IDENTITY_PROBING",
+            "precision": 1,
+            "recall": 1,
+            "f1": 1
+          },
+          {
+            "label": "MILITARY_SABOTAGE_RECRUITMENT",
+            "precision": 1,
+            "recall": 1,
+            "f1": 1
+          },
+          {
+            "label": "PAYMENT_CREDENTIAL_THEFT",
+            "precision": 1,
+            "recall": 1,
+            "f1": 1
+          },
+          {
+            "label": "VERIFICATION_PHISHING",
+            "precision": 1,
+            "recall": 1,
+            "f1": 1
+          }
+        ]
+      },
+      "linearCandidate": {
+        "n": 40,
+        "coverage": 1,
+        "exact": 0.875,
+        "tp": 19,
+        "fp": 0,
+        "fn": 3,
+        "tn": 18,
+        "precision": 1,
+        "recall": 0.8636363636363636,
+        "f1": 0.9268292682926829,
+        "recallIncludingAbstentions": 0.8636363636363636,
+        "macroF1": 0.8403846153846154,
+        "perClass": [
+          {
+            "label": "SAFE",
+            "precision": 0.8571428571428571,
+            "recall": 1,
+            "f1": 0.923076923076923
+          },
+          {
+            "label": "OFF_PLATFORM_REDIRECT",
+            "precision": 1,
+            "recall": 0.6,
+            "f1": 0.7499999999999999
+          },
+          {
+            "label": "CRYPTO_WALLET_COMPROMISE",
+            "precision": 1,
+            "recall": 1,
+            "f1": 1
+          },
+          {
+            "label": "ESCROW_DELIVERY_SCAM",
+            "precision": 0.6,
+            "recall": 1,
+            "f1": 0.7499999999999999
+          },
+          {
+            "label": "IDENTITY_PROBING",
+            "precision": 1,
+            "recall": 1,
+            "f1": 1
+          },
+          {
+            "label": "MILITARY_SABOTAGE_RECRUITMENT",
+            "precision": 1,
+            "recall": 0.6666666666666666,
+            "f1": 0.8
+          },
+          {
+            "label": "PAYMENT_CREDENTIAL_THEFT",
+            "precision": 1,
+            "recall": 1,
+            "f1": 1
+          },
+          {
+            "label": "VERIFICATION_PHISHING",
+            "precision": 1,
+            "recall": 0.3333333333333333,
+            "f1": 0.5
+          }
+        ]
+      },
+      "linearAccepted": {
+        "n": 40,
+        "coverage": 0.9,
+        "exact": 0.825,
+        "tp": 15,
+        "fp": 0,
+        "fn": 3,
+        "tn": 18,
+        "precision": 1,
+        "recall": 0.8333333333333334,
+        "f1": 0.9090909090909091,
+        "recallIncludingAbstentions": 0.6818181818181818,
+        "macroF1": 0.8091346153846154,
+        "perClass": [
+          {
+            "label": "SAFE",
+            "precision": 0.8571428571428571,
+            "recall": 1,
+            "f1": 0.923076923076923
+          },
+          {
+            "label": "OFF_PLATFORM_REDIRECT",
+            "precision": 1,
+            "recall": 0.6,
+            "f1": 0.7499999999999999
+          },
+          {
+            "label": "CRYPTO_WALLET_COMPROMISE",
+            "precision": 1,
+            "recall": 1,
+            "f1": 1
+          },
+          {
+            "label": "ESCROW_DELIVERY_SCAM",
+            "precision": 1,
+            "recall": 0.3333333333333333,
+            "f1": 0.5
+          },
+          {
+            "label": "IDENTITY_PROBING",
+            "precision": 1,
+            "recall": 1,
+            "f1": 1
+          },
+          {
+            "label": "MILITARY_SABOTAGE_RECRUITMENT",
+            "precision": 1,
+            "recall": 0.6666666666666666,
+            "f1": 0.8
+          },
+          {
+            "label": "PAYMENT_CREDENTIAL_THEFT",
+            "precision": 1,
+            "recall": 1,
+            "f1": 1
+          },
+          {
+            "label": "VERIFICATION_PHISHING",
+            "precision": 1,
+            "recall": 0.3333333333333333,
+            "f1": 0.5
+          }
+        ]
+      },
+      "modelFixes": [],
+      "modelRegressions": [
+        "dev2-off-004",
+        "reg2-military-004",
+        "reg2-phone-002",
+        "reg2-verification-003",
+        "reg2-verification-005"
+      ],
+      "rows": [
+        {
+          "id": "dev-benign-001",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9599453568838963,
+          "margin": 0.9478117175022215
+        },
+        {
+          "id": "dev-offplatform-001",
+          "expected": "OFF_PLATFORM_REDIRECT",
+          "rules": "OFF_PLATFORM_REDIRECT",
+          "candidate": "OFF_PLATFORM_REDIRECT",
+          "decision": "OFF_PLATFORM_REDIRECT",
+          "score": 0.9793682289244243,
+          "margin": 0.9637157405351141
+        },
+        {
+          "id": "dev-offplatform-006",
+          "expected": "OFF_PLATFORM_REDIRECT",
+          "rules": "OFF_PLATFORM_REDIRECT",
+          "candidate": "OFF_PLATFORM_REDIRECT",
+          "decision": "OFF_PLATFORM_REDIRECT",
+          "score": 0.9176446584976357,
+          "margin": 0.8532195813560153
+        },
+        {
+          "id": "dev2-benign-001",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.953615422685014,
+          "margin": 0.9273852803734736
+        },
+        {
+          "id": "dev2-crypto-002",
+          "expected": "CRYPTO_WALLET_COMPROMISE",
+          "rules": "CRYPTO_WALLET_COMPROMISE",
+          "candidate": "CRYPTO_WALLET_COMPROMISE",
+          "decision": "CRYPTO_WALLET_COMPROMISE",
+          "score": 0.9927928711136857,
+          "margin": 0.9889823489224822
+        },
+        {
+          "id": "dev2-escrow-003",
+          "expected": "ESCROW_DELIVERY_SCAM",
+          "rules": "ESCROW_DELIVERY_SCAM",
+          "candidate": "ESCROW_DELIVERY_SCAM",
+          "decision": "ABSTAIN",
+          "score": 0.5922130930290658,
+          "margin": 0.4548263333871063
+        },
+        {
+          "id": "dev2-id-003",
+          "expected": "IDENTITY_PROBING",
+          "rules": "IDENTITY_PROBING",
+          "candidate": "IDENTITY_PROBING",
+          "decision": "IDENTITY_PROBING",
+          "score": 0.9960429282742784,
+          "margin": 0.9941066497921099
+        },
+        {
+          "id": "dev2-id-004",
+          "expected": "IDENTITY_PROBING",
+          "rules": "IDENTITY_PROBING",
+          "candidate": "IDENTITY_PROBING",
+          "decision": "IDENTITY_PROBING",
+          "score": 0.9946239256846521,
+          "margin": 0.991837190172039
+        },
+        {
+          "id": "dev2-military-001",
+          "expected": "MILITARY_SABOTAGE_RECRUITMENT",
+          "rules": "MILITARY_SABOTAGE_RECRUITMENT",
+          "candidate": "MILITARY_SABOTAGE_RECRUITMENT",
+          "decision": "MILITARY_SABOTAGE_RECRUITMENT",
+          "score": 0.9929549682077666,
+          "margin": 0.988374769989837
+        },
+        {
+          "id": "dev2-off-004",
+          "expected": "OFF_PLATFORM_REDIRECT",
+          "rules": "OFF_PLATFORM_REDIRECT",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.7938985153572594,
+          "margin": 0.7195653040174189
+        },
+        {
+          "id": "dev2-pay-001",
+          "expected": "PAYMENT_CREDENTIAL_THEFT",
+          "rules": "PAYMENT_CREDENTIAL_THEFT",
+          "candidate": "PAYMENT_CREDENTIAL_THEFT",
+          "decision": "PAYMENT_CREDENTIAL_THEFT",
+          "score": 0.9988053208235534,
+          "margin": 0.9984110105610932
+        },
+        {
+          "id": "dev2-pay-002",
+          "expected": "PAYMENT_CREDENTIAL_THEFT",
+          "rules": "PAYMENT_CREDENTIAL_THEFT",
+          "candidate": "PAYMENT_CREDENTIAL_THEFT",
+          "decision": "PAYMENT_CREDENTIAL_THEFT",
+          "score": 0.9867548269245993,
+          "margin": 0.975178137458902
+        },
+        {
+          "id": "dev2-verify-003",
+          "expected": "VERIFICATION_PHISHING",
+          "rules": "VERIFICATION_PHISHING",
+          "candidate": "VERIFICATION_PHISHING",
+          "decision": "VERIFICATION_PHISHING",
+          "score": 0.9574811876634516,
+          "margin": 0.9273049029152608
+        },
+        {
+          "id": "reg-benign-002",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9894357008645016,
+          "margin": 0.9864788700164143
+        },
+        {
+          "id": "reg-military-002",
+          "expected": "MILITARY_SABOTAGE_RECRUITMENT",
+          "rules": "MILITARY_SABOTAGE_RECRUITMENT",
+          "candidate": "MILITARY_SABOTAGE_RECRUITMENT",
+          "decision": "MILITARY_SABOTAGE_RECRUITMENT",
+          "score": 0.6017040601630258,
+          "margin": 0.30340887818589507
+        },
+        {
+          "id": "reg-payment-001",
+          "expected": "PAYMENT_CREDENTIAL_THEFT",
+          "rules": "PAYMENT_CREDENTIAL_THEFT",
+          "candidate": "PAYMENT_CREDENTIAL_THEFT",
+          "decision": "PAYMENT_CREDENTIAL_THEFT",
+          "score": 0.9969673869043564,
+          "margin": 0.9945251453965466
+        },
+        {
+          "id": "reg-phone-number-call-001",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9461656321805187,
+          "margin": 0.9288603471404553
+        },
+        {
+          "id": "reg-safe-contact-001",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.6528489953414311,
+          "margin": 0.43631695197927134
+        },
+        {
+          "id": "reg2-benign-008",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.8985680327574308,
+          "margin": 0.8584546668886367
+        },
+        {
+          "id": "reg2-crypto-002",
+          "expected": "CRYPTO_WALLET_COMPROMISE",
+          "rules": "CRYPTO_WALLET_COMPROMISE",
+          "candidate": "CRYPTO_WALLET_COMPROMISE",
+          "decision": "CRYPTO_WALLET_COMPROMISE",
+          "score": 0.9930518568791584,
+          "margin": 0.9879497320106502
+        },
+        {
+          "id": "reg2-escrow-001",
+          "expected": "ESCROW_DELIVERY_SCAM",
+          "rules": "ESCROW_DELIVERY_SCAM",
+          "candidate": "ESCROW_DELIVERY_SCAM",
+          "decision": "ESCROW_DELIVERY_SCAM",
+          "score": 0.8611293685034935,
+          "margin": 0.7873843141887664
+        },
+        {
+          "id": "reg2-escrow-005",
+          "expected": "ESCROW_DELIVERY_SCAM",
+          "rules": "ESCROW_DELIVERY_SCAM",
+          "candidate": "ESCROW_DELIVERY_SCAM",
+          "decision": "ABSTAIN",
+          "score": 0.5211211236926729,
+          "margin": 0.1801884922350795
+        },
+        {
+          "id": "reg2-identity-002",
+          "expected": "IDENTITY_PROBING",
+          "rules": "IDENTITY_PROBING",
+          "candidate": "IDENTITY_PROBING",
+          "decision": "IDENTITY_PROBING",
+          "score": 0.99151187274057,
+          "margin": 0.9877897597086965
+        },
+        {
+          "id": "reg2-military-004",
+          "expected": "MILITARY_SABOTAGE_RECRUITMENT",
+          "rules": "MILITARY_SABOTAGE_RECRUITMENT",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.7742554918738332,
+          "margin": 0.6399180474052293
+        },
+        {
+          "id": "reg2-phone-001",
+          "expected": "OFF_PLATFORM_REDIRECT",
+          "rules": "OFF_PLATFORM_REDIRECT",
+          "candidate": "OFF_PLATFORM_REDIRECT",
+          "decision": "OFF_PLATFORM_REDIRECT",
+          "score": 0.9949782171079739,
+          "margin": 0.9928964136355067
+        },
+        {
+          "id": "reg2-phone-002",
+          "expected": "OFF_PLATFORM_REDIRECT",
+          "rules": "OFF_PLATFORM_REDIRECT",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.7847861617399836,
+          "margin": 0.6036533891203456
+        },
+        {
+          "id": "reg2-verification-003",
+          "expected": "VERIFICATION_PHISHING",
+          "rules": "VERIFICATION_PHISHING",
+          "candidate": "ESCROW_DELIVERY_SCAM",
+          "decision": "ABSTAIN",
+          "score": 0.5018236946006124,
+          "margin": 0.2506906058041161
+        },
+        {
+          "id": "reg2-verification-005",
+          "expected": "VERIFICATION_PHISHING",
+          "rules": "VERIFICATION_PHISHING",
+          "candidate": "ESCROW_DELIVERY_SCAM",
+          "decision": "ABSTAIN",
+          "score": 0.3358312416862881,
+          "margin": 0.004377267474501623
+        },
+        {
+          "id": "safe2-dev-004",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9497793594173932,
+          "margin": 0.9300254645450583
+        },
+        {
+          "id": "safe2-dev-008",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.8003599032954554,
+          "margin": 0.7155120516294373
+        },
+        {
+          "id": "safe2-dev-013",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9778798053991832,
+          "margin": 0.970695097332918
+        },
+        {
+          "id": "safe2-dev-021",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.7813987132619378,
+          "margin": 0.6772240300353527
+        },
+        {
+          "id": "safe2-dev-024",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.8632370855050101,
+          "margin": 0.7782568426244041
+        },
+        {
+          "id": "safe2-dev-031",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9401663982159572,
+          "margin": 0.8909076916372519
+        },
+        {
+          "id": "safe2-dev-032",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9304668286286539,
+          "margin": 0.9137943917705583
+        },
+        {
+          "id": "safe2-reg-006",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9421408133455976,
+          "margin": 0.9125237726260343
+        },
+        {
+          "id": "safe2-reg-024",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9735994703029403,
+          "margin": 0.9635870162507306
+        },
+        {
+          "id": "safe2-reg-028",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9718862014302182,
+          "margin": 0.9597837101562117
+        },
+        {
+          "id": "safe2-reg-031",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9004615787098793,
+          "margin": 0.8557100476774971
+        },
+        {
+          "id": "safe2-reg-033",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.7864529557647401,
+          "margin": 0.6285230755393795
+        }
+      ]
+    },
+    {
+      "split": "holdout",
+      "rules": {
+        "n": 113,
+        "coverage": 1,
+        "exact": 0.7876106194690266,
+        "tp": 49,
+        "fp": 1,
+        "fn": 19,
+        "tn": 44,
+        "precision": 0.98,
+        "recall": 0.7205882352941176,
+        "f1": 0.8305084745762712,
+        "recallIncludingAbstentions": 0.7205882352941176,
+        "macroF1": 0.7639054232804233,
+        "perClass": [
+          {
+            "label": "OFF_PLATFORM_REDIRECT",
+            "precision": 1,
+            "recall": 0.6666666666666666,
+            "f1": 0.8
+          },
+          {
+            "label": "VERIFICATION_PHISHING",
+            "precision": 0.8571428571428571,
+            "recall": 0.6666666666666666,
+            "f1": 0.75
+          },
+          {
+            "label": "PAYMENT_CREDENTIAL_THEFT",
+            "precision": 0.7272727272727273,
+            "recall": 0.8888888888888888,
+            "f1": 0.7999999999999999
+          },
+          {
+            "label": "IDENTITY_PROBING",
+            "precision": 1,
+            "recall": 0.7777777777777778,
+            "f1": 0.8750000000000001
+          },
+          {
+            "label": "ESCROW_DELIVERY_SCAM",
+            "precision": 0.8,
+            "recall": 0.4444444444444444,
+            "f1": 0.5714285714285714
+          },
+          {
+            "label": "MILITARY_SABOTAGE_RECRUITMENT",
+            "precision": 1,
+            "recall": 0.45454545454545453,
+            "f1": 0.625
+          },
+          {
+            "label": "CRYPTO_WALLET_COMPROMISE",
+            "precision": 1,
+            "recall": 0.7777777777777778,
+            "f1": 0.8750000000000001
+          },
+          {
+            "label": "SAFE",
+            "precision": 0.6984126984126984,
+            "recall": 0.9777777777777777,
+            "f1": 0.8148148148148148
+          }
+        ]
+      },
+      "linearCandidate": {
+        "n": 113,
+        "coverage": 1,
+        "exact": 0.831858407079646,
+        "tp": 51,
+        "fp": 0,
+        "fn": 17,
+        "tn": 45,
+        "precision": 1,
+        "recall": 0.75,
+        "f1": 0.8571428571428571,
+        "recallIncludingAbstentions": 0.75,
+        "macroF1": 0.8228018349084183,
+        "perClass": [
+          {
+            "label": "OFF_PLATFORM_REDIRECT",
+            "precision": 1,
+            "recall": 0.75,
+            "f1": 0.8571428571428571
+          },
+          {
+            "label": "VERIFICATION_PHISHING",
+            "precision": 1,
+            "recall": 0.6666666666666666,
+            "f1": 0.8
+          },
+          {
+            "label": "PAYMENT_CREDENTIAL_THEFT",
+            "precision": 0.875,
+            "recall": 0.7777777777777778,
+            "f1": 0.823529411764706
+          },
+          {
+            "label": "IDENTITY_PROBING",
+            "precision": 1,
+            "recall": 0.8888888888888888,
+            "f1": 0.9411764705882353
+          },
+          {
+            "label": "ESCROW_DELIVERY_SCAM",
+            "precision": 0.8333333333333334,
+            "recall": 0.5555555555555556,
+            "f1": 0.6666666666666667
+          },
+          {
+            "label": "MILITARY_SABOTAGE_RECRUITMENT",
+            "precision": 1,
+            "recall": 0.6363636363636364,
+            "f1": 0.7777777777777778
+          },
+          {
+            "label": "CRYPTO_WALLET_COMPROMISE",
+            "precision": 1,
+            "recall": 0.7777777777777778,
+            "f1": 0.8750000000000001
+          },
+          {
+            "label": "SAFE",
+            "precision": 0.7258064516129032,
+            "recall": 1,
+            "f1": 0.8411214953271028
+          }
+        ]
+      },
+      "linearAccepted": {
+        "n": 113,
+        "coverage": 0.911504424778761,
+        "exact": 0.7787610619469026,
+        "tp": 43,
+        "fp": 0,
+        "fn": 15,
+        "tn": 45,
+        "precision": 1,
+        "recall": 0.7413793103448276,
+        "f1": 0.8514851485148515,
+        "recallIncludingAbstentions": 0.6323529411764706,
+        "macroF1": 0.774034421460892,
+        "perClass": [
+          {
+            "label": "OFF_PLATFORM_REDIRECT",
+            "precision": 1,
+            "recall": 0.6666666666666666,
+            "f1": 0.8
+          },
+          {
+            "label": "VERIFICATION_PHISHING",
+            "precision": 1,
+            "recall": 0.6666666666666666,
+            "f1": 0.8
+          },
+          {
+            "label": "PAYMENT_CREDENTIAL_THEFT",
+            "precision": 1,
+            "recall": 0.7777777777777778,
+            "f1": 0.8750000000000001
+          },
+          {
+            "label": "IDENTITY_PROBING",
+            "precision": 1,
+            "recall": 0.8888888888888888,
+            "f1": 0.9411764705882353
+          },
+          {
+            "label": "ESCROW_DELIVERY_SCAM",
+            "precision": 1,
+            "recall": 0.4444444444444444,
+            "f1": 0.6153846153846153
+          },
+          {
+            "label": "MILITARY_SABOTAGE_RECRUITMENT",
+            "precision": 1,
+            "recall": 0.2727272727272727,
+            "f1": 0.42857142857142855
+          },
+          {
+            "label": "CRYPTO_WALLET_COMPROMISE",
+            "precision": 1,
+            "recall": 0.7777777777777778,
+            "f1": 0.8750000000000001
+          },
+          {
+            "label": "SAFE",
+            "precision": 0.75,
+            "recall": 1,
+            "f1": 0.8571428571428571
+          }
+        ]
+      },
+      "modelFixes": [
+        "hold-off-001",
+        "hold2-phone-003",
+        "hold2-identity-004",
+        "hold2-escrow-006",
+        "hold2-military-002",
+        "hold2-military-003",
+        "hold2-military-005",
+        "hold2-military-006",
+        "hold2-benign-007"
+      ],
+      "modelRegressions": [
+        "hold-mil-001",
+        "hold-mil-002",
+        "hold2-phone-002",
+        "hold2-payment-003"
+      ],
+      "rows": [
+        {
+          "id": "hold-off-001",
+          "expected": "OFF_PLATFORM_REDIRECT",
+          "rules": "SAFE",
+          "candidate": "OFF_PLATFORM_REDIRECT",
+          "decision": "OFF_PLATFORM_REDIRECT",
+          "score": 0.8709587158862556,
+          "margin": 0.7622444474245406
+        },
+        {
+          "id": "hold-off-002",
+          "expected": "OFF_PLATFORM_REDIRECT",
+          "rules": "OFF_PLATFORM_REDIRECT",
+          "candidate": "OFF_PLATFORM_REDIRECT",
+          "decision": "OFF_PLATFORM_REDIRECT",
+          "score": 0.9893261739004203,
+          "margin": 0.9838189581287301
+        },
+        {
+          "id": "hold-off-003",
+          "expected": "OFF_PLATFORM_REDIRECT",
+          "rules": "OFF_PLATFORM_REDIRECT",
+          "candidate": "OFF_PLATFORM_REDIRECT",
+          "decision": "OFF_PLATFORM_REDIRECT",
+          "score": 0.6916827734696137,
+          "margin": 0.41149510712719045
+        },
+        {
+          "id": "hold-off-004",
+          "expected": "OFF_PLATFORM_REDIRECT",
+          "rules": "OFF_PLATFORM_REDIRECT",
+          "candidate": "OFF_PLATFORM_REDIRECT",
+          "decision": "OFF_PLATFORM_REDIRECT",
+          "score": 0.9085965309437906,
+          "margin": 0.8536319902763889
+        },
+        {
+          "id": "hold-off-005",
+          "expected": "OFF_PLATFORM_REDIRECT",
+          "rules": "OFF_PLATFORM_REDIRECT",
+          "candidate": "OFF_PLATFORM_REDIRECT",
+          "decision": "ABSTAIN",
+          "score": 0.5005629782224544,
+          "margin": 0.1010613798008026
+        },
+        {
+          "id": "hold-off-006",
+          "expected": "OFF_PLATFORM_REDIRECT",
+          "rules": "OFF_PLATFORM_REDIRECT",
+          "candidate": "OFF_PLATFORM_REDIRECT",
+          "decision": "OFF_PLATFORM_REDIRECT",
+          "score": 0.6516900520940035,
+          "margin": 0.35929222466532207
+        },
+        {
+          "id": "hold-verify-001",
+          "expected": "VERIFICATION_PHISHING",
+          "rules": "VERIFICATION_PHISHING",
+          "candidate": "VERIFICATION_PHISHING",
+          "decision": "VERIFICATION_PHISHING",
+          "score": 0.9987434445836798,
+          "margin": 0.9983005310422897
+        },
+        {
+          "id": "hold-verify-002",
+          "expected": "VERIFICATION_PHISHING",
+          "rules": "VERIFICATION_PHISHING",
+          "candidate": "VERIFICATION_PHISHING",
+          "decision": "VERIFICATION_PHISHING",
+          "score": 0.9720305355850922,
+          "margin": 0.9579245859845406
+        },
+        {
+          "id": "hold-verify-003",
+          "expected": "VERIFICATION_PHISHING",
+          "rules": "PAYMENT_CREDENTIAL_THEFT",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.7092982520859176,
+          "margin": 0.6064725727394324
+        },
+        {
+          "id": "hold-verify-004",
+          "expected": "VERIFICATION_PHISHING",
+          "rules": "VERIFICATION_PHISHING",
+          "candidate": "VERIFICATION_PHISHING",
+          "decision": "VERIFICATION_PHISHING",
+          "score": 0.9877308043277827,
+          "margin": 0.9820056612021326
+        },
+        {
+          "id": "hold-pay-001",
+          "expected": "PAYMENT_CREDENTIAL_THEFT",
+          "rules": "PAYMENT_CREDENTIAL_THEFT",
+          "candidate": "PAYMENT_CREDENTIAL_THEFT",
+          "decision": "PAYMENT_CREDENTIAL_THEFT",
+          "score": 0.9988343020293114,
+          "margin": 0.9979746281786608
+        },
+        {
+          "id": "hold-pay-002",
+          "expected": "PAYMENT_CREDENTIAL_THEFT",
+          "rules": "PAYMENT_CREDENTIAL_THEFT",
+          "candidate": "PAYMENT_CREDENTIAL_THEFT",
+          "decision": "PAYMENT_CREDENTIAL_THEFT",
+          "score": 0.989936930759455,
+          "margin": 0.9845865719659744
+        },
+        {
+          "id": "hold-pay-003",
+          "expected": "PAYMENT_CREDENTIAL_THEFT",
+          "rules": "PAYMENT_CREDENTIAL_THEFT",
+          "candidate": "PAYMENT_CREDENTIAL_THEFT",
+          "decision": "PAYMENT_CREDENTIAL_THEFT",
+          "score": 0.9823756397498161,
+          "margin": 0.9704331335528115
+        },
+        {
+          "id": "hold-id-001",
+          "expected": "IDENTITY_PROBING",
+          "rules": "IDENTITY_PROBING",
+          "candidate": "IDENTITY_PROBING",
+          "decision": "IDENTITY_PROBING",
+          "score": 0.9979774483517807,
+          "margin": 0.9966363574091451
+        },
+        {
+          "id": "hold-id-002",
+          "expected": "IDENTITY_PROBING",
+          "rules": "IDENTITY_PROBING",
+          "candidate": "IDENTITY_PROBING",
+          "decision": "IDENTITY_PROBING",
+          "score": 0.9937749330448256,
+          "margin": 0.9913761887714696
+        },
+        {
+          "id": "hold-id-003",
+          "expected": "IDENTITY_PROBING",
+          "rules": "IDENTITY_PROBING",
+          "candidate": "IDENTITY_PROBING",
+          "decision": "IDENTITY_PROBING",
+          "score": 0.9837284383183579,
+          "margin": 0.9779249193336035
+        },
+        {
+          "id": "hold-escrow-001",
+          "expected": "ESCROW_DELIVERY_SCAM",
+          "rules": "ESCROW_DELIVERY_SCAM",
+          "candidate": "ESCROW_DELIVERY_SCAM",
+          "decision": "ESCROW_DELIVERY_SCAM",
+          "score": 0.9928874121812842,
+          "margin": 0.9901976212175343
+        },
+        {
+          "id": "hold-escrow-002",
+          "expected": "ESCROW_DELIVERY_SCAM",
+          "rules": "ESCROW_DELIVERY_SCAM",
+          "candidate": "ESCROW_DELIVERY_SCAM",
+          "decision": "ESCROW_DELIVERY_SCAM",
+          "score": 0.9688597774548617,
+          "margin": 0.951537071915429
+        },
+        {
+          "id": "hold-escrow-003",
+          "expected": "ESCROW_DELIVERY_SCAM",
+          "rules": "ESCROW_DELIVERY_SCAM",
+          "candidate": "ESCROW_DELIVERY_SCAM",
+          "decision": "ABSTAIN",
+          "score": 0.4284804613370273,
+          "margin": 0.06818321861258458
+        },
+        {
+          "id": "hold-mil-001",
+          "expected": "MILITARY_SABOTAGE_RECRUITMENT",
+          "rules": "MILITARY_SABOTAGE_RECRUITMENT",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.6213538835237405,
+          "margin": 0.3691506380002058
+        },
+        {
+          "id": "hold-mil-002",
+          "expected": "MILITARY_SABOTAGE_RECRUITMENT",
+          "rules": "MILITARY_SABOTAGE_RECRUITMENT",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.8427168477040425,
+          "margin": 0.7510018213701664
+        },
+        {
+          "id": "hold-mil-003",
+          "expected": "MILITARY_SABOTAGE_RECRUITMENT",
+          "rules": "MILITARY_SABOTAGE_RECRUITMENT",
+          "candidate": "MILITARY_SABOTAGE_RECRUITMENT",
+          "decision": "ABSTAIN",
+          "score": 0.5248133712459928,
+          "margin": 0.11932433033886153
+        },
+        {
+          "id": "hold-mil-004",
+          "expected": "MILITARY_SABOTAGE_RECRUITMENT",
+          "rules": "MILITARY_SABOTAGE_RECRUITMENT",
+          "candidate": "MILITARY_SABOTAGE_RECRUITMENT",
+          "decision": "MILITARY_SABOTAGE_RECRUITMENT",
+          "score": 0.9285398375237519,
+          "margin": 0.8784226028102884
+        },
+        {
+          "id": "hold-mil-005",
+          "expected": "MILITARY_SABOTAGE_RECRUITMENT",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9059390525914617,
+          "margin": 0.8723240891363254
+        },
+        {
+          "id": "hold-crypto-001",
+          "expected": "CRYPTO_WALLET_COMPROMISE",
+          "rules": "CRYPTO_WALLET_COMPROMISE",
+          "candidate": "CRYPTO_WALLET_COMPROMISE",
+          "decision": "CRYPTO_WALLET_COMPROMISE",
+          "score": 0.9976571990482801,
+          "margin": 0.996727295426014
+        },
+        {
+          "id": "hold-crypto-002",
+          "expected": "CRYPTO_WALLET_COMPROMISE",
+          "rules": "CRYPTO_WALLET_COMPROMISE",
+          "candidate": "CRYPTO_WALLET_COMPROMISE",
+          "decision": "CRYPTO_WALLET_COMPROMISE",
+          "score": 0.9983467255269024,
+          "margin": 0.9975345157194332
+        },
+        {
+          "id": "hold-crypto-003",
+          "expected": "CRYPTO_WALLET_COMPROMISE",
+          "rules": "CRYPTO_WALLET_COMPROMISE",
+          "candidate": "CRYPTO_WALLET_COMPROMISE",
+          "decision": "CRYPTO_WALLET_COMPROMISE",
+          "score": 0.9928976981672831,
+          "margin": 0.989632112041413
+        },
+        {
+          "id": "hold-benign-001",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9626249345786438,
+          "margin": 0.9394057787116732
+        },
+        {
+          "id": "hold-benign-002",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.851277910363029,
+          "margin": 0.7150919518744971
+        },
+        {
+          "id": "hold-benign-003",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.7624483132453135,
+          "margin": 0.5954336608690909
+        },
+        {
+          "id": "hold2-phone-001",
+          "expected": "OFF_PLATFORM_REDIRECT",
+          "rules": "OFF_PLATFORM_REDIRECT",
+          "candidate": "OFF_PLATFORM_REDIRECT",
+          "decision": "OFF_PLATFORM_REDIRECT",
+          "score": 0.9655036021444382,
+          "margin": 0.9499854595249018
+        },
+        {
+          "id": "hold2-phone-002",
+          "expected": "OFF_PLATFORM_REDIRECT",
+          "rules": "OFF_PLATFORM_REDIRECT",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.7842097122454924,
+          "margin": 0.6482987273728047
+        },
+        {
+          "id": "hold2-phone-003",
+          "expected": "OFF_PLATFORM_REDIRECT",
+          "rules": "SAFE",
+          "candidate": "OFF_PLATFORM_REDIRECT",
+          "decision": "OFF_PLATFORM_REDIRECT",
+          "score": 0.6599490957618418,
+          "margin": 0.3374862222311029
+        },
+        {
+          "id": "hold2-phone-004",
+          "expected": "OFF_PLATFORM_REDIRECT",
+          "rules": "OFF_PLATFORM_REDIRECT",
+          "candidate": "OFF_PLATFORM_REDIRECT",
+          "decision": "OFF_PLATFORM_REDIRECT",
+          "score": 0.7734049088216344,
+          "margin": 0.6206786168826037
+        },
+        {
+          "id": "hold2-phone-005",
+          "expected": "OFF_PLATFORM_REDIRECT",
+          "rules": "ESCROW_DELIVERY_SCAM",
+          "candidate": "SAFE",
+          "decision": "ABSTAIN",
+          "score": 0.4296522332009037,
+          "margin": 0.15285992580783803
+        },
+        {
+          "id": "hold2-phone-006",
+          "expected": "OFF_PLATFORM_REDIRECT",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.6989695597537188,
+          "margin": 0.5162529530016682
+        },
+        {
+          "id": "hold2-verification-001",
+          "expected": "VERIFICATION_PHISHING",
+          "rules": "PAYMENT_CREDENTIAL_THEFT",
+          "candidate": "PAYMENT_CREDENTIAL_THEFT",
+          "decision": "ABSTAIN",
+          "score": 0.546415854596845,
+          "margin": 0.11701399344420627
+        },
+        {
+          "id": "hold2-verification-002",
+          "expected": "VERIFICATION_PHISHING",
+          "rules": "VERIFICATION_PHISHING",
+          "candidate": "VERIFICATION_PHISHING",
+          "decision": "VERIFICATION_PHISHING",
+          "score": 0.9430387903873423,
+          "margin": 0.9063381735581658
+        },
+        {
+          "id": "hold2-verification-003",
+          "expected": "VERIFICATION_PHISHING",
+          "rules": "SAFE",
+          "candidate": "ESCROW_DELIVERY_SCAM",
+          "decision": "ABSTAIN",
+          "score": 0.49629220833203963,
+          "margin": 0.17172447041520633
+        },
+        {
+          "id": "hold2-verification-004",
+          "expected": "VERIFICATION_PHISHING",
+          "rules": "VERIFICATION_PHISHING",
+          "candidate": "VERIFICATION_PHISHING",
+          "decision": "VERIFICATION_PHISHING",
+          "score": 0.9556997517461299,
+          "margin": 0.9321473562645162
+        },
+        {
+          "id": "hold2-safe-password-001",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.8888648932413481,
+          "margin": 0.8164510067410187
+        },
+        {
+          "id": "hold2-verification-006",
+          "expected": "VERIFICATION_PHISHING",
+          "rules": "VERIFICATION_PHISHING",
+          "candidate": "VERIFICATION_PHISHING",
+          "decision": "VERIFICATION_PHISHING",
+          "score": 0.9874972728571779,
+          "margin": 0.979683948985797
+        },
+        {
+          "id": "hold2-payment-001",
+          "expected": "PAYMENT_CREDENTIAL_THEFT",
+          "rules": "PAYMENT_CREDENTIAL_THEFT",
+          "candidate": "PAYMENT_CREDENTIAL_THEFT",
+          "decision": "PAYMENT_CREDENTIAL_THEFT",
+          "score": 0.9525256380289203,
+          "margin": 0.9172630920961866
+        },
+        {
+          "id": "hold2-payment-002",
+          "expected": "PAYMENT_CREDENTIAL_THEFT",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.6946495867013237,
+          "margin": 0.6135023363726443
+        },
+        {
+          "id": "hold2-payment-003",
+          "expected": "PAYMENT_CREDENTIAL_THEFT",
+          "rules": "PAYMENT_CREDENTIAL_THEFT",
+          "candidate": "SAFE",
+          "decision": "ABSTAIN",
+          "score": 0.38524295734287567,
+          "margin": 0.004223524073662666
+        },
+        {
+          "id": "hold2-payment-004",
+          "expected": "PAYMENT_CREDENTIAL_THEFT",
+          "rules": "PAYMENT_CREDENTIAL_THEFT",
+          "candidate": "PAYMENT_CREDENTIAL_THEFT",
+          "decision": "PAYMENT_CREDENTIAL_THEFT",
+          "score": 0.9912148785118484,
+          "margin": 0.984683389911106
+        },
+        {
+          "id": "hold2-payment-005",
+          "expected": "PAYMENT_CREDENTIAL_THEFT",
+          "rules": "PAYMENT_CREDENTIAL_THEFT",
+          "candidate": "PAYMENT_CREDENTIAL_THEFT",
+          "decision": "PAYMENT_CREDENTIAL_THEFT",
+          "score": 0.9649577176552158,
+          "margin": 0.947180760733313
+        },
+        {
+          "id": "hold2-payment-006",
+          "expected": "PAYMENT_CREDENTIAL_THEFT",
+          "rules": "PAYMENT_CREDENTIAL_THEFT",
+          "candidate": "PAYMENT_CREDENTIAL_THEFT",
+          "decision": "PAYMENT_CREDENTIAL_THEFT",
+          "score": 0.9887761775123867,
+          "margin": 0.9805369952054522
+        },
+        {
+          "id": "hold2-identity-001",
+          "expected": "IDENTITY_PROBING",
+          "rules": "IDENTITY_PROBING",
+          "candidate": "IDENTITY_PROBING",
+          "decision": "IDENTITY_PROBING",
+          "score": 0.9955488271526446,
+          "margin": 0.9937448116364693
+        },
+        {
+          "id": "hold2-identity-002",
+          "expected": "IDENTITY_PROBING",
+          "rules": "IDENTITY_PROBING",
+          "candidate": "IDENTITY_PROBING",
+          "decision": "IDENTITY_PROBING",
+          "score": 0.9979628224641477,
+          "margin": 0.9967752948401201
+        },
+        {
+          "id": "hold2-identity-003",
+          "expected": "IDENTITY_PROBING",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.7406886086401187,
+          "margin": 0.6118713049074824
+        },
+        {
+          "id": "hold2-identity-004",
+          "expected": "IDENTITY_PROBING",
+          "rules": "VERIFICATION_PHISHING",
+          "candidate": "IDENTITY_PROBING",
+          "decision": "IDENTITY_PROBING",
+          "score": 0.9886804926480082,
+          "margin": 0.985012961536671
+        },
+        {
+          "id": "hold2-identity-005",
+          "expected": "IDENTITY_PROBING",
+          "rules": "IDENTITY_PROBING",
+          "candidate": "IDENTITY_PROBING",
+          "decision": "IDENTITY_PROBING",
+          "score": 0.9926805858252925,
+          "margin": 0.9879551321713242
+        },
+        {
+          "id": "hold2-identity-006",
+          "expected": "IDENTITY_PROBING",
+          "rules": "IDENTITY_PROBING",
+          "candidate": "IDENTITY_PROBING",
+          "decision": "IDENTITY_PROBING",
+          "score": 0.9893793722282426,
+          "margin": 0.9818853790977797
+        },
+        {
+          "id": "hold2-escrow-001",
+          "expected": "ESCROW_DELIVERY_SCAM",
+          "rules": "ESCROW_DELIVERY_SCAM",
+          "candidate": "ESCROW_DELIVERY_SCAM",
+          "decision": "ESCROW_DELIVERY_SCAM",
+          "score": 0.7167705966506271,
+          "margin": 0.5922412218702717
+        },
+        {
+          "id": "hold2-escrow-002",
+          "expected": "ESCROW_DELIVERY_SCAM",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9444513739050586,
+          "margin": 0.9212120445079226
+        },
+        {
+          "id": "hold2-escrow-003",
+          "expected": "ESCROW_DELIVERY_SCAM",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.7975803282326451,
+          "margin": 0.7181739127179165
+        },
+        {
+          "id": "hold2-escrow-004",
+          "expected": "ESCROW_DELIVERY_SCAM",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.7767580842422527,
+          "margin": 0.698612241169969
+        },
+        {
+          "id": "hold2-escrow-005",
+          "expected": "ESCROW_DELIVERY_SCAM",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.8916263791940505,
+          "margin": 0.8526658737383992
+        },
+        {
+          "id": "hold2-escrow-006",
+          "expected": "ESCROW_DELIVERY_SCAM",
+          "rules": "SAFE",
+          "candidate": "ESCROW_DELIVERY_SCAM",
+          "decision": "ESCROW_DELIVERY_SCAM",
+          "score": 0.7397696619107738,
+          "margin": 0.5394746560475251
+        },
+        {
+          "id": "hold2-military-001",
+          "expected": "MILITARY_SABOTAGE_RECRUITMENT",
+          "rules": "MILITARY_SABOTAGE_RECRUITMENT",
+          "candidate": "MILITARY_SABOTAGE_RECRUITMENT",
+          "decision": "MILITARY_SABOTAGE_RECRUITMENT",
+          "score": 0.6315323832386117,
+          "margin": 0.37032576902798875
+        },
+        {
+          "id": "hold2-military-002",
+          "expected": "MILITARY_SABOTAGE_RECRUITMENT",
+          "rules": "SAFE",
+          "candidate": "MILITARY_SABOTAGE_RECRUITMENT",
+          "decision": "ABSTAIN",
+          "score": 0.555389532812608,
+          "margin": 0.2646456437560783
+        },
+        {
+          "id": "hold2-military-003",
+          "expected": "MILITARY_SABOTAGE_RECRUITMENT",
+          "rules": "SAFE",
+          "candidate": "MILITARY_SABOTAGE_RECRUITMENT",
+          "decision": "ABSTAIN",
+          "score": 0.5110265270695599,
+          "margin": 0.09655069535539662
+        },
+        {
+          "id": "hold2-military-004",
+          "expected": "MILITARY_SABOTAGE_RECRUITMENT",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.8650125498202224,
+          "margin": 0.7851910977734924
+        },
+        {
+          "id": "hold2-military-005",
+          "expected": "MILITARY_SABOTAGE_RECRUITMENT",
+          "rules": "SAFE",
+          "candidate": "MILITARY_SABOTAGE_RECRUITMENT",
+          "decision": "MILITARY_SABOTAGE_RECRUITMENT",
+          "score": 0.72451289114605,
+          "margin": 0.6026284479431886
+        },
+        {
+          "id": "hold2-military-006",
+          "expected": "MILITARY_SABOTAGE_RECRUITMENT",
+          "rules": "SAFE",
+          "candidate": "MILITARY_SABOTAGE_RECRUITMENT",
+          "decision": "ABSTAIN",
+          "score": 0.5876500059893974,
+          "margin": 0.24892105410973075
+        },
+        {
+          "id": "hold2-crypto-001",
+          "expected": "CRYPTO_WALLET_COMPROMISE",
+          "rules": "CRYPTO_WALLET_COMPROMISE",
+          "candidate": "CRYPTO_WALLET_COMPROMISE",
+          "decision": "CRYPTO_WALLET_COMPROMISE",
+          "score": 0.9953703331715208,
+          "margin": 0.9934672134634664
+        },
+        {
+          "id": "hold2-crypto-002",
+          "expected": "CRYPTO_WALLET_COMPROMISE",
+          "rules": "CRYPTO_WALLET_COMPROMISE",
+          "candidate": "CRYPTO_WALLET_COMPROMISE",
+          "decision": "CRYPTO_WALLET_COMPROMISE",
+          "score": 0.9595719288984387,
+          "margin": 0.9370976141538613
+        },
+        {
+          "id": "hold2-crypto-003",
+          "expected": "CRYPTO_WALLET_COMPROMISE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.8390870292094803,
+          "margin": 0.7565064069482597
+        },
+        {
+          "id": "hold2-crypto-004",
+          "expected": "CRYPTO_WALLET_COMPROMISE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.7941680323118356,
+          "margin": 0.737735902413341
+        },
+        {
+          "id": "hold2-crypto-005",
+          "expected": "CRYPTO_WALLET_COMPROMISE",
+          "rules": "CRYPTO_WALLET_COMPROMISE",
+          "candidate": "CRYPTO_WALLET_COMPROMISE",
+          "decision": "CRYPTO_WALLET_COMPROMISE",
+          "score": 0.9916742130146007,
+          "margin": 0.9884431159677274
+        },
+        {
+          "id": "hold2-crypto-006",
+          "expected": "CRYPTO_WALLET_COMPROMISE",
+          "rules": "CRYPTO_WALLET_COMPROMISE",
+          "candidate": "CRYPTO_WALLET_COMPROMISE",
+          "decision": "CRYPTO_WALLET_COMPROMISE",
+          "score": 0.9955367653066278,
+          "margin": 0.9927454858609109
+        },
+        {
+          "id": "hold2-benign-001",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9943545488387145,
+          "margin": 0.9918745263808363
+        },
+        {
+          "id": "hold2-benign-002",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9351207228463279,
+          "margin": 0.9072412567264617
+        },
+        {
+          "id": "hold2-benign-003",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9864893235326085,
+          "margin": 0.9826786177256819
+        },
+        {
+          "id": "hold2-benign-004",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.958557864064991,
+          "margin": 0.9402799648743368
+        },
+        {
+          "id": "hold2-benign-005",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9787240116872512,
+          "margin": 0.9741093825305981
+        },
+        {
+          "id": "hold2-benign-006",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9479578134838291,
+          "margin": 0.9317283554862676
+        },
+        {
+          "id": "hold2-benign-007",
+          "expected": "SAFE",
+          "rules": "PAYMENT_CREDENTIAL_THEFT",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9601819063740746,
+          "margin": 0.9467132673154061
+        },
+        {
+          "id": "hold2-benign-008",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.8198810072198404,
+          "margin": 0.7006597450292764
+        },
+        {
+          "id": "safe2-hold-001",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.8237798882992784,
+          "margin": 0.7289554091457313
+        },
+        {
+          "id": "safe2-hold-002",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.8040951331694135,
+          "margin": 0.7350613014345133
+        },
+        {
+          "id": "safe2-hold-003",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9111712443033375,
+          "margin": 0.8575198688023443
+        },
+        {
+          "id": "safe2-hold-004",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.8885425453740755,
+          "margin": 0.8377433687828767
+        },
+        {
+          "id": "safe2-hold-005",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.8801395825018422,
+          "margin": 0.8231152249369044
+        },
+        {
+          "id": "safe2-hold-006",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.8995806898619896,
+          "margin": 0.8478398137149605
+        },
+        {
+          "id": "safe2-hold-007",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9601137747804114,
+          "margin": 0.9434339315709647
+        },
+        {
+          "id": "safe2-hold-008",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.8345792267032266,
+          "margin": 0.7599032197325094
+        },
+        {
+          "id": "safe2-hold-009",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.7944875568867971,
+          "margin": 0.7098933540004653
+        },
+        {
+          "id": "safe2-hold-010",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.8928425875959963,
+          "margin": 0.8465870246533231
+        },
+        {
+          "id": "safe2-hold-011",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9630812619599076,
+          "margin": 0.9470743626611915
+        },
+        {
+          "id": "safe2-hold-012",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9070228428350537,
+          "margin": 0.876204534178302
+        },
+        {
+          "id": "safe2-hold-013",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9439229231879438,
+          "margin": 0.9223258535386142
+        },
+        {
+          "id": "safe2-hold-014",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.7160126975628582,
+          "margin": 0.5083518771422313
+        },
+        {
+          "id": "safe2-hold-015",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9322769312337407,
+          "margin": 0.9039047178846499
+        },
+        {
+          "id": "safe2-hold-016",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9030564990455073,
+          "margin": 0.859809215926544
+        },
+        {
+          "id": "safe2-hold-017",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9555702131883209,
+          "margin": 0.9388176375608351
+        },
+        {
+          "id": "safe2-hold-018",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9612643303832635,
+          "margin": 0.9455678468815076
+        },
+        {
+          "id": "safe2-hold-019",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9625404034653691,
+          "margin": 0.9482167757361777
+        },
+        {
+          "id": "safe2-hold-020",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9297467601712492,
+          "margin": 0.8974727984988331
+        },
+        {
+          "id": "safe2-hold-021",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9619580304587444,
+          "margin": 0.9448801720294948
+        },
+        {
+          "id": "safe2-hold-022",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.968098460708735,
+          "margin": 0.9539327521761621
+        },
+        {
+          "id": "safe2-hold-023",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9592467618234777,
+          "margin": 0.9481821805018404
+        },
+        {
+          "id": "safe2-hold-024",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9256290577505093,
+          "margin": 0.8924296392276849
+        },
+        {
+          "id": "safe2-hold-025",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9145445109502955,
+          "margin": 0.8814827857211357
+        },
+        {
+          "id": "safe2-hold-026",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.8802320254649642,
+          "margin": 0.8199817053163984
+        },
+        {
+          "id": "safe2-hold-027",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9285523518106059,
+          "margin": 0.8918798044858247
+        },
+        {
+          "id": "safe2-hold-028",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.972075273653414,
+          "margin": 0.9625562292569483
+        },
+        {
+          "id": "safe2-hold-029",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9434016763720413,
+          "margin": 0.9226012607254955
+        },
+        {
+          "id": "safe2-hold-030",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.8178016418092672,
+          "margin": 0.6679988806998748
+        },
+        {
+          "id": "safe2-hold-031",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.984614862226444,
+          "margin": 0.9788228055961311
+        },
+        {
+          "id": "safe2-hold-032",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9430745390144907,
+          "margin": 0.9234804622868079
+        },
+        {
+          "id": "safe2-hold-033",
+          "expected": "SAFE",
+          "rules": "SAFE",
+          "candidate": "SAFE",
+          "decision": "SAFE",
+          "score": 0.9040511919281251,
+          "margin": 0.8537697746204783
+        }
+      ]
+    }
+  ],
+  "resource": {
+    "cpu": "AMD Ryzen 7 6800H with Radeon Graphics         ",
+    "node": "v24.18.0",
+    "coldMs": 0.6231000000000222,
+    "medianMs": 1.50100000000009,
+    "p95Ms": 1.6500999999999522,
+    "maxMs": 2.439899999999966,
+    "processPeakRssBytes": 81997824,
+    "processMemory": {
+      "rss": 77701120,
+      "heapTotal": 31055872,
+      "heapUsed": 14470184,
+      "external": 3457622,
+      "arrayBuffers": 1036242
+    },
+    "decodedWeightsBytes": 262144,
+    "scope": "CPU-only Node evaluation process, includes dataset and rules. Not a measurement of the whole browser extension, nor certification on another CPU."
+  }
+}

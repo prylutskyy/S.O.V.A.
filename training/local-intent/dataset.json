@@ -1,0 +1,2120 @@
+{
+  "schemaVersion": 1,
+  "sourceHash": "798b2641edb575336898e04b025af37e2a009f262678886c208cce5866fa51b5",
+  "grouping": "Connected groups: canonical equality or character-4-gram Jaccard >= 0.8; deterministic stratified group split (~20% validation). Holdout excluded.",
+  "records": [
+    {
+      "id": "dev-benign-001",
+      "source": "development",
+      "label": "SAFE",
+      "messages": [
+        "Чи відправляєте ви товар Новою поштою? Яка орієнтовна вартість доставки?"
+      ],
+      "group": "3b0993a0635a3815",
+      "split": "validation"
+    },
+    {
+      "id": "dev-benign-002",
+      "source": "development",
+      "label": "SAFE",
+      "messages": [
+        "Можу зустрітися біля входу до торгового центру після роботи."
+      ],
+      "group": "8333631c94d54fc1",
+      "split": "train"
+    },
+    {
+      "id": "dev-crypto-001",
+      "source": "development",
+      "label": "CRYPTO_WALLET_COMPROMISE",
+      "messages": [
+        "Для синхронізації гаманця введіть вашу seed phrase або 12 слів."
+      ],
+      "group": "363b24ac91665b95",
+      "split": "train"
+    },
+    {
+      "id": "dev-crypto-002",
+      "source": "development",
+      "label": "CRYPTO_WALLET_COMPROMISE",
+      "messages": [
+        "Please provide your wallet password to restore access."
+      ],
+      "group": "5e4d0dbead4ea884",
+      "split": "train"
+    },
+    {
+      "id": "dev-escrow-001",
+      "source": "development",
+      "label": "ESCROW_DELIVERY_SCAM",
+      "messages": [
+        "Я оформив OLX Доставку. Перейдіть за посиланням для отримання коштів https://example.invalid/pay"
+      ],
+      "group": "4c5837ca0dd0b47a",
+      "split": "train"
+    },
+    {
+      "id": "dev-escrow-002",
+      "source": "development",
+      "label": "ESCROW_DELIVERY_SCAM",
+      "messages": [
+        "Оформив безпечну угоду, напишіть у Telegram, щоб отримати виплату."
+      ],
+      "group": "6ba8158813d832a2",
+      "split": "train"
+    },
+    {
+      "id": "dev-escrow-003",
+      "source": "development",
+      "label": "ESCROW_DELIVERY_SCAM",
+      "messages": [
+        "Я уже оформил доставку. Перейдите по ссылке для получения средств https://example.invalid/order"
+      ],
+      "group": "95da97d038074f8f",
+      "split": "train"
+    },
+    {
+      "id": "dev-escrow-004",
+      "source": "development",
+      "label": "ESCROW_DELIVERY_SCAM",
+      "messages": [
+        "I arranged courier delivery. Click this link to receive your payment: https://example.invalid/claim"
+      ],
+      "group": "f78b7e203a729435",
+      "split": "train"
+    },
+    {
+      "id": "dev-identity-001",
+      "source": "development",
+      "label": "IDENTITY_PROBING",
+      "messages": [
+        "Напишіть ваш ІПН для оформлення переказу."
+      ],
+      "group": "e0fb5c6781d2950d",
+      "split": "train"
+    },
+    {
+      "id": "dev-identity-002",
+      "source": "development",
+      "label": "IDENTITY_PROBING",
+      "messages": [
+        "Для перевірки назвіть дівоче прізвище матері."
+      ],
+      "group": "f67a73ec5f4b9902",
+      "split": "train"
+    },
+    {
+      "id": "dev-identity-003",
+      "source": "development",
+      "label": "IDENTITY_PROBING",
+      "messages": [
+        "Укажите ваш ИНН для подтверждения получателя."
+      ],
+      "group": "906f702e93e501bf",
+      "split": "train"
+    },
+    {
+      "id": "dev-identity-004",
+      "source": "development",
+      "label": "IDENTITY_PROBING",
+      "messages": [
+        "Please provide your passport number to confirm your identity."
+      ],
+      "group": "6418cdf55d810cf0",
+      "split": "train"
+    },
+    {
+      "id": "dev-military-001",
+      "source": "development",
+      "label": "MILITARY_SABOTAGE_RECRUITMENT",
+      "messages": [
+        "Плачу в крипті за підпал релейних шаф на залізниці."
+      ],
+      "group": "f8b1db5cb36b799b",
+      "split": "train"
+    },
+    {
+      "id": "dev-military-002",
+      "source": "development",
+      "label": "MILITARY_SABOTAGE_RECRUITMENT",
+      "messages": [
+        "Скинь координати, де стоїть ППО у вашому місті."
+      ],
+      "group": "f0db3d5db1ff6bdd",
+      "split": "train"
+    },
+    {
+      "id": "dev-military-003",
+      "source": "development",
+      "label": "MILITARY_SABOTAGE_RECRUITMENT",
+      "messages": [
+        "Шукаємо кур’єрів-розвідників для швидкої роботи від 500 доларів."
+      ],
+      "group": "838d17b20b4decd5",
+      "split": "train"
+    },
+    {
+      "id": "dev-military-004",
+      "source": "development",
+      "label": "MILITARY_SABOTAGE_RECRUITMENT",
+      "messages": [
+        "Скинь координаты, где находится военная техника, заплачу за данные."
+      ],
+      "group": "99d84de3e3b6ee5d",
+      "split": "train"
+    },
+    {
+      "id": "dev-offplatform-001",
+      "source": "development",
+      "label": "OFF_PLATFORM_REDIRECT",
+      "messages": [
+        "Давайте продовжимо спілкування у Telegram, тут незручно."
+      ],
+      "group": "007852e7e5260ab1",
+      "split": "validation"
+    },
+    {
+      "id": "dev-offplatform-002",
+      "source": "development",
+      "label": "OFF_PLATFORM_REDIRECT",
+      "messages": [
+        "Напишіть мені у Viber, там надішлю всі деталі."
+      ],
+      "group": "84d22f2b718ea23e",
+      "split": "train"
+    },
+    {
+      "id": "dev-offplatform-003",
+      "source": "development",
+      "label": "OFF_PLATFORM_REDIRECT",
+      "messages": [
+        "Мій Telegram: t.me/shop_support. Перейдіть туди для оформлення."
+      ],
+      "group": "524dff2507599e87",
+      "split": "train"
+    },
+    {
+      "id": "dev-offplatform-004",
+      "source": "development",
+      "label": "OFF_PLATFORM_REDIRECT",
+      "messages": [
+        "Зв’яжіться зі мною через WhatsApp щодо покупки."
+      ],
+      "group": "84f32b50ad256e1e",
+      "split": "train"
+    },
+    {
+      "id": "dev-offplatform-005",
+      "source": "development",
+      "label": "OFF_PLATFORM_REDIRECT",
+      "messages": [
+        "Напишите мне в вайбер, здесь сообщения иногда не доходят."
+      ],
+      "group": "f05c8ec4951b129f",
+      "split": "train"
+    },
+    {
+      "id": "dev-offplatform-006",
+      "source": "development",
+      "label": "OFF_PLATFORM_REDIRECT",
+      "messages": [
+        "Please message me on WhatsApp to finish the deal."
+      ],
+      "group": "0e7f9f62651ff124",
+      "split": "validation"
+    },
+    {
+      "id": "dev-payment-001",
+      "source": "development",
+      "label": "PAYMENT_CREDENTIAL_THEFT",
+      "messages": [
+        "Продиктуйте 16 цифр картки та CVV-код зі звороту."
+      ],
+      "group": "a69072c636a46fab",
+      "split": "train"
+    },
+    {
+      "id": "dev-payment-002",
+      "source": "development",
+      "label": "PAYMENT_CREDENTIAL_THEFT",
+      "messages": [
+        "Укажите номер карты и код безопасности с обратной стороны."
+      ],
+      "group": "7c84c30ccd8de8fa",
+      "split": "train"
+    },
+    {
+      "id": "dev-payment-003",
+      "source": "development",
+      "label": "PAYMENT_CREDENTIAL_THEFT",
+      "messages": [
+        "Please provide your card number and CVC to receive the refund."
+      ],
+      "group": "69283ac9ab0afe3d",
+      "split": "train"
+    },
+    {
+      "id": "dev-payment-004",
+      "source": "development",
+      "label": "PAYMENT_CREDENTIAL_THEFT",
+      "messages": [
+        "Напишіть термін дії картки та баланс, щоб ми зарахували виплату."
+      ],
+      "group": "503df344e44a0726",
+      "split": "train"
+    },
+    {
+      "id": "dev-verification-001",
+      "source": "development",
+      "label": "VERIFICATION_PHISHING",
+      "messages": [
+        "Для верифікації платежу скажіть ваш CVV-код або напишіть мені у Viber."
+      ],
+      "group": "634a8018191764c2",
+      "split": "train"
+    },
+    {
+      "id": "dev-verification-002",
+      "source": "development",
+      "label": "VERIFICATION_PHISHING",
+      "messages": [
+        "Підтвердіть профіль: надішліть код із SMS, який щойно надійшов від банку."
+      ],
+      "group": "84b3c5f521126154",
+      "split": "train"
+    },
+    {
+      "id": "dev-verification-003",
+      "source": "development",
+      "label": "VERIFICATION_PHISHING",
+      "messages": [
+        "Для проверки профиля пришлите код из СМС и пароль от банка."
+      ],
+      "group": "ef33c161b12d2735",
+      "split": "train"
+    },
+    {
+      "id": "dev-verification-004",
+      "source": "development",
+      "label": "VERIFICATION_PHISHING",
+      "messages": [
+        "To verify your account, send the card security code and SMS confirmation code."
+      ],
+      "group": "b2b4a8108c5bcfef",
+      "split": "train"
+    },
+    {
+      "id": "dev2-benign-001",
+      "source": "development",
+      "label": "SAFE",
+      "messages": [
+        "Телефон кур’єра буде вказаний у повідомленні служби доставки."
+      ],
+      "group": "3609dcf836d6a051",
+      "split": "validation"
+    },
+    {
+      "id": "dev2-benign-002",
+      "source": "development",
+      "label": "SAFE",
+      "messages": [
+        "Зустрінемося біля центрального входу, я буду в синій куртці."
+      ],
+      "group": "a68e9d8ea4e1d65d",
+      "split": "train"
+    },
+    {
+      "id": "dev2-benign-004",
+      "source": "development",
+      "label": "SAFE",
+      "messages": [
+        "Посилка прибуде завтра, номер накладної надішлю після відправлення."
+      ],
+      "group": "74b05d02e8149b7a",
+      "split": "train"
+    },
+    {
+      "id": "dev2-benign-005",
+      "source": "development",
+      "label": "SAFE",
+      "messages": [
+        "Прочитав новину про роботу банківських систем під час відключень."
+      ],
+      "group": "a045597c0dd7f010",
+      "split": "train"
+    },
+    {
+      "id": "dev2-crypto-001",
+      "source": "development",
+      "label": "CRYPTO_WALLET_COMPROMISE",
+      "messages": [
+        "Скажіть вашу seed phrase, і я допоможу відновити доступ до гаманця."
+      ],
+      "group": "bfe723c2343f27a9",
+      "split": "train"
+    },
+    {
+      "id": "dev2-crypto-002",
+      "source": "development",
+      "label": "CRYPTO_WALLET_COMPROMISE",
+      "messages": [
+        "Пришлите вашу мнемоническую фразу из 24 слов для проверки кошелька."
+      ],
+      "group": "3542355501dd06de",
+      "split": "validation"
+    },
+    {
+      "id": "dev2-crypto-003",
+      "source": "development",
+      "label": "CRYPTO_WALLET_COMPROMISE",
+      "messages": [
+        "Provide your wallet password to synchronize the account."
+      ],
+      "group": "8dcf938eccbae30a",
+      "split": "train"
+    },
+    {
+      "id": "dev2-escrow-001",
+      "source": "development",
+      "label": "ESCROW_DELIVERY_SCAM",
+      "messages": [
+        "Я вже оформив замовлення, перейдіть за посиланням для отримання коштів https://example.invalid/claim"
+      ],
+      "group": "3b46382d59cfbf8c",
+      "split": "train"
+    },
+    {
+      "id": "dev2-escrow-002",
+      "source": "development",
+      "label": "ESCROW_DELIVERY_SCAM",
+      "messages": [
+        "Я оформил доставку, нажмите на ссылку, чтобы получить выплату https://example.invalid/funds"
+      ],
+      "group": "df20881eb8d97114",
+      "split": "train"
+    },
+    {
+      "id": "dev2-escrow-003",
+      "source": "development",
+      "label": "ESCROW_DELIVERY_SCAM",
+      "messages": [
+        "I have paid for shipping; follow this link to collect your money https://example.invalid/collect"
+      ],
+      "group": "2e793734ef66ea74",
+      "split": "validation"
+    },
+    {
+      "id": "dev2-id-001",
+      "source": "development",
+      "label": "IDENTITY_PROBING",
+      "messages": [
+        "Вкажіть ваш РНОКПП отримувача для оформлення переказу."
+      ],
+      "group": "9436807da7b11e22",
+      "split": "train"
+    },
+    {
+      "id": "dev2-id-002",
+      "source": "development",
+      "label": "IDENTITY_PROBING",
+      "messages": [
+        "Підкажіть секретне слово банку для підтвердження вашого профілю."
+      ],
+      "group": "6e89d0fbc6cd0946",
+      "split": "train"
+    },
+    {
+      "id": "dev2-id-003",
+      "source": "development",
+      "label": "IDENTITY_PROBING",
+      "messages": [
+        "Напишите серию и номер паспорта для получения перевода."
+      ],
+      "group": "630308a17c2b22f8",
+      "split": "validation"
+    },
+    {
+      "id": "dev2-id-004",
+      "source": "development",
+      "label": "IDENTITY_PROBING",
+      "messages": [
+        "Provide your national ID number to verify the recipient."
+      ],
+      "group": "0a7ad62b6e728fea",
+      "split": "validation"
+    },
+    {
+      "id": "dev2-military-001",
+      "source": "development",
+      "label": "MILITARY_SABOTAGE_RECRUITMENT",
+      "messages": [
+        "Скинь координати, де стоїть радар, заплачу за інформацію."
+      ],
+      "group": "20cb5493dfa2bdb3",
+      "split": "validation"
+    },
+    {
+      "id": "dev2-military-002",
+      "source": "development",
+      "label": "MILITARY_SABOTAGE_RECRUITMENT",
+      "messages": [
+        "Купи бензин і підпали військовий бус."
+      ],
+      "group": "e9a29f8ee8bc6cf8",
+      "split": "train"
+    },
+    {
+      "id": "dev2-military-003",
+      "source": "development",
+      "label": "MILITARY_SABOTAGE_RECRUITMENT",
+      "messages": [
+        "Сфотографируй военный блокпост и отправь снимок за оплату."
+      ],
+      "group": "44f674337bde630e",
+      "split": "train"
+    },
+    {
+      "id": "dev2-military-004",
+      "source": "development",
+      "label": "MILITARY_SABOTAGE_RECRUITMENT",
+      "messages": [
+        "We pay couriers to collect reconnaissance information about military sites."
+      ],
+      "group": "ed452b64890b17a5",
+      "split": "train"
+    },
+    {
+      "id": "dev2-off-001",
+      "source": "development",
+      "label": "OFF_PLATFORM_REDIRECT",
+      "messages": [
+        "Тут незручно надсилати фото, давайте перейдемо у Telegram."
+      ],
+      "group": "c5f2a79340416204",
+      "split": "train"
+    },
+    {
+      "id": "dev2-off-002",
+      "source": "development",
+      "label": "OFF_PLATFORM_REDIRECT",
+      "messages": [
+        "Напишіть у WhatsApp, і я скину адресу зустрічі."
+      ],
+      "group": "69ff0fc5a107e3be",
+      "split": "train"
+    },
+    {
+      "id": "dev2-off-003",
+      "source": "development",
+      "label": "OFF_PLATFORM_REDIRECT",
+      "messages": [
+        "Залишаю посилання на мій профіль у Telegram: t.me/seller_contact."
+      ],
+      "group": "c00436646bc835ab",
+      "split": "train"
+    },
+    {
+      "id": "dev2-off-004",
+      "source": "development",
+      "label": "OFF_PLATFORM_REDIRECT",
+      "messages": [
+        "Підтвердіть замовлення через наш чат-бот, він надішле інструкції."
+      ],
+      "group": "349287a7445fc1f3",
+      "split": "validation"
+    },
+    {
+      "id": "dev2-off-005",
+      "source": "development",
+      "label": "OFF_PLATFORM_REDIRECT",
+      "messages": [
+        "Здесь неудобно, давайте перейдем в Telegram и договоримся о доставке."
+      ],
+      "group": "dc42c074eec8ae8a",
+      "split": "train"
+    },
+    {
+      "id": "dev2-off-006",
+      "source": "development",
+      "label": "OFF_PLATFORM_REDIRECT",
+      "messages": [
+        "Напишите мне в WhatsApp, там пришлю фотографии товара."
+      ],
+      "group": "8ed1b6303c838d2f",
+      "split": "train"
+    },
+    {
+      "id": "dev2-off-007",
+      "source": "development",
+      "label": "OFF_PLATFORM_REDIRECT",
+      "messages": [
+        "Let's move this conversation to Telegram; send me a message there."
+      ],
+      "group": "751b570a326efa30",
+      "split": "train"
+    },
+    {
+      "id": "dev2-off-008",
+      "source": "development",
+      "label": "OFF_PLATFORM_REDIRECT",
+      "messages": [
+        "Please contact me on Viber to arrange pickup."
+      ],
+      "group": "e447040580dfa8cc",
+      "split": "train"
+    },
+    {
+      "id": "dev2-off-009",
+      "source": "development",
+      "label": "OFF_PLATFORM_REDIRECT",
+      "messages": [
+        "Можу відправити товар сьогодні.",
+        "Краще напишіть у Viber, там швидше."
+      ],
+      "group": "eb37e349845fe3e5",
+      "split": "train"
+    },
+    {
+      "id": "dev2-off-010",
+      "source": "development",
+      "label": "OFF_PLATFORM_REDIRECT",
+      "messages": [
+        "Для огляду товару треба відеодзвінок.",
+        "Так, але спершу переходьте в Telegram."
+      ],
+      "group": "9cffb38426cb65a8",
+      "split": "train"
+    },
+    {
+      "id": "dev2-pay-001",
+      "source": "development",
+      "label": "PAYMENT_CREDENTIAL_THEFT",
+      "messages": [
+        "Надішліть номер картки та CVV, щоб отримати кошти за товар."
+      ],
+      "group": "0ed79741a3b68d74",
+      "split": "validation"
+    },
+    {
+      "id": "dev2-pay-002",
+      "source": "development",
+      "label": "PAYMENT_CREDENTIAL_THEFT",
+      "messages": [
+        "Сообщите срок действия карты и код CVC для возврата оплаты."
+      ],
+      "group": "0938822c9cb92bde",
+      "split": "validation"
+    },
+    {
+      "id": "dev2-pay-003",
+      "source": "development",
+      "label": "PAYMENT_CREDENTIAL_THEFT",
+      "messages": [
+        "Tell me your CVV and card balance so I can release the payment."
+      ],
+      "group": "8006e30c9daaddaf",
+      "split": "train"
+    },
+    {
+      "id": "dev2-verify-001",
+      "source": "development",
+      "label": "VERIFICATION_PHISHING",
+      "messages": [
+        "Для верифікації платежу скажіть ваш CVV-код, або пишіть мені у Viber."
+      ],
+      "group": "634a8018191764c2",
+      "split": "train"
+    },
+    {
+      "id": "dev2-verify-002",
+      "source": "development",
+      "label": "VERIFICATION_PHISHING",
+      "messages": [
+        "Для перевірки профілю перейдіть за посиланням і введіть код безпеки: https://example.invalid/profile"
+      ],
+      "group": "8b0a3c0e0ec0600a",
+      "split": "train"
+    },
+    {
+      "id": "dev2-verify-003",
+      "source": "development",
+      "label": "VERIFICATION_PHISHING",
+      "messages": [
+        "Для проверки карты перейдите в Telegram-бот и отправьте код безопасности."
+      ],
+      "group": "3a3ad8f7c5ecea9e",
+      "split": "validation"
+    },
+    {
+      "id": "dev2-verify-004",
+      "source": "development",
+      "label": "VERIFICATION_PHISHING",
+      "messages": [
+        "Verify your card on this page and enter the security code: https://example.invalid/verify"
+      ],
+      "group": "d07690f440ed0d8e",
+      "split": "train"
+    },
+    {
+      "id": "reg-benign-001",
+      "source": "regressions",
+      "label": "SAFE",
+      "messages": [
+        "Кур’єр зателефонує за номером, який ви вказали під час оформлення."
+      ],
+      "group": "cd98092956d399b5",
+      "split": "train"
+    },
+    {
+      "id": "reg-benign-002",
+      "source": "regressions",
+      "label": "SAFE",
+      "messages": [
+        "Оплатив замовлення на офіційному сайті. Підтвердження є в моєму банківському застосунку."
+      ],
+      "group": "35654a319c1d4a5a",
+      "split": "validation"
+    },
+    {
+      "id": "reg-courier-meeting-001",
+      "source": "regressions",
+      "label": "SAFE",
+      "messages": [
+        "Можемо зустрітися біля поштового відділення о шостій, щоб передати товар."
+      ],
+      "group": "ca07925ee7dbf8ce",
+      "split": "train"
+    },
+    {
+      "id": "reg-crypto-001",
+      "source": "regressions",
+      "label": "CRYPTO_WALLET_COMPROMISE",
+      "messages": [
+        "Підтримка гаманця просить ввести вашу сід-фразу з 12 слів для відновлення."
+      ],
+      "group": "35bd401b63d42ffe",
+      "split": "train"
+    },
+    {
+      "id": "reg-crypto-002",
+      "source": "regressions",
+      "label": "CRYPTO_WALLET_COMPROMISE",
+      "messages": [
+        "Введите ваш пароль от криптокошелька, чтобы синхронизировать баланс."
+      ],
+      "group": "d66259553bcc7dca",
+      "split": "train"
+    },
+    {
+      "id": "reg-delivery-phone-001",
+      "source": "regressions",
+      "label": "SAFE",
+      "messages": [
+        "Залиште номер телефону для кур’єра після оформлення замовлення в застосунку."
+      ],
+      "group": "603d477ded14ccaf",
+      "split": "train"
+    },
+    {
+      "id": "reg-delivery-price-001",
+      "source": "regressions",
+      "label": "SAFE",
+      "messages": [
+        "Скільки коштує доставка Новою поштою до Львова?"
+      ],
+      "group": "43c0daec76a83732",
+      "split": "train"
+    },
+    {
+      "id": "reg-escrow-001",
+      "source": "regressions",
+      "label": "ESCROW_DELIVERY_SCAM",
+      "messages": [
+        "Я вже оплатив товар через безпечну угоду, перейдіть за посиланням, щоб отримати кошти: https://example.invalid/payout"
+      ],
+      "group": "9b852f5ce82e48d0",
+      "split": "train"
+    },
+    {
+      "id": "reg-escrow-002",
+      "source": "regressions",
+      "label": "ESCROW_DELIVERY_SCAM",
+      "messages": [
+        "Я оформил безопасную сделку, напишите в Telegram для получения выплаты."
+      ],
+      "group": "debeceaaffe18ff2",
+      "split": "train"
+    },
+    {
+      "id": "reg-identity-001",
+      "source": "regressions",
+      "label": "IDENTITY_PROBING",
+      "messages": [
+        "Назвіть кодове слово банку, щоб підтвердити власника рахунку."
+      ],
+      "group": "922cfe2af8615937",
+      "split": "train"
+    },
+    {
+      "id": "reg-identity-002",
+      "source": "regressions",
+      "label": "IDENTITY_PROBING",
+      "messages": [
+        "Скажите девичью фамилию матери для проверки личности."
+      ],
+      "group": "86005338917d736e",
+      "split": "train"
+    },
+    {
+      "id": "reg-identity-003",
+      "source": "regressions",
+      "label": "IDENTITY_PROBING",
+      "messages": [
+        "Send your tax ID and date of birth to release the transfer."
+      ],
+      "group": "f90b3e87ef6e22fe",
+      "split": "train"
+    },
+    {
+      "id": "reg-military-001",
+      "source": "regressions",
+      "label": "MILITARY_SABOTAGE_RECRUITMENT",
+      "messages": [
+        "Сфотографуй будівлю ТЦК та машини поруч, за надіслані фото заплачу 200 доларів."
+      ],
+      "group": "27b80866d8daf933",
+      "split": "train"
+    },
+    {
+      "id": "reg-military-002",
+      "source": "regressions",
+      "label": "MILITARY_SABOTAGE_RECRUITMENT",
+      "messages": [
+        "Купи розпалювач і підпали колесо військового автомобіля."
+      ],
+      "group": "08329a1705d3abd0",
+      "split": "validation"
+    },
+    {
+      "id": "reg-military-003",
+      "source": "regressions",
+      "label": "MILITARY_SABOTAGE_RECRUITMENT",
+      "messages": [
+        "Пришли координаты, где находится военный склад, за информацию заплачу."
+      ],
+      "group": "3933c2d00bac57ab",
+      "split": "train"
+    },
+    {
+      "id": "reg-military-004",
+      "source": "regressions",
+      "label": "SAFE",
+      "messages": [
+        "У новинах пишуть, що біля ТЦК встановили нову зупинку."
+      ],
+      "group": "c02d9563f23c2a19",
+      "split": "train"
+    },
+    {
+      "id": "reg-offplatform-001",
+      "source": "regressions",
+      "label": "OFF_PLATFORM_REDIRECT",
+      "messages": [
+        "Щоб завершити покупку, напишіть мені у Telegram."
+      ],
+      "group": "df98336245b7a492",
+      "split": "train"
+    },
+    {
+      "id": "reg-offplatform-002",
+      "source": "regressions",
+      "label": "OFF_PLATFORM_REDIRECT",
+      "messages": [
+        "Давайте продолжим в WhatsApp, пришлите туда номер заказа."
+      ],
+      "group": "f31f6b7da15cfbe8",
+      "split": "train"
+    },
+    {
+      "id": "reg-offplatform-003",
+      "source": "regressions",
+      "label": "OFF_PLATFORM_REDIRECT",
+      "messages": [
+        "Contact me on Signal to arrange the payment."
+      ],
+      "group": "da6e93b9c95f7669",
+      "split": "train"
+    },
+    {
+      "id": "reg-offplatform-004",
+      "source": "regressions",
+      "label": "OFF_PLATFORM_REDIRECT",
+      "messages": [
+        "У чаті платформи не проходять фото.",
+        "Напишіть у Viber, там усе відкриється."
+      ],
+      "group": "57dd530dd51317c2",
+      "split": "train"
+    },
+    {
+      "id": "reg-order-status-001",
+      "source": "regressions",
+      "label": "SAFE",
+      "messages": [
+        "Ваше замовлення вже передано перевізнику. Перевірте статус у застосунку."
+      ],
+      "group": "f68872d2f27dd4b8",
+      "split": "train"
+    },
+    {
+      "id": "reg-payment-001",
+      "source": "regressions",
+      "label": "PAYMENT_CREDENTIAL_THEFT",
+      "messages": [
+        "Щоб отримати переказ, продиктуйте CVV-код і термін дії картки."
+      ],
+      "group": "23ab7f16c7f3f68c",
+      "split": "validation"
+    },
+    {
+      "id": "reg-payment-002",
+      "source": "regressions",
+      "label": "PAYMENT_CREDENTIAL_THEFT",
+      "messages": [
+        "Назовите код безопасности карты и баланс для зачисления денег."
+      ],
+      "group": "f7bc146301bf6499",
+      "split": "train"
+    },
+    {
+      "id": "reg-phone-number-call-001",
+      "source": "regressions",
+      "label": "SAFE",
+      "messages": [
+        "Мабуть, технічний збій у додатку, тому просиму лише надіслати ваш номер телефону, щоб я міг одразу зателефонувати та домовитися про зустріч."
+      ],
+      "group": "1e6963f9c62d1a88",
+      "split": "validation"
+    },
+    {
+      "id": "reg-safe-contact-001",
+      "source": "regressions",
+      "label": "SAFE",
+      "messages": [
+        "Я залишатимуся у вбудованому чаті платформи. Напишіть, коли відправите посилку."
+      ],
+      "group": "2286db1f738cdc50",
+      "split": "validation"
+    },
+    {
+      "id": "reg-safe-refund-001",
+      "source": "regressions",
+      "label": "SAFE",
+      "messages": [
+        "Повернення коштів буде видно у вашому банківському застосунку. Не надсилайте нам SMS-коди чи CVV."
+      ],
+      "group": "4d6c88cfe10405fc",
+      "split": "train"
+    },
+    {
+      "id": "reg-verification-001",
+      "source": "regressions",
+      "label": "VERIFICATION_PHISHING",
+      "messages": [
+        "Для перевірки картки надішліть CVV і перейдіть у наш Telegram-бот."
+      ],
+      "group": "9f3ab4af1b69e800",
+      "split": "train"
+    },
+    {
+      "id": "reg-verification-002",
+      "source": "regressions",
+      "label": "VERIFICATION_PHISHING",
+      "messages": [
+        "Срочно подтвердите профиль: пришлите код из СМС, иначе выплата отменится."
+      ],
+      "group": "e1e67f067fc114de",
+      "split": "train"
+    },
+    {
+      "id": "reg-verification-003",
+      "source": "regressions",
+      "label": "VERIFICATION_PHISHING",
+      "messages": [
+        "Verify your account by entering the one-time password on this link: https://example.invalid/verify"
+      ],
+      "group": "df3baf66786b5ee6",
+      "split": "train"
+    },
+    {
+      "id": "reg2-benign-001",
+      "source": "regressions",
+      "label": "SAFE",
+      "messages": [
+        "Умови доставки доступні на офіційному сайті перевізника."
+      ],
+      "group": "f5acc0f7c3174075",
+      "split": "train"
+    },
+    {
+      "id": "reg2-benign-002",
+      "source": "regressions",
+      "label": "SAFE",
+      "messages": [
+        "The courier will call using the number already saved in your order."
+      ],
+      "group": "952c7071b78cea53",
+      "split": "train"
+    },
+    {
+      "id": "reg2-benign-003",
+      "source": "regressions",
+      "label": "SAFE",
+      "messages": [
+        "Код відділення перевізника — це не код підтвердження банку."
+      ],
+      "group": "5caa16fd87b55268",
+      "split": "train"
+    },
+    {
+      "id": "reg2-benign-004",
+      "source": "regressions",
+      "label": "SAFE",
+      "messages": [
+        "У новині згадали фішинг, але ніхто не просить переходити за посиланням."
+      ],
+      "group": "700a5366ed7e4eb9",
+      "split": "train"
+    },
+    {
+      "id": "reg2-benign-005",
+      "source": "regressions",
+      "label": "SAFE",
+      "messages": [
+        "I prefer to keep our conversation and payment on this platform."
+      ],
+      "group": "49c0c7f9b62bd714",
+      "split": "train"
+    },
+    {
+      "id": "reg2-benign-006",
+      "source": "regressions",
+      "label": "SAFE",
+      "messages": [
+        "Мій номер є в профілі, проте спілкуймося тут."
+      ],
+      "group": "cac7f537a3f782f3",
+      "split": "train"
+    },
+    {
+      "id": "reg2-benign-007",
+      "source": "regressions",
+      "label": "SAFE",
+      "messages": [
+        "Для оплати використовую офіційний застосунок банку самостійно."
+      ],
+      "group": "62363e2dbc49eaa2",
+      "split": "train"
+    },
+    {
+      "id": "reg2-benign-008",
+      "source": "regressions",
+      "label": "SAFE",
+      "messages": [
+        "The article discusses military history without current locations or requests."
+      ],
+      "group": "02b6424ed29a8425",
+      "split": "validation"
+    },
+    {
+      "id": "reg2-crypto-001",
+      "source": "regressions",
+      "label": "CRYPTO_WALLET_COMPROMISE",
+      "messages": [
+        "Надішліть seed phrase з 12 слів для відновлення гаманця."
+      ],
+      "group": "f99f25bb40fbe894",
+      "split": "train"
+    },
+    {
+      "id": "reg2-crypto-002",
+      "source": "regressions",
+      "label": "CRYPTO_WALLET_COMPROMISE",
+      "messages": [
+        "Підтримка просить приватний ключ, щоб синхронізувати баланс."
+      ],
+      "group": "2fa71e2e51a51dce",
+      "split": "validation"
+    },
+    {
+      "id": "reg2-crypto-003",
+      "source": "regressions",
+      "label": "CRYPTO_WALLET_COMPROMISE",
+      "messages": [
+        "Введіть мнемонічну фразу на https://secure.example.invalid/check, і гаманець буде розблоковано."
+      ],
+      "group": "4502c3ee3613ebe7",
+      "split": "train"
+    },
+    {
+      "id": "reg2-crypto-004",
+      "source": "regressions",
+      "label": "CRYPTO_WALLET_COMPROMISE",
+      "messages": [
+        "Скиньте пароль криптогаманця для перевірки транзакції."
+      ],
+      "group": "a2a83ac29d947556",
+      "split": "train"
+    },
+    {
+      "id": "reg2-crypto-005",
+      "source": "regressions",
+      "label": "CRYPTO_WALLET_COMPROMISE",
+      "messages": [
+        "Надішліть резервну фразу з 24 слів нашому фахівцю."
+      ],
+      "group": "910ddd4989fe6eef",
+      "split": "train"
+    },
+    {
+      "id": "reg2-crypto-006",
+      "source": "regressions",
+      "label": "CRYPTO_WALLET_COMPROMISE",
+      "messages": [
+        "Для повернення токенів повідомте приватний ключ гаманця."
+      ],
+      "group": "a8c5299d26037bf6",
+      "split": "train"
+    },
+    {
+      "id": "reg2-escrow-001",
+      "source": "regressions",
+      "label": "ESCROW_DELIVERY_SCAM",
+      "messages": [
+        "Оплатив доставку, заберіть кошти через https://verify.example.invalid."
+      ],
+      "group": "389221a225993c94",
+      "split": "validation"
+    },
+    {
+      "id": "reg2-escrow-002",
+      "source": "regressions",
+      "label": "ESCROW_DELIVERY_SCAM",
+      "messages": [
+        "Для отримання грошей за товар відкрийте форму перевізника https://parcel.example.invalid/claim."
+      ],
+      "group": "65545cb230ed1827",
+      "split": "train"
+    },
+    {
+      "id": "reg2-escrow-003",
+      "source": "regressions",
+      "label": "ESCROW_DELIVERY_SCAM",
+      "messages": [
+        "Платформа зарезервувала оплату; введіть картку на https://secure.example.invalid/check для зарахування."
+      ],
+      "group": "857f40d93305cecc",
+      "split": "train"
+    },
+    {
+      "id": "reg2-escrow-004",
+      "source": "regressions",
+      "label": "ESCROW_DELIVERY_SCAM",
+      "messages": [
+        "Я вже оплатив замовлення, підтвердіть доставку за посиланням https://pay.example.invalid."
+      ],
+      "group": "f803cf28b5882f57",
+      "split": "train"
+    },
+    {
+      "id": "reg2-escrow-005",
+      "source": "regressions",
+      "label": "ESCROW_DELIVERY_SCAM",
+      "messages": [
+        "Кур’єр чекає підтвердження виплати на сторінці https://account.example.invalid/confirm."
+      ],
+      "group": "3924dce43f3b03fd",
+      "split": "validation"
+    },
+    {
+      "id": "reg2-escrow-006",
+      "source": "regressions",
+      "label": "ESCROW_DELIVERY_SCAM",
+      "messages": [
+        "Щоб отримати передоплату, пройдіть оформлення доставки на https://wallet.example.invalid/restore."
+      ],
+      "group": "d0ec6ea6c1cb1dcf",
+      "split": "train"
+    },
+    {
+      "id": "reg2-identity-001",
+      "source": "regressions",
+      "label": "IDENTITY_PROBING",
+      "messages": [
+        "Надішліть фото паспорта з обох боків для оформлення доставки."
+      ],
+      "group": "dff16acd99a1cbb9",
+      "split": "train"
+    },
+    {
+      "id": "reg2-identity-002",
+      "source": "regressions",
+      "label": "IDENTITY_PROBING",
+      "messages": [
+        "Напишіть свій податковий номер, щоб ми підтвердили особу."
+      ],
+      "group": "05df86a3e9600315",
+      "split": "validation"
+    },
+    {
+      "id": "reg2-identity-003",
+      "source": "regressions",
+      "label": "IDENTITY_PROBING",
+      "messages": [
+        "Для перевірки покупця потрібні дата народження та повне ім’я."
+      ],
+      "group": "6d019e6e7a24ce4e",
+      "split": "train"
+    },
+    {
+      "id": "reg2-identity-004",
+      "source": "regressions",
+      "label": "IDENTITY_PROBING",
+      "messages": [
+        "Завантажте фото посвідчення особи у форму https://pay.example.invalid."
+      ],
+      "group": "a8cfd71e63c33813",
+      "split": "train"
+    },
+    {
+      "id": "reg2-identity-005",
+      "source": "regressions",
+      "label": "IDENTITY_PROBING",
+      "messages": [
+        "Надішліть адресу проживання та номер документа для реєстрації виплати."
+      ],
+      "group": "9d3ef25223b28286",
+      "split": "train"
+    },
+    {
+      "id": "reg2-identity-006",
+      "source": "regressions",
+      "label": "IDENTITY_PROBING",
+      "messages": [
+        "Підтвердіть особу, повідомивши серію та номер паспорта."
+      ],
+      "group": "f7001142ad4cf20b",
+      "split": "train"
+    },
+    {
+      "id": "reg2-military-001",
+      "source": "regressions",
+      "label": "MILITARY_SABOTAGE_RECRUITMENT",
+      "messages": [
+        "За винагороду сфотографуйте військовий об’єкт і надішліть знімок."
+      ],
+      "group": "f1be316db6cd9f34",
+      "split": "train"
+    },
+    {
+      "id": "reg2-military-002",
+      "source": "regressions",
+      "label": "MILITARY_SABOTAGE_RECRUITMENT",
+      "messages": [
+        "Передайте координати блокпоста, за це заплатимо готівкою."
+      ],
+      "group": "f6bea1f0c692692d",
+      "split": "train"
+    },
+    {
+      "id": "reg2-military-003",
+      "source": "regressions",
+      "label": "MILITARY_SABOTAGE_RECRUITMENT",
+      "messages": [
+        "Знайдіть графік переміщення техніки та передайте його нам."
+      ],
+      "group": "595ef0357bf48b75",
+      "split": "train"
+    },
+    {
+      "id": "reg2-military-004",
+      "source": "regressions",
+      "label": "MILITARY_SABOTAGE_RECRUITMENT",
+      "messages": [
+        "Потрібен кур’єр, щоб закласти пристрій біля військової будівлі."
+      ],
+      "group": "03974aeffcd892c4",
+      "split": "validation"
+    },
+    {
+      "id": "reg2-military-005",
+      "source": "regressions",
+      "label": "MILITARY_SABOTAGE_RECRUITMENT",
+      "messages": [
+        "Зніміть на відео систему ППО та позначте місце на мапі."
+      ],
+      "group": "988aa2c17dd6cd0c",
+      "split": "train"
+    },
+    {
+      "id": "reg2-military-006",
+      "source": "regressions",
+      "label": "MILITARY_SABOTAGE_RECRUITMENT",
+      "messages": [
+        "Допоможіть пошкодити військовий транспорт, витрати компенсуємо."
+      ],
+      "group": "840f95f19b09cc9f",
+      "split": "train"
+    },
+    {
+      "id": "reg2-payment-001",
+      "source": "regressions",
+      "label": "PAYMENT_CREDENTIAL_THEFT",
+      "messages": [
+        "Щоб отримати оплату, введіть номер картки та CVV на сторінці https://verify.example.invalid."
+      ],
+      "group": "6acafa6aba9cd304",
+      "split": "train"
+    },
+    {
+      "id": "reg2-payment-002",
+      "source": "regressions",
+      "label": "PAYMENT_CREDENTIAL_THEFT",
+      "messages": [
+        "Надішліть фото картки з обох боків для зарахування коштів."
+      ],
+      "group": "2b4f8683301decb3",
+      "split": "train"
+    },
+    {
+      "id": "reg2-payment-003",
+      "source": "regressions",
+      "label": "PAYMENT_CREDENTIAL_THEFT",
+      "messages": [
+        "Для повернення коштів продиктуйте PIN-код банківської картки."
+      ],
+      "group": "f293800fe14fad43",
+      "split": "train"
+    },
+    {
+      "id": "reg2-payment-004",
+      "source": "regressions",
+      "label": "PAYMENT_CREDENTIAL_THEFT",
+      "messages": [
+        "Введіть дані картки на https://pay.example.invalid, і виплата надійде за хвилину."
+      ],
+      "group": "de193a1f33480028",
+      "split": "train"
+    },
+    {
+      "id": "reg2-payment-005",
+      "source": "regressions",
+      "label": "PAYMENT_CREDENTIAL_THEFT",
+      "messages": [
+        "Надішліть код із банківського повідомлення для підтвердження переказу."
+      ],
+      "group": "58121e52bec535d8",
+      "split": "train"
+    },
+    {
+      "id": "reg2-payment-006",
+      "source": "regressions",
+      "label": "PAYMENT_CREDENTIAL_THEFT",
+      "messages": [
+        "Щоб покупець оплатив доставку, авторизуйтеся в банку за https://wallet.example.invalid/restore."
+      ],
+      "group": "7fd9b64dc335ad25",
+      "split": "train"
+    },
+    {
+      "id": "reg2-phone-001",
+      "source": "regressions",
+      "label": "OFF_PLATFORM_REDIRECT",
+      "messages": [
+        "Напишіть мені у Telegram, там швидше обговоримо покупку."
+      ],
+      "group": "4a4f96b70a6d19c7",
+      "split": "validation"
+    },
+    {
+      "id": "reg2-phone-002",
+      "source": "regressions",
+      "label": "OFF_PLATFORM_REDIRECT",
+      "messages": [
+        "Залиште номер у чаті — надішлю деталі замовлення в Signal."
+      ],
+      "group": "09023adb2320f874",
+      "split": "validation"
+    },
+    {
+      "id": "reg2-phone-003",
+      "source": "regressions",
+      "label": "OFF_PLATFORM_REDIRECT",
+      "messages": [
+        "Для продовження розмови перейдіть у WhatsApp, тут незручно."
+      ],
+      "group": "ccdf0b3decafa2f0",
+      "split": "train"
+    },
+    {
+      "id": "reg2-phone-004",
+      "source": "regressions",
+      "label": "OFF_PLATFORM_REDIRECT",
+      "messages": [
+        "Давайте обміняємося контактами й домовимося поза майданчиком: Viber."
+      ],
+      "group": "63e33e33233dc6a1",
+      "split": "train"
+    },
+    {
+      "id": "reg2-phone-005",
+      "source": "regressions",
+      "label": "OFF_PLATFORM_REDIRECT",
+      "messages": [
+        "Надішліть телефон, я зв’яжуся з вами у Telegram."
+      ],
+      "group": "ff90e7f4f3644f63",
+      "split": "train"
+    },
+    {
+      "id": "reg2-phone-006",
+      "source": "regressions",
+      "label": "OFF_PLATFORM_REDIRECT",
+      "messages": [
+        "Оплату та подробиці узгодимо в WhatsApp, напишіть мені туди."
+      ],
+      "group": "f81610c66b527539",
+      "split": "train"
+    },
+    {
+      "id": "reg2-verification-001",
+      "source": "regressions",
+      "label": "VERIFICATION_PHISHING",
+      "messages": [
+        "Для підтвердження замовлення введіть код із SMS у формі за посиланням https://verify.example.invalid."
+      ],
+      "group": "f80b82a9a7e25653",
+      "split": "train"
+    },
+    {
+      "id": "reg2-verification-002",
+      "source": "regressions",
+      "label": "VERIFICATION_PHISHING",
+      "messages": [
+        "Надішліть код підтвердження, щоб ми перевірили ваш профіль."
+      ],
+      "group": "eb8c70750408f9db",
+      "split": "train"
+    },
+    {
+      "id": "reg2-verification-003",
+      "source": "regressions",
+      "label": "VERIFICATION_PHISHING",
+      "messages": [
+        "Ваш акаунт заблокують, якщо не підтвердите вхід за посиланням https://secure.example.invalid/check."
+      ],
+      "group": "17998ef18115a1d0",
+      "split": "validation"
+    },
+    {
+      "id": "reg2-verification-004",
+      "source": "regressions",
+      "label": "VERIFICATION_PHISHING",
+      "messages": [
+        "Служба безпеки просить одноразовий код для скасування підозрілої операції."
+      ],
+      "group": "6c69c93f0bf9f116",
+      "split": "train"
+    },
+    {
+      "id": "reg2-verification-005",
+      "source": "regressions",
+      "label": "VERIFICATION_PHISHING",
+      "messages": [
+        "Введіть пароль на сторінці https://account.example.invalid/confirm, щоб відновити доступ до оголошення."
+      ],
+      "group": "5d5b2fbe6dbec8e7",
+      "split": "validation"
+    },
+    {
+      "id": "reg2-verification-006",
+      "source": "regressions",
+      "label": "VERIFICATION_PHISHING",
+      "messages": [
+        "Повідомте код із SMS оператору чату для завершення перевірки."
+      ],
+      "group": "d2dabb16ff0bbfcc",
+      "split": "train"
+    },
+    {
+      "id": "safe2-dev-001",
+      "source": "development",
+      "label": "SAFE",
+      "messages": [
+        "Кур’єр зателефонує за номером, який уже збережений у замовленні."
+      ],
+      "group": "f99509adf0292cbd",
+      "split": "train"
+    },
+    {
+      "id": "safe2-dev-002",
+      "source": "development",
+      "label": "SAFE",
+      "messages": [
+        "Номер накладної потрібен лише для отримання посилки у відділенні."
+      ],
+      "group": "ffc8967cb6b1d854",
+      "split": "train"
+    },
+    {
+      "id": "safe2-dev-003",
+      "source": "development",
+      "label": "SAFE",
+      "messages": [
+        "The carrier will send tracking updates through the marketplace order page."
+      ],
+      "group": "be71e3d5112158e9",
+      "split": "train"
+    },
+    {
+      "id": "safe2-dev-004",
+      "source": "development",
+      "label": "SAFE",
+      "messages": [
+        "Покупець запитав, чи доступна доставка до поштомата."
+      ],
+      "group": "30649714f2d373a5",
+      "split": "validation"
+    },
+    {
+      "id": "safe2-dev-005",
+      "source": "development",
+      "label": "SAFE",
+      "messages": [
+        "Я самостійно створив накладну в офіційному застосунку перевізника."
+      ],
+      "group": "bd46fbaaeee2d76e",
+      "split": "train"
+    },
+    {
+      "id": "safe2-dev-006",
+      "source": "development",
+      "label": "SAFE",
+      "messages": [
+        "Please keep the shipping discussion here so both sides can see the details."
+      ],
+      "group": "45065f4286e7afbc",
+      "split": "train"
+    },
+    {
+      "id": "safe2-dev-007",
+      "source": "development",
+      "label": "SAFE",
+      "messages": [
+        "Для відправлення достатньо даних, які платформа вже показує у формі доставки."
+      ],
+      "group": "5afc350d97e22f82",
+      "split": "train"
+    },
+    {
+      "id": "safe2-dev-008",
+      "source": "development",
+      "label": "SAFE",
+      "messages": [
+        "Курьер позвонит по номеру, который уже указан в заказе."
+      ],
+      "group": "1813c62ca36c0fd8",
+      "split": "validation"
+    },
+    {
+      "id": "safe2-dev-009",
+      "source": "development",
+      "label": "SAFE",
+      "messages": [
+        "Я перевірив статус посилки на офіційному сайті за номером відстеження."
+      ],
+      "group": "c417ccb439f89e48",
+      "split": "train"
+    },
+    {
+      "id": "safe2-dev-010",
+      "source": "development",
+      "label": "SAFE",
+      "messages": [
+        "The buyer asks whether pickup at the post office is available."
+      ],
+      "group": "821369e29de7beea",
+      "split": "train"
+    },
+    {
+      "id": "safe2-dev-011",
+      "source": "development",
+      "label": "SAFE",
+      "messages": [
+        "Кошти зарахуються після підтвердження отримання товару в застосунку майданчика."
+      ],
+      "group": "6085dc8b867bcc61",
+      "split": "train"
+    },
+    {
+      "id": "safe2-dev-012",
+      "source": "development",
+      "label": "SAFE",
+      "messages": [
+        "Надішліть, будь ласка, тільки номер відділення, яке вам зручне."
+      ],
+      "group": "ef7909486c606acd",
+      "split": "train"
+    },
+    {
+      "id": "safe2-dev-013",
+      "source": "development",
+      "label": "SAFE",
+      "messages": [
+        "I will use the platform checkout and its built-in shipping label."
+      ],
+      "group": "1c70527517153c4a",
+      "split": "validation"
+    },
+    {
+      "id": "safe2-dev-014",
+      "source": "development",
+      "label": "SAFE",
+      "messages": [
+        "Перевізник просить перевірити адресу у вашому профілі на офіційній сторінці замовлення."
+      ],
+      "group": "eab7cdd68cef0b2a",
+      "split": "train"
+    },
+    {
+      "id": "safe2-dev-015",
+      "source": "development",
+      "label": "SAFE",
+      "messages": [
+        "У повідомленні є посилання на публічні правила доставки перевізника, без форми входу чи оплати."
+      ],
+      "group": "9461d4019b91f470",
+      "split": "train"
+    },
+    {
+      "id": "safe2-dev-016",
+      "source": "development",
+      "label": "SAFE",
+      "messages": [
+        "Покупець уже оплатив товар через офіційний checkout; статус видно в кабінеті продавця."
+      ],
+      "group": "b72b6ffa8d245ec9",
+      "split": "train"
+    },
+    {
+      "id": "safe2-dev-017",
+      "source": "development",
+      "label": "SAFE",
+      "messages": [
+        "Для переказу на IBAN не потрібно повідомляти CVV або одноразовий банківський код."
+      ],
+      "group": "ec03689526b8ea9d",
+      "split": "train"
+    },
+    {
+      "id": "safe2-dev-018",
+      "source": "development",
+      "label": "SAFE",
+      "messages": [
+        "Never share an OTP; I am explaining this safety rule to a friend."
+      ],
+      "group": "444638749cb126a5",
+      "split": "train"
+    },
+    {
+      "id": "safe2-dev-019",
+      "source": "development",
+      "label": "SAFE",
+      "messages": [
+        "Я ввів дані картки лише у власному банківському застосунку, який відкрив самостійно."
+      ],
+      "group": "3ed27546c4786994",
+      "split": "train"
+    },
+    {
+      "id": "safe2-dev-020",
+      "source": "development",
+      "label": "SAFE",
+      "messages": [
+        "Підтвердження оплати прийшло в банківський застосунок, кодів у чаті ніхто не просив."
+      ],
+      "group": "6e73a521197f2ae0",
+      "split": "train"
+    },
+    {
+      "id": "safe2-dev-021",
+      "source": "development",
+      "label": "SAFE",
+      "messages": [
+        "Оплата прошла через встроенную форму площадки, чек доступен в истории заказа."
+      ],
+      "group": "107db24f6ae1b518",
+      "split": "validation"
+    },
+    {
+      "id": "safe2-dev-022",
+      "source": "development",
+      "label": "SAFE",
+      "messages": [
+        "Підкажіть, чи можна оплатити після огляду товару при отриманні?"
+      ],
+      "group": "70032d3f04360396",
+      "split": "train"
+    },
+    {
+      "id": "safe2-dev-023",
+      "source": "development",
+      "label": "SAFE",
+      "messages": [
+        "A card number alone is not enough to authorize a transfer; this is general advice."
+      ],
+      "group": "4a23b5e688295b96",
+      "split": "train"
+    },
+    {
+      "id": "safe2-dev-024",
+      "source": "development",
+      "label": "SAFE",
+      "messages": [
+        "Я повернув гроші покупцю через історію транзакцій у своєму банку."
+      ],
+      "group": "14046ea6f43134c4",
+      "split": "validation"
+    },
+    {
+      "id": "safe2-dev-025",
+      "source": "development",
+      "label": "SAFE",
+      "messages": [
+        "У статті пояснюють, чому не можна передавати PIN-код стороннім людям."
+      ],
+      "group": "3ef3a32a7e5dfd88",
+      "split": "train"
+    },
+    {
+      "id": "safe2-dev-026",
+      "source": "development",
+      "label": "SAFE",
+      "messages": [
+        "The seller accepts cash on delivery and does not ask for payment details in chat."
+      ],
+      "group": "3d33bc1a22cdb160",
+      "split": "train"
+    },
+    {
+      "id": "safe2-dev-027",
+      "source": "development",
+      "label": "SAFE",
+      "messages": [
+        "Платіжний статус оновився на офіційному сайті після входу через закладку браузера."
+      ],
+      "group": "b94c06815df44ad4",
+      "split": "train"
+    },
+    {
+      "id": "safe2-dev-028",
+      "source": "development",
+      "label": "SAFE",
+      "messages": [
+        "Виплата ще обробляється; дочекаюся повідомлення в особистому кабінеті."
+      ],
+      "group": "8b89d05e926be121",
+      "split": "train"
+    },
+    {
+      "id": "safe2-dev-029",
+      "source": "development",
+      "label": "SAFE",
+      "messages": [
+        "I can receive a bank transfer using my IBAN; no card security data is needed."
+      ],
+      "group": "734db3f81deb59ce",
+      "split": "train"
+    },
+    {
+      "id": "safe2-dev-030",
+      "source": "development",
+      "label": "SAFE",
+      "messages": [
+        "Банк надіслав сповіщення про зарахування, але я не пересилаю його код нікому."
+      ],
+      "group": "57ab4b792415b5d4",
+      "split": "train"
+    },
+    {
+      "id": "safe2-dev-031",
+      "source": "development",
+      "label": "SAFE",
+      "messages": [
+        "Мій номер є у профілі, але залишмо листування в цьому чаті."
+      ],
+      "group": "034209427a7d8eb2",
+      "split": "validation"
+    },
+    {
+      "id": "safe2-dev-032",
+      "source": "development",
+      "label": "SAFE",
+      "messages": [
+        "Для дзвінка кур’єра використайте контакт, уже прив’язаний до доставки."
+      ],
+      "group": "24d2dfbf7a29b133",
+      "split": "validation"
+    },
+    {
+      "id": "safe2-dev-033",
+      "source": "development",
+      "label": "SAFE",
+      "messages": [
+        "We can continue here; the marketplace keeps a record of the conversation."
+      ],
+      "group": "ee8d62f2c6ee082f",
+      "split": "train"
+    },
+    {
+      "id": "safe2-dev-034",
+      "source": "development",
+      "label": "SAFE",
+      "messages": [
+        "У правилах платформи радять не переносити угоду до сторонніх месенджерів."
+      ],
+      "group": "d9bf4a9cc9a2951f",
+      "split": "train"
+    },
+    {
+      "id": "safe2-reg-001",
+      "source": "regressions",
+      "label": "SAFE",
+      "messages": [
+        "Давайте общаться здесь, так безопаснее для сделки."
+      ],
+      "group": "51ef1d85cb0b8892",
+      "split": "train"
+    },
+    {
+      "id": "safe2-reg-002",
+      "source": "regressions",
+      "label": "SAFE",
+      "messages": [
+        "Покупець написав, що не користується Telegram, і продовжив обговорення на платформі."
+      ],
+      "group": "470f36c2c3898c46",
+      "split": "train"
+    },
+    {
+      "id": "safe2-reg-003",
+      "source": "regressions",
+      "label": "SAFE",
+      "messages": [
+        "The word WhatsApp appears in a comparison of messaging app privacy settings."
+      ],
+      "group": "85b4d86052a6f068",
+      "split": "train"
+    },
+    {
+      "id": "safe2-reg-004",
+      "source": "regressions",
+      "label": "SAFE",
+      "messages": [
+        "У довідці сказано, що підтримка не просить телефон у приватному чаті."
+      ],
+      "group": "d9139e974440729d",
+      "split": "train"
+    },
+    {
+      "id": "safe2-reg-005",
+      "source": "regressions",
+      "label": "SAFE",
+      "messages": [
+        "Можна зателефонувати через кнопку дзвінка, яку надає сама платформа."
+      ],
+      "group": "88c231c9b55ab1b1",
+      "split": "train"
+    },
+    {
+      "id": "safe2-reg-006",
+      "source": "regressions",
+      "label": "SAFE",
+      "messages": [
+        "My contact details are hidden by the service until an order is confirmed."
+      ],
+      "group": "1759c301784e6191",
+      "split": "validation"
+    },
+    {
+      "id": "safe2-reg-007",
+      "source": "regressions",
+      "label": "SAFE",
+      "messages": [
+        "Я згадав Viber лише як приклад застосунку, а не пропоную перейти туди."
+      ],
+      "group": "869c2fcb424c08d4",
+      "split": "train"
+    },
+    {
+      "id": "safe2-reg-008",
+      "source": "regressions",
+      "label": "SAFE",
+      "messages": [
+        "Покупець запитав, чи є у товару функція дзвінка; номерів не обмінювали."
+      ],
+      "group": "5785099cf3f8fa81",
+      "split": "train"
+    },
+    {
+      "id": "safe2-reg-009",
+      "source": "regressions",
+      "label": "SAFE",
+      "messages": [
+        "У формі перевізника ім’я одержувача вже підставлене з профілю."
+      ],
+      "group": "56d04b239d48bba9",
+      "split": "train"
+    },
+    {
+      "id": "safe2-reg-010",
+      "source": "regressions",
+      "label": "SAFE",
+      "messages": [
+        "The article recommends never posting passport photos in public chats."
+      ],
+      "group": "615fddc53630bfa3",
+      "split": "train"
+    },
+    {
+      "id": "safe2-reg-011",
+      "source": "regressions",
+      "label": "SAFE",
+      "messages": [
+        "Я сам заповнюю адресу доставки у вбудованій формі платформи."
+      ],
+      "group": "a552c17abe144557",
+      "split": "train"
+    },
+    {
+      "id": "safe2-reg-012",
+      "source": "regressions",
+      "label": "SAFE",
+      "messages": [
+        "Покупець запитав, на яке ім’я оформити накладну, і не просив номер документа."
+      ],
+      "group": "a0af33c4b2dd4f5a",
+      "split": "train"
+    },
+    {
+      "id": "safe2-reg-013",
+      "source": "regressions",
+      "label": "SAFE",
+      "messages": [
+        "Для получения посылки покажите документ сотруднику отделения лично."
+      ],
+      "group": "dbf67328457263d8",
+      "split": "train"
+    },
+    {
+      "id": "safe2-reg-014",
+      "source": "regressions",
+      "label": "SAFE",
+      "messages": [
+        "У прикладі навчального курсу використано вигадані паспортні дані."
+      ],
+      "group": "76894b33aaf08324",
+      "split": "train"
+    },
+    {
+      "id": "safe2-reg-015",
+      "source": "regressions",
+      "label": "SAFE",
+      "messages": [
+        "The profile displays only a public nickname, not a legal identity document."
+      ],
+      "group": "810184d8cf0f9018",
+      "split": "train"
+    },
+    {
+      "id": "safe2-reg-016",
+      "source": "regressions",
+      "label": "SAFE",
+      "messages": [
+        "Підтримка попросила описати проблему, але не запитувала адресу чи податковий номер."
+      ],
+      "group": "73f8328aaff320ba",
+      "split": "train"
+    },
+    {
+      "id": "safe2-reg-017",
+      "source": "regressions",
+      "label": "SAFE",
+      "messages": [
+        "У цій дискусії порівнюють способи захисту персональних даних."
+      ],
+      "group": "4fc2e936ae2d82a0",
+      "split": "train"
+    },
+    {
+      "id": "safe2-reg-018",
+      "source": "regressions",
+      "label": "SAFE",
+      "messages": [
+        "I removed my address from the public listing before publishing it."
+      ],
+      "group": "8c54ee8369be7eaa",
+      "split": "train"
+    },
+    {
+      "id": "safe2-reg-019",
+      "source": "regressions",
+      "label": "SAFE",
+      "messages": [
+        "Seed-фразу слід зберігати офлайн; це попередження з довідника з безпеки."
+      ],
+      "group": "cb428376d3f42531",
+      "split": "train"
+    },
+    {
+      "id": "safe2-reg-020",
+      "source": "regressions",
+      "label": "SAFE",
+      "messages": [
+        "A wallet provider should never ask a customer to reveal a private key."
+      ],
+      "group": "f7d6b3626d564e70",
+      "split": "train"
+    },
+    {
+      "id": "safe2-reg-021",
+      "source": "regressions",
+      "label": "SAFE",
+      "messages": [
+        "Я читаю документацію про резервне копіювання гаманця, жодних секретів не надсилаю."
+      ],
+      "group": "5dea640f73874379",
+      "split": "train"
+    },
+    {
+      "id": "safe2-reg-022",
+      "source": "regressions",
+      "label": "SAFE",
+      "messages": [
+        "В статье объясняется, что мнемоническую фразу нельзя вводить на сторонних сайтах."
+      ],
+      "group": "f7ba0d0205dd9558",
+      "split": "train"
+    },
+    {
+      "id": "safe2-reg-023",
+      "source": "regressions",
+      "label": "SAFE",
+      "messages": [
+        "Публічна адреса гаманця призначена для отримання переказів і не є приватним ключем."
+      ],
+      "group": "4205ff7c25eeee02",
+      "split": "train"
+    },
+    {
+      "id": "safe2-reg-024",
+      "source": "regressions",
+      "label": "SAFE",
+      "messages": [
+        "The tutorial uses a disposable test wallet with a fake recovery phrase."
+      ],
+      "group": "2ffdc4fba08d84ae",
+      "split": "validation"
+    },
+    {
+      "id": "safe2-reg-025",
+      "source": "regressions",
+      "label": "SAFE",
+      "messages": [
+        "Мій криптогаманець працює, тому відновлювати доступ не потрібно."
+      ],
+      "group": "8ec463a26a25bdc2",
+      "split": "train"
+    },
+    {
+      "id": "safe2-reg-026",
+      "source": "regressions",
+      "label": "SAFE",
+      "messages": [
+        "Підтримка відповіла, що ніколи не запитуватиме пароль чи seed phrase."
+      ],
+      "group": "4ba2d5cee5ea445a",
+      "split": "train"
+    },
+    {
+      "id": "safe2-reg-027",
+      "source": "regressions",
+      "label": "SAFE",
+      "messages": [
+        "We are discussing the difference between a wallet address and a seed phrase."
+      ],
+      "group": "48778349aadac34c",
+      "split": "train"
+    },
+    {
+      "id": "safe2-reg-028",
+      "source": "regressions",
+      "label": "SAFE",
+      "messages": [
+        "Це навчальний приклад фішингового повідомлення, отримувачу нічого не пропонують вводити."
+      ],
+      "group": "07bb6bb649f23acb",
+      "split": "validation"
+    },
+    {
+      "id": "safe2-reg-029",
+      "source": "regressions",
+      "label": "SAFE",
+      "messages": [
+        "Я створив новий тестовий гаманець локально для лабораторної роботи."
+      ],
+      "group": "9ad6f5be34f04922",
+      "split": "train"
+    },
+    {
+      "id": "safe2-reg-030",
+      "source": "regressions",
+      "label": "SAFE",
+      "messages": [
+        "Публичный адрес можно сообщить для перевода, секретную фразу — нельзя."
+      ],
+      "group": "f229c865129411f5",
+      "split": "train"
+    },
+    {
+      "id": "safe2-reg-031",
+      "source": "regressions",
+      "label": "SAFE",
+      "messages": [
+        "У новині повідомили про відкриття історичної виставки військової техніки."
+      ],
+      "group": "0a7dbdafe5bcfe62",
+      "split": "validation"
+    },
+    {
+      "id": "safe2-reg-032",
+      "source": "regressions",
+      "label": "SAFE",
+      "messages": [
+        "The documentary discusses the history of radar without mentioning current sites."
+      ],
+      "group": "a6b86ebab5e4a009",
+      "split": "train"
+    },
+    {
+      "id": "safe2-reg-033",
+      "source": "regressions",
+      "label": "SAFE",
+      "messages": [
+        "У підручнику описано принцип роботи ППО на загальному рівні."
+      ],
+      "group": "18a444e204a092ea",
+      "split": "validation"
+    }
+  ]
+}
