@@ -64,6 +64,7 @@ interface IntentDefinition {
 export class IntentClassifier {
   private static readonly OFF_PLATFORM_NEGATION = /(?:не|ніколи\s+не|не\s+(?:варто|треба|потрібно)|not|never|do\s+not|don['’]?t)\s+[^.!?\n]{0,35}$/iu;
   private static readonly SENSITIVE_REQUEST_NEGATION = /(?:^|[\s,;:])(?:не(?:\s+(?:потрібно|треба|варто|слід|можна))?|ніколи\s+не|never|do\s+not|don['’]?t|should\s+not|shouldn['’]?t)\s*$/iu;
+  private static readonly HARD_LOCK_REQUEST_NEGATION = /(?:^|\s)(?:не|ніколи\s+не|never|do\s+not|don['’]?t)\s+(?:(?:просить|просит|asks?)\s+(?:you\s+)?(?:to\s+)?)?$/iu;
 
   /**
    * Семантичні словники кластерів слів з підтримкою динамічного перемикання мов:
@@ -462,6 +463,20 @@ export class IntentClassifier {
       ],
     },
 
+    {
+      cluster: 'military_sabotage',
+      weight: 50,
+      lang: 'universal',
+      patterns: [
+        // Concrete solicitation + reconnaissance target / destructive action.
+        /(?:знайдіть|знайди|передайте|надішліть)\s+(?:[а-яіїє\s]{0,25})?графік\s+(?:руху|переміщення)\s+(?:військов[а-яіїє]*\s+)?технік[а-яіїє]*/giu,
+        /(?:закласти|закладіть|заклади)\s+(?:вибухов[а-яіїє]*\s+)?пристр[а-яіїє]*\s+(?:[а-яіїє\s]{0,25})?військов[а-яіїє]*/giu,
+        /(?:зніміть|зніми|сфотографуйте|сфотографуй)\s+(?:[а-яіїє\s]{0,25})?(?:ппо|військов[а-яіїє]*\s+(?:обєкт|технік|позиці))/giu,
+        /(?:допоможіть\s+|допоможи\s+)?(?:пошкодити|пошкодьте|знищити|знищіть)\s+військов[а-яіїє]*\s+(?:транспорт|технік|обєкт)/giu,
+        /(?:pay|hire|recruit)\s+(?:[a-z\s]{0,25})?couriers?\s+to\s+(?:collect|gather)\s+(?:[a-z\s]{0,25})?(?:reconnaissance|intelligence)\s+(?:[a-z\s]{0,25})?military\s+(?:sites|positions|bases)/giu,
+      ],
+    },
+
     // =========================================================================
     // 9. CRYPTO PHISHING & PASSWORD THEFT
     // =========================================================================
@@ -470,6 +485,9 @@ export class IntentClassifier {
       weight: 45,
       lang: 'universal',
       patterns: [
+        // Require a request and a wallet secret, rather than a wallet/crypto mention.
+        // Technical English words also match the Cyrillic homoglyphs produced by normalization.
+        /(?:надішліть|надішли|надсилайте|повідомте|повідомляйте|повідом|ввести|введіть|вводьте|надавайте|просить|попросив|пришлите|сообщите|просит|напишіть|вкажіть|скиньте|надайте|продиктуйте|напишите|укажите|предоставьте|введите|send|share|enter|provide|give|tell)\s+(?:ваш[а-яіїєё]*\s+|св[іо][йю]\s+|your\s+)?(?:с[іи]д\s*фраз[а-яіїєё]*|s[еe]{2}d\s*[рp]hr[аa]s[еe]|s[еe][сc]r[еe]t\s*r[еe][сc][оo]v[еe]r[уy]\s*[рp]hr[аa]s[еe]|мнемон[іи]ч[а-яіїєё]*\s+фраз[а-яіїєё]*|резервн[а-яіїєё]*\s+фраз[а-яіїєё]*|приватн[а-яіїєё]*\s+ключ[а-яіїєё]*|[рp]r[іi]v[аa]t[еe]\s+k[еe][уy])/giu,
         /(?:напишіть|вкажіть|скиньте|скажіть|надайте|продиктуйте|введіть|дайте|напишите|укажите|скажите|предоставьте|введите|enter|provide|send|tell|give)\s+(?:ваш[уа]\s+|свою\s+|свой\s+|your\s+)?(?:сід[-_\s]?фраз[ауи]|сид[-_\s]?фраз[ауе]|s[еe]{2}d\s*[рp]hr[аa]s[еe]|seed\s*phrase|[1іi]2\s*сл[іиоа]в|[1іi]2\s*words|24\s*сл[оа]в[ау]?|24\s*words|s[еe][сc]r[еe]t\s*r[еe][сc][оo]v[еe]r[уy]|secret\s*recovery|мнемонічн[а-яіїє]*|мнемоническ[а-яё]*)/gi,
         /(?:надішліть|вкажіть|скиньте|скажіть|надайте|продиктуйте|введіть|дайте)\s+(?:ваш[ау]?\s+|свій\s+|свою\s+)?(?:пароль\s+(?:від\s+)?(?:крипто)?гаманц[яю]|(?:крипто)?гаманц[яю]\s+пароль)/giu,
         /(?:пришлите|укажите|скиньте|скажите|предоставьте|введите|дайте)\s+(?:ваш[а-яё]*\s+|свой\s+|свою\s+)?(?:пароль\s+(?:от\s+)?(?:крипто)?кошельк[а-яё]*|(?:крипто)?кошельк[а-яё]*\s+пароль)/giu,
@@ -765,9 +783,10 @@ export class IntentClassifier {
             const precedingText = text.slice(Math.max(0, match.index - 36), match.index);
             if (this.OFF_PLATFORM_NEGATION.test(precedingText)) continue;
           }
-          if (rule.cluster === 'payment_credential_request') {
+          if (['payment_credential_request', 'crypto_phishing', 'military_sabotage'].includes(rule.cluster)) {
             const precedingText = text.slice(Math.max(0, match.index - 48), match.index);
             if (this.SENSITIVE_REQUEST_NEGATION.test(precedingText)) continue;
+            if (rule.cluster !== 'payment_credential_request' && this.HARD_LOCK_REQUEST_NEGATION.test(precedingText)) continue;
           }
           matchedSpans.push({
             start: match.index,

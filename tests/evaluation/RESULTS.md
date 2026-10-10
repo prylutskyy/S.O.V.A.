@@ -62,3 +62,34 @@ The corpus hash is unchanged from the previous entry, so these overall figures a
 | Exact-result mismatches | 75 | 67 |
 
 All seven targeted development/regression escrow examples now pass. The corpus evaluation still fails its aggregate exact-result assertion because 67 scenarios have a detection, threat-type, or action mismatch. The single benign false positive remains `hold2-benign-007`; five escrow misses remain in holdout. The full non-Groq test run had 554 passing tests and this one failing aggregate corpus assertion. TypeScript compilation and the focused intent-classifier suite (48/48) pass. Local Vitest logs are kept under `tests/results/` and are not part of the tracked evaluation record.
+
+## 2026-10-10 — critical threat false-negative fixes
+
+### Changes
+
+- Closed all eleven selected crypto/military false negatives in development/regressions: `dev2-crypto-002`, `reg-crypto-001`, `reg2-crypto-001/002/005/006`, `dev2-military-004`, and `reg2-military-003/004/005/006`. Tests assert both the expected threat type and `LOCK_INPUT` through the chat pipeline.
+- Expanded explicit wallet-secret requests to cover private keys, mnemonic/backup phrases, inflected requests and mixed-script technical terms after normalization. Added negation handling, including support safety advice, without suppressing a subsequent real request.
+- Added concrete military reconnaissance/destructive-action requests and English courier recruitment for military intelligence collection. Narrowed the semantic movement-schedule signal so a bus timetable alone no longer triggers a military input lock.
+- Added 35 focused checks: eleven corpus regressions, five crypto paraphrases, seventeen benign controls, one advice-followed-by-request scenario and a check that all eleven target IDs are covered. All pass.
+- Corpus content and labels are unchanged. Holdout wording was not used to design rules or tests.
+
+### Results
+
+Compared with the fresh 2026-10-10 baseline at `e05df3c`, on the same 326 cases and corpus SHA-256 `9319bb14b87430898ea9dc42f14cff7faa03aa37e215861612e633ab87442cde`:
+
+| Measure | Before | After |
+| --- | ---: | ---: |
+| TP / FP / FN / TN | 139 / 1 / 49 / 137 | 151 / 1 / 37 / 137 |
+| Precision | 99.3% | 99.3% |
+| Recall | 73.9% | 80.3% |
+| F1 | 84.8% | 88.8% |
+| Exact matches | 259/326 (79.4%) | 272/326 (83.4%) |
+| Exact-result mismatches | 67 | 54 |
+| Action mismatches | 52 | 39 |
+| False input locks | 0 | 0 |
+
+Development recall rose from 94.9% to 98.3%; regression recall from 72.1% to 86.9%. Holdout recall rose from 57.4% to 58.8%. The corrected thirteen exact results comprise eleven targeted misses and two independently evaluated holdout improvements (one missed crypto threat and one crypto type correction). No previously correct corpus scenario became incorrect.
+
+The final full run without live Groq has 592 passing tests and one failing aggregate corpus assertion (54 remaining mismatches); TypeScript compilation passes. Raw logs and the baseline report remain local under `tests/results/`.
+
+These rules improve coverage of concrete requests, not contextual understanding in general. In particular, the existing label for `reg2-military-003` treats an unspecified equipment movement schedule as military reconnaissance. Industrial/logistics uses of such wording remain ambiguous and need independent benign data and label review. Zero false locks on this corpus and the added controls does not establish zero false locks in real chats.
