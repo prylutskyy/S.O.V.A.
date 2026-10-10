@@ -16,6 +16,32 @@ describe('DebuggerOverlay Lifecycle & Visibility Guard (Swiss Loupe)', () => {
     expect(DebuggerOverlay.isOpen()).toBe(false);
   });
 
+  it('keeps an active warning visible despite cancelled drafts and background context echoes', () => {
+    DebuggerOverlay.setSession('chat-1', 'HIGH');
+    DebuggerOverlay.setThreatDecision('WARN', 'IDENTITY_PROBING', 45, 'local');
+    DebuggerOverlay.recordMitigation('Чернетку видалено', 30, 'MEDIUM');
+    DebuggerOverlay.setAssessment(0, 'LOW');
+    DebuggerOverlay.setSession('chat-1', 'HIGH');
+    DebuggerOverlay.setThreatDecision('WARN', 'IDENTITY_PROBING', 75, 'inherited');
+    DebuggerOverlay.show();
+    const text = DebuggerOverlay['shadowRoot']!.textContent;
+    expect(text).toContain('АКТИВНА ЗАГРОЗА: ПОПЕРЕДЖЕННЯ');
+    expect(text).not.toContain('БЕЗПЕЧНО');
+    expect(DebuggerOverlay['state'].score).toBe(45);
+    const report = JSON.parse(DebuggerOverlay['exportDiagnosticReport']());
+    expect(report.activeDecision).toMatchObject({ action: 'WARN', score: 45, source: 'local' });
+  });
+
+  it('clears the final action on reset and keeps a hidden debugger hidden', () => {
+    DebuggerOverlay.setThreatDecision('LOCK_INPUT', 'CRYPTO_WALLET_COMPROMISE', 85, 'local');
+    expect(DebuggerOverlay.isOpen()).toBe(false);
+    DebuggerOverlay.show();
+    expect(DebuggerOverlay['shadowRoot']!.textContent).toContain('АКТИВНА ЗАГРОЗА: ВВІД ЗАБЛОКОВАНО');
+    DebuggerOverlay.resetSessionRisk();
+    expect(DebuggerOverlay['shadowRoot']!.textContent).toContain('БЕЗПЕЧНО: ЗАГРОЗ НЕ ВИЯВЛЕНО');
+    expect(DebuggerOverlay['state'].activeDecision).toBeNull();
+  });
+
   it('does NOT show overlay or container when log() or logAI() is called while debugger is disabled', () => {
     DebuggerOverlay.log('Тестовий крок', 'Безпечно', '#34C759');
     DebuggerOverlay.logAI('ШІ-Аналіз', 'Аналіз завершено', '#0071E3');

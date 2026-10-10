@@ -17,7 +17,7 @@ import { ProactiveFieldProtector } from '../src/heuristics/proactive-field-prote
 import { AIArbiterService } from '../src/ai/ai-arbiter.service';
 import { SpaNavigationDetector } from '../src/core/spa-navigation';
 import { ScamIntentType } from '../src/heuristics/intent-classifier';
-import { getThreatMitigationAction } from '../src/heuristics/threat-mitigation-policy';
+import { getThreatMitigationAction, getLocalFallbackAction } from '../src/heuristics/threat-mitigation-policy';
 
 export default defineContentScript({
   matches: ['<all_urls>'],
@@ -117,6 +117,7 @@ export default defineContentScript({
       }
       activeContext = ctx;
       GlobalInputInterceptor.setHardLock(ctx);
+      DebuggerOverlay.setSession(ctx.sessionId || null, ctx.threatLevel);
       console.log('[SOVA:Content] Отримано спадковий контекст загрози:', ctx);
 
       if (debugMode) {
@@ -135,6 +136,10 @@ export default defineContentScript({
             ? 'ст. 111-2, 113 ККУ (Вербування / Диверсія)'
             : undefined;
         SecurityFriction.showContextWarningBanner(ctx, subtitle, undefined, ctx.scenario);
+        const action = getThreatMitigationAction(true, ctx.scenario);
+        if (action !== 'ALLOW') {
+          DebuggerOverlay.setThreatDecision(action, ctx.scenario || 'UNKNOWN', 75, 'inherited');
+        }
       }
     };
 
@@ -310,7 +315,8 @@ export default defineContentScript({
         context: ActiveThreatContext,
         subtitle: string,
         threatIntent: ScamIntentType,
-        threatScore: number
+        threatScore: number,
+        source: 'local' | 'ai' = 'ai'
       ) => {
         const isCritical = getThreatMitigationAction(true, threatIntent) === 'LOCK_INPUT';
 
@@ -335,6 +341,8 @@ export default defineContentScript({
           threatScore,
           clearThreat
         );
+        DebuggerOverlay.setSession(context.sessionId || null, context.threatLevel);
+        DebuggerOverlay.setThreatDecision(isCritical ? 'LOCK_INPUT' : 'WARN', threatIntent, threatScore, source);
 
         try {
           chrome.runtime.sendMessage({
@@ -349,6 +357,16 @@ export default defineContentScript({
             },
           });
         } catch {}
+      };
+
+      const applyLocalFallback = () => {
+        const action = getLocalFallbackAction(intentType, confidence);
+        if (action !== 'ALLOW') {
+          displayThreatAlert(localContext, bannerSubtitle, intentType as ScamIntentType, confidence!, 'local');
+        } else {
+          activeContext = null;
+          invalidateThreatAnalysis();
+        }
       };
 
       // ── TIER 2: АСИНХРОННИЙ АРБІТРАЖ ШТУЧНОГО ІНТЕЛЕКТУ (LLM ARBITER) ──
@@ -366,20 +384,7 @@ export default defineContentScript({
         }
         SecurityFriction.hideLatencyVeil();
         if (!aiResult) {
-          // Якщо ШІ недоступний (offline / відсутній ключ / збій):
-          // Застосовуємо евристичний захист лише при високому рівні впевненості (>= 75%)
-          if (confidence && confidence >= 75) {
-            displayThreatAlert(
-              localContext,
-              bannerSubtitle,
-              intentType as ScamIntentType,
-              confidence
-            );
-          } else {
-            // При помірній впевненості не турбуємо користувача банером без підтвердження
-            activeContext = null;
-            invalidateThreatAnalysis();
-          }
+          applyLocalFallback();
           return;
         }
 
@@ -478,6 +483,9 @@ export default defineContentScript({
               aiResult.confidence || confidence || 90
             );
           }
+        } else {
+          // A low-confidence SAFE response does not convincingly dismiss local evidence.
+          applyLocalFallback();
         }
       }).catch((err) => {
         if (!isCurrentRequest()) {
@@ -486,17 +494,7 @@ export default defineContentScript({
         }
         SecurityFriction.hideLatencyVeil();
         console.warn('[SOVA:Content] Помилка фонового ШІ-арбітражу:', err);
-        if (confidence && confidence >= 75) {
-          displayThreatAlert(
-            localContext,
-            bannerSubtitle,
-            intentType as ScamIntentType,
-            confidence
-          );
-        } else {
-          activeContext = null;
-          invalidateThreatAnalysis();
-        }
+        applyLocalFallback();
       });
     };
 

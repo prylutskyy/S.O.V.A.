@@ -42,6 +42,7 @@ export class AIArbiterService {
   private static requestCounter = 0;
   private static cache = new Map<string, { result: AIArbiterVerifyResult; expiresAt: number }>();
   public static readonly CACHE_TTL_MS = 5 * 60 * 1000; // 5 хвилин
+  public static readonly REQUEST_TIMEOUT_MS = 15_000;
 
   /**
    * Генерація стабільного хеш-ключа контексту для кешування
@@ -284,9 +285,21 @@ Required JSON schema:
         return;
       }
 
-      const onAbort = () => {
-        resolve(null);
+      let settled = false;
+      const finish = (result: AIArbiterVerifyResult | null) => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timeout);
+        abortController.signal.removeEventListener('abort', onAbort);
+        resolve(result);
       };
+      const onAbort = () => finish(null);
+      const timeout = setTimeout(() => {
+        DebuggerOverlay.logAI('ШІ Арбітр → Аналіз',
+          'Час очікування ШІ вичерпано. Застосовується локальна політика захисту.',
+          '#F59E0B', undefined, aiLogId);
+        finish(null);
+      }, this.REQUEST_TIMEOUT_MS);
       abortController.signal.addEventListener('abort', onAbort, { once: true });
 
       try {
@@ -302,12 +315,12 @@ Required JSON schema:
             },
           },
           (response) => {
-            abortController.signal.removeEventListener('abort', onAbort);
+            if (settled) return;
 
             // Якщо запит було скасовано або перекрито іншим
             if (abortController.signal.aborted || this.requestCounter !== requestId ||
                 ChatSessionState.sessionRevision !== sessionRevision) {
-              resolve(null);
+              finish(null);
               return;
             }
 
@@ -320,7 +333,7 @@ Required JSON schema:
                 undefined,
                 aiLogId
               );
-              resolve(null);
+              finish(null);
             } else {
               const providerLabel = aiResult.provider
                 ? ` [${aiResult.provider}: ${aiResult.modelUsed || ''} (${aiResult.latencyMs || 0}мс)]`
@@ -355,13 +368,13 @@ Required JSON schema:
                 },
                 aiLogId
               );
-              resolve(aiResult);
+              finish(aiResult);
             }
           }
         );
       } catch (e) {
         console.error(e);
-        resolve(null);
+        finish(null);
       }
     });
   }

@@ -29,6 +29,12 @@ export interface LogItem {
 
 export type NeuromonitorTab = 'overview' | 'events' | 'ai' | 'vectors';
 export type NeuromonitorCategoryFilter = 'ALL' | 'AI' | 'FORM' | 'RISK';
+type ActiveDecision = {
+  action: 'WARN' | 'LOCK_INPUT';
+  intentType: string;
+  score: number;
+  source: 'local' | 'ai' | 'inherited';
+};
 
 const ICONS = {
   shield: (size = 14, color = 'currentColor') =>
@@ -93,6 +99,7 @@ export class DebuggerOverlay {
     liveSeverity: 'LOW' as string,
     threatMitigated: false,
     mitigationReason: '',
+    activeDecision: null as ActiveDecision | null,
     activeTab: 'overview' as NeuromonitorTab,
     filterCategory: 'ALL' as NeuromonitorCategoryFilter,
     filterSearch: '',
@@ -234,6 +241,8 @@ export class DebuggerOverlay {
   }
 
   public static setSession(id: string | null, severity: string = 'LOW') {
+    if (id && id === this.state.sessionId && this.state.activeDecision) return;
+    this.state.activeDecision = null;
     this.state.sessionId = id;
     this.state.severity = severity;
     if (severity === 'CRITICAL') this.state.score = 100;
@@ -256,6 +265,11 @@ export class DebuggerOverlay {
     const normalizedScore = Math.max(0, Math.min(100, Math.round(score)));
     this.state.liveScore = normalizedScore;
     this.state.liveSeverity = severity;
+    if (forceReset) this.state.activeDecision = null;
+    if (this.state.activeDecision) {
+      this.render();
+      return;
+    }
 
     if (forceReset) {
       this.state.score = normalizedScore;
@@ -296,7 +310,26 @@ export class DebuggerOverlay {
     this.render();
   }
 
+  public static setThreatDecision(action: ActiveDecision['action'], intentType: string,
+    score: number, source: ActiveDecision['source'] = 'local') {
+    // Background echoes of this tab's context must not replace its concrete result.
+    if (source === 'inherited' && this.state.activeDecision) return;
+    const normalizedScore = Math.max(0, Math.min(100, Math.round(score)));
+    this.state.activeDecision = { action, intentType, score: normalizedScore, source };
+    this.state.score = normalizedScore;
+    this.state.threatMitigated = false;
+    this.state.mitigationReason = '';
+    this.render();
+  }
+
   public static recordMitigation(reason: string, score?: number, severity?: string) {
+    if (this.state.activeDecision) {
+      this.state.liveScore = 0;
+      this.state.liveSeverity = 'LOW';
+      this.log('Захист', `Введення скасовано; загроза діалогу залишається активною: ${reason}`, '#34C759');
+      this.render();
+      return;
+    }
     const finalScore = score !== undefined ? score : this.state.peakScore;
     const finalSeverity =
       severity ||
@@ -325,6 +358,7 @@ export class DebuggerOverlay {
   }
 
   public static resetSessionRisk() {
+    this.state.activeDecision = null;
     this.state.score = 0;
     this.state.peakScore = 0;
     this.state.peakSeverity = 'LOW';
@@ -586,6 +620,22 @@ export class DebuggerOverlay {
 
     const isAiConfirmed = lastAiVerdict !== null && lastAiVerdict.isScam;
 
+    const decision = this.state.activeDecision;
+    if (decision) {
+      const locked = decision.action === 'LOCK_INPUT';
+      return {
+        status: locked ? 'INPUT_LOCKED' : 'ACTIVE_WARNING',
+        badgeIcon: ICONS.alertCircle(12, '#D70015'),
+        badgeText: locked ? 'АКТИВНА ЗАГРОЗА: ВВІД ЗАБЛОКОВАНО' : 'АКТИВНА ЗАГРОЗА: ПОПЕРЕДЖЕННЯ',
+        badgeClass: 'sc-badge-red',
+        explanation: `Тип загрози: ${decision.intentType}. Джерело рішення: ${decision.source === 'local' ? 'локальні евристики' : decision.source === 'ai' ? 'ШІ-арбітр' : 'успадкований контекст'}.`,
+        recommendation: locked ? 'Ввід заблоковано для захисту від критичної загрози.' : 'Перевірте прохання співрозмовника. Ввід залишається доступним.',
+        heuristicVerdict: `${decision.source === 'ai' ? 'Оцінка ШІ' : 'Локальна оцінка'}: ${decision.score}/100`,
+        aiVerdict: decision.source === 'ai' ? 'Загрозу підтверджено ШІ' : 'Рішення застосовано без підтвердження ШІ',
+        triggers,
+      };
+    }
+
     // Якщо загрозу відвернуто
     if (threatMitigated && peakScore >= 35) {
       return {
@@ -641,6 +691,7 @@ export class DebuggerOverlay {
       sessionId: this.state.sessionId,
       severity: this.state.severity,
       score: this.state.score,
+      activeDecision: this.state.activeDecision,
       falsePositiveAssessment: fpAssessment,
       semanticVectorTelemetry: this.state.vectorTelemetry || null,
       logsSummary: this.state.logs.map((l) => ({
