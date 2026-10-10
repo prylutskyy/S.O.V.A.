@@ -111,6 +111,10 @@ export default defineContentScript({
       return true;
     };
 
+    const clearThreatContext = () => {
+      window.postMessage({ type: 'THREAT_SHIELD_CLEAR_CONTEXT' }, '*');
+    };
+
     const applyContext = (ctx: ActiveThreatContext) => {
       if (activeContext && activeContext !== ctx) {
         invalidateThreatAnalysis();
@@ -135,7 +139,15 @@ export default defineContentScript({
           ctx.scenario === 'MILITARY_SABOTAGE_RECRUITMENT'
             ? 'ст. 111-2, 113 ККУ (Вербування / Диверсія)'
             : undefined;
-        SecurityFriction.showContextWarningBanner(ctx, subtitle, undefined, ctx.scenario);
+        SecurityFriction.showContextWarningBanner(
+          ctx,
+          subtitle,
+          undefined,
+          ctx.scenario,
+          undefined,
+          undefined,
+          clearThreatContext
+        );
         const action = getThreatMitigationAction(true, ctx.scenario);
         if (action !== 'ALLOW') {
           DebuggerOverlay.setThreatDecision(action, ctx.scenario || 'UNKNOWN', 75, 'inherited');
@@ -308,7 +320,7 @@ export default defineContentScript({
       }
 
       const clearThreat = () => {
-        window.postMessage({ type: 'THREAT_SHIELD_CLEAR_CONTEXT' }, '*');
+        clearThreatContext();
       };
 
       const displayThreatAlert = (

@@ -270,6 +270,44 @@ describe('Phase 3: Fail-Safe AI & Latency UX (Uncompromising Architecture)', () 
       expect(banner?.textContent).toContain('Золоті правила безпеки');
     });
 
+    it('clears a non-critical threat when the user acknowledges its warning', () => {
+      const onClearThreat = vi.fn();
+      SecurityFriction.showContextWarningBanner(
+        baseContext,
+        undefined,
+        undefined,
+        'ESCROW_DELIVERY_SCAM',
+        undefined,
+        80,
+        onClearThreat,
+      );
+
+      const ackButton = ShadowHost.getRoot().getElementById('ts-btn-ack') as HTMLButtonElement;
+      ackButton.click();
+
+      expect(onClearThreat).toHaveBeenCalledOnce();
+      expect(ShadowHost.getRoot().getElementById('threat-shield-context-banner')).toBeNull();
+    });
+
+    it('keeps a critical threat active when the user only acknowledges its warning', () => {
+      const onClearThreat = vi.fn();
+      SecurityFriction.showContextWarningBanner(
+        { ...baseContext, scenario: 'CRYPTO_WALLET_COMPROMISE' },
+        undefined,
+        undefined,
+        'CRYPTO_WALLET_COMPROMISE',
+        undefined,
+        95,
+        onClearThreat,
+      );
+
+      const ackButton = ShadowHost.getRoot().getElementById('ts-btn-ack') as HTMLButtonElement;
+      ackButton.click();
+
+      expect(onClearThreat).not.toHaveBeenCalled();
+      expect(ShadowHost.getRoot().getElementById('threat-shield-context-banner')).toBeNull();
+    });
+
     it('correctly adapts context warning banner to CRYPTO_WALLET_COMPROMISE typology', () => {
       const cryptoContext: ActiveThreatContext = {
         ...baseContext,
