@@ -1,5 +1,8 @@
 import artifact from './models/local-intent-v1.json';
-import { boundedLocalMessages, extractLinearFeatures, SUPPORTED_FEATURE_DIMENSIONS, FEATURE_VERSION, LOCAL_LABELS, type LocalInput, type LocalLabel } from './linear-features';
+import { boundedLocalMessages, extractLinearFeatures, SUPPORTED_FEATURE_DIMENSIONS, SUPPORTED_FEATURE_VERSIONS, LOCAL_LABELS, type LocalInput, type LocalLabel } from './linear-features';
+import { requestContextGate } from './request-signals';
+
+export type LinearModel = typeof artifact & { abstentionPolicy?: 'request-context-v1' };
 
 export interface LocalPrediction {
   mode: 'shadow';
@@ -12,17 +15,19 @@ export interface LocalPrediction {
   elapsedMs: number;
   truncated: boolean;
   datasetHash: string;
+  abstentionReason?: string;
 }
 
 /** A learned linear model, not a generative LLM. Never authorizes protection actions. */
 export class LinearIntentClassifier {
   private weights?: Float32Array;
-  constructor(private model = artifact) {}
+  constructor(private model: LinearModel = artifact) {}
 
   private decode(): Float32Array {
     if (this.weights) return this.weights;
     const m = this.model;
-    if (m.schemaVersion !== 1 || m.featureVersion !== FEATURE_VERSION || !SUPPORTED_FEATURE_DIMENSIONS.includes(m.dimensions as typeof SUPPORTED_FEATURE_DIMENSIONS[number]) ||
+    if (m.schemaVersion !== 1 || !SUPPORTED_FEATURE_VERSIONS.includes(m.featureVersion as 1 | 2) || !SUPPORTED_FEATURE_DIMENSIONS.includes(m.dimensions as typeof SUPPORTED_FEATURE_DIMENSIONS[number]) ||
+      (m.abstentionPolicy !== undefined && (m.abstentionPolicy !== 'request-context-v1' || m.featureVersion !== 2)) ||
       m.encoding !== 'int16-le-base64' || JSON.stringify(m.labels) !== JSON.stringify(LOCAL_LABELS) ||
       !Number.isFinite(m.scale) || m.scale <= 0 || m.bias.length !== LOCAL_LABELS.length ||
       m.bias.some(value => !Number.isFinite(value)) || !Number.isFinite(m.minScore) || m.minScore < 0 || m.minScore > 1 ||
@@ -47,7 +52,7 @@ export class LinearIntentClassifier {
       if (budgetMs <= 0) throw new Error('deadline');
       const weights = this.decode();
       const deadline = started + Math.min(budgetMs, 500);
-      const features = extractLinearFeatures({ messages: bounded.messages, frames: input.frames }, deadline, this.model.dimensions);
+      const features = extractLinearFeatures({ messages: bounded.messages, frames: input.frames }, deadline, this.model.dimensions, this.model.featureVersion);
       if (performance.now() > deadline) throw new Error('deadline');
       const logits = LOCAL_LABELS.map((_, label) => features.reduce((sum, [index, value]) => sum + weights[label * this.model.dimensions + index] * value, this.model.bias[label]));
       const max = Math.max(...logits);
@@ -61,9 +66,17 @@ export class LinearIntentClassifier {
       if (features.length && !bounded.truncated && result.score >= this.model.minScore && result.margin >= this.model.minMargin) {
         result.status = 'ok'; result.decision = ranked[0].label;
       }
+      if (this.model.abstentionPolicy) {
+        result.abstentionReason = !features.length ? 'empty' : bounded.truncated ? 'truncated'
+          : requestContextGate(bounded.messages, ranked[0].label)
+          ?? (result.score < this.model.minScore ? 'low_score' : result.margin < this.model.minMargin ? 'low_margin' : undefined);
+        if (result.abstentionReason) { result.status = 'abstain'; result.decision = 'ABSTAIN'; }
+      }
+      if (performance.now() > deadline) throw new Error('deadline');
     } catch (error) {
       result.status = error instanceof Error && /deadline/.test(error.message) ? 'timeout' : 'unavailable';
       result.decision = 'ABSTAIN';
+      if (this.model.abstentionPolicy) result.abstentionReason = result.status;
     }
     result.elapsedMs = performance.now() - started;
     return result;

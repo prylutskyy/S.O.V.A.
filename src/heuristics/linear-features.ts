@@ -1,6 +1,8 @@
 import type { RequestFrame } from './request-analyzer';
+import { extractRequestSignals } from './request-signals';
 
 export const FEATURE_VERSION = 1;
+export const SUPPORTED_FEATURE_VERSIONS = [1, 2] as const;
 export const FEATURE_DIMENSIONS = 8192;
 export const SUPPORTED_FEATURE_DIMENSIONS = [8192, 16384, 32768] as const;
 export const LOCAL_LABELS = ['SAFE', 'OFF_PLATFORM_REDIRECT', 'VERIFICATION_PHISHING', 'PAYMENT_CREDENTIAL_THEFT', 'IDENTITY_PROBING', 'ESCROW_DELIVERY_SCAM', 'MILITARY_SABOTAGE_RECRUITMENT', 'CRYPTO_WALLET_COMPROMISE'] as const;
@@ -30,7 +32,8 @@ export function boundedLocalMessages(messages: string[]): { messages: string[]; 
 }
 
 /** Shared by training and inference. No labels or heuristic verdicts are features. */
-export function extractLinearFeatures(input: LocalInput, deadline = Infinity, dimensions = FEATURE_DIMENSIONS): SparseFeatures {
+export function extractLinearFeatures(input: LocalInput, deadline = Infinity, dimensions = FEATURE_DIMENSIONS, version = FEATURE_VERSION): SparseFeatures {
+  if (!SUPPORTED_FEATURE_VERSIONS.includes(version as 1 | 2)) throw new Error('Unsupported feature version');
   if (!SUPPORTED_FEATURE_DIMENSIONS.includes(dimensions as typeof SUPPORTED_FEATURE_DIMENSIONS[number])) throw new Error('Unsupported feature dimensions');
   const counts = new Map<number, number>();
   const add = (name: string, value: number) => {
@@ -60,6 +63,18 @@ export function extractLinearFeatures(input: LocalInput, deadline = Infinity, di
     add(`object:${frame.object}`, 5);
     add(`request:${frame.object}:${frame.purpose}`, 6);
     add(`recipient:${frame.object}:${frame.destination}`, 3);
+  }
+  if (version === 2) {
+    for (let m = 0; m < messages.length; m++) {
+      const weight = m === messages.length - 1 ? 1 : .35;
+      for (const signal of extractRequestSignals(messages[m])) {
+        add(`relation:${signal.stance}:${signal.action}:${signal.object}`, 6 * weight);
+        add(`relation-purpose:${signal.stance}:${signal.object}:${signal.purpose}`, 5 * weight);
+        add(`relation-recipient:${signal.stance}:${signal.object}:${signal.destination}`, 4 * weight);
+        add(`relation-complete:${signal.stance}:${signal.object}:${signal.complete}`, 4 * weight);
+        if (signal.concealed) add(`relation-concealed:${signal.stance}:${signal.object}`, 5 * weight);
+      }
+    }
   }
   const values: SparseFeatures = Array.from(counts, ([index, count]) => [index, Math.log1p(count)]);
   const norm = Math.sqrt(values.reduce((sum, [, value]) => sum + value * value, 0)) || 1;

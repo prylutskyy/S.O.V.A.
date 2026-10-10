@@ -2,6 +2,16 @@
 
 Record each intentional classifier or corpus change here so metric shifts can be interpreted alongside the dashboard history. Exact-match results depend on both the classifier and the corpus contents; compare runs only when the corpus hash is the same, or report the changed split separately.
 
+## 2026-10-10 — request relations v2 and selective abstention experiment
+
+- Added bounded request/action/object/purpose/recipient signals, stance for negated/reported text, concealed military requests and incomplete generic queries. V2 augments learned features without increasing the 65,544 parameters. Legacy V1 artifact and training remain unchanged.
+- Optional `request-context-v1` abstention validates incomplete requests, sensitive requests incorrectly called SAFE, and explicit contradictory context. It preserves candidate/score and records a reason. Absence of a regex hit alone does not veto a learned threat. This is deterministic evidence validation, not a learned ambiguity class or calibrated probability.
+- Four variants separate effects of dataset expansion, new features and abstention. Historical pilot test: baseline **7/12 raw and accepted**, final relations/guarded **11/12 raw and accepted**. Guarded abstains on **4/6** ambiguous test endpoints vs baseline **0/6**; no hypothetical excessive locks in guarded. It does not resolve all ambiguity.
+- Coverage tradeoff prevents promotion: old development/regressions/holdout correct accepted decisions for baseline are **97/100, 107/113, 88/113**; guarded gives **89/100, 96/113, 83/113**. Raw guarded exact types are **98/100, 108/113, 94/113**. Accepted false positives remain zero on these corpora, but refusals increase; this is not a global accuracy gain. The production rules and runtime model are unchanged.
+- Added 24 author-developed diagnostic cases (8 safe, 8 ambiguous, 8 threats), excluded from SGD. Guarded achieves **16/16** known diagnostic types/accepted answers and **8/8** ambiguous abstentions, with no hypothetical excessive locks. These are development checks, not independent validation; the already-inspected pilot is historical too. See [description](../../training/local-intent/RELATIONS_README.md), [report](../../training/local-intent/RELATIONS_REPORT.md) and `tests/results/request-relations.json`.
+- Added **24 tests** for relation scope, negation, quotation boundaries, nominal objects, own-account checks, military links, selective abstention, corrupt version pairing and bounded input. Full non-Groq suite: **803 passed, 1 failed (804 total)** with the same 24 baseline corpus mismatches. TypeScript and production build passed. Full suite: `tests/results/request-relations-suite.json`.
+- CPU-only warm benchmark: guarded p95 approximately **1.96 ms**, maximum **2.93 ms**, no timeouts; inference process with four models peaks around **80 MiB**. This is not a whole-browser measurement or certification on old i3 hardware. No Groq calls were made.
+
 ## 2026-10-10 — authority-pretext social engineering pilot
 
 - Added 90 synthetic author-reviewed contrast scenarios: manager, official institution and media, 30 per topic; 30 families with safe/ambiguous/threat endings and expectations after every inbound message. Family-disjoint split: 54 train / 18 validation / 18 test. Independent human label review remains pending.

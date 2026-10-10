@@ -17,7 +17,8 @@
     "classifier:train": "node scripts/local-classifier/run.mjs train",
     "classifier:evaluate": "node scripts/local-classifier/run.mjs evaluate",
     "classifier:compare": "node scripts/local-classifier/run.mjs compare",
-    "classifier:pilot": "node scripts/local-classifier/run.mjs pilot"
+    "classifier:pilot": "node scripts/local-classifier/run.mjs pilot",
+    "classifier:relations": "node scripts/local-classifier/run.mjs relations"
   },
   "devDependencies": {
     "esbuild": "0.25.12",

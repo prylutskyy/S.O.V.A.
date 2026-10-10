@@ -1,12 +1,12 @@
 import { extractLinearFeatures, FEATURE_DIMENSIONS, FEATURE_VERSION, LOCAL_LABELS } from '../../src/heuristics/linear-features';
 import { makeInput, digest, type TrainingDataset } from './dataset';
 
-export function trainModel(dataset: TrainingDataset, source: string, dimensions = FEATURE_DIMENSIONS) {
+export function trainModel(dataset: TrainingDataset, source: string, dimensions = FEATURE_DIMENSIONS, featureVersion = FEATURE_VERSION) {
   if (dataset.schemaVersion !== 1 || dataset.records.some(record => !['development', 'regressions', 'social-engineering-pilot'].includes(record.source))) throw new Error('Training dataset must exclude holdout and pilot evaluation data');
   const train = dataset.records.filter(record => record.split === 'train');
   const validationGroups = new Set(dataset.records.filter(record => record.split === 'validation').map(record => record.group));
   if (train.some(record => validationGroups.has(record.group))) throw new Error('Group leakage');
-  const examples = train.map(record => ({ x: extractLinearFeatures(makeInput(record.messages), Infinity, dimensions), y: LOCAL_LABELS.indexOf(record.label) }));
+  const examples = train.map(record => ({ x: extractLinearFeatures(makeInput(record.messages), Infinity, dimensions, featureVersion), y: LOCAL_LABELS.indexOf(record.label) }));
   if (examples.some(example => example.y < 0)) throw new Error('Unknown training label');
   const weights = new Float64Array(dimensions * LOCAL_LABELS.length);
   const bias = new Float64Array(LOCAL_LABELS.length);
@@ -37,5 +37,5 @@ export function trainModel(dataset: TrainingDataset, source: string, dimensions 
   const scale = maxWeight / 32767 || 1;
   const packed = Buffer.alloc(weights.length * 2);
   weights.forEach((weight, index) => packed.writeInt16LE(Math.round(weight / scale), index * 2));
-  return { schemaVersion: 1, featureVersion: FEATURE_VERSION, dimensions, labels: [...LOCAL_LABELS], encoding: 'int16-le-base64', scale, weights: packed.toString('base64'), bias: [...bias], minScore: 0.6, minMargin: 0.15, datasetHash: digest(source), sourceHash: dataset.sourceHash, training: { algorithm: 'class-balanced multinomial logistic regression; SGD', seed: 20261010, epochs: 220, examples: train.length }, usage: 'shadow-only; scores uncalibrated; no mitigation authority' };
+  return { schemaVersion: 1, featureVersion, dimensions, labels: [...LOCAL_LABELS], encoding: 'int16-le-base64', scale, weights: packed.toString('base64'), bias: [...bias], minScore: 0.6, minMargin: 0.15, datasetHash: digest(source), sourceHash: dataset.sourceHash, training: { algorithm: 'class-balanced multinomial logistic regression; SGD', seed: 20261010, epochs: 220, examples: train.length }, usage: 'shadow-only; scores uncalibrated; no mitigation authority' };
 }
