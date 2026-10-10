@@ -27,12 +27,13 @@ describe('Phase 3: Fail-Safe AI & Latency UX (Uncompromising Architecture)', () 
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     SecurityFriction.hideLatencyVeil();
     SecurityFriction.removeContextWarningBanner();
   });
 
-  describe('1. Latency UX: Frosted Glass Masking & Breathing Emblem', () => {
-    it('renders frosted optical glass veil with pulsing owl and accessible attributes', () => {
+  describe('1. Latency UX: non-blocking status indicator', () => {
+    it('renders an accessible compact status indicator that keeps the composer usable', () => {
       expect(SecurityFriction.isLatencyVeilActive()).toBe(false);
 
       const veil = SecurityFriction.showLatencyVeil();
@@ -47,14 +48,16 @@ describe('Phase 3: Fail-Safe AI & Latency UX (Uncompromising Architecture)', () 
       const queriedVeil = root.getElementById('ts-latency-veil');
       expect(queriedVeil).toBe(veil);
 
-      // Verify emblem and narrative typography
+      // Verify concise status and reassurance text
       const emblem = veil.querySelector('.ts-pulsing-owl');
       expect(emblem).not.toBeNull();
-      expect(veil.textContent).toContain('С.О.В.А. · Інтелектуальний аналіз');
-      expect(veil.textContent).toContain('Захист від соціальної інженерії…');
+      expect(veil.textContent).toContain('Перевіряємо повідомлення');
+      expect(veil.textContent).toContain('Ви можете продовжувати вводити текст');
+      expect(veil.querySelector('style')?.textContent).toContain('pointer-events: none');
+      expect(veil.querySelector('style')?.textContent).not.toContain('pointer-events: auto');
     });
 
-    it('positions veil over active composer input when available in document', () => {
+    it('does not cover or align itself to the active composer input', () => {
       const composerInput = document.createElement('textarea');
       composerInput.className = 'chat-input';
       Object.defineProperty(composerInput, 'getBoundingClientRect', {
@@ -64,9 +67,9 @@ describe('Phase 3: Fail-Safe AI & Latency UX (Uncompromising Architecture)', () 
 
       const veil = SecurityFriction.showLatencyVeil();
 
-      expect(veil.style.position).toBe('fixed');
-      expect(veil.style.top).toBe('396px'); // rect.top - pad (400 - 4)
-      expect(veil.style.left).toBe('96px'); // rect.left - pad (100 - 4)
+      expect(veil.style.top).toBe('');
+      expect(veil.style.left).toBe('');
+      expect(veil.querySelector('style')?.textContent).toContain('top: 16px');
 
       composerInput.remove();
     });
@@ -90,6 +93,30 @@ describe('Phase 3: Fail-Safe AI & Latency UX (Uncompromising Architecture)', () 
       const root = ShadowHost.getRoot();
       const veils = root.querySelectorAll('#ts-latency-veil');
       expect(veils.length).toBe(1);
+    });
+
+    it('waits one second before showing the status indicator', () => {
+      vi.useFakeTimers();
+
+      SecurityFriction.showLatencyVeilAfter(1000);
+      expect(SecurityFriction.isLatencyVeilActive()).toBe(false);
+
+      vi.advanceTimersByTime(999);
+      expect(SecurityFriction.isLatencyVeilActive()).toBe(false);
+
+      vi.advanceTimersByTime(1);
+      expect(SecurityFriction.isLatencyVeilActive()).toBe(true);
+    });
+
+    it('cancels the delayed status when arbitration finishes early', () => {
+      vi.useFakeTimers();
+
+      SecurityFriction.showLatencyVeilAfter(1000);
+      SecurityFriction.hideLatencyVeil();
+      vi.advanceTimersByTime(1000);
+
+      expect(SecurityFriction.isLatencyVeilActive()).toBe(false);
+      expect(ShadowHost.getRoot().getElementById('ts-latency-veil')).toBeNull();
     });
   });
 

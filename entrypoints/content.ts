@@ -370,7 +370,7 @@ export default defineContentScript({
       };
 
       // ── TIER 2: АСИНХРОННИЙ АРБІТРАЖ ШТУЧНОГО ІНТЕЛЕКТУ (LLM ARBITER) ──
-      SecurityFriction.showLatencyVeil();
+      SecurityFriction.showLatencyVeilAfter(1000);
       AIArbiterService.verify({
         context: localContext,
         rawTextToScan,

@@ -6,6 +6,7 @@ import { ChromeBuiltinAIProvider } from './chrome-ai-provider';
 import { checkOutboundChatLeakage } from './input-detector';
 import { GlobalInputInterceptor } from './input-interceptor';
 import { DebuggerOverlay } from '../ui/debugger-overlay';
+import { getLocalFallbackAction } from './threat-mitigation-policy';
 
 export type MessageDirection = 'inbound' | 'outbound' | 'unknown';
 
@@ -340,10 +341,17 @@ export class ChatChannelMonitor {
         }
         
         if (scan.hasFormedIntent) {
+          const fallbackAction = getLocalFallbackAction(scan.intentType || '', scan.confidence);
+          const fallbackActionLabel = fallbackAction === 'LOCK_INPUT'
+            ? 'Блокування вводу'
+            : fallbackAction === 'WARN'
+              ? 'Попередження'
+              : 'Без дії';
           DebuggerOverlay.log('3. Класифікація Загрози', {
             intent: scan.intentType,
             confidence: `${scan.confidence}%`,
-            action: scan.confidence && scan.confidence >= 50 ? 'Hard Lock (Блокування)' : 'Soft Lock (Попередження)'
+            action: `Резервна дія без відповіді ШІ: ${fallbackActionLabel}`,
+            status: 'Очікує арбітражу ШІ',
           }, '#EF4444');
         } else {
           DebuggerOverlay.log('3. Класифікація Загрози', 'Загрози не виявлено', '#22C55E');

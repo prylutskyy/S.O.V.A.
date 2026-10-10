@@ -53,6 +53,16 @@ export class SecurityFriction {
   }
 
   private static latencyVeilEl: HTMLElement | null = null;
+  private static latencyVeilTimer: ReturnType<typeof setTimeout> | null = null;
+
+  /** Show latency status only when arbitration takes longer than the UX grace period. */
+  public static showLatencyVeilAfter(delayMs = 1000): void {
+    this.hideLatencyVeil();
+    this.latencyVeilTimer = setTimeout(() => {
+      this.latencyVeilTimer = null;
+      this.showLatencyVeil();
+    }, Math.max(0, delayMs));
+  }
 
   public static isLatencyVeilActive(): boolean {
     return this.latencyVeilEl !== null;
@@ -72,24 +82,30 @@ export class SecurityFriction {
         .ts-latency-veil {
           position: fixed;
           z-index: 2147483646;
-          background: rgba(255, 255, 255, 0.88) !important;
-          backdrop-filter: blur(24px) saturate(190%) !important;
-          -webkit-backdrop-filter: blur(24px) saturate(190%) !important;
-          border: 1px solid rgba(0, 0, 0, 0.08) !important;
-          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08) !important;
+          top: 16px !important;
+          left: 50% !important;
+          transform: translateX(-50%) !important;
+          width: min(360px, calc(100vw - 32px)) !important;
+          min-height: 56px !important;
+          border-radius: 16px !important;
+          background: rgba(255, 255, 255, 0.96) !important;
+          backdrop-filter: blur(16px) saturate(150%) !important;
+          -webkit-backdrop-filter: blur(16px) saturate(150%) !important;
+          border: 1px solid rgba(0, 0, 0, 0.1) !important;
+          box-shadow: 0 8px 28px rgba(0, 0, 0, 0.14) !important;
           display: flex !important;
           align-items: center !important;
           justify-content: center !important;
-          gap: 12px !important;
-          padding: 0 16px !important;
+          gap: 10px !important;
+          padding: 8px 14px !important;
           box-sizing: border-box !important;
           animation: tsFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
-          pointer-events: auto !important;
+          pointer-events: none !important;
           font-family: var(--font-sanctuary, -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif) !important;
         }
         .ts-pulsing-owl {
-          width: 32px;
-          height: 32px;
+          width: 28px;
+          height: 28px;
           border-radius: 9px;
           background: #000000;
           display: flex;
@@ -111,24 +127,27 @@ export class SecurityFriction {
           color: #86868B;
           letter-spacing: 0.02em;
         }
-        @keyframes tsFadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+        @keyframes tsFadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes tsOwlPulse { 0% { transform: scale(0.94); opacity: 0.85; } 100% { transform: scale(1.06); opacity: 1; } }
       </style>
       <div class="ts-pulsing-owl">
         <img src="${getSovaLogoUrl()}" alt="С.О.В.А." style="width: 100%; height: 100%; object-fit: cover; border-radius: 9px; display: block;" />
       </div>
       <div style="display: flex; flex-direction: column; align-items: flex-start; justify-content: center; line-height: 1.2;">
-        <span class="ts-latency-label">С.О.В.А. · Інтелектуальний аналіз</span>
-        <span class="ts-latency-sublabel">Захист від соціальної інженерії…</span>
+        <span class="ts-latency-label">Перевіряємо повідомлення</span>
+        <span class="ts-latency-sublabel">Ви можете продовжувати вводити текст</span>
       </div>
     `;
     root.appendChild(veil);
     this.latencyVeilEl = veil;
-    this.positionVeilElement(veil);
     return veil;
   }
 
   public static hideLatencyVeil(): void {
+    if (this.latencyVeilTimer !== null) {
+      clearTimeout(this.latencyVeilTimer);
+      this.latencyVeilTimer = null;
+    }
     if (this.latencyVeilEl && this.latencyVeilEl.parentNode) {
       this.latencyVeilEl.parentNode.removeChild(this.latencyVeilEl);
     }

@@ -18,6 +18,8 @@ describe('getThreatMitigationAction', () => {
 
   it('warns for a formed identity request at score 45 without lowering critical lock thresholds', () => {
     expect(getLocalFallbackAction('IDENTITY_PROBING', 45)).toBe('WARN');
+    expect(getLocalFallbackAction('ESCROW_DELIVERY_SCAM', 60)).toBe('WARN');
+    expect(getLocalFallbackAction('OFF_PLATFORM_REDIRECT', 60)).toBe('WARN');
     for (const type of ['MILITARY_SABOTAGE_RECRUITMENT', 'CRYPTO_WALLET_COMPROMISE', 'SEED_PHRASE_THEFT']) {
       expect(getLocalFallbackAction(type, 74)).toBe('ALLOW');
       expect(getLocalFallbackAction(type, 75)).toBe('LOCK_INPUT');
