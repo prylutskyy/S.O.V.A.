@@ -5,6 +5,7 @@ import { ChatChannelMonitor } from '../heuristics/chat-channel';
 import { DebuggerOverlay } from '../ui/debugger-overlay';
 import { OutboundDataSanitizer } from '../privacy/outbound-data-sanitizer';
 import { ChatSessionState } from '../heuristics/chat-session-state';
+import { UrlExtractor } from '../heuristics/url-extractor';
 
 export interface AIArbiterVerifyOptions {
   context: ActiveThreatContext;
@@ -209,19 +210,26 @@ Required JSON schema:
   "reasoning": string (concise explanation in Ukrainian)
 }`;
 
+    // A trigger message is evidence text, never a URL merely because a caller supplied it here.
+    let suspiciousUrls = UrlExtractor.extract(context.targetSuspiciousUrl || '');
+    try {
+      const explicitUrl = new URL(context.targetSuspiciousUrl || '');
+      if (['https:', 'http:'].includes(explicitUrl.protocol)) {
+        suspiciousUrls = [explicitUrl.href];
+      }
+    } catch {}
     const raisedFlags: string[] = [
       `Виявлено загрозу: ${intentLabel}`,
       `Платформа-джерело: ${context.sourcePlatform}`,
-      context.offPlatformLure
-        ? 'Спроба переведення в сторонній месенджер'
-        : 'Підозріле посилання у тексті',
+      ...(context.offPlatformLure ? ['Спроба переведення в сторонній месенджер'] : []),
+      ...(suspiciousUrls.length > 0 ? ['Підозріле посилання у тексті'] : []),
       ...(context.detectedKeywords || []).map((k) => `Ключове слово: "${k}"`),
     ];
 
     let targetHost: string | undefined;
     try {
-      if (context.targetSuspiciousUrl) {
-        targetHost = new URL(context.targetSuspiciousUrl).hostname;
+      if (suspiciousUrls[0]) {
+        targetHost = new URL(suspiciousUrls[0]).hostname;
       }
     } catch {}
 
@@ -236,7 +244,7 @@ Required JSON schema:
       intentType: intentLabel,
       dialogueHistory: sanitizedDialogue.sanitizedText,
       detectedKeywords: context.detectedKeywords || [],
-      suspiciousUrls: context.targetSuspiciousUrl ? [context.targetSuspiciousUrl] : [],
+      suspiciousUrls,
       raisedFlags,
       offPlatformLure: context.offPlatformLure,
     });
@@ -244,7 +252,7 @@ Required JSON schema:
     const heuristicContext = {
       intentType: intentLabel,
       detectedKeywords: context.detectedKeywords || [],
-      suspiciousUrls: context.targetSuspiciousUrl ? [context.targetSuspiciousUrl] : [],
+      suspiciousUrls,
       triggeredClusters: context.offPlatformLure ? ['off_platform'] : [],
       nlpConfidence: confidence || (context.threatLevel === 'HIGH' ? 75 : 25),
       raisedFlags,

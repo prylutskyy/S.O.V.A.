@@ -337,8 +337,10 @@ export class OutboundDataSanitizer {
     if (context?.raisedFlags && context.raisedFlags.length > 0) {
       threatDetails.push(`• Heuristic Warnings:\n  ${context.raisedFlags.map((f) => `- ${f}`).join('\n  ')}`);
     }
-    if (context?.sourcePlatform || context?.targetHost) {
-      threatDetails.push(`- Route: ${context?.sourcePlatform || 'internal'} -> ${context?.targetHost || 'external'}`);
+    if (context?.targetHost) {
+      threatDetails.push(`- Route: ${context?.sourcePlatform || 'internal'} -> ${context.targetHost}`);
+    } else if (context?.sourcePlatform) {
+      threatDetails.push(`- Source Platform: ${context.sourcePlatform}`);
     }
 
     const dialogueSection = context?.dialogueHistory && context.dialogueHistory.trim().length > 0

@@ -39,6 +39,29 @@ export class ChatChannelMonitor {
   private static sourceHost: string = '';
   public static debugMode = false;
 
+  private static readonly controlsSelector =
+    'button, input, textarea, select, [role="button"], [role="textbox"], [contenteditable="true"]';
+
+  /** Alignment classes also occur on composers and send buttons, not just messages. */
+  private static isMessageCandidate(element: HTMLElement): boolean {
+    return !element.closest(this.controlsSelector) &&
+      !element.querySelector('input, textarea, select, [role="textbox"], [contenteditable="true"]') &&
+      !element.closest('#threatshield-neuro-monitor');
+  }
+
+  private static extractMessageText(element: HTMLElement): string {
+    const copy = element.cloneNode(true) as HTMLElement;
+    copy.querySelectorAll(this.controlsSelector).forEach((control) => control.remove());
+    const textElement = copy.querySelector<HTMLElement>(
+      '[data-testid="message"], [data-nx-name="TextContainer"], .bubble, .tag, p, span'
+    ) || copy;
+    let text = (textElement.innerText || textElement.textContent || '').trim();
+    for (const link of Array.from(copy.querySelectorAll<HTMLAnchorElement>('a[href]'))) {
+      if (link.href && !text.includes(link.href)) text += ' ' + link.href;
+    }
+    return text;
+  }
+
   /**
    * Визначення напрямку повідомлення: Inbound (чуже/вхідне) чи Outbound (моє/вихідне)
    */
@@ -228,14 +251,15 @@ export class ChatChannelMonitor {
     ].join(', ');
 
     // Шукаємо потенційні повідомлення
-    const rawCandidates = container.matches(selector)
+    const rawCandidates = (container.matches(selector)
       ? [container, ...Array.from(container.querySelectorAll<HTMLElement>(selector))]
-      : Array.from(container.querySelectorAll<HTMLElement>(selector));
+      : Array.from(container.querySelectorAll<HTMLElement>(selector)))
+      .filter((element) => this.isMessageCandidate(element));
 
     // Фільтруємо лише найвищі в ієрархії елементи, щоб не обробляти двічі контейнер і його дочірній тег
     const candidates = rawCandidates.filter((el) => {
       let parent = el.parentElement;
-      while (parent && parent !== container) {
+      while (parent) {
         if (rawCandidates.includes(parent as HTMLElement)) {
           return false;
         }
@@ -266,16 +290,7 @@ export class ChatChannelMonitor {
    * Сканує ВИКЛЮЧНО на соцінженерні приманки (lures), але НЕ блокує за наявність картки!
    */
   private static processInboundMessage(element: HTMLElement): void {
-    const textEl = element.querySelector<HTMLElement>('[data-testid="message"], [data-nx-name="TextContainer"], .bubble, .tag, p, span') || element;
-    let text = textEl.innerText?.trim() || element.innerText?.trim() || '';
-    
-    // Додаємо прямі посилання з тегів <a>, якщо вони не відображаються відкритим текстом
-    const links = Array.from(element.querySelectorAll<HTMLAnchorElement>('a[href]'));
-    for (const a of links) {
-      if (a.href && !text.includes(a.href)) {
-        text += ' ' + a.href;
-      }
-    }
+    const text = this.extractMessageText(element);
 
     if (text.length < 5) return;
 
@@ -376,8 +391,7 @@ export class ChatChannelMonitor {
    * Обробка вихідного повідомлення від користувача (Outbound) для збереження контексту діалогу
    */
   private static processOutboundMessage(element: HTMLElement): void {
-    const textEl = element.querySelector<HTMLElement>('[data-testid="message"], [data-nx-name="TextContainer"], .bubble, .tag, p, span') || element;
-    const text = textEl.innerText?.trim() || element.innerText?.trim() || '';
+    const text = this.extractMessageText(element);
     if (text.length >= 2) {
       ChatSessionState.addMessageAndEvaluate(text, 'outbound');
       SessionOutboundMemory.recordSentMessage(text);
@@ -448,7 +462,8 @@ export class ChatChannelMonitor {
       '.message',
     ].join(', ');
 
-    const rawElements = Array.from(document.querySelectorAll<HTMLElement>(selector));
+    const rawElements = Array.from(document.querySelectorAll<HTMLElement>(selector))
+      .filter((element) => this.isMessageCandidate(element));
     if (rawElements.length === 0) return [];
 
     // Залишаємо лише найвищі в ієрархії елементи-контейнери повідомлень (щоб уникнути дублювання)
@@ -480,19 +495,7 @@ export class ChatChannelMonitor {
 
       const speaker = direction === 'outbound' ? '[Ви]' : '[Співрозмовник]';
 
-      const textEl =
-        el.querySelector<HTMLElement>(
-          '[data-testid="message"], [data-nx-name="TextContainer"], .bubble, .tag, p, span'
-        ) || el;
-
-      let text = (textEl.innerText || el.innerText || '').trim();
-
-      const links = Array.from(el.querySelectorAll<HTMLAnchorElement>('a[href]'));
-      for (const a of links) {
-        if (a.href && !text.includes(a.href)) {
-          text += ' ' + a.href;
-        }
-      }
+      const text = this.extractMessageText(el);
 
       if (text.length > 0) {
         lines.push(`${speaker}: ${text}`);

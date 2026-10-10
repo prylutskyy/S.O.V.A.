@@ -29,6 +29,40 @@ describe('AIArbiterService (Single-Flight & Cache)', () => {
     expect(result).toBeNull();
   });
 
+  it.each(['', 'Надішліть серію та номер паспорта для отримання переказу.'])(
+    'does not fabricate URL telemetry for a text-only request (%s)', async (targetSuspiciousUrl) => {
+      const sendMessage = vi.fn((_message: any, callback: (response: any) => void) => {
+        callback({ aiResult: { isScam: true, confidence: 98, scamType: 'IDENTITY_PROBING', reasoning: 'Запит паспортних даних.' } });
+      });
+      vi.stubGlobal('chrome', { runtime: { sendMessage } });
+      const result = await AIArbiterService.verify({
+        context: { ...baseContext, offPlatformLure: false, targetSuspiciousUrl },
+        rawTextToScan: 'Надішліть серію та номер паспорта для отримання переказу.',
+        intentType: 'IDENTITY_PROBING', confidence: 45,
+      });
+      const payload = sendMessage.mock.calls[0][0].payload;
+      expect(payload.text).toContain('номер паспорта');
+      expect(payload.heuristicContext.suspiciousUrls).toEqual([]);
+      expect(payload.heuristicContext.targetHost).toBeUndefined();
+      expect(payload.heuristicContext.raisedFlags).not.toContain('Підозріле посилання у тексті');
+      expect(payload.sanitizedPrompt).not.toContain('Route: olx.ua -> external');
+      expect(result?.scamType).toBe('IDENTITY_PROBING');
+    }
+  );
+
+  it('preserves actual URL paths and independently reports URL and off-platform flags', async () => {
+    const sendMessage = vi.fn((_message: any, callback: (response: any) => void) => {
+      callback({ aiResult: { isScam: false, confidence: 90, reasoning: 'Тест.' } });
+    });
+    vi.stubGlobal('chrome', { runtime: { sendMessage } });
+    await AIArbiterService.verify({ context: { ...baseContext, targetSuspiciousUrl: 'https://example.invalid/Verify?token=ABC' } });
+    const telemetry = sendMessage.mock.calls[0][0].payload.heuristicContext;
+    expect(telemetry.suspiciousUrls).toEqual(['https://example.invalid/Verify?token=ABC']);
+    expect(telemetry.targetHost).toBe('example.invalid');
+    expect(telemetry.raisedFlags).toContain('Підозріле посилання у тексті');
+    expect(telemetry.raisedFlags).toContain('Спроба переведення в сторонній месенджер');
+  });
+
   it('should perform inference and cache result for identical requests', async () => {
     let messageCount = 0;
     // Mock chrome.runtime

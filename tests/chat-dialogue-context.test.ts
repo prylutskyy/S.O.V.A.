@@ -7,6 +7,8 @@ import { OutboundDataSanitizer } from '../src/privacy/outbound-data-sanitizer';
 
 describe('Chat Dialogue Context for AI Arbiter (TDD Suite)', () => {
   beforeEach(() => {
+    document.body.innerHTML = '';
+    ChatChannelMonitor.destroy();
     ChatSessionState.reset();
   });
 
@@ -87,6 +89,35 @@ describe('Chat Dialogue Context for AI Arbiter (TDD Suite)', () => {
   });
 
   describe('DOM-based multi-turn chat dialogue extraction', () => {
+    it('excludes the otr.to composer and aligned send button from DOM and session history', () => {
+      document.body.innerHTML = `
+        <div class="messages">
+          <div class="has-text-left"><span class="tag">Надішліть серію та номер паспорта для отримання переказу.</span></div>
+          <div class="has-text-right"><span class="tag">Не надішлю.</span></div>
+        </div>
+        <div class="has-text-right"><input value="Чернетка"><button class="has-text-right"><span>↣</span></button></div>
+        <div class="column is-narrow has-text-right"><button class="button is-primary">↣</button></div>
+        <button class="has-text-right">Надіслати повідомлення</button>`;
+      ChatChannelMonitor.scanContainer(document.body);
+      expect(ChatSessionState.getRecentMessages().map((message) => message.rawText)).toEqual([
+        'Надішліть серію та номер паспорта для отримання переказу.', 'Не надішлю.',
+      ]);
+      expect(ChatChannelMonitor.extractDialogueFromDOM()).toEqual([
+        '[Співрозмовник]: Надішліть серію та номер паспорта для отримання переказу.',
+        '[Ви]: Не надішлю.',
+      ]);
+    });
+
+    it('ignores nested message actions without dropping the message or a masked link', () => {
+      document.body.innerHTML = `<div class="has-text-left"><span class="tag">Перевірте <a href="https://example.invalid/Verify?token=ABC">замовлення</a></span><button class="has-text-right"><span>Відповісти</span></button></div>`;
+      ChatChannelMonitor.scanContainer(document.body);
+      const lines = ChatChannelMonitor.extractDialogueFromDOM();
+      expect(lines).toHaveLength(1);
+      expect(lines[0]).toContain('https://example.invalid/Verify?token=ABC');
+      expect(lines[0]).not.toContain('Відповісти');
+      expect(ChatSessionState.getRecentMessages()).toHaveLength(1);
+    });
+
     it('успішно витягує весь живий діалог із Bulma/P2P чату без дублювання та системних статусів', () => {
       document.body.innerHTML = `
         <div class="container"><div class="messages" style="height: 100%; width: 100%;"><div class="has-text-centered" style="padding: 0.5rem; font-size: 0.8rem;">Created Peer: 576x5013f496x4k5dx1i64</div><div class="has-text-centered" style="padding: 0.5rem; font-size: 0.8rem;">Connected to Peer: 2r2yt1k2f326x5174bb4d3</div><div class="has-text-right" style="padding: 0.5rem;"><span class="tag is-medium is-primary">привіт. Як справи?)</span></div><div class="has-text-left" style="padding: 0.5rem;"><span class="tag is-medium is-light">Йоу. Все шикарно, а у тебе?</span></div><div class="has-text-left" style="padding: 0.5rem;"><span class="tag is-medium is-light">Що плануєш сьогодні робити?</span></div><div class="has-text-right" style="padding: 0.5rem;"><span class="tag is-medium is-primary">Та хуй його зна</span></div><div class="has-text-right" style="padding: 0.5rem;"><span class="tag is-medium is-primary">нічого поки</span></div><div class="has-text-left" style="padding: 0.5rem;"><span class="tag is-medium is-light">Слухай! я тут тємку знайшов, як бабок заробити</span></div><div class="has-text-right" style="padding: 0.5rem;"><span class="tag is-medium is-primary">Недай бог це будуть офіси)</span></div><div class="has-text-left" style="padding: 0.5rem;"><span class="tag is-medium is-light">старий, які офіси?))</span></div><div class="has-text-left" style="padding: 0.5rem;"><span class="tag is-medium is-light">там тєма чуто мутна, слизька, але пару купюр можна заробити</span></div><div class="has-text-right" style="padding: 0.5rem;"><span class="tag is-medium is-primary">Добро. Валяй.</span></div><div class="has-text-right" style="padding: 0.5rem;"><span class="tag is-medium is-primary">що там у тебе?</span></div><div class="has-text-left" style="padding: 0.5rem;"><span class="tag is-medium is-light">заходиш на olx та пишеш повідомлення по типу "Інформація про замовлення: Найменування товару Бавовняна рубашка H&amp;M (S) Сума до отримання 600 грн. Будь ласка, зверніть увагу Оскільки це ваша перша угода через «OLX Доставка», для завершення операції потрібно пройти додаткову перевірку профілю. Що потрібно зробити: Виділіть посилання -t.me/OLXHelpProtect_bot Вставте її у свій браузер або натисніть «Перейти» одразу з меню, що з'явилося Дотримуйтесь інструкцій бота та завершіть миттєву перевірку даних Зверніть увагу: Доки перевірка не буде завершена, замовлення залишатиметься у статусі очікування. Дякуємо, що обираєте OLX"</span></div></div></div>

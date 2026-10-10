@@ -520,7 +520,7 @@ export default defineContentScript({
       }
 
       triggerLureContext(
-        (event.suspiciousUrls && event.suspiciousUrls[0]) || event.text,
+        event.suspiciousUrls?.[0] || '',
         event.keywords,
         event.isOffPlatformLure,
         subtitle,

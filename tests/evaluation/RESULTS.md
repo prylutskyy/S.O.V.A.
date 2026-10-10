@@ -2,6 +2,16 @@
 
 Record each intentional classifier or corpus change here so metric shifts can be interpreted alongside the dashboard history. Exact-match results depend on both the classifier and the corpus contents; compare runs only when the corpus hash is the same, or report the changed split separately.
 
+## 2026-10-10 — live chat ingestion and truthful AI URL telemetry
+
+- Excluded composers, controls and nested button labels from both local session ingestion and DOM dialogue extraction. Fixed the real otr.to send button appearing as `[Ви]: ↣` in the AI prompt; preserved actual message roles and embedded links.
+- Removed the trigger-text fallback for `targetSuspiciousUrl`. The arbiter now checks URL evidence separately, preserves explicit URL path/query casing and raises URL/off-platform flags independently. The cloud prompt no longer invents an external destination when only the source platform is known.
+- Added five automated regressions covering composer/button exclusion, nested action removal, masked message links, text-only AI requests and real URL telemetry. Full non-Groq run: **698/699 tests passed**, **65/66 files passed**. The sole failure remains the aggregate corpus assertion with **32 mismatches**, unchanged from the preceding run. Build and TypeScript checks passed.
+- Live combined-mode check on otr.to after rebuilding and manually reloading the extension: the actual Groq prompt contained only the interlocutor's passport request, no send-button utterance and no URL warning/route. Groq `qwen/qwen3.8-27b` returned `IDENTITY_PROBING`, `isScam: true`, confidence 98, latency 515 ms. This is a single pipeline check, not a cloud accuracy estimate or an independent local-only verdict.
+- Repeated the identical passport request in a fresh otr.to dialogue with cloud AI disabled by the user: local events reported `IDENTITY_PROBING`, score 45; the arbiter returned no usable response and no warning appeared. The current unavailable-AI fallback requires a local score of at least 75. This exposes a runtime warning-policy gap despite correct local detection. The sender's local threat log remained empty. A subsequent safety warning in the same conversation retriggered analysis of the existing threat context; it is not an isolated benign-message test. The user restored cloud AI after the comparison.
+- Final focused rerun passed **25/25** dialogue, arbiter and sanitizer tests. A preceding parallel rerun failed to load a temporary Vite module (`ENOENT`); rerunning with one worker resolved it.
+- Local logs and screenshots are stored under untracked `tests/results/`; raw chat report data is not part of this tracked summary.
+
 ## 2026-10-09 — messenger normalization and independent holdout
 
 Commit: `bdce148` (`fix: detect normalized off-platform messenger requests`).
