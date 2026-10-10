@@ -79,6 +79,7 @@ export class OpenRouterDriver implements ICloudLLMDriver {
       scamType,
       reasoning,
       rawResponse: rawReply,
+      requestMessages: body.messages.map(({ role, content }) => ({ role, content })),
       latencyMs,
       provider: request.provider,
       modelUsed: model,

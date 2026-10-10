@@ -1,5 +1,6 @@
 import { IAIProvider, AIValidationResult, AIHeuristicContext } from './ai-provider.interface';
 import '../types/ai.d.ts';
+const sessionInstructions = new WeakMap<object, string>();
 
 export function getChromeAiLanguageModel(): any {
   const globalObj = typeof globalThis !== 'undefined' ? globalThis : (typeof window !== 'undefined' ? window : self);
@@ -34,7 +35,9 @@ export async function createAiSession(systemPrompt?: string, temperature: number
     try {
       const opts: any = { systemPrompt, temperature };
       if (signal) opts.signal = signal;
-      return await provider.create(opts);
+      const session = await provider.create(opts);
+      sessionInstructions.set(session, systemPrompt);
+      return session;
     } catch (e1) {
       console.warn('[SOVA:AI] create({ systemPrompt }) failed, trying initialPrompts...', e1);
     }
@@ -45,7 +48,9 @@ export async function createAiSession(systemPrompt?: string, temperature: number
         temperature
       };
       if (signal) opts.signal = signal;
-      return await provider.create(opts);
+      const session = await provider.create(opts);
+      sessionInstructions.set(session, systemPrompt);
+      return session;
     } catch (e2) {
       console.warn('[SOVA:AI] create({ initialPrompts }) failed, falling back to bare create()...', e2);
     }
@@ -78,6 +83,7 @@ export class ChromeBuiltinAIProvider implements IAIProvider {
     triggerWord?: string,
     heuristicContext?: AIHeuristicContext
   ): Promise<AIValidationResult | null> {
+    const startedAt = performance.now();
     const provider = this.getProvider();
     if (!provider || !(await this.isAvailable())) return null;
 
@@ -388,7 +394,13 @@ Respond ONLY with valid JSON. Keys: "isScam", "confidence", "scamType", "reasoni
         confidence,
         reasoning,
         scamType,
-        rawResponse: responseText
+        rawResponse: responseText,
+        requestMessages: [
+          ...(sessionInstructions.has(session) ? [{ role: 'system', content: sessionInstructions.get(session)! }] : []),
+          { role: 'user', content: prompt },
+        ],
+        provider: 'Chrome Built-in AI',
+        latencyMs: Math.round(performance.now() - startedAt),
       };
 
     } catch (e) {

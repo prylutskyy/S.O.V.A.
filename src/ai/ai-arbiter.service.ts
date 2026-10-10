@@ -6,6 +6,7 @@ import { DebuggerOverlay } from '../ui/debugger-overlay';
 import { OutboundDataSanitizer } from '../privacy/outbound-data-sanitizer';
 import { ChatSessionState } from '../heuristics/chat-session-state';
 import { UrlExtractor } from '../heuristics/url-extractor';
+import type { AICheckResult } from '../ui/ai-check-history';
 
 export interface AIArbiterVerifyOptions {
   context: ActiveThreatContext;
@@ -14,7 +15,7 @@ export interface AIArbiterVerifyOptions {
   confidence?: number;
 }
 
-export interface AIArbiterVerifyResult {
+export interface AIArbiterVerifyResult extends AICheckResult {
   isScam: boolean;
   confidence: number;
   reasoning: string;
@@ -40,7 +41,7 @@ export class AIArbiterService {
   } | null = null;
 
   private static requestCounter = 0;
-  private static cache = new Map<string, { result: AIArbiterVerifyResult; expiresAt: number }>();
+  private static cache = new Map<string, { result: AIArbiterVerifyResult; expiresAt: number; checkId: string }>();
   public static readonly CACHE_TTL_MS = 5 * 60 * 1000; // 5 хвилин
   public static readonly REQUEST_TIMEOUT_MS = 15_000;
 
@@ -102,12 +103,16 @@ export class AIArbiterService {
 
     // 0. Session quarantine for a previously confirmed threat.
     if (ChatSessionState.sessionLlmVerdict === 'SCAM') {
-      return {
+      const result: AIArbiterVerifyResult = {
         isScam: true,
         confidence: 99,
         reasoning: 'Автоматичний карантин: чат вже визнано небезпечним (ШІ)',
         provider: 'session-quarantine'
       };
+      const id = DebuggerOverlay.beginAICheck({ sessionId: options.context.sessionId || null,
+        source: 'session-quarantine', intent: options.intentType || options.context.scenario });
+      DebuggerOverlay.finishAICheck(id, 'completed', result);
+      return result;
     }
     
     // A safe verdict is a result for a particular request, not session immunity.
@@ -122,18 +127,10 @@ export class AIArbiterService {
     // 1. Швидкий кеш: якщо однаковий контекст уже перевірявся — 0 мс затримки, 0% CPU
     const cached = this.cache.get(cacheKey);
     if (cached && Date.now() < cached.expiresAt) {
-      const providerLabel = cached.result.provider ? ` [${cached.result.provider}]` : '';
-      DebuggerOverlay.logAI(
-        'ШІ Арбітр → Кеш',
-        `Результат миттєво взято з пам'яті (0 мс)${providerLabel}\nВпевненість: ${cached.result.confidence}%\nВисновок: "${cached.result.reasoning}"`,
-        cached.result.isScam ? '#EF4444' : '#22C55E',
-        {
-          rawResponse: cached.result.rawResponse,
-          provider: cached.result.provider,
-          model: cached.result.modelUsed,
-          latencyMs: cached.result.latencyMs,
-        }
-      );
+      const id = DebuggerOverlay.beginAICheck({ sessionId: options.context.sessionId || null,
+        source: 'cache', originalCheckId: cached.checkId,
+        intent: options.intentType || options.context.scenario });
+      DebuggerOverlay.finishAICheck(id, 'completed', cached.result);
       return cached.result;
     }
 
@@ -145,11 +142,6 @@ export class AIArbiterService {
     // 3. Single-Flight: якщо контекст змінився (нові символи/прапорці), скасовуємо попередній запит
     if (this.inflightRequest) {
       this.inflightRequest.abortController.abort();
-      DebuggerOverlay.logAI(
-        'ШІ Арбітр → Оновлення',
-        'Попередній інференс скасовано: контекст оновився',
-        '#64748B'
-      );
       this.inflightRequest = null;
     }
 
@@ -191,25 +183,6 @@ export class AIArbiterService {
     const contextRules =
       AILureVerifier.intentContextRules[intentLabel as ScamIntentType] ||
       'Analyze for social engineering, phishing, and payment credential theft.';
-
-    const systemPrompt = `You are a cybersecurity expert acting as an AI Shield Arbiter protecting the current user ([Ви]) from phishing, social engineering, and payment credential theft.
-
-Your primary mission is to determine whether THE CURRENT USER ([Ви]) is being targeted as a victim of social engineering, fraud, or phishing.
-If the interlocutor is simply discussing a scheme, quoting a scam script/template ("пишеш повідомлення по типу..."), or joking, and NOT actively trying to defraud or deceive [Ви], classify as SAFE (isScam: false).
-
-IMPORTANT RULES:
-1. Respond ONLY with a valid JSON object. Do NOT include markdown blocks or any conversational text.
-2. JSON keys MUST strictly be: "isScam", "confidence", "scamType", "reasoning".
-3. Write "reasoning" in Ukrainian: concise, direct explanation (max 35 words).
-4. "scamType" must be one of: PAYMENT_CREDENTIAL_THEFT, IDENTITY_PROBING, ESCROW_DELIVERY_SCAM, OFF_PLATFORM_REDIRECT, VERIFICATION_PHISHING, URGENCY_PRESSURE, MILITARY_SABOTAGE_RECRUITMENT, CRYPTO_WALLET_COMPROMISE, or SUSPICIOUS_LURE.
-
-Required JSON schema:
-{
-  "isScam": boolean,
-  "confidence": number (0-100),
-  "scamType": string,
-  "reasoning": string (concise explanation in Ukrainian)
-}`;
 
     // A trigger message is evidence text, never a URL merely because a caller supplied it here.
     let suspiciousUrls = UrlExtractor.extract(context.targetSuspiciousUrl || '');
@@ -263,24 +236,15 @@ Required JSON schema:
       telemetry: sanitizedScan.telemetry,
     };
 
-    const aiLogId = DebuggerOverlay.logAI(
-      'ШІ Арбітр → Аналіз',
-      sanitizedScan.telemetry.totalSensitiveAssetsRedacted > 0
-        ? `Запит відправлено (Захищено ${sanitizedScan.telemetry.totalSensitiveAssetsRedacted} конфіденційних активів)...`
-        : 'Запит відправлено, очікую відповідь...',
-      '#3B82F6',
-      {
-        systemPrompt,
-        contextRules,
-        textSent: sanitizedScan.sanitizedText,
-        chatDialogue: sanitizedDialogue.sanitizedText,
-        raisedFlags,
-        sanitizedPrompt,
-      }
-    );
+    const checkId = DebuggerOverlay.beginAICheck({ sessionId: context.sessionId || null,
+      text: sanitizedScan.sanitizedText, dialogue: sanitizedDialogue.sanitizedText,
+      intent: intentLabel, flags: raisedFlags, preparedPrompt: sanitizedPrompt,
+      redactedCount: sanitizedScan.telemetry.totalSensitiveAssetsRedacted
+        + sanitizedDialogue.telemetry.totalSensitiveAssetsRedacted });
 
     return new Promise((resolve) => {
       if (abortController.signal.aborted) {
+        DebuggerOverlay.finishAICheck(checkId, 'cancelled', undefined, 'Контекст змінився або перевірку скинуто.');
         resolve(null);
         return;
       }
@@ -293,11 +257,13 @@ Required JSON schema:
         abortController.signal.removeEventListener('abort', onAbort);
         resolve(result);
       };
-      const onAbort = () => finish(null);
+      const onAbort = () => {
+        DebuggerOverlay.finishAICheck(checkId, 'cancelled', undefined, 'Контекст змінився або перевірку скинуто.');
+        finish(null);
+      };
       const timeout = setTimeout(() => {
-        DebuggerOverlay.logAI('ШІ Арбітр → Аналіз',
-          'Час очікування ШІ вичерпано. Застосовується локальна політика захисту.',
-          '#F59E0B', undefined, aiLogId);
+        DebuggerOverlay.finishAICheck(checkId, 'timeout', undefined,
+          'Час очікування вичерпано. Діє локальна політика захисту.');
         finish(null);
       }, this.REQUEST_TIMEOUT_MS);
       abortController.signal.addEventListener('abort', onAbort, { once: true });
@@ -320,28 +286,20 @@ Required JSON schema:
             // Якщо запит було скасовано або перекрито іншим
             if (abortController.signal.aborted || this.requestCounter !== requestId ||
                 ChatSessionState.sessionRevision !== sessionRevision) {
+              DebuggerOverlay.finishAICheck(checkId, 'cancelled', undefined, 'Відповідь стосується попереднього контексту.');
               finish(null);
               return;
             }
 
             const aiResult = response?.aiResult as AIArbiterVerifyResult | undefined;
             if (!aiResult) {
-              DebuggerOverlay.logAI(
-                'ШІ Арбітр → Аналіз',
-                'ШІ-арбітр (LLM) не зміг обробити запит.',
-                '#EF4444',
-                undefined,
-                aiLogId
-              );
+              DebuggerOverlay.finishAICheck(checkId, 'error', undefined, 'ШІ не повернув придатної відповіді.');
               finish(null);
             } else {
-              const providerLabel = aiResult.provider
-                ? ` [${aiResult.provider}: ${aiResult.modelUsed || ''} (${aiResult.latencyMs || 0}мс)]`
-                : '';
-
               AIArbiterService.cache.set(cacheKey, {
                 result: aiResult,
                 expiresAt: Date.now() + AIArbiterService.CACHE_TTL_MS,
+                checkId,
               });
 
               // SAFE records the latest verdict only; reuse is controlled by the exact cache.
@@ -352,28 +310,14 @@ Required JSON schema:
                 ChatSessionState.sessionLlmImmunityPeakScore = confidence || (context.threatLevel === 'HIGH' ? 75 : (context.threatLevel === 'MEDIUM' ? 50 : 25));
               }
 
-              const verdict = aiResult.isScam
-                ? `СКАМ підтверджено${providerLabel} (Впевненість: ${aiResult.confidence}%)\n\nВисновок: "${aiResult.reasoning}"`
-                : `Загрозу спростовано${providerLabel} (Впевненість: ${aiResult.confidence}%)\n\nВисновок: "${aiResult.reasoning}"`;
-
-              DebuggerOverlay.logAI(
-                'ШІ Арбітр → Аналіз',
-                verdict,
-                aiResult.isScam ? '#EF4444' : '#22C55E',
-                {
-                  rawResponse: aiResult.rawResponse,
-                  provider: aiResult.provider,
-                  model: aiResult.modelUsed,
-                  latencyMs: aiResult.latencyMs,
-                },
-                aiLogId
-              );
+              DebuggerOverlay.finishAICheck(checkId, 'completed', aiResult);
               finish(aiResult);
             }
           }
         );
       } catch (e) {
         console.error(e);
+        DebuggerOverlay.finishAICheck(checkId, 'error', undefined, 'Не вдалося передати запит диспетчеру ШІ.');
         finish(null);
       }
     });

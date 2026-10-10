@@ -4,6 +4,9 @@ export interface AIValidationResult {
   reasoning: string;
   scamType?: string;
   rawResponse?: string;
+  requestMessages?: { role: string; content: string }[];
+  provider?: string;
+  latencyMs?: number;
 }
 
 export interface AIHeuristicContext {

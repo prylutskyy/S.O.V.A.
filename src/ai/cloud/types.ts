@@ -19,6 +19,7 @@ export interface CloudVerificationResponse {
   latencyMs: number;
   provider: LLMProviderType;
   modelUsed: string;
+  requestMessages?: { role: string; content: string }[];
 }
 
 export interface CloudTextGenerationRequest {

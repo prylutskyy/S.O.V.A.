@@ -175,6 +175,7 @@ export default defineBackground(() => {
                   provider: cloudRes.provider,
                   modelUsed: cloudRes.modelUsed,
                   latencyMs: cloudRes.latencyMs,
+                  requestMessages: cloudRes.requestMessages,
                 },
               });
               return;

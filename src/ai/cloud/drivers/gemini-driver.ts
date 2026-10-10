@@ -87,6 +87,7 @@ export class GeminiDriver implements ICloudLLMDriver {
           scamType,
           reasoning,
           rawResponse: rawReply,
+          requestMessages: body.contents.map(item => ({ role: 'user', content: item.parts.map(part => part.text).join('\n') })),
           latencyMs,
           provider: 'gemini',
           modelUsed: model,

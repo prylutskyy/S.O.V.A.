@@ -1,6 +1,8 @@
 import { UserWhitelistManager } from '../core/user-whitelist';
 import { DESIGN_TOKENS_CSS } from './design-tokens';
 import { SemanticVectorTelemetry } from '../heuristics/semantic-trigger';
+import { AI_INSPECTOR_CSS, renderAIInspector, liveToolbar } from './ai-inspector-view';
+import { AICheckHistory, type AICheck, type AICheckInput, type AICheckResult, type AICheckStatus } from './ai-check-history';
 
 export interface LogItem {
   id: string;
@@ -25,6 +27,7 @@ export interface LogItem {
     latencyMs?: number;
   };
   expanded?: boolean;
+  aiCheckId?: string;
 }
 
 export type NeuromonitorTab = 'overview' | 'events' | 'ai' | 'vectors';
@@ -88,6 +91,53 @@ export class DebuggerOverlay {
 
   /** Жорсткий ліміт кільцевого буфера подій (FIFO) для захисту від витоку пам'яті */
   private static readonly MAX_LOGS = 150;
+  private static aiHistory = new AICheckHistory();
+  private static reviewSnapshot: { logs: LogItem[]; checks: AICheck[]; revision: number; eventRevision: number; protection: ActiveDecision | null } | null = null;
+  private static selectedCheckId: string | null = null;
+  private static aiScope: 'current' | 'all' = 'current';
+  private static eventRevision = 0;
+  private static openAISections = new Set<string>();
+
+  public static getAIChecks(): AICheck[] { return this.aiHistory.snapshot(); }
+  public static beginAICheck(input: AICheckInput): string {
+    const check = this.aiHistory.begin(input);
+    this.recordCheckEvent(check);
+    return check.id;
+  }
+  public static finishAICheck(id: string, status: Exclude<AICheckStatus, 'pending'>,
+    result?: AICheckResult, message?: string): void {
+    const check = this.aiHistory.finish(id, status, result, message);
+    if (check) this.recordCheckEvent(check);
+  }
+  private static recordCheckEvent(check: AICheck): void {
+    if (check.status === 'pending' && check.source !== 'inference') return;
+    this.eventRevision++;
+    this.state.logs.push({ id: `${check.id}-${check.status}`,
+      stepKey: `Перевірка ШІ #${check.number} · ${check.status === 'pending' ? 'Початок' : 'Завершення'}`,
+      data: check.status === 'pending' ? 'Початок перевірки · очікування відповіді'
+        : `${this.checkStatusLabel(check)}${check.message ? `: ${check.message}` : ''}`,
+      time: new Date(check.finishedAt ?? check.startedAt).toLocaleTimeString(),
+      color: check.result?.isScam ? '#EF4444' : check.status === 'error' ? '#F59E0B' : '#0071E3',
+      isAi: true, isForm: false, isPending: check.status === 'pending', aiCheckId: check.id,
+      aiContext: { rawResponse: check.result?.rawResponse, provider: check.result?.provider,
+        model: check.result?.modelUsed, latencyMs: check.result?.latencyMs } });
+    // The start remains in the chronological event journal, but is no longer pending.
+    if (check.status !== 'pending') this.state.logs.forEach(log => {
+      if (log.aiCheckId === check.id) log.isPending = false;
+    });
+    this.enforceLogLimit();
+    this.render();
+  }
+  private static checkStatusLabel(check: AICheck): string {
+    if (check.source === 'cache') return 'З кешу';
+    if (check.source === 'session-quarantine') return 'Карантин розмови';
+    return ({ pending: 'Очікування відповіді', completed: 'Завершено', cancelled: 'Скасовано',
+      timeout: 'Час очікування вичерпано', error: 'Помилка' })[check.status];
+  }
+  private static escape(value: unknown): string {
+    return String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;',
+      '"': '&quot;', "'": '&#39;' }[char]!));
+  }
 
   private static state = {
     sessionId: null as string | null,
@@ -234,6 +284,13 @@ export class DebuggerOverlay {
   }
 
   public static clear() {
+    this.aiHistory.clear();
+    this.reviewSnapshot = null;
+    this.selectedCheckId = null;
+    this.openAISections.clear();
+    this.aiScope = 'current';
+    this.state.filterSearch = '';
+    this.state.filterCategory = 'ALL';
     this.state.logs = [];
     this.resetSessionRisk();
     this.setSession(null);
@@ -241,6 +298,11 @@ export class DebuggerOverlay {
   }
 
   public static setSession(id: string | null, severity: string = 'LOW') {
+    if (id !== this.state.sessionId) {
+      this.reviewSnapshot = null;
+      this.selectedCheckId = null;
+      this.openAISections.clear();
+    }
     if (id && id === this.state.sessionId && this.state.activeDecision) return;
     this.state.activeDecision = null;
     this.state.sessionId = id;
@@ -463,26 +525,9 @@ export class DebuggerOverlay {
 
     const cleanData = typeof data === 'string' ? this.stripEmoji(data) : data;
 
-    const existingIndex = this.state.logs.findIndex((l) => l.stepKey === cleanStepKey);
-    if (existingIndex >= 0) {
-      this.state.logs[existingIndex] = {
-        ...this.state.logs[existingIndex],
-        data: cleanData,
-        color,
-        time,
-      };
-    } else {
-      this.state.logs.push({
-        id: Math.random().toString(36).substring(7),
-        stepKey: cleanStepKey,
-        data: cleanData,
-        color,
-        time,
-        isAi: isStepAi,
-        isForm,
-        expanded: false,
-      });
-    }
+    this.state.logs.push({ id: crypto.randomUUID(), stepKey: cleanStepKey, data: cleanData,
+      color, time, isAi: isStepAi, isForm, expanded: false });
+    this.eventRevision++;
 
     this.enforceLogLimit();
     this.render();
@@ -547,6 +592,7 @@ export class DebuggerOverlay {
     }
 
     this.enforceLogLimit();
+    this.eventRevision++;
     this.render();
     return currentId;
   }
@@ -694,6 +740,7 @@ export class DebuggerOverlay {
       activeDecision: this.state.activeDecision,
       falsePositiveAssessment: fpAssessment,
       semanticVectorTelemetry: this.state.vectorTelemetry || null,
+      aiChecks: this.getAIChecks(),
       logsSummary: this.state.logs.map((l) => ({
         time: l.time,
         stepKey: l.stepKey,
@@ -719,7 +766,7 @@ export class DebuggerOverlay {
     }
   }
 
-  private static render() {
+  private static render(force = false) {
     if (!this.shadowRoot) return;
 
     if (!this.isVisible) {
@@ -735,16 +782,42 @@ export class DebuggerOverlay {
       return;
     }
 
+    const reviewTab = this.state.activeTab === 'ai' || this.state.activeTab === 'events';
+    const selection = (this.shadowRoot as ShadowRoot & { getSelection?: () => Selection | null }).getSelection?.()
+      || window.getSelection();
+    const hasSelection = !!selection && !selection.isCollapsed && selection.anchorNode?.getRootNode() === this.shadowRoot;
+    if (!force && reviewTab && (this.reviewSnapshot || hasSelection)) {
+      if (hasSelection && !this.reviewSnapshot) {
+        const liveState = this.shadowRoot.querySelector('.sc-live-state');
+        if (liveState) liveState.textContent = 'Перегляд затримано · виділено текст';
+      }
+      const badge = this.shadowRoot.getElementById('sc-new-updates');
+      if (badge) badge.textContent = 'Є нові дані · Оновити перегляд';
+      return;
+    }
+
     this.applyContainerGeometry();
 
-    const { sessionId, severity, score, logs, activeTab, filterCategory, filterSearch, threatMitigated, liveScore } = this.state;
+    const { sessionId, severity, score, activeTab, filterCategory, filterSearch, threatMitigated, liveScore } = this.state;
+    const logs = reviewTab && this.reviewSnapshot ? this.reviewSnapshot.logs : this.state.logs;
+    const checks = this.reviewSnapshot && reviewTab ? this.reviewSnapshot.checks : this.getAIChecks();
+    const currentChecks = checks.filter(check => this.aiScope === 'all' || check.sessionId === sessionId);
     const focusedControl = this.shadowRoot.activeElement as HTMLElement | null;
     const focusedId = focusedControl?.id;
     const focusedTab = focusedControl?.dataset.tab;
     const focusedPrototype = focusedControl?.dataset.protoId;
+    const focusedCheck = focusedControl?.dataset.aiCheck;
+    const focusedInput = focusedControl instanceof HTMLInputElement ? focusedControl : null;
+    const caret = focusedInput ? [focusedInput.selectionStart, focusedInput.selectionEnd] : null;
     const viewport = this.shadowRoot.querySelector<HTMLElement>('.sc-viewport');
     const previousTab = this.shadowRoot.querySelector<HTMLElement>('.sc-tab-btn.active')?.dataset.tab;
     const scrollTop = previousTab === activeTab ? viewport?.scrollTop || 0 : 0;
+    const followEvents = activeTab === 'events' && previousTab === activeTab && !this.reviewSnapshot
+      && !filterSearch && !!viewport && viewport.scrollHeight - viewport.clientHeight - viewport.scrollTop <= 24;
+    this.shadowRoot.querySelectorAll<HTMLDetailsElement>('[data-ai-section]').forEach(details => {
+      const key = details.dataset.aiSection!;
+      if (details.open) this.openAISections.add(key); else this.openAISections.delete(key);
+    });
 
     // Apple Light Theme Palette
     const riskColor =
@@ -760,7 +833,7 @@ export class DebuggerOverlay {
     const fpInfo = this.assessFalsePositive();
 
     // Підрахунок категорій
-    const aiCount = logs.filter((l) => l.isAi).length;
+    const aiCount = currentChecks.length;
     const formCount = logs.filter((l) => l.isForm).length;
     const riskCount = logs.filter(
       (l) =>
@@ -834,7 +907,7 @@ export class DebuggerOverlay {
               </div>
               <div class="sc-pillar-cell">
                 <span class="sc-pillar-label">ШІ-Арбітр (LLM)</span>
-                <span class="sc-pillar-val sc-val-blue">${aiCount > 0 ? (logs.some((l) => l.isAi && l.isPending) ? 'Аналіз LLM...' : 'LLM (~140ms)') : 'ШІ-Арбітр'}</span>
+                <span class="sc-pillar-val sc-val-blue">${checks.some(check => check.sessionId === sessionId && check.status === 'pending') ? 'Очікування ШІ' : checks.filter(check => check.sessionId === sessionId).at(-1)?.durationMs !== undefined ? `${checks.filter(check => check.sessionId === sessionId).at(-1)!.durationMs} мс · перевірка` : 'ШІ-Арбітр'}</span>
               </div>
               <div class="sc-pillar-cell">
                 <span class="sc-pillar-label">DOM Cloaking AST</span>
@@ -891,20 +964,24 @@ export class DebuggerOverlay {
       let logsHtml = '';
       if (filteredLogs.length === 0) {
         logsHtml = `
-          <div class="sc-empty-state">
+          <div class="sc-empty-state sc-events-empty">
             ${ICONS.terminal(28, '#86868B')}
-            <div class="sc-empty-title">Подій поки що немає</div>
-            <div class="sc-empty-sub">Евристичний сканер безперервно відстежує активність сторінки.</div>
+            <div class="sc-empty-title">${logs.length ? 'Нічого не знайдено' : 'Подій поки що немає'}</div>
+            <div class="sc-empty-sub">${logs.length ? 'Змініть фільтр або пошуковий запит.' : 'Нові події з’являться тут під час роботи захисту.'}</div>
+            ${logs.length ? '<button type="button" class="sc-btn-ghost" id="btn-reset-event-filters">Очистити фільтри</button>' : ''}
           </div>
         `;
       } else {
         filteredLogs.forEach((log) => {
           const dataStr =
             typeof log.data === 'object' ? JSON.stringify(log.data, null, 2) : String(log.data);
+          const previewText = dataStr.replace(/\s+/g, ' ').trim();
+          const preview = previewText.length > 180 ? `${previewText.slice(0, 177)}…` : previewText;
 
           let badgeType = 'LOG';
           if (log.isAi) badgeType = 'AI';
           else if (log.isForm) badgeType = 'FORM';
+          else if (log.color === '#FF3B30' || log.color === '#FF453A' || log.color === '#EF4444' || log.stepKey.includes('Ризик') || log.stepKey.includes('Trap') || log.stepKey.includes('СКАМ')) badgeType = 'RISK';
           else if (log.stepKey.includes('Контекст') || log.stepKey.includes('Сесій')) badgeType = 'CTX';
           else if (log.stepKey.includes('DLP') || log.stepKey.includes('Vault')) badgeType = 'VAULT';
 
@@ -912,18 +989,20 @@ export class DebuggerOverlay {
             <div class="sc-event-card">
               <div class="sc-event-header">
                 <div class="sc-event-title-wrap">
-                  <span class="sc-status-dot" style="background: ${log.color};"></span>
                   <span class="sc-event-badge sc-badge-${badgeType.toLowerCase()}">${badgeType}</span>
-                  <span class="sc-event-title">${log.stepKey}</span>
+                  <span class="sc-event-title">${this.escape(log.stepKey)}</span>
                 </div>
                 <div class="sc-event-right">
                   <span class="sc-event-time">${log.time}</span>
-                  <button type="button" class="sc-copy-icon-btn" data-copy="${encodeURIComponent(dataStr)}" title="Скопіювати">
-                    ${ICONS.copy(11)}
-                  </button>
                 </div>
               </div>
-              <pre class="sc-event-code">${dataStr}</pre>
+              <p class="sc-event-preview">${this.escape(preview || 'Додаткових даних немає')}</p>
+              <details class="sc-event-details">
+                <summary>Деталі події</summary>
+                <pre class="sc-event-code">${this.escape(dataStr)}</pre>
+                <button type="button" class="sc-btn-ghost sc-event-copy" data-copy="${encodeURIComponent(dataStr)}">${ICONS.copy(12)} Скопіювати дані</button>
+              </details>
+              ${log.aiCheckId ? `<button type="button" class="sc-btn-ghost" data-ai-open="${log.aiCheckId}">Відкрити перевірку</button>` : ''}
             </div>
           `;
         });
@@ -931,19 +1010,25 @@ export class DebuggerOverlay {
 
       return `
         <div class="sc-events-view">
-          <div class="sc-filter-toolbar">
+          ${liveToolbar(!!this.reviewSnapshot)}
+          <section class="sc-events-controls" aria-label="Пошук і фільтри подій">
+            <div class="sc-events-controls-heading">
+              <div><div class="sc-events-heading">Потік подій</div><div class="sc-events-count">Показано ${filteredLogs.length} із ${logs.length}</div></div>
+            </div>
+            <div class="sc-filter-toolbar">
             <div class="sc-search-box">
               ${ICONS.search(12, '#86868B')}
-              <input type="text" id="sc-input-search" class="sc-search-input" placeholder="Пошук у подіях..." value="${filterSearch}">
+              <input type="text" id="sc-input-search" class="sc-search-input" aria-label="Пошук у подіях" placeholder="Пошук у назві чи даних..." value="${this.escape(filterSearch)}">
               ${filterSearch ? `<button type="button" id="btn-clear-search" class="sc-search-clear">${ICONS.close(10, '#86868B')}</button>` : ''}
             </div>
-            <div class="sc-filter-chips">
-              <button type="button" class="sc-chip ${filterCategory === 'ALL' ? 'active' : ''}" data-cat="ALL">Всі (${logs.length})</button>
-              <button type="button" class="sc-chip ${filterCategory === 'AI' ? 'active' : ''}" data-cat="AI">ШІ (${aiCount})</button>
-              <button type="button" class="sc-chip ${filterCategory === 'FORM' ? 'active' : ''}" data-cat="FORM">Форми (${formCount})</button>
-              <button type="button" class="sc-chip ${filterCategory === 'RISK' ? 'active' : ''}" data-cat="RISK">Ризики (${riskCount})</button>
+              <div class="sc-filter-chips" role="group" aria-label="Категорія подій">
+                <button type="button" class="sc-chip ${filterCategory === 'ALL' ? 'active' : ''}" aria-pressed="${filterCategory === 'ALL'}" data-cat="ALL">Усі <span>${logs.length}</span></button>
+                <button type="button" class="sc-chip ${filterCategory === 'AI' ? 'active' : ''}" aria-pressed="${filterCategory === 'AI'}" data-cat="AI">ШІ <span>${logs.filter(log => log.isAi).length}</span></button>
+                <button type="button" class="sc-chip ${filterCategory === 'FORM' ? 'active' : ''}" aria-pressed="${filterCategory === 'FORM'}" data-cat="FORM">Форми <span>${formCount}</span></button>
+                <button type="button" class="sc-chip ${filterCategory === 'RISK' ? 'active' : ''}" aria-pressed="${filterCategory === 'RISK'}" data-cat="RISK">Ризики <span>${riskCount}</span></button>
+              </div>
             </div>
-          </div>
+          </section>
           <div class="sc-events-scroll" id="sc-logs-scroll">
             ${logsHtml}
           </div>
@@ -951,135 +1036,10 @@ export class DebuggerOverlay {
       `;
     };
 
-    // Вкладка 3: ШІ-Арбітраж (LLM)
-    const renderAiTab = () => {
-      const aiLogs = logs.filter((l) => l.isAi);
-      if (aiLogs.length === 0) {
-        return `
-          <div class="sc-empty-state" style="padding: 48px 24px;">
-            ${ICONS.cpu(36, '#0071E3')}
-            <div class="sc-empty-title">Запитів до ШІ-арбітра (LLM) ще не було</div>
-            <div class="sc-empty-sub" style="max-width: 320px;">
-              Нейромодуль викликається селективно для перевірки шахрайських намірів у чатах та аналізу підозрілих форм.
-            </div>
-          </div>
-        `;
-      }
-
-      let aiDetailsHtml = '';
-      aiLogs.slice().reverse().forEach((log) => {
-        const ctx = log.aiContext || {};
-        aiDetailsHtml += `
-          <div class="sc-card sc-ai-card">
-            <div class="sc-ai-header">
-              <div class="sc-badge sc-badge-blue">
-                ${ICONS.cpu(11, '#0071E3')}
-                <span>${ctx.provider ? `${ctx.provider.toUpperCase()} (${ctx.model || 'Cloud'})` : 'LLM ARBITER'}</span>
-              </div>
-              <span class="sc-event-time">${log.time}</span>
-            </div>
-            <div class="sc-ai-verdict" style="color: ${log.color}">${log.isPending ? '<span class="sc-spin">⏳</span> ' : ''}${log.data}</div>
-
-            <div class="sc-ai-sections">
-              ${
-                ctx.sanitizedPrompt
-                  ? `
-                <div class="sc-ai-box">
-                  <div class="sc-ai-box-title">
-                    <span style="color:var(--sanctuary-ink-primary);">Запит до ШІ</span>
-                    <button type="button" class="sc-btn-ghost" data-copy="${encodeURIComponent(ctx.sanitizedPrompt)}">
-                      ${ICONS.copy(10)} <span>Копіювати</span>
-                    </button>
-                  </div>
-                  <pre class="sc-code-block" style="white-space: pre-wrap;">${ctx.sanitizedPrompt}</pre>
-                </div>
-              `
-                  : ''
-              }
-
-              ${
-                ctx.chatDialogue
-                  ? `
-                <div class="sc-ai-box">
-                  <div class="sc-ai-box-title">
-                    <span style="color:var(--sanctuary-ink-primary);">Історія листування</span>
-                    <button type="button" class="sc-btn-ghost" data-copy="${encodeURIComponent(ctx.chatDialogue)}">
-                      ${ICONS.copy(10)} <span>Копіювати</span>
-                    </button>
-                  </div>
-                  <pre class="sc-code-block" style="white-space: pre-wrap;">${ctx.chatDialogue}</pre>
-                </div>
-              `
-                  : ''
-              }
-
-              ${
-                ctx.raisedFlags && ctx.raisedFlags.length > 0
-                  ? `
-                <div class="sc-ai-box">
-                  <div class="sc-ai-box-title">
-                    <span style="color:var(--sanctuary-ink-primary);">Локальні ознаки</span>
-                  </div>
-                  <pre class="sc-code-block" style="white-space: pre-wrap;">${ctx.raisedFlags.join('\n')}</pre>
-                </div>
-              `
-                  : ''
-              }
-
-              ${
-                ctx.textSent
-                  ? `
-                <div class="sc-ai-box">
-                  <div class="sc-ai-box-title">
-                    <span>Повідомлення для перевірки</span>
-                    <button type="button" class="sc-btn-ghost" data-copy="${encodeURIComponent(ctx.textSent)}">
-                      ${ICONS.copy(10)} <span>Копіювати</span>
-                    </button>
-                  </div>
-                  <pre class="sc-code-block">${ctx.textSent}</pre>
-                </div>
-              `
-                  : ''
-              }
-
-              ${
-                ctx.systemPrompt
-                  ? `
-                <div class="sc-ai-box">
-                  <div class="sc-ai-box-title">
-                    <span>Системні інструкції</span>
-                    <button type="button" class="sc-btn-ghost" data-copy="${encodeURIComponent(ctx.systemPrompt)}">
-                      ${ICONS.copy(10)} <span>Копіювати</span>
-                    </button>
-                  </div>
-                  <pre class="sc-code-block">${ctx.systemPrompt}</pre>
-                </div>
-              `
-                  : ''
-              }
-
-              ${
-                ctx.rawResponse
-                  ? `
-                <div class="sc-ai-box">
-                  <div class="sc-ai-box-title">
-                    <span style="color:var(--sanctuary-ink-primary);">Відповідь моделі · JSON</span>
-                    <button type="button" class="sc-btn-ghost" data-copy="${encodeURIComponent(ctx.rawResponse)}">
-                      ${ICONS.copy(10)} <span>Копіювати</span>
-                    </button>
-                  </div>
-                  <pre class="sc-code-block" style="color: var(--sanctuary-ink-primary);">${ctx.rawResponse}</pre>
-                </div>
-              `
-                  : ''
-              }
-            </div>
-          </div>
-        `;
-      });
-
-      return `<div class="sc-ai-scroll">${aiDetailsHtml}</div>`;
-    };
+    const renderAiTab = () => renderAIInspector({ checks: currentChecks, allChecks: checks,
+      selectedId: this.selectedCheckId, paused: !!this.reviewSnapshot, scope: this.aiScope,
+      sessionId, openSections: this.openAISections,
+      protection: this.reviewSnapshot ? this.reviewSnapshot.protection : this.state.activeDecision });
 
     // Вкладка 4: Семантичний Векторний Спектр (Vector Spectrum)
     const renderVectorsTab = () => {
@@ -1353,6 +1313,7 @@ export class DebuggerOverlay {
     this.shadowRoot.innerHTML = `
       <style>
         ${DESIGN_TOKENS_CSS}
+        ${AI_INSPECTOR_CSS}
 
         :host {
           all: initial;
@@ -1767,7 +1728,19 @@ export class DebuggerOverlay {
           display: flex;
           flex-direction: column;
           gap: 8px;
-          margin-bottom: 10px;
+          margin-bottom: 0;
+        }
+        .sc-events-controls {
+          background: var(--sanctuary-surface);
+          border: 1px solid rgba(0, 0, 0, 0.07);
+          border-radius: 14px;
+          padding: 12px;
+          margin: 10px 0 12px;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.025);
+        }
+        .sc-events-controls-heading { display: flex; justify-content: space-between; align-items: center; margin-bottom: 9px; }
+        .sc-events-heading { font-size: 13px; font-weight: 650; letter-spacing: -0.015em; color: var(--sanctuary-ink-primary); }
+        .sc-events-count { margin-top: 1px; color: var(--sanctuary-ink-secondary); font-size: 10.5px; }
         }
         .sc-search-box {
           display: flex;
@@ -1801,7 +1774,7 @@ export class DebuggerOverlay {
           gap: 4px;
         }
         .sc-chip {
-          padding: 3px 9px;
+          padding: 5px 9px;
           border-radius: 9999px;
           border: 1px solid rgba(0, 0, 0, 0.06);
           background: rgba(0, 0, 0, 0.03);
@@ -1810,7 +1783,12 @@ export class DebuggerOverlay {
           font-weight: 500;
           cursor: pointer;
           transition: all 0.15s ease;
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          min-height: 28px;
         }
+        .sc-chip span { font-size: 9px; opacity: 0.72; font-variant-numeric: tabular-nums; }
         .sc-chip.active {
           background: var(--sanctuary-blue-bg);
           color: var(--sanctuary-blue);
@@ -1832,7 +1810,7 @@ export class DebuggerOverlay {
           background: var(--sanctuary-surface);
           border: 1px solid rgba(0, 0, 0, 0.06);
           border-radius: 12px;
-          padding: 10px 12px;
+          padding: 11px 12px;
           margin-bottom: 8px;
           box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
           transition: all 0.15s ease;
@@ -1847,6 +1825,21 @@ export class DebuggerOverlay {
           align-items: center;
           margin-bottom: 6px;
         }
+        .sc-event-preview {
+          margin: 0;
+          color: var(--sanctuary-ink-secondary);
+          font-size: 11px;
+          line-height: 1.5;
+          overflow-wrap: anywhere;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+        .sc-event-details { margin-top: 8px; border-top: 1px solid rgba(0, 0, 0, 0.06); padding-top: 7px; }
+        .sc-event-details summary { cursor: pointer; color: var(--sanctuary-blue); font-size: 10.5px; font-weight: 550; }
+        .sc-event-copy { margin-top: 6px; }
+        .sc-events-empty { margin: 18px 0; border: 1px dashed rgba(0, 0, 0, 0.12); border-radius: 14px; background: var(--sanctuary-surface); }
         .sc-event-title-wrap {
           display: flex;
           align-items: center;
@@ -1874,6 +1867,7 @@ export class DebuggerOverlay {
           background: rgba(52, 199, 89, 0.10);
           color: var(--sanctuary-green-ink);
         }
+        .sc-badge-risk { background: var(--sanctuary-red-bg); color: var(--sanctuary-red-ink); }
         .sc-badge-ctx {
           background: rgba(94, 92, 230, 0.08);
           color: #5E5CE6;
@@ -1924,50 +1918,6 @@ export class DebuggerOverlay {
           font-family: var(--font-mono, monospace);
           color: var(--sanctuary-ink-primary);
           overflow-x: auto;
-          white-space: pre-wrap;
-          word-break: break-all;
-        }
-
-        /* AI Cards */
-        .sc-ai-card {
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-        }
-        .sc-ai-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        }
-        .sc-ai-verdict {
-          font-size: 12px;
-          font-weight: 600;
-        }
-        .sc-ai-sections {
-          display: flex;
-          flex-direction: column;
-          gap: 6px;
-        }
-        .sc-ai-box {
-          background: var(--sanctuary-canvas);
-          border: 1px solid rgba(0, 0, 0, 0.05);
-          border-radius: 7px;
-          padding: 6px 8px;
-        }
-        .sc-ai-box-title {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          font-size: 9.5px;
-          font-weight: 700;
-          color: var(--sanctuary-ink-secondary);
-          margin-bottom: 3px;
-        }
-        .sc-code-block {
-          margin: 0;
-          font-size: 10px;
-          font-family: var(--font-mono, monospace);
-          color: var(--sanctuary-ink-primary);
           white-space: pre-wrap;
           word-break: break-all;
         }
@@ -2120,12 +2070,20 @@ export class DebuggerOverlay {
 
     this.bindEvents();
     const nextViewport = this.shadowRoot.querySelector<HTMLElement>('.sc-viewport');
-    if (nextViewport) nextViewport.scrollTop = scrollTop;
+    if (nextViewport) nextViewport.scrollTop = followEvents ? nextViewport.scrollHeight : scrollTop;
     const nextFocus = focusedId ? this.shadowRoot.getElementById(focusedId)
-      : Array.from(this.shadowRoot.querySelectorAll<HTMLElement>('[data-tab], [data-proto-id]'))
+      : Array.from(this.shadowRoot.querySelectorAll<HTMLElement>('[data-tab], [data-proto-id], [data-ai-check]'))
         .find((control) => (focusedTab && control.dataset.tab === focusedTab)
-          || (focusedPrototype && control.dataset.protoId === focusedPrototype));
+          || (focusedPrototype && control.dataset.protoId === focusedPrototype)
+          || (focusedCheck && control.dataset.aiCheck === focusedCheck));
     nextFocus?.focus({ preventScroll: true });
+    if (caret && nextFocus instanceof HTMLInputElement && caret[0] !== null && caret[1] !== null)
+      nextFocus.setSelectionRange(caret[0], caret[1]);
+    if (this.reviewSnapshot && (this.reviewSnapshot.revision !== this.aiHistory.revision
+      || this.reviewSnapshot.eventRevision !== this.eventRevision)) {
+      const badge = this.shadowRoot.getElementById('sc-new-updates');
+      if (badge) badge.textContent = 'Є нові дані · Оновити перегляд';
+    }
   }
 
   // Рендеринг компактного віджета (Dynamic Island Pill у світлій темі)
@@ -2143,6 +2101,7 @@ export class DebuggerOverlay {
     this.shadowRoot.innerHTML = `
       <style>
         ${DESIGN_TOKENS_CSS}
+        ${AI_INSPECTOR_CSS}
 
         :host {
           all: initial;
@@ -2222,6 +2181,41 @@ export class DebuggerOverlay {
   private static bindEvents() {
     if (!this.shadowRoot) return;
 
+    this.shadowRoot.getElementById('btn-review-pause')?.addEventListener('click', () => {
+      this.reviewSnapshot = this.reviewSnapshot ? null : { logs: structuredClone(this.state.logs),
+        checks: this.getAIChecks(), revision: this.aiHistory.revision,
+        eventRevision: this.eventRevision,
+        protection: this.state.activeDecision ? structuredClone(this.state.activeDecision) : null };
+      this.render(true);
+    });
+    this.shadowRoot.getElementById('sc-new-updates')?.addEventListener('click', () => {
+      this.reviewSnapshot = null;
+      this.render(true);
+    });
+    this.shadowRoot.getElementById('btn-ai-latest')?.addEventListener('click', () => {
+      this.selectedCheckId = null;
+      this.render(true);
+    });
+    this.shadowRoot.getElementById('sc-ai-scope')?.addEventListener('change', (event) => {
+      this.aiScope = (event.target as HTMLSelectElement).value as 'current' | 'all';
+      this.selectedCheckId = null;
+      this.render(true);
+    });
+    this.shadowRoot.querySelectorAll<HTMLElement>('[data-ai-check], [data-ai-open]').forEach(button => {
+      button.addEventListener('click', () => {
+        this.selectedCheckId = button.dataset.aiCheck || button.dataset.aiOpen || null;
+        if (button.dataset.aiOpen) { this.state.activeTab = 'ai'; this.aiScope = 'all'; }
+        this.render(true);
+      });
+    });
+    this.shadowRoot.querySelectorAll<HTMLDetailsElement>('[data-ai-section]').forEach(details => {
+      details.addEventListener('toggle', () => {
+        if (!details.isConnected) return;
+        const key = details.dataset.aiSection!;
+        if (details.open) this.openAISections.add(key); else this.openAISections.delete(key);
+      });
+    });
+
     // Window dragging handle
     const handle = this.shadowRoot.getElementById('drag-handle');
     handle?.addEventListener('mousedown', (e) => {
@@ -2248,7 +2242,7 @@ export class DebuggerOverlay {
 
     this.shadowRoot.getElementById('btn-minimize')?.addEventListener('click', () => {
       this.state.isMinimized = true;
-      this.render();
+      this.render(true);
     });
 
     this.shadowRoot.getElementById('btn-clear-all')?.addEventListener('click', (e) => {
@@ -2273,7 +2267,7 @@ export class DebuggerOverlay {
         const tab = (tabBtn as HTMLElement).dataset.tab as NeuromonitorTab;
         if (tab) {
           this.state.activeTab = tab;
-          this.render();
+          this.render(true);
         }
       });
     });
@@ -2317,20 +2311,20 @@ export class DebuggerOverlay {
     const searchInput = this.shadowRoot.getElementById('sc-input-search') as HTMLInputElement | null;
     searchInput?.addEventListener('input', (e) => {
       this.state.filterSearch = (e.target as HTMLInputElement).value;
-      this.render();
-      const newInput = this.shadowRoot?.getElementById('sc-input-search') as HTMLInputElement | null;
-      if (newInput) {
-        newInput.focus();
-        const len = newInput.value.length;
-        newInput.setSelectionRange(len, len);
-      }
+      this.render(true);
     });
 
     this.shadowRoot.getElementById('btn-clear-search')?.addEventListener('click', () => {
       this.state.filterSearch = '';
-      this.render();
+      this.render(true);
       const newInput = this.shadowRoot?.getElementById('sc-input-search') as HTMLInputElement | null;
       newInput?.focus();
+    });
+
+    this.shadowRoot.getElementById('btn-reset-event-filters')?.addEventListener('click', () => {
+      this.state.filterSearch = '';
+      this.state.filterCategory = 'ALL';
+      this.render(true);
     });
 
     this.shadowRoot.querySelectorAll('.sc-chip').forEach((chip) => {
@@ -2338,7 +2332,7 @@ export class DebuggerOverlay {
         const cat = (chip as HTMLElement).dataset.cat as NeuromonitorCategoryFilter;
         if (cat) {
           this.state.filterCategory = cat;
-          this.render();
+          this.render(true);
         }
       });
     });
@@ -2348,7 +2342,7 @@ export class DebuggerOverlay {
         const protoId = (protoBtn as HTMLElement).dataset.protoId;
         if (protoId) {
           this.state.selectedPrototypeId = protoId;
-          this.render();
+          this.render(true);
         }
       });
     });
@@ -2364,13 +2358,6 @@ export class DebuggerOverlay {
       });
     });
 
-    // Auto-scroll in logs tab
-    if (this.state.activeTab === 'events') {
-      const logsContainer = this.shadowRoot.getElementById('sc-logs-scroll');
-      if (logsContainer && !this.state.filterSearch) {
-        logsContainer.scrollTop = logsContainer.scrollHeight;
-      }
-    }
   }
 
   private static setupDrag() {
