@@ -12,6 +12,8 @@
     "test:corpus": "vitest run tests/evaluation/corpus.evaluation.test.ts",
     "test:dashboard": "node scripts/evaluation/generate-dashboard.mjs",
     "test:groq": "vitest run tests/integration/groq.integration.test.ts",
+    "test:groq:prompts": "vitest run tests/integration/groq-prompts.integration.test.ts",
+    "test:groq:prompts:interactive": "node scripts/evaluation/run-groq-prompts.mjs",
     "test:watch": "vitest",
     "classifier:prepare": "node scripts/local-classifier/run.mjs prepare",
     "classifier:train": "node scripts/local-classifier/run.mjs train",

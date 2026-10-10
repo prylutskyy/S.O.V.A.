@@ -29,6 +29,22 @@ describe('AIArbiterService (Single-Flight & Cache)', () => {
     expect(result).toBeNull();
   });
 
+  it('sends sanitized role-labelled history without duplicating the cached snapshot or asserting a local verdict', async () => {
+    ChatSessionState.addMessageAndEvaluate('Я вже оплатив доставку.', 'inbound');
+    ChatSessionState.addMessageAndEvaluate('Ось картка 5555 5555 5555 4444', 'outbound');
+    const sendMessage = vi.fn((_message: any, callback: (response: any) => void) => callback({ aiResult: null }));
+    vi.stubGlobal('chrome', { runtime: { sendMessage } });
+    await AIArbiterService.verify({ context: baseContext, rawTextToScan: 'Надішліть CVV.' });
+    const prompt = sendMessage.mock.calls[0][0].payload.sanitizedPrompt;
+    const evidence = JSON.parse(prompt.split('EVIDENCE_JSON:\n')[1]);
+    expect(evidence.dialogueHistory).toContain('[Співрозмовник]');
+    expect(evidence.dialogueHistory).toContain('[Ви]');
+    expect(evidence.dialogueHistory).not.toContain('5555');
+    expect(evidence.observedMessages).toBeUndefined();
+    expect(prompt).not.toContain('Виявлено загрозу');
+    expect(ChatSessionState.sessionLlmVerdict).toBeNull();
+  });
+
   it.each(['', 'Надішліть серію та номер паспорта для отримання переказу.'])(
     'does not fabricate URL telemetry for a text-only request (%s)', async (targetSuspiciousUrl) => {
       const sendMessage = vi.fn((_message: any, callback: (response: any) => void) => {

@@ -73,7 +73,7 @@ describe('Adversarial Suite: Prompt Injection & LLM Resiliency', () => {
                   content: JSON.stringify({
                     isScam: true,
                     confidence: 90,
-                    scamType: 'ESCROW_FRAUD',
+                    scamType: 'ESCROW_DELIVERY_SCAM',
                     reasoning: 'Виявлено фішинг',
                   }),
                 },
@@ -95,7 +95,7 @@ describe('Adversarial Suite: Prompt Injection & LLM Resiliency', () => {
       expect(capturedBody).toBeDefined();
       expect(capturedBody.messages).toHaveLength(2);
       expect(capturedBody.messages[0].role).toBe('system');
-      expect(capturedBody.messages[0].content).toContain('You are a cybersecurity arbiter');
+      expect(capturedBody.messages[0].content).toContain('independent cybersecurity arbiter');
       expect(capturedBody.messages[1].role).toBe('user');
       expect(capturedBody.messages[1].content).toBe(injectionAttempt);
     });
@@ -109,7 +109,7 @@ describe('Adversarial Suite: Prompt Injection & LLM Resiliency', () => {
           choices: [
             {
               message: {
-                content: '```json\n{"isScam": true, "confidence": 92, "scamType": "DELIVERY_SCAM", "reasoning": "Підробка сайту"}\n```',
+                content: '```json\n{"isScam": true, "confidence": 92, "scamType": "ESCROW_DELIVERY_SCAM", "reasoning": "Підробка сайту"}\n```',
               },
             },
           ],
@@ -125,10 +125,10 @@ describe('Adversarial Suite: Prompt Injection & LLM Resiliency', () => {
 
       expect(result.isScam).toBe(true);
       expect(result.confidence).toBe(92);
-      expect(result.scamType).toBe('DELIVERY_SCAM');
+      expect(result.scamType).toBe('ESCROW_DELIVERY_SCAM');
     });
 
-    it('safely falls back without throwing when LLM output is truncated or non-JSON text', async () => {
+    it('rejects truncated output so the dispatcher can use fallback', async () => {
       vi.stubGlobal('fetch', vi.fn(async () => ({
         ok: true,
         json: async () => ({
@@ -144,16 +144,11 @@ describe('Adversarial Suite: Prompt Injection & LLM Resiliency', () => {
       })));
 
       const driver = new GroqDriver();
-      const result = await driver.verifyThreat({
+      await expect(driver.verifyThreat({
         provider: 'groq',
         sanitizedPrompt: 'Тест',
         apiKey: 'test-key',
-      });
-
-      // Does not throw, safely falls back
-      expect(result).toBeDefined();
-      expect(result.provider).toBe('groq');
-      expect(typeof result.confidence).toBe('number');
+      })).rejects.toThrow('invalid threat verdict');
     });
 
     it('safely handles non-JSON conversational refusal response from model', async () => {
@@ -171,15 +166,11 @@ describe('Adversarial Suite: Prompt Injection & LLM Resiliency', () => {
       })));
 
       const driver = new GroqDriver();
-      const result = await driver.verifyThreat({
+      await expect(driver.verifyThreat({
         provider: 'groq',
         sanitizedPrompt: 'Тест',
         apiKey: 'test-key',
-      });
-
-      expect(result.isScam).toBe(false);
-      expect(result.confidence).toBe(15);
-      expect(result.reasoning).toBe('Ознак загрози не виявлено');
+      })).rejects.toThrow('invalid threat verdict');
     });
   });
 

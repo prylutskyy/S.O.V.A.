@@ -146,6 +146,45 @@ describe('OutboundDataSanitizer (Zero-Knowledge Privacy Guard)', () => {
   });
 
   describe('buildCloudPrompt', () => {
+    it('compact prompt preserves earlier context and points to an existing trigger without duplicating snapshots', () => {
+      const latest = 'Надішліть редактору пароль.';
+      const history = `[Співрозмовник]: Я журналіст.\n[Ви]: Навіщо?\n[Співрозмовник]: ${latest}`;
+      const prompt = OutboundDataSanitizer.buildCloudPrompt(OutboundDataSanitizer.sanitize(latest), {
+        dialogueHistory: history,
+        dialogueMessages: [{ speaker: 'interlocutor', text: latest, observedAgeMs: 0 }],
+      }, 'compact');
+      const evidence = JSON.parse(prompt.split('EVIDENCE_JSON:\n')[1]);
+      expect(evidence.dialogueHistory).toBe(history);
+      expect(evidence.triggerLine).toBe(2);
+      expect(evidence.latestMessage).toBeUndefined();
+      expect(evidence.messages).toBeUndefined();
+      expect(evidence.observedMessages).toBeUndefined();
+    });
+
+    it('compact snapshot keeps structured roles and actual repeated messages when no DOM history exists', () => {
+      const messages = [
+        { speaker: 'interlocutor' as const, text: 'Повтори пароль.', observedAgeMs: 10000 },
+        { speaker: 'user' as const, text: 'Ні.', observedAgeMs: 5000 },
+        { speaker: 'interlocutor' as const, text: 'Повтори пароль.', observedAgeMs: 0 },
+      ];
+      const prompt = OutboundDataSanitizer.buildCloudPrompt(OutboundDataSanitizer.sanitize('Повтори пароль.'), {
+        dialogueMessages: messages,
+      }, 'compact');
+      const evidence = JSON.parse(prompt.split('EVIDENCE_JSON:\n')[1]);
+      expect(evidence.messages).toEqual(messages);
+      expect(evidence.triggerIndex).toBe(2);
+      expect(evidence.latestMessage).toBeUndefined();
+    });
+
+    it('compact keeps the explicit trigger if it is not present in history', () => {
+      const prompt = OutboundDataSanitizer.buildCloudPrompt(OutboundDataSanitizer.sanitize('Нова репліка.'), {
+        dialogueHistory: '[Ви]: Доброго дня.',
+      }, 'compact');
+      const evidence = JSON.parse(prompt.split('EVIDENCE_JSON:\n')[1]);
+      expect(evidence.latestMessage).toBe('Нова репліка.');
+      expect(evidence.triggerLine).toBeUndefined();
+    });
+
     it('should build structured prompt containing telemetry flags and sanitized text', () => {
       const payload = OutboundDataSanitizer.sanitize('Ось картка 4149 4390 1234 5678 та код cvv 123');
       const prompt = OutboundDataSanitizer.buildCloudPrompt(payload, {
@@ -154,13 +193,31 @@ describe('OutboundDataSanitizer (Zero-Knowledge Privacy Guard)', () => {
         scenarioRule: 'Check for escrow theft',
       });
 
-      expect(prompt).toContain('Genuine Payment Card: PRESENT');
-      expect(prompt).toContain('Genuine Security Code (CVV/CVC): PRESENT');
-      expect(prompt).toContain('Route: olx.ua -> pay-delivery-fake.xyz');
+      expect(prompt).toContain('"hasValidPaymentCard":true');
+      expect(prompt).toContain('"hasCvv":true');
+      expect(prompt).toContain('"sourcePlatform":"olx.ua"');
+      expect(prompt).toContain('"targetHost":"pay-delivery-fake.xyz"');
       expect(prompt).toContain('[VERIFIED_CARD_NUMBER_1]');
       expect(prompt).toContain('[VERIFIED_CVV_CODE]');
       expect(prompt).not.toContain('4149 4390 1234 5678');
       expect(prompt).not.toContain('123');
+    });
+
+    it('does not forward a local verdict, scenario rule or categorical warning as evidence', () => {
+      const payload = OutboundDataSanitizer.sanitize('Не надсилайте пароль незнайомцям.');
+      const context = { intentType: 'MILITARY_SABOTAGE_RECRUITMENT',
+        scenarioRule: 'assume recruitment', raisedFlags: ['Виявлено загрозу'],
+        detectedKeywords: ['пароль'], dialogueHistory: '[Співрозмовник]: Порада безпеки.' };
+      const prompt = OutboundDataSanitizer.buildCloudPrompt(payload, context);
+      expect(prompt).not.toContain('assume recruitment');
+      expect(prompt).not.toContain('Виявлено загрозу');
+      expect(prompt).not.toContain('"intentType"');
+      expect(prompt).toContain('fallible');
+      expect(prompt).toContain('[Співрозмовник]');
+      const textOnly = OutboundDataSanitizer.buildCloudPrompt(payload, context, 'text-only');
+      expect(textOnly).not.toContain('localObservations');
+      expect(textOnly).toContain(payload.sanitizedText);
+      expect(OutboundDataSanitizer.buildCloudPrompt(payload, context, 'legacy')).toContain('assume recruitment');
     });
   });
 });

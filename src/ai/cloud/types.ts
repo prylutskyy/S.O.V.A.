@@ -11,6 +11,7 @@ export interface CloudVerificationRequest {
 }
 
 export interface CloudVerificationResponse {
+  tokenUsage?: { input: number; output: number; total: number };
   isScam: boolean;
   confidence: number;
   scamType?: string;

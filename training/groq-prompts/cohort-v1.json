@@ -1,0 +1,949 @@
+{
+  "schemaVersion": 1,
+  "description": "Fixed 40 historical development/regression/pilot dialogues: 24 threats (6/class), 16 safe; 6 multi-turn; previous smoke cases excluded. Labels frozen. Three off-platform risk labels flagged for review, not treated as proven active attacks.",
+  "cases": [
+    {
+      "id": "dev-verification-001",
+      "source": "development",
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Для верифікації платежу скажіть ваш CVV-код або напишіть мені у Viber."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "VERIFICATION_PHISHING",
+        "action": "WARN"
+      },
+      "tags": [
+        "uk",
+        "verification",
+        "off-platform"
+      ]
+    },
+    {
+      "id": "dev-verification-003",
+      "source": "development",
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Для проверки профиля пришлите код из СМС и пароль от банка."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "VERIFICATION_PHISHING",
+        "action": "WARN"
+      },
+      "tags": [
+        "ru",
+        "verification",
+        "sms"
+      ]
+    },
+    {
+      "id": "dev2-verify-002",
+      "source": "development",
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Для перевірки профілю перейдіть за посиланням і введіть код безпеки: https://example.invalid/profile"
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "VERIFICATION_PHISHING",
+        "action": "WARN"
+      },
+      "tags": [
+        "uk",
+        "verification",
+        "link"
+      ]
+    },
+    {
+      "id": "reg-verification-002",
+      "source": "regressions",
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Срочно подтвердите профиль: пришлите код из СМС, иначе выплата отменится."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "VERIFICATION_PHISHING",
+        "action": "WARN"
+      },
+      "tags": [
+        "ru",
+        "regression",
+        "verification",
+        "urgency"
+      ]
+    },
+    {
+      "id": "reg2-verification-001",
+      "source": "regressions",
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Для підтвердження замовлення введіть код із SMS у формі за посиланням https://verify.example.invalid."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "VERIFICATION_PHISHING",
+        "action": "WARN"
+      },
+      "tags": [
+        "uk",
+        "verification",
+        "social-engineering"
+      ]
+    },
+    {
+      "id": "reg2-verification-004",
+      "source": "regressions",
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Служба безпеки просить одноразовий код для скасування підозрілої операції."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "VERIFICATION_PHISHING",
+        "action": "WARN"
+      },
+      "tags": [
+        "uk",
+        "verification",
+        "social-engineering"
+      ]
+    },
+    {
+      "id": "dev-payment-001",
+      "source": "development",
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Продиктуйте 16 цифр картки та CVV-код зі звороту."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "PAYMENT_CREDENTIAL_THEFT",
+        "action": "WARN"
+      },
+      "tags": [
+        "uk",
+        "payment-credentials"
+      ]
+    },
+    {
+      "id": "dev-payment-003",
+      "source": "development",
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Please provide your card number and CVC to receive the refund."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "PAYMENT_CREDENTIAL_THEFT",
+        "action": "WARN"
+      },
+      "tags": [
+        "en",
+        "payment-credentials"
+      ]
+    },
+    {
+      "id": "dev2-pay-002",
+      "source": "development",
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Сообщите срок действия карты и код CVC для возврата оплаты."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "PAYMENT_CREDENTIAL_THEFT",
+        "action": "WARN"
+      },
+      "tags": [
+        "ru",
+        "payment-credentials"
+      ]
+    },
+    {
+      "id": "reg-payment-001",
+      "source": "regressions",
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Щоб отримати переказ, продиктуйте CVV-код і термін дії картки."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "PAYMENT_CREDENTIAL_THEFT",
+        "action": "WARN"
+      },
+      "tags": [
+        "uk",
+        "regression",
+        "payment-credentials"
+      ]
+    },
+    {
+      "id": "reg2-payment-002",
+      "source": "regressions",
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Надішліть фото картки з обох боків для зарахування коштів."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "PAYMENT_CREDENTIAL_THEFT",
+        "action": "WARN"
+      },
+      "tags": [
+        "uk",
+        "payment",
+        "social-engineering"
+      ]
+    },
+    {
+      "id": "reg2-payment-004",
+      "source": "regressions",
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Введіть дані картки на https://pay.example.invalid, і виплата надійде за хвилину."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "PAYMENT_CREDENTIAL_THEFT",
+        "action": "WARN"
+      },
+      "tags": [
+        "uk",
+        "payment",
+        "social-engineering"
+      ]
+    },
+    {
+      "id": "dev-military-001",
+      "source": "development",
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Плачу в крипті за підпал релейних шаф на залізниці."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+        "action": "LOCK_INPUT"
+      },
+      "tags": [
+        "uk",
+        "military",
+        "sabotage"
+      ]
+    },
+    {
+      "id": "pilot-lead-09-threat",
+      "source": "social-engineering-pilot",
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Це ваш командир. Пишу в приватний чат про уточнення звіту.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Не узгоджуй з іншими: надішли мені точне поточне розташування підрозділу та непублічну схему входів у військовий обєкт.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "threat",
+            "label": "MILITARY_SABOTAGE_RECRUITMENT",
+            "maxAction": "LOCK_INPUT"
+          }
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+        "action": "LOCK_INPUT"
+      },
+      "tags": [
+        "multi-turn",
+        "historical"
+      ]
+    },
+    {
+      "id": "dev2-military-002",
+      "source": "development",
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Купи бензин і підпали військовий бус."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+        "action": "LOCK_INPUT"
+      },
+      "tags": [
+        "uk",
+        "military",
+        "sabotage"
+      ]
+    },
+    {
+      "id": "reg-military-001",
+      "source": "regressions",
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Сфотографуй будівлю ТЦК та машини поруч, за надіслані фото заплачу 200 доларів."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+        "action": "LOCK_INPUT"
+      },
+      "tags": [
+        "uk",
+        "regression",
+        "military",
+        "reconnaissance"
+      ]
+    },
+    {
+      "id": "reg2-military-001",
+      "source": "regressions",
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "За винагороду сфотографуйте військовий об’єкт і надішліть знімок."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+        "action": "LOCK_INPUT"
+      },
+      "tags": [
+        "uk",
+        "military",
+        "adversarial"
+      ]
+    },
+    {
+      "id": "reg2-military-004",
+      "source": "regressions",
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Потрібен кур’єр, щоб закласти пристрій біля військової будівлі."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "MILITARY_SABOTAGE_RECRUITMENT",
+        "action": "LOCK_INPUT"
+      },
+      "tags": [
+        "uk",
+        "military",
+        "adversarial"
+      ]
+    },
+    {
+      "id": "dev-offplatform-001",
+      "source": "development",
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Давайте продовжимо спілкування у Telegram, тут незручно."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "OFF_PLATFORM_REDIRECT",
+        "action": "WARN"
+      },
+      "tags": [
+        "uk",
+        "off-platform"
+      ],
+      "annotationReview": "Off-platform coordination alone does not establish deception; frozen historical label needs independent review."
+    },
+    {
+      "id": "pilot-official-09-threat",
+      "source": "social-engineering-pilot",
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я модератор платформи. Хочу уточнити деталі скарги на продавця.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Надішліть номер телефону і перенесіть скаргу у мій Viber; у підтримку платформи більше не пишіть.",
+          "atMs": 180000,
+          "expected": {
+            "kind": "threat",
+            "label": "OFF_PLATFORM_REDIRECT",
+            "maxAction": "WARN"
+          }
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "OFF_PLATFORM_REDIRECT",
+        "action": "WARN"
+      },
+      "tags": [
+        "multi-turn",
+        "historical"
+      ]
+    },
+    {
+      "id": "pilot-media-06-threat",
+      "source": "social-engineering-pilot",
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я автор оглядів товарів. Обговорюємо вашу пропозицію на маркетплейсі.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Дайте свій номер і перейдімо у Telegram, щоб майданчик не бачив домовленості; тут більше не відповідайте.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "threat",
+            "label": "OFF_PLATFORM_REDIRECT",
+            "maxAction": "WARN"
+          }
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "OFF_PLATFORM_REDIRECT",
+        "action": "WARN"
+      },
+      "tags": [
+        "multi-turn",
+        "historical"
+      ]
+    },
+    {
+      "id": "dev2-off-008",
+      "source": "development",
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Please contact me on Viber to arrange pickup."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "OFF_PLATFORM_REDIRECT",
+        "action": "WARN"
+      },
+      "tags": [
+        "en",
+        "off-platform"
+      ],
+      "annotationReview": "Off-platform coordination alone does not establish deception; frozen historical label needs independent review."
+    },
+    {
+      "id": "pilot-lead-10-threat",
+      "source": "social-engineering-pilot",
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я старший менеджер продавця. Уточнюємо питання щодо вашого замовлення.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Залиште номер і перейдемо у приватний Telegram: тут нічого більше не пишіть, щоб платформа не бачила нашу домовленість.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "threat",
+            "label": "OFF_PLATFORM_REDIRECT",
+            "maxAction": "WARN"
+          }
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "OFF_PLATFORM_REDIRECT",
+        "action": "WARN"
+      },
+      "tags": [
+        "multi-turn",
+        "historical"
+      ]
+    },
+    {
+      "id": "reg2-phone-002",
+      "source": "regressions",
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Залиште номер у чаті — надішлю деталі замовлення в Signal."
+        }
+      ],
+      "expected": {
+        "detected": true,
+        "intentType": "OFF_PLATFORM_REDIRECT",
+        "action": "WARN"
+      },
+      "tags": [
+        "uk",
+        "phone",
+        "social-engineering"
+      ],
+      "annotationReview": "Off-platform coordination alone does not establish deception; frozen historical label needs independent review."
+    },
+    {
+      "id": "pilot-official-10-safe",
+      "source": "social-engineering-pilot",
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я агент фінансового сервісу. Уточнюю вашу компенсацію.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Перевірте повідомлення у знайомому застосунку самостійно без передачі банківських кодів.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "NONE"
+      },
+      "tags": [
+        "multi-turn",
+        "historical"
+      ]
+    },
+    {
+      "id": "dev2-benign-004",
+      "source": "development",
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Посилка прибуде завтра, номер накладної надішлю після відправлення."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "tags": [
+        "uk",
+        "benign",
+        "delivery"
+      ]
+    },
+    {
+      "id": "safe2-dev-005",
+      "source": "development",
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Я самостійно створив накладну в офіційному застосунку перевізника."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "tags": [
+        "uk",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "delivery"
+      ]
+    },
+    {
+      "id": "safe2-dev-011",
+      "source": "development",
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Кошти зарахуються після підтвердження отримання товару в застосунку майданчика."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "tags": [
+        "uk",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "delivery"
+      ]
+    },
+    {
+      "id": "safe2-dev-017",
+      "source": "development",
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Для переказу на IBAN не потрібно повідомляти CVV або одноразовий банківський код."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "tags": [
+        "uk",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "payment"
+      ]
+    },
+    {
+      "id": "safe2-dev-022",
+      "source": "development",
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Підкажіть, чи можна оплатити після огляду товару при отриманні?"
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "tags": [
+        "uk",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "payment"
+      ]
+    },
+    {
+      "id": "safe2-dev-028",
+      "source": "development",
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Виплата ще обробляється; дочекаюся повідомлення в особистому кабінеті."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "tags": [
+        "uk",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "payment"
+      ]
+    },
+    {
+      "id": "safe2-dev-034",
+      "source": "development",
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "У правилах платформи радять не переносити угоду до сторонніх месенджерів."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "tags": [
+        "uk",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "phone"
+      ]
+    },
+    {
+      "id": "reg-delivery-price-001",
+      "source": "regressions",
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Скільки коштує доставка Новою поштою до Львова?"
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "tags": [
+        "uk",
+        "regression",
+        "benign",
+        "delivery"
+      ]
+    },
+    {
+      "id": "pilot-media-10-safe",
+      "source": "social-engineering-pilot",
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Ми команда інтервю-проєкту. Ви погодилися обговорити свій професійний досвід.",
+          "atMs": 0,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        },
+        {
+          "speaker": "user",
+          "text": "Поясніть, будь ласка, що саме потрібно та для чого.",
+          "atMs": 15000
+        },
+        {
+          "speaker": "interlocutor",
+          "text": "Узгодимо текст тут; жодних паролів для підтвердження участі не потрібно.",
+          "atMs": 30000,
+          "expected": {
+            "kind": "safe",
+            "label": "SAFE",
+            "maxAction": "NONE"
+          }
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "NONE"
+      },
+      "tags": [
+        "multi-turn",
+        "historical"
+      ]
+    },
+    {
+      "id": "reg2-benign-006",
+      "source": "regressions",
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Мій номер є в профілі, проте спілкуймося тут."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "tags": [
+        "uk",
+        "benign",
+        "false-positive-control"
+      ]
+    },
+    {
+      "id": "safe2-reg-004",
+      "source": "regressions",
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "У довідці сказано, що підтримка не просить телефон у приватному чаті."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "tags": [
+        "uk",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "phone"
+      ]
+    },
+    {
+      "id": "safe2-reg-010",
+      "source": "regressions",
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "The article recommends never posting passport photos in public chats."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "tags": [
+        "en",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "identity"
+      ]
+    },
+    {
+      "id": "safe2-reg-015",
+      "source": "regressions",
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "The profile displays only a public nickname, not a legal identity document."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "tags": [
+        "en",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "identity"
+      ]
+    },
+    {
+      "id": "safe2-reg-022",
+      "source": "regressions",
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "В статье объясняется, что мнемоническую фразу нельзя вводить на сторонних сайтах."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "tags": [
+        "ru",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "crypto"
+      ]
+    },
+    {
+      "id": "safe2-reg-028",
+      "source": "regressions",
+      "messages": [
+        {
+          "speaker": "interlocutor",
+          "text": "Це навчальний приклад фішингового повідомлення, отримувачу нічого не пропонують вводити."
+        }
+      ],
+      "expected": {
+        "detected": false,
+        "intentType": null,
+        "action": "ALLOW"
+      },
+      "tags": [
+        "uk",
+        "benign",
+        "ambiguous",
+        "false-positive-control",
+        "crypto"
+      ]
+    }
+  ]
+}
